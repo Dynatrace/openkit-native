@@ -1,0 +1,20 @@
+cmake_minimum_required(VERSION 2.6)
+
+project(openkit-c)
+
+
+SET(CMAKE_FIND_LIBRARY_PREFIXES "")
+SET(CMAKE_FIND_LIBRARY_SUFFIXES ".lib")
+find_package(CURL REQUIRED PATHS ${CMAKE_SOURCE_DIR}/3rdparty/CURL/)
+
+message("CURL Headers: '${CURL_INCLUDE_DIRS}'")
+message("CURL LIB: '${CURL_LIBRARIES}'")
+
+include_directories(${CURL_INCLUDE_DIRS})
+
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+
+add_subdirectory("openkit-c")
