@@ -13,7 +13,7 @@ const char* ascii_json_data =
 "}";
 
 struct BinaryDataWriter {
-	const char *readptr;
+	const unsigned char *readptr;
 	size_t sizeleft;
 };
 

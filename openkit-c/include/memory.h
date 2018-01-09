@@ -1,5 +1,6 @@
 #include "stddef.h"
 #include "stdlib.h"
+#include "string.h"
 
 void* memory_malloc(size_t size);
 
