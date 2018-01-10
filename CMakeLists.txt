@@ -3,9 +3,9 @@ cmake_minimum_required(VERSION 2.6)
 project(openkit-c)
 
 if(WIN32)
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -W4")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -W4 -std=c99")
 else()
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wpedantic")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wpedantic -std=c99")
 endif()
 ########################################
 # dependencies
@@ -29,6 +29,7 @@ endif()
 include_directories(${CURL_INCLUDE_DIRS})
 include_directories(${ZLIB_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR}/openkit-c/include)
+include_directories(${CMAKE_SOURCE_DIR}/openkit-c/src/base)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
