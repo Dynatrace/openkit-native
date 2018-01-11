@@ -77,5 +77,20 @@ void threading_thread_detach(threading_thread* thread)
 
 void threading_sleep(uint32_t time_in_ms)
 {
-	Sleep(time_in_ms);
+	HANDLE hTimer = NULL;
+	LARGE_INTEGER liDueTime;
+	liDueTime.QuadPart = -10000 * time_in_ms; // intervals of 100ns : 1000 x 10 (ms -> 100ns)
+	hTimer = CreateWaitableTimer(NULL, TRUE, "WaitableTimer");
+	if (!hTimer)
+	{
+		return;
+	}
+	// Set a timer to wait for the requested time. 
+	if (!SetWaitableTimer(hTimer, &liDueTime, 0, NULL, NULL, 0))
+	{
+		return;
+	}
+	// Wait for the timer. 
+	WaitForSingleObject(hTimer, INFINITE);
+	return;
 }

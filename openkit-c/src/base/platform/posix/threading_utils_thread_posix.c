@@ -59,5 +59,8 @@ void threading_thread_detach(threading_thread* thread)
 
 void threading_sleep(uint32_t time_in_ms)
 {
-	usleep(time_in_ms);
+	struct timespec wait_time;
+	wait_time.tv_sec = time_in_ms / 1000;
+	wait_time.tv_nsec = (time_in_ms % 1000) * 1000;
+	nanosleep(&wait_time, NULL);
 }
