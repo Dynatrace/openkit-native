@@ -2,10 +2,14 @@ cmake_minimum_required(VERSION 2.6)
 
 project(openkit-c)
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+include(UtilMacros)
+fix_default_compiler_settings_()
+
 if(WIN32)
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -W4 -std=c99")
 else()
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wpedantic -std=c99")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wpedantic -std=c99 -pthread")
+	add_definitions(-D_XOPEN_SOURCE=500)
 endif()
 ########################################
 # dependencies
