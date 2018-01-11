@@ -9,15 +9,22 @@ set(SOURCES_RWLOCKTEST
 	test/rwlock_test.c
 )
 
+set(SOURCES_MUTEXTEST
+	src/memory.c
+	test/mutex_test.c
+)
+
 if(WIN32)
 	set(SOURCES_PLATFORM 
 		src/base/platform/windows/threading_utils_rwlock_win32.c
 		src/base/platform/windows/threading_utils_thread_win32.c
+		src/base/platform/windows/threading_utils_mutex_win32.c
 	)
 else()
 	set(SOURCES_PLATFORM 
 		src/base/platform/posix/threading_utils_thread_posix.c
 		src/base/platform/posix/threading_utils_rwlock_posix.c
+		src/base/platform/posix/threading_utils_mutex_posix.c
 	)
 endif()
 
@@ -29,6 +36,11 @@ add_executable( curltest
 
 add_executable(	rwlock_test
 	${SOURCES_RWLOCKTEST}
+	${SOURCES_PLATFORM}
+)
+
+add_executable(	mutex_test
+	${SOURCES_MUTEXTEST}
 	${SOURCES_PLATFORM}
 )
 
