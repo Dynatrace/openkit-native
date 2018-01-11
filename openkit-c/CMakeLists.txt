@@ -14,17 +14,25 @@ set(SOURCES_MUTEXTEST
 	test/mutex_test.c
 )
 
+set(SOURCES_CONDITIONVARIABLETEST
+	src/memory.c
+	test/condition_variable_test.c
+)
+
+
 if(WIN32)
 	set(SOURCES_PLATFORM 
 		src/base/platform/windows/threading_utils_rwlock_win32.c
 		src/base/platform/windows/threading_utils_thread_win32.c
 		src/base/platform/windows/threading_utils_mutex_win32.c
+		src/base/platform/windows/threading_utils_condition_variable_win32.c
 	)
 else()
 	set(SOURCES_PLATFORM 
 		src/base/platform/posix/threading_utils_thread_posix.c
 		src/base/platform/posix/threading_utils_rwlock_posix.c
 		src/base/platform/posix/threading_utils_mutex_posix.c
+		src/base/platform/posix/threading_utils_condition_variable_posix.c
 	)
 endif()
 
@@ -41,6 +49,11 @@ add_executable(	rwlock_test
 
 add_executable(	mutex_test
 	${SOURCES_MUTEXTEST}
+	${SOURCES_PLATFORM}
+)
+
+add_executable(	condition_variable_test
+	${SOURCES_CONDITIONVARIABLETEST}
 	${SOURCES_PLATFORM}
 )
 
