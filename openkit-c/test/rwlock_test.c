@@ -24,7 +24,7 @@ void* readerThread(void* arg)
 		threading_rw_lock_lock_read(lock);
 		printf("[thread %d] value is %lli\n", threadId, g_longValue);
 		threading_rw_lock_unlock_read(lock);
-		threading_sleep(250);
+		threading_sleep(750);
 	}
 	return NULL;
 }
@@ -42,7 +42,7 @@ void* writerThread(void* arg)
 		g_longValue++;
 		printf("[thread %d] incrementing counter\n", threadId);
 		threading_rw_lock_unlock_write(lock);
-		threading_sleep(75);
+		threading_sleep(512);
 	}
 	return NULL;
 }
