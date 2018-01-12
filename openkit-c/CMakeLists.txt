@@ -19,6 +19,10 @@ set(SOURCES_CONDITIONVARIABLETEST
 	test/condition_variable_test.c
 )
 
+set(SOURCES_ATOMICTEST
+	src/memory.c
+	test/atomic_test.c
+)
 
 if(WIN32)
 	set(SOURCES_PLATFORM 
@@ -26,6 +30,7 @@ if(WIN32)
 		src/base/platform/windows/threading_utils_thread_win32.c
 		src/base/platform/windows/threading_utils_mutex_win32.c
 		src/base/platform/windows/threading_utils_condition_variable_win32.c
+		src/base/platform/windows/threading_utils_atomic_win32.c
 	)
 else()
 	set(SOURCES_PLATFORM 
@@ -33,6 +38,7 @@ else()
 		src/base/platform/posix/threading_utils_rwlock_posix.c
 		src/base/platform/posix/threading_utils_mutex_posix.c
 		src/base/platform/posix/threading_utils_condition_variable_posix.c
+		src/base/platform/posix/threading_utils_atomic_posix.c
 	)
 endif()
 
@@ -54,6 +60,11 @@ add_executable(	mutex_test
 
 add_executable(	condition_variable_test
 	${SOURCES_CONDITIONVARIABLETEST}
+	${SOURCES_PLATFORM}
+)
+
+add_executable(	atomic_test
+	${SOURCES_ATOMICTEST}
 	${SOURCES_PLATFORM}
 )
 
