@@ -39,22 +39,6 @@ void* threading_thread_join(threading_thread* thread)
 	}
 }
 
-void threading_thread_cancel(threading_thread* thread)
-{
-	if (thread != NULL)
-	{
-		pthread_cancel(*(pthread_t*)thread->platform_thread);
-	}
-}
-
-void threading_thread_detach(threading_thread* thread)
-{
-	if (thread != NULL)
-	{
-		pthread_detach(*(pthread_t*)thread->platform_thread);
-	}
-}
-
 void threading_sleep(uint32_t time_in_ms)
 {
 	struct timespec wait_time;

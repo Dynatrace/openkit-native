@@ -72,22 +72,6 @@ void* threading_thread_join(threading_thread* thread)
 	}
 }
 
-void threading_thread_cancel(threading_thread* thread)
-{
-	if (thread != NULL)
-	{
-
-	}
-}
-
-void threading_thread_detach(threading_thread* thread)
-{
-	if (thread != NULL)
-	{
-
-	}
-}
-
 void threading_sleep(uint32_t time_in_ms)
 {
 	HANDLE hTimer = NULL;
