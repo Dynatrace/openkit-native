@@ -27,70 +27,60 @@ threading_rw_lock* init_rw_lock()
 
 void destroy_rw_lock(threading_rw_lock* rw_lock)
 {
-	if (rw_lock == NULL)
+	if (rw_lock != NULL)
 	{
-		return;
+		pthread_rwlock_destroy(rw_lock->platform_rw_lock);
+
+		free((pthread_rwlock_t*)(rw_lock->platform_rw_lock));
+		free(rw_lock);
+		rw_lock = NULL;
 	}
-
-	pthread_rwlock_destroy(rw_lock->platform_rw_lock);
-
-	free((pthread_rwlock_t*)(rw_lock->platform_rw_lock));
-	free(rw_lock);
-	rw_lock = NULL;
 }
 
 void threading_rw_lock_lock_read(threading_rw_lock* rw_lock)
 {
-	if (rw_lock == NULL)
+	if (rw_lock != NULL)
 	{
-		return;
-	}
-
-	int32_t result = pthread_rwlock_rdlock(rw_lock->platform_rw_lock);
-	if (result)
-	{
-		printf("was unable to get read lock, error code %d\n", result);
+		int32_t result = pthread_rwlock_rdlock(rw_lock->platform_rw_lock);
+		if (result)
+		{
+			printf("was unable to get read lock, error code %d\n", result);
+		}
 	}
 }
 
 void threading_rw_lock_lock_write(threading_rw_lock* rw_lock)
 {
-	if (rw_lock == NULL)
+	if (rw_lock != NULL)
 	{
-		return;
-	}
-
-	int32_t result = pthread_rwlock_wrlock(rw_lock->platform_rw_lock);
-	if (result)
-	{
-		printf("was unable to get write lock, error code %d\n", result);
+		int32_t result = pthread_rwlock_wrlock(rw_lock->platform_rw_lock);
+		if (result)
+		{
+			printf("was unable to get write lock, error code %d\n", result);
+		}
 	}
 }
 
 void threading_rw_lock_unlock_read(threading_rw_lock* rw_lock)
 {
-	if (rw_lock == NULL)
+	if (rw_lock != NULL)
 	{
-		return;
-	}
-
-	int32_t result = pthread_rwlock_unlock(rw_lock->platform_rw_lock);
-	if (result)
-	{
-		printf("was unable to unlock read lock, error code %d\n", result);
+		int32_t result = pthread_rwlock_unlock(rw_lock->platform_rw_lock);
+		if (result)
+		{
+			printf("was unable to unlock read lock, error code %d\n", result);
+		}
 	}
 }
 
 void threading_rw_lock_unlock_write(threading_rw_lock* rw_lock)
 {
-	if (rw_lock == NULL)
+	if (rw_lock != NULL)
 	{
-		return;
-	}
-
-	int32_t result = pthread_rwlock_unlock(rw_lock->platform_rw_lock);
-	if (result)
-	{
-		printf("was unable to unlock write lock, error code %d\n", result);
+		int32_t result = pthread_rwlock_unlock(rw_lock->platform_rw_lock);
+		if (result)
+		{
+			printf("was unable to unlock write lock, error code %d\n", result);
+		}
 	}
 }

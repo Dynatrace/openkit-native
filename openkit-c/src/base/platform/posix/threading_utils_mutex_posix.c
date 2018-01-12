@@ -27,20 +27,29 @@ threading_mutex* init_mutex()
 
 void destroy_mutex(threading_mutex* mutex)
 {
-	pthread_mutex_destroy(mutex->platform_mutex);
-	pthread_mutexattr_destroy(mutex->mutex_attributes);
-	free(mutex->platform_mutex);
-	free(mutex->mutex_attributes);
-	free(mutex);
-	mutex = NULL;
+	if (mutex != NULL)
+	{
+		pthread_mutex_destroy(mutex->platform_mutex);
+		pthread_mutexattr_destroy(mutex->mutex_attributes);
+		free(mutex->platform_mutex);
+		free(mutex->mutex_attributes);
+		free(mutex);
+		mutex = NULL;
+	}
 }
 
 void threading_mutex_lock(threading_mutex* mutex)
 {
-	pthread_mutex_lock(mutex->platform_mutex);
+	if (mutex != NULL)
+	{
+		pthread_mutex_lock(mutex->platform_mutex);
+	}
 }
 
 void threading_mutex_unlock(threading_mutex* mutex)
 {
-	pthread_mutex_unlock(mutex->platform_mutex);
+	if (mutex != NULL)
+	{
+		pthread_mutex_unlock(mutex->platform_mutex);
+	}
 }

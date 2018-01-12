@@ -17,23 +17,35 @@ threading_condition_variable* init_condition_variable()
 
 void destroy_condition_variable(threading_condition_variable* condvar)
 {
-	//no windows API call to destroy platform condition variable
-	free(condvar->platform_condvar);
-	free(condvar);
-	condvar = NULL;
+	if (condvar != NULL)
+	{
+		//no windows API call to destroy platform condition variable
+		free(condvar->platform_condvar);
+		free(condvar);
+		condvar = NULL;
+	}
 }
 
 void threading_condition_variable_block(threading_condition_variable* condvar, threading_mutex* mutex)
 {
-	SleepConditionVariableCS(condvar->platform_condvar, mutex->platform_mutex, INFINITE);
+	if (condvar != NULL)
+	{
+		SleepConditionVariableCS(condvar->platform_condvar, mutex->platform_mutex, INFINITE);
+	}
 }
 
 void threading_condition_variable_unblock_single(threading_condition_variable* condvar)
 {
-	WakeConditionVariable(condvar->platform_condvar);
+	if (condvar != NULL)
+	{
+		WakeConditionVariable(condvar->platform_condvar);
+	}
 }
 
 void threading_condition_variable_unblock_all(threading_condition_variable* condvar)
 {
-	WakeAllConditionVariable(condvar->platform_condvar);
+	if (condvar != NULL)
+	{
+		WakeAllConditionVariable(condvar->platform_condvar);
+	}
 }

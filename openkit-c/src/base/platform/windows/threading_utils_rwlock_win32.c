@@ -17,54 +17,45 @@ threading_rw_lock* init_rw_lock()
 
 void destroy_rw_lock(threading_rw_lock* rw_lock)
 {
-	if (rw_lock == NULL)
+	if (rw_lock != NULL)
 	{
-		return;
-	}
-	//windows api doesn't require to destroy rw_locks
-	//see https://msdn.microsoft.com/en-us/library/windows/desktop/aa904937(v=vs.85).aspx
+		//windows api doesn't require to destroy rw_locks
+		//see https://msdn.microsoft.com/en-us/library/windows/desktop/aa904937(v=vs.85).aspx
 
-	free((SRWLOCK*)(rw_lock->platform_rw_lock));
-	free(rw_lock);
-	rw_lock = NULL;
+		free((SRWLOCK*)(rw_lock->platform_rw_lock));
+		free(rw_lock);
+		rw_lock = NULL;
+	}
 }
 
 void threading_rw_lock_lock_read(threading_rw_lock* rw_lock)
 {
-	if (rw_lock == NULL)
+	if (rw_lock != NULL)
 	{
-		return;
+		AcquireSRWLockShared(rw_lock->platform_rw_lock);
 	}
-
-	AcquireSRWLockShared(rw_lock->platform_rw_lock);
 }
 
 void threading_rw_lock_lock_write(threading_rw_lock* rw_lock)
 {
-	if (rw_lock == NULL)
+	if (rw_lock != NULL)
 	{
-		return;
+		AcquireSRWLockExclusive(rw_lock->platform_rw_lock);
 	}
-
-	AcquireSRWLockExclusive(rw_lock->platform_rw_lock);
 }
 
 void threading_rw_lock_unlock_read(threading_rw_lock* rw_lock)
 {
-	if (rw_lock == NULL)
+	if (rw_lock != NULL)
 	{
-		return;
+		ReleaseSRWLockShared(rw_lock->platform_rw_lock);
 	}
-
-	ReleaseSRWLockShared(rw_lock->platform_rw_lock);
 }
 
 void threading_rw_lock_unlock_write(threading_rw_lock* rw_lock)
 {
-	if (rw_lock == NULL)
+	if (rw_lock != NULL)
 	{
-		return;
+		ReleaseSRWLockExclusive(rw_lock->platform_rw_lock);
 	}
-
-	ReleaseSRWLockExclusive(rw_lock->platform_rw_lock);
 }

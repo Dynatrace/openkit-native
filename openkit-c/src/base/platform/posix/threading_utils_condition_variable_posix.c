@@ -18,23 +18,35 @@ threading_condition_variable* init_condition_variable()
 
 void destroy_condition_variable(threading_condition_variable* condvar)
 {
-	pthread_cond_destroy(condvar->platform_condvar);
-	free(condvar->platform_condvar);
-	free(condvar);
-	condvar = NULL;
+	if (condvar != NULL)
+	{
+		pthread_cond_destroy(condvar->platform_condvar);
+		free(condvar->platform_condvar);
+		free(condvar);
+		condvar = NULL;
+	}
 }
 
 void threading_condition_variable_block(threading_condition_variable* condvar, threading_mutex* mutex)
 {
-	pthread_cond_wait(condvar->platform_condvar, mutex->platform_mutex);
+	if (condvar != NULL)
+	{
+		pthread_cond_wait(condvar->platform_condvar, mutex->platform_mutex);
+	}
 }
 
 void threading_condition_variable_unblock_single(threading_condition_variable* condvar)
 {
-	pthread_cond_signal(condvar->platform_condvar);
+	if (condvar != NULL)
+	{
+		pthread_cond_signal(condvar->platform_condvar);
+	}
 }
 
 void threading_condition_variable_unblock_all(threading_condition_variable* condvar)
 {
-	pthread_cond_broadcast(condvar->platform_condvar);
+	if (condvar != NULL)
+	{
+		pthread_cond_broadcast(condvar->platform_condvar);
+	}
 }

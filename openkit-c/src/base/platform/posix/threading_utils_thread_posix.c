@@ -21,40 +21,38 @@ threading_thread* create_thread(void*(*function)(void*), void* thread_data)
 
 void destroy_thread(threading_thread* thread)
 {
-	free(thread->platform_thread);
-	free(thread);
-	thread = NULL;
+	if (thread != NULL)
+	{
+		free(thread->platform_thread);
+		free(thread);
+		thread = NULL;
+	}
 }
 
 void* threading_thread_join(threading_thread* thread)
 {
-	if (thread == NULL)
+	if (thread != NULL)
 	{
-		return NULL;
+		void* return_value;
+		pthread_join(*(pthread_t*)thread->platform_thread, &return_value);
+		return return_value;
 	}
-	void* return_value;
-	pthread_join(*(pthread_t*)thread->platform_thread, &return_value);
-	return return_value;
 }
 
 void threading_thread_cancel(threading_thread* thread)
 {
-	if (thread == NULL)
+	if (thread != NULL)
 	{
-		return;
+		pthread_cancel(*(pthread_t*)thread->platform_thread);
 	}
-
-	pthread_cancel(*(pthread_t*)thread->platform_thread);
 }
 
 void threading_thread_detach(threading_thread* thread)
 {
-	if (thread == NULL)
+	if (thread != NULL)
 	{
-		return;
+		pthread_detach(*(pthread_t*)thread->platform_thread);
 	}
-
-	pthread_detach(*(pthread_t*)thread->platform_thread);
 }
 
 void threading_sleep(uint32_t time_in_ms)

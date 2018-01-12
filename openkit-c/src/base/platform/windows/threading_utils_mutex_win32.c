@@ -16,18 +16,27 @@ threading_mutex* init_mutex()
 
 void destroy_mutex(threading_mutex* mutex)
 {
-	DeleteCriticalSection(mutex->platform_mutex);
-	free(mutex->platform_mutex);
-	free(mutex);
-	mutex = NULL;
+	if (mutex != NULL)
+	{
+		DeleteCriticalSection(mutex->platform_mutex);
+		free(mutex->platform_mutex);
+		free(mutex);
+		mutex = NULL;
+	}
 }
 
 void threading_mutex_lock(threading_mutex* mutex)
 {
-	EnterCriticalSection(mutex->platform_mutex);
+	if (mutex != NULL)
+	{
+		EnterCriticalSection(mutex->platform_mutex);
+	}
 }
 
 void threading_mutex_unlock(threading_mutex* mutex)
 {
-	LeaveCriticalSection(mutex->platform_mutex);
+	if (mutex != NULL)
+	{
+		LeaveCriticalSection(mutex->platform_mutex);
+	}
 }
