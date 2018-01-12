@@ -30,13 +30,19 @@ else()
 	find_package(ZLIB)
 endif()
 
+if(WIN32)
+	set(GTEST_ROOT ${CMAKE_SOURCE_DIR}/3rdparty/googletest-1.8.0/win32/)
+else()
+	set(GTEST_ROOT ${CMAKE_SOURCE_DIR}/3rdparty/googletest-1.8.0/linux/)
+endif()
+
+find_package(GTest REQUIRED)
+
 include_directories(${CURL_INCLUDE_DIRS})
 include_directories(${ZLIB_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR}/openkit-c/include)
 include_directories(${CMAKE_SOURCE_DIR}/openkit-c/src/base)
 
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 
