@@ -96,10 +96,20 @@ cd build
 -call cmake with the following options
 
 ```
-cmake -G"Visual Studio 15 2017" -DCMAKE_INSTALL_PREFIX=..\dist ..
+cmake -G"Visual Studio 15 2017" -Dgtest_force_shared_crt=1 -DCMAKE_CXX_FLAGS=/D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING -DCMAKE_INSTALL_PREFIX=../dist CMAKE_DEBUG_POSTFIX=""  ..
 ```
 
 -Open solution file googletest-distribution.sln in build folder
+
+-Select Debug configuration in Visual Studio
+
+-Build solution
+
+-Run target INSTALL
+
+-Fetch result from dist folder, copy contents of dist folder directly to curl specific third party folder of openkit-c (3rdparty\googletest-1.8.0\win32-debug)
+
+-Clean dist folder
 
 -Select Release configuration in Visual Studio
 
@@ -107,7 +117,7 @@ cmake -G"Visual Studio 15 2017" -DCMAKE_INSTALL_PREFIX=..\dist ..
 
 -Run target INSTALL
 
--Fetch result from dist folder, copy contents of dist folder directly to curl specific third party folder of openkit-c (3rdparty\googletest-1.8.0\win32)
+-Fetch result from dist folder, copy contents of dist folder directly to curl specific third party folder of openkit-c (3rdparty\googletest-1.8.0\win32-release)
 
 ##Linux
 ----------

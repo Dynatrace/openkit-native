@@ -11,6 +11,7 @@ else()
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wpedantic -std=c99 -pthread")
 	add_definitions(-D_XOPEN_SOURCE=500)
 endif()
+
 ########################################
 # dependencies
 ########################################
@@ -30,8 +31,18 @@ else()
 	find_package(ZLIB)
 endif()
 
+###googletest 1.8.0 used in Visual Studio 2017 leads to a deprecation warning
+### in the tr1::tuple namespace
+if(MSVC)
+	add_definitions(-D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING )
+endif()
+
 if(WIN32)
-	set(GTEST_ROOT ${CMAKE_SOURCE_DIR}/3rdparty/googletest-1.8.0/win32/)
+	if(${CMAKE_BUILD_TYPE} STREQUAL "Release" OR ${CMAKE_BUILD_TYPE} STREQUAL "RelWithDebInfo")
+		set(GTEST_ROOT ${CMAKE_SOURCE_DIR}/3rdparty/googletest-1.8.0/win32-release/)
+	else()
+		set(GTEST_ROOT ${CMAKE_SOURCE_DIR}/3rdparty/googletest-1.8.0/win32-debug/)
+	endif()
 else()
 	set(GTEST_ROOT ${CMAKE_SOURCE_DIR}/3rdparty/googletest-1.8.0/linux/)
 endif()
