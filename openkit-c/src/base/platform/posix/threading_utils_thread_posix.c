@@ -22,25 +22,35 @@
 
 threading_thread* create_thread(void*(*function)(void*), void* thread_data)
 {
-	threading_thread* thread = (threading_thread*)malloc(sizeof(threading_thread));
-	thread->platform_thread = (pthread_t*)malloc(sizeof(pthread_t));
-	int result = pthread_create(thread->platform_thread, NULL, function, thread_data);
-
-	if (result != 0)
+	if (function != NULL)
 	{
-		free(thread->platform_thread);
-		free(thread);
-		thread = NULL;
+		pthread_t* platform_thread = (pthread_t*)malloc(sizeof(pthread_t));
+		if (platform_thread != NULL)
+		{
+			int result = pthread_create(platform_thread, NULL, function, thread_data);
+
+			if (result == 0)
+			{
+				threading_thread* thread = (threading_thread*)malloc(sizeof(threading_thread));
+				if (thread != NULL)
+				{
+					thread->platform_thread = platform_thread;
+					return thread;
+				}
+			}
+			memory_free(platform_thread);
+		}
 	}
-	return thread;
+
+	return NULL;
 }
 
 void destroy_thread(threading_thread* thread)
 {
 	if (thread != NULL)
 	{
-		free(thread->platform_thread);
-		free(thread);
+		memory_free(thread->platform_thread);
+		memory_free(thread);
 		thread = NULL;
 	}
 }

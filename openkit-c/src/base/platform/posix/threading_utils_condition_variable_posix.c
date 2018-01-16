@@ -24,12 +24,22 @@
 threading_condition_variable* init_condition_variable()
 {
 	pthread_cond_t* platform_condition_variable = (pthread_cond_t*)memory_malloc(sizeof(pthread_cond_t));
-	pthread_cond_init(platform_condition_variable, NULL);
 
-	threading_condition_variable* condition_variable = (threading_condition_variable*)memory_malloc(sizeof(threading_condition_variable));
-	condition_variable->platform_condvar = platform_condition_variable;
+	if (platform_condition_variable != NULL)
+	{
+		pthread_cond_init(platform_condition_variable, NULL);
 
-	return condition_variable;
+		threading_condition_variable* condition_variable = (threading_condition_variable*)memory_malloc(sizeof(threading_condition_variable));
+
+		if (condition_variable != NULL)
+		{
+			condition_variable->platform_condvar = platform_condition_variable;
+			return condition_variable;
+		}
+		memory_free(platform_condition_variable);
+	}
+
+	return NULL;
 }
 
 void destroy_condition_variable(threading_condition_variable* condvar)
@@ -37,8 +47,8 @@ void destroy_condition_variable(threading_condition_variable* condvar)
 	if (condvar != NULL)
 	{
 		pthread_cond_destroy(condvar->platform_condvar);
-		free(condvar->platform_condvar);
-		free(condvar);
+		memory_free(condvar->platform_condvar);
+		memory_free(condvar);
 		condvar = NULL;
 	}
 }

@@ -43,29 +43,36 @@ threading_thread* create_thread(void*(*function)(void*), void* thread_data)
 	if (function != NULL)
 	{
 		thread_context* context = (thread_context*)memory_malloc(sizeof(thread_context));
-		context->thread_function = function;
-		context->thread_data = thread_data;
 
-		threading_thread* thread = (threading_thread*)memory_malloc(sizeof(threading_thread));
-
-		HANDLE threadHandle = CreateThread(
-			NULL,
-			0,
-			&ThreadFunc,
-			context,
-			0,
-			&thread->platform_thread_info
-		);
-
-		thread->platform_thread = threadHandle;
-
-		if (thread->platform_thread == NULL)
+		if (context != NULL)
 		{
-			free(thread);
-			thread = NULL;
+			context->thread_function = function;
+			context->thread_data = thread_data;
+
+			threading_thread* thread = (threading_thread*)memory_malloc(sizeof(threading_thread));
+
+			if (thread != NULL)
+			{
+				HANDLE platform_thread = CreateThread(
+					NULL,
+					0,
+					&ThreadFunc,
+					context,
+					0,
+					&thread->platform_thread_info
+				);
+
+				if (platform_thread != NULL)
+				{
+					thread->platform_thread = platform_thread;
+					return thread;
+				}
+				memory_free(thread);
+			}
+			memory_free(context);
 		}
-		return thread;
 	}
+
 	return NULL;
 }
 
@@ -73,14 +80,13 @@ void destroy_thread(threading_thread* thread)
 {
 	if (thread != NULL)
 	{
-		free(thread);
+		memory_free(thread);
 		thread = NULL;
 	}
 }
 
 void* threading_thread_join(threading_thread* thread)
 {
-
 	if (thread != NULL)
 	{
 		WaitForSingleObjectEx(thread->platform_thread, INFINITE, FALSE);

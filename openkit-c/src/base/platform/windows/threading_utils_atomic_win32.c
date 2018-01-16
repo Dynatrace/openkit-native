@@ -22,53 +22,60 @@
 
 atomic* init_atomic(int32_t init_value)
 {
-	atomic* atomicInt = (atomic*)memory_malloc(sizeof(atomic));
-	InterlockedExchange(&atomicInt->integer_value, init_value);
-	return atomicInt;
-}
+	atomic* atomic_int = (atomic*)memory_malloc(sizeof(atomic));
 
-void destroy_atomic(atomic* atomicInt)
-{
-	free(atomicInt);
-	atomicInt = NULL;
-}
-
-void atomic_add(atomic* atomicInt, int32_t val)
-{
-	if (atomicInt != NULL)
+	if (atomic_int != NULL)
 	{
-		InterlockedExchangeAdd(&atomicInt->integer_value, val);
+		long value = InterlockedExchange(&atomic_int->integer_value, init_value);
+		if (value == init_value)
+		{
+			return atomic_int;
+		}
+		memory_free(atomic_int);
+	}
+
+	return NULL;
+}
+
+void destroy_atomic(atomic* atomic_int)
+{
+	if (atomic_int != NULL)
+	{
+		memory_free(atomic_int);
+		atomic_int = NULL;
 	}
 }
 
-void atomic_increment(atomic* atomicInt)
+void atomic_add(atomic* atomic_int, int32_t val)
 {
-	if (atomicInt != NULL)
+	if (atomic_int != NULL)
 	{
-		InterlockedIncrement(&atomicInt->integer_value);
+		InterlockedExchangeAdd(&atomic_int->integer_value, val);
 	}
 }
 
-void atomic_decrement(atomic* atomicInt)
+void atomic_increment(atomic* atomic_int)
 {
-	if (atomicInt != NULL)
+	atomic_add(atomic_int, 1);
+}
+
+void atomic_decrement(atomic* atomic_int)
+{
+	atomic_add(atomic_int, -1);
+}
+
+void atomic_compare_and_set(atomic* atomic_int, int32_t cmp, int32_t target_value)
+{
+	if (atomic_int != NULL)
 	{
-		InterlockedDecrement(&atomicInt->integer_value);
+		InterlockedCompareExchange(&atomic_int->integer_value, target_value, cmp);
 	}
 }
 
-void atomic_compare_and_set(atomic* atomicInt, int32_t cmp, int32_t target_value)
+void atomic_set(atomic* atomic_int, int32_t val)
 {
-	if (atomicInt != NULL)
+	if (atomic_int != NULL)
 	{
-		InterlockedCompareExchange(&atomicInt->integer_value, target_value, cmp);
-	}
-}
-
-void atomic_set(atomic* atomicInt, int32_t val)
-{
-	if (atomicInt != NULL)
-	{
-		InterlockedExchange(&atomicInt->integer_value, val);
+		InterlockedExchange(&atomic_int->integer_value, val);
 	}
 }

@@ -23,12 +23,20 @@
 threading_rw_lock* init_rw_lock()
 {
 	SRWLOCK* platform_lock = (SRWLOCK*)memory_malloc(sizeof(SRWLOCK));
-	InitializeSRWLock(platform_lock);
+	if (platform_lock != NULL)
+	{
+		InitializeSRWLock(platform_lock);
 
-	threading_rw_lock* lock = (threading_rw_lock*)memory_malloc(sizeof(threading_rw_lock));
-	lock->platform_rw_lock = (void*)platform_lock;
+		threading_rw_lock* lock = (threading_rw_lock*)memory_malloc(sizeof(threading_rw_lock));
+		if (lock != NULL)
+		{
+			lock->platform_rw_lock = (void*)platform_lock;
+			return lock;
+		}
+		memory_free(platform_lock);
+	}
 
-	return lock;
+	return NULL;
 }
 
 void destroy_rw_lock(threading_rw_lock* rw_lock)
@@ -38,8 +46,8 @@ void destroy_rw_lock(threading_rw_lock* rw_lock)
 		//windows api doesn't require to destroy rw_locks
 		//see https://msdn.microsoft.com/en-us/library/windows/desktop/aa904937(v=vs.85).aspx
 
-		free((SRWLOCK*)(rw_lock->platform_rw_lock));
-		free(rw_lock);
+		memory_free(rw_lock->platform_rw_lock);
+		memory_free(rw_lock);
 		rw_lock = NULL;
 	}
 }

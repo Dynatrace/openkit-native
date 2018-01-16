@@ -21,7 +21,7 @@
 #include "stddef.h"
 
 typedef struct {
-	long length;
+	size_t length;
 	unsigned char* data;
 } binaryData;
 

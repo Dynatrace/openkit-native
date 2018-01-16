@@ -71,19 +71,28 @@ int32_t main(int32_t argc, char** argv)
 		threading_thread* t2 = create_thread(&readerThread, (void*)&infoT2);
 		threading_thread* t3 = create_thread(&readerThread, (void*)&infoT3);
 
-		threading_thread_join(t1);
-		threading_thread_join(t2);
-		threading_thread_join(t3);
+		if (t1 != NULL && t2 != NULL && t3 != NULL)
+		{
+			threading_thread_join(t1);
+			threading_thread_join(t2);
+			threading_thread_join(t3);
 
-		destroy_thread(t1);
-		destroy_thread(t2);
-		destroy_thread(t3);
+			destroy_thread(t1);
+			destroy_thread(t2);
+			destroy_thread(t3);
+		}
+		else
+		{
+			destroy_rw_lock(lock);
+			return -1;
+		}
 
 		destroy_rw_lock(lock);
 	}
 	else
 	{
 		printf("Error: Was unable to initialize rwlock\n");
+		return -1;
 	}
 	return 0;
 

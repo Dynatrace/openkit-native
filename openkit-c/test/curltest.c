@@ -1,5 +1,7 @@
 #include "curl/curl.h"
 
+#include <stdint.h>
+
 #include "compressor.h"
 #include "memory.h"
 
@@ -12,55 +14,65 @@ const char* ascii_json_data =
 "	}"
 "}";
 
-struct BinaryDataWriter {
+struct binary_data_writer {
 	const unsigned char *readptr;
 	size_t sizeleft;
 };
 
-void make_get_request(CURL* curl)
+int32_t make_get_request(CURL* curl)
 {
-	CURLcode res;
+	if (curl != NULL)
+	{
+		CURLcode res;
 
-	/* First set the URL that is about to receive our POST. This URL can
-	just as well be a https:// URL if that is what should receive the
-	data. */
-	curl_easy_setopt(curl, CURLOPT_URL, "https://postman-echo.com/GET?foo1=bar1&foo2=bar2");
-	/* Now specify the POST data */
+		/* First set the URL that is about to receive our POST. This URL can
+		just as well be a https:// URL if that is what should receive the
+		data. */
+		curl_easy_setopt(curl, CURLOPT_URL, "https://postman-echo.com/GET?foo1=bar1&foo2=bar2");
+		/* Now specify the POST data */
 
-	/* Perform the request, res will get the return code */
-	res = curl_easy_perform(curl);
-	/* Check for errors */
-	if (res != CURLE_OK)
-		fprintf(stderr, "curl_easy_perform() failed: %s\n",
-			curl_easy_strerror(res));
+		/* Perform the request, res will get the return code */
+		res = curl_easy_perform(curl);
+		/* Check for errors */
+		if (res != CURLE_OK)
+			fprintf(stderr, "curl_easy_perform() failed: %s\n",
+				curl_easy_strerror(res));
 
-	printf("\n\tReturned with result code %d\n", res);
+		printf("\n\tReturned with result code %d\n", res);
+		return 0;
+	}
+	return 1;
 }
 
-void make_post_request_text(CURL* curl)
+int32_t make_post_request_text(CURL* curl)
 {
-	CURLcode res;
+	if (curl != NULL)
+	{
+		CURLcode res;
 
-	/* First set the URL that is about to receive our POST. This URL can
-	just as well be a https:// URL if that is what should receive the
-	data. */
-	curl_easy_setopt(curl, CURLOPT_URL, "https://postman-echo.com/POST");
-	/* Now specify the POST data */
-	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, ascii_json_data);
+		/* First set the URL that is about to receive our POST. This URL can
+		just as well be a https:// URL if that is what should receive the
+		data. */
+		curl_easy_setopt(curl, CURLOPT_URL, "https://postman-echo.com/POST");
+		/* Now specify the POST data */
+		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, ascii_json_data);
 
-	/* Perform the request, res will get the return code */
-	res = curl_easy_perform(curl);
-	/* Check for errors */
-	if (res != CURLE_OK)
-		fprintf(stderr, "curl_easy_perform() failed: %s\n",
-			curl_easy_strerror(res));
+		/* Perform the request, res will get the return code */
+		res = curl_easy_perform(curl);
+		/* Check for errors */
+		if (res != CURLE_OK)
+			fprintf(stderr, "curl_easy_perform() failed: %s\n",
+				curl_easy_strerror(res));
 
-	printf("\n\tReturned with result code %d\n", res);
+		printf("\n\tReturned with result code %d\n", res);
+		return 0;
+	}
+	return 1;
 }
 
 static size_t read_callback(void *dest, size_t size, size_t nmemb, void *userp)
 {
-	struct BinaryDataWriter *binary = (struct BinaryDataWriter *)userp;
+	struct binary_data_writer *binary = (struct binary_data_writer *)userp;
 	size_t buffer_size = size * nmemb;
 
 	if (binary->sizeleft) {
@@ -78,47 +90,52 @@ static size_t read_callback(void *dest, size_t size, size_t nmemb, void *userp)
 	return 0; /* no more data left to deliver */
 }
 
-void make_post_request_compressed(CURL* curl)
+int32_t make_post_request_compressed(CURL* curl)
 {
-	CURLcode res;
+	if (curl != NULL)
+	{
+		CURLcode res;
 
-	binaryData compressedBuffer;
-	compress_memory(&ascii_json_data[0], strlen(ascii_json_data), &compressedBuffer);
+		binaryData compressed_buffer;
+		compress_memory(&ascii_json_data[0], strlen(ascii_json_data), &compressed_buffer);
 
-	struct BinaryDataWriter writer;
-	writer.readptr = compressedBuffer.data;
-	writer.sizeleft = compressedBuffer.length;
-	/* First set the URL that is about to receive our POST. This URL can
-	just as well be a https:// URL if that is what should receive the
-	data. */
+		struct binary_data_writer writer;
+		writer.readptr = compressed_buffer.data;
+		writer.sizeleft = compressed_buffer.length;
+		/* First set the URL that is about to receive our POST. This URL can
+		just as well be a https:// URL if that is what should receive the
+		data. */
 
-	curl_easy_setopt(curl, CURLOPT_URL, "https://localhost:9999/mbeacon/1?type=m&srvid=5&app=56236c21-40b1-498f-aed9-65bbb75580d2&va=7.0.0000&pt=1&tt=okc");
-	
-	/* Disable the SSL host name checks*/
-	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
-	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYSTATUS, 0L);
-	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
-	
-	/* allow for compressed data*/
-	curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "");
+		curl_easy_setopt(curl, CURLOPT_URL, "https://localhost:9999/mbeacon/1?type=m&srvid=5&app=56236c21-40b1-498f-aed9-65bbb75580d2&va=7.0.0000&pt=1&tt=okc");
 
-	/* Now specify the POST data */
-	curl_easy_setopt(curl, CURLOPT_POST, 1L);
-	/*we want to use our own read function */
-	curl_easy_setopt(curl, CURLOPT_READFUNCTION, read_callback);
-	curl_easy_setopt(curl, CURLOPT_READDATA, &writer);
+		/* Disable the SSL host name checks*/
+		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYSTATUS, 0L);
+		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
 
-	/* Perform the request, res will get the return code */
-	res = curl_easy_perform(curl);
-	/* Check for errors */
-	if (res != CURLE_OK)
-		fprintf(stderr, "curl_easy_perform() failed: %s\n",
-			curl_easy_strerror(res));
+		/* allow for compressed data*/
+		curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "");
 
-	memory_free(compressedBuffer.data);
-	compressedBuffer.length = -1;
+		/* Now specify the POST data */
+		curl_easy_setopt(curl, CURLOPT_POST, 1L);
+		/*we want to use our own read function */
+		curl_easy_setopt(curl, CURLOPT_READFUNCTION, read_callback);
+		curl_easy_setopt(curl, CURLOPT_READDATA, &writer);
 
-	printf("\n\tReturned with result code %d\n", res);
+		/* Perform the request, res will get the return code */
+		res = curl_easy_perform(curl);
+		/* Check for errors */
+		if (res != CURLE_OK)
+			fprintf(stderr, "curl_easy_perform() failed: %s\n",
+				curl_easy_strerror(res));
+
+		memory_free(compressed_buffer.data);
+		compressed_buffer.length = -1;
+
+		printf("\n\tReturned with result code %d\n", res);
+		return 0;
+	}
+	return 1;
 }
 
 int main(int argc, char* *argv)
@@ -129,16 +146,17 @@ int main(int argc, char* *argv)
 	/* In windows, this will init the winsock stuff */
 	curl_global_init(CURL_GLOBAL_ALL);
 
+	int32_t result = 0;
 	/* get a curl handle */
 	curl = curl_easy_init();
 	if (curl) {
 		
-		make_get_request(curl);
-		make_post_request_text(curl);
-		make_post_request_compressed(curl);
-		/* always cleanup */
+		esult = make_get_request(curl);
+		result += make_post_request_text(curl);
+		result += make_post_request_compressed(curl);
+			/* always cleanup */
 		curl_easy_cleanup(curl);
 	}
 	curl_global_cleanup();
-	return 0;
+	return result;
 }

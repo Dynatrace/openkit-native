@@ -1,4 +1,4 @@
-/**
+/**	
 * Copyright 2018 Dynatrace LLC
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,73 +21,73 @@
 
 atomic* init_atomic(int32_t init_value)
 {
-	atomic* atomicInt = (atomic*)memory_malloc(sizeof(atomic));
-	threading_mutex* mutex = init_mutex();
-	atomicInt->platform_mutex = mutex;
-	atomic_set(atomicInt, init_value);
-
-	return atomicInt;
-}
-
-void destroy_atomic(atomic* atomicInt)
-{
-	if (atomicInt != NULL)
+	atomic* atomic_int = (atomic*)memory_malloc(sizeof(atomic));
+	if (atomic_int != NULL)
 	{
-		free(atomicInt->platform_mutex);
-		free(atomicInt);
-		atomicInt = NULL;
-	}
-}
+		threading_mutex* mutex = init_mutex();
 
-void atomic_add(atomic* atomicInt, int32_t val)
-{
-	if (atomicInt != NULL)
-	{
-		threading_mutex_lock(atomicInt->platform_mutex);
-		atomicInt->integer_value += val;
-		threading_mutex_unlock(atomicInt->platform_mutex);
-	}
-}
-
-void atomic_increment(atomic* atomicInt)
-{
-	if (atomicInt != NULL)
-	{
-		threading_mutex_lock(atomicInt->platform_mutex);
-		++(atomicInt->integer_value);
-		threading_mutex_unlock(atomicInt->platform_mutex);
-	}
-}
-
-void atomic_decrement(atomic* atomicInt)
-{
-	if (atomicInt != NULL)
-	{
-		threading_mutex_lock(atomicInt->platform_mutex);
-		--(atomicInt->integer_value);
-		threading_mutex_unlock(atomicInt->platform_mutex);
-	}
-}
-
-void atomic_compare_and_set(atomic* atomicInt, int32_t cmp, int32_t target_value)
-{
-	if (atomicInt != NULL)
-	{
-		threading_mutex_lock(atomicInt->platform_mutex);
-		if (atomicInt->integer_value == cmp)
+		if (mutex != NULL)
 		{
-			atomicInt->integer_value = target_value;
+			atomic_int->platform_mutex = mutex;
+			atomic_set(atomic_int, init_value);
+			return atomic_int;
 		}
-		threading_mutex_unlock(atomicInt->platform_mutex);
+		destroy_mutex(mutex->platform_mutex);
+	}
+	memory_free(atomic_int);
+
+	return NULL;
+}
+
+void destroy_atomic(atomic* atomic_int)
+{
+	if (atomic_int != NULL)
+	{
+		destroy_mutex(atomic_int->platform_mutex);
+		memory_free(atomic_int);
+		atomic_int = NULL;
 	}
 }
 
-void atomic_set(atomic* atomicInt, int32_t val)
+void atomic_add(atomic* atomic_int, int32_t val)
 {
-	if (atomicInt != NULL)
+	if (atomic_int != NULL)
 	{
-		threading_mutex_lock(atomicInt->platform_mutex);
-		atomicInt->integer_value = val;
-		threading_mutex_unlock(atomicInt->platform_mutex);
+		threading_mutex_lock(atomic_int->platform_mutex);
+		atomic_int->integer_value += val;
+		threading_mutex_unlock(atomic_int->platform_mutex);
+	}
+}
+
+void atomic_increment(atomic* atomic_int)
+{
+	atomic_add(atomic_int, 1);
+}
+
+void atomic_decrement(atomic* atomic_int)
+{
+	atomic_add(atomic_int, -1);
+}
+
+void atomic_compare_and_set(atomic* atomic_int, int32_t cmp, int32_t target_value)
+{
+	if (atomic_int != NULL)
+	{
+		threading_mutex_lock(atomic_int->platform_mutex);
+		if (atomic_int->integer_value == cmp)
+		{
+			atomic_int->integer_value = target_value;
+		}
+		threading_mutex_unlock(atomic_int->platform_mutex);
+	}
+}
+
+void atomic_set(atomic* atomic_int, int32_t val)
+{
+	if (atomic_int != NULL)
+	{
+		threading_mutex_lock(atomic_int->platform_mutex);
+		atomic_int->integer_value = val;
+		threading_mutex_unlock(atomic_int->platform_mutex);
 	}
 }

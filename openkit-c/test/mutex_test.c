@@ -4,7 +4,7 @@
 #include "threading_utils_thread.h"
 #include "threading_utils_mutex.h"
 
-extern int64_t g_longValue = 0;
+extern int64_t g_long_value = 0;
 
 struct thread_info
 {
@@ -22,8 +22,8 @@ void* writerThread(void* arg)
 	for (i = 0; i < 25; i++)
 	{
 		threading_mutex_lock(mutex);
-		g_longValue++;
-		printf("[thread %d] incrementing counter to %lli\n", threadId, g_longValue);
+		g_long_value++;
+		printf("[thread %d] incrementing counter to %lli\n", threadId, g_long_value);
 		threading_mutex_unlock(mutex);
 		threading_sleep(250);
 	}
@@ -49,17 +49,25 @@ int32_t main(int32_t argc, char** argv)
 		threading_thread* t1 = create_thread(&writerThread, (void*)&infoT1);
 		threading_thread* t2 = create_thread(&writerThread, (void*)&infoT2);
 
-		threading_thread_join(t1);
-		threading_thread_join(t2);
+		if (t1 != NULL && t2 != NULL)
+		{
+			threading_thread_join(t1);
+			threading_thread_join(t2);
 
-		destroy_thread(t1);
-		destroy_thread(t2);
+			destroy_thread(t1);
+			destroy_thread(t2);
+		}
+		else
+		{
+			destroy_mutex(mutex);
+			return -1;
+		}
 
 		destroy_mutex(mutex);
 	}
 	else
 	{
-		printf("Error: Was unable to initialize rwlock\n");
+		printf("Error: Was unable to initialize mutex\n");
 	}
 	return 0;
 

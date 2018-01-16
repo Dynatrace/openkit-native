@@ -4,12 +4,12 @@
 
 ### For Windows builds
 
-* cmake
+* Cmake
 * Visual Studio 2017
 
 ### For Linux builds
 
-* cmake
+* Cmake
 * gcc/clang
 * ninja (optional dependency)
 
@@ -34,7 +34,7 @@ git clone git@github.com:Dynatrace/openkit-c.git
 
 ##Compile for Windows
 
-* OpenVisualStudio 2017
+* Open Visual Studio 2017
 
 * Open -> CMake
 

@@ -38,6 +38,4 @@ void compress_memory(const void *in_data, size_t in_data_size, binaryData* out_d
 		out_data->length = -1;
 	}
 	return;
-	//ZEXTERN int ZEXPORT compress OF((Bytef *dest, uLongf *destLen,
-	//	const Bytef *source, uLong sourceLen));
 }

@@ -15,19 +15,20 @@ On Windows additional building steps are required.
 ###Building curl from sources
 --------------------------------
 
-curl can be obtained from the official git repository (git@github.com:curl/curl.git)
+curl can be obtained from the project page at https://curl.haxx.se/download.html or from the official 
+git repository (git@github.com:curl/curl.git)
 
 ```
 git clone git@github.com:curl/curl.git
 git checkout curl-7_57_0
 ```
 
-cmake is required to build curl, if not already present install latest cmake release from https://cmake.org/download/.
+Cmake is required to build curl, if not already present install latest Cmake release from https://cmake.org/download/.
 
--call cmake with the following options
+-call cmake.exe with the following options
 
 ```
-cmake -G"Visual Studio 15 2017" -DCURL_DISABLE_FILE=1 -DCURL_DISABLE_FTP=1 -DCURL_DISABLE_GOPHER=1 -DCURL_DISABLE_IMAP=1 -DCURL_DISABLE_LDAP=1 -DCURL_DISABLE_LDAPS=1 -DCURL_DISABLE_POP3=1 -DCURL_DISABLE_RTSP=1 -DCURL_DISABLE_SMTP=1 -DCURL_DISABLE_TELNET=1 -DCURL_DISABLE_TFTP=0 -DCMAKE_USE_WINSSL=1 -DCURL_WINDOWS_SSPI=1 -DCMAKE_INSTALL_PREFIX=..\dist ..
+cmake.exe -G"Visual Studio 15 2017" -DCURL_DISABLE_FILE=1 -DCURL_DISABLE_FTP=1 -DCURL_DISABLE_GOPHER=1 -DCURL_DISABLE_IMAP=1 -DCURL_DISABLE_LDAP=1 -DCURL_DISABLE_LDAPS=1 -DCURL_DISABLE_POP3=1 -DCURL_DISABLE_RTSP=1 -DCURL_DISABLE_SMTP=1 -DCURL_DISABLE_TELNET=1 -DCURL_DISABLE_TFTP=0 -DCMAKE_USE_WINSSL=1 -DCURL_WINDOWS_SSPI=1 -DCMAKE_INSTALL_PREFIX=..\dist ..
 ```
 
 -Open solution file in build folder
@@ -47,7 +48,7 @@ zlib can be obtained from the official project page of zlib:
 Download http://zlib.net/zlib-1.2.11.tar.gz and unpack contents into 
 workspace.
 
-cmake is required to build curl, if not already present install latest cmake release 
+Cmake is required to build zlib, if not already present install latest Cmake release 
 from https://cmake.org/download/.
 
 -create and navigate to build directory
@@ -57,10 +58,10 @@ mkdir build
 cd build
 ```
 
--call cmake with the following options
+-call cmake.exe with the following options
 
 ```
-cmake -G"Visual Studio 15 2017" -DCMAKE_INSTALL_PREFIX=..\dist ..
+cmake.exe  -G"Visual Studio 15 2017" -DCMAKE_INSTALL_PREFIX=..\dist ..
 ```
 
 -Open solution file zlib.sln in build folder
@@ -73,17 +74,17 @@ cmake -G"Visual Studio 15 2017" -DCMAKE_INSTALL_PREFIX=..\dist ..
 
 -Fetch result from dist folder, copy contents of dist folder directly to curl specific third party folder of openkit-c (3rdparty\zlib-1.2.11)
 
-###building googletest from sources
+###Building Google Test from sources
 ---------------------
 
-googletest can be obtained at the official git repo
-
+googletest can be obtained from the project page at https://github.com/google/googletest/releases 
+or  the official git repo at git@github.com:google/googletest.git.
 ```
 git clone git@github.com:google/googletest.git
 git checkout release-1.8.0
 ```
 
-cmake is required to build googletest, if not already present install latest cmake release 
+Cmake is required to build Google Test, if not already present install latest Cmake release 
 from https://cmake.org/download/.
 
 -create and navigate to build directory
@@ -93,10 +94,10 @@ mkdir build
 cd build
 ```
 
--call cmake with the following options
+-call cmake.exe with the following options
 
 ```
-cmake -G"Visual Studio 15 2017" -Dgtest_force_shared_crt=1 -DCMAKE_CXX_FLAGS=/D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING -DCMAKE_INSTALL_PREFIX=../dist CMAKE_DEBUG_POSTFIX=""  ..
+cmake.exe -G"Visual Studio 15 2017" -Dgtest_force_shared_crt=1 -DCMAKE_CXX_FLAGS=/D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING -DCMAKE_INSTALL_PREFIX=../dist CMAKE_DEBUG_POSTFIX=""  ..
 ```
 
 -Open solution file googletest-distribution.sln in build folder
@@ -130,7 +131,7 @@ cmake -G"Visual Studio 15 2017" -Dgtest_force_shared_crt=1 -DCMAKE_CXX_FLAGS=/D_
  Install zlib dependencies via package manager
     sudo apt-get install zlib1g-dev
 	
-###Building googletest from sources
+###Building Google Test from sources
 
 googletest can be obtained at the official git repo
 
@@ -139,7 +140,7 @@ git clone git@github.com:google/googletest.git
 git checkout release-1.8.0
 ```
 
-cmake is required to build googletest, if not already present install latest cmake release 
+Cmake is required to build googletest, if not already present install latest Cmake release 
 from https://cmake.org/download/.
 
 -create and navigate to build directory
@@ -149,10 +150,10 @@ mkdir build
 cd build
 ```
 
--call cmake with the following options
+-call cmake.exe with the following options
 
 ```
-cmake -G"Unix Makefiles" -DCMAKE_INSTALL_PREFIX=../dist-linux ..
+cmake.exe -G"Unix Makefiles" -DCMAKE_INSTALL_PREFIX=../dist-linux ..
 ```
 
 -Build project using make

@@ -104,6 +104,13 @@ void* consumerThread(void* arg)
 	return NULL;
 }
 
+void cleanup()
+{
+	destroy_mutex(buffer.mutex);
+	destroy_condition_variable(buffer.more);
+	destroy_condition_variable(buffer.less);
+}
+
 int32_t main(int32_t argc, char** argv)
 {
 	(void)argc;
@@ -136,26 +143,30 @@ int32_t main(int32_t argc, char** argv)
 		threading_thread* t4 = create_thread(&consumerThread, (void*)&infoT4);
 		threading_thread* t5 = create_thread(&consumerThread, (void*)&infoT5);
 
-		threading_thread_join(t1);
-		threading_thread_join(t2);
-		threading_thread_join(t3);
-		threading_thread_join(t4);
-		threading_thread_join(t5);
+		if (t1 != NULL && t2 != NULL && t3 != NULL && t4 != NULL && t5 != NULL)
+		{
+			threading_thread_join(t1);
+			threading_thread_join(t2);
+			threading_thread_join(t3);
+			threading_thread_join(t4);
+			threading_thread_join(t5);
 
-		destroy_thread(t1);
-		destroy_thread(t2);
-		destroy_thread(t3);
-		destroy_thread(t4);
-		destroy_thread(t5);
+			destroy_thread(t1);
+			destroy_thread(t2);
+			destroy_thread(t3);
+			destroy_thread(t4);
+			destroy_thread(t5);
 
-		destroy_mutex(buffer.mutex);
-		destroy_condition_variable(buffer.more);
-		destroy_condition_variable(buffer.less);
+			cleanup();
+			return 0;
+		}
+
+		cleanup();
 	}
 	else
 	{
 		printf("Error: Was unable to initialize rwlock\n");
 	}
-	return 0;
+	return -1;
 
 }

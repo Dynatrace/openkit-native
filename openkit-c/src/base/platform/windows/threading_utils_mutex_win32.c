@@ -23,11 +23,20 @@
 threading_mutex* init_mutex()
 {
 	CRITICAL_SECTION* critical_section = (CRITICAL_SECTION*)memory_malloc(sizeof(CRITICAL_SECTION));
-	InitializeCriticalSectionAndSpinCount(critical_section, 0);
+	if (critical_section != NULL)
+	{
+		InitializeCriticalSectionAndSpinCount(critical_section, 0);
 
-	threading_mutex* mutex = (threading_mutex*)memory_malloc(sizeof(threading_mutex));
-	mutex->platform_mutex = critical_section;
-	return mutex;
+		threading_mutex* mutex = (threading_mutex*)memory_malloc(sizeof(threading_mutex));
+		if (mutex != NULL)
+		{
+			mutex->platform_mutex = critical_section;
+			return mutex;
+		}
+	}
+	memory_free(critical_section);
+
+	return NULL;
 }
 
 void destroy_mutex(threading_mutex* mutex)
@@ -35,8 +44,8 @@ void destroy_mutex(threading_mutex* mutex)
 	if (mutex != NULL)
 	{
 		DeleteCriticalSection(mutex->platform_mutex);
-		free(mutex->platform_mutex);
-		free(mutex);
+		memory_free(mutex->platform_mutex);
+		memory_free(mutex);
 		mutex = NULL;
 	}
 }

@@ -23,22 +23,36 @@
 threading_mutex* init_mutex()
 {
 	pthread_mutexattr_t* mutex_attributes = (pthread_mutexattr_t*)memory_malloc(sizeof(pthread_mutexattr_t));
-	pthread_mutexattr_init(mutex_attributes);
 
-	pthread_mutexattr_settype(mutex_attributes, PTHREAD_MUTEX_RECURSIVE);
-
-	pthread_mutex_t* platform_mutex = (pthread_mutex_t*)memory_malloc(sizeof(pthread_mutex_t));
-	int32_t result = pthread_mutex_init(platform_mutex, mutex_attributes);
-
-	if (result == 0)
+	if (mutex_attributes != NULL)
 	{
-		threading_mutex* mutex = (threading_mutex*)memory_malloc(sizeof(threading_mutex));
-		mutex->platform_mutex = platform_mutex;
-		mutex->mutex_attributes = mutex_attributes;
-		return mutex;
+		pthread_mutexattr_init(mutex_attributes);
+
+		pthread_mutexattr_settype(mutex_attributes, PTHREAD_MUTEX_RECURSIVE);
+
+		pthread_mutex_t* platform_mutex = (pthread_mutex_t*)memory_malloc(sizeof(pthread_mutex_t));
+
+		if (platform_mutex != NULL)
+		{
+			int32_t result = pthread_mutex_init(platform_mutex, mutex_attributes);
+			if (result == 0)
+			{
+				threading_mutex* mutex = (threading_mutex*)memory_malloc(sizeof(threading_mutex));
+				if (mutex != NULL)
+				{
+					mutex->platform_mutex = platform_mutex;
+					mutex->mutex_attributes = mutex_attributes;
+					return mutex;
+				}
+			}
+			memory_free(platform_mutex);
+		}
+		memory_free(mutex_attributes);
 	}
 
+
 	return NULL;
+
 }
 
 void destroy_mutex(threading_mutex* mutex)
@@ -47,9 +61,9 @@ void destroy_mutex(threading_mutex* mutex)
 	{
 		pthread_mutex_destroy(mutex->platform_mutex);
 		pthread_mutexattr_destroy(mutex->mutex_attributes);
-		free(mutex->platform_mutex);
-		free(mutex->mutex_attributes);
-		free(mutex);
+		memory_free(mutex->platform_mutex);
+		memory_free(mutex->mutex_attributes);
+		memory_free(mutex);
 		mutex = NULL;
 	}
 }
