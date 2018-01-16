@@ -1,6 +1,7 @@
 #include "curl/curl.h"
 
 #include <stdint.h>
+#include <string.h>
 
 #include "compressor.h"
 #include "memory.h"
@@ -14,7 +15,7 @@ const char* ascii_json_data =
 "	}"
 "}";
 
-struct binary_data_writer {
+struct compressed_data_writer {
 	const unsigned char *readptr;
 	size_t sizeleft;
 };
@@ -72,21 +73,23 @@ int32_t make_post_request_text(CURL* curl)
 
 static size_t read_callback(void *dest, size_t size, size_t nmemb, void *userp)
 {
-	struct binary_data_writer *binary = (struct binary_data_writer *)userp;
-	size_t buffer_size = size * nmemb;
+	struct compressed_data_writer *binary = (struct compressed_data_writer *)userp;
+	if (binary != NULL)
+	{
+		size_t buffer_size = size * nmemb;
 
-	if (binary->sizeleft) {
-		/* copy as much as possible from the source to the destination */
-		size_t copy_this_much = binary->sizeleft;
-		if (copy_this_much > buffer_size)
-			copy_this_much = buffer_size;
-		memcpy(dest, binary->readptr, copy_this_much);
+		if (binary->sizeleft) {
+			/* copy as much as possible from the source to the destination */
+			size_t copy_this_much = binary->sizeleft;
+			if (copy_this_much > buffer_size)
+				copy_this_much = buffer_size;
+			memcpy(dest, binary->readptr, copy_this_much);
 
-		binary->readptr += copy_this_much;
-		binary->sizeleft -= copy_this_much;
-		return copy_this_much; /* we copied this many bytes */
+			binary->readptr += copy_this_much;
+			binary->sizeleft -= copy_this_much;
+			return copy_this_much; /* we copied this many bytes */
+		}
 	}
-
 	return 0; /* no more data left to deliver */
 }
 
@@ -96,10 +99,10 @@ int32_t make_post_request_compressed(CURL* curl)
 	{
 		CURLcode res;
 
-		binaryData compressed_buffer;
+		compressed_data compressed_buffer;
 		compress_memory(&ascii_json_data[0], strlen(ascii_json_data), &compressed_buffer);
 
-		struct binary_data_writer writer;
+		struct compressed_data_writer writer;
 		writer.readptr = compressed_buffer.data;
 		writer.sizeleft = compressed_buffer.length;
 		/* First set the URL that is about to receive our POST. This URL can
@@ -151,7 +154,7 @@ int main(int argc, char* *argv)
 	curl = curl_easy_init();
 	if (curl) {
 		
-		esult = make_get_request(curl);
+		result = make_get_request(curl);
 		result += make_post_request_text(curl);
 		result += make_post_request_compressed(curl);
 			/* always cleanup */

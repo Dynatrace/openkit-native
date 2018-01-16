@@ -4,14 +4,13 @@
 
 ### For Windows builds
 
-* Cmake
+* CMake
 * Visual Studio 2017
 
 ### For Linux builds
 
-* Cmake
+* CMake
 * gcc/clang
-* ninja (optional dependency)
 
 ##Build dependencies
 
@@ -19,7 +18,7 @@ openkit-c has the following dependencies:
 
 * libcurl
 * zlib
-* googletest
+* Google Test
 
 It is necessary to build the dependencies according to instructions in the file <ROOT>/docs/building-dependencies.md
 Prior to building the 3rdparty dependencies have to be available in the project subfolder named '3rdparty'
@@ -40,7 +39,7 @@ git clone git@github.com:Dynatrace/openkit-c.git
 
 * Navigate to the top level CMakeList.txt file in the previously checked out repository
 
-* After operation finished project is available in Visual Studio, there is a new Tab especially for the cmake operations. Build the project by clicking on 'CMake -> Build All'
+* After operation finished project is available in Visual Studio, there is a new Tab especially for the CMake operations. Build the project by clicking on 'CMake -> Build All'
 
 * Both Debug and Release builds are available
 
@@ -62,7 +61,7 @@ mkdir -p  build/linux-x86
 cd build/linux-x86
 ```
 
-* Invoke cmake
+* Invoke CMake
 
 ```
 cmake -G"Unix Makefiles" ../..

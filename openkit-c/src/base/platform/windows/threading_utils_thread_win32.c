@@ -76,25 +76,28 @@ threading_thread* create_thread(void*(*function)(void*), void* thread_data)
 	return NULL;
 }
 
-void destroy_thread(threading_thread* thread)
+int32_t destroy_thread(threading_thread* thread)
 {
 	if (thread != NULL)
 	{
 		memory_free(thread);
 		thread = NULL;
+		return 0;
 	}
+	return EINVAL;
 }
 
-void* threading_thread_join(threading_thread* thread)
+int32_t threading_thread_join(threading_thread* thread)
 {
 	if (thread != NULL)
 	{
 		WaitForSingleObjectEx(thread->platform_thread, INFINITE, FALSE);
-		return NULL;
+		return 0;
 	}
+	return EINVAL;
 }
 
-void threading_sleep(uint32_t time_in_ms)
+int32_t threading_sleep(uint32_t time_in_ms)
 {
 	HANDLE hTimer = NULL;
 	LARGE_INTEGER liDueTime;
@@ -103,14 +106,14 @@ void threading_sleep(uint32_t time_in_ms)
 	hTimer = CreateWaitableTimer(NULL, TRUE, "WaitableTimer");
 	if (!hTimer)
 	{
-		return;
+		return -1;
 	}
 	// Set a timer to wait for the requested time. 
 	if (!SetWaitableTimer(hTimer, &liDueTime, 0, NULL, NULL, 0))
 	{
-		return;
+		return -2;
 	}
 	// Wait for the timer. 
 	WaitForSingleObject(hTimer, INFINITE);
-	return;
+	return 0;
 }

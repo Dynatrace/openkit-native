@@ -16,9 +16,11 @@
 
 #include "compressor.h"
 
+#include <zlib.h>
+
 #include "memory.h"
 
-void compress_memory(const void *in_data, size_t in_data_size, binaryData* out_data)
+void compress_memory(const void *in_data, size_t in_data_size, compressed_data* out_data)
 {
 	if (out_data == NULL)
 	{

@@ -17,6 +17,7 @@
 #include "threading_utils_condition_variable.h"
 
 #include <pthread.h>
+#include <errno.h>
 
 #include "threading_utils_mutex.h"
 #include "memory.h"
@@ -27,52 +28,60 @@ threading_condition_variable* init_condition_variable()
 
 	if (platform_condition_variable != NULL)
 	{
-		pthread_cond_init(platform_condition_variable, NULL);
-
-		threading_condition_variable* condition_variable = (threading_condition_variable*)memory_malloc(sizeof(threading_condition_variable));
-
-		if (condition_variable != NULL)
+		int result = pthread_cond_init(platform_condition_variable, NULL);
+		if (result == 0)
 		{
-			condition_variable->platform_condvar = platform_condition_variable;
-			return condition_variable;
+			threading_condition_variable* condition_variable = (threading_condition_variable*)memory_malloc(sizeof(threading_condition_variable));
+
+			if (condition_variable != NULL)
+			{
+				condition_variable->platform_condvar = platform_condition_variable;
+				return condition_variable;
+			}
+			pthread_cond_destroy(condition_variable->platform_condvar);
+			memory_free(platform_condition_variable);
 		}
-		memory_free(platform_condition_variable);
 	}
 
 	return NULL;
 }
 
-void destroy_condition_variable(threading_condition_variable* condvar)
+int32_t destroy_condition_variable(threading_condition_variable* condition_variable)
 {
-	if (condvar != NULL)
+	if (condition_variable != NULL)
 	{
-		pthread_cond_destroy(condvar->platform_condvar);
-		memory_free(condvar->platform_condvar);
-		memory_free(condvar);
-		condvar = NULL;
+		int32_t result = pthread_cond_destroy(condition_variable->platform_condvar);
+		memory_free(condition_variable->platform_condvar);
+		memory_free(condition_variable);
+		condition_variable = NULL;
+		return result;
 	}
+	return EINVAL;
 }
 
-void threading_condition_variable_block(threading_condition_variable* condvar, threading_mutex* mutex)
+int32_t threading_condition_variable_block(threading_condition_variable* condvar, threading_mutex* mutex)
 {
 	if (condvar != NULL)
 	{
-		pthread_cond_wait(condvar->platform_condvar, mutex->platform_mutex);
+		return pthread_cond_wait(condvar->platform_condvar, mutex->platform_mutex);
 	}
+	return EINVAL;
 }
 
-void threading_condition_variable_unblock_single(threading_condition_variable* condvar)
+int32_t threading_condition_variable_unblock_single(threading_condition_variable* condvar)
 {
 	if (condvar != NULL)
 	{
-		pthread_cond_signal(condvar->platform_condvar);
+		return pthread_cond_signal(condvar->platform_condvar);
 	}
+	return EINVAL;
 }
 
-void threading_condition_variable_unblock_all(threading_condition_variable* condvar)
+int32_t threading_condition_variable_unblock_all(threading_condition_variable* condvar)
 {
 	if (condvar != NULL)
 	{
-		pthread_cond_broadcast(condvar->platform_condvar);
+		return pthread_cond_broadcast(condvar->platform_condvar);
 	}
+	return EINVAL;
 }

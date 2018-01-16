@@ -16,9 +16,12 @@
 
 #include "threading_utils_thread.h"
 
-#include <pthread.h>
-
 #include "memory.h"
+
+#include <pthread.h>
+#include <errno.h>
+
+
 
 threading_thread* create_thread(void*(*function)(void*), void* thread_data)
 {
@@ -38,6 +41,7 @@ threading_thread* create_thread(void*(*function)(void*), void* thread_data)
 					return thread;
 				}
 			}
+			pthread_mutex_destroy(platform_thread);
 			memory_free(platform_thread);
 		}
 	}
@@ -45,30 +49,34 @@ threading_thread* create_thread(void*(*function)(void*), void* thread_data)
 	return NULL;
 }
 
-void destroy_thread(threading_thread* thread)
+int32_t destroy_thread(threading_thread* thread)
 {
 	if (thread != NULL)
 	{
+		int32_t result = pthread_mutex_destroy(thread->platform_thread);
 		memory_free(thread->platform_thread);
 		memory_free(thread);
 		thread = NULL;
+		return result;
 	}
+	return EINVAL;
 }
 
-void* threading_thread_join(threading_thread* thread)
+int32_t threading_thread_join(threading_thread* thread)
 {
 	if (thread != NULL)
 	{
 		void* return_value;
-		pthread_join(*(pthread_t*)thread->platform_thread, &return_value);
-		return return_value;
+		int32_t result = pthread_join(*(pthread_t*)thread->platform_thread, &return_value);
+		return result;
 	}
+	return EINVAL;
 }
 
-void threading_sleep(uint32_t time_in_ms)
+int32_t threading_sleep(uint32_t time_in_ms)
 {
 	struct timespec wait_time;
 	wait_time.tv_sec = time_in_ms / 1000;
 	wait_time.tv_nsec = (time_in_ms % 1000) * 1000;
-	nanosleep(&wait_time, NULL);
+	return nanosleep(&wait_time, NULL);
 }

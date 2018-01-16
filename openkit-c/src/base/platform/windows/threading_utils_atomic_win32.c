@@ -37,7 +37,7 @@ atomic* init_atomic(int32_t init_value)
 	return NULL;
 }
 
-void destroy_atomic(atomic* atomic_int)
+int32_t destroy_atomic(atomic* atomic_int)
 {
 	if (atomic_int != NULL)
 	{

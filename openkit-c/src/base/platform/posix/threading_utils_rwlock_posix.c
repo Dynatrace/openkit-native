@@ -17,6 +17,7 @@
 #include "threading_utils_rwlock.h"
 
 #include <pthread.h>
+#include <errno.h>
 
 #include "memory.h"
 
@@ -44,16 +45,18 @@ threading_rw_lock* init_rw_lock()
 	return NULL;
 }
 
-void destroy_rw_lock(threading_rw_lock* rw_lock)
+int32_t destroy_rw_lock(threading_rw_lock* rw_lock)
 {
 	if (rw_lock != NULL)
 	{
-		pthread_rwlock_destroy(rw_lock->platform_rw_lock);
+		int32_t result = pthread_rwlock_destroy(rw_lock->platform_rw_lock);
 
 		memory_free(rw_lock->platform_rw_lock);
 		memory_free(rw_lock);
 		rw_lock = NULL;
+		return result;
 	}
+	return EINVAL;
 }
 
 void threading_rw_lock_lock_read(threading_rw_lock* rw_lock)

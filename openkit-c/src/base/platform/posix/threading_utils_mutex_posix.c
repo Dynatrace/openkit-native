@@ -17,6 +17,7 @@
 #include "threading_utils_mutex.h"
 
 #include <pthread.h>
+#include <errno.h>
 
 #include "memory.h"
 
@@ -55,31 +56,35 @@ threading_mutex* init_mutex()
 
 }
 
-void destroy_mutex(threading_mutex* mutex)
+int32_t destroy_mutex(threading_mutex* mutex)
 {
 	if (mutex != NULL)
 	{
-		pthread_mutex_destroy(mutex->platform_mutex);
-		pthread_mutexattr_destroy(mutex->mutex_attributes);
+		int32_t result = pthread_mutex_destroy(mutex->platform_mutex);
+		int32_t result2 = pthread_mutexattr_destroy(mutex->mutex_attributes);
 		memory_free(mutex->platform_mutex);
 		memory_free(mutex->mutex_attributes);
 		memory_free(mutex);
 		mutex = NULL;
+		return result == 0 ? result2 : result;
 	}
+	return EINVAL;
 }
 
-void threading_mutex_lock(threading_mutex* mutex)
+int32_t threading_mutex_lock(threading_mutex* mutex)
 {
 	if (mutex != NULL)
 	{
-		pthread_mutex_lock(mutex->platform_mutex);
+		return pthread_mutex_lock(mutex->platform_mutex);
 	}
+	return EINVAL;
 }
 
-void threading_mutex_unlock(threading_mutex* mutex)
+int32_t threading_mutex_unlock(threading_mutex* mutex)
 {
 	if (mutex != NULL)
 	{
-		pthread_mutex_unlock(mutex->platform_mutex);
+		return pthread_mutex_unlock(mutex->platform_mutex);
 	}
+	return EINVAL;
 }

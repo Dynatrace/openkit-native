@@ -42,7 +42,7 @@ threading_condition_variable* init_condition_variable()
 	return NULL;
 }
 
-void destroy_condition_variable(threading_condition_variable* condvar)
+int32_t destroy_condition_variable(threading_condition_variable* condvar)
 {
 	if (condvar != NULL)
 	{
@@ -50,29 +50,37 @@ void destroy_condition_variable(threading_condition_variable* condvar)
 		memory_free(condvar->platform_condvar);
 		memory_free(condvar);
 		condvar = NULL;
+		return 0;
 	}
+	return EINVAL;
 }
 
-void threading_condition_variable_block(threading_condition_variable* condvar, threading_mutex* mutex)
+int32_t threading_condition_variable_block(threading_condition_variable* condvar, threading_mutex* mutex)
 {
 	if (condvar != NULL)
 	{
 		SleepConditionVariableCS(condvar->platform_condvar, mutex->platform_mutex, INFINITE);
+		return 0;
 	}
+	return EINVAL;
 }
 
-void threading_condition_variable_unblock_single(threading_condition_variable* condvar)
+int32_t threading_condition_variable_unblock_single(threading_condition_variable* condvar)
 {
 	if (condvar != NULL)
 	{
 		WakeConditionVariable(condvar->platform_condvar);
+		return 0;
 	}
+	return EINVAL;
 }
 
-void threading_condition_variable_unblock_all(threading_condition_variable* condvar)
+int32_t threading_condition_variable_unblock_all(threading_condition_variable* condvar)
 {
 	if (condvar != NULL)
 	{
 		WakeAllConditionVariable(condvar->platform_condvar);
+		return 0;
 	}
+	return EINVAL;
 }

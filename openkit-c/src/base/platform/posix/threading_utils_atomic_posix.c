@@ -15,11 +15,14 @@
 */
 
 #include "threading_utils_atomic.h"
-
-#include "memory.h"
 #include "threading_utils_mutex.h"
 
-atomic* init_atomic(int32_t init_value)
+#include <errno.h>
+
+#include "memory.h"
+
+
+atomic* init_atomic(int32_t initial_value)
 {
 	atomic* atomic_int = (atomic*)memory_malloc(sizeof(atomic));
 	if (atomic_int != NULL)
@@ -29,24 +32,26 @@ atomic* init_atomic(int32_t init_value)
 		if (mutex != NULL)
 		{
 			atomic_int->platform_mutex = mutex;
-			atomic_set(atomic_int, init_value);
+			atomic_set(atomic_int, initial_value);
 			return atomic_int;
 		}
 		destroy_mutex(mutex->platform_mutex);
+		memory_free(atomic_int);
 	}
-	memory_free(atomic_int);
-
+	
 	return NULL;
 }
 
-void destroy_atomic(atomic* atomic_int)
+int32_t destroy_atomic(atomic* atomic_int)
 {
 	if (atomic_int != NULL)
 	{
-		destroy_mutex(atomic_int->platform_mutex);
+		int32_t result = destroy_mutex(atomic_int->platform_mutex);
 		memory_free(atomic_int);
 		atomic_int = NULL;
+		return result;
 	}
+	return EINVAL;
 }
 
 void atomic_add(atomic* atomic_int, int32_t val)

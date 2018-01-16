@@ -23,7 +23,7 @@ git clone git@github.com:curl/curl.git
 git checkout curl-7_57_0
 ```
 
-Cmake is required to build curl, if not already present install latest Cmake release from https://cmake.org/download/.
+CMake is required to build curl, if not already present install latest CMake release from https://cmake.org/download/.
 
 -call cmake.exe with the following options
 
@@ -48,7 +48,7 @@ zlib can be obtained from the official project page of zlib:
 Download http://zlib.net/zlib-1.2.11.tar.gz and unpack contents into 
 workspace.
 
-Cmake is required to build zlib, if not already present install latest Cmake release 
+CMake is required to build zlib, if not already present install latest CMake release 
 from https://cmake.org/download/.
 
 -create and navigate to build directory
@@ -77,14 +77,14 @@ cmake.exe  -G"Visual Studio 15 2017" -DCMAKE_INSTALL_PREFIX=..\dist ..
 ###Building Google Test from sources
 ---------------------
 
-googletest can be obtained from the project page at https://github.com/google/googletest/releases 
+Google Test can be obtained from the project page at https://github.com/google/googletest/releases 
 or  the official git repo at git@github.com:google/googletest.git.
 ```
 git clone git@github.com:google/googletest.git
 git checkout release-1.8.0
 ```
 
-Cmake is required to build Google Test, if not already present install latest Cmake release 
+CMake is required to build Google Test, if not already present install latest CMake release 
 from https://cmake.org/download/.
 
 -create and navigate to build directory
@@ -140,7 +140,7 @@ git clone git@github.com:google/googletest.git
 git checkout release-1.8.0
 ```
 
-Cmake is required to build googletest, if not already present install latest Cmake release 
+CMake is required to build googletest, if not already present install latest CMake release 
 from https://cmake.org/download/.
 
 -create and navigate to build directory

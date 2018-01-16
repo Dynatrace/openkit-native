@@ -4,7 +4,7 @@
 #include "threading_utils_thread.h"
 #include "threading_utils_rwlock.h"
 
-extern int64_t g_longValue = 0;
+extern int64_t g_long_value = 0;
 
 struct thread_info
 {
@@ -22,7 +22,7 @@ void* readerThread(void* arg)
 	for (i = 0; i < 10; i++)
 	{
 		threading_rw_lock_lock_read(lock);
-		printf("[thread %d] value is %lli\n", threadId, g_longValue);
+		printf("[thread %d] value is %lli\n", threadId, g_long_value);
 		threading_rw_lock_unlock_read(lock);
 		threading_sleep(750);
 	}
@@ -39,7 +39,7 @@ void* writerThread(void* arg)
 	for (i = 0; i < 10; i++)
 	{
 		threading_rw_lock_lock_write(lock);
-		g_longValue++;
+		g_long_value++;
 		printf("[thread %d] incrementing counter\n", threadId);
 		threading_rw_lock_unlock_write(lock);
 		threading_sleep(512);

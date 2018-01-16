@@ -39,7 +39,7 @@ threading_mutex* init_mutex()
 	return NULL;
 }
 
-void destroy_mutex(threading_mutex* mutex)
+int32_t destroy_mutex(threading_mutex* mutex)
 {
 	if (mutex != NULL)
 	{
@@ -47,21 +47,27 @@ void destroy_mutex(threading_mutex* mutex)
 		memory_free(mutex->platform_mutex);
 		memory_free(mutex);
 		mutex = NULL;
+		return 0;
 	}
+	return EINVAL;
 }
 
-void threading_mutex_lock(threading_mutex* mutex)
+int32_t threading_mutex_lock(threading_mutex* mutex)
 {
 	if (mutex != NULL)
 	{
 		EnterCriticalSection(mutex->platform_mutex);
+		return 0;
 	}
+	return EINVAL;
 }
 
-void threading_mutex_unlock(threading_mutex* mutex)
+int32_t threading_mutex_unlock(threading_mutex* mutex)
 {
 	if (mutex != NULL)
 	{
 		LeaveCriticalSection(mutex->platform_mutex);
+		return 0;
 	}
+	return EINVAL;
 }

@@ -16,6 +16,8 @@
 
 #include "memory.h"
 
+#include <stdlib.h>
+
 void* memory_malloc(size_t size)
 {
 	return malloc(size);
