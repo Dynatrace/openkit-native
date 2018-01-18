@@ -71,7 +71,7 @@ void memory_copy(void* dst, const void* src, size_t number_of_bytes);
 /// @param[in] src memory location to read from
 /// @param[in] number_of_bytes number of bytes to copy
 ///
-void memory_move(void* dst, void* src, size_t number_of_bytes);
+void memory_move(void* dst, const void* src, size_t number_of_bytes);
 
 ///
 /// Set a block of memory to a given value
