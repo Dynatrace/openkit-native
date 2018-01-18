@@ -16,8 +16,9 @@ set(SOURCES_CONDITIONVARIABLETEST
 	condition_variable_test.c
 )
 
-set(SOURCES_ATOMICTEST
+set(SOURCES_UNITTEST
 	atomic_test.cxx
+	utf8stringtest.cxx
 )
 
 
@@ -45,13 +46,13 @@ add_executable(	condition_variable_test
 
 target_link_libraries(condition_variable_test LibBase)
 
-add_executable(	atomic_test
-	${SOURCES_ATOMICTEST}
+add_executable(	unit_tests
+	${SOURCES_UNITTEST}
 )
 
-target_link_libraries(atomic_test LibBase ${GTEST_LIBRARIES} ${GTEST_MAIN_LIBRARIES})
+target_link_libraries(unit_tests LibBase ${GTEST_LIBRARIES} ${GTEST_MAIN_LIBRARIES})
 if(NOT WIN32)
-target_link_libraries(atomic_test pthread)
+target_link_libraries(unit_tests pthread)
 endif()
 
 string(REPLACE "bin/libcurl.dll" "lib/libcurl_imp.lib" HAXX ${CURL_LIBRARIES})
@@ -64,7 +65,7 @@ endif()
 
 target_link_libraries(curltest ${HAXX} ${ZLIB_LIBRARIES})
 
-ADD_TEST(NAME AtomicTest COMMAND atomic_test WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+ADD_TEST(NAME UnitTests COMMAND unit_tests WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 ADD_TEST(NAME ConditionVariableTest COMMAND condition_variable_test WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 ADD_TEST(NAME RwLockTest COMMAND rwlock_test WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 ADD_TEST(NAME MutexTest COMMAND mutex_test WORKING_DIRECTORY ${CMAKE_BINARY_DIR})

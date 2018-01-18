@@ -19,6 +19,7 @@ endif()
 SET(SOURCES_COMMON
 	src/compressor.c
 	src/memory.c
+	src/utf8string.c
 )
 
 add_library( LibBase STATIC
