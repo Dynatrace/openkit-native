@@ -19,6 +19,7 @@
 #define _MEMORY_H
 
 #include <stddef.h>
+#include <stdint.h>
 
 ///
 /// Allocate a block of memory of given size
@@ -55,4 +56,28 @@ void* memory_calloc(size_t num, size_t size);
 /// @param[in] ptr pointer to the memory to free
 /// 
 void memory_free(void* ptr);
+
+///
+/// Copy data in memory
+/// @param[in] dst memory location to write to
+/// @param[in] src memory location to read from
+/// @param[in] number_of_bytes number of bytes to copy
+///
+void memory_copy(void* dst, const void* src, size_t number_of_bytes);
+
+///
+/// Move data to a different location in memory. src and dst may overlap
+/// @param[in] dst memory location to write to
+/// @param[in] src memory location to read from
+/// @param[in] number_of_bytes number of bytes to copy
+///
+void memory_move(void* dst, void* src, size_t number_of_bytes);
+
+///
+/// Set a block of memory to a given value
+/// @paramp[in] dst memory location to write to
+/// @param[in] value integer value to set the complete block of memory to
+/// @param[in] number_of_bytes size of the memory block
+///
+void memory_set(void* dst, int32_t value, size_t number_of_bytes);
 #endif
