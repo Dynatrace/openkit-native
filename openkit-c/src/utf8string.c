@@ -17,6 +17,8 @@
 #include "utf8string.h"
 #include "memory.h"
 
+#include <stdio.h>
+
 utf8string* init_string(const char* string_data)
 {
 	utf8string* s = (utf8string*)memory_malloc(sizeof(utf8string));
@@ -116,7 +118,7 @@ int32_t validate_string(utf8string* target, const char* s)
 				multibyte_sequence_length = 2;
 				multibyte_sequence_pos = 0;
 			}
-			else if ((character_at_pos & 0xF0) == 0xD0)//3 highest bits set -> start a new character with a length of three bytes
+			else if ((character_at_pos & 0xF0) == 0xE0)//3 highest bits set -> start a new character with a length of three bytes
 			{
 				if (multibyte_sequence_length != -1)//in the middle of another character -> previous character invalid
 				{
@@ -131,7 +133,7 @@ int32_t validate_string(utf8string* target, const char* s)
 				multibyte_sequence_length = 3;
 				multibyte_sequence_pos = 0;
 			}
-			else if ((character_at_pos & 0xF8) == 0xE0)//4 highest bits set -> start a new character with a length of four bytes
+			else if ((character_at_pos & 0xF8) == 0xF0)//4 highest bits set -> start a new character with a length of four bytes
 			{
 				if (multibyte_sequence_length != -1)//in the middle of another character -> previous character invalid
 				{
