@@ -18,81 +18,99 @@
 #include "threading_utils_mutex.h"
 
 #include <errno.h>
+#include <limits.h>
 
 #include "memory.h"
 
 
-atomic* init_atomic(int32_t initial_value)
-{
-	atomic* atomic_int = (atomic*)memory_malloc(sizeof(atomic));
-	if (atomic_int != NULL)
-	{
-		threading_mutex* mutex = init_mutex();
 
-		if (mutex != NULL)
-		{
-			atomic_int->platform_mutex = mutex;
-			atomic_set(atomic_int, initial_value);
-			return atomic_int;
-		}
-		destroy_mutex(mutex->platform_mutex);
-		memory_free(atomic_int);
+atomic_int32* init_atomic(int32_t initial_value)
+{
+	atomic_int32* atomic_int = (atomic_int32*)memory_malloc(sizeof(atomic_int32));
+	if (atomic_int == NULL)
+	{
+		return NULL;
 	}
+
+	threading_mutex* mutex = init_mutex();
+	if (mutex == NULL)
+	{
+		memory_free(atomic_int);
+		return NULL;
+	}
+	atomic_int->platform_mutex = mutex;
+	atomic_int->integer_value = initial_value;
+
+	return atomic_int;
+}
+
+int32_t destroy_atomic(atomic_int32* atomic_int)
+{
+	if (atomic_int == NULL)
+	{
+		return NULL;
+	}
+
+	destroy_mutex(atomic_int->platform_mutex);
+	memory_free(atomic_int);
 	
-	return NULL;
+	return 0;
 }
 
-int32_t destroy_atomic(atomic* atomic_int)
-{
-	if (atomic_int != NULL)
-	{
-		int32_t result = destroy_mutex(atomic_int->platform_mutex);
-		memory_free(atomic_int);
-		atomic_int = NULL;
-		return result;
-	}
-	return EINVAL;
-}
-
-void atomic_add(atomic* atomic_int, int32_t val)
+int32_t atomic_add_and_get(atomic_int32* atomic_int, int32_t val)
 {
 	if (atomic_int != NULL)
 	{
 		threading_mutex_lock(atomic_int->platform_mutex);
 		atomic_int->integer_value += val;
+		int result = atomic_int->integer_value;
 		threading_mutex_unlock(atomic_int->platform_mutex);
+
+		return result;
 	}
+
+	return INT_MAX;
 }
 
-void atomic_increment(atomic* atomic_int)
+int32_t atomic_increment_and_get(atomic_int32* atomic_int)
 {
-	atomic_add(atomic_int, 1);
+	return atomic_add_and_get(atomic_int, 1);
 }
 
-void atomic_decrement(atomic* atomic_int)
+int32_t atomic_decrement_and_get(atomic_int32* atomic_int)
 {
-	atomic_add(atomic_int, -1);
+	return atomic_add_and_get(atomic_int, -1);
 }
 
-void atomic_compare_and_set(atomic* atomic_int, int32_t cmp, int32_t target_value)
+int32_t atomic_compare_and_set(atomic_int32* atomic_int, int32_t cmp, int32_t target_value)
 {
 	if (atomic_int != NULL)
 	{
 		threading_mutex_lock(atomic_int->platform_mutex);
+		int32_t initial = atomic_int->integer_value;
 		if (atomic_int->integer_value == cmp)
 		{
 			atomic_int->integer_value = target_value;
 		}
 		threading_mutex_unlock(atomic_int->platform_mutex);
+
+		return initial;
 	}
+
+	return INT_MAX;
 }
 
-void atomic_set(atomic* atomic_int, int32_t val)
+int32_t atomic_set(atomic_int32* atomic_int, int32_t val)
 {
 	if (atomic_int != NULL)
 	{
 		threading_mutex_lock(atomic_int->platform_mutex);
+		int32_t initial = atomic_int->integer_value;
 		atomic_int->integer_value = val;
 		threading_mutex_unlock(atomic_int->platform_mutex);
+
+		return initial;
 	}
+
+	return INT_MAX;
 }

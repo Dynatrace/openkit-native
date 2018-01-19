@@ -19,39 +19,45 @@
 
 #include <stdint.h>
 
-///
-/// struct encapsulating a platform mutex
-///
-typedef struct _threading_mutex
-{
-	void* platform_mutex;
-	void* mutex_attributes;
-} threading_mutex;
+#ifdef  __cplusplus
+extern "C" {
+#endif
+	///
+	/// struct encapsulating a platform mutex
+	///
+	typedef struct _threading_mutex
+	{
+		/// platform specific mutex handle
+		void* platform_mutex;
+	} threading_mutex;
 
-///
-/// Initializes a new mutex object
-/// @return a new mutex or NULL if errors occured
-///
-threading_mutex* init_mutex();
+	///
+	/// Initializes a new mutex object
+	/// @return a new mutex or NULL if errors occured
+	///
+	threading_mutex* init_mutex();
 
-///
-/// Destroy a mutex object and free associated resources
-/// @param[in] the mutex to destroy
-/// @return 0 in case of succcess, EINVAL if null was passed and error codes in case of failure
-///
-int32_t destroy_mutex(threading_mutex* mutex);
+	///
+	/// Destroy a mutex object and free associated resources
+	/// @param[in] the mutex to destroy
+	/// @return 0 in case of succcess, EINVAL if null was passed and error codes in case of failure
+	///
+	int32_t destroy_mutex(threading_mutex* mutex);
 
-///
-/// Perform a lock operation on the passed mutex
-/// @param[in] the mutex to lock
-/// @return 0 in case of succcess, EINVAL if null was passed and error codes in case of failure
-///
-int32_t threading_mutex_lock(threading_mutex* mutex);
+	///
+	/// Perform a lock operation on the passed mutex
+	/// @param[in] the mutex to lock
+	/// @return 0 in case of succcess, EINVAL if null was passed and error codes in case of failure
+	///
+	int32_t threading_mutex_lock(threading_mutex* mutex);
 
-///
-/// Perform an unlock operation on the passed mutex
-/// @param[in] the mutex to unlock
-/// @return 0 in case of succcess, EINVAL if null was passed and error codes in case of failure
-///
-int32_t threading_mutex_unlock(threading_mutex* mutex);
+	///
+	/// Perform an unlock operation on the passed mutex
+	/// @param[in] the mutex to unlock
+	/// @return 0 in case of succcess, EINVAL if null was passed and error codes in case of failure
+	///
+	int32_t threading_mutex_unlock(threading_mutex* mutex);
+#ifdef  __cplusplus
+	}
+#endif
 #endif

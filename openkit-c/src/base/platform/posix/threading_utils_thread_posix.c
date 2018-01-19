@@ -21,29 +21,45 @@
 #include <pthread.h>
 #include <errno.h>
 
+static void delete_posix_thread(pthread_t* posix_thread)
+{
+	if (posix_thread == NULL)
+	{
+		// do nothing if a NULL ptr was given
+		return;
+	}
 
+	// don't care about errors
+	pthread_rwlock_destroy(posix_thread);
+	memory_free(posix_thread);
+}
 
 threading_thread* create_thread(void*(*function)(void*), void* thread_data)
 {
 	if (function != NULL)
 	{
-		pthread_t* platform_thread = (pthread_t*)malloc(sizeof(pthread_t));
-		if (platform_thread != NULL)
+		pthread_t* platform_thread = (pthread_t*)memory_malloc(sizeof(pthread_t));
+		if (platform_thread == NULL)
 		{
-			int result = pthread_create(platform_thread, NULL, function, thread_data);
-
-			if (result == 0)
-			{
-				threading_thread* thread = (threading_thread*)malloc(sizeof(threading_thread));
-				if (thread != NULL)
-				{
-					thread->platform_thread = platform_thread;
-					return thread;
-				}
-			}
-			pthread_mutex_destroy(platform_thread);
-			memory_free(platform_thread);
+			return NULL;
 		}
+
+		int result = pthread_create(platform_thread, NULL, function, thread_data);
+
+		if (result != 0)
+		{
+			memory_free(platform_thread);
+			return NULL;
+		}
+
+		threading_thread* thread = (threading_thread*)malloc(sizeof(threading_thread));
+		if (thread == NULL)
+		{
+			memory_free(platform_thread);
+			return NULL;
+		}
+		thread->platform_thread = platform_thread;
+		return thread;
 	}
 
 	return NULL;
@@ -53,11 +69,9 @@ int32_t destroy_thread(threading_thread* thread)
 {
 	if (thread != NULL)
 	{
-		int32_t result = pthread_mutex_destroy(thread->platform_thread);
 		memory_free(thread->platform_thread);
 		memory_free(thread);
-		thread = NULL;
-		return result;
+		return 0;
 	}
 	return EINVAL;
 }

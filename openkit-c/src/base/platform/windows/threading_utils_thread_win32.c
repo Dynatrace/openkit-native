@@ -43,34 +43,38 @@ threading_thread* create_thread(void*(*function)(void*), void* thread_data)
 	if (function != NULL)
 	{
 		thread_context* context = (thread_context*)memory_malloc(sizeof(thread_context));
-
-		if (context != NULL)
+		if (context == NULL)
 		{
-			context->thread_function = function;
-			context->thread_data = thread_data;
-
-			threading_thread* thread = (threading_thread*)memory_malloc(sizeof(threading_thread));
-
-			if (thread != NULL)
-			{
-				HANDLE platform_thread = CreateThread(
-					NULL,
-					0,
-					&ThreadFunc,
-					context,
-					0,
-					&thread->platform_thread_info
-				);
-
-				if (platform_thread != NULL)
-				{
-					thread->platform_thread = platform_thread;
-					return thread;
-				}
-				memory_free(thread);
-			}
-			memory_free(context);
+			return NULL;
 		}
+		context->thread_function = function;
+		context->thread_data = thread_data;
+
+		threading_thread* thread = (threading_thread*)memory_malloc(sizeof(threading_thread));
+		if (thread == NULL)
+		{
+			memory_free(context);
+			return NULL;
+		}
+
+		HANDLE platform_thread = CreateThread(
+			NULL,
+			0,
+			&ThreadFunc,
+			context,
+			0,
+			&thread->platform_thread_info
+		);
+		
+		if (platform_thread == NULL)
+		{
+			memory_free(context);
+			memory_free(thread);
+		}
+
+		thread->platform_thread = platform_thread;
+		thread->platform_thread_info = context;
+		return thread;
 	}
 
 	return NULL;
@@ -80,8 +84,8 @@ int32_t destroy_thread(threading_thread* thread)
 {
 	if (thread != NULL)
 	{
+		memory_free(thread->platform_thread_info);
 		memory_free(thread);
-		thread = NULL;
 		return 0;
 	}
 	return EINVAL;

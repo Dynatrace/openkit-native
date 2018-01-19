@@ -22,46 +22,63 @@
 #include "threading_utils_mutex.h"
 #include "memory.h"
 
+static void delete_conditiction_variable(pthread_cond_t* condition_variable)
+{
+	if (condition_variable == NULL)
+	{
+		// do nothing if a NULL ptr was given
+		return;
+	}
+
+	pthread_cond_destroy(condition_variable);
+	memory_free(condition_variable);
+}
+
 threading_condition_variable* init_condition_variable()
 {
 	pthread_cond_t* platform_condition_variable = (pthread_cond_t*)memory_malloc(sizeof(pthread_cond_t));
-
-	if (platform_condition_variable != NULL)
+	if (platform_condition_variable == NULL)
 	{
-		int result = pthread_cond_init(platform_condition_variable, NULL);
-		if (result == 0)
-		{
-			threading_condition_variable* condition_variable = (threading_condition_variable*)memory_malloc(sizeof(threading_condition_variable));
-
-			if (condition_variable != NULL)
-			{
-				condition_variable->platform_condvar = platform_condition_variable;
-				return condition_variable;
-			}
-			pthread_cond_destroy(condition_variable->platform_condvar);
-			memory_free(platform_condition_variable);
-		}
+		return NULL;
 	}
 
-	return NULL;
+	// since we don't need inter-process condition variables
+	// passing NULL as second argument is ok
+	int result = pthread_cond_init(platform_condition_variable, NULL);
+	if (result != 0)
+	{
+		memory_free(platform_condition_variable);
+		return NULL;
+	}
+
+	threading_condition_variable* condition_variable = (threading_condition_variable*)memory_malloc(sizeof(threading_condition_variable));
+	if (init_condition_variable == NULL)
+	{
+		// failed to allocate wrapper structure
+		// destroy condition variable
+		delete_conditiction_variable(platform_condition_variable);
+		return NULL;
+	}
+
+	condition_variable->platform_condvar = platform_condition_variable;
+	return condition_variable;
 }
 
 int32_t destroy_condition_variable(threading_condition_variable* condition_variable)
 {
 	if (condition_variable != NULL)
 	{
-		int32_t result = pthread_cond_destroy(condition_variable->platform_condvar);
-		memory_free(condition_variable->platform_condvar);
+		delete_conditiction_variable(condition_variable->platform_condvar);
 		memory_free(condition_variable);
-		condition_variable = NULL;
-		return result;
+		return 0;
 	}
 	return EINVAL;
 }
 
 int32_t threading_condition_variable_block(threading_condition_variable* condvar, threading_mutex* mutex)
 {
-	if (condvar != NULL)
+	if ((condvar != NULL && condvar->platform_condvar != NULL)
+		&& (mutex != NULL && mutex->platform_mutex != NULL))
 	{
 		return pthread_cond_wait(condvar->platform_condvar, mutex->platform_mutex);
 	}
@@ -70,7 +87,7 @@ int32_t threading_condition_variable_block(threading_condition_variable* condvar
 
 int32_t threading_condition_variable_unblock_single(threading_condition_variable* condvar)
 {
-	if (condvar != NULL)
+	if (condvar != NULL && condvar->platform_condvar != NULL)
 	{
 		return pthread_cond_signal(condvar->platform_condvar);
 	}
@@ -79,7 +96,7 @@ int32_t threading_condition_variable_unblock_single(threading_condition_variable
 
 int32_t threading_condition_variable_unblock_all(threading_condition_variable* condvar)
 {
-	if (condvar != NULL)
+	if (condvar != NULL && condvar->platform_condvar != NULL)
 	{
 		return pthread_cond_broadcast(condvar->platform_condvar);
 	}

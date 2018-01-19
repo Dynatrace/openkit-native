@@ -20,16 +20,22 @@
 
 #include "stddef.h"
 
-typedef struct {
-	size_t length;
-	unsigned char* data;
-} compressed_data;
+#ifdef  __cplusplus
+extern "C" {
+#endif
+	typedef struct {
+		size_t length;
+		unsigned char* data;
+	} compressed_data;
 
-///
-/// Compress block of memory at in_data with a length of in_data_size bytes 
-/// @param[in] in_data pointer to the incoming data
-/// @param[in] in_data_size size of data behind the pointer (measured in bytes)
-/// @out_data[out] binary_data struct passed as reference that will contain the compressed data.
-///
-void compress_memory(const void *in_data, size_t in_data_size, compressed_data* out_data);
+	///
+	/// Compress block of memory at in_data with a length of in_data_size bytes 
+	/// @param[in] in_data pointer to the incoming data
+	/// @param[in] in_data_size size of data behind the pointer (measured in bytes)
+	/// @out_data[out] binary_data struct passed as reference that will contain the compressed data.
+	///
+	void compress_memory(const void *in_data, size_t in_data_size, compressed_data* out_data);
+#ifdef  __cplusplus
+}
+#endif
 #endif

@@ -19,43 +19,49 @@
 
 #include <stdint.h>
 
-///
-/// struct encapsulating a platform thread
-///
-typedef struct _threading_thread
-{
-	void* platform_thread;
-	int32_t platform_thread_info;
-} threading_thread;
+#ifdef  __cplusplus
+extern "C" {
+#endif
+	///
+	/// struct encapsulating a platform thread
+	///
+	typedef struct _threading_thread
+	{
+		void* platform_thread;
+		int32_t platform_thread_info;
+	} threading_thread;
 
-///
-/// Initialize a new thread
-/// @param[in] function a function pointer declaring the threads execution context
-/// @param[in] thread_data a void pointer to the thread's arguments
-/// @return a new thread or NULL if errors occured
-///
-threading_thread* create_thread(void*(*function)(void*), void* thread_data);
+	///
+	/// Initialize a new thread
+	/// @param[in] function a function pointer declaring the threads execution context
+	/// @param[in] thread_data a void pointer to the thread's arguments
+	/// @return a new thread or NULL if errors occured
+	///
+	threading_thread* create_thread(void*(*function)(void*), void* thread_data);
 
-///
-/// Destroy a thread and free associated resources
-/// @param[in] the thread to destroy
-/// @return 0 in case of succcess, EINVAL if null was passed and error codes in case of failure
-///
-int32_t destroy_thread(threading_thread* thread);
+	///
+	/// Destroy a thread and free associated resources
+	/// @param[in] the thread to destroy
+	/// @return 0 in case of succcess, EINVAL if null was passed and error codes in case of failure
+	///
+	int32_t destroy_thread(threading_thread* thread);
 
-///
-/// Wait until the thread reaches the end of its execution, the calling thread
-/// is blocked until the other thread returns.
-/// @param[in] thread the thread for whose end a blocking wait is performed
-/// @return 0 in case of succcess, EINVAL if null was passed and error codes in case of failure
-///
-int32_t threading_thread_join(threading_thread* thread);
+	///
+	/// Wait until the thread reaches the end of its execution, the calling thread
+	/// is blocked until the other thread returns.
+	/// @param[in] thread the thread for whose end a blocking wait is performed
+	/// @return 0 in case of succcess, EINVAL if null was passed and error codes in case of failure
+	///
+	int32_t threading_thread_join(threading_thread* thread);
 
-///
-/// Sleep for the specified amount of milliseconds. For being able to specify wait operations
-/// in the millisecond resolution high-precision timers are used.
-/// @param[in] time_in_ms amount of milliseconds to wait in the callers thread.
-///
-int32_t threading_sleep(uint32_t time_in_ms);
+	///
+	/// Sleep for the specified amount of milliseconds. For being able to specify wait operations
+	/// in the millisecond resolution high-precision timers are used.
+	/// @param[in] time_in_ms amount of milliseconds to wait in the callers thread.
+	///
+	int32_t threading_sleep(uint32_t time_in_ms);
 
+#ifdef  __cplusplus
+}
+#endif
 #endif

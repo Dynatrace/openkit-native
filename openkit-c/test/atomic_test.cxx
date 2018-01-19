@@ -3,10 +3,8 @@
 #include <limits.h>
 #include <gtest/gtest.h>
 
-extern "C" {
 #include "threading_utils_atomic.h"
 #include "threading_utils_thread.h"
-}
 
 class AtomicTest : public testing::Test
 {
@@ -21,12 +19,12 @@ public:
 		destroy_atomic(test_atomic);
 	}
 
-	atomic* get_atomic()
+	atomic_int32* get_atomic()
 	{
 		return test_atomic;
 	}
 private:
-	atomic * test_atomic;
+	atomic_int32 * test_atomic;
 };
 struct thread_info
 {
@@ -35,11 +33,11 @@ struct thread_info
 
 void* incrementThread(void* arg)
 {
-	atomic* atom = (atomic*)arg;
+	atomic_int32* atom = (atomic_int32*)arg;
 	int32_t i;
 	for (i = 0; i < 20; i++)
 	{
-		atomic_increment(atom);
+		atomic_increment_and_get(atom);
 
 		threading_sleep(1);
 	}
@@ -49,7 +47,7 @@ void* incrementThread(void* arg)
 
 TEST_F(AtomicTest, IntegerIs100After5ThreadsEachDoing20Requests)
 {
-	atomic* atom = get_atomic();
+	atomic_int32* atom = get_atomic();
 
 	ASSERT_TRUE(NULL != atom);
 

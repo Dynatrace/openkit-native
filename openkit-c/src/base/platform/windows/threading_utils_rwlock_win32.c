@@ -16,27 +16,46 @@
 
 #include "threading_utils_rwlock.h"
 
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
 #include "memory.h"
 
-threading_rw_lock* init_rw_lock()
+static SRWLOCK* create_slim_rw_lock()
 {
 	SRWLOCK* platform_lock = (SRWLOCK*)memory_malloc(sizeof(SRWLOCK));
-	if (platform_lock != NULL)
+	if (platform_lock == NULL)
 	{
-		InitializeSRWLock(platform_lock);
-
-		threading_rw_lock* lock = (threading_rw_lock*)memory_malloc(sizeof(threading_rw_lock));
-		if (lock != NULL)
-		{
-			lock->platform_rw_lock = (void*)platform_lock;
-			return lock;
-		}
-		memory_free(platform_lock);
+		return NULL;
 	}
 
-	return NULL;
+	InitializeSRWLock(platform_lock);
+
+	return platform_lock;
+}
+
+threading_rw_lock* init_rw_lock()
+{
+	SRWLOCK* platform_lock = create_slim_rw_lock();
+	if (platform_lock == NULL)
+	{
+		return NULL;
+	}
+
+
+	threading_rw_lock* lock = (threading_rw_lock*)memory_malloc(sizeof(threading_rw_lock));
+	if (lock == NULL)
+	{
+		// failed to allocate wrapper structure
+		// destroy so far allocated memory
+		// NOTE Slim RW locks do not have an explicit destroy function
+		//see https://msdn.microsoft.com/en-us/library/windows/desktop/aa904937(v=vs.85).aspx
+		memory_free(platform_lock);
+		return NULL;
+	}
+
+	lock->platform_rw_lock = platform_lock;
+	return lock;
 }
 
 int32_t destroy_rw_lock(threading_rw_lock* rw_lock)
@@ -45,43 +64,52 @@ int32_t destroy_rw_lock(threading_rw_lock* rw_lock)
 	{
 		//windows api doesn't require to destroy rw_locks
 		//see https://msdn.microsoft.com/en-us/library/windows/desktop/aa904937(v=vs.85).aspx
-
-		memory_free(rw_lock->platform_rw_lock);
+		if (rw_lock->platform_rw_lock != NULL)
+		{
+			memory_free(rw_lock->platform_rw_lock);
+		}
 		memory_free(rw_lock);
-		rw_lock = NULL;
 		return 0;
 	}
 	return EINVAL;
 }
 
-void threading_rw_lock_lock_read(threading_rw_lock* rw_lock)
+int32_t threading_rw_lock_lock_read(threading_rw_lock* rw_lock)
 {
-	if (rw_lock != NULL)
+	if (rw_lock != NULL && rw_lock->platform_rw_lock != NULL)
 	{
 		AcquireSRWLockShared(rw_lock->platform_rw_lock);
+		return 0;
 	}
+	return EINVAL;
 }
 
-void threading_rw_lock_lock_write(threading_rw_lock* rw_lock)
+int32_t threading_rw_lock_lock_write(threading_rw_lock* rw_lock)
 {
-	if (rw_lock != NULL)
+	if (rw_lock != NULL && rw_lock->platform_rw_lock != NULL)
 	{
 		AcquireSRWLockExclusive(rw_lock->platform_rw_lock);
+		return 0;
 	}
+	return EINVAL;
 }
 
-void threading_rw_lock_unlock_read(threading_rw_lock* rw_lock)
+int32_t threading_rw_lock_unlock_read(threading_rw_lock* rw_lock)
 {
-	if (rw_lock != NULL)
+	if (rw_lock != NULL && rw_lock->platform_rw_lock != NULL)
 	{
 		ReleaseSRWLockShared(rw_lock->platform_rw_lock);
+		return 0;
 	}
+	return EINVAL;
 }
 
-void threading_rw_lock_unlock_write(threading_rw_lock* rw_lock)
+int32_t threading_rw_lock_unlock_write(threading_rw_lock* rw_lock)
 {
-	if (rw_lock != NULL)
+	if (rw_lock != NULL && rw_lock->platform_rw_lock != NULL)
 	{
 		ReleaseSRWLockExclusive(rw_lock->platform_rw_lock);
+		return 0;
 	}
+	return EINVAL;
 }

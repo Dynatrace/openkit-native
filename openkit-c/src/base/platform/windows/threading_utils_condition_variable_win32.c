@@ -16,30 +16,46 @@
 
 #include "threading_utils_condition_variable.h"
 
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
 #include "threading_utils_mutex.h"
 #include "memory.h"
 
+static void delete_conditiction_variable(CONDITION_VARIABLE* condition_variable)
+{
+	if (condition_variable == NULL)
+	{
+		// do nothing if a NULL ptr was given
+		return;
+	}
+
+	// NOTE there is no special function to destroy a CV
+	// just free up the memory
+	memory_free(condition_variable);
+}
+
 threading_condition_variable* init_condition_variable()
 {
 	CONDITION_VARIABLE* platform_condition_variable = (CONDITION_VARIABLE*)memory_malloc(sizeof(CONDITION_VARIABLE));
-
-	if (platform_condition_variable != NULL)
+	if (platform_condition_variable == NULL)
 	{
-		InitializeConditionVariable(platform_condition_variable);
-
-		threading_condition_variable* condition_variable = (threading_condition_variable*)memory_malloc(sizeof(threading_condition_variable));
-
-		if (condition_variable != NULL)
-		{
-			condition_variable->platform_condvar = platform_condition_variable;
-			return condition_variable;
-		}
-		memory_free(platform_condition_variable);
+		return NULL;
 	}
 
-	return NULL;
+	InitializeConditionVariable(platform_condition_variable);
+
+	threading_condition_variable* condition_variable = (threading_condition_variable*)memory_malloc(sizeof(threading_condition_variable));
+	if (condition_variable == NULL)
+	{
+		// allocation of wrapper structure failed
+		// destroy previously created things
+		destroy_condition_variable(platform_condition_variable);
+		return NULL;
+	}
+
+	condition_variable->platform_condvar = platform_condition_variable;
+	return condition_variable;
 }
 
 int32_t destroy_condition_variable(threading_condition_variable* condvar)
@@ -47,9 +63,8 @@ int32_t destroy_condition_variable(threading_condition_variable* condvar)
 	if (condvar != NULL)
 	{
 		//no windows API call to destroy platform condition variable
-		memory_free(condvar->platform_condvar);
+		delete_conditiction_variable(condvar->platform_condvar);
 		memory_free(condvar);
-		condvar = NULL;
 		return 0;
 	}
 	return EINVAL;
@@ -57,17 +72,23 @@ int32_t destroy_condition_variable(threading_condition_variable* condvar)
 
 int32_t threading_condition_variable_block(threading_condition_variable* condvar, threading_mutex* mutex)
 {
-	if (condvar != NULL)
+	if ((condvar != NULL && condvar->platform_condvar != NULL)
+		&& (mutex != NULL && mutex->platform_mutex != NULL))
 	{
-		SleepConditionVariableCS(condvar->platform_condvar, mutex->platform_mutex, INFINITE);
-		return 0;
+		if (SleepConditionVariableCS(condvar->platform_condvar, mutex->platform_mutex, INFINITE) != FALSE)
+		{
+			// function succeeded, since return value is non-zero
+			return 0;
+		}
+		// function failed, last error contains details
+		return GetLastError();
 	}
 	return EINVAL;
 }
 
 int32_t threading_condition_variable_unblock_single(threading_condition_variable* condvar)
 {
-	if (condvar != NULL)
+	if (condvar != NULL && condvar->platform_condvar != NULL)
 	{
 		WakeConditionVariable(condvar->platform_condvar);
 		return 0;
@@ -77,7 +98,7 @@ int32_t threading_condition_variable_unblock_single(threading_condition_variable
 
 int32_t threading_condition_variable_unblock_all(threading_condition_variable* condvar)
 {
-	if (condvar != NULL)
+	if (condvar != NULL && condvar->platform_condvar != NULL)
 	{
 		WakeAllConditionVariable(condvar->platform_condvar);
 		return 0;

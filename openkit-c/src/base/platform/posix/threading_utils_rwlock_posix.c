@@ -21,72 +21,93 @@
 
 #include "memory.h"
 
+static void delete_posix_rw_lock(pthread_rwlock_t* posix_rw_lock)
+{
+	if (posix_rw_lock == NULL)
+	{
+		// do nothing if a NULL ptr was given
+		return;
+	}
+
+	// don't care about errors
+	pthread_rwlock_destroy(posix_rw_lock);
+	memory_free(posix_rw_lock);
+}
+
 threading_rw_lock* init_rw_lock()
 {
 	pthread_rwlock_t* platform_lock = (pthread_rwlock_t*)memory_malloc(sizeof(pthread_rwlock_t));
-	if (platform_lock != NULL)
+	if (platform_lock == NULL)
 	{
-		//default attributes(NULL) are fine, we do not need to share locks between different processes
-		int32_t result = pthread_rwlock_init(platform_lock, NULL);
-
-		if (result == 0)
-		{
-			threading_rw_lock* lock = (threading_rw_lock*)memory_malloc(sizeof(threading_rw_lock));
-
-			if (lock != NULL)
-			{
-				lock->platform_rw_lock = platform_lock;
-				return lock;
-			}
-		}
-		memory_free(platform_lock);
+		return NULL;
 	}
 
-	return NULL;
+	// the second parameter is attributes
+	// in our case, since we don't need to share our RW lock accross process boundaries,
+	// the default attributes are sufficient.
+	int32_t result = pthread_rwlock_init(platform_lock, NULL);
+	if (result != 0)
+	{
+		// error happened - release memory and return
+		memory_free(platform_lock);
+		return result;
+	}
+
+	threading_rw_lock* lock = (threading_rw_lock*)memory_malloc(sizeof(threading_rw_lock));
+	if (lock == NULL)
+	{
+		// allocating our wrapper structure failed
+		delete_posix_rw_lock(platform_lock);
+		return NULL;
+	}
+
+	lock->platform_rw_lock = platform_lock;
+	return lock;
 }
 
 int32_t destroy_rw_lock(threading_rw_lock* rw_lock)
 {
 	if (rw_lock != NULL)
 	{
-		int32_t result = pthread_rwlock_destroy(rw_lock->platform_rw_lock);
-
-		memory_free(rw_lock->platform_rw_lock);
+		delete_posix_rw_lock(rw_lock->platform_rw_lock);
 		memory_free(rw_lock);
-		rw_lock = NULL;
-		return result;
+		return 0;
 	}
 	return EINVAL;
 }
 
-void threading_rw_lock_lock_read(threading_rw_lock* rw_lock)
+int32_t threading_rw_lock_lock_read(threading_rw_lock* rw_lock)
 {
-	if (rw_lock != NULL)
+	if (rw_lock != NULL && rw_lock->platform_rw_lock != NULL)
 	{
-		pthread_rwlock_rdlock(rw_lock->platform_rw_lock);
+		return pthread_rwlock_rdlock(rw_lock->platform_rw_lock);
 	}
+	return EINVAL;
 }
 
-void threading_rw_lock_lock_write(threading_rw_lock* rw_lock)
+int32_t threading_rw_lock_lock_write(threading_rw_lock* rw_lock)
 {
-	if (rw_lock != NULL)
+	if (rw_lock != NULL && rw_lock->platform_rw_lock != NULL)
 	{
-		pthread_rwlock_wrlock(rw_lock->platform_rw_lock);
+		return pthread_rwlock_wrlock(rw_lock->platform_rw_lock);
 	}
+	return EINVAL;
 }
 
-void threading_rw_lock_unlock_read(threading_rw_lock* rw_lock)
+int32_t threading_rw_lock_unlock_read(threading_rw_lock* rw_lock)
 {
-	if (rw_lock != NULL)
+	if (rw_lock != NULL && rw_lock->platform_rw_lock != NULL)
 	{
-		pthread_rwlock_unlock(rw_lock->platform_rw_lock);
+		return pthread_rwlock_unlock(rw_lock->platform_rw_lock);
 	}
+	return EINVAL;
 }
 
-void threading_rw_lock_unlock_write(threading_rw_lock* rw_lock)
+int32_t threading_rw_lock_unlock_write(threading_rw_lock* rw_lock)
 {
-	if (rw_lock != NULL)
+	if (rw_lock != NULL && rw_lock->platform_rw_lock != NULL)
 	{
-		pthread_rwlock_unlock(rw_lock->platform_rw_lock);
+		return pthread_rwlock_unlock(rw_lock->platform_rw_lock);
 	}
+	return EINVAL;
 }
