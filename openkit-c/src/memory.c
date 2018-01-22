@@ -53,3 +53,8 @@ void memory_set(void* dst, int32_t value, size_t number_of_bytes)
 {
 	memset(dst, value, number_of_bytes);
 }
+
+int32_t memory_compare(void* mem1, void* mem2, size_t length)
+{
+	return memcmp(mem1, mem2, length);
+}

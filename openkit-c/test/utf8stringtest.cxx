@@ -203,28 +203,75 @@ TEST_F(StringTest, AStringCanBeInitializedWhenTwoOfThreeMultiByteCharactersAreBr
 	ASSERT_EQ(s->byte_length, 6);
 	destroy_string(s);
 }
+
+TEST_F(StringTest, AStringWillNotBeConstructedUsingANullPointer)
+{
+	utf8string* s = init_string(NULL);
+	EXPECT_TRUE(s == NULL);
+}
+
+
+TEST_F(StringTest, AStringCanBeSearchedForASCIICharacters)
+{
+	const char* string = "abc\xD7\xAA\x78\xF0\x9F\x98\x8B\x64\xEA\xA6\x85xyz";
+	utf8string* s = init_string(string);
+
+	char character_c = 'c';
+	int32_t pos_of_c = index_of(s, &character_c, 0);
+	EXPECT_EQ(pos_of_c, 2);
+
+	char character_y = 'y';
+	int32_t pos_of_y = index_of(s, &character_y, 0);
+	EXPECT_EQ(pos_of_y, 9);
+
+	destroy_string(s);
+}
+
+TEST_F(StringTest, AStringCanBeSearchedForUTF8Characters)
+{
+	const char* string = "abc\xD7\xAA\x78\xF0\x9F\x98\x8B\x64\xEA\xA6\x85xyz";
+	utf8string* s = init_string(string);
+
+	const char utf_character[3] = { 0xEA, 0xA6, 0x85 };
+
+	int32_t pos_of_utf3 = index_of(s, &utf_character[0], 0);
+	EXPECT_EQ(pos_of_utf3, 7);
+
+	destroy_string(s);
+}
+
+TEST_F(StringTest, AStringDoesNotContainAGivenCharacter)
+{
+	const char* string = "abcefgh";
+	utf8string* s = init_string(string);
+
+	char character_d = 'd';
+
+	int32_t pos_of_d = index_of(s, &character_d, 0);
+	EXPECT_EQ(pos_of_d, -1);
+
+	destroy_string(s);
+}
+
+TEST_F(StringTest, AStringIndexOfUsingTheOffsetParameter)
+{
+	const char* string = "abcefgh";
+	utf8string* s = init_string(string);
+
+	char character_b = 'b';
+
+	int32_t pos_of_b_offset0 = index_of(s, &character_b, 0);
+	EXPECT_EQ(pos_of_b_offset0, 1);
+
+	int32_t pos_of_b_offset1 = index_of(s, &character_b, 1);
+	EXPECT_EQ(pos_of_b_offset1, 1);
+
+	int32_t pos_of_b_offset2 = index_of(s, &character_b, 2);
+	EXPECT_EQ(pos_of_b_offset2, -1);
+
+	destroy_string(s);
+}
 /*
-TEST_F(StringTest, InitializeWithNullString)
-{
-	//isvalid false
-}
-
-
-TEST_F(StringTest, GetStringLengthASCII)
-{
-
-}
-
-TEST_F(StringTest, GetStringLengthUTF8)
-{
-
-}
-
-TEST_F(StringTest, StringsAreCutAt250CharacterBorder)
-{
-
-}
-
 TEST_F(StringTest, CompareEqual)
 {
 
@@ -265,15 +312,6 @@ TEST_F(StringTest, ConcatenateWithInvalidCharPointer)
 
 }
 
-TEST_F(StringTest, IndexOfExistingCharacter)
-{
-
-}
-
-TEST_F(StringTest, IndexOfNonExisitingCharacter)
-{
-
-}
 
 TEST_F(StringTest, SubstringFromValidRange)
 {

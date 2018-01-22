@@ -80,4 +80,17 @@ void memory_move(void* dst, const void* src, size_t number_of_bytes);
 /// @param[in] number_of_bytes size of the memory block
 ///
 void memory_set(void* dst, int32_t value, size_t number_of_bytes);
+
+///
+/// Compare two blocks of memory
+///   NOTE: there is no check for '\0'
+/// @param[in] mem1 pointer to first block of memory
+/// @param[in] mem2 pointer to second block of memory
+/// @param[in] length length of the two memory blocks
+/// @returns @s 0 in case of equality of the two blocks, -1 in case the first 
+///          non-matching byte in @s mem1 is smaller than the  according byte
+///          in @s mem2, and 1 in case the first non-matching byte is bigger 
+///          in @s mem1
+///
+int32_t memory_compare(void* mem1, void* mem2, size_t length);
 #endif
