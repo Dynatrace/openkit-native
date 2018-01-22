@@ -225,7 +225,16 @@ int32_t validate_string(utf8string* target, const char* string_data)
 
 utf8string* duplicate_string(const utf8string* other)
 {
-
+	if (other != NULL)
+	{
+		utf8string* duplicate_string = (utf8string*)memory_malloc(sizeof(utf8string));
+		duplicate_string->byte_length = other->byte_length;
+		duplicate_string->string_length = other->string_length;
+		duplicate_string->data = (char*)memory_calloc(other->byte_length, sizeof(char));
+		memory_copy(duplicate_string->data, other->data, other->byte_length);
+		return duplicate_string;
+	}
+	return NULL;
 }
 
 int32_t destroy_string(utf8string* s)
@@ -240,9 +249,24 @@ int32_t destroy_string(utf8string* s)
 	}
 }
 
-int32_t compare(const utf8string* s1, const utf8string* s2)
+int32_t compare_strings(const utf8string* s1, const utf8string* s2)
 {
+	if (s1 != NULL && s2 != NULL)
+	{
+		int result = 0;
+		result = (s1->byte_length < s2->byte_length);
 
+		if (result == 0)
+		{
+			result = (s1->string_length < s2->string_length);
+		}
+		if (result == 0)
+		{
+			result = memory_compare(s1->data, s2->data, s1->byte_length);
+		}
+		return result;
+	}
+	return -1;
 }
 
 int32_t concatenate_char_pointer(utf8string* string, const char* other)

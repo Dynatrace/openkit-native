@@ -1,5 +1,6 @@
 extern "C" {
 #include "utf8string.h"
+#include "memory.h"
 }
 
 #include <stdint.h>
@@ -24,17 +25,17 @@ TEST_F(StringTest, AStringCanBeInitializedWithAnASCIIString)
 	const char* test_string = "test123";
 	utf8string* s = init_string(test_string);
 
-	ASSERT_EQ(s->data[0], 't');
-	ASSERT_EQ(s->data[1], 'e');
-	ASSERT_EQ(s->data[2], 's');
-	ASSERT_EQ(s->data[3], 't');
-	ASSERT_EQ(s->data[4], '1');
-	ASSERT_EQ(s->data[5], '2');
-	ASSERT_EQ(s->data[6], '3');
-	ASSERT_EQ(s->data[7], '\0');
+	EXPECT_EQ(s->data[0], 't');
+	EXPECT_EQ(s->data[1], 'e');
+	EXPECT_EQ(s->data[2], 's');
+	EXPECT_EQ(s->data[3], 't');
+	EXPECT_EQ(s->data[4], '1');
+	EXPECT_EQ(s->data[5], '2');
+	EXPECT_EQ(s->data[6], '3');
+	EXPECT_EQ(s->data[7], '\0');
 
-	ASSERT_EQ(s->string_length, 7);
-	ASSERT_EQ(s->byte_length, 8);
+	EXPECT_EQ(s->string_length, 7);
+	EXPECT_EQ(s->byte_length, 8);
 	destroy_string(s);
 }
 
@@ -44,18 +45,18 @@ TEST_F(StringTest, AStringCanBeInitializedWithFour2ByteCharacters)
 	const char* string = "\xD7\xAA\xD7\x95\xD7\x93\xD7\x94";
 	utf8string* s = init_string(string);
 
-	ASSERT_EQ(s->data[0], (char)0xD7);
-	ASSERT_EQ(s->data[1], (char)0xAA);
-	ASSERT_EQ(s->data[2], (char)0xD7);
-	ASSERT_EQ(s->data[3], (char)0x95);
-	ASSERT_EQ(s->data[4], (char)0xD7);
-	ASSERT_EQ(s->data[5], (char)0x93);
-	ASSERT_EQ(s->data[6], (char)0xD7);
-	ASSERT_EQ(s->data[7], (char)0x94);
-	ASSERT_EQ(s->data[8], '\0');
+	EXPECT_EQ(s->data[0], (char)0xD7);
+	EXPECT_EQ(s->data[1], (char)0xAA);
+	EXPECT_EQ(s->data[2], (char)0xD7);
+	EXPECT_EQ(s->data[3], (char)0x95);
+	EXPECT_EQ(s->data[4], (char)0xD7);
+	EXPECT_EQ(s->data[5], (char)0x93);
+	EXPECT_EQ(s->data[6], (char)0xD7);
+	EXPECT_EQ(s->data[7], (char)0x94);
+	EXPECT_EQ(s->data[8], '\0');
 
-	ASSERT_EQ(s->string_length, 4);
-	ASSERT_EQ(s->byte_length, 9);
+	EXPECT_EQ(s->string_length, 4);
+	EXPECT_EQ(s->byte_length, 9);
 	destroy_string(s);
 }
 
@@ -65,17 +66,17 @@ TEST_F(StringTest, AStringCanBeInitializedByReplacingInvalidUTF8FirstByte)
 	const char* string = "\xD7\xAAy\x95\xD7\x93\xD7\x94";
 	utf8string* s = init_string(string);
 
-	ASSERT_EQ(s->data[0], (char)0xD7);
-	ASSERT_EQ(s->data[1], (char)0xAA);
-	ASSERT_EQ(s->data[2], 'y');
-	ASSERT_EQ(s->data[3], '?');
-	ASSERT_EQ(s->data[4], (char)0xD7);
-	ASSERT_EQ(s->data[5], (char)0x93);
-	ASSERT_EQ(s->data[6], (char)0xD7);
-	ASSERT_EQ(s->data[7], (char)0x94);
+	EXPECT_EQ(s->data[0], (char)0xD7);
+	EXPECT_EQ(s->data[1], (char)0xAA);
+	EXPECT_EQ(s->data[2], 'y');
+	EXPECT_EQ(s->data[3], '?');
+	EXPECT_EQ(s->data[4], (char)0xD7);
+	EXPECT_EQ(s->data[5], (char)0x93);
+	EXPECT_EQ(s->data[6], (char)0xD7);
+	EXPECT_EQ(s->data[7], (char)0x94);
 
-	ASSERT_EQ(s->string_length, 5);
-	ASSERT_EQ(s->byte_length, 9);
+	EXPECT_EQ(s->string_length, 5);
+	EXPECT_EQ(s->byte_length, 9);
 	destroy_string(s);
 }
 
@@ -85,17 +86,17 @@ TEST_F(StringTest, AStringCanBeInitializedByReplacingInvalidUTF8SecondByte)
 	const char* string = "\xD7\xAA\xD7r\xD7\x93\xD7\x94";
 	utf8string* s = init_string(string);
 
-	ASSERT_EQ(s->data[0], (char)0xD7);
-	ASSERT_EQ(s->data[1], (char)0xAA);
-	ASSERT_EQ(s->data[2], '?');
-	ASSERT_EQ(s->data[3], 'r');
-	ASSERT_EQ(s->data[4], (char)0xD7);
-	ASSERT_EQ(s->data[5], (char)0x93);
-	ASSERT_EQ(s->data[6], (char)0xD7);
-	ASSERT_EQ(s->data[7], (char)0x94);
+	EXPECT_EQ(s->data[0], (char)0xD7);
+	EXPECT_EQ(s->data[1], (char)0xAA);
+	EXPECT_EQ(s->data[2], '?');
+	EXPECT_EQ(s->data[3], 'r');
+	EXPECT_EQ(s->data[4], (char)0xD7);
+	EXPECT_EQ(s->data[5], (char)0x93);
+	EXPECT_EQ(s->data[6], (char)0xD7);
+	EXPECT_EQ(s->data[7], (char)0x94);
 
-	ASSERT_EQ(s->string_length, 5);
-	ASSERT_EQ(s->byte_length, 9);
+	EXPECT_EQ(s->string_length, 5);
+	EXPECT_EQ(s->byte_length, 9);
 	destroy_string(s);
 }
 
@@ -106,15 +107,15 @@ TEST_F(StringTest, AStringCanBeInitializedUsingATwoByteAndAFourByteUTF8)
 	const char* string = "\xD7\xAA\xf0\x9f\x98\x8b";
 	utf8string* s = init_string(string);
 
-	ASSERT_EQ(s->data[0], (char)0xD7);// 1/2
-	ASSERT_EQ(s->data[1], (char)0xAA);// 2/2
-	ASSERT_EQ(s->data[2], (char)0xF0);// 1/4
-	ASSERT_EQ(s->data[3], (char)0x9F);// 2/4
-	ASSERT_EQ(s->data[4], (char)0x98);// 3/4
-	ASSERT_EQ(s->data[5], (char)0x8B);// 4/4
+	EXPECT_EQ(s->data[0], (char)0xD7);// 1/2
+	EXPECT_EQ(s->data[1], (char)0xAA);// 2/2
+	EXPECT_EQ(s->data[2], (char)0xF0);// 1/4
+	EXPECT_EQ(s->data[3], (char)0x9F);// 2/4
+	EXPECT_EQ(s->data[4], (char)0x98);// 3/4
+	EXPECT_EQ(s->data[5], (char)0x8B);// 4/4
 
-	ASSERT_EQ(s->string_length, 2);
-	ASSERT_EQ(s->byte_length, 7);
+	EXPECT_EQ(s->string_length, 2);
+	EXPECT_EQ(s->byte_length, 7);
 	destroy_string(s);
 }
 
@@ -123,15 +124,15 @@ TEST_F(StringTest, AStringCanBeInitializedUsingAOneByteUTF8)
 	const char* string = "\x61\x62\x63\x72\x74\x78";
 	utf8string* s = init_string(string);
 
-	ASSERT_EQ(s->data[0], 'a');
-	ASSERT_EQ(s->data[1], 'b');
-	ASSERT_EQ(s->data[2], 'c');
-	ASSERT_EQ(s->data[3], 'r');
-	ASSERT_EQ(s->data[4], 't');
-	ASSERT_EQ(s->data[5], 'x');
+	EXPECT_EQ(s->data[0], 'a');
+	EXPECT_EQ(s->data[1], 'b');
+	EXPECT_EQ(s->data[2], 'c');
+	EXPECT_EQ(s->data[3], 'r');
+	EXPECT_EQ(s->data[4], 't');
+	EXPECT_EQ(s->data[5], 'x');
 
-	ASSERT_EQ(s->string_length, 6);
-	ASSERT_EQ(s->byte_length, 7);
+	EXPECT_EQ(s->string_length, 6);
+	EXPECT_EQ(s->byte_length, 7);
 	destroy_string(s);
 }
 
@@ -148,26 +149,26 @@ TEST_F(StringTest, AStringCanInitializedUsingACombinationOfAllByteWidths)
 	const char* string = "abc\xD7\xAA\x78\xF0\x9F\x98\x8B\x64\xEA\xA6\x85xyz";
 	utf8string* s = init_string(string);
 
-	ASSERT_EQ(s->data[0], 'a');
-	ASSERT_EQ(s->data[1], 'b');
-	ASSERT_EQ(s->data[2], 'c');
-	ASSERT_EQ(s->data[3], (char)0xD7); // 1/2
-	ASSERT_EQ(s->data[4], (char)0xAA); // 2/2
-	ASSERT_EQ(s->data[5], (char)0x78); // 1/1
-	ASSERT_EQ(s->data[6], (char)0xF0); // 1/4
-	ASSERT_EQ(s->data[7], (char)0x9F); // 2/4
-	ASSERT_EQ(s->data[8], (char)0x98); // 3/4
-	ASSERT_EQ(s->data[9], (char)0x8B); // 4/4
-	ASSERT_EQ(s->data[10], (char)0x64);// 1/1
-	ASSERT_EQ(s->data[11], (char)0xEA);// 1/3
-	ASSERT_EQ(s->data[12], (char)0xA6);// 2/3
-	ASSERT_EQ(s->data[13], (char)0x85); // 3/3
-	ASSERT_EQ(s->data[14], 'x');
-	ASSERT_EQ(s->data[15], 'y');
-	ASSERT_EQ(s->data[16], 'z');
+	EXPECT_EQ(s->data[0], 'a');
+	EXPECT_EQ(s->data[1], 'b');
+	EXPECT_EQ(s->data[2], 'c');
+	EXPECT_EQ(s->data[3], (char)0xD7); // 1/2
+	EXPECT_EQ(s->data[4], (char)0xAA); // 2/2
+	EXPECT_EQ(s->data[5], (char)0x78); // 1/1
+	EXPECT_EQ(s->data[6], (char)0xF0); // 1/4
+	EXPECT_EQ(s->data[7], (char)0x9F); // 2/4
+	EXPECT_EQ(s->data[8], (char)0x98); // 3/4
+	EXPECT_EQ(s->data[9], (char)0x8B); // 4/4
+	EXPECT_EQ(s->data[10], (char)0x64);// 1/1
+	EXPECT_EQ(s->data[11], (char)0xEA);// 1/3
+	EXPECT_EQ(s->data[12], (char)0xA6);// 2/3
+	EXPECT_EQ(s->data[13], (char)0x85); // 3/3
+	EXPECT_EQ(s->data[14], 'x');
+	EXPECT_EQ(s->data[15], 'y');
+	EXPECT_EQ(s->data[16], 'z');
 
-	ASSERT_EQ(s->string_length, 11);
-	ASSERT_EQ(s->byte_length, 18);
+	EXPECT_EQ(s->string_length, 11);
+	EXPECT_EQ(s->byte_length, 18);
 	destroy_string(s);
 }
 
@@ -177,12 +178,12 @@ TEST_F(StringTest, AStringCanBeInitializedWithABrokenThreeByteUTF8FollowedByaTwo
 	const char* string = "\xEA\xA6\xD7\xAA";
 	utf8string* s = init_string(string);
 
-	ASSERT_EQ(s->data[0], '?');
-	ASSERT_EQ(s->data[1], (char)0xD7);
-	ASSERT_EQ(s->data[2], (char)0xAA);
+	EXPECT_EQ(s->data[0], '?');
+	EXPECT_EQ(s->data[1], (char)0xD7);
+	EXPECT_EQ(s->data[2], (char)0xAA);
 	
-	ASSERT_EQ(s->string_length, 2);
-	ASSERT_EQ(s->byte_length, 4);
+	EXPECT_EQ(s->string_length, 2);
+	EXPECT_EQ(s->byte_length, 4);
 	destroy_string(s);
 }
 
@@ -193,14 +194,14 @@ TEST_F(StringTest, AStringCanBeInitializedWhenTwoOfThreeMultiByteCharactersAreBr
 
 	utf8string* s = init_string(string);
 
-	ASSERT_EQ(s->data[0], '?');
-	ASSERT_EQ(s->data[1], '?');
-	ASSERT_EQ(s->data[2], (char)0xEA);
-	ASSERT_EQ(s->data[3], (char)0xA6);
-	ASSERT_EQ(s->data[4], (char)0x90);
+	EXPECT_EQ(s->data[0], '?');
+	EXPECT_EQ(s->data[1], '?');
+	EXPECT_EQ(s->data[2], (char)0xEA);
+	EXPECT_EQ(s->data[3], (char)0xA6);
+	EXPECT_EQ(s->data[4], (char)0x90);
 
-	ASSERT_EQ(s->string_length, 3);
-	ASSERT_EQ(s->byte_length, 6);
+	EXPECT_EQ(s->string_length, 3);
+	EXPECT_EQ(s->byte_length, 6);
 	destroy_string(s);
 }
 
@@ -271,27 +272,64 @@ TEST_F(StringTest, AStringIndexOfUsingTheOffsetParameter)
 
 	destroy_string(s);
 }
+
+TEST_F(StringTest, AStringIsDuplicated_ValidString)
+{
+	const char* string = "abc\xD7\xAA\x78\xF0\x9F\x98\x8B\x64\xEA\xA6\x85xyz";
+	utf8string* s = init_string(string);
+
+	utf8string* duplicate = duplicate_string(s);
+
+	int32_t comparison_result = compare_strings(s, duplicate);
+	EXPECT_EQ(comparison_result, 0);
+
+	destroy_string(s);
+	destroy_string(duplicate);
+}
+
+TEST_F(StringTest, AStringIsDuplicated_NullString)
+{
+	utf8string* duplicate = duplicate_string(NULL);
+	EXPECT_TRUE(duplicate == NULL);
+}
+
+TEST_F(StringTest, AStringIsComparedWithAnIdenticalString)
+{
+	const char* string = "1234567890";
+	utf8string* s1 = init_string(string);
+	utf8string* s2 = init_string(string);
+
+	int32_t comparison = compare_strings(s1, s2);
+	EXPECT_EQ(comparison, 0);
+
+	destroy_string(s1);
+	destroy_string(s2);
+}
+
+TEST_F(StringTest, AStringIsComparedWithADifferentString)
+{
+	const char* string1 = "1234567890";
+	const char* string2 = "1234567898";
+	utf8string* s1 = init_string(string1);
+	utf8string* s2 = init_string(string2);
+
+	int32_t comparison = compare_strings(s1, s2);
+	EXPECT_NE(comparison, 0);
+
+	destroy_string(s1);
+	destroy_string(s2);
+}
+
+TEST_F(StringTest, AStringIsComparedWithANullString)
+{
+	const char* string = "abc\xD7\xAA\x78\xF0\x9F\x98\x8B\x64\xEA\xA6\x85xyz";
+	utf8string* s = init_string(string);
+
+	int32_t comparison = compare_strings(s, NULL);
+	EXPECT_NE(comparison, 0);
+	destroy_string(s);
+}
 /*
-TEST_F(StringTest, CompareEqual)
-{
-
-}
-
-TEST_F(StringTest, CompareDifferent)
-{
-
-}
-
-TEST_F(StringTest, DuplicateValidString)
-{
-
-}
-
-TEST_F(StringTest, DuplicateNullString)
-{
-
-}
-
 TEST_F(StringTest, ConcatenateWithOtherString)
 {
 

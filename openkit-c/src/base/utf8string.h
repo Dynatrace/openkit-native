@@ -75,7 +75,7 @@ int32_t validate_string(utf8string* target, const char* s);
 /// @param[in] s2 second string
 /// @return 0 if strings are equal, -1/1 if not equal
 ///
-int32_t compare(const utf8string* s1, const utf8string* s2);
+int32_t compare_strings(const utf8string* s1, const utf8string* s2);
 
 ///
 /// Concatenate two strings
