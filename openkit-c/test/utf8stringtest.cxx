@@ -45,14 +45,14 @@ TEST_F(StringTest, AStringCanBeInitializedWithFour2ByteCharacters)
 	const char* string = "\xD7\xAA\xD7\x95\xD7\x93\xD7\x94";
 	utf8string* s = init_string(string);
 
-	EXPECT_EQ(s->data[0], (char)0xD7);
-	EXPECT_EQ(s->data[1], (char)0xAA);
-	EXPECT_EQ(s->data[2], (char)0xD7);
-	EXPECT_EQ(s->data[3], (char)0x95);
-	EXPECT_EQ(s->data[4], (char)0xD7);
-	EXPECT_EQ(s->data[5], (char)0x93);
-	EXPECT_EQ(s->data[6], (char)0xD7);
-	EXPECT_EQ(s->data[7], (char)0x94);
+	EXPECT_EQ(s->data[0], (char)0xD7); // 1/2
+	EXPECT_EQ(s->data[1], (char)0xAA); // 2/2
+	EXPECT_EQ(s->data[2], (char)0xD7); // 1/2
+	EXPECT_EQ(s->data[3], (char)0x95); // 2/2
+	EXPECT_EQ(s->data[4], (char)0xD7); // 1/2
+	EXPECT_EQ(s->data[5], (char)0x93); // 2/2
+	EXPECT_EQ(s->data[6], (char)0xD7); // 1/2
+	EXPECT_EQ(s->data[7], (char)0x94); // 2/2
 	EXPECT_EQ(s->data[8], '\0');
 
 	EXPECT_EQ(s->string_length, 4);
@@ -329,6 +329,100 @@ TEST_F(StringTest, AStringIsComparedWithANullString)
 	EXPECT_NE(comparison, 0);
 	destroy_string(s);
 }
+
+TEST_F(StringTest, SubstringFromValidRange)
+{
+	const char* string = "1234567890";
+	utf8string* s = init_string(string);
+
+	utf8string* substr = substring(s, 3, 7);
+
+	const char* compare = "45678";
+	EXPECT_EQ(6, substr->byte_length);
+	EXPECT_EQ(5, substr->string_length);
+	int32_t comparison_result = compare_to_charpointer(substr, compare);
+	EXPECT_EQ(comparison_result, 0);
+
+	destroy_string(substr);
+	destroy_string(s);
+}
+
+TEST_F(StringTest, SubstringFromValidRange_UTF8Multibyte)
+{
+	const char* string = "\xD7\xAA\xD7\x95\xD7\x93\xD7\x94"; // 4 2-byte characters
+	utf8string* s = init_string(string);
+
+	utf8string* substr = substring(s, 1, 3);
+
+	const char* compare = "\xD7\x95\xD7\x93\xD7\x94";
+	EXPECT_EQ(7, substr->byte_length);
+	EXPECT_EQ(3, substr->string_length);
+	int32_t comparison_result = compare_to_charpointer(substr, compare);
+	EXPECT_EQ(comparison_result, 0);
+
+	destroy_string(substr);
+	destroy_string(s);
+}
+
+TEST_F(StringTest, SubstringFromValidRange_UTF8MultibyteASCIIMix)
+{
+	const char* string = "\xD7\xAAza\xD7\x95yb\xD7\x93xc\xD7\x94wd"; // 2-byte characters mixed with triplets of ASCII
+	utf8string* s = init_string(string);
+
+	utf8string* substr = substring(s, 3, 6);
+
+	const char* compare = "\xD7\x95yb\xD7\x93";
+	EXPECT_EQ(7, substr->byte_length);
+	EXPECT_EQ(4, substr->string_length);
+	int32_t comparison_result = compare_to_charpointer(substr, compare);
+	EXPECT_EQ(comparison_result, 0);
+
+	destroy_string(substr);
+	destroy_string(s);
+}
+
+TEST_F(StringTest, SubstringWithFirstInvalidIndex)
+{
+	const char* string = "1234567890";
+	utf8string* s = init_string(string);
+
+	utf8string* substr = substring(s, -1, 7);
+
+	EXPECT_TRUE(substr == NULL);
+
+	destroy_string(s);
+}
+
+TEST_F(StringTest, SubstringWithSecondInvalidIndex)
+{
+	const char* string = "1234567890";
+	utf8string* s = init_string(string);
+
+	utf8string* substr = substring(s, 1, 12);
+
+	EXPECT_TRUE(substr == NULL);
+
+	destroy_string(s);
+}
+
+TEST_F(StringTest, SubstringWithSecondIndexSmallerThanFirstIndex)
+{
+	const char* string = "1234567890";
+	utf8string* s = init_string(string);
+
+	utf8string* substr = substring(s, 6, 3);
+
+	EXPECT_TRUE(substr == NULL);
+
+	destroy_string(s);
+}
+
+TEST_F(StringTest, SubstringCalledOnEmptyString)
+{
+	utf8string* substr = substring(NULL, 1, 3);
+
+	EXPECT_TRUE(substr == NULL);
+}
 /*
 TEST_F(StringTest, ConcatenateWithOtherString)
 {
@@ -351,25 +445,7 @@ TEST_F(StringTest, ConcatenateWithInvalidCharPointer)
 }
 
 
-TEST_F(StringTest, SubstringFromValidRange)
-{
 
-}
-
-TEST_F(StringTest, SubstringWithFirstInvalidIndex)
-{
-
-}
-
-TEST_F(StringTest, SubstringWithSecondInvalidIndex)
-{
-
-}
-
-TEST_F(StringTest, SubstringCalledOnEmptyString)
-{
-
-}
 
 TEST_F(StringTest, TokenizeReturnsValidSubstringSameCharacter)
 {

@@ -228,6 +228,11 @@ utf8string* duplicate_string(const utf8string* other)
 	if (other != NULL)
 	{
 		utf8string* duplicate_string = (utf8string*)memory_malloc(sizeof(utf8string));
+		if (duplicate_string == NULL)
+		{
+			return NULL;
+		}
+
 		duplicate_string->byte_length = other->byte_length;
 		duplicate_string->string_length = other->string_length;
 		duplicate_string->data = (char*)memory_calloc(other->byte_length, sizeof(char));
@@ -269,6 +274,18 @@ int32_t compare_strings(const utf8string* s1, const utf8string* s2)
 	return -1;
 }
 
+int32_t compare_to_charpointer(const utf8string* s1, const char* s2)
+{
+	if (s1 != NULL && s2 != NULL)
+	{
+		utf8string* compare = init_string(s2);
+		int32_t result = compare_strings(s1, compare);
+		destroy_string(compare);
+		return result;
+	}
+	return -1;
+}
+
 int32_t concatenate_char_pointer(utf8string* string, const char* other)
 {
 
@@ -289,22 +306,24 @@ int32_t index_of(const utf8string* string, const char* comparison_character, siz
 
 	size_t number_of_bytes_compare = get_byte_width_of_character((unsigned char)(*comparison_character));
 
-	char* current_character = &(string->data[offset]);
+	char* current_character = &(string->data[0]);
 	int32_t i;
-	for (i = offset; i < string->string_length; i++)
+	for (i = 0; i < string->string_length; i++)
 	{
 		size_t number_of_bytes = get_byte_width_of_character((unsigned char)(*current_character));
 
-		//compare length
-		if (number_of_bytes_compare == number_of_bytes)
+		if (i >= offset)
 		{
-			if (number_of_bytes == 1 && (*current_character) == (*comparison_character))
+			if (number_of_bytes_compare == number_of_bytes)
 			{
-				return i;
-			}
-			if (number_of_bytes > 1 && memory_compare(current_character, comparison_character, number_of_bytes) == 0)
-			{
-				return i;
+				if (number_of_bytes == 1 && (*current_character) == (*comparison_character))
+				{
+					return i;
+				}
+				if (number_of_bytes > 1 && memory_compare(current_character, comparison_character, number_of_bytes) == 0)
+				{
+					return i;
+				}
 			}
 		}
 		current_character += number_of_bytes;
@@ -314,5 +333,53 @@ int32_t index_of(const utf8string* string, const char* comparison_character, siz
 
 utf8string* substring(const utf8string* string, size_t start, size_t end)
 {
+	if (string == NULL || start < 0 || start > string->string_length
+		|| end < 0 || end > string->string_length
+		|| end <start )
+	{
+		return NULL;
+	}
 
+	size_t byte_offset_start = 0;
+	size_t byte_offset_end = 0;
+
+	char* current_character = &(string->data[0]);
+	size_t bytepos = 0;
+	int32_t i;
+	for (i = 0; i < string->string_length; i++)
+	{
+		size_t number_of_bytes = get_byte_width_of_character((unsigned char)(*current_character));
+
+		if (i == start)
+		{
+			byte_offset_start = bytepos;
+		}
+		if (i == end)
+		{
+			byte_offset_end = bytepos + number_of_bytes -1;//in case of a multibyte character num - 1 is non-zero
+		}
+
+		current_character += number_of_bytes;
+		bytepos += number_of_bytes;
+	}
+
+	if (byte_offset_start > 0 && byte_offset_start < byte_offset_end && byte_offset_end < string->byte_length)
+	{
+		utf8string* substring = (utf8string*)memory_malloc(sizeof(utf8string));
+		if (substring != NULL)
+		{
+			substring->string_length = end - (start -  1);
+			substring->byte_length = byte_offset_end - (byte_offset_start - 1) + 1; //include '\0'
+			
+			substring->data = (char*)memory_malloc(substring->byte_length);
+			if (substring->data != NULL)
+			{
+				memory_copy(substring->data, &(string->data[byte_offset_start]), substring->byte_length - 1);
+				substring->data[substring->byte_length - 1] = '\0';
+				return substring;
+			}
+			memory_free(substring);
+		}
+	}
+	return NULL;
 }
