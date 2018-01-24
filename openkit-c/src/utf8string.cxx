@@ -330,7 +330,6 @@ UTF8String* UTF8String::substring(size_t start, size_t end) const
 	size_t index = 0;
 	size_t characterCounter = 0;
 	while(index < mData.size() && ( byteOffsetStart == 0 || byteOffsetEnd == 0))
-	//for (int32_t i = 0; i < mData.size(); i++)
 	{
 		unsigned char currentCharacter = mData[index];
 		size_t numberOfBytes = getByteWidthOfCharacter(currentCharacter);
