@@ -327,22 +327,24 @@ UTF8String* UTF8String::substring(size_t start, size_t end) const
 	size_t byteOffsetStart = 0;
 	size_t byteOffsetEnd = 0;
 
-	const char* currentCharacter = &(mData[0]);
 	size_t index = 0;
-	for (int32_t i = 0; i < mData.size(); i++)
+	size_t characterCounter = 0;
+	while(index < mData.size() && ( byteOffsetStart == 0 || byteOffsetEnd == 0))
+	//for (int32_t i = 0; i < mData.size(); i++)
 	{
-		size_t numberOfBytes = getByteWidthOfCharacter((unsigned char)(*currentCharacter));
+		unsigned char currentCharacter = mData[index];
+		size_t numberOfBytes = getByteWidthOfCharacter(currentCharacter);
 
-		if (i == start)
+		if (characterCounter == start)
 		{
 			byteOffsetStart = index;
 		}
-		if (i == end)
+		if (characterCounter == end)
 		{
 			byteOffsetEnd = index + numberOfBytes -1;//in case of a multibyte character num - 1 is non-zero
 		}
 
-		currentCharacter += numberOfBytes;
+		characterCounter++;
 		index += numberOfBytes;
 	}
 
