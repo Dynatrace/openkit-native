@@ -9,8 +9,7 @@ include(UtilMacros)
 fix_default_compiler_settings_()
 
 if(NOT WIN32)
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wpedantic -std=c99 -pthread")
-	add_definitions(-D_XOPEN_SOURCE=500)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wpedantic -std=c++0x -pthread")
 endif()
 
 ########################################

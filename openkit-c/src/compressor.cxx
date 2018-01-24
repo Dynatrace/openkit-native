@@ -16,28 +16,22 @@
 
 #include "compressor.h"
 
+#include <algorithm>
+
 #include <zlib.h>
 
-#include "memory.h"
+using namespace base;
 
-void compress_memory(const void *in_data, size_t in_data_size, compressed_data* out_data)
+void Compressor::compressMemory(const void* inData, size_t inDataSize, std::vector<unsigned char>& buffer)
 {
-	if (out_data == NULL)
-	{
-		return;
-	}
+	int bufferSize = compressBound(inDataSize); // get buffer size big enough for compression of input data with size in_data_size
 
-	int bufferSize = compressBound(in_data_size); // get buffer size big enough for compression of input data with size in_data_size
-
-	out_data->data = (unsigned char*)memory_malloc(bufferSize);
-	out_data->length = (unsigned long)bufferSize;
-
-	int result = compress(out_data->data, (unsigned long*)&bufferSize, in_data, in_data_size);
+	buffer.resize(bufferSize, 0);//init with value 0
+	int result = compress(reinterpret_cast<Bytef*>(&(buffer.at(0))), (unsigned long*)&bufferSize, reinterpret_cast<const Bytef*>(inData), inDataSize);
 	if (result != Z_OK)
 	{
-		memory_free(out_data->data);
-		out_data->data = NULL;
-		out_data->length = -1;
+		buffer.clear();
+
 	}
 	return;
 }

@@ -19,27 +19,45 @@
 
 #include <stdio.h>
 
-utf8string* init_string(const char* string_data)
+using namespace base;
+
+UTF8String::UTF8String()
+{
+	mStringLength = 0;
+}
+
+UTF8String::UTF8String(const char* string_data)
 {
 	if (string_data != NULL)
 	{
-		utf8string* s = (utf8string*)memory_malloc(sizeof(utf8string));
-		if (s != NULL)
-		{
-			s->data = NULL;
-
-			validate_string(s, string_data);
-
-			return s;
-		}
+		validateString(string_data);
 	}
-	return NULL;
 }
 
-///
-/// Return if current byte is part of a multi-byte UTF8 character
-///
-int32_t is_part_of_previous_utf8_multibyte(const unsigned char character)
+UTF8String::UTF8String(const UTF8String& other)
+{
+	this->mStringLength = other.mStringLength;
+	this->mData.insert(this->mData.begin(), other.mData.begin(), other.mData.end());
+}
+
+UTF8String::~UTF8String()
+{
+	this->mData.clear();
+}
+
+int32_t UTF8String::getStringLength()
+{
+	return mStringLength;
+}
+
+std::vector<char>& UTF8String::getStringData()
+{
+	return mData;
+}
+
+
+
+bool UTF8String::isPartOfPreviousUtf8Multibyte(const unsigned char character)
 {
 	//only highest bit set -> belongs to a multibyte utf character 
 	// |---|---|---|---|---|---|---|---|
@@ -61,7 +79,7 @@ int32_t is_part_of_previous_utf8_multibyte(const unsigned char character)
 	return 0;
 }
 
-int32_t get_byte_width_of_character(const unsigned char character)
+size_t UTF8String::getByteWidthOfCharacter(const unsigned char character)
 {
 	if ((character & 0x80) == 0) //valid single byte US-ASCII character only using the lower seven bytes
 	{
@@ -127,11 +145,10 @@ int32_t get_byte_width_of_character(const unsigned char character)
 	return -1;
 }
 
-//s->string_data
-int32_t validate_string(utf8string* target, const char* string_data)
+void UTF8String::validateString(const char* string_data)
 {
 	char replacement_character_ascii = '?';
-	if (target != NULL && string_data != NULL)
+	if (string_data != NULL)
 	{
 		uint32_t bytelen = 0;
 
@@ -140,32 +157,36 @@ int32_t validate_string(utf8string* target, const char* string_data)
 		{
 			bytelen++;
 		}
-		bytelen++;//also count null terminating character
+		if (bytelen > 0)
+		{
+			bytelen++;//count null terminating character in case of a string with at least 1 character
+		}
+		else
+		{
+			this->mStringLength = 0;
+			return;
+		}
+		
+		this->mStringLength = 0;
 
-		target->byte_length = bytelen;
-		target->string_length = -1;
+		this->mData.clear();
 
-		target->data = (char*)memory_calloc(target->byte_length , sizeof(char));
-
-		uint32_t i = 0;
 		int32_t multibyte_sequence_length = -1;
 		int32_t multibyte_sequence_pos = -1;
 
 		size_t strlen = 0;
-		char* write_pointer = &target->data[0];
 		unsigned char character_at_pos = 0;
-		for (i; i < target->byte_length - 1; i++)//omit \0 at the end of the array
+		for (int32_t i = 0; i < bytelen - 1; i++)//omit \0 at the end of the array
 		{
 			character_at_pos = (unsigned char)string_data[i];
-			int32_t bytes_used_for_current_character = get_byte_width_of_character(character_at_pos);
+			int32_t bytes_used_for_current_character = getByteWidthOfCharacter(character_at_pos);
 
-			if (is_part_of_previous_utf8_multibyte(character_at_pos) == 1)
+			if (isPartOfPreviousUtf8Multibyte(character_at_pos) == 1)
 			{
 				multibyte_sequence_pos++;
 				if (multibyte_sequence_pos > multibyte_sequence_length - 1)//more follow up characters than expectesd
 				{
-					*write_pointer = replacement_character_ascii;
-					write_pointer++;
+					this->mData.push_back(replacement_character_ascii);
 					strlen++;
 
 					multibyte_sequence_length = -1;
@@ -173,8 +194,11 @@ int32_t validate_string(utf8string* target, const char* string_data)
 				}
 				else if (multibyte_sequence_pos == multibyte_sequence_length - 1)
 				{
-					memory_copy(write_pointer, &string_data[i - multibyte_sequence_length + 1], multibyte_sequence_length);
-					write_pointer += multibyte_sequence_length;
+					size_t offset = i - multibyte_sequence_length + 1;
+					for (int32_t j = 0; j < multibyte_sequence_length; j++)
+					{
+						this->mData.push_back(string_data[offset + j]);
+					}
 
 					multibyte_sequence_length = -1;
 					multibyte_sequence_pos = -1;
@@ -186,13 +210,11 @@ int32_t validate_string(utf8string* target, const char* string_data)
 			{
 				if (multibyte_sequence_length >= 0)
 				{
-					*write_pointer = replacement_character_ascii;
-					write_pointer++;
+					this->mData.push_back(replacement_character_ascii);
 					strlen++;
 				}
 	
-				*write_pointer = string_data[i]; // copy single byte character
-				write_pointer++;
+				this->mData.push_back(string_data[i]);
 
 				multibyte_sequence_length = -1;
 				multibyte_sequence_pos = -1;
@@ -202,8 +224,7 @@ int32_t validate_string(utf8string* target, const char* string_data)
 			{
 				if (multibyte_sequence_length != -1)//in the middle of another multi-byte character -> previous character invalid
 				{
-					*write_pointer = replacement_character_ascii;
-					write_pointer++;
+					this->mData.push_back(replacement_character_ascii);
 					strlen++;
 
 					multibyte_sequence_length = -1;
@@ -215,102 +236,59 @@ int32_t validate_string(utf8string* target, const char* string_data)
 			}
 		}
 
-		target->string_length = strlen;
-		target->byte_length = write_pointer - target->data; // byte length can change in case of invalid UTF8 characters
-
-		target->data[target->byte_length] = '\0';
-		target->byte_length++;//include '\0' at the end
+		this->mStringLength = strlen;
+		this->mData.push_back('\0'); //only append '\0' character for strings with at least one character
 	}
 }
 
-utf8string* duplicate_string(const utf8string* other)
+int32_t UTF8String::compare(const UTF8String& other)
+{
+	int result = 0;
+	result = (this->mData.size() < other.mData.size());
+	if (result == 0)
+	{
+		result = memcmp(&(this->mData[0]), &(other.mData[0]), this->mData.size());
+	}
+	return result;
+}
+
+int32_t UTF8String::compare(const char* other)
 {
 	if (other != NULL)
 	{
-		utf8string* duplicate_string = (utf8string*)memory_malloc(sizeof(utf8string));
-		if (duplicate_string == NULL)
-		{
-			return NULL;
-		}
-
-		duplicate_string->byte_length = other->byte_length;
-		duplicate_string->string_length = other->string_length;
-		duplicate_string->data = (char*)memory_calloc(other->byte_length, sizeof(char));
-		memory_copy(duplicate_string->data, other->data, other->byte_length);
-		return duplicate_string;
-	}
-	return NULL;
-}
-
-int32_t destroy_string(utf8string* s)
-{
-	if (s != NULL)
-	{
-		if (s->data)
-		{
-			memory_free(s->data);
-		}
-		memory_free(s);
-	}
-}
-
-int32_t compare_strings(const utf8string* s1, const utf8string* s2)
-{
-	if (s1 != NULL && s2 != NULL)
-	{
-		int result = 0;
-		result = (s1->byte_length < s2->byte_length);
-
-		if (result == 0)
-		{
-			result = (s1->string_length < s2->string_length);
-		}
-		if (result == 0)
-		{
-			result = memory_compare(s1->data, s2->data, s1->byte_length);
-		}
-		return result;
+		UTF8String newString(other);
+		return compare(newString);
 	}
 	return -1;
 }
 
-int32_t compare_to_charpointer(const utf8string* s1, const char* s2)
+void UTF8String::concatenate(const UTF8String& string)
 {
-	if (s1 != NULL && s2 != NULL)
-	{
-		utf8string* compare = init_string(s2);
-		int32_t result = compare_strings(s1, compare);
-		destroy_string(compare);
-		return result;
-	}
-	return -1;
+	mData.insert(mData.end(), string.mData.begin(), string.mData.end());
+	mStringLength += string.mStringLength;
 }
 
-int32_t concatenate_char_pointer(utf8string* string, const char* other)
+void UTF8String::concatenate(const char* string)
 {
-
-}
-
-int32_t concatenate_string(utf8string* s, const utf8string* other)
-{
-
+	UTF8String concatenateString(string);
+	concatenate(concatenateString);
 }
 
 //character can be multi-byte
-int32_t index_of(const utf8string* string, const char* comparison_character, size_t offset)
+int32_t UTF8String::getIndexOf(const char* comparison_character, size_t offset = 0)
 {
-	if (offset < 0 && offset >= string->string_length)
+	if (offset < 0 && offset >= this->mData.size())
 	{
 		return -1;
 	}
 
-	size_t number_of_bytes_compare = get_byte_width_of_character((unsigned char)(*comparison_character));
+	size_t number_of_bytes_compare = getByteWidthOfCharacter((unsigned char)(*comparison_character));
 
-	char* current_character = &(string->data[0]);
+	char* current_character = &(this->mData[0]);
 	int32_t i;
-	for (i = 0; i < string->string_length; i++)
+	for (i = 0; i < this->mData.size(); i++)
 	{
-		size_t number_of_bytes = get_byte_width_of_character((unsigned char)(*current_character));
+		size_t number_of_bytes = getByteWidthOfCharacter((unsigned char)(*current_character));
 
 		if (i >= offset)
 		{
@@ -320,7 +298,7 @@ int32_t index_of(const utf8string* string, const char* comparison_character, siz
 				{
 					return i;
 				}
-				if (number_of_bytes > 1 && memory_compare(current_character, comparison_character, number_of_bytes) == 0)
+				if (number_of_bytes > 1 && memcmp(current_character, comparison_character, number_of_bytes) == 0)
 				{
 					return i;
 				}
@@ -331,10 +309,10 @@ int32_t index_of(const utf8string* string, const char* comparison_character, siz
 	return -1;
 }
 
-utf8string* substring(const utf8string* string, size_t start, size_t end)
+UTF8String* UTF8String::substring(size_t start, size_t end)
 {
-	if (string == NULL || start < 0 || start > string->string_length
-		|| end < 0 || end > string->string_length
+	if ( start < 0 || start > this->mData.size()
+		|| end < 0 || end > this->mData.size()
 		|| end <start )
 	{
 		return NULL;
@@ -343,12 +321,12 @@ utf8string* substring(const utf8string* string, size_t start, size_t end)
 	size_t byte_offset_start = 0;
 	size_t byte_offset_end = 0;
 
-	char* current_character = &(string->data[0]);
+	char* current_character = &(this->mData[0]);
 	size_t bytepos = 0;
 	int32_t i;
-	for (i = 0; i < string->string_length; i++)
+	for (i = 0; i < this->mData.size(); i++)
 	{
-		size_t number_of_bytes = get_byte_width_of_character((unsigned char)(*current_character));
+		size_t number_of_bytes = getByteWidthOfCharacter((unsigned char)(*current_character));
 
 		if (i == start)
 		{
@@ -363,22 +341,16 @@ utf8string* substring(const utf8string* string, size_t start, size_t end)
 		bytepos += number_of_bytes;
 	}
 
-	if (byte_offset_start > 0 && byte_offset_start < byte_offset_end && byte_offset_end < string->byte_length)
+	if (byte_offset_start > 0 && byte_offset_start < byte_offset_end && byte_offset_end < mData.size())
 	{
-		utf8string* substring = (utf8string*)memory_malloc(sizeof(utf8string));
+		UTF8String* substring = new UTF8String();
 		if (substring != NULL)
 		{
-			substring->string_length = end - (start -  1);
-			substring->byte_length = byte_offset_end - (byte_offset_start - 1) + 1; //include '\0'
-			
-			substring->data = (char*)memory_malloc(substring->byte_length);
-			if (substring->data != NULL)
-			{
-				memory_copy(substring->data, &(string->data[byte_offset_start]), substring->byte_length - 1);
-				substring->data[substring->byte_length - 1] = '\0';
-				return substring;
-			}
-			memory_free(substring);
+			substring->mStringLength = end - (start - 1);
+			substring->mData.insert(substring->mData.begin(), mData.begin() + byte_offset_start, mData.begin() + byte_offset_end + 1);
+			substring->mData.push_back('\0');
+
+			return substring;
 		}
 	}
 	return NULL;

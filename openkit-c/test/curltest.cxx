@@ -1,10 +1,11 @@
-#include "curl/curl.h"
+#include "compressor.h"
 
 #include <stdint.h>
 #include <string.h>
 
-#include "compressor.h"
-#include "memory.h"
+#include "curl/curl.h"
+
+using namespace base;
 
 const char* ascii_json_data =
 "{"
@@ -99,12 +100,12 @@ int32_t make_post_request_compressed(CURL* curl)
 	{
 		CURLcode res;
 
-		compressed_data compressed_buffer;
-		compress_memory(&ascii_json_data[0], strlen(ascii_json_data), &compressed_buffer);
+		std::vector<unsigned char> compressedBuffer;
+		Compressor::compressMemory(&ascii_json_data[0], strlen(ascii_json_data), compressedBuffer);
 
 		struct compressed_data_writer writer;
-		writer.readptr = compressed_buffer.data;
-		writer.sizeleft = compressed_buffer.length;
+		writer.readptr = &(compressedBuffer[0]);
+		writer.sizeleft = compressedBuffer.size();
 		/* First set the URL that is about to receive our POST. This URL can
 		just as well be a https:// URL if that is what should receive the
 		data. */
@@ -131,9 +132,6 @@ int32_t make_post_request_compressed(CURL* curl)
 		if (res != CURLE_OK)
 			fprintf(stderr, "curl_easy_perform() failed: %s\n",
 				curl_easy_strerror(res));
-
-		memory_free(compressed_buffer.data);
-		compressed_buffer.length = -1;
 
 		printf("\n\tReturned with result code %d\n", res);
 		return 0;

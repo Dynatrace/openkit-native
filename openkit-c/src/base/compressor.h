@@ -14,22 +14,27 @@
 * limitations under the License.
 */
 
-#ifndef _COMPRESSOR_H
-#define _COMPRESSOR_H
+#ifndef _BASE_COMPRESSOR_H
+#define _BASE_COMPRESSOR_H
 
+#include <vector>
 
-#include "stddef.h"
+namespace base
+{
+	///
+	/// Utility class to compress data with zlib
+	///
+	class Compressor
+	{
+	public:
 
-typedef struct {
-	size_t length;
-	unsigned char* data;
-} compressed_data;
-
-///
-/// Compress block of memory at in_data with a length of in_data_size bytes 
-/// @param[in] in_data pointer to the incoming data
-/// @param[in] in_data_size size of data behind the pointer (measured in bytes)
-/// @out_data[out] binary_data struct passed as reference that will contain the compressed data.
-///
-void compress_memory(const void *in_data, size_t in_data_size, compressed_data* out_data);
+		///
+		/// Compress block of memory at in_data with a length of in_data_size bytes 
+		/// @param[in] in_data pointer to the incoming data
+		/// @param[in] in_data_size size of data behind the pointer (measured in bytes)
+		/// @out_data[out] binary_data struct passed as reference that will contain the compressed data.
+		///
+		static void compressMemory(const void *inData, size_t inDataSize, std::vector<unsigned char>& out_data);
+	};
+}
 #endif
