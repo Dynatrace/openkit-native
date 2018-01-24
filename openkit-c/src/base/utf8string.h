@@ -63,7 +63,7 @@ namespace base
 		/// Returns the string data as vector of chars
 		/// @returns the string data.
 		///
-		const std::vector<char>& getStringData() const;
+		const std::string getStringData() const;
 
 
 		///
@@ -140,7 +140,7 @@ namespace base
 		size_t getByteWidthOfCharacter(const unsigned char character) const;
 
 		//internal storage with UTF8 compliant string
-		std::vector<char> mData;
+		std::string mData;
 
 		//number of characters in string
 		size_t mStringLength;

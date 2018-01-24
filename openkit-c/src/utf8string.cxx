@@ -36,13 +36,13 @@ UTF8String::UTF8String(const char* string_data)
 
 UTF8String::UTF8String(const UTF8String& other)
 {
-	this->mStringLength = other.mStringLength;
-	this->mData.insert(this->mData.begin(), other.mData.begin(), other.mData.end());
+	mStringLength = other.mStringLength;
+	mData.insert(mData.begin(), other.mData.begin(), other.mData.end());
 }
 
 UTF8String::~UTF8String()
 {
-	this->mData.clear();
+	mData.clear();
 }
 
 int32_t UTF8String::getStringLength() const
@@ -50,7 +50,7 @@ int32_t UTF8String::getStringLength() const
 	return mStringLength;
 }
 
-const std::vector<char>& UTF8String::getStringData() const
+const std::string UTF8String::getStringData() const
 {
 	return mData;
 }
@@ -165,9 +165,9 @@ void UTF8String::validateString(const char* string_data)
 			return;
 		}
 		
-		this->mStringLength = 0;
+		mStringLength = 0;
 
-		this->mData.clear();
+		mData.clear();
 
 		int32_t multibyte_sequence_length = -1;
 		int32_t multibyte_sequence_pos = -1;
@@ -234,18 +234,18 @@ void UTF8String::validateString(const char* string_data)
 			}
 		}
 
-		this->mStringLength = strlen;
-		this->mData.push_back('\0'); //only append '\0' character for strings with at least one character
+		mStringLength = strlen;
+		mData.push_back('\0'); //only append '\0' character for strings with at least one character
 	}
 }
 
 int32_t UTF8String::compare(const UTF8String& other) const
 {
 	int result = 0;
-	result = (this->mData.size() < other.mData.size());
+	result = (mData.size() < other.mData.size());
 	if (result == 0)
 	{
-		result = memcmp(&(this->mData[0]), &(other.mData[0]), this->mData.size());
+		result = memcmp(&(mData[0]), &(other.mData[0]), mData.size());
 	}
 	return result;
 }
@@ -278,16 +278,16 @@ void UTF8String::concatenate(const char* string)
 //character can be multi-byte
 int32_t UTF8String::getIndexOf(const char* comparison_character, size_t offset = 0) const
 {
-	if (offset < 0 && offset >= this->mData.size())
+	if (offset < 0 && offset >= mData.size())
 	{
 		return -1;
 	}
 
 	size_t number_of_bytes_compare = getByteWidthOfCharacter((unsigned char)(*comparison_character));
 
-	const char* current_character = &(this->mData[0]);
+	const char* current_character = &(mData[0]);
 	int32_t i;
-	for (i = 0; i < this->mData.size(); i++)
+	for (i = 0; i < mData.size(); i++)
 	{
 		size_t number_of_bytes = getByteWidthOfCharacter((unsigned char)(*current_character));
 
@@ -312,8 +312,8 @@ int32_t UTF8String::getIndexOf(const char* comparison_character, size_t offset =
 
 UTF8String* UTF8String::substring(size_t start, size_t end) const
 {
-	if ( start < 0 || start > this->mData.size()
-		|| end < 0 || end > this->mData.size()
+	if ( start < 0 || start > mData.size()
+		|| end < 0 || end > mData.size()
 		|| end <start )
 	{
 		return NULL;
@@ -322,10 +322,10 @@ UTF8String* UTF8String::substring(size_t start, size_t end) const
 	size_t byte_offset_start = 0;
 	size_t byte_offset_end = 0;
 
-	const char* current_character = &(this->mData[0]);
+	const char* current_character = &(mData[0]);
 	size_t bytepos = 0;
 	int32_t i;
-	for (i = 0; i < this->mData.size(); i++)
+	for (i = 0; i < mData.size(); i++)
 	{
 		size_t number_of_bytes = getByteWidthOfCharacter((unsigned char)(*current_character));
 

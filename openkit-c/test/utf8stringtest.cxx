@@ -24,7 +24,7 @@ TEST_F(StringTest, AStringCanBeInitializedWithAnASCIIString)
 {
 	UTF8String s("test123");
 
-	const std::vector<char>& stringData = s.getStringData();
+	const std::string stringData = s.getStringData();
 
 	EXPECT_EQ(stringData[0], 't');
 	EXPECT_EQ(stringData[1], 'e');
@@ -44,7 +44,7 @@ TEST_F(StringTest, AStringCanBeInitializedWithFour2ByteCharacters)
 {
 	UTF8String s("\xD7\xAA\xD7\x95\xD7\x93\xD7\x94");
 
-	const std::vector<char>& stringData = s.getStringData();
+	const std::string stringData = s.getStringData();
 
 	EXPECT_EQ(stringData[0], (char)0xD7); // 1/2
 	EXPECT_EQ(stringData[1], (char)0xAA); // 2/2
@@ -65,7 +65,7 @@ TEST_F(StringTest, AStringCanBeInitializedByReplacingInvalidUTF8FirstByte)
 	//third character (is ASCII )breaks the 2nd UTF8 character ( 2 byte wide)
 	UTF8String s("\xD7\xAAy\x95\xD7\x93\xD7\x94");
 
-	const std::vector<char>& stringData = s.getStringData();
+	const std::string stringData = s.getStringData();
 
 	EXPECT_EQ(stringData[0], (char)0xD7);
 	EXPECT_EQ(stringData[1], (char)0xAA);
@@ -85,7 +85,7 @@ TEST_F(StringTest, AStringCanBeInitializedByReplacingInvalidUTF8SecondByte)
 	//third character (is ASCII )breaks the 2nd UTF8 character ( 2 byte wide)
 	UTF8String s("\xD7\xAA\x95r\xD7\x93\xD7\x94");
 
-	const std::vector<char>& stringData = s.getStringData();
+	const std::string stringData = s.getStringData();
 
 	EXPECT_EQ(stringData[0], (char)0xD7);
 	EXPECT_EQ(stringData[1], (char)0xAA);
@@ -106,7 +106,7 @@ TEST_F(StringTest, AStringCanBeInitializedUsingATwoByteAndAFourByteUTF8)
 	//third character (is ASCII )breaks the 2nd UTF8 character ( 2 byte wide)
 	UTF8String s("\xD7\xAA\xf0\x9f\x98\x8b");
 
-	const std::vector<char>& stringData = s.getStringData();
+	const std::string stringData = s.getStringData();
 
 	EXPECT_EQ(stringData[0], (char)0xD7);// 1/2
 	EXPECT_EQ(stringData[1], (char)0xAA);// 2/2
@@ -123,7 +123,7 @@ TEST_F(StringTest, AStringCanBeInitializedUsingAOneByteUTF8)
 {
 	UTF8String s("\x61\x62\x63\x72\x74\x78");
 
-	const std::vector<char>& stringData = s.getStringData();
+	const std::string stringData = s.getStringData();
 
 	EXPECT_EQ(stringData[0], 'a');
 	EXPECT_EQ(stringData[1], 'b');
@@ -148,7 +148,7 @@ TEST_F(StringTest, AStringCanInitializedUsingACombinationOfAllByteWidths)
 	//- xyz in plain ASCII
 	UTF8String s("abc\xD7\xAA\x78\xF0\x9F\x98\x8B\x64\xEA\xA6\x85xyz");
 
-	const std::vector<char>& stringData = s.getStringData();
+	const std::string stringData = s.getStringData();
 
 	EXPECT_EQ(stringData[0], 'a');
 	EXPECT_EQ(stringData[1], 'b');
@@ -177,7 +177,7 @@ TEST_F(StringTest, AStringCanBeInitializedWithABrokenThreeByteUTF8FollowedByaTwo
 	//valid \xEA\xA6\x85 \xD7\xAA
 	UTF8String s("\xEA\xA6\xD7\xAA");
 
-	const std::vector<char>& stringData = s.getStringData();
+	const std::string stringData = s.getStringData();
 
 	EXPECT_EQ(stringData[0], '?');
 	EXPECT_EQ(stringData[1], (char)0xD7);
@@ -192,7 +192,7 @@ TEST_F(StringTest, AStringCanBeInitializedWhenTwoOfThreeMultiByteCharactersAreBr
 	//valid \xea\xa6\x8a \xea\xa6\x8d \xea\xa6\x90
 	UTF8String s("\xea\xa6\xe6\x8d\xea\xa6\x90");
 
-	const std::vector<char>& stringData = s.getStringData();
+	const std::string stringData = s.getStringData();
 
 	EXPECT_EQ(stringData[0], '?');
 	EXPECT_EQ(stringData[1], '?');
@@ -207,12 +207,12 @@ TEST_F(StringTest, AStringCanBeInitializedWhenTwoOfThreeMultiByteCharactersAreBr
 TEST_F(StringTest, AStringWillNotBeConstructedUsingANullPointer)
 {
 	UTF8String s("");
-	const std::vector<char>& stringData = s.getStringData();
+	const std::string stringData = s.getStringData();
 	EXPECT_TRUE(stringData.size() == 0);
 	EXPECT_EQ(s.getStringLength(), 0);
 
 	UTF8String s2(s);
-	const std::vector<char>& stringData2 = s2.getStringData();
+	const std::string stringData2 = s2.getStringData();
 	EXPECT_TRUE(stringData2.size() == 0);
 	EXPECT_EQ(s2.getStringLength(), 0);
 }
@@ -380,7 +380,7 @@ TEST_F(StringTest, ConcatenateASCIIWithUTFString)
 
 	s1.concatenate(s2);
 
-	const std::vector<char>& stringData = s1.getStringData();
+	const std::string stringData = s1.getStringData();
 
 	EXPECT_EQ(stringData[0], 'a');
 	EXPECT_EQ(stringData[1], 'b');
@@ -404,7 +404,7 @@ TEST_F(StringTest, ConcatenateUTFWithASCIIString)
 
 	s1.concatenate(s2);
 
-	const std::vector<char>& stringData = s1.getStringData();
+	const std::string stringData = s1.getStringData();
 
 	EXPECT_EQ(stringData[0], (char)0xD7);
 	EXPECT_EQ(stringData[1], (char)0xAA);
@@ -425,7 +425,7 @@ TEST_F(StringTest, ConcatenateWithCharPointer)
 	UTF8String s("part 1 -");
 	s.concatenate("part 2");
 
-	const std::vector<char>& stringData = s.getStringData();
+	const std::string stringData = s.getStringData();
 
 	EXPECT_EQ(stringData[0], 'p');
 	EXPECT_EQ(stringData[1], 'a');
@@ -453,7 +453,7 @@ TEST_F(StringTest, ConcatenateWithEmptyString)
 	UTF8String s("test123");
 	s.concatenate("");
 
-	const std::vector<char>& stringData = s.getStringData();
+	const std::string stringData = s.getStringData();
 
 	EXPECT_EQ(stringData[0], 't');
 	EXPECT_EQ(stringData[1], 'e');
