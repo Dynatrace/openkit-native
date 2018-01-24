@@ -18,7 +18,7 @@
 #ifndef _UTF8STRING_H
 #define _UTF8STRING_H
 
-#include <vector>
+#include <string>
 #include <stdint.h>
 
 namespace base

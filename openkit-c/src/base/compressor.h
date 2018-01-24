@@ -18,6 +18,7 @@
 #define _BASE_COMPRESSOR_H
 
 #include <vector>
+#include <cstddef>
 
 namespace base
 {
