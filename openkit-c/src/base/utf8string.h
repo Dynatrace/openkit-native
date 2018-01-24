@@ -36,10 +36,10 @@ namespace base
 		///
 		/// Using a user-provided char sequence initialize this string. Either UTF8 multibyte
 		/// data or plain US-ASCII can be used to initialize strings.
-		/// @param[in] string_data the string data used to initialize this string
+		/// @param[in] stringData the string data used to initialize this string
 		/// @return a new string initialized to the provided value
 		///
-		UTF8String(const char* string_data);
+		UTF8String(const char* stringData);
 
 		///
 		/// Create a new string by duplicating another string ( copy constructor)
@@ -104,11 +104,11 @@ namespace base
 		///
 		/// Find first occurence of character. Indices do not refer to bytes, instead they refer to actual
 		/// characters. The reason is that UTF8 characters can span multiple bytes.
-		/// @param[in] character the character to search in the string, character also supports multi-byte UTF8 characters
+		/// @param[in] comparisonCharacter the character to search in the string, character also supports multi-byte UTF8 characters
 		/// @param[in] offset start search for character at the given offset
 		/// @return the index of 
 		///
-		int32_t getIndexOf(const char* character, size_t offset) const;
+		size_t getIndexOf(const char* comparisonCharacter, size_t offset) const;
 
 		///
 		/// Create a substring by using the range \c begin to \c end. Indices do not refer to bytes, instead they refer to actual

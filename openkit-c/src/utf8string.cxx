@@ -143,21 +143,21 @@ size_t UTF8String::getByteWidthOfCharacter(const unsigned char character) const
 	return -1;
 }
 
-void UTF8String::validateString(const char* string_data)
+void UTF8String::validateString(const char* stringData)
 {
-	char replacement_character_ascii = '?';
-	if (string_data != NULL)
+	char replacementCharacterASCII = '?';
+	if (stringData != NULL)
 	{
-		uint32_t bytelen = 0;
+		uint32_t byteLength = 0;
 
-		uint32_t index = 0;
-		while (string_data[index++] != '\0')
+		while (*(stringData + byteLength) != '\0')
 		{
-			bytelen++;
+			byteLength++;
 		}
-		if (bytelen > 0)
+
+		if (byteLength > 0)
 		{
-			bytelen++;//count null terminating character in case of a string with at least 1 character
+			byteLength++;//count null terminating character in case of a string with at least 1 character
 		}
 		else
 		{
@@ -165,87 +165,88 @@ void UTF8String::validateString(const char* string_data)
 			return;
 		}
 		
-		mStringLength = 0;
-
 		mData.clear();
 
-		int32_t multibyte_sequence_length = -1;
-		int32_t multibyte_sequence_pos = -1;
+		int32_t multibyteSeqenceLength = -1;
+		int32_t multibyteSequencePosition = -1;
 
-		size_t strlen = 0;
-		unsigned char character_at_pos = 0;
-		for (int32_t i = 0; i < bytelen - 1; i++)//omit \0 at the end of the array
+		size_t characterCount = 0; //number of characters, either UTF8 multibyte or ASCII single byte
+		for (int32_t i = 0; i < byteLength - 1; i++)//omit \0 at the end of the array
 		{
-			character_at_pos = (unsigned char)string_data[i];
-			int32_t bytes_used_for_current_character = getByteWidthOfCharacter(character_at_pos);
+			int32_t byteWidthOfCurrentCharacter = getByteWidthOfCharacter(static_cast<unsigned char>(stringData[i]));
 
-			if (isPartOfPreviousUtf8Multibyte(character_at_pos) == 1)
+			if (isPartOfPreviousUtf8Multibyte(static_cast<unsigned char>(stringData[i])) == 1)
 			{
-				multibyte_sequence_pos++;
-				if (multibyte_sequence_pos > multibyte_sequence_length - 1)//more follow up characters than expectesd
+				multibyteSequencePosition++;
+				if (multibyteSequencePosition > multibyteSeqenceLength - 1)//more follow up characters than expectesd
 				{
-					this->mData.push_back(replacement_character_ascii);
-					strlen++;
+					this->mData.push_back(replacementCharacterASCII);
+					characterCount++;
 
-					multibyte_sequence_length = -1;
-					multibyte_sequence_pos = -1;
+					multibyteSeqenceLength = -1;
+					multibyteSequencePosition = -1;
 				}
-				else if (multibyte_sequence_pos == multibyte_sequence_length - 1)
+				else if (multibyteSequencePosition == multibyteSeqenceLength - 1)
 				{
-					size_t offset = i - multibyte_sequence_length + 1;
-					for (int32_t j = 0; j < multibyte_sequence_length; j++)
+					size_t offset = i - multibyteSeqenceLength + 1;
+					for (int32_t j = 0; j < multibyteSeqenceLength; j++)
 					{
-						this->mData.push_back(string_data[offset + j]);
+						this->mData.push_back(stringData[offset + j]);
 					}
 
-					multibyte_sequence_length = -1;
-					multibyte_sequence_pos = -1;
+					multibyteSeqenceLength = -1;
+					multibyteSequencePosition = -1;
 
-					strlen++;
+					characterCount++;
 				}
 			} 
-			else if (bytes_used_for_current_character == 1)//valid single byte US-ASCII character only using the lower seven bytes
+			else if (byteWidthOfCurrentCharacter == 1)//valid single byte US-ASCII character only using the lower seven bytes
 			{
-				if (multibyte_sequence_length >= 0)
+				if (multibyteSeqenceLength >= 0)
 				{
-					this->mData.push_back(replacement_character_ascii);
-					strlen++;
+					this->mData.push_back(replacementCharacterASCII);
+					characterCount++;
 				}
 	
-				this->mData.push_back(string_data[i]);
+				this->mData.push_back(stringData[i]);
 
-				multibyte_sequence_length = -1;
-				multibyte_sequence_pos = -1;
-				strlen++;
+				multibyteSeqenceLength = -1;
+				multibyteSequencePosition = -1;
+				characterCount++;
 			}
-			else if (bytes_used_for_current_character > 1)//start a new multi-byte character
+			else if (byteWidthOfCurrentCharacter > 1)//start a new multi-byte character
 			{
-				if (multibyte_sequence_length != -1)//in the middle of another multi-byte character -> previous character invalid
+				if (multibyteSeqenceLength != -1)//in the middle of another multi-byte character -> previous character invalid
 				{
-					this->mData.push_back(replacement_character_ascii);
-					strlen++;
+					this->mData.push_back(replacementCharacterASCII);
+					characterCount++;
 
-					multibyte_sequence_length = -1;
-					multibyte_sequence_pos = -1;
+					multibyteSeqenceLength = -1;
+					multibyteSequencePosition = -1;
 				}
 
-				multibyte_sequence_length =bytes_used_for_current_character;
-				multibyte_sequence_pos = 0;
+				multibyteSeqenceLength = byteWidthOfCurrentCharacter;
+				multibyteSequencePosition = 0;
 			}
 		}
 
-		mStringLength = strlen;
+		mStringLength = characterCount;
 		mData.push_back('\0'); //only append '\0' character for strings with at least one character
 	}
 }
 
 int32_t UTF8String::compare(const UTF8String& other) const
 {
-	int result = 0;
-	result = (mData.size() < other.mData.size());
+	int result = (mData.size() < other.mData.size());
+
 	if (result == 0)
 	{
-		result = memcmp(&(mData[0]), &(other.mData[0]), mData.size());
+		result = mStringLength < other.mStringLength;
+	}
+
+	if (result == 0)
+	{
+		result = mData.compare(other.mData);
 	}
 	return result;
 }
@@ -276,38 +277,42 @@ void UTF8String::concatenate(const char* string)
 }
 
 //character can be multi-byte
-int32_t UTF8String::getIndexOf(const char* comparison_character, size_t offset = 0) const
+size_t UTF8String::getIndexOf(const char* comparisonCharacter, size_t offset = 0) const
 {
 	if (offset < 0 && offset >= mData.size())
 	{
-		return -1;
+		return std::string::npos;
 	}
 
-	size_t number_of_bytes_compare = getByteWidthOfCharacter((unsigned char)(*comparison_character));
-
-	const char* current_character = &(mData[0]);
-	int32_t i;
-	for (i = 0; i < mData.size(); i++)
+	size_t characterByteWidth = getByteWidthOfCharacter((unsigned char)(*comparisonCharacter));
+	if (characterByteWidth < 0)//error
 	{
-		size_t number_of_bytes = getByteWidthOfCharacter((unsigned char)(*current_character));
+		return std::string::npos;
+	}
+
+	const char* currentCharacter = &(mData[0]);
+
+	for (int32_t i = 0; i < mData.size(); i++)
+	{
+		size_t numberOfBytesCurrent = getByteWidthOfCharacter((unsigned char)(*currentCharacter));
 
 		if (i >= offset)
 		{
-			if (number_of_bytes_compare == number_of_bytes)
+			if (characterByteWidth == numberOfBytesCurrent)
 			{
-				if (number_of_bytes == 1 && (*current_character) == (*comparison_character))
+				if (numberOfBytesCurrent == 1 && (*currentCharacter) == (*comparisonCharacter))
 				{
 					return i;
 				}
-				if (number_of_bytes > 1 && memcmp(current_character, comparison_character, number_of_bytes) == 0)
+				if (numberOfBytesCurrent > 1 && memcmp(currentCharacter, comparisonCharacter, numberOfBytesCurrent) == 0)
 				{
 					return i;
 				}
 			}
 		}
-		current_character += number_of_bytes;
+		currentCharacter += numberOfBytesCurrent;
 	}
-	return -1;
+	return std::string::npos;
 }
 
 UTF8String* UTF8String::substring(size_t start, size_t end) const
@@ -319,36 +324,35 @@ UTF8String* UTF8String::substring(size_t start, size_t end) const
 		return NULL;
 	}
 
-	size_t byte_offset_start = 0;
-	size_t byte_offset_end = 0;
+	size_t byteOffsetStart = 0;
+	size_t byteOffsetEnd = 0;
 
-	const char* current_character = &(mData[0]);
-	size_t bytepos = 0;
-	int32_t i;
-	for (i = 0; i < mData.size(); i++)
+	const char* currentCharacter = &(mData[0]);
+	size_t index = 0;
+	for (int32_t i = 0; i < mData.size(); i++)
 	{
-		size_t number_of_bytes = getByteWidthOfCharacter((unsigned char)(*current_character));
+		size_t numberOfBytes = getByteWidthOfCharacter((unsigned char)(*currentCharacter));
 
 		if (i == start)
 		{
-			byte_offset_start = bytepos;
+			byteOffsetStart = index;
 		}
 		if (i == end)
 		{
-			byte_offset_end = bytepos + number_of_bytes -1;//in case of a multibyte character num - 1 is non-zero
+			byteOffsetEnd = index + numberOfBytes -1;//in case of a multibyte character num - 1 is non-zero
 		}
 
-		current_character += number_of_bytes;
-		bytepos += number_of_bytes;
+		currentCharacter += numberOfBytes;
+		index += numberOfBytes;
 	}
 
-	if (byte_offset_start > 0 && byte_offset_start < byte_offset_end && byte_offset_end < mData.size())
+	if (byteOffsetStart > 0 && byteOffsetStart < byteOffsetEnd && byteOffsetEnd < mData.size())
 	{
 		UTF8String* substring = new UTF8String();
 		if (substring != NULL)
 		{
 			substring->mStringLength = end - (start - 1);
-			substring->mData.insert(substring->mData.begin(), mData.begin() + byte_offset_start, mData.begin() + byte_offset_end + 1);
+			substring->mData.insert(substring->mData.begin(), mData.begin() + byteOffsetStart, mData.begin() + byteOffsetEnd + 1);
 			substring->mData.push_back('\0');
 
 			return substring;
