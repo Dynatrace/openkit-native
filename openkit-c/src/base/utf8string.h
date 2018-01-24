@@ -57,13 +57,13 @@ namespace base
 		/// Returns the string size. For UTF8 this is not necessarily the number of bytes
 		/// @returns the number of characters
 		///
-		int32_t getStringLength();
+		int32_t getStringLength() const;
 
 		///
 		/// Returns the string data as vector of chars
 		/// @returns the string data.
 		///
-		std::vector<char>& getStringData();
+		const std::vector<char>& getStringData() const;
 
 
 		///
@@ -79,14 +79,14 @@ namespace base
 		/// @param[other] other string to compare this instance against
 		/// @return 0 if strings are equal, -1/1 if not equal
 		///
-		int32_t compare(const UTF8String& other);
+		int32_t compare(const UTF8String& other) const;
 
 		///
 		/// Compare two strings
 		/// @param[other] other string to compare this instance against
 		/// @return 0 if strings are equal, -1/1 if not equal
 		///
-		int32_t compare(const char* other);
+		int32_t compare(const char* other) const;
 
 		///
 		/// Concatenate two strings
@@ -108,7 +108,7 @@ namespace base
 		/// @param[in] offset start search for character at the given offset
 		/// @return the index of 
 		///
-		int32_t getIndexOf(const char* character, size_t offset);
+		int32_t getIndexOf(const char* character, size_t offset) const;
 
 		///
 		/// Create a substring by using the range \c begin to \c end. Indices do not refer to bytes, instead they refer to actual
@@ -118,7 +118,7 @@ namespace base
 		/// @param[in] end end end index of the substring
 		/// @returns a substring created from this string with the range from begin to end
 		///
-		UTF8String* substring(size_t start, size_t end);
+		UTF8String* substring(size_t start, size_t end) const;
 
 	private:
 
@@ -129,7 +129,7 @@ namespace base
 		/// @param[in] character codepoint to check 
 		/// @returns flag if character belongs to a previous charater
 		///
-		bool isPartOfPreviousUtf8Multibyte(const unsigned char character);
+		bool isPartOfPreviousUtf8Multibyte(const unsigned char character) const;
 
 		///
 		/// Calculate the width of UTF8 multi byte characters. ASCII character return 1.
@@ -137,7 +137,7 @@ namespace base
 		/// @param[in] character codepoint to check
 		/// @returns the number of bytes taken by the current character
 		///
-		size_t getByteWidthOfCharacter(const unsigned char character);
+		size_t getByteWidthOfCharacter(const unsigned char character) const;
 
 		//internal storage with UTF8 compliant string
 		std::vector<char> mData;

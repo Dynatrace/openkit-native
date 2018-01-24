@@ -45,19 +45,17 @@ UTF8String::~UTF8String()
 	this->mData.clear();
 }
 
-int32_t UTF8String::getStringLength()
+int32_t UTF8String::getStringLength() const
 {
 	return mStringLength;
 }
 
-std::vector<char>& UTF8String::getStringData()
+const std::vector<char>& UTF8String::getStringData() const
 {
 	return mData;
 }
 
-
-
-bool UTF8String::isPartOfPreviousUtf8Multibyte(const unsigned char character)
+bool UTF8String::isPartOfPreviousUtf8Multibyte(const unsigned char character) const
 {
 	//only highest bit set -> belongs to a multibyte utf character 
 	// |---|---|---|---|---|---|---|---|
@@ -79,7 +77,7 @@ bool UTF8String::isPartOfPreviousUtf8Multibyte(const unsigned char character)
 	return 0;
 }
 
-size_t UTF8String::getByteWidthOfCharacter(const unsigned char character)
+size_t UTF8String::getByteWidthOfCharacter(const unsigned char character) const
 {
 	if ((character & 0x80) == 0) //valid single byte US-ASCII character only using the lower seven bytes
 	{
@@ -241,7 +239,7 @@ void UTF8String::validateString(const char* string_data)
 	}
 }
 
-int32_t UTF8String::compare(const UTF8String& other)
+int32_t UTF8String::compare(const UTF8String& other) const
 {
 	int result = 0;
 	result = (this->mData.size() < other.mData.size());
@@ -252,7 +250,7 @@ int32_t UTF8String::compare(const UTF8String& other)
 	return result;
 }
 
-int32_t UTF8String::compare(const char* other)
+int32_t UTF8String::compare(const char* other) const
 {
 	if (other != NULL)
 	{
@@ -264,8 +262,11 @@ int32_t UTF8String::compare(const char* other)
 
 void UTF8String::concatenate(const UTF8String& string)
 {
-	mData.insert(mData.end(), string.mData.begin(), string.mData.end());
-	mStringLength += string.mStringLength;
+	if (string.getStringLength() > 0)
+	{
+		mData.insert(mData.end() - 1, string.mData.begin(), string.mData.end() - 1); //write before old string end '\0'
+		mStringLength += string.mStringLength;
+	}
 }
 
 void UTF8String::concatenate(const char* string)
@@ -275,7 +276,7 @@ void UTF8String::concatenate(const char* string)
 }
 
 //character can be multi-byte
-int32_t UTF8String::getIndexOf(const char* comparison_character, size_t offset = 0)
+int32_t UTF8String::getIndexOf(const char* comparison_character, size_t offset = 0) const
 {
 	if (offset < 0 && offset >= this->mData.size())
 	{
@@ -284,7 +285,7 @@ int32_t UTF8String::getIndexOf(const char* comparison_character, size_t offset =
 
 	size_t number_of_bytes_compare = getByteWidthOfCharacter((unsigned char)(*comparison_character));
 
-	char* current_character = &(this->mData[0]);
+	const char* current_character = &(this->mData[0]);
 	int32_t i;
 	for (i = 0; i < this->mData.size(); i++)
 	{
@@ -309,7 +310,7 @@ int32_t UTF8String::getIndexOf(const char* comparison_character, size_t offset =
 	return -1;
 }
 
-UTF8String* UTF8String::substring(size_t start, size_t end)
+UTF8String* UTF8String::substring(size_t start, size_t end) const
 {
 	if ( start < 0 || start > this->mData.size()
 		|| end < 0 || end > this->mData.size()
@@ -321,7 +322,7 @@ UTF8String* UTF8String::substring(size_t start, size_t end)
 	size_t byte_offset_start = 0;
 	size_t byte_offset_end = 0;
 
-	char* current_character = &(this->mData[0]);
+	const char* current_character = &(this->mData[0]);
 	size_t bytepos = 0;
 	int32_t i;
 	for (i = 0; i < this->mData.size(); i++)
