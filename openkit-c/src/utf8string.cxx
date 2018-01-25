@@ -145,10 +145,10 @@ size_t UTF8String::getByteWidthOfCharacter(const unsigned char character) const
 
 void UTF8String::validateString(const char* stringData)
 {
-	char replacementCharacterASCII = '?';
+	auto replacementCharacterASCII = '?';
 	if (stringData != NULL)
 	{
-		uint32_t byteLength = 0;
+		auto byteLength = 0;
 
 		while (*(stringData + byteLength) != '\0')
 		{
@@ -167,13 +167,13 @@ void UTF8String::validateString(const char* stringData)
 		
 		mData.clear();
 
-		int32_t multibyteSeqenceLength = -1;
-		int32_t multibyteSequencePosition = -1;
+		auto multibyteSeqenceLength = -1;
+		auto multibyteSequencePosition = -1;
 
-		size_t characterCount = 0; //number of characters, either UTF8 multibyte or ASCII single byte
-		for (int32_t i = 0; i < byteLength - 1; i++)//omit \0 at the end of the array
+		auto characterCount = 0; //number of characters, either UTF8 multibyte or ASCII single byte
+		for (auto i = 0; i < byteLength - 1; i++)//omit \0 at the end of the array
 		{
-			int32_t byteWidthOfCurrentCharacter = getByteWidthOfCharacter(static_cast<unsigned char>(stringData[i]));
+			auto byteWidthOfCurrentCharacter = getByteWidthOfCharacter(static_cast<unsigned char>(stringData[i]));
 
 			if (isPartOfPreviousUtf8Multibyte(static_cast<unsigned char>(stringData[i])) == 1)
 			{
@@ -188,8 +188,8 @@ void UTF8String::validateString(const char* stringData)
 				}
 				else if (multibyteSequencePosition == multibyteSeqenceLength - 1)
 				{
-					size_t offset = i - multibyteSeqenceLength + 1;
-					for (int32_t j = 0; j < multibyteSeqenceLength; j++)
+					auto offset = i - multibyteSeqenceLength + 1;
+					for (auto j = 0; j < multibyteSeqenceLength; j++)
 					{
 						this->mData.push_back(stringData[offset + j]);
 					}
@@ -237,7 +237,7 @@ void UTF8String::validateString(const char* stringData)
 
 int32_t UTF8String::compare(const UTF8String& other) const
 {
-	int result = (mData.size() < other.mData.size());
+	auto result = (mData.size() < other.mData.size());
 
 	if (result == 0)
 	{
@@ -290,11 +290,11 @@ size_t UTF8String::getIndexOf(const char* comparisonCharacter, size_t offset = 0
 		return std::string::npos;
 	}
 
-	const char* currentCharacter = &(mData[0]);
+	auto currentCharacter = &(mData[0]);
 
-	for (int32_t i = 0; i < mData.size(); i++)
+	for (auto i = 0; i < mData.size(); i++)
 	{
-		size_t numberOfBytesCurrent = getByteWidthOfCharacter((unsigned char)(*currentCharacter));
+		auto numberOfBytesCurrent = getByteWidthOfCharacter((unsigned char)(*currentCharacter));
 
 		if (i >= offset)
 		{
@@ -324,15 +324,15 @@ UTF8String* UTF8String::substring(size_t start, size_t end) const
 		return NULL;
 	}
 
-	size_t byteOffsetStart = 0;
-	size_t byteOffsetEnd = 0;
+	auto byteOffsetStart = 0;
+	auto byteOffsetEnd = 0;
 
-	size_t index = 0;
-	size_t characterCounter = 0;
+	auto index = 0;
+	auto characterCounter = 0;
 	while(index < mData.size() && ( byteOffsetStart == 0 || byteOffsetEnd == 0))
 	{
-		unsigned char currentCharacter = mData[index];
-		size_t numberOfBytes = getByteWidthOfCharacter(currentCharacter);
+		auto currentCharacter = mData[index];
+		auto numberOfBytes = getByteWidthOfCharacter(currentCharacter);
 
 		if (characterCounter == start)
 		{
