@@ -22,20 +22,24 @@
 
 namespace base
 {
-	///
-	/// Utility class to compress data with zlib
-	///
-	class Compressor
+	namespace util
 	{
-	public:
+		///
+		/// Utility class to compress data with zlib
+		///
+		class Compressor
+		{
+		public:
 
-		///
-		/// Compress block of memory at in_data with a length of in_data_size bytes 
-		/// @param[in] in_data pointer to the incoming data
-		/// @param[in] in_data_size size of data behind the pointer (measured in bytes)
-		/// @out_data[out] binary_data struct passed as reference that will contain the compressed data.
-		///
-		static void compressMemory(const void *inData, size_t inDataSize, std::vector<unsigned char>& out_data);
-	};
+			///
+			/// Compress block of memory at in_data with a length of in_data_size bytes 
+			/// @param[in] in_data pointer to the incoming data
+			/// @param[in] in_data_size size of data behind the pointer (measured in bytes)
+			/// @out_data[out] binary_data struct passed as reference that will contain the compressed data.
+			///
+			static void compressMemory(const void *inData, size_t inDataSize, std::vector<unsigned char>& out_data);
+		};
+	}
+	
 }
 #endif

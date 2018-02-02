@@ -20,7 +20,7 @@
 
 #include <zlib.h>
 
-using namespace base;
+using namespace base::util;
 
 void Compressor::compressMemory(const void* inData, size_t inDataSize, std::vector<unsigned char>& buffer)
 {
