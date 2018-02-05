@@ -27,6 +27,7 @@ UTF8String::UTF8String()
 }
 
 UTF8String::UTF8String(const char* string_data)
+	: mStringLength(0)
 {
 	if (string_data != nullptr)
 	{
