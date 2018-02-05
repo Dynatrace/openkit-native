@@ -45,7 +45,7 @@ size_type UTF8String::getStringLength() const
 	return mStringLength;
 }
 
-const std::string UTF8String::getStringData() const
+const std::string& UTF8String::getStringData() const
 {
 	return mData;
 }

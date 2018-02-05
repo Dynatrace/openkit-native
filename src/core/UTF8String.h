@@ -56,7 +56,7 @@ namespace core
 		/// Returns the string data as vector of chars
 		/// @returns the string data.
 		///
-		const std::string getStringData() const;
+		const std::string& getStringData() const;
 
 
 		///
