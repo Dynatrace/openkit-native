@@ -22,22 +22,16 @@
 using namespace core;
 
 UTF8String::UTF8String()
+	: mStringLength(0)
 {
-	mStringLength = 0;
 }
 
 UTF8String::UTF8String(const char* string_data)
 {
-	if (string_data != NULL)
+	if (string_data != nullptr)
 	{
 		validateString(string_data);
 	}
-}
-
-UTF8String::UTF8String(const UTF8String& other)
-{
-	mStringLength = other.mStringLength;
-	mData.insert(mData.begin(), other.mData.begin(), other.mData.end());
 }
 
 UTF8String::~UTF8String()
@@ -45,7 +39,7 @@ UTF8String::~UTF8String()
 	mData.clear();
 }
 
-int32_t UTF8String::getStringLength() const
+size_type UTF8String::getStringLength() const
 {
 	return mStringLength;
 }
@@ -72,14 +66,14 @@ bool UTF8String::isPartOfPreviousUtf8Multibyte(const unsigned char character) co
 
 	if ((character & 0xC0) == 0x80)
 	{
-		return 1;
+		return true;
 	}
-	return 0;
+	return false;
 }
 
 size_t UTF8String::getByteWidthOfCharacter(const unsigned char character) const
 {
-	if ((character & 0x80) == 0) //valid single byte US-ASCII character only using the lower seven bytes
+	if ((character & 0x80) == 0) //valid single byte US-ASCII character only using the lower seven bits
 	{
 		// |---|---|---|---|---|---|---|---|
 		// | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |  -> 0x80
@@ -145,126 +139,113 @@ size_t UTF8String::getByteWidthOfCharacter(const unsigned char character) const
 
 void UTF8String::validateString(const char* stringData)
 {
-	auto replacementCharacterASCII = '?';
-	if (stringData != NULL)
+	auto replacementCharacterASCII = "\xEF\xBF\xBD";
+	if (stringData == nullptr || stringData[0] == '\0')
 	{
-		auto byteLength = 0;
+		mStringLength = 0;
+		return;
+	}
 
-		while (*(stringData + byteLength) != '\0')
-		{
-			byteLength++;
-		}
+	auto byteLength = 0;
 
-		if (byteLength > 0)
-		{
-			byteLength++;//count null terminating character in case of a string with at least 1 character
-		}
-		else
-		{
-			return;
-		}
+	while (*(stringData + byteLength) != '\0')
+	{
+		byteLength++;
+	}
+
+	if (byteLength <= 0)
+	{
+		return;
+	}
 		
-		mData.clear();
+	mData.clear();
 
-		auto multibyteSeqenceLength = -1;
-		auto multibyteSequencePosition = -1;
+	auto multibyteSeqenceLength = -1;
+	auto multibyteSequencePosition = -1;
 
-		auto characterCount = 0; //number of characters, either UTF8 multibyte or ASCII single byte
-		for (auto i = 0; i < byteLength - 1; i++)//omit \0 at the end of the array
+	auto characterCount = 0; //number of characters, either UTF8 multibyte or ASCII single byte
+	for (auto i = 0; i < byteLength; i++)//omit \0 at the end of the array
+	{
+		auto byteWidthOfCurrentCharacter = getByteWidthOfCharacter(static_cast<unsigned char>(stringData[i]));
+
+		if (isPartOfPreviousUtf8Multibyte(static_cast<unsigned char>(stringData[i])))
 		{
-			auto byteWidthOfCurrentCharacter = getByteWidthOfCharacter(static_cast<unsigned char>(stringData[i]));
-
-			if (isPartOfPreviousUtf8Multibyte(static_cast<unsigned char>(stringData[i])) == 1)
+			multibyteSequencePosition++;
+			if (multibyteSequencePosition > multibyteSeqenceLength - 1)//more follow up characters than expected
 			{
-				multibyteSequencePosition++;
-				if (multibyteSequencePosition > multibyteSeqenceLength - 1)//more follow up characters than expectesd
-				{
-					this->mData.push_back(replacementCharacterASCII);
-					characterCount++;
-
-					multibyteSeqenceLength = -1;
-					multibyteSequencePosition = -1;
-				}
-				else if (multibyteSequencePosition == multibyteSeqenceLength - 1)
-				{
-					auto offset = i - multibyteSeqenceLength + 1;
-					for (auto j = 0; j < multibyteSeqenceLength; j++)
-					{
-						this->mData.push_back(stringData[offset + j]);
-					}
-
-					multibyteSeqenceLength = -1;
-					multibyteSequencePosition = -1;
-
-					characterCount++;
-				}
-			} 
-			else if (byteWidthOfCurrentCharacter == 1)//valid single byte US-ASCII character only using the lower seven bytes
-			{
-				if (multibyteSeqenceLength >= 0)
-				{
-					this->mData.push_back(replacementCharacterASCII);
-					characterCount++;
-				}
-	
-				this->mData.push_back(stringData[i]);
+				this->mData.append(replacementCharacterASCII);
+				characterCount ++;
 
 				multibyteSeqenceLength = -1;
 				multibyteSequencePosition = -1;
-				characterCount++;
 			}
-			else if (byteWidthOfCurrentCharacter > 1)//start a new multi-byte character
+			else if (multibyteSequencePosition == multibyteSeqenceLength - 1)
 			{
-				if (multibyteSeqenceLength != -1)//in the middle of another multi-byte character -> previous character invalid
+				auto offset = i - multibyteSeqenceLength + 1;
+				for (auto j = 0; j < multibyteSeqenceLength; j++)
 				{
-					this->mData.push_back(replacementCharacterASCII);
-					characterCount++;
-
-					multibyteSeqenceLength = -1;
-					multibyteSequencePosition = -1;
+					this->mData.push_back(stringData[offset + j]);
 				}
 
-				multibyteSeqenceLength = byteWidthOfCurrentCharacter;
-				multibyteSequencePosition = 0;
+				multibyteSeqenceLength = -1;
+				multibyteSequencePosition = -1;
+
+				characterCount++;
 			}
+		} 
+		else if (byteWidthOfCurrentCharacter == 1)//valid single byte US-ASCII character only using the lower seven bytes
+		{
+			if (multibyteSeqenceLength >= 0)
+			{
+				this->mData.append(replacementCharacterASCII);
+				characterCount ++;
+			}
+	
+			this->mData.push_back(stringData[i]);
+
+			multibyteSeqenceLength = -1;
+			multibyteSequencePosition = -1;
+			characterCount++;
 		}
+		else if (byteWidthOfCurrentCharacter > 1)//start a new multi-byte character
+		{
+			if (multibyteSeqenceLength != -1)//in the middle of another multi-byte character -> previous character invalid
+			{
+				this->mData.append(replacementCharacterASCII);
+				characterCount++;
 
-		mStringLength = characterCount;
-		mData.push_back('\0'); //only append '\0' character for strings with at least one character
+				multibyteSeqenceLength = -1;
+				multibyteSequencePosition = -1;
+			}
+
+			multibyteSeqenceLength = byteWidthOfCurrentCharacter;
+			multibyteSequencePosition = 0;
+		}
 	}
+
+	mStringLength = characterCount;
 }
 
-int32_t UTF8String::compare(const UTF8String& other) const
+bool UTF8String::compare(const UTF8String& other) const
 {
-	auto result = (mData.size() < other.mData.size());
-
-	if (result == 0)
-	{
-		result = mStringLength < other.mStringLength;
-	}
-
-	if (result == 0)
-	{
-		result = mData.compare(other.mData);
-	}
-	return result;
+	return mData.compare(other.mData) == 0;
 }
 
-int32_t UTF8String::compare(const char* other) const
+bool UTF8String::compare(const char* other) const
 {
-	if (other != NULL)
+	if (other != nullptr)
 	{
 		UTF8String newString(other);
 		return compare(newString);
 	}
-	return -1;
+	return false;
 }
 
 void UTF8String::concatenate(const UTF8String& string)
 {
 	if (string.getStringLength() > 0)
 	{
-		mData.insert(mData.end() - 1, string.mData.begin(), string.mData.end() - 1); //write before old string end '\0'
+		mData.insert(mData.end(), string.mData.begin(), string.mData.end());
 		mStringLength += string.mStringLength;
 	}
 }
@@ -276,7 +257,7 @@ void UTF8String::concatenate(const char* string)
 }
 
 //character can be multi-byte
-size_t UTF8String::getIndexOf(const char* comparisonCharacter, size_t offset = 0) const
+size_type UTF8String::getIndexOf(const char* comparisonCharacter, size_t offset = 0) const
 {
 	if (offset < 0 && offset >= mData.size())
 	{
@@ -315,13 +296,13 @@ size_t UTF8String::getIndexOf(const char* comparisonCharacter, size_t offset = 0
 	return std::string::npos;
 }
 
-UTF8String* UTF8String::substring(size_t start, size_t end) const
+UTF8String UTF8String::substring(size_t start, size_t end) const
 {
 	if ( start < 0 || start > mData.size()
 		|| end < 0 || end > mData.size()
 		|| end <start )
 	{
-		return NULL;
+		return UTF8String();
 	}
 
 	auto byteOffsetStart = 0;
@@ -352,15 +333,12 @@ UTF8String* UTF8String::substring(size_t start, size_t end) const
 	//cut the new string using the indices
 	if (byteOffsetStart > 0 && byteOffsetStart < byteOffsetEnd && byteOffsetEnd < mData.size())
 	{
-		UTF8String* substring = new UTF8String();
-		if (substring != NULL)
-		{
-			substring->mStringLength = end - (start - 1);
-			substring->mData.insert(substring->mData.begin(), mData.begin() + byteOffsetStart, mData.begin() + byteOffsetEnd + 1);
-			substring->mData.push_back('\0');
+		UTF8String substring;
+		substring.mStringLength = end - (start - 1);
+		substring.mData.insert(substring.mData.begin(), mData.begin() + byteOffsetStart, mData.begin() + byteOffsetEnd + 1);
+		substring.mData.push_back('\0');
 
-			return substring;
-		}
+		return substring;
 	}
-	return NULL;
+	return UTF8String();
 }

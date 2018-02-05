@@ -19,10 +19,10 @@
 #define _CORE_UTF8STRING_H
 
 #include <string>
-#include <stdint.h>
 
 namespace core
 {
+	typedef std::string::size_type size_type;
 
 	class UTF8String
 	{
@@ -42,13 +42,6 @@ namespace core
 		UTF8String(const char* stringData);
 
 		///
-		/// Create a new string by duplicating another string ( copy constructor)
-		/// @param[in] other the string to duplicate
-		/// @return a new string initialized with data from another string
-		///
-		UTF8String(const UTF8String& other);
-
-		///
 		/// Destructor
 		///
 		~UTF8String();
@@ -57,7 +50,7 @@ namespace core
 		/// Returns the string size. For UTF8 this is not necessarily the number of bytes
 		/// @returns the number of characters
 		///
-		int32_t getStringLength() const;
+		size_type getStringLength() const;
 
 		///
 		/// Returns the string data as vector of chars
@@ -70,23 +63,22 @@ namespace core
 		/// Check for invalid codepoints
 		/// -replace invalid UTF8 codepoints
 		/// @param[in] stringData the string data to validate
-		/// @returns 0 on sucess of validation or if already valid string, non-0 values in all other cases
 		///
 		void validateString(const char* stringData);
 
 		///
 		/// Compare two strings
 		/// @param[other] other string to compare this instance against
-		/// @return 0 if strings are equal, -1/1 if not equal
+		/// @return true if strings are equal, false if not equal
 		///
-		int32_t compare(const UTF8String& other) const;
+		bool compare(const UTF8String& other) const;
 
 		///
 		/// Compare two strings
 		/// @param[other] other string to compare this instance against
-		/// @return 0 if strings are equal, -1/1 if not equal
+		/// @return true if strings are equal, false if not equal
 		///
-		int32_t compare(const char* other) const;
+		bool compare(const char* other) const;
 
 		///
 		/// Concatenate two strings
@@ -118,7 +110,7 @@ namespace core
 		/// @param[in] end end end index of the substring
 		/// @returns a substring created from this string with the range from begin to end
 		///
-		UTF8String* substring(size_t start, size_t end) const;
+		UTF8String substring(size_t start, size_t end) const;
 
 	private:
 
@@ -145,7 +137,7 @@ namespace core
 		std::string mData;
 
 		//number of characters in string
-		size_t mStringLength;
+		size_type mStringLength;
 
 	};
 }

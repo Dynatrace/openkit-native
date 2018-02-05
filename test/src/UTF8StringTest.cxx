@@ -48,10 +48,9 @@ TEST_F(UTF8StringTest, AStringCanBeInitializedWithAnASCIIString)
 	EXPECT_EQ(stringData[4], '1');
 	EXPECT_EQ(stringData[5], '2');
 	EXPECT_EQ(stringData[6], '3');
-	EXPECT_EQ(stringData[7], '\0');
 
 	EXPECT_EQ(s.getStringLength(), 7);
-	EXPECT_EQ(stringData.size(), 8);
+	EXPECT_EQ(stringData.size(), 7);
 }
 
 
@@ -69,10 +68,9 @@ TEST_F(UTF8StringTest, AStringCanBeInitializedWithFour2ByteCharacters)
 	EXPECT_EQ(stringData[5], (char)0x93); // 2/2
 	EXPECT_EQ(stringData[6], (char)0xD7); // 1/2
 	EXPECT_EQ(stringData[7], (char)0x94); // 2/2
-	EXPECT_EQ(stringData[8], '\0');
 
 	EXPECT_EQ(s.getStringLength(), 4);
-	EXPECT_EQ(stringData.size(), 9);
+	EXPECT_EQ(stringData.size(), 8);
 }
 
 TEST_F(UTF8StringTest, AStringCanBeInitializedByReplacingInvalidUTF8FirstByte)
@@ -81,18 +79,19 @@ TEST_F(UTF8StringTest, AStringCanBeInitializedByReplacingInvalidUTF8FirstByte)
 	UTF8String s("\xD7\xAAy\x95\xD7\x93\xD7\x94");
 
 	const std::string stringData = s.getStringData();
-
 	EXPECT_EQ(stringData[0], (char)0xD7);
 	EXPECT_EQ(stringData[1], (char)0xAA);
 	EXPECT_EQ(stringData[2], 'y');
-	EXPECT_EQ(stringData[3], '?');
-	EXPECT_EQ(stringData[4], (char)0xD7);
-	EXPECT_EQ(stringData[5], (char)0x93);
+	EXPECT_EQ(stringData[3], (char)0xEF);
+	EXPECT_EQ(stringData[4], (char)0xBF);
+	EXPECT_EQ(stringData[5], (char)0xBD);
 	EXPECT_EQ(stringData[6], (char)0xD7);
-	EXPECT_EQ(stringData[7], (char)0x94);
+	EXPECT_EQ(stringData[7], (char)0x93);
+	EXPECT_EQ(stringData[8], (char)0xD7);
+	EXPECT_EQ(stringData[9], (char)0x94);
 
 	EXPECT_EQ(s.getStringLength(), 5);
-	EXPECT_EQ(stringData.size(), 9);
+	EXPECT_EQ(stringData.size(), 10);
 }
 
 TEST_F(UTF8StringTest, AStringCanBeInitializedByReplacingInvalidUTF8SecondByte)
@@ -104,15 +103,17 @@ TEST_F(UTF8StringTest, AStringCanBeInitializedByReplacingInvalidUTF8SecondByte)
 
 	EXPECT_EQ(stringData[0], (char)0xD7);
 	EXPECT_EQ(stringData[1], (char)0xAA);
-	EXPECT_EQ(stringData[2], '?');
-	EXPECT_EQ(stringData[3], 'r');
-	EXPECT_EQ(stringData[4], (char)0xD7);
-	EXPECT_EQ(stringData[5], (char)0x93);
+	EXPECT_EQ(stringData[2], (char)0xEF);
+	EXPECT_EQ(stringData[3], (char)0xBF);
+	EXPECT_EQ(stringData[4], (char)0xBD);
+	EXPECT_EQ(stringData[5], 'r');
 	EXPECT_EQ(stringData[6], (char)0xD7);
-	EXPECT_EQ(stringData[7], (char)0x94);
+	EXPECT_EQ(stringData[7], (char)0x93);
+	EXPECT_EQ(stringData[8], (char)0xD7);
+	EXPECT_EQ(stringData[9], (char)0x94);
 
 	EXPECT_EQ(s.getStringLength(), 5);
-	EXPECT_EQ(stringData.size(), 9);
+	EXPECT_EQ(stringData.size(), 10);
 }
 
 
@@ -131,7 +132,7 @@ TEST_F(UTF8StringTest, AStringCanBeInitializedUsingATwoByteAndAFourByteUTF8)
 	EXPECT_EQ(stringData[5], (char)0x8B);// 4/4
 
 	EXPECT_EQ(s.getStringLength(), 2);
-	EXPECT_EQ(stringData.size(), 7);
+	EXPECT_EQ(stringData.size(), 6);
 }
 
 TEST_F(UTF8StringTest, AStringCanBeInitializedUsingAOneByteUTF8)
@@ -148,7 +149,7 @@ TEST_F(UTF8StringTest, AStringCanBeInitializedUsingAOneByteUTF8)
 	EXPECT_EQ(stringData[5], 'x');
 
 	EXPECT_EQ(s.getStringLength(), 6);
-	EXPECT_EQ(stringData.size(), 7);
+	EXPECT_EQ(stringData.size(), 6);
 }
 
 TEST_F(UTF8StringTest, AStringCanInitializedUsingACombinationOfAllByteWidths)
@@ -184,7 +185,7 @@ TEST_F(UTF8StringTest, AStringCanInitializedUsingACombinationOfAllByteWidths)
 	EXPECT_EQ(stringData[16], 'z');
 
 	EXPECT_EQ(s.getStringLength(), 11);
-	EXPECT_EQ(stringData.size(), 18);
+	EXPECT_EQ(stringData.size(), 17);
 }
 
 TEST_F(UTF8StringTest, AStringCanBeInitializedWithABrokenThreeByteUTF8FollowedByaTwoByteUTF8)
@@ -194,12 +195,14 @@ TEST_F(UTF8StringTest, AStringCanBeInitializedWithABrokenThreeByteUTF8FollowedBy
 
 	const std::string stringData = s.getStringData();
 
-	EXPECT_EQ(stringData[0], '?');
-	EXPECT_EQ(stringData[1], (char)0xD7);
-	EXPECT_EQ(stringData[2], (char)0xAA);
+	EXPECT_EQ(stringData[0], (char)0xEF);
+	EXPECT_EQ(stringData[1], (char)0xBF);
+	EXPECT_EQ(stringData[2], (char)0xBD);
+	EXPECT_EQ(stringData[3], (char)0xD7);
+	EXPECT_EQ(stringData[4], (char)0xAA);
 	
 	EXPECT_EQ(s.getStringLength(), 2);
-	EXPECT_EQ(stringData.size(), 4);
+	EXPECT_EQ(stringData.size(), 5);
 }
 
 TEST_F(UTF8StringTest, AStringCanBeInitializedWhenTwoOfThreeMultiByteCharactersAreBroken)
@@ -209,14 +212,18 @@ TEST_F(UTF8StringTest, AStringCanBeInitializedWhenTwoOfThreeMultiByteCharactersA
 
 	const std::string stringData = s.getStringData();
 
-	EXPECT_EQ(stringData[0], '?');
-	EXPECT_EQ(stringData[1], '?');
-	EXPECT_EQ(stringData[2], (char)0xEA);
-	EXPECT_EQ(stringData[3], (char)0xA6);
-	EXPECT_EQ(stringData[4], (char)0x90);
+	EXPECT_EQ(stringData[0], (char)0xEF);
+	EXPECT_EQ(stringData[1], (char)0xBF);
+	EXPECT_EQ(stringData[2], (char)0xBD);
+	EXPECT_EQ(stringData[3], (char)0xEF);
+	EXPECT_EQ(stringData[4], (char)0xBF);
+	EXPECT_EQ(stringData[5], (char)0xBD);
+	EXPECT_EQ(stringData[6], (char)0xEA);
+	EXPECT_EQ(stringData[7], (char)0xA6);
+	EXPECT_EQ(stringData[8], (char)0x90);
 
 	EXPECT_EQ(s.getStringLength(), 3);
-	EXPECT_EQ(stringData.size(), 6);
+	EXPECT_EQ(stringData.size(), 9);
 }
 
 TEST_F(UTF8StringTest, AStringWillNotBeConstructedUsingANullPointer)
@@ -285,8 +292,8 @@ TEST_F(UTF8StringTest, AStringIsDuplicated_ValidString)
 
 	UTF8String duplicate(s);
 
-	int32_t comparison_result = s.compare(duplicate);
-	EXPECT_EQ(comparison_result, 0);
+	bool comparison_result = s.compare(duplicate);
+	EXPECT_TRUE(comparison_result);
 }
 
 
@@ -295,8 +302,8 @@ TEST_F(UTF8StringTest, AStringIsComparedWithAnIdenticalString)
 	UTF8String s1("1234567890");
 	UTF8String s2("1234567890");
 	
-	int32_t comparison = s1.compare(s2);
-	EXPECT_EQ(comparison, 0);
+	bool comparison = s1.compare(s2);
+	EXPECT_TRUE(comparison);
 }
 
 TEST_F(UTF8StringTest, AStringIsComparedWithADifferentString)
@@ -304,88 +311,83 @@ TEST_F(UTF8StringTest, AStringIsComparedWithADifferentString)
 	UTF8String s1("1234567890");
 	UTF8String s2("1234567898");
 
-	int32_t comparison = s1.compare(s2);
-	EXPECT_NE(comparison, 0);
+	bool comparison = s1.compare(s2);
+	EXPECT_FALSE(comparison);
 }
 
 TEST_F(UTF8StringTest, AStringIsComparedWithANullString)
 {
 	UTF8String s("abc\xD7\xAA\x78\xF0\x9F\x98\x8B\x64\xEA\xA6\x85xyz");
 	
-	int32_t comparison = s.compare(NULL);
-	EXPECT_NE(comparison, 0);
+	bool comparison = s.compare(NULL);
+	EXPECT_FALSE(comparison);
 }
 
 TEST_F(UTF8StringTest, SubstringFromValidRange)
 {
 	UTF8String s("1234567890");
 
-	UTF8String* substr = s.substring(3, 7);
+	UTF8String substr = s.substring(3, 7);
 
 	const char* expect = "45678";
-	EXPECT_EQ(6, substr->getStringData().size());
-	EXPECT_EQ(5, substr->getStringLength());
-	int32_t comparison_result = substr->compare(expect);
+	EXPECT_EQ(6, substr.getStringData().size());
+	EXPECT_EQ(5, substr.getStringLength());
+	int32_t comparison_result = substr.compare(expect);
 	EXPECT_EQ(comparison_result, 0);
 
-	delete substr;
 }
 
 TEST_F(UTF8StringTest, SubstringFromValidRange_UTF8Multibyte)
 {
 	UTF8String s("\xD7\xAA\xD7\x95\xD7\x93\xD7\x94"); // 4 2-byte characters
 
-	UTF8String* substr = s.substring(1, 3);
+	UTF8String substr = s.substring(1, 3);
 
 	const char* expect = "\xD7\x95\xD7\x93\xD7\x94";
-	EXPECT_EQ(7, substr->getStringData().size());
-	EXPECT_EQ(3, substr->getStringLength());
-	int32_t comparison_result = substr->compare(expect);
+	EXPECT_EQ(7, substr.getStringData().size());
+	EXPECT_EQ(3, substr.getStringLength());
+	int32_t comparison_result = substr.compare(expect);
 	EXPECT_EQ(comparison_result, 0);
-
-	delete substr;
 }
 
 TEST_F(UTF8StringTest, SubstringFromValidRange_UTF8MultibyteASCIIMix)
 {
 	UTF8String s("\xD7\xAAza\xD7\x95yb\xD7\x93xc\xD7\x94wd"); // 2-byte characters mixed with triplets of ASCII
 
-	UTF8String* substr = s.substring(3, 6);
+	UTF8String substr = s.substring(3, 6);
 
 	const char* expect = "\xD7\x95yb\xD7\x93";
-	EXPECT_EQ(7, substr->getStringData().size());
-	EXPECT_EQ(4, substr->getStringLength());
-	int32_t comparison_result = substr->compare(expect);
+	EXPECT_EQ(7, substr.getStringData().size());
+	EXPECT_EQ(4, substr.getStringLength());
+	int32_t comparison_result = substr.compare(expect);
 	EXPECT_EQ(comparison_result, 0);
-
-	delete substr;
 }
 
 TEST_F(UTF8StringTest, SubstringWithFirstInvalidIndex)
 {
 	UTF8String s("1234567890");
 
-	UTF8String* substr = s.substring(-1, 7);
+	UTF8String substr = s.substring(-1, 7);
 
-	EXPECT_TRUE(substr == NULL);
+	EXPECT_TRUE(substr.getStringLength() == 0);
 }
 
 TEST_F(UTF8StringTest, SubstringWithSecondInvalidIndex)
 {
 	UTF8String s("1234567890");
 
-	UTF8String* substr = s.substring(1, 12);
+	UTF8String substr = s.substring(1, 12);
 
-	EXPECT_TRUE(substr == NULL);
+	EXPECT_TRUE(substr.getStringLength() == 0);
 }
 
 TEST_F(UTF8StringTest, SubstringWithSecondIndexSmallerThanFirstIndex)
 {
 	UTF8String s("1234567890");
 
-	UTF8String* substr = s.substring(6, 3);
+	UTF8String substr = s.substring(6, 3);
 
-	EXPECT_TRUE(substr == NULL);
+	EXPECT_TRUE(substr.getStringLength() ==0);
 }
 
 TEST_F(UTF8StringTest, ConcatenateASCIIWithUTFString)
@@ -406,10 +408,9 @@ TEST_F(UTF8StringTest, ConcatenateASCIIWithUTFString)
 	EXPECT_EQ(stringData[6], 'b');
 	EXPECT_EQ(stringData[7], (char)0xD7);
 	EXPECT_EQ(stringData[8], (char)0x93);
-	EXPECT_EQ(stringData[9], '\0');
 
 	EXPECT_EQ(s1.getStringLength(), 7);
-	EXPECT_EQ(stringData.size(), 10);
+	EXPECT_EQ(stringData.size(), 9);
 }
 
 TEST_F(UTF8StringTest, ConcatenateUTFWithASCIIString)
@@ -429,10 +430,9 @@ TEST_F(UTF8StringTest, ConcatenateUTFWithASCIIString)
 	EXPECT_EQ(stringData[5], 'e');
 	EXPECT_EQ(stringData[6], 's');
 	EXPECT_EQ(stringData[7], 't');
-	EXPECT_EQ(stringData[8], '\0');
 
 	EXPECT_EQ(s1.getStringLength(), 6);
-	EXPECT_EQ(stringData.size(), 9);
+	EXPECT_EQ(stringData.size(), 8);
 }
 
 TEST_F(UTF8StringTest, ConcatenateWithCharPointer)
@@ -456,10 +456,9 @@ TEST_F(UTF8StringTest, ConcatenateWithCharPointer)
 	EXPECT_EQ(stringData[11], 't');
 	EXPECT_EQ(stringData[12], ' ');
 	EXPECT_EQ(stringData[13], '2');
-	EXPECT_EQ(stringData[14], '\0');
 
 	EXPECT_EQ(s.getStringLength(), 14);
-	EXPECT_EQ(stringData.size(), 15);
+	EXPECT_EQ(stringData.size(), 14);
 }
 
 
@@ -477,8 +476,7 @@ TEST_F(UTF8StringTest, ConcatenateWithEmptyString)
 	EXPECT_EQ(stringData[4], '1');
 	EXPECT_EQ(stringData[5], '2');
 	EXPECT_EQ(stringData[6], '3');
-	EXPECT_EQ(stringData[7], '\0');
 
 	EXPECT_EQ(s.getStringLength(), 7);
-	EXPECT_EQ(stringData.size(), 8);
+	EXPECT_EQ(stringData.size(), 7);
 }
