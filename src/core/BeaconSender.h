@@ -51,10 +51,10 @@ namespace core {
 	private:
 
 		/// Beacon sending context managing the state transitions and shutdown
-		communication::BeaconSendingContext* m_beaconSendingContext;
+		communication::BeaconSendingContext* mBeaconSendingContext;
 
 		/// thread instance running the beacon sending state machine
-		std::thread* m_sendingThread;
+		std::thread* mSendingThread;
 	};
 }
 #endif

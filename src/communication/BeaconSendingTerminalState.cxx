@@ -14,9 +14,6 @@
 * limitations under the License.
 */
 
-#include <stdio.h>
-#include <stdint.h>
-
 #include "communication/BeaconSendingTerminalState.h"
 #include "communication/AbstractBeaconSendingState.h"
 
@@ -37,9 +34,9 @@ void BeaconSendingTerminalState::executeState(BeaconSendingContext& context)
 	context.requestShutdown();
 }
 
-AbstractBeaconSendingState* BeaconSendingTerminalState::getShutdownState()
+std::unique_ptr<AbstractBeaconSendingState> BeaconSendingTerminalState::getShutdownState()
 {
-	return new BeaconSendingTerminalState();
+	return std::make_unique<BeaconSendingTerminalState>();
 }
 
 bool BeaconSendingTerminalState::isAShutdownState()

@@ -36,7 +36,7 @@ namespace communication {
 		///
 		/// Destructor
 		///
-		virtual ~BeaconSendingInitialState() override;
+		virtual ~BeaconSendingInitialState();
 
 		///
 		/// Execute this state
@@ -48,7 +48,7 @@ namespace communication {
 		/// Return the shutdown state
 		/// @returns an instance of @c AbstractBeaconSendingState handling the shutdown after the init state
 		///
-		virtual AbstractBeaconSendingState* getShutdownState() override;
+		virtual std::unique_ptr<AbstractBeaconSendingState> getShutdownState() override;
 
 		///
 		/// Return a flag if this is a shutdown state.

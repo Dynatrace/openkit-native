@@ -23,12 +23,12 @@ using namespace communication;
 
 BeaconSender::BeaconSender()
 {
-	m_beaconSendingContext = new BeaconSendingContext(new BeaconSendingInitialState());
+	mBeaconSendingContext = new BeaconSendingContext(std::make_unique<BeaconSendingInitialState>());
 }
 
 BeaconSender::~BeaconSender()
 {
-	delete m_beaconSendingContext;
+	delete mBeaconSendingContext;
 }
 
 void beaconSendingLoop(BeaconSendingContext* context)
@@ -41,13 +41,13 @@ void beaconSendingLoop(BeaconSendingContext* context)
 
 bool BeaconSender::initialize()
 {
-	m_sendingThread = new std::thread(&beaconSendingLoop, m_beaconSendingContext);
+	mSendingThread = new std::thread(&beaconSendingLoop, mBeaconSendingContext);
 	return true;
 }
 
 void BeaconSender::shutdown()
 {
-	m_beaconSendingContext->requestShutdown();
-	m_sendingThread->join();
-	delete m_sendingThread;
+	mBeaconSendingContext->requestShutdown();
+	mSendingThread->join();
+	delete mSendingThread;
 }

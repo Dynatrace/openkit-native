@@ -17,7 +17,9 @@
 #ifndef _COMMUNICATION_ABSTRACTBEACONSENDINGSTATE_H
 #define _COMMUNICATION_ABSTRACTBEACONSENDINGSTATE_H
 
-#include "communication/BeaconSendingContext.h"
+#include <memory>
+
+#include "BeaconSendingContext.h"
 
 namespace communication {
 
@@ -29,9 +31,14 @@ namespace communication {
 	public:
 
 		///
+		///constructor
+		///
+		AbstractBeaconSendingState() {}
+
+		///
 		/// destructor
 		///
-		virtual ~AbstractBeaconSendingState() {};
+		virtual	~AbstractBeaconSendingState() {}
 
 		///
 		/// execute the state
@@ -43,7 +50,7 @@ namespace communication {
 		/// Get an instance of the shutdown state of the @s AbstractBeaconSendingState that is called upon shutdown
 		/// @returns the follow-up state taking care of the shutdown
 		///
-		virtual AbstractBeaconSendingState* getShutdownState() = 0;
+		virtual std::unique_ptr<AbstractBeaconSendingState> getShutdownState() = 0;
 
 		///
 		/// Return a flag whether the current state is a shutdown state or not.

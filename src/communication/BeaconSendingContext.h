@@ -18,6 +18,7 @@
 #define _COMMUNICATION_BEACONSENDINGCONTEXT_H
 
 #include <atomic>
+#include <memory>
 
 namespace communication {
 
@@ -34,18 +35,13 @@ namespace communication {
 		/// Constructor
 		/// @param[in] initialState the initial state to use in this sending context
 		///
-		BeaconSendingContext(AbstractBeaconSendingState* initialState);
-
-		///
-		/// Destructor
-		///
-		~BeaconSendingContext();
+		BeaconSendingContext(std::unique_ptr<AbstractBeaconSendingState> initialState);
 
 		///
 		/// Register a state following the current state once the current state finished
 		/// @param nextState instance of the @s AbstractBeaconSendingState that follows after the current state
 		///
-		void setNextState(AbstractBeaconSendingState* nextState);
+		void setNextState(std::unique_ptr<AbstractBeaconSendingState> nextState);
 
 		///
 		/// Return a flag if the current state of this context is a terminal state
@@ -71,13 +67,13 @@ namespace communication {
 
 	private:
 		/// instance of @s AbstractBeaconSendingState with the current state
-		AbstractBeaconSendingState * m_currentState;
+		std::unique_ptr<AbstractBeaconSendingState> mCurrentState;
 
 		/// Flag if the current state is a terminal state
-		bool m_isInTerminalState;
+		bool mIsInTerminalState;
 
 		/// Atomic shutdown flag
-		std::atomic<bool> m_shutdown;
+		std::atomic<bool> mShutdown;
 	};
 }
 #endif

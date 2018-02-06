@@ -21,47 +21,40 @@
 
 using namespace communication;
 
-BeaconSendingContext::BeaconSendingContext(AbstractBeaconSendingState* initialState)
-{
-	m_currentState = initialState;
-	m_isInTerminalState = false;
-	m_shutdown = false;
+BeaconSendingContext::BeaconSendingContext(std::unique_ptr<AbstractBeaconSendingState> initialState)
+	: mCurrentState(std::move(initialState))
+	, mIsInTerminalState(false)
+	, mShutdown(false)
+{	
 }
 
-BeaconSendingContext::~BeaconSendingContext()
-{
-	delete m_currentState;
-}
-
-void BeaconSendingContext::setNextState(AbstractBeaconSendingState* nextState)
+void BeaconSendingContext::setNextState(std::unique_ptr<AbstractBeaconSendingState> nextState)
 {
 	if (nextState != nullptr)
 	{
-		AbstractBeaconSendingState* temp = m_currentState;
-		m_currentState = nextState;
-		delete temp;
+		mCurrentState = std::move(nextState);
 	}
 }
 
 bool BeaconSendingContext::isInTerminalState()
 {
-	return m_currentState->isAShutdownState();
+	return mCurrentState->isAShutdownState();
 }
 
 void BeaconSendingContext::executeCurrentState()
 {
-	if (m_currentState != nullptr)
+	if (mCurrentState != nullptr)
 	{
-		m_currentState->executeState(*this);
+		mCurrentState->executeState(*this);
 	}
 }
 
 void BeaconSendingContext::requestShutdown()
 {
-	m_shutdown = true;
+	mShutdown = true;
 }
 
 bool BeaconSendingContext::isShutdownRequested()
 {
-	return m_shutdown;
+	return mShutdown;
 }

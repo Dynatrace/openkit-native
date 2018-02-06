@@ -16,9 +16,6 @@
 
 #include "BeaconSendingInitialState.h"
 
-#include <stdio.h>
-#include <stdint.h>
-
 #include "communication/BeaconSendingTerminalState.h"
 #include "communication/AbstractBeaconSendingState.h"
 
@@ -44,10 +41,9 @@ void BeaconSendingInitialState::executeState(BeaconSendingContext& context)
 	}
 }
 
-AbstractBeaconSendingState* BeaconSendingInitialState::getShutdownState()
+std::unique_ptr<AbstractBeaconSendingState> BeaconSendingInitialState::getShutdownState()
 {
-	AbstractBeaconSendingState* state = new BeaconSendingTerminalState();
-	return state;
+	return std::make_unique<BeaconSendingTerminalState>();
 }
 
 bool BeaconSendingInitialState::isAShutdownState()
