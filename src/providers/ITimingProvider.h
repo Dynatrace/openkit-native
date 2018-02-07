@@ -38,8 +38,8 @@ namespace providers {
 		virtual void sleep(int64_t milliseconds) = 0;
 
 		///
-		/// Initialize timing provider with cluster time offset. If {@c false} is provided
-		/// for {@c isTimeSyncSupported}, the cluster offset is set to 0.
+		/// Initialize timing provider with cluster time offset. If @c false is provided
+		/// for @c isTimeSyncSupported, the cluster offset is set to 0.
 		/// @param[in] clusterTimeOffset offset received from cluster
 		/// @param[in] isTimeSyncSupported flag if time sync is supported
 		///
@@ -47,7 +47,7 @@ namespace providers {
 
 		///
 		/// Returns whether time sync is supported or not
-		/// @returns {@c true} if time sync is supported otherwise {@c false}
+		/// @returns @c true if time sync is supported otherwise @c false
 		///
 		virtual bool isTimeSyncSupported() = 0;
 
