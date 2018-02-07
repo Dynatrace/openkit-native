@@ -18,7 +18,7 @@
 
 using namespace protocol;
 
-HTTPClient::HTTPClient()
+HTTPClient::HTTPClient(configuration::HTTPClientConfiguration configuration)
 {
 
 }
