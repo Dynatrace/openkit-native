@@ -13,6 +13,7 @@ SET(SOURCES_COMMUNICATION
 SET(SOURCES_PROTOCOL
 	protocol/Response.cxx
 	protocol/StatusResponse.cxx
+	protocol/HTTPClient.cxx
 )
 
 SET(SOURCES_PROVIDERS
