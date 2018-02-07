@@ -16,7 +16,7 @@
 #include "core/UTF8String.h"
 #include "memory.h"
 
-#include <stdint.h>
+#include <cstdint>
 #include <gtest/gtest.h>
 
 using namespace core;
