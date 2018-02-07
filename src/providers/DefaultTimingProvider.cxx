@@ -44,10 +44,12 @@ void DefaultTimingProvider::sleep(int64_t milliseconds)
 void DefaultTimingProvider::initialize(int64_t clusterTimeOffset, bool isTimeSyncSupported)
 {
 	mIsTimeSyncSupported = isTimeSyncSupported;
-	if (mIsTimeSyncSupported) {
+	if (mIsTimeSyncSupported)
+	{
 		mClusterTimeOffset = clusterTimeOffset;
 	}
-	else {
+	else
+	{
 		mClusterTimeOffset = 0;
 	}
 }
