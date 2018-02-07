@@ -18,6 +18,7 @@ SET(SOURCES_PROTOCOL
 
 SET(SOURCES_PROVIDERS
 	providers/DefaultTimingProvider.cxx
+	providers/DefaultHTTPClientProvider.cxx
 )
 
 SET(SOURCES_CONFIGURATION
