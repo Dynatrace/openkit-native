@@ -10,7 +10,12 @@ SET(SOURCES_COMMUNICATION
 	communication/BeaconSendingTerminalState.cxx
 )
 
+SET(SOURCES_PROVIDERS
+	providers/DefaultTimingProvider.cxx
+)
+
 add_library( LibBase STATIC
 	${SOURCES_CORE}
 	${SOURCES_COMMUNICATION}
+	${SOURCES_PROVIDERS}
 )
