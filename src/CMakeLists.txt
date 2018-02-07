@@ -20,9 +20,14 @@ SET(SOURCES_PROVIDERS
 	providers/DefaultTimingProvider.cxx
 )
 
+SET(SOURCES_CONFIGURATION
+	configuration/HTTPClientConfiguration.cxx
+)
+
 add_library( LibBase STATIC
 	${SOURCES_CORE}
 	${SOURCES_COMMUNICATION}
 	${SOURCES_PROVIDERS}
 	${SOURCES_PROTOCOL}
+	${SOURCES_CONFIGURATION}
 )
