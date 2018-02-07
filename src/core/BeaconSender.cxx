@@ -15,6 +15,9 @@
 */
 
 #include "BeaconSender.h"
+
+#include <memory>
+
 #include "communication/BeaconSendingInitialState.h"
 #include "communication/BeaconSendingContext.h"
 
@@ -23,7 +26,7 @@ using namespace communication;
 
 BeaconSender::BeaconSender()
 {
-	mBeaconSendingContext = new BeaconSendingContext(std::make_unique<BeaconSendingInitialState>());
+	mBeaconSendingContext = new BeaconSendingContext(std::unique_ptr<AbstractBeaconSendingState>(new BeaconSendingInitialState()));
 }
 
 BeaconSender::~BeaconSender()

@@ -36,7 +36,7 @@ void BeaconSendingTerminalState::executeState(BeaconSendingContext& context)
 
 std::unique_ptr<AbstractBeaconSendingState> BeaconSendingTerminalState::getShutdownState()
 {
-	return std::make_unique<BeaconSendingTerminalState>();
+	return std::unique_ptr<AbstractBeaconSendingState>(new BeaconSendingTerminalState());
 }
 
 bool BeaconSendingTerminalState::isAShutdownState()
