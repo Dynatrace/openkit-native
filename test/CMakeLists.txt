@@ -1,7 +1,7 @@
 include_directories(${GTEST_INCLUDE_DIRS})
 
 set(SOURCES_CURLTEST
-	src/curltest.cxx
+	communication/curltest.cxx
 )
 
 add_executable( curltest 
@@ -12,7 +12,7 @@ target_link_libraries(curltest LibBase ${CURLIMPLIB} ${ZLIB_LIBRARIES})
 
 
 set(SOURCES_UNITTEST
-	src/UTF8StringTest.cxx
+	core/UTF8StringTest.cxx
 	providers/DefaultTimingProviderTest.cxx
 )
 
