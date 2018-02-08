@@ -31,36 +31,36 @@ namespace configuration {
 		/// @param[in] serverID server id
 		/// @param[in] applicationID the application id
 		///
-		HTTPClientConfiguration(core::UTF8String URL, uint32_t serverID, core::UTF8String applicationID);
+		HTTPClientConfiguration(const core::UTF8String& url, uint32_t serverID, const core::UTF8String& applicationID);
 
 
 		///
 		/// Returns the base url for the http client
 		/// @returns the base url
 		///
-		core::UTF8String getBaseURL();
+		const core::UTF8String& getBaseURL() const;
 
 		///
 		/// Returns the server id to be used for the http client
 		/// @returns the server id
 		///
-		uint32_t getServerID();
+		uint32_t getServerID() const;
 		
 		///
 		/// The application id for the http client
 		/// @returns the application id
 		///
-		core::UTF8String getApplicationID();
+		const core::UTF8String& getApplicationID() const;
 
 	private:
 		/// the beacon URL
-		core::UTF8String mBaseURL;
+		const core::UTF8String mBaseURL;
 
 		/// the server ID
 		uint32_t mServerID;
 
 		/// the application id
-		core::UTF8String mApplicationID;
+		const core::UTF8String mApplicationID;
 	};
 
 }

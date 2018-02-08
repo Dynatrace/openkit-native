@@ -32,7 +32,7 @@ namespace providers {
 		/// Returns an HTTPClient based on the provided configuration.
 		/// @param[in] configuration configuration parameters for the HTTP connection
 		///
-		virtual protocol::HTTPClient* createClient(configuration::HTTPClientConfiguration configuration) override;
+		virtual std::unique_ptr<protocol::HTTPClient> createClient(const configuration::HTTPClientConfiguration& configuration) override;
 	};
 }
 

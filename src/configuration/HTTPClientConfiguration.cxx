@@ -18,24 +18,24 @@
 
 using namespace configuration;
 
-HTTPClientConfiguration::HTTPClientConfiguration(core::UTF8String URL, uint32_t serverID, core::UTF8String applicationID)
-	: mBaseURL(URL)
+HTTPClientConfiguration::HTTPClientConfiguration(const core::UTF8String& url, uint32_t serverID, const core::UTF8String& applicationID)
+	: mBaseURL(url)
 	, mServerID(serverID)
 	, mApplicationID(applicationID)
 {
 }
 
-core::UTF8String HTTPClientConfiguration::getBaseURL()
+const core::UTF8String& HTTPClientConfiguration::getBaseURL() const
 {
 	return mBaseURL;
 }
 
-uint32_t HTTPClientConfiguration::getServerID()
+uint32_t HTTPClientConfiguration::getServerID() const
 {
 	return mServerID;
 }
 
-core::UTF8String HTTPClientConfiguration::getApplicationID()
+const core::UTF8String& HTTPClientConfiguration::getApplicationID() const
 {
 	return mApplicationID;
 }
