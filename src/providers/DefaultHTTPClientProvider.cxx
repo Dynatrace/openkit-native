@@ -18,7 +18,7 @@
 
 using namespace providers;
 
-std::unique_ptr<protocol::HTTPClient> createClient(const configuration::HTTPClientConfiguration& configuration)
+std::unique_ptr<protocol::HTTPClient> DefaultHTTPClientProvider::createClient(const configuration::HTTPClientConfiguration& configuration)
 {
 	return std::unique_ptr<protocol::HTTPClient>(new protocol::HTTPClient(configuration));
 }

@@ -14,8 +14,8 @@
 * limitations under the License.
 */
 
-#ifndef _PROVIDERS_ITIMINGPROVIDER_H
-#define _PROVIDERS_ITIMINGPROVIDER_H
+#ifndef _PROVIDERS_IHTTPCLIENTPROVIDER_H
+#define _PROVIDERS_IHTTPCLIENTPROVIDER_H
 
 #include "protocol/HTTPClient.h"
 
