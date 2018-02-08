@@ -99,7 +99,7 @@ namespace protocol {
 		int32_t mSendInterval;
 
 		/// monitor name
-		const core::UTF8String mMonitorName;
+		core::UTF8String mMonitorName;
 
 		/// server id
 		int32_t mServerID;
