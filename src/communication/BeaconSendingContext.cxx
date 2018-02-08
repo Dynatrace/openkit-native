@@ -75,3 +75,8 @@ std::unique_ptr<protocol::HTTPClient> BeaconSendingContext::getHTTPClient()
 {
 	return mHTTPClientProvider.createClient(mConfiguration.getHTTPClientConfiguration());
 }
+
+void BeaconSendingContext::sleep(uint64_t ms)
+{
+	mTimingProvider.sleep(ms);
+}

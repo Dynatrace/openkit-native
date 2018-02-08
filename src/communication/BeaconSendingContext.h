@@ -85,6 +85,12 @@ namespace communication {
 		///
 		std::unique_ptr<protocol::HTTPClient> getHTTPClient();
 
+		///
+		/// Sleep for a given amount of time
+		/// @param[in] ms number of milliseconds
+		///
+		void sleep(uint64_t ms);
+
 	private:
 		/// instance of @s AbstractBeaconSendingState with the current state
 		std::unique_ptr<AbstractBeaconSendingState> mCurrentState;
