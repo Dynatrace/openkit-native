@@ -37,7 +37,7 @@ namespace protocol {
 		/// Return the response code
 		/// @returns the response code
 		///
-		uint32_t getResponseCode();
+		uint32_t getResponseCode() const;
 	private:
 		/// numerical response code
 		uint32_t mResponseCode;

@@ -23,7 +23,7 @@ Response::Response(uint32_t responseCode)
 {
 }
 
-uint32_t Response::getResponseCode()
+uint32_t Response::getResponseCode() const
 {
 	return mResponseCode;
 }

@@ -58,37 +58,37 @@ void StatusResponse::parseResponse(core::UTF8String response)
 	throw std::runtime_error("not implemented");
 }
 
-bool StatusResponse::isCapture()
+bool StatusResponse::isCapture() const
 {
 	return mCapture;
 }
 
-int32_t StatusResponse::getSendInterval()
+int32_t StatusResponse::getSendInterval() const
 {
 	return mSendInterval;
 }
 
-core::UTF8String StatusResponse::getMonitorName()
+const core::UTF8String& StatusResponse::getMonitorName() const
 {
 	return mMonitorName;
 }
 
-int32_t StatusResponse::getServerID()
+int32_t StatusResponse::getServerID() const
 {
 	return mServerID;
 }
 
-int32_t StatusResponse::getMaxBeaconSize()
+int32_t StatusResponse::getMaxBeaconSize() const
 {
 	return mMaxBeaconSize;
 }
 
-bool StatusResponse::isCaptureErrors()
+bool StatusResponse::isCaptureErrors() const
 {
 	return mCaptureErrors;
 }
 
-bool StatusResponse::isCaptureCrashes()
+bool StatusResponse::isCaptureCrashes() const
 {
 	return mCaptureCrashes;
 }

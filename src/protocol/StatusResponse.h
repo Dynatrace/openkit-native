@@ -46,43 +46,43 @@ namespace protocol {
 		/// Get a flag if capturing is enabled by the cluster
 		/// @returns @c true if capturing is enabled, @c false is capturing is not enabled
 		///
-		bool isCapture();
+		bool isCapture() const;
 
 		///
 		/// Get the send interval
 		/// @returns send interval in seconds
 		/// 
-		int32_t getSendInterval();
+		int32_t getSendInterval() const;
 
 		///
 		/// Get the monitor name
 		/// @returns the monitor name
 		///
-		core::UTF8String getMonitorName();
+		const core::UTF8String& getMonitorName() const;
 
 		///
 		/// Get the server id
 		/// @returns the server id
 		///
-		int32_t getServerID();
+		int32_t getServerID() const;
 
 		///
 		/// Get the maximum beacon size
 		/// @returns the maximum beacon size in kilobytes
 		///
-		int32_t getMaxBeaconSize();
+		int32_t getMaxBeaconSize() const;
 
 		///
 		/// Get a flag if errors should be reported
 		/// @returns @c true if errors are reported to the cluster, @c false if errors are not reported
 		///
-		bool isCaptureErrors();
+		bool isCaptureErrors() const;
 
 		///
 		/// Get a flag if crashes should be reported
 		/// @returns @c true if errors are reported to the cluster, @c false if errors are not reported
 		///
-		bool isCaptureCrashes();
+		bool isCaptureCrashes() const;
 
 	private:
 		///
@@ -99,7 +99,7 @@ namespace protocol {
 		int32_t mSendInterval;
 
 		/// monitor name
-		core::UTF8String mMonitorName;
+		const core::UTF8String mMonitorName;
 
 		/// server id
 		int32_t mServerID;
