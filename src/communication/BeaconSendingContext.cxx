@@ -14,17 +14,24 @@
 * limitations under the License.
 */
 
-#include "communication/AbstractBeaconSendingState.h"
-
-#include "communication/BeaconSendingTerminalState.h"
 #include "BeaconSendingContext.h"
+
+#include "communication/AbstractBeaconSendingState.h"
+#include "communication/BeaconSendingInitialState.h"
+
+#include "protocol/HTTPClient.h"
 
 using namespace communication;
 
-BeaconSendingContext::BeaconSendingContext(std::unique_ptr<AbstractBeaconSendingState> initialState)
-	: mCurrentState(std::move(initialState))
+BeaconSendingContext::BeaconSendingContext(providers::IHTTPClientProvider& httpClientProvider,
+										   providers::ITimingProvider& timingProvider,
+										   configuration::Configuration configuration)
+	: mCurrentState(std::unique_ptr<AbstractBeaconSendingState>(new BeaconSendingInitialState()))
 	, mIsInTerminalState(false)
 	, mShutdown(false)
+	, mHTTPClientProvider(httpClientProvider)
+	, mTimingProvider(timingProvider)
+	, mConfiguration(configuration)
 {	
 }
 
@@ -36,7 +43,7 @@ void BeaconSendingContext::setNextState(std::unique_ptr<AbstractBeaconSendingSta
 	}
 }
 
-bool BeaconSendingContext::isInTerminalState()
+bool BeaconSendingContext::isInTerminalState() const
 {
 	return mCurrentState->isAShutdownState();
 }
@@ -54,7 +61,17 @@ void BeaconSendingContext::requestShutdown()
 	mShutdown = true;
 }
 
-bool BeaconSendingContext::isShutdownRequested()
+bool BeaconSendingContext::isShutdownRequested() const
 {
 	return mShutdown;
+}
+
+const configuration::Configuration& BeaconSendingContext::getConfiguration() const
+{
+	return mConfiguration;
+}
+
+std::unique_ptr<protocol::HTTPClient> BeaconSendingContext::getHTTPClient()
+{
+	return mHTTPClientProvider.createClient(mConfiguration.getHTTPClientConfiguration());
 }

@@ -20,6 +20,10 @@
 #include <atomic>
 #include <memory>
 
+#include "providers/IHTTPClientProvider.h"
+#include "providers/ITimingProvider.h"
+#include "configuration/Configuration.h"
+
 namespace communication {
 
 	//forward declaration to keep the AbstractBeaconSendingState header out of this header
@@ -33,9 +37,13 @@ namespace communication {
 	public:
 		///
 		/// Constructor
-		/// @param[in] initialState the initial state to use in this sending context
+		/// @param[in] httpClientProvider provider for HTTPClient objects
+		/// @param[in] timingProvider utility class for timing related stuff
+		/// @param[in] configuration general configuration options
 		///
-		BeaconSendingContext(std::unique_ptr<AbstractBeaconSendingState> initialState);
+		BeaconSendingContext(providers::IHTTPClientProvider& httpClientProvider,
+			providers::ITimingProvider& timingProvider,
+			configuration::Configuration configuration);
 
 		///
 		/// Register a state following the current state once the current state finished
@@ -47,7 +55,7 @@ namespace communication {
 		/// Return a flag if the current state of this context is a terminal state
 		/// @returns @s true if the current state is a terminal state
 		///
-		bool isInTerminalState();
+		bool isInTerminalState() const;
 
 		///
 		/// Executes the current state
@@ -63,7 +71,19 @@ namespace communication {
 		/// Return a flag if shutdown was requested
 		/// @returns @s true if shutdown was requested, @s false if not
 		///
-		bool isShutdownRequested();
+		bool isShutdownRequested() const;
+
+		///
+		/// Return the currently used @s Configuration
+		/// @return configuration isntance
+		///
+		const configuration::Configuration& getConfiguration() const;
+
+		///
+		/// Returns the HTTPClient created by the current BeaconSendingContext
+		/// @returns a shared pointer to the HTTTP client created by the BeaconSendingContext
+		///
+		std::unique_ptr<protocol::HTTPClient> getHTTPClient();
 
 	private:
 		/// instance of @s AbstractBeaconSendingState with the current state
@@ -74,6 +94,15 @@ namespace communication {
 
 		/// Atomic shutdown flag
 		std::atomic<bool> mShutdown;
+
+		/// The configuration to use
+		configuration::Configuration mConfiguration;
+
+		/// IHTTPClientProvider responsible for creating instances of HTTPClient
+		providers::IHTTPClientProvider& mHTTPClientProvider;
+
+		/// TimingPRovider used by the BeaconSendingContext
+		providers::ITimingProvider& mTimingProvider;
 	};
 }
 #endif

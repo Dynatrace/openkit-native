@@ -20,6 +20,9 @@
 #include <thread>
 
 #include "communication/BeaconSendingContext.h"
+#include "configuration/Configuration.h"
+#include "providers/IHTTPClientProvider.h"
+#include "providers/ITimingProvider.h"
 
 namespace core {
 	///
@@ -30,8 +33,13 @@ namespace core {
 	public:
 		///
 		/// Default constructor
+		/// @param[in] configuration general configuration options
+		/// @param[in] httpClientProvider the provider for HTTPClient instances
+		/// @param[in] timingProvider utility requried for timing related stuff
 		///
-		BeaconSender();
+		BeaconSender(configuration::Configuration& configuration,
+			providers::IHTTPClientProvider& httpClientProvider,
+			providers::ITimingProvider& timingProvider);
 
 		///
 		/// Destructor
@@ -51,10 +59,10 @@ namespace core {
 	private:
 
 		/// Beacon sending context managing the state transitions and shutdown
-		communication::BeaconSendingContext* mBeaconSendingContext;
+		std::shared_ptr<communication::BeaconSendingContext> mBeaconSendingContext;
 
 		/// thread instance running the beacon sending state machine
-		std::thread* mSendingThread;
+		std::unique_ptr<std::thread> mSendingThread;
 	};
 }
 #endif
