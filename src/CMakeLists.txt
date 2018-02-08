@@ -23,6 +23,7 @@ SET(SOURCES_PROVIDERS
 
 SET(SOURCES_CONFIGURATION
 	configuration/HTTPClientConfiguration.cxx
+	configuration/Configuration.cxx
 )
 
 add_library( LibBase STATIC
