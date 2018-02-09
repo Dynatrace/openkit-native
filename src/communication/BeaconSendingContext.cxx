@@ -32,6 +32,7 @@ BeaconSendingContext::BeaconSendingContext(providers::IHTTPClientProvider& httpC
 	, mHTTPClientProvider(httpClientProvider)
 	, mTimingProvider(timingProvider)
 	, mConfiguration(configuration)
+	, mInitCountdownLatch(1)
 {	
 }
 
@@ -76,7 +77,64 @@ std::unique_ptr<protocol::HTTPClient> BeaconSendingContext::getHTTPClient()
 	return mHTTPClientProvider.createClient(mConfiguration.getHTTPClientConfiguration());
 }
 
+void BeaconSendingContext::handleStatusResponse(std::unique_ptr<protocol::StatusResponse> response)
+{
+	mConfiguration.updateSettings(std::move(response));
+
+	if (!isCaptureOn())
+	{
+		// capturing was turned off
+		clearAllSessionData();
+	}
+}
+
+void BeaconSendingContext::clearAllSessionData()
+{
+
+}
+
+bool BeaconSendingContext::isCaptureOn() const
+{
+	return mConfiguration.isCapture();
+}
+
+void BeaconSendingContext::setInitCompleted(bool success)
+{
+	mInitSuceeded = success;
+	mInitCountdownLatch.countDown();
+}
+
+bool BeaconSendingContext::isInitialised() const
+{
+	return mInitSuceeded;
+}
+
 void BeaconSendingContext::sleep(uint64_t ms)
 {
 	mTimingProvider.sleep(ms);
+}
+
+uint64_t BeaconSendingContext::getLastStatusCheckTime() const
+{
+	return mLastStatusCheckTime;
+}
+
+void BeaconSendingContext::setLastStatusCheckTime(uint64_t lastStatusCheckTime)
+{
+	mLastStatusCheckTime = lastStatusCheckTime;
+}
+
+uint64_t BeaconSendingContext::getCurrentTimestamp() const
+{
+	return mTimingProvider.provideTimestampInMilliseconds();
+}
+
+uint64_t BeaconSendingContext::getLastOpenSessionBeaconSendTime()
+{
+	return mLastOpenSessionBeaconSendTime;
+}
+
+void BeaconSendingContext::setLastOpenSessionBeaconSendTime(uint64_t timestamp)
+{
+	mLastStatusCheckTime = timestamp;
 }

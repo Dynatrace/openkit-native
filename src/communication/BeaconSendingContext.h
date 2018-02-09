@@ -20,9 +20,11 @@
 #include <atomic>
 #include <memory>
 
+#include "core/util/CountDownLatch.h"
 #include "providers/IHTTPClientProvider.h"
 #include "providers/ITimingProvider.h"
 #include "configuration/Configuration.h"
+#include "protocol/StatusResponse.h"
 
 namespace communication {
 
@@ -86,10 +88,70 @@ namespace communication {
 		std::unique_ptr<protocol::HTTPClient> getHTTPClient();
 
 		///
+		/// Handle the status response received from the server
+		/// Update the current configuration accordingly
+		///
+		void handleStatusResponse(std::unique_ptr<protocol::StatusResponse> response);
+
+		///
+		/// Clears all session data
+		///
+		void clearAllSessionData();
+
+		///
+		/// Returns a flag if capturing is enabled
+		/// @returns @s true if capturing is enabled, @s false if capturing is disabled
+		///
+		bool isCaptureOn() const;
+
+		///
+		/// Complete OpenKit initialisation
+		/// NOTE: This will wake up every caller waiting in the {@link #waitForInit()} method. 
+		/// @param[in] success @s true if OpenKit was successfully initialized, @s false if it was interrupted
+		///
+		void setInitCompleted(bool success);
+
+		///
+		/// Get a boolean indicating whether OpenKit is initialized or not.
+		/// @returns @c true  if OpenKit is initialized, @c false otherwise.
+		///
+		bool isInitialised() const;
+
+		///
 		/// Sleep for a given amount of time
 		/// @param[in] ms number of milliseconds
 		///
 		void sleep(uint64_t ms);
+
+		///
+		/// Get current timestamp
+		/// @returns current timestamp
+		///
+		uint64_t getCurrentTimestamp() const;
+
+		///
+		/// Get timestamp when last status check was performed
+		/// @returns timestamp of last status check
+		///
+		uint64_t getLastStatusCheckTime() const;
+
+		///
+		/// Set timestamp when last status check was performed
+		/// @param[in] lastStatusCheckTime timestamp of last status check
+		///
+		void setLastStatusCheckTime(uint64_t lastStatusCheckTime);
+
+		///
+		/// Get timestamp when open sessions were sent last
+		/// @returns timestamp timestamp of last sending of open session
+		///
+		uint64_t getLastOpenSessionBeaconSendTime();
+
+		///
+		/// Set timestamp when open sessions were sent last
+		/// @param[in] timestamp  timestamp of last sendinf of open session
+		///
+		void setLastOpenSessionBeaconSendTime(uint64_t timestamp);
 
 	private:
 		/// instance of @s AbstractBeaconSendingState with the current state
@@ -101,6 +163,9 @@ namespace communication {
 		/// Atomic shutdown flag
 		std::atomic<bool> mShutdown;
 
+		/// Atomic flag for successful initialisation
+		std::atomic<bool> mInitSuceeded;
+
 		/// The configuration to use
 		configuration::Configuration mConfiguration;
 
@@ -109,6 +174,15 @@ namespace communication {
 
 		/// TimingPRovider used by the BeaconSendingContext
 		providers::ITimingProvider& mTimingProvider;
+
+		/// time of the last status check
+		uint64_t mLastStatusCheckTime;
+
+		/// time when open sessions were last sent
+		uint64_t mLastOpenSessionBeaconSendTime;
+
+		/// countdown latch used for wait-on-initialisation
+		core::util::CountDownLatch mInitCountdownLatch;
 	};
 }
 #endif
