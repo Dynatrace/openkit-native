@@ -23,7 +23,7 @@ HTTPClient::HTTPClient(const configuration::HTTPClientConfiguration& configurati
 
 }
 
-StatusResponse HTTPClient::sendStatusRequest()
+std::unique_ptr<StatusResponse> HTTPClient::sendStatusRequest()
 {
-	return StatusResponse("OK", 200);//return OK dy default
+	return std::unique_ptr<StatusResponse>(new StatusResponse("OK", 200));//return OK dy default
 }

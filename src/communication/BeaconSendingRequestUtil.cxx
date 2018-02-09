@@ -19,13 +19,14 @@
 using namespace communication;
 using namespace protocol;
 
-StatusResponse BeaconSendingRequestUtil::sendStatusRequest(BeaconSendingContext& context, uint32_t numRetries, uint64_t initialRetryDelayInMillis)
+std::unique_ptr<StatusResponse> BeaconSendingRequestUtil::sendStatusRequest(BeaconSendingContext& context, uint32_t numRetries, uint64_t initialRetryDelayInMillis)
 {
-	StatusResponse statusResponse;
+	std::unique_ptr<StatusResponse> statusResponse = nullptr;
 	uint64_t sleepTimeInMillis = initialRetryDelayInMillis;
 	int retry = 0;
 
-	while (true) {
+	while (true) 
+	{
 		std::unique_ptr<HTTPClient> httpClient = context.getHTTPClient();
 		if (httpClient == nullptr)
 		{
@@ -33,7 +34,8 @@ StatusResponse BeaconSendingRequestUtil::sendStatusRequest(BeaconSendingContext&
 		}
 
 		statusResponse = httpClient->sendStatusRequest();
-		if (retry >= numRetries || context.isShutdownRequested()) {
+		if (retry >= numRetries || context.isShutdownRequested() || statusResponse != nullptr) 
+		{
 			break;
 		}
 
