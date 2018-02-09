@@ -25,9 +25,9 @@ using namespace core;
 using namespace communication;
 using namespace providers;
 
-BeaconSender::BeaconSender(configuration::Configuration& configuration,
-						   providers::IHTTPClientProvider& httpClientProvider,
-						   providers::ITimingProvider& timingProvider)
+BeaconSender::BeaconSender(std::shared_ptr<configuration::Configuration> configuration,
+						   std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
+						   std::shared_ptr<providers::ITimingProvider> timingProvider)
 {
 	mBeaconSendingContext = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(httpClientProvider, timingProvider, configuration));
 }

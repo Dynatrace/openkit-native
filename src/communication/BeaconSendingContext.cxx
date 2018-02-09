@@ -23,9 +23,9 @@
 
 using namespace communication;
 
-BeaconSendingContext::BeaconSendingContext(providers::IHTTPClientProvider& httpClientProvider,
-										   providers::ITimingProvider& timingProvider,
-										   configuration::Configuration configuration)
+BeaconSendingContext::BeaconSendingContext(std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
+										   std::shared_ptr<providers::ITimingProvider> timingProvider,
+										   std::shared_ptr<configuration::Configuration> configuration)
 	: mCurrentState(std::unique_ptr<AbstractBeaconSendingState>(new BeaconSendingInitialState()))
 	, mIsInTerminalState(false)
 	, mShutdown(false)
@@ -67,24 +67,31 @@ bool BeaconSendingContext::isShutdownRequested() const
 	return mShutdown;
 }
 
-const configuration::Configuration& BeaconSendingContext::getConfiguration() const
+const std::shared_ptr<configuration::Configuration> BeaconSendingContext::getConfiguration() const
 {
 	return mConfiguration;
 }
 
 std::unique_ptr<protocol::HTTPClient> BeaconSendingContext::getHTTPClient()
 {
-	return mHTTPClientProvider.createClient(mConfiguration.getHTTPClientConfiguration());
+	if (mConfiguration != nullptr && mHTTPClientProvider != nullptr)
+	{
+		return mHTTPClientProvider->createClient(mConfiguration->getHTTPClientConfiguration());
+	}
+	return nullptr;
 }
 
 void BeaconSendingContext::handleStatusResponse(std::unique_ptr<protocol::StatusResponse> response)
 {
-	mConfiguration.updateSettings(std::move(response));
-
-	if (!isCaptureOn())
+	if (mConfiguration != nullptr)
 	{
-		// capturing was turned off
-		clearAllSessionData();
+		mConfiguration->updateSettings(std::move(response));
+
+		if (!isCaptureOn())
+		{
+			// capturing was turned off
+			clearAllSessionData();
+		}
 	}
 }
 
@@ -95,7 +102,11 @@ void BeaconSendingContext::clearAllSessionData()
 
 bool BeaconSendingContext::isCaptureOn() const
 {
-	return mConfiguration.isCapture();
+	if (mConfiguration != nullptr)
+	{
+		return mConfiguration->isCapture();
+	}
+	return false;
 }
 
 void BeaconSendingContext::setInitCompleted(bool success)
@@ -111,7 +122,10 @@ bool BeaconSendingContext::isInitialised() const
 
 void BeaconSendingContext::sleep(uint64_t ms)
 {
-	mTimingProvider.sleep(ms);
+	if (mTimingProvider != nullptr)
+	{
+		mTimingProvider->sleep(ms);
+	}
 }
 
 uint64_t BeaconSendingContext::getLastStatusCheckTime() const
@@ -126,7 +140,11 @@ void BeaconSendingContext::setLastStatusCheckTime(uint64_t lastStatusCheckTime)
 
 uint64_t BeaconSendingContext::getCurrentTimestamp() const
 {
-	return mTimingProvider.provideTimestampInMilliseconds();
+	if (mTimingProvider != nullptr)
+	{
+		return mTimingProvider->provideTimestampInMilliseconds();
+	}
+	return 0;
 }
 
 uint64_t BeaconSendingContext::getLastOpenSessionBeaconSendTime()

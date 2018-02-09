@@ -40,9 +40,9 @@ int32_t main(int32_t argc, char** argv)
 	parseCommandLine(argc, argv, beaconURL, serverID, applicationID);
 	HTTPClientConfiguration httpClientConfig(beaconURL, serverID, applicationID);
 
-	DefaultHTTPClientProvider httpClientProvider;
-	DefaultTimingProvider timingProvider;
-	Configuration configuration(httpClientConfig);
+	std::shared_ptr<DefaultHTTPClientProvider> httpClientProvider = std::shared_ptr<DefaultHTTPClientProvider>(new DefaultHTTPClientProvider());
+	std::shared_ptr<DefaultTimingProvider> timingProvider = std::shared_ptr<DefaultTimingProvider>(new DefaultTimingProvider());
+	std::shared_ptr<Configuration> configuration = std::shared_ptr<Configuration>(new Configuration(httpClientConfig));
 
 	BeaconSender sender(configuration, httpClientProvider, timingProvider);
 	

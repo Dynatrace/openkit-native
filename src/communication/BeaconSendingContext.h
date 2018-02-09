@@ -43,9 +43,9 @@ namespace communication {
 		/// @param[in] timingProvider utility class for timing related stuff
 		/// @param[in] configuration general configuration options
 		///
-		BeaconSendingContext(providers::IHTTPClientProvider& httpClientProvider,
-			providers::ITimingProvider& timingProvider,
-			configuration::Configuration configuration);
+		BeaconSendingContext(std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
+			std::shared_ptr<providers::ITimingProvider> timingProvider,
+			std::shared_ptr<configuration::Configuration> configuration);
 
 		///
 		/// Register a state following the current state once the current state finished
@@ -79,7 +79,7 @@ namespace communication {
 		/// Return the currently used @s Configuration
 		/// @return configuration isntance
 		///
-		const configuration::Configuration& getConfiguration() const;
+		const std::shared_ptr<configuration::Configuration> getConfiguration() const;
 
 		///
 		/// Returns the HTTPClient created by the current BeaconSendingContext
@@ -167,13 +167,13 @@ namespace communication {
 		std::atomic<bool> mInitSuceeded;
 
 		/// The configuration to use
-		configuration::Configuration mConfiguration;
+		std::shared_ptr<configuration::Configuration> mConfiguration;
 
 		/// IHTTPClientProvider responsible for creating instances of HTTPClient
-		providers::IHTTPClientProvider& mHTTPClientProvider;
+		std::shared_ptr<providers::IHTTPClientProvider> mHTTPClientProvider;
 
 		/// TimingPRovider used by the BeaconSendingContext
-		providers::ITimingProvider& mTimingProvider;
+		std::shared_ptr<providers::ITimingProvider> mTimingProvider;
 
 		/// time of the last status check
 		uint64_t mLastStatusCheckTime;

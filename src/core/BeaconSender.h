@@ -37,9 +37,9 @@ namespace core {
 		/// @param[in] httpClientProvider the provider for HTTPClient instances
 		/// @param[in] timingProvider utility requried for timing related stuff
 		///
-		BeaconSender(configuration::Configuration& configuration,
-			providers::IHTTPClientProvider& httpClientProvider,
-			providers::ITimingProvider& timingProvider);
+		BeaconSender(std::shared_ptr<configuration::Configuration> configuration,
+			std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
+			std::shared_ptr<providers::ITimingProvider> timingProvider);
 
 		///
 		/// Destructor
