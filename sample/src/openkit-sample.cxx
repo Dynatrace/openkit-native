@@ -17,13 +17,34 @@
 #include <stdint.h>
 
 #include "core/BeaconSender.h"
+#include "providers/DefaultHTTPClientProvider.h"
+#include "providers/DefaultTimingProvider.h"
+#include "configuration/HTTPClientConfiguration.h"
 
 using namespace core;
 using namespace communication;
+using namespace providers;
+using namespace configuration;
 
-int32_t main(int32_t, char**)
+void parseCommandLine(uint32_t argc, char** argv, UTF8String& beaconURL, uint32_t& serverID, UTF8String& applicationID)
 {
-	BeaconSender sender;
+
+}
+
+int32_t main(int32_t argc, char** argv)
+{
+	UTF8String beaconURL = UTF8String("");
+	uint32_t serverID = 0;
+	UTF8String applicationID = UTF8String();
+
+	parseCommandLine(argc, argv, beaconURL, serverID, applicationID);
+	HTTPClientConfiguration httpClientConfig(beaconURL, serverID, applicationID);
+
+	DefaultHTTPClientProvider httpClientProvider;
+	DefaultTimingProvider timingProvider;
+	Configuration configuration(httpClientConfig);
+
+	BeaconSender sender(configuration, httpClientProvider, timingProvider);
 	
 	sender.initialize();
 
