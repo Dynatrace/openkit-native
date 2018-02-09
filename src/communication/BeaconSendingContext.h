@@ -55,7 +55,7 @@ namespace communication {
 
 		///
 		/// Return a flag if the current state of this context is a terminal state
-		/// @returns @s true if the current state is a terminal state
+		/// @returns @c true if the current state is a terminal state
 		///
 		bool isInTerminalState() const;
 
@@ -71,7 +71,7 @@ namespace communication {
 
 		///
 		/// Return a flag if shutdown was requested
-		/// @returns @s true if shutdown was requested, @s false if not
+		/// @returns @c true if shutdown was requested, @s false if not
 		///
 		bool isShutdownRequested() const;
 
@@ -100,14 +100,14 @@ namespace communication {
 
 		///
 		/// Returns a flag if capturing is enabled
-		/// @returns @s true if capturing is enabled, @s false if capturing is disabled
+		/// @returns @c true if capturing is enabled, @c false if capturing is disabled
 		///
 		bool isCaptureOn() const;
 
 		///
 		/// Complete OpenKit initialisation
 		/// NOTE: This will wake up every caller waiting in the {@link #waitForInit()} method. 
-		/// @param[in] success @s true if OpenKit was successfully initialized, @s false if it was interrupted
+		/// @param[in] success @c true if OpenKit was successfully initialized, @c false if it was interrupted
 		///
 		void setInitCompleted(bool success);
 
@@ -154,7 +154,7 @@ namespace communication {
 		void setLastOpenSessionBeaconSendTime(uint64_t timestamp);
 
 	private:
-		/// instance of @s AbstractBeaconSendingState with the current state
+		/// instance of @see AbstractBeaconSendingState with the current state
 		std::unique_ptr<AbstractBeaconSendingState> mCurrentState;
 
 		/// Flag if the current state is a terminal state

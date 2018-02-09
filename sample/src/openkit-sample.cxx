@@ -33,15 +33,16 @@ void parseCommandLine(uint32_t argc, char** argv, UTF8String& beaconURL, uint32_
 
 int32_t main(int32_t argc, char** argv)
 {
-	UTF8String beaconURL = UTF8String("");
+	UTF8String beaconURL;
 	uint32_t serverID = 0;
-	UTF8String applicationID = UTF8String();
+	UTF8String applicationID;
 
 	parseCommandLine(argc, argv, beaconURL, serverID, applicationID);
-	HTTPClientConfiguration httpClientConfig(beaconURL, serverID, applicationID);
 
-	std::shared_ptr<DefaultHTTPClientProvider> httpClientProvider = std::shared_ptr<DefaultHTTPClientProvider>(new DefaultHTTPClientProvider());
-	std::shared_ptr<DefaultTimingProvider> timingProvider = std::shared_ptr<DefaultTimingProvider>(new DefaultTimingProvider());
+	std::shared_ptr<HTTPClientConfiguration> httpClientConfig = std::shared_ptr<HTTPClientConfiguration>(new HTTPClientConfiguration(beaconURL, serverID, applicationID));
+
+	std::shared_ptr<IHTTPClientProvider> httpClientProvider = std::shared_ptr<IHTTPClientProvider>(new DefaultHTTPClientProvider());
+	std::shared_ptr<ITimingProvider> timingProvider = std::shared_ptr<ITimingProvider>(new DefaultTimingProvider());
 	std::shared_ptr<Configuration> configuration = std::shared_ptr<Configuration>(new Configuration(httpClientConfig));
 
 	BeaconSender sender(configuration, httpClientProvider, timingProvider);

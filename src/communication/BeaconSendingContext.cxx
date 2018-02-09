@@ -20,6 +20,7 @@
 #include "communication/BeaconSendingInitialState.h"
 
 #include "protocol/HTTPClient.h"
+#include "configuration/HTTPClientConfiguration.h"
 
 using namespace communication;
 
@@ -53,7 +54,7 @@ void BeaconSendingContext::executeCurrentState()
 {
 	if (mCurrentState != nullptr)
 	{
-		mCurrentState->doExecute(*this);
+		mCurrentState->execute(*this);
 	}
 }
 
@@ -76,7 +77,11 @@ std::unique_ptr<protocol::HTTPClient> BeaconSendingContext::getHTTPClient()
 {
 	if (mConfiguration != nullptr && mHTTPClientProvider != nullptr)
 	{
-		return mHTTPClientProvider->createClient(mConfiguration->getHTTPClientConfiguration());
+		std::shared_ptr<configuration::HTTPClientConfiguration> httpClientConfig = mConfiguration->getHTTPClientConfiguration();
+		if (httpClientConfig != nullptr)
+		{
+			return mHTTPClientProvider->createClient(httpClientConfig);
+		}
 	}
 	return nullptr;
 }

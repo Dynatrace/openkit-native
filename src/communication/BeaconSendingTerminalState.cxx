@@ -29,7 +29,7 @@ BeaconSendingTerminalState::~BeaconSendingTerminalState()
 
 }
 
-void BeaconSendingTerminalState::executeState(BeaconSendingContext& context)
+void BeaconSendingTerminalState::doExecute(BeaconSendingContext& context)
 {
 	context.requestShutdown();
 }

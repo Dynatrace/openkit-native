@@ -42,7 +42,7 @@ namespace communication {
 		/// Execute this state
 		/// @param context Instance of the BeaconSendingContext responsible for state transitions
 		///
-		virtual void executeState(BeaconSendingContext& context) override;
+		virtual void doExecute(BeaconSendingContext& context) override;
 
 		///
 		/// Return the shutdown state

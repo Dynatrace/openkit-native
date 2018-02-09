@@ -20,13 +20,13 @@
 
 using namespace configuration;
 
-Configuration::Configuration(const HTTPClientConfiguration& httpClientConfiguration)
+Configuration::Configuration(std::shared_ptr<HTTPClientConfiguration> httpClientConfiguration)
 	: mHTTPClientConfiguration(httpClientConfiguration)
 	, mIsCapture(false)
 {
 }
 
-const HTTPClientConfiguration& Configuration::getHTTPClientConfiguration() const
+std::shared_ptr<HTTPClientConfiguration> Configuration::getHTTPClientConfiguration() const
 {
 	return mHTTPClientConfiguration;
 }

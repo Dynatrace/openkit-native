@@ -33,13 +33,13 @@ namespace configuration {
 		/// Construct a Configuration given a @s HTTPClientConfiguration
 		/// @param[in] httpClientConfiguration the @s HTTPClientConfiguration to use, will be stored in the @s Configuration
 		///
-		Configuration(const HTTPClientConfiguration& httpClientConfiguration);
+		Configuration(std::shared_ptr<HTTPClientConfiguration> httpClientConfiguration);
 
 		///
 		/// Return the HTTPClientConfiguration to use when constructing a HTTPClient
 		/// @returns the @s HTTPClientConfiguration stored in the @s Configuration
 		///
-		const HTTPClientConfiguration& getHTTPClientConfiguration() const;
+		std::shared_ptr<HTTPClientConfiguration> getHTTPClientConfiguration() const;
 
 		///
 		/// Update settings based on a status response
@@ -54,7 +54,7 @@ namespace configuration {
 		bool isCapture() const;
 
 	private:
-		const HTTPClientConfiguration& mHTTPClientConfiguration;
+		std::shared_ptr<HTTPClientConfiguration> mHTTPClientConfiguration;
 
 		bool mIsCapture;
 	};

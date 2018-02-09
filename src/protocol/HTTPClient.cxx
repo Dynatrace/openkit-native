@@ -18,7 +18,7 @@
 
 using namespace protocol;
 
-HTTPClient::HTTPClient(const configuration::HTTPClientConfiguration& configuration)
+HTTPClient::HTTPClient(std::shared_ptr<configuration::HTTPClientConfiguration> configuration)
 {
 
 }

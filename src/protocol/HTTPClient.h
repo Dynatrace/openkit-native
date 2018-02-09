@@ -36,7 +36,7 @@ namespace protocol {
 		/// Default constructor
 		/// @param[in] configuration configuration parameters for the HTTPClient
 		///
-		HTTPClient(const configuration::HTTPClientConfiguration& configuration);
+		HTTPClient(std::shared_ptr<configuration::HTTPClientConfiguration> configuration);
 
 		///
 		/// sends a status check request and returns a status response

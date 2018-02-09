@@ -32,11 +32,6 @@ BeaconSender::BeaconSender(std::shared_ptr<configuration::Configuration> configu
 	mBeaconSendingContext = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(httpClientProvider, timingProvider, configuration));
 }
 
-BeaconSender::~BeaconSender()
-{
-
-}
-
 void beaconSendingLoop(std::shared_ptr<BeaconSendingContext> context)
 {
 	while ( context != nullptr && !context->isInTerminalState())

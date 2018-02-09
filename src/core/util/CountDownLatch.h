@@ -33,12 +33,6 @@ namespace core {
 		public:
 
 			///
-			/// Constructor using an initial count of 1. This result in a simple on/off latch
-			/// @param[in] count initial count of the CountDownLatch
-			///
-			CountDownLatch();
-
-			///
 			/// Constructor taking an initial count
 			/// @param[in] count initial count of the CountDownLatch
 			///

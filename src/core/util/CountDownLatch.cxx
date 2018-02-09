@@ -18,15 +18,9 @@
 
 using namespace core::util;
 
-CountDownLatch::CountDownLatch()
-	: CountDownLatch(1)
-{
-}
-
 CountDownLatch::CountDownLatch(uint32_t initial)
+	: mCount(initial)
 {
-	std::unique_lock<std::mutex> lck(mMutex);
-	mCount = initial;
 }
 
 void CountDownLatch::countDown()

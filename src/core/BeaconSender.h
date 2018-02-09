@@ -42,11 +42,6 @@ namespace core {
 			std::shared_ptr<providers::ITimingProvider> timingProvider);
 
 		///
-		/// Destructor
-		///
-		~BeaconSender();
-
-		///
 		/// Initialize this BeaconSender
 		///
 		bool initialize();

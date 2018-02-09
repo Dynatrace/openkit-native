@@ -18,6 +18,7 @@
 
 #include <chrono>
 #include <algorithm>
+#include <vector>
 
 #include "communication/BeaconSendingTerminalState.h"
 #include "communication/AbstractBeaconSendingState.h"
@@ -29,8 +30,7 @@ using namespace communication;
 constexpr uint32_t MAX_INITIAL_STATUS_REQUEST_RETRIES = 5;
 constexpr std::chrono::milliseconds INITIAL_RETRY_SLEEP_TIME_MILLISECONDS = std::chrono::seconds(1);
 
-constexpr uint32_t REINIT_DELAY_ARRAY_LENGTH = 5;
-constexpr std::chrono::milliseconds REINIT_DELAY_MILLISECONDS[REINIT_DELAY_ARRAY_LENGTH] =
+static const std::vector<std::chrono::milliseconds> REINIT_DELAY_MILLISECONDS = 
 {
 	std::chrono::minutes(1),
 	std::chrono::minutes(5),
@@ -45,7 +45,7 @@ BeaconSendingInitialState::BeaconSendingInitialState()
 
 }
 
-void BeaconSendingInitialState::executeState(BeaconSendingContext& context)
+void BeaconSendingInitialState::doExecute(BeaconSendingContext& context)
 {
 	std::unique_ptr<protocol::StatusResponse> statusResponse = nullptr;
 	while (true) {
@@ -63,7 +63,7 @@ void BeaconSendingInitialState::executeState(BeaconSendingContext& context)
 		// status request needs to be sent again after some delay
 		context.sleep(REINIT_DELAY_MILLISECONDS[mReinitializeDelayIndex].count());
 
-		mReinitializeDelayIndex = std::min(mReinitializeDelayIndex + 1, REINIT_DELAY_ARRAY_LENGTH - 1); // ensure no out of bounds
+		mReinitializeDelayIndex = std::min(mReinitializeDelayIndex + 1, uint32_t(REINIT_DELAY_MILLISECONDS.size() - 1)); // ensure no out of bounds
 	}
 
 	if (context.isShutdownRequested()) 
