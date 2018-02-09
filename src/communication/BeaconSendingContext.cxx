@@ -52,7 +52,7 @@ void BeaconSendingContext::executeCurrentState()
 {
 	if (mCurrentState != nullptr)
 	{
-		mCurrentState->executeState(*this);
+		mCurrentState->doExecute(*this);
 	}
 }
 

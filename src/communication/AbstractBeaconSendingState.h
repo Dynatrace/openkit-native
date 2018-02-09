@@ -40,11 +40,19 @@ namespace communication {
 		///
 		virtual	~AbstractBeaconSendingState() {}
 
+
 		///
-		/// execute the state
+		/// execute the state, exit in case of shutdown requests
 		/// @param context the @s BeaconSendingContext that takes care of state transitions
 		///
-		virtual void executeState(BeaconSendingContext& context) = 0;
+		void doExecute(BeaconSendingContext& context)
+		{
+			executeState(context);
+
+			if (context.isShutdownRequested()) {
+				context.setNextState(getShutdownState());
+			}
+		}
 
 		///
 		/// Get an instance of the shutdown state of the @s AbstractBeaconSendingState that is called upon shutdown
@@ -57,6 +65,12 @@ namespace communication {
 		///
 		virtual bool isAShutdownState() = 0;
 
+	protected:
+		///
+		/// execute the state - real state execution - has to overriden by subclas
+		/// @param context the @s BeaconSendingContext that takes care of state transitions
+		///
+		virtual void executeState(BeaconSendingContext& context) = 0;
 	};
 }
 #endif
