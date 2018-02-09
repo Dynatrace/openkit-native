@@ -26,7 +26,7 @@ Configuration::Configuration(const HTTPClientConfiguration& httpClientConfigurat
 {
 }
 
-const HTTPClientConfiguration& Configuration::getHTTPClientConfiguration()
+const HTTPClientConfiguration& Configuration::getHTTPClientConfiguration() const
 {
 	return mHTTPClientConfiguration;
 }

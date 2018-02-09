@@ -39,7 +39,7 @@ namespace configuration {
 		/// Return the HTTPClientConfiguration to use when constructing a HTTPClient
 		/// @returns the @s HTTPClientConfiguration stored in the @s Configuration
 		///
-		const HTTPClientConfiguration& getHTTPClientConfiguration();
+		const HTTPClientConfiguration& getHTTPClientConfiguration() const;
 
 		///
 		/// Update settings based on a status response
