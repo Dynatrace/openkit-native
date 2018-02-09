@@ -17,7 +17,10 @@
 #ifndef _CONFIGURATION_CONFIGURATION_H
 #define _CONFIGURATION_CONFIGURATION_H
 
+#include <memory>
+
 #include "configuration/HTTPClientConfiguration.h"
+#include "protocol/StatusResponse.h"
 
 namespace configuration {
 	///
@@ -38,8 +41,22 @@ namespace configuration {
 		///
 		const HTTPClientConfiguration& getHTTPClientConfiguration();
 
+		///
+		/// Update settings based on a status response
+		/// @param[in] statusResponse the status response received from the server
+		///
+		void updateSettings(std::unique_ptr<protocol::StatusResponse> statusResponse);
+
+		///
+		/// Returns a flag if capturing is enabled
+		/// @returns @s true if capturing is enabled, @s false if capturing is disabled
+		///
+		bool isCapture() const;
+
 	private:
 		const HTTPClientConfiguration& mHTTPClientConfiguration;
+
+		bool mIsCapture;
 	};
 }
 

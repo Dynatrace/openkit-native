@@ -15,17 +15,39 @@
 */
 
 #include "configuration/Configuration.h"
-
 #include "configuration/HTTPClientConfiguration.h"
+
 
 using namespace configuration;
 
 Configuration::Configuration(const HTTPClientConfiguration& httpClientConfiguration)
 	: mHTTPClientConfiguration(httpClientConfiguration)
+	, mIsCapture(false)
 {
 }
 
 const HTTPClientConfiguration& Configuration::getHTTPClientConfiguration()
 {
 	return mHTTPClientConfiguration;
+}
+
+void Configuration::updateSettings(std::unique_ptr<protocol::StatusResponse> statusResponse)
+{
+	if (statusResponse == nullptr)
+	{
+		return;
+	}
+
+	if (statusResponse->getResponseCode() != 200)
+	{
+		return;
+	}
+
+	//TODO johannes.baeuerle update settings based on response
+	//throw std::runtime_error("not implemented");
+}
+
+bool Configuration::isCapture() const
+{
+	return mIsCapture;
 }
