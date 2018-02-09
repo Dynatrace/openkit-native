@@ -1,5 +1,6 @@
 SET(SOURCES_CORE
 	core/util/Compressor.cxx
+	core/util/CountDownLatch.cxx
 	core/UTF8String.cxx
 	core/BeaconSender.cxx
 )
