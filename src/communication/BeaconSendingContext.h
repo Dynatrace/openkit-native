@@ -118,6 +118,12 @@ namespace communication {
 		bool isInitialised() const;
 
 		///
+		/// Blocking method waiting until initialisation finished
+		/// @return @c true if initialisation suceeded, @c false if initialisation failed
+		///
+		bool waitForInit();
+
+		///
 		/// Sleep for a given amount of time
 		/// @param[in] ms number of milliseconds
 		///

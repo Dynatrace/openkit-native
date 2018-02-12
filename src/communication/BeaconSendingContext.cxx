@@ -125,6 +125,12 @@ bool BeaconSendingContext::isInitialised() const
 	return mInitSuceeded;
 }
 
+bool BeaconSendingContext::waitForInit()
+{
+	mInitCountdownLatch.await();
+	return mInitSuceeded;
+}
+
 void BeaconSendingContext::sleep(uint64_t ms)
 {
 	if (mTimingProvider != nullptr)
