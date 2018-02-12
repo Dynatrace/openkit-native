@@ -30,14 +30,14 @@ namespace configuration {
 	{
 	public:
 		///
-		/// Construct a Configuration given a @s HTTPClientConfiguration
-		/// @param[in] httpClientConfiguration the @s HTTPClientConfiguration to use, will be stored in the @s Configuration
+		/// Construct a Configuration given a  HTTPClientConfiguration
+		/// @param[in] httpClientConfiguration the  HTTPClientConfiguration to use, will be stored in the  Configuration
 		///
 		Configuration(std::shared_ptr<HTTPClientConfiguration> httpClientConfiguration);
 
 		///
-		/// Return the HTTPClientConfiguration to use when constructing a HTTPClient
-		/// @returns the @s HTTPClientConfiguration stored in the @s Configuration
+		/// Return the  HTTPClientConfiguration to use when constructing a  HTTPClient
+		/// @returns the  HTTPClientConfiguration stored in the  Configuration
 		///
 		std::shared_ptr<HTTPClientConfiguration> getHTTPClientConfiguration() const;
 
@@ -49,7 +49,7 @@ namespace configuration {
 
 		///
 		/// Returns a flag if capturing is enabled
-		/// @returns @s true if capturing is enabled, @s false if capturing is disabled
+		/// @returns @c true if capturing is enabled, @c false if capturing is disabled
 		///
 		bool isCapture() const;
 

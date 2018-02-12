@@ -52,7 +52,7 @@ namespace communication {
 
 		///
 		/// Return a flag if this is a shutdown state.
-		/// @return @s true if this state is a shutdown state, @s false if not
+		/// @return @c true if this state is a shutdown state, @c false if not
 		///
 		virtual bool isAShutdownState() override;
 

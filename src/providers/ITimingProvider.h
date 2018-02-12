@@ -20,6 +20,9 @@
 #include <cstdint>
 
 namespace providers {
+	///
+	/// Interface providing timing related functionality.
+	///
 	class ITimingProvider
 	{
 	public:
@@ -33,7 +36,7 @@ namespace providers {
 
 		///
 		/// Sleep given amount of milliseconds.
-		/// @param[in] 
+		/// @param[in] milliseconds amount of milliseconds to sleep
 		///
 		virtual void sleep(int64_t milliseconds) = 0;
 
