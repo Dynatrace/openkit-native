@@ -17,6 +17,7 @@
 #include <stdint.h>
 
 #include "core/BeaconSender.h"
+#include "core/util/CommandLineArguments.h"
 #include "providers/DefaultHTTPClientProvider.h"
 #include "providers/DefaultTimingProvider.h"
 #include "configuration/HTTPClientConfiguration.h"
@@ -28,6 +29,22 @@ using namespace configuration;
 
 void parseCommandLine(uint32_t argc, char** argv, UTF8String& beaconURL, uint32_t& serverID, UTF8String& applicationID)
 {
+	core::util::CommandLineArguments commandLine;
+	commandLine.parse(argc, argv);
+
+	if (commandLine.isValidConfiguration())
+	{
+		beaconURL = commandLine.getBeaconURL();
+		serverID = commandLine.getServerID();
+		applicationID = commandLine.getApplicationID();
+	}
+	else
+	{
+		printf("Error: Configuration given on command line is not valid.\n");
+		commandLine.printHelp();
+		printf("Exitting.\n");
+		exit(-1);
+	}
 
 }
 
