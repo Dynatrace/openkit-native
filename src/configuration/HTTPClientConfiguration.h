@@ -25,6 +25,7 @@ namespace configuration {
 	///
 	class HTTPClientConfiguration
 	{
+	public:
 		///
 		/// Default constructor
 		/// @param[in] URL the beacon URL

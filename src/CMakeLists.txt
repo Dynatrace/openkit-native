@@ -1,5 +1,6 @@
 SET(SOURCES_CORE
 	core/util/Compressor.cxx
+	core/util/CountDownLatch.cxx
 	core/UTF8String.cxx
 	core/BeaconSender.cxx
 )
@@ -8,6 +9,7 @@ SET(SOURCES_COMMUNICATION
 	communication/BeaconSendingContext.cxx
 	communication/BeaconSendingInitialState.cxx
 	communication/BeaconSendingTerminalState.cxx
+	communication/BeaconSendingRequestUtil.cxx
 )
 
 SET(SOURCES_PROTOCOL
@@ -23,6 +25,7 @@ SET(SOURCES_PROVIDERS
 
 SET(SOURCES_CONFIGURATION
 	configuration/HTTPClientConfiguration.cxx
+	configuration/Configuration.cxx
 )
 
 add_library( LibBase STATIC

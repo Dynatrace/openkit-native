@@ -14,11 +14,33 @@
 * limitations under the License.
 */
 
-#include "DefaultHTTPClientProvider.h"
+#include "CountDownLatch.h"
 
-using namespace providers;
+using namespace core::util;
 
-std::unique_ptr<protocol::HTTPClient> DefaultHTTPClientProvider::createClient(std::shared_ptr<configuration::HTTPClientConfiguration> configuration)
+CountDownLatch::CountDownLatch(uint32_t initial)
+	: mCount(initial)
 {
-	return std::unique_ptr<protocol::HTTPClient>(new protocol::HTTPClient(configuration));
+}
+
+void CountDownLatch::countDown()
+{
+	std::unique_lock<std::mutex> lock(mMutex);
+
+	mCount--;
+	if (mCount == 0)
+	{
+		mConditionVariable.notify_all();
+	}
+
+}
+
+void CountDownLatch::await()
+{
+	std::unique_lock<std::mutex> lock(mMutex);
+
+	while (mCount > 0)
+	{
+		mConditionVariable.wait(lock);
+	}
 }

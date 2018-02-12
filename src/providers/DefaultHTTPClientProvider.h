@@ -14,8 +14,8 @@
 * limitations under the License.
 */
 
-#ifndef _PROVIDERS_DEFAULTTIMINGPROVIDER_H
-#define _PROVIDERS_DEFAULTTIMINGPROVIDER_H
+#ifndef _PROVIDERS_DEFAULTHTTPCLIENTPROVIDER_H
+#define _PROVIDERS_DEFAULTHTTPCLIENTPROVIDER_H
 
 #include "providers/IHTTPClientProvider.h"
 
@@ -32,7 +32,7 @@ namespace providers {
 		/// Returns an HTTPClient based on the provided configuration.
 		/// @param[in] configuration configuration parameters for the HTTP connection
 		///
-		virtual std::unique_ptr<protocol::HTTPClient> createClient(const configuration::HTTPClientConfiguration& configuration) override;
+		virtual std::unique_ptr<protocol::HTTPClient> createClient(std::shared_ptr<configuration::HTTPClientConfiguration> configuration) override;
 	};
 }
 

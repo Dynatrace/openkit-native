@@ -23,18 +23,16 @@
 
 using namespace core;
 using namespace communication;
+using namespace providers;
 
-BeaconSender::BeaconSender()
+BeaconSender::BeaconSender(std::shared_ptr<configuration::Configuration> configuration,
+						   std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
+						   std::shared_ptr<providers::ITimingProvider> timingProvider)
 {
-	mBeaconSendingContext = new BeaconSendingContext(std::unique_ptr<AbstractBeaconSendingState>(new BeaconSendingInitialState()));
+	mBeaconSendingContext = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(httpClientProvider, timingProvider, configuration));
 }
 
-BeaconSender::~BeaconSender()
-{
-	delete mBeaconSendingContext;
-}
-
-void beaconSendingLoop(BeaconSendingContext* context)
+void beaconSendingLoop(std::shared_ptr<BeaconSendingContext> context)
 {
 	while ( context != nullptr && !context->isInTerminalState())
 	{
@@ -44,7 +42,7 @@ void beaconSendingLoop(BeaconSendingContext* context)
 
 bool BeaconSender::initialize()
 {
-	mSendingThread = new std::thread(&beaconSendingLoop, mBeaconSendingContext);
+	mSendingThread = std::unique_ptr<std::thread>(new std::thread(&beaconSendingLoop, mBeaconSendingContext));
 	return true;
 }
 
@@ -52,5 +50,4 @@ void BeaconSender::shutdown()
 {
 	mBeaconSendingContext->requestShutdown();
 	mSendingThread->join();
-	delete mSendingThread;
 }

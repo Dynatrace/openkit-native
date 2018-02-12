@@ -17,6 +17,8 @@
 #ifndef _PROTOCOL_HTTPCLIENT_H
 #define _PROTOCOL_HTTPCLIENT_H
 
+#include <memory>
+
 #include "protocol/StatusResponse.h"
 #include "configuration/HTTPClientConfiguration.h"
 
@@ -34,13 +36,13 @@ namespace protocol {
 		/// Default constructor
 		/// @param[in] configuration configuration parameters for the HTTPClient
 		///
-		HTTPClient(const configuration::HTTPClientConfiguration& configuration);
+		HTTPClient(std::shared_ptr<configuration::HTTPClientConfiguration> configuration);
 
 		///
 		/// sends a status check request and returns a status response
 		/// @returns a status response with the response data for the request
 		///
-		StatusResponse sendStatusRequest();
+		std::unique_ptr<StatusResponse> sendStatusRequest();
 
 	};
 }

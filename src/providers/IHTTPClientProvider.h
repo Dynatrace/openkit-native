@@ -14,8 +14,8 @@
 * limitations under the License.
 */
 
-#ifndef _PROVIDERS_ITIMINGPROVIDER_H
-#define _PROVIDERS_ITIMINGPROVIDER_H
+#ifndef _PROVIDERS_IHTTPCLIENTPROVIDER_H
+#define _PROVIDERS_IHTTPCLIENTPROVIDER_H
 
 #include "protocol/HTTPClient.h"
 
@@ -34,7 +34,7 @@ namespace providers {
 		/// Returns an HTTPClient based on the provided configuration.
 		/// @param[in] configuration configuration parameters for the HTTP connection
 		///
-		virtual std::unique_ptr<protocol::HTTPClient> createClient(const configuration::HTTPClientConfiguration& configuration) = 0;
+		virtual std::unique_ptr<protocol::HTTPClient> createClient(std::shared_ptr<configuration::HTTPClientConfiguration> configuration) = 0;
 	};
 }
 

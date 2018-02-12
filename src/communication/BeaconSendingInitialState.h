@@ -36,13 +36,13 @@ namespace communication {
 		///
 		/// Destructor
 		///
-		virtual ~BeaconSendingInitialState();
+		virtual ~BeaconSendingInitialState() {};
 
 		///
 		/// Execute this state
 		/// @param context Instance of the BeaconSendingContext responsible for state transitions
 		///
-		virtual void executeState(BeaconSendingContext& context) override;
+		virtual void doExecute(BeaconSendingContext& context) override;
 
 		///
 		/// Return the shutdown state
@@ -55,6 +55,12 @@ namespace communication {
 		/// @return @s true if this state is a shutdown state, @s false if not
 		///
 		virtual bool isAShutdownState() override;
+
+	private:
+		///
+		/// Index to re-initialize delays
+		///
+		uint32_t mReinitializeDelayIndex;
 	};
 }
 #endif

@@ -40,14 +40,22 @@ namespace communication {
 		///
 		virtual	~AbstractBeaconSendingState() {}
 
-		///
-		/// execute the state
-		/// @param context the @s BeaconSendingContext that takes care of state transitions
-		///
-		virtual void executeState(BeaconSendingContext& context) = 0;
 
 		///
-		/// Get an instance of the shutdown state of the @s AbstractBeaconSendingState that is called upon shutdown
+		/// execute the state, exit in case of shutdown requests
+		/// @param context the @see BeaconSendingContext that takes care of state transitions
+		///
+		void execute(BeaconSendingContext& context)
+		{
+			doExecute(context);
+
+			if (context.isShutdownRequested()) {
+				context.setNextState(getShutdownState());
+			}
+		}
+
+		///
+		/// Get an instance of the shutdown state of the @see AbstractBeaconSendingState that is called upon shutdown
 		/// @returns the follow-up state taking care of the shutdown
 		///
 		virtual std::unique_ptr<AbstractBeaconSendingState> getShutdownState() = 0;
@@ -57,6 +65,12 @@ namespace communication {
 		///
 		virtual bool isAShutdownState() = 0;
 
+	protected:
+		///
+		/// execute the state - real state execution - has to overriden by subclas
+		/// @param context the @see BeaconSendingContext that takes care of state transitions
+		///
+		virtual void doExecute(BeaconSendingContext& context) = 0;
 	};
 }
 #endif

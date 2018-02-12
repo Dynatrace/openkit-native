@@ -18,12 +18,12 @@
 
 using namespace protocol;
 
-HTTPClient::HTTPClient(const configuration::HTTPClientConfiguration& configuration)
+HTTPClient::HTTPClient(std::shared_ptr<configuration::HTTPClientConfiguration> configuration)
 {
 
 }
 
-StatusResponse HTTPClient::sendStatusRequest()
+std::unique_ptr<StatusResponse> HTTPClient::sendStatusRequest()
 {
-	return StatusResponse("OK", 200);//return OK dy default
+	return std::unique_ptr<StatusResponse>(new StatusResponse("OK", 200));//return OK dy default
 }
