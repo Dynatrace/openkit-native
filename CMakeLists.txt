@@ -28,7 +28,7 @@ if(WIN32)
 	endif()
 else()
 	find_package(CURL REQUIRED)
-    set(CURLIMPLIB ${CURL_LIBRARIES})
+	set(CURLIMPLIB ${CURL_LIBRARIES})
 endif()
 
 message("CURL Headers: '${CURL_INCLUDE_DIRS}'")
@@ -69,26 +69,26 @@ if(OPENKIT_BUILD_TESTS)
 endif()
 
 if(BUILD_DOC)
-    if(NOT DOXYGEN_FOUND)
-         message(WARNING "Doxygen is needed to build the documentation.")
-    endif()
+	if(NOT DOXYGEN_FOUND)
+		 message(WARNING "Doxygen is needed to build the documentation.")
+	endif()
 
 	# Copy the "Doxyfile.in" to "Doxyfile", thereby replacing the variables of the input file with their values determined by CMake
-    set(DOXYGEN_IN ${CMAKE_CURRENT_SOURCE_DIR}/docs/Doxyfile.in)
-    set(DOXYGEN_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
-    configure_file(${DOXYGEN_IN} ${DOXYGEN_OUT} @ONLY)
+	set(DOXYGEN_IN ${CMAKE_CURRENT_SOURCE_DIR}/docs/Doxyfile.in)
+	set(DOXYGEN_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+	configure_file(${DOXYGEN_IN} ${DOXYGEN_OUT} @ONLY)
 
 	# Be sure doxygen output directory exists
 	file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/docs)
 
-    message("Doxygen build started.")
+	message("Doxygen build started.")
 
 	# Add the "docs" build target (build with "make docs")
-    add_custom_target(docs
-                      COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
-                      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-                      COMMENT "Generating API documentation with Doxygen"
-                      VERBATIM)
+	add_custom_target(docs
+					  COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
+					  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+					  COMMENT "Generating API documentation with Doxygen"
+					  VERBATIM)
 endif()
 
 include_directories(${CURL_INCLUDE_DIRS})
