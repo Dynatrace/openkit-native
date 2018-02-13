@@ -20,10 +20,16 @@ git repository (git@github.com:curl/curl.git)
 
 ```
 git clone git@github.com:curl/curl.git
+cd curl
 git checkout curl-7_57_0
 ```
 
 CMake is required to build curl, if not already present install latest CMake release from https://cmake.org/download/.
+
+```
+mkdir build
+cd build
+```
 
 -call cmake.exe with the following options
 
@@ -70,7 +76,7 @@ cmake.exe  -G"Visual Studio 15 2017" -DCMAKE_INSTALL_PREFIX=..\dist ..
 
 -Build solution
 
--Run target INSTALL
+-Build project INSTALL
 
 -Fetch result from dist folder, copy contents of dist folder directly to curl specific third party folder of openkit-c (3rdparty\zlib-1.2.11)
 
@@ -81,6 +87,7 @@ Google Test can be obtained from the project page at https://github.com/google/g
 or  the official git repo at git@github.com:google/googletest.git.
 ```
 git clone git@github.com:google/googletest.git
+cd googletest
 git checkout release-1.8.0
 ```
 
@@ -106,7 +113,7 @@ cmake.exe -G"Visual Studio 15 2017" -Dgtest_force_shared_crt=1 -DCMAKE_CXX_FLAGS
 
 -Build solution
 
--Run target INSTALL
+-Build project INSTALL
 
 -Fetch result from dist folder, copy contents of dist folder directly to curl specific third party folder of openkit-c (3rdparty\googletest-1.8.0\win32-debug)
 
@@ -116,7 +123,7 @@ cmake.exe -G"Visual Studio 15 2017" -Dgtest_force_shared_crt=1 -DCMAKE_CXX_FLAGS
 
 -Build solution
 
--Run target INSTALL
+-Build project INSTALL
 
 -Fetch result from dist folder, copy contents of dist folder directly to curl specific third party folder of openkit-c (3rdparty\googletest-1.8.0\win32-release)
 
@@ -142,7 +149,9 @@ git checkout release-1.8.0
 
 CMake is required to build googletest, if not already present install latest CMake release 
 from https://cmake.org/download/.
-
+Alternatively install CMake via package manager
+    sudo apt-get install cmake
+	
 -create and navigate to build directory
 
 ```
@@ -150,10 +159,10 @@ mkdir build
 cd build
 ```
 
--call cmake.exe with the following options
+-call cmake with the following options
 
 ```
-cmake.exe -G"Unix Makefiles" -DCMAKE_INSTALL_PREFIX=../dist-linux ..
+cmake -G"Unix Makefiles" -DCMAKE_INSTALL_PREFIX=../dist-linux ..
 ```
 
 -Build project using make
