@@ -4,6 +4,10 @@ project(openkit-c)
 
 option(OPENKIT_BUILD_TESTS "Build tests" ON )
 
+# Check if Doxygen is installed. If installed, provide a documentation build as an option for the user
+find_package(Doxygen)
+option(BUILD_DOC  "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 include(UtilMacros)
 fix_default_compiler_settings_()
@@ -62,6 +66,29 @@ if(OPENKIT_BUILD_TESTS)
 
 	message("GTEST Headers: '${GTEST_INCLUDE_DIRS}'")
 	message("GTEST LIB: '${GTEST_LIBRARIES}'")
+endif()
+
+if(BUILD_DOC)
+    if(NOT DOXYGEN_FOUND)
+         message(WARNING "Doxygen is needed to build the documentation.")
+    endif()
+
+	# Copy the "Doxyfile.in" to "Doxyfile", thereby replacing the variables of the input file with their values determined by CMake
+    set(DOXYGEN_IN ${CMAKE_CURRENT_SOURCE_DIR}/docs/Doxyfile.in)
+    set(DOXYGEN_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+    configure_file(${DOXYGEN_IN} ${DOXYGEN_OUT} @ONLY)
+
+	# Be sure doxygen output directory exists
+	file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/docs)
+
+    message("Doxygen build started.")
+
+	# Add the "docs" build target (build with "make docs")
+    add_custom_target(docs
+                      COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
+                      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+                      COMMENT "Generating API documentation with Doxygen"
+                      VERBATIM)
 endif()
 
 include_directories(${CURL_INCLUDE_DIRS})
