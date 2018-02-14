@@ -7,6 +7,7 @@ SET(SOURCES_CORE
 )
 
 SET(SOURCES_COMMUNICATION
+	communication/AbstractBeaconSendingState.cxx
 	communication/BeaconSendingContext.cxx
 	communication/BeaconSendingInitialState.cxx
 	communication/BeaconSendingTerminalState.cxx

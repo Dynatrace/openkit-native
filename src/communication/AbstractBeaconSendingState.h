@@ -19,9 +19,10 @@
 
 #include <memory>
 
-#include "BeaconSendingContext.h"
+#include "communication/BeaconSendingContext.h"
 
 namespace communication {
+
 
 	///
 	/// Abstract class for all beacon sending states
@@ -33,32 +34,25 @@ namespace communication {
 		///
 		///constructor
 		///
-		AbstractBeaconSendingState() {}
+		AbstractBeaconSendingState();
 
 		///
 		/// destructor
 		///
-		virtual	~AbstractBeaconSendingState() {}
+		virtual	~AbstractBeaconSendingState();
 
 
 		///
 		/// execute the state, exit in case of shutdown requests
-		/// @param context the  BeaconSendingContext that takes care of state transitions
+		/// @param context the @see BeaconSendingContext that takes care of state transitions
 		///
-		void execute(BeaconSendingContext& context)
-		{
-			doExecute(context);
-
-			if (context.isShutdownRequested()) {
-				context.setNextState(getShutdownState());
-			}
-		}
+		void execute(BeaconSendingContext& context);
 
 		///
-		/// Get an instance of the shutdown state of the  AbstractBeaconSendingState that is called upon shutdown
+		/// Get an instance of the shutdown state of the @see AbstractBeaconSendingState that is called upon shutdown
 		/// @returns the follow-up state taking care of the shutdown
 		///
-		virtual std::unique_ptr<AbstractBeaconSendingState> getShutdownState() = 0;
+		virtual std::shared_ptr<AbstractBeaconSendingState> getShutdownState() = 0;
 
 		///
 		/// Return a flag whether the current state is a shutdown state or not.
@@ -68,7 +62,7 @@ namespace communication {
 	protected:
 		///
 		/// execute the state - real state execution - has to overriden by subclas
-		/// @param context the  BeaconSendingContext that takes care of state transitions
+		/// @param context the @see BeaconSendingContext that takes care of state transitions
 		///
 		virtual void doExecute(BeaconSendingContext& context) = 0;
 	};

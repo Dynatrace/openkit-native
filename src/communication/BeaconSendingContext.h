@@ -47,11 +47,13 @@ namespace communication {
 			std::shared_ptr<providers::ITimingProvider> timingProvider,
 			std::shared_ptr<configuration::Configuration> configuration);
 
+		virtual ~BeaconSendingContext() {};
+
 		///
 		/// Register a state following the current state once the current state finished
 		/// @param nextState instance of the  AbstractBeaconSendingState that follows after the current state
 		///
-		void setNextState(std::unique_ptr<AbstractBeaconSendingState> nextState);
+		void setNextState(std::shared_ptr<AbstractBeaconSendingState> nextState);
 
 		///
 		/// Return a flag if the current state of this context is a terminal state
@@ -67,13 +69,13 @@ namespace communication {
 		///
 		/// Request shutdown
 		///
-		void requestShutdown();
+		virtual void requestShutdown();
 
 		///
 		/// Return a flag if shutdown was requested
 		/// @returns @c true if shutdown was requested, @c false if not
 		///
-		bool isShutdownRequested() const;
+		virtual bool isShutdownRequested() const;
 
 		///
 		/// Return the currently used Configuration
@@ -106,7 +108,7 @@ namespace communication {
 
 		///
 		/// Complete OpenKit initialisation
-		/// NOTE: This will wake up every caller waiting in the {@link #waitForInit()} method. 
+		/// NOTE: This will wake up every caller waiting in the @c #waitForInit() method. 
 		/// @param[in] success @c true if OpenKit was successfully initialized, @c false if it was interrupted
 		///
 		void setInitCompleted(bool success);
@@ -161,7 +163,7 @@ namespace communication {
 
 	private:
 		/// instance of AbstractBeaconSendingState with the current state
-		std::unique_ptr<AbstractBeaconSendingState> mCurrentState;
+		std::shared_ptr<AbstractBeaconSendingState> mCurrentState;
 
 		/// Flag if the current state is a terminal state
 		bool mIsInTerminalState;

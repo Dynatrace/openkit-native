@@ -47,7 +47,7 @@ namespace communication {
 		/// Return the shutdown state
 		/// @returns an instance of AbstractBeaconSendingState handling the shutdown after the init state
 		///
-		virtual std::unique_ptr<AbstractBeaconSendingState> getShutdownState() override;
+		virtual std::shared_ptr<AbstractBeaconSendingState> getShutdownState() override;
 
 		///
 		/// Return a flag if this is a shutdown state.
