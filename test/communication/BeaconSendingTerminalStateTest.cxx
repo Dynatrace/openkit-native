@@ -28,15 +28,14 @@ public:
 
 	void SetUp()
 	{
-		target = new BeaconSendingTerminalState();
+		target = std::make_shared<BeaconSendingTerminalState>();
 	}
 
 	void TearDown()
 	{
-		delete target;
 	}
 
-	BeaconSendingTerminalState* target;
+	std::shared_ptr<BeaconSendingTerminalState> target;
 
 	testing::StrictMock<test::MockBeaconSendingContext> mockContext;//StrictMock ensure that  all additional calls on context result in failure
 };
@@ -48,11 +47,10 @@ TEST_F(BeaconSendingTerminalStateTest, isTerminalStateIsTrueForTheTerminalState)
 
 TEST_F(BeaconSendingTerminalStateTest, theShutdownStateIsAlwaysTheSameReference)
 {
-	BeaconSendingTerminalState* terminalState = new BeaconSendingTerminalState();
-	std::shared_ptr<AbstractBeaconSendingState> obtained = terminalState->getShutdownState();
+	std::shared_ptr<AbstractBeaconSendingState> obtained = target->getShutdownState();
 
 	EXPECT_TRUE(obtained != nullptr);
-	EXPECT_TRUE(terminalState == obtained.get());
+	EXPECT_TRUE(target.get() == obtained.get());
 }
 
 TEST_F(BeaconSendingTerminalStateTest, executeRequestsShutdown)

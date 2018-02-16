@@ -36,7 +36,7 @@ void BeaconSendingTerminalState::doExecute(BeaconSendingContext& context)
 
 std::shared_ptr<AbstractBeaconSendingState> BeaconSendingTerminalState::getShutdownState()
 {
-	return std::shared_ptr<AbstractBeaconSendingState>(this);
+	return shared_from_this();
 }
 
 bool BeaconSendingTerminalState::isAShutdownState()

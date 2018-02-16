@@ -39,30 +39,30 @@ namespace core {
 			/// Get the application id
 			/// @returns the parsed application id or an empty string
 			///
-			core::UTF8String getApplicationID();
+			const core::UTF8String getApplicationID() const;
 
 			///
 			/// Get the beacon URL
 			/// @returns the parsed beacon URL or an empty string
 			///
-			core::UTF8String getBeaconURL();
+			const core::UTF8String getBeaconURL() const;
 
 			///
 			/// Get the server id
 			/// @returns the parsed server id or @c -1 in case of failure to parse the server ID
 			///
-			int32_t getServerID();
+			int32_t getServerID() const;
 
 			///
 			/// Returns a flag if a connect attempt can be made given the available arguments
 			/// @returns @c true if all parameters for a server connection are available,  @c false if arguments are missing
 			///
-			bool isValidConfiguration();
+			bool isValidConfiguration() const;
 
 			///
 			/// Print a help message about command line usage and the missing arguments
 			///
-			void printHelp();
+			static void printHelp();
 		private:
 
 			/// Server ID

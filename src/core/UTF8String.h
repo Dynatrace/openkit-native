@@ -22,15 +22,15 @@
 
 namespace core
 {
-	///type definition for size based on std::string:size
-	typedef std::string::size_type size_type;
-
 	///
-	/// A string class based on std::string able to work with mixed UTf8/ASCII strings
+	/// A string class based on std::string able to work with mixed UTF8/ASCII strings
 	///
 	class UTF8String
 	{
 	public:
+
+		///type definition for size based on std::string:size
+		typedef std::string::size_type size_type;
 
 		///
 		/// Default constructor building an empty string

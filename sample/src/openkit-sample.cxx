@@ -15,6 +15,7 @@
 */
 
 #include <stdint.h>
+#include <iostream>
 
 #include "core/BeaconSender.h"
 #include "core/util/CommandLineArguments.h"
@@ -40,9 +41,9 @@ void parseCommandLine(uint32_t argc, char** argv, UTF8String& beaconURL, uint32_
 	}
 	else
 	{
-		printf("Error: Configuration given on command line is not valid.\n");
+		std::cerr << "Error: Configuration given on command line is not valid.\n";
 		commandLine.printHelp();
-		printf("Exitting.\n");
+		std::cerr << "Exiting.\n";
 		exit(-1);
 	}
 

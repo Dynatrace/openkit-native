@@ -40,7 +40,7 @@ UTF8String::~UTF8String()
 	mData.clear();
 }
 
-size_type UTF8String::getStringLength() const
+UTF8String::size_type UTF8String::getStringLength() const
 {
 	return mStringLength;
 }
@@ -258,7 +258,7 @@ void UTF8String::concatenate(const char* string)
 }
 
 //character can be multi-byte
-size_type UTF8String::getIndexOf(const char* comparisonCharacter, size_t offset = 0) const
+UTF8String::size_type UTF8String::getIndexOf(const char* comparisonCharacter, size_t offset = 0) const
 {
 	if (offset < 0 && offset >= mData.size())
 	{

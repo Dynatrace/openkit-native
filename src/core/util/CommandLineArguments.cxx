@@ -16,6 +16,8 @@
 
 #include "CommandLineArguments.h"
 
+#include <iostream>
+
 using namespace core::util;
 
 void CommandLineArguments::parse(uint32_t argc, char* *argv)
@@ -40,35 +42,42 @@ void CommandLineArguments::parse(uint32_t argc, char* *argv)
 
 			if (previous.compare("-s"))
 			{
-				mServerID = std::stoi(current.getStringData());
+				try
+				{
+					mServerID = std::stoi(current.getStringData());
+				}
+				catch (...)
+				{
+					mServerID = -1;
+				}
 			}
 			index++;
 		}
 	}
 }
 
-core::UTF8String CommandLineArguments::getApplicationID()
+const core::UTF8String CommandLineArguments::getApplicationID() const
 {
 	return mApplicationID;
 }
 
-core::UTF8String CommandLineArguments::getBeaconURL()
+const core::UTF8String CommandLineArguments::getBeaconURL() const
 {
 	return mBeaconURL;
 }
 
-int32_t CommandLineArguments::getServerID()
+int32_t CommandLineArguments::getServerID() const
 {
 	return mServerID;
 }
 
-bool CommandLineArguments::isValidConfiguration()
+bool CommandLineArguments::isValidConfiguration() const
 {
 	return (mServerID > 0) && (mBeaconURL.getStringLength() > 0) && (mApplicationID.getStringLength() > 0);
 }
 
 void CommandLineArguments::printHelp()
 {
-	printf("The application is is called the following way and requires all arguments.\n");
-	printf("./openkit-sample -a <application id> -u <beacon url> -s <server id>\n");
+	std::cerr << "The application is is called the following way and requires all arguments." << std::endl;
+	std::cerr << "./openkit-sample -a <application id> -u <beacon url> -s <server id>" << std::endl;
 }

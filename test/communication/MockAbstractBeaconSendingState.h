@@ -14,6 +14,9 @@
 * limitations under the License.
 */
 
+#ifndef _TEST_COMMUNICATION_MOCKABSTRACTBEACONSENDINGSTATE_H
+#define _TEST_COMMUNICATION_MOCKABSTRACTBEACONSENDINGSTATE_H
+
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
@@ -22,10 +25,8 @@
 
 #include "TestBeaconSendingState.h"
 
-#ifndef _TEST_COMMUNICATION_MOCKABSTRACTBEACONSENDINGSTATE_H
-#define _TEST_COMMUNICATION_MOCKABSTRACTBEACONSENDINGSTATE_H
-
 using namespace communication;
+
 namespace test
 {
 	class MockAbstractBeaconSendingState : public AbstractBeaconSendingState
