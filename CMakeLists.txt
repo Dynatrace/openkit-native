@@ -30,7 +30,7 @@ else()
 	find_package(CURL REQUIRED)
 	set(CURLIMPLIB ${CURL_LIBRARIES})
 endif()
-
+ 
 message("CURL Headers: '${CURL_INCLUDE_DIRS}'")
 message("CURL LIB: '${CURL_LIBRARIES}'")
 

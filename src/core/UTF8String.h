@@ -112,6 +112,11 @@ namespace core
 		///
 		UTF8String substring(size_t start, size_t end) const;
 
+		///
+		/// Returns whether the string is empty or not.
+		/// @returns true of the string is empty (=string length is 0), false otherwise
+		bool empty() const;
+
 	private:
 
 		///
