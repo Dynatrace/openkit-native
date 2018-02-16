@@ -15,13 +15,17 @@ set(SOURCES_UNITTEST
 	core/UTF8StringTest.cxx
 	providers/DefaultTimingProviderTest.cxx
 	protocol/HTTPClientTest.cxx
+	communication/AbstractBeaconSendingStateTest.cxx
+	communication/BeaconSendingTerminalStateTest.cxx
 )
 
 add_executable( unittests 
     ${SOURCES_UNITTEST}
 )
 
-target_link_libraries(unittests LibBase ${CURLIMPLIB} ${ZLIB_LIBRARIES} ${GTEST_LIBRARIES} ${GTEST_MAIN_LIBRARIES})
+
+target_link_libraries(unittests LibBase ${CURLIMPLIB} ${ZLIB_LIBRARIES} ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} ${GMOCK_MAIN_LIBRARIES})
+
 if(NOT WIN32)
 	target_link_libraries(unittests pthread)
 else()

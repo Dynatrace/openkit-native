@@ -80,7 +80,7 @@ void BeaconSendingInitialState::doExecute(BeaconSendingContext& context)
 	}
 }
 
-std::unique_ptr<AbstractBeaconSendingState> BeaconSendingInitialState::getShutdownState()
+std::shared_ptr<AbstractBeaconSendingState> BeaconSendingInitialState::getShutdownState()
 {
 	return std::unique_ptr<AbstractBeaconSendingState>(new BeaconSendingTerminalState());
 }

@@ -21,6 +21,9 @@
 
 namespace providers {
 	
+	///
+	/// Default implementation for timing provider
+	///
 	class DefaultTimingProvider : public ITimingProvider
 	{
 	public:
@@ -38,7 +41,7 @@ namespace providers {
 
 		///
 		/// Sleep given amount of milliseconds.
-		/// @param[in] 
+		/// @param[in] milliseconds amount of milliseconds to sleep
 		///
 		virtual void sleep(int64_t milliseconds) override;
 

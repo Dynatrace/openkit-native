@@ -14,32 +14,36 @@
 * limitations under the License.
 */
 
-#include "communication/BeaconSendingTerminalState.h"
+#ifndef _TEST_COMMUNICATION_TESTBEACONSENDINGSTATE_H
+#define _TEST_COMMUNICATION_TESTBEACONSENDINGSTATE_H
+
 #include "communication/AbstractBeaconSendingState.h"
+#include "communication/BeaconSendingTerminalState.h"
 
 using namespace communication;
 
-BeaconSendingTerminalState::BeaconSendingTerminalState()
-{
+namespace test {
 
+	class TestBeaconSendingState : public AbstractBeaconSendingState
+	{
+	public:
+		virtual	~TestBeaconSendingState() {}
+
+		virtual std::shared_ptr<AbstractBeaconSendingState> getShutdownState()
+		{
+			return std::make_shared<BeaconSendingTerminalState>();
+		}
+
+		virtual bool isAShutdownState()
+		{
+			return false;
+		}
+
+	protected:
+		virtual void doExecute(BeaconSendingContext&)
+		{
+			// do nothing
+		}
+	};
 }
-
-BeaconSendingTerminalState::~BeaconSendingTerminalState()
-{
-
-}
-
-void BeaconSendingTerminalState::doExecute(BeaconSendingContext& context)
-{
-	context.requestShutdown();
-}
-
-std::shared_ptr<AbstractBeaconSendingState> BeaconSendingTerminalState::getShutdownState()
-{
-	return shared_from_this();
-}
-
-bool BeaconSendingTerminalState::isAShutdownState()
-{
-	return true;
-}
+#endif

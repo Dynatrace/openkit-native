@@ -14,32 +14,35 @@
 * limitations under the License.
 */
 
-#include "communication/BeaconSendingTerminalState.h"
-#include "communication/AbstractBeaconSendingState.h"
+#ifndef _TEST_COMMUNICATION_MOCKBEACONSENDINGCONTEXT_H
+#define _TEST_COMMUNICATION_MOCKBEACONSENDINGCONTEXT_H
+
+#include <memory>
+
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+
+#include "communication/BeaconSendingContext.h"
+#include "TestBeaconSendingState.h"
+
 
 using namespace communication;
-
-BeaconSendingTerminalState::BeaconSendingTerminalState()
+namespace test
 {
+	class MockBeaconSendingContext : public BeaconSendingContext
+	{
+	public:
+		MockBeaconSendingContext()
+			: BeaconSendingContext(nullptr, nullptr, nullptr)
+		{
+		}
 
+		MOCK_CONST_METHOD0(isShutdownRequested, bool());
+		MOCK_METHOD0(requestShutdown, void());
+
+		virtual ~MockBeaconSendingContext() {}
+	private:
+
+	};
 }
-
-BeaconSendingTerminalState::~BeaconSendingTerminalState()
-{
-
-}
-
-void BeaconSendingTerminalState::doExecute(BeaconSendingContext& context)
-{
-	context.requestShutdown();
-}
-
-std::shared_ptr<AbstractBeaconSendingState> BeaconSendingTerminalState::getShutdownState()
-{
-	return shared_from_this();
-}
-
-bool BeaconSendingTerminalState::isAShutdownState()
-{
-	return true;
-}
+#endif

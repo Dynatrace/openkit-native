@@ -46,6 +46,11 @@ bool BeaconSender::initialize()
 	return true;
 }
 
+bool BeaconSender::waitForInit() const
+{
+	return mBeaconSendingContext->waitForInit();
+}
+
 void BeaconSender::shutdown()
 {
 	mBeaconSendingContext->requestShutdown();
