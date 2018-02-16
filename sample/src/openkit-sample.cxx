@@ -41,9 +41,9 @@ void parseCommandLine(uint32_t argc, char** argv, UTF8String& beaconURL, uint32_
 	}
 	else
 	{
-		std::cerr << "Error: Configuration given on command line is not valid.\n";
+		std::cerr << "Error: Configuration given on command line is not valid." << std::endl;
 		commandLine.printHelp();
-		std::cerr << "Exiting.\n";
+		std::cerr << "Exiting." << std::endl;
 		exit(-1);
 	}
 
