@@ -24,7 +24,7 @@ namespace communication {
 	/// Terminal state once beacon sending is finished and shutdown is requested.
 	/// NOTE: The initial state is used to retrieve the configuration from the server and update the configuration.
 	///
-	class BeaconSendingTerminalState : public AbstractBeaconSendingState
+	class BeaconSendingTerminalState : public AbstractBeaconSendingState, public std::enable_shared_from_this<AbstractBeaconSendingState>
 	{
 	public:
 		///
@@ -45,15 +45,16 @@ namespace communication {
 
 		///
 		/// Return the shutdown state
-		/// @returns an instance of @c AbstractBeaconSendingState handling the shutdown after the init state
+		/// @returns an instance of AbstractBeaconSendingState handling the shutdown after the init state
 		///
-		virtual std::unique_ptr<AbstractBeaconSendingState> getShutdownState() override;
+		virtual std::shared_ptr<AbstractBeaconSendingState> getShutdownState() override;
 
 		///
 		/// Return a flag if this is a shutdown state.
-		/// @return @s true if this state is a shutdown state, @s false if not
+		/// @return @c true if this state is a shutdown state, @c false if not
 		///
 		virtual bool isAShutdownState() override;
+
 	};
 }
 #endif

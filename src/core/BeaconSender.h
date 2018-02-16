@@ -43,8 +43,16 @@ namespace core {
 
 		///
 		/// Initialize this BeaconSender
+		/// @return @c true if initialisation succeeded, @c false otherwise
 		///
 		bool initialize();
+
+		///
+		/// Wait until initialisation was completed.
+		/// NOTE: this is a blocking operation
+		/// @return @c true if initialisation succeeded, @c false if initialisation failed
+		///
+		bool waitForInit() const;
 
 		///
 		/// Shutdown this instance of the BeaconSender

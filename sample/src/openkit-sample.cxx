@@ -15,8 +15,10 @@
 */
 
 #include <stdint.h>
+#include <iostream>
 
 #include "core/BeaconSender.h"
+#include "core/util/CommandLineArguments.h"
 #include "providers/DefaultHTTPClientProvider.h"
 #include "providers/DefaultTimingProvider.h"
 #include "configuration/HTTPClientConfiguration.h"
@@ -28,6 +30,22 @@ using namespace configuration;
 
 void parseCommandLine(uint32_t argc, char** argv, UTF8String& beaconURL, uint32_t& serverID, UTF8String& applicationID)
 {
+	core::util::CommandLineArguments commandLine;
+	commandLine.parse(argc, argv);
+
+	if (commandLine.isValidConfiguration())
+	{
+		beaconURL = commandLine.getBeaconURL();
+		serverID = commandLine.getServerID();
+		applicationID = commandLine.getApplicationID();
+	}
+	else
+	{
+		std::cerr << "Error: Configuration given on command line is not valid." << std::endl;
+		commandLine.printHelp();
+		std::cerr << "Exiting." << std::endl;
+		exit(-1);
+	}
 
 }
 

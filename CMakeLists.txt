@@ -61,11 +61,15 @@ if(OPENKIT_BUILD_TESTS)
 	endif()
 
 	find_package(GTest REQUIRED)
+	set(GMOCK_ROOT ${GTEST_ROOT})
+	find_package(GMock REQUIRED)
 
 	enable_testing()
 
 	message("GTEST Headers: '${GTEST_INCLUDE_DIRS}'")
 	message("GTEST LIB: '${GTEST_LIBRARIES}'")
+	message("GMOCK Headers: '${GMOCK_INCLUDE_DIRS}'")
+	message("GMOCK LIB: '${GMOCK_LIBRARIES}'")
 endif()
 
 if(BUILD_DOC)

@@ -37,11 +37,11 @@ BeaconSendingContext::BeaconSendingContext(std::shared_ptr<providers::IHTTPClien
 {	
 }
 
-void BeaconSendingContext::setNextState(std::unique_ptr<AbstractBeaconSendingState> nextState)
+void BeaconSendingContext::setNextState(std::shared_ptr<AbstractBeaconSendingState> nextState)
 {
 	if (nextState != nullptr)
 	{
-		mCurrentState = std::move(nextState);
+		mCurrentState = nextState;
 	}
 }
 
@@ -122,6 +122,12 @@ void BeaconSendingContext::setInitCompleted(bool success)
 
 bool BeaconSendingContext::isInitialised() const
 {
+	return mInitSuceeded;
+}
+
+bool BeaconSendingContext::waitForInit()
+{
+	mInitCountdownLatch.await();
 	return mInitSuceeded;
 }
 

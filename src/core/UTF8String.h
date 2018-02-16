@@ -22,11 +22,15 @@
 
 namespace core
 {
-	typedef std::string::size_type size_type;
-
+	///
+	/// A string class based on std::string able to work with mixed UTF8/ASCII strings
+	///
 	class UTF8String
 	{
 	public:
+
+		///type definition for size based on std::string:size
+		typedef std::string::size_type size_type;
 
 		///
 		/// Default constructor building an empty string
@@ -68,28 +72,27 @@ namespace core
 
 		///
 		/// Compare two strings
-		/// @param[other] other string to compare this instance against
-		/// @return true if strings are equal, false if not equal
+		/// @param[in] other string to compare this instance against
+		/// @return @c true if strings are equal, @c false if not equal
 		///
 		bool compare(const UTF8String& other) const;
 
 		///
 		/// Compare two strings
-		/// @param[other] other string to compare this instance against
-		/// @return true if strings are equal, false if not equal
+		/// @param[in] other string to compare this instance against
+		/// @return @c true if strings are equal, @c false if not equal
 		///
 		bool compare(const char* other) const;
 
 		///
 		/// Concatenate two strings
-		/// @param[in] string the current string
-		/// @param[in]  add content of second string to current string
+		/// @param[in] data add @c data to the current string
 		///
 		void concatenate(const UTF8String& data);
 
 		///
 		/// Concatenate two strings
-		/// @param[in] s add content of s to current string
+		/// @param[in] data add content of @c data to current string
 		///
 		void concatenate(const char* data);
 
@@ -103,9 +106,8 @@ namespace core
 		size_t getIndexOf(const char* comparisonCharacter, size_t offset) const;
 
 		///
-		/// Create a substring by using the range \c begin to \c end. Indices do not refer to bytes, instead they refer to actual
+		/// Create a substring by using the range @c start to @c end. Indices do not refer to bytes, instead they refer to actual
 		/// characters. The reason is that UTF8 characters can span multiple bytes.
-		/// @param[in] s the string to use
 		/// @param[in] start start index of substring
 		/// @param[in] end end end index of the substring
 		/// @returns a substring created from this string with the range from begin to end

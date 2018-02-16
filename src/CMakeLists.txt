@@ -1,11 +1,13 @@
 SET(SOURCES_CORE
 	core/util/Compressor.cxx
 	core/util/CountDownLatch.cxx
+	core/util/CommandLineArguments.cxx
 	core/UTF8String.cxx
 	core/BeaconSender.cxx
 )
 
 SET(SOURCES_COMMUNICATION
+	communication/AbstractBeaconSendingState.cxx
 	communication/BeaconSendingContext.cxx
 	communication/BeaconSendingInitialState.cxx
 	communication/BeaconSendingTerminalState.cxx

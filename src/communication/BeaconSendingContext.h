@@ -47,11 +47,13 @@ namespace communication {
 			std::shared_ptr<providers::ITimingProvider> timingProvider,
 			std::shared_ptr<configuration::Configuration> configuration);
 
+		virtual ~BeaconSendingContext() {};
+
 		///
 		/// Register a state following the current state once the current state finished
-		/// @param nextState instance of the @s AbstractBeaconSendingState that follows after the current state
+		/// @param nextState instance of the  AbstractBeaconSendingState that follows after the current state
 		///
-		void setNextState(std::unique_ptr<AbstractBeaconSendingState> nextState);
+		void setNextState(std::shared_ptr<AbstractBeaconSendingState> nextState);
 
 		///
 		/// Return a flag if the current state of this context is a terminal state
@@ -67,23 +69,23 @@ namespace communication {
 		///
 		/// Request shutdown
 		///
-		void requestShutdown();
+		virtual void requestShutdown();
 
 		///
 		/// Return a flag if shutdown was requested
-		/// @returns @c true if shutdown was requested, @s false if not
+		/// @returns @c true if shutdown was requested, @c false if not
 		///
-		bool isShutdownRequested() const;
+		virtual bool isShutdownRequested() const;
 
 		///
-		/// Return the currently used @s Configuration
+		/// Return the currently used Configuration
 		/// @return configuration isntance
 		///
 		const std::shared_ptr<configuration::Configuration> getConfiguration() const;
 
 		///
-		/// Returns the HTTPClient created by the current BeaconSendingContext
-		/// @returns a shared pointer to the HTTTP client created by the BeaconSendingContext
+		/// Returns the  HTTPClient created by the current BeaconSendingContext
+		/// @returns a shared pointer to the HTTPClient created by the BeaconSendingContext
 		///
 		std::unique_ptr<protocol::HTTPClient> getHTTPClient();
 
@@ -106,7 +108,7 @@ namespace communication {
 
 		///
 		/// Complete OpenKit initialisation
-		/// NOTE: This will wake up every caller waiting in the {@link #waitForInit()} method. 
+		/// NOTE: This will wake up every caller waiting in the @c #waitForInit() method. 
 		/// @param[in] success @c true if OpenKit was successfully initialized, @c false if it was interrupted
 		///
 		void setInitCompleted(bool success);
@@ -116,6 +118,12 @@ namespace communication {
 		/// @returns @c true  if OpenKit is initialized, @c false otherwise.
 		///
 		bool isInitialised() const;
+
+		///
+		/// Blocking method waiting until initialisation finished
+		/// @return @c true if initialisation suceeded, @c false if initialisation failed
+		///
+		bool waitForInit();
 
 		///
 		/// Sleep for a given amount of time
@@ -154,8 +162,8 @@ namespace communication {
 		void setLastOpenSessionBeaconSendTime(uint64_t timestamp);
 
 	private:
-		/// instance of @see AbstractBeaconSendingState with the current state
-		std::unique_ptr<AbstractBeaconSendingState> mCurrentState;
+		/// instance of AbstractBeaconSendingState with the current state
+		std::shared_ptr<AbstractBeaconSendingState> mCurrentState;
 
 		/// Flag if the current state is a terminal state
 		bool mIsInTerminalState;

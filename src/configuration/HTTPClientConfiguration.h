@@ -28,12 +28,11 @@ namespace configuration {
 	public:
 		///
 		/// Default constructor
-		/// @param[in] URL the beacon URL
+		/// @param[in] url the beacon URL
 		/// @param[in] serverID server id
 		/// @param[in] applicationID the application id
 		///
 		HTTPClientConfiguration(const core::UTF8String& url, uint32_t serverID, const core::UTF8String& applicationID);
-
 
 		///
 		/// Returns the base url for the http client

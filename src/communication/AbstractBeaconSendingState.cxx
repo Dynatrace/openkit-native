@@ -14,32 +14,25 @@
 * limitations under the License.
 */
 
-#include "communication/BeaconSendingTerminalState.h"
-#include "communication/AbstractBeaconSendingState.h"
+#include "AbstractBeaconSendingState.h"
 
 using namespace communication;
 
-BeaconSendingTerminalState::BeaconSendingTerminalState()
+AbstractBeaconSendingState::AbstractBeaconSendingState()
 {
 
 }
 
-BeaconSendingTerminalState::~BeaconSendingTerminalState()
+AbstractBeaconSendingState::~AbstractBeaconSendingState()
 {
 
 }
 
-void BeaconSendingTerminalState::doExecute(BeaconSendingContext& context)
+void AbstractBeaconSendingState::execute(BeaconSendingContext& context)
 {
-	context.requestShutdown();
-}
+	doExecute(context);
 
-std::shared_ptr<AbstractBeaconSendingState> BeaconSendingTerminalState::getShutdownState()
-{
-	return shared_from_this();
-}
-
-bool BeaconSendingTerminalState::isAShutdownState()
-{
-	return true;
+	if (context.isShutdownRequested()) {
+		context.setNextState(getShutdownState());
+	}
 }
