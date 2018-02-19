@@ -42,8 +42,9 @@ namespace protocol {
 		/// sends a status check request and returns a status response
 		/// @returns a status response with the response data for the request
 		///
-		std::unique_ptr<StatusResponse> sendStatusRequest();
+		virtual std::unique_ptr<StatusResponse> sendStatusRequest();
 
+		virtual ~HTTPClient() {};
 	};
 }
 
