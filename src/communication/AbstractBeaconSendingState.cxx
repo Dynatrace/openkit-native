@@ -15,10 +15,12 @@
 */
 
 #include "AbstractBeaconSendingState.h"
+#include "communication/BeaconSendingContext.h"
 
 using namespace communication;
 
-AbstractBeaconSendingState::AbstractBeaconSendingState()
+AbstractBeaconSendingState::AbstractBeaconSendingState(StateType type)
+	: mStateType(type)
 {
 
 }
@@ -35,4 +37,9 @@ void AbstractBeaconSendingState::execute(BeaconSendingContext& context)
 	if (context.isShutdownRequested()) {
 		context.setNextState(getShutdownState());
 	}
+}
+
+AbstractBeaconSendingState::StateType AbstractBeaconSendingState::getStateType()
+{
+	return mStateType;
 }

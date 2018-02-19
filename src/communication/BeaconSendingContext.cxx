@@ -167,3 +167,8 @@ void BeaconSendingContext::setLastOpenSessionBeaconSendTime(uint64_t timestamp)
 {
 	mLastStatusCheckTime = timestamp;
 }
+
+AbstractBeaconSendingState::StateType BeaconSendingContext::getCurrentStateType() const
+{
+	return mCurrentState->getStateType();
+}

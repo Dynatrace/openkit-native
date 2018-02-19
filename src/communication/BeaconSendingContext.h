@@ -17,20 +17,17 @@
 #ifndef _COMMUNICATION_BEACONSENDINGCONTEXT_H
 #define _COMMUNICATION_BEACONSENDINGCONTEXT_H
 
-#include <atomic>
-#include <memory>
-
 #include "core/util/CountDownLatch.h"
 #include "providers/IHTTPClientProvider.h"
 #include "providers/ITimingProvider.h"
 #include "configuration/Configuration.h"
 #include "protocol/StatusResponse.h"
+#include "communication/AbstractBeaconSendingState.h"
+
+#include <atomic>
+#include <memory>
 
 namespace communication {
-
-	//forward declaration to keep the AbstractBeaconSendingState header out of this header
-	class AbstractBeaconSendingState;
-
 	///
 	/// State context for beacon sending states.
 	///
@@ -160,6 +157,12 @@ namespace communication {
 		/// @param[in] timestamp  timestamp of last sendinf of open session
 		///
 		void setLastOpenSessionBeaconSendTime(uint64_t timestamp);
+
+		///
+		/// Returns the type of state
+		/// @returns type of state as defined in AbstractBeaconSendingState
+		///
+		AbstractBeaconSendingState::StateType getCurrentStateType() const;
 
 	private:
 		/// instance of AbstractBeaconSendingState with the current state

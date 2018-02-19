@@ -19,10 +19,11 @@
 
 #include <memory>
 
-#include "communication/BeaconSendingContext.h"
-
 namespace communication {
 
+
+	/// forward declaration of class BeaconSendingContext
+	class BeaconSendingContext;
 
 	///
 	/// Abstract class for all beacon sending states
@@ -30,11 +31,18 @@ namespace communication {
 	class AbstractBeaconSendingState
 	{
 	public:
+		///this is pseudo runtime type information used in the tests
+		enum StateType
+		{
+			BEACON_SENDING_INIT_STATE,
+			BEACON_SENDING_TERMINAL_STATE,
+			BEACON_SENDING_COUNT
+		};
 
 		///
 		///constructor
 		///
-		AbstractBeaconSendingState();
+		AbstractBeaconSendingState(StateType type);
 
 		///
 		/// destructor
@@ -59,12 +67,16 @@ namespace communication {
 		///
 		virtual bool isAShutdownState() = 0;
 
+		virtual StateType getStateType();
+
 	protected:
 		///
 		/// execute the state - real state execution - has to overriden by subclas
 		/// @param context the @see BeaconSendingContext that takes care of state transitions
 		///
 		virtual void doExecute(BeaconSendingContext& context) = 0;
+	private:
+		StateType mStateType;
 	};
 }
 #endif

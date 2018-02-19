@@ -19,6 +19,9 @@
 
 #include "communication/AbstractBeaconSendingState.h"
 
+#include <vector>
+#include <chrono>
+
 namespace communication {
 
 	///
@@ -56,7 +59,11 @@ namespace communication {
 		///
 		virtual bool isAShutdownState() override;
 
+		static const std::chrono::milliseconds INITIAL_RETRY_SLEEP_TIME_MILLISECONDS;
+		static const std::vector<std::chrono::milliseconds> REINIT_DELAY_MILLISECONDS;
+
 	private:
+
 		///
 		/// Index to re-initialize delays
 		///

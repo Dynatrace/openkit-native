@@ -18,19 +18,18 @@
 
 #include <chrono>
 #include <algorithm>
-#include <vector>
 
 #include "communication/BeaconSendingTerminalState.h"
 #include "communication/AbstractBeaconSendingState.h"
 #include "communication/BeaconSendingRequestUtil.h"
+#include "communication/BeaconSendingContext.h"
 
 #include "protocol/StatusResponse.h"
 using namespace communication;
 
 constexpr uint32_t MAX_INITIAL_STATUS_REQUEST_RETRIES = 5;
-constexpr std::chrono::milliseconds INITIAL_RETRY_SLEEP_TIME_MILLISECONDS = std::chrono::seconds(1);
 
-static const std::vector<std::chrono::milliseconds> REINIT_DELAY_MILLISECONDS = 
+const std::vector<std::chrono::milliseconds> BeaconSendingInitialState::REINIT_DELAY_MILLISECONDS =
 {
 	std::chrono::minutes(1),
 	std::chrono::minutes(5),
@@ -39,22 +38,27 @@ static const std::vector<std::chrono::milliseconds> REINIT_DELAY_MILLISECONDS =
 	std::chrono::hours(2)
 };
 
+const std::chrono::milliseconds BeaconSendingInitialState::INITIAL_RETRY_SLEEP_TIME_MILLISECONDS(std::chrono::seconds(1));
+
 BeaconSendingInitialState::BeaconSendingInitialState()
-	: mReinitializeDelayIndex(0)
+	: AbstractBeaconSendingState(AbstractBeaconSendingState::StateType::BEACON_SENDING_INIT_STATE)
+	, mReinitializeDelayIndex(0)
+
 {
 
 }
 
 void BeaconSendingInitialState::doExecute(BeaconSendingContext& context)
 {
-	std::unique_ptr<protocol::StatusResponse> statusResponse = nullptr;
+	std::unique_ptr<protocol::StatusResponse> statusResponse;
 	while (true) {
 		auto currentTimestamp = context.getCurrentTimestamp();
 		context.setLastOpenSessionBeaconSendTime(currentTimestamp);
 		context.setLastStatusCheckTime(currentTimestamp);
 
 		statusResponse = BeaconSendingRequestUtil::sendStatusRequest(context, MAX_INITIAL_STATUS_REQUEST_RETRIES, INITIAL_RETRY_SLEEP_TIME_MILLISECONDS.count());
-		if (context.isShutdownRequested() || statusResponse != nullptr)
+		bool validStatusResponse = statusResponse != nullptr && statusResponse.get() != nullptr;
+		if (context.isShutdownRequested() || validStatusResponse)
 		{
 			// shutdown was requested or a status response was received
 			break;
@@ -76,6 +80,7 @@ void BeaconSendingInitialState::doExecute(BeaconSendingContext& context)
 	{
 		// success -> continue with time sync
 		context.handleStatusResponse(std::move(statusResponse));
+		context.setNextState(nullptr);
 		//context.setNextState(new BeaconSendingTimeSyncState(true));//not yet implemented //TODO johannes.baeuerle
 	}
 }
