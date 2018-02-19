@@ -98,6 +98,26 @@ from https://cmake.org/download/.
 
 ```
 mkdir build
+```
+
+Replace line no. 382 in <ROOTDIR>\googletest\include\gtest\internal\gtest-port.h from 
+
+```
+# if __GXX_EXPERIMENTAL_CXX0X__ || __cplusplus >= 201103L
+```
+
+to 
+
+```
+# if __GXX_EXPERIMENTAL_CXX0X__ || __cplusplus >= 201103L || _MSC_VER >= 1900
+```
+
+This patch is required to have c++11 features enabled in a windows build of googletest 
+and googlemock. Microsoft is not setting __cplusplus correctly for their compiler.
+Without the additional check for the _MSC_VER version googletest will not 
+be build with the full feature set we require.
+
+```
 cd build
 ```
 
