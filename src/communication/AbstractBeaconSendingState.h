@@ -32,7 +32,7 @@ namespace communication {
 	{
 	public:
 		///this is pseudo runtime type information used in the tests
-		enum StateType
+		enum class StateType
 		{
 			BEACON_SENDING_INIT_STATE,
 			BEACON_SENDING_TERMINAL_STATE,
