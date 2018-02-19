@@ -22,9 +22,16 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
+#include "communication/AbstractBeaconSendingState.h"
 #include "communication/BeaconSendingContext.h"
-#include "TestBeaconSendingState.h"
+#include "configuration/HTTPClientConfiguration.h"
+#include "core/UTF8String.h"
+#include "configuration/Configuration.h"
+#include "protocol/StatusResponse.h"
 
+#include "../providers/TestTimingProvider.h"
+#include "TestBeaconSendingState.h"
+#include "../providers/TestHTTPClientProvider.h"
 
 using namespace communication;
 namespace test
@@ -33,16 +40,57 @@ namespace test
 	{
 	public:
 		MockBeaconSendingContext()
-			: BeaconSendingContext(nullptr, nullptr, nullptr)
+			: MockBeaconSendingContext(std::make_shared<configuration::HTTPClientConfiguration>("", 0, ""))
+		{
+		}
+
+		MockBeaconSendingContext(std::shared_ptr<configuration::HTTPClientConfiguration> httpClientConfiguration)
+			: BeaconSendingContext(std::make_shared<test::TestHTTPClientProvider>(),
+				std::make_shared<test::TestTimingProvider>(),
+				std::make_shared<configuration::Configuration>(httpClientConfiguration))
 		{
 		}
 
 		MOCK_CONST_METHOD0(isShutdownRequested, bool());
 		MOCK_METHOD0(requestShutdown, void());
+		MOCK_METHOD1(setLastOpenSessionBeaconSendTime, void(uint64_t));
+		MOCK_CONST_METHOD0(getCurrentTimestamp, uint64_t());
+		MOCK_METHOD1(setLastStatusCheckTime, void(uint64_t));
+		MOCK_METHOD1(setInitCompleted, void(bool));
+		MOCK_METHOD1(setNextState, void(std::shared_ptr<AbstractBeaconSendingState> nextState));
+		MOCK_CONST_METHOD0(isInTerminalState, bool());
+		MOCK_METHOD1(sleep, void(uint64_t));
+		MOCK_METHOD0(getHTTPClient, std::unique_ptr<protocol::HTTPClient>());
+
+		void RealSetNextState(std::shared_ptr<AbstractBeaconSendingState> nextState) 
+		{ 
+			return BeaconSendingContext::setNextState(nextState); 
+		}
+
+		bool RealIsInTerminalState() 
+		{
+			return BeaconSendingContext::isInTerminalState();
+		}
+
+		std::unique_ptr<protocol::HTTPClient> RealGetHTTPClient()
+		{ 
+			auto httpClientConfiguration = std::make_shared<configuration::HTTPClientConfiguration>(core::UTF8String(""), 0, core::UTF8String(""));
+			return mHttpClientProvider.createClient(httpClientConfiguration); 
+		}
+
+		std::unique_ptr<protocol::HTTPClient> TestEmptyGetHTTPClient()
+		{
+			return BeaconSendingContext::getHTTPClient();
+		}
+
+		void RealSleep(uint64_t ms)
+		{
+			return BeaconSendingContext::sleep(ms);
+		}
+
+		providers::DefaultHTTPClientProvider mHttpClientProvider;
 
 		virtual ~MockBeaconSendingContext() {}
-	private:
-
 	};
 }
 #endif
