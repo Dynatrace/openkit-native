@@ -45,7 +45,7 @@ namespace protocol {
 		///
 		/// Destructor
 		///
-		virtual ~HTTPClient() {};
+		virtual ~HTTPClient();
 
 		///
 		/// Delete the copy constructor
@@ -59,19 +59,19 @@ namespace protocol {
 
 		///
 		/// sends a status check request and returns a status response
-		/// @returns a status response with the response data for the request or null on error
+		/// @returns a status response with the response data for the request or @c nullptr on error
 		///
 		virtual std::unique_ptr<StatusResponse> sendStatusRequest();
 
 		///
 		/// sends a beacon send request and returns a status response
-		/// @returns a status response with the response data for the request or null on error
+		/// @returns a status response with the response data for the request or @c nullptr on error
 		///
 		std::unique_ptr<StatusResponse> HTTPClient::sendBeaconRequest(const core::UTF8String& clientIPAddress, const void* data, size_t dataSize);
 
 		///
 		/// sends a timesync request and returns a timesync response
-		/// @returns a timesync response with the response data for the request or null on error
+		/// @returns a timesync response with the response data for the request or @c nullptr on error
 		///
 		std::unique_ptr<TimeSyncResponse> HTTPClient::sendTimeSyncRequest();
 
@@ -104,7 +104,7 @@ namespace protocol {
 		/// @param[in] inData optional data to send in the HTTP POST. Data will be gzip compressed.
 		/// @param[in] inDataSize the size of the inData
 		/// @param[in] method the HTTP method to use. Currently either POST or GET
-		/// @returns a status response with the response data for the request or null on error
+		/// @returns a status response with the response data for the request or @c nullptr on error
 		///
 		std::unique_ptr<Response> sendRequestInternal(const HTTPClient::RequestType requestType, const core::UTF8String& url, const core::UTF8String& clientIPAddress, const void* inData, size_t inDataSize, const HTTPClient::HttpMethod method);
 

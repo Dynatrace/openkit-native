@@ -39,7 +39,7 @@ namespace protocol {
 		/// @param[in] response the response string obtained from the server
 		/// @param[in] responseCode a numerical response code
 		///
-		StatusResponse(const core::UTF8String response, uint32_t responseCode);
+		StatusResponse(const core::UTF8String& response, uint32_t responseCode);
 
 	public:
 		///
@@ -89,7 +89,7 @@ namespace protocol {
 		/// Parse the response string for further details
 		/// @param[in] response the response string obtained from the server
 		///
-		void parseResponse(const core::UTF8String response);
+		void parseResponse(const core::UTF8String& response);
 	private:
 
 		/// capture on/off

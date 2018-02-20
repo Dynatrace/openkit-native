@@ -39,7 +39,7 @@ namespace protocol {
 		/// @param[in] response the response string obtained from the server
 		/// @param[in] responseCode a numerical response code
 		///
-		TimeSyncResponse(const core::UTF8String response, uint32_t responseCode);
+		TimeSyncResponse(const core::UTF8String& response, uint32_t responseCode);
 
 	public:
 		
@@ -50,7 +50,7 @@ namespace protocol {
 		/// Parse the response string for further details
 		/// @param[in] response the response string obtained from the server
 		///
-		void parseResponse(const core::UTF8String response);
+		void parseResponse(const core::UTF8String& response);
 
 		///
 		/// Get the receive timestamp contained in the time sync request
