@@ -30,9 +30,12 @@ BeaconSendingContext::BeaconSendingContext(std::shared_ptr<providers::IHTTPClien
 	: mCurrentState(std::unique_ptr<AbstractBeaconSendingState>(new BeaconSendingInitialState()))
 	, mIsInTerminalState(false)
 	, mShutdown(false)
+	, mInitSucceeded(false)
+	, mConfiguration(configuration)
 	, mHTTPClientProvider(httpClientProvider)
 	, mTimingProvider(timingProvider)
-	, mConfiguration(configuration)
+	, mLastStatusCheckTime(0)
+	, mLastOpenSessionBeaconSendTime(0)
 	, mInitCountdownLatch(1)
 {	
 }
@@ -116,19 +119,19 @@ bool BeaconSendingContext::isCaptureOn() const
 
 void BeaconSendingContext::setInitCompleted(bool success)
 {
-	mInitSuceeded = success;
+	mInitSucceeded = success;
 	mInitCountdownLatch.countDown();
 }
 
 bool BeaconSendingContext::isInitialised() const
 {
-	return mInitSuceeded;
+	return mInitSucceeded;
 }
 
 bool BeaconSendingContext::waitForInit()
 {
 	mInitCountdownLatch.await();
-	return mInitSuceeded;
+	return mInitSucceeded;
 }
 
 void BeaconSendingContext::sleep(uint64_t ms)

@@ -50,7 +50,7 @@ TEST_F(BeaconSendingInitialStateTest, getShutdownStateGivesABeaconSendingTermina
 	std::shared_ptr<AbstractBeaconSendingState> obtained = target->getShutdownState();
 
 	//then
-	EXPECT_TRUE(obtained != nullptr);
+	ASSERT_TRUE(obtained != nullptr);
 }
 
 TEST_F(BeaconSendingInitialStateTest, getShutdownStateAlwaysCreatesANewInstance)
@@ -60,8 +60,8 @@ TEST_F(BeaconSendingInitialStateTest, getShutdownStateAlwaysCreatesANewInstance)
 	std::shared_ptr<AbstractBeaconSendingState> obtainedTwo = target->getShutdownState();
 
 	//then
-	EXPECT_TRUE(obtainedOne != nullptr);
-	EXPECT_TRUE(obtainedTwo != nullptr);
+	ASSERT_TRUE(obtainedOne != nullptr);
+	ASSERT_TRUE(obtainedTwo != nullptr);
 	EXPECT_NE(obtainedOne, obtainedTwo);
 }
 

@@ -53,7 +53,7 @@ StatusResponse::StatusResponse(core::UTF8String response, uint32_t responseCode)
 	parseResponse(response);
 }
 
-void StatusResponse::parseResponse(core::UTF8String response)
+void StatusResponse::parseResponse(const core::UTF8String response)
 {
 
 }

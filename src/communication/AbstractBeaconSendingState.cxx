@@ -39,7 +39,7 @@ void AbstractBeaconSendingState::execute(BeaconSendingContext& context)
 	}
 }
 
-AbstractBeaconSendingState::StateType AbstractBeaconSendingState::getStateType()
+AbstractBeaconSendingState::StateType AbstractBeaconSendingState::getStateType() const
 {
 	return mStateType;
 }

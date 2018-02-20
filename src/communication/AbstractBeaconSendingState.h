@@ -42,7 +42,7 @@ namespace communication {
 		///
 		///constructor
 		///
-		AbstractBeaconSendingState(StateType type);
+		explicit AbstractBeaconSendingState(StateType type);
 
 		///
 		/// destructor
@@ -67,7 +67,7 @@ namespace communication {
 		///
 		virtual bool isAShutdownState() = 0;
 
-		virtual StateType getStateType();
+		StateType getStateType() const;
 
 	protected:
 		///

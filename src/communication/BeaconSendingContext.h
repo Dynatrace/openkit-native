@@ -175,7 +175,7 @@ namespace communication {
 		std::atomic<bool> mShutdown;
 
 		/// Atomic flag for successful initialisation
-		std::atomic<bool> mInitSuceeded;
+		std::atomic<bool> mInitSucceeded;
 
 		/// The configuration to use
 		std::shared_ptr<configuration::Configuration> mConfiguration;

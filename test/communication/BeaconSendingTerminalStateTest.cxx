@@ -45,7 +45,7 @@ TEST_F(BeaconSendingTerminalStateTest, isTerminalStateIsTrueForTheTerminalState)
 	EXPECT_TRUE(target->isAShutdownState());
 }
 
-TEST_F(BeaconSendingTerminalStateTest, theShutdownStateIsNeverAlwaysTheSameReference)
+TEST_F(BeaconSendingTerminalStateTest, theShutdownStateIsNeverTheSameReference)
 {
 	std::shared_ptr<AbstractBeaconSendingState> obtained = target->getShutdownState();
 
