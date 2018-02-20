@@ -13,6 +13,17 @@ macro(fix_default_compiler_settings_)
       # Replaces /W3 with /W4 in defaults.
       string(REPLACE "/W3" "/W4" ${flag_var} "${${flag_var}}")
     endforeach()
+  else()
+    foreach (flag_var
+             CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
+             CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO
+			 CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
+             CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO
+			 )
+      # We prefer more strict warning checking for building
+      # Adds -Weffc++ to use gcc's error checking
+      string(APPEND ${flag_var} " -Weffc++ -Wall -Wpedantic" )
+    endforeach()
   endif()
 endmacro()
 

@@ -89,7 +89,7 @@ namespace protocol {
 		/// Parse the response string for further details
 		/// @param[in] response the response string obtained from the server
 		///
-		void parseResponse(core::UTF8String response);
+		void parseResponse(const core::UTF8String response);
 	private:
 
 		/// capture on/off

@@ -17,10 +17,9 @@
 #ifndef _COMMUNICATION_BEACONSENDINGREQUESTUTIL_H
 #define _COMMUNICATION_BEACONSENDINGREQUESTUTIL_H
 
-#include "BeaconSendingContext.h"
-
 #include <memory>
 
+#include "BeaconSendingContext.h"
 #include  "protocol/StatusResponse.h"
 
 namespace communication {
@@ -30,6 +29,7 @@ namespace communication {
 	class BeaconSendingRequestUtil
 	{
 	public:
+
 		///
 		/// Send a status request and capture the response
 		/// @param[in] context the BeaconSendingContext containing HTTPClient and configuration
