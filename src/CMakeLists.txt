@@ -17,6 +17,7 @@ SET(SOURCES_COMMUNICATION
 SET(SOURCES_PROTOCOL
 	protocol/Response.cxx
 	protocol/StatusResponse.cxx
+	protocol/TimeSyncResponse.cxx
 	protocol/HTTPClient.cxx
 )
 

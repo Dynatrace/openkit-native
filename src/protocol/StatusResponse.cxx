@@ -40,7 +40,7 @@ StatusResponse::StatusResponse()
 {
 }
 
-StatusResponse::StatusResponse(core::UTF8String response, uint32_t responseCode)
+StatusResponse::StatusResponse(const core::UTF8String& response, uint32_t responseCode)
 	: Response(responseCode)
 	, mCapture(true)
 	, mSendInterval(-1)
@@ -53,7 +53,7 @@ StatusResponse::StatusResponse(core::UTF8String response, uint32_t responseCode)
 	parseResponse(response);
 }
 
-void StatusResponse::parseResponse(const core::UTF8String response)
+void StatusResponse::parseResponse(const core::UTF8String& response)
 {
 
 }
