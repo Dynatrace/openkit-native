@@ -34,7 +34,7 @@ std::unique_ptr<StatusResponse> BeaconSendingRequestUtil::sendStatusRequest(Beac
 		}
 
 		statusResponse = std::move(httpClient->sendStatusRequest());
-		if (retry >= numRetries || context.isShutdownRequested() || (statusResponse != nullptr && statusResponse.get() != nullptr) ) 
+		if (retry >= numRetries || context.isShutdownRequested() || statusResponse != nullptr ) 
 		{
 			break;
 		}
