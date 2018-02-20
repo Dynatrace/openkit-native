@@ -13,10 +13,6 @@ include(UtilMacros)
 fix_default_compiler_settings_()
 check_for_cxx_version_()
 
-if(NOT WIN32)
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wpedantic -std=c++0x -pthread")
-endif()
-
 ########################################
 # dependencies
 ########################################
