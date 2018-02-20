@@ -344,3 +344,8 @@ UTF8String UTF8String::substring(size_t start, size_t end) const
 	}
 	return UTF8String();
 }
+
+bool UTF8String::empty() const
+{
+	return mStringLength == 0;
+}

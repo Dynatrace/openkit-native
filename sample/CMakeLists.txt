@@ -4,7 +4,7 @@ SET(SOURCES_SAMPLE
 
 add_executable(openkit-sample ${SOURCES_SAMPLE})
 
-target_link_libraries(openkit-sample LibBase)
+target_link_libraries(openkit-sample LibBase ${CURLIMPLIB} ${ZLIB_LIBRARIES})
 if(NOT WIN32)
 target_link_libraries(openkit-sample pthread)
 endif()

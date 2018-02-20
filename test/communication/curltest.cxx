@@ -118,7 +118,7 @@ int32_t make_post_request_compressed(CURL* curl)
 		CURLcode res;
 
 		std::vector<unsigned char> compressedBuffer;
-		Compressor::compressMemory(&ascii_json_data[0], strlen(ascii_json_data), compressedBuffer);
+		Compressor::compressMemory(&ascii_json_data[0], strlen(ascii_json_data) + 1, compressedBuffer);
 
 		struct compressed_data_writer writer;
 		writer.readptr = &(compressedBuffer[0]);

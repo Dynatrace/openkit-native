@@ -13,6 +13,13 @@ include(UtilMacros)
 fix_default_compiler_settings_()
 check_for_cxx_version_()
 
+if(WIN32)
+	# curl includes windows.h which defines MIN and MAX as macros. We don't want those
+	add_definitions(-DNOMINMAX)
+else()
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wpedantic -std=c++0x -pthread")
+endif()
+
 ########################################
 # dependencies
 ########################################
@@ -26,7 +33,7 @@ else()
 	find_package(CURL REQUIRED)
 	set(CURLIMPLIB ${CURL_LIBRARIES})
 endif()
-
+ 
 message("CURL Headers: '${CURL_INCLUDE_DIRS}'")
 message("CURL LIB: '${CURL_LIBRARIES}'")
 
