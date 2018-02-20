@@ -30,6 +30,12 @@ namespace providers {
 	class IHTTPClientProvider
 	{
 	public:
+
+		///
+		/// Default destructor
+		///
+		virtual ~IHTTPClientProvider() {};
+
 		///
 		/// Returns an HTTPClient based on the provided configuration.
 		/// @param[in] configuration configuration parameters for the HTTP connection

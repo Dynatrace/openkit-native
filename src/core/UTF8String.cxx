@@ -22,12 +22,13 @@
 using namespace core;
 
 UTF8String::UTF8String()
-	: mStringLength(0)
+	: mData()
+	, mStringLength(0)
 {
 }
 
 UTF8String::UTF8String(const char* string_data)
-	: mStringLength(0)
+	: UTF8String()
 {
 	if (string_data != nullptr)
 	{
@@ -274,7 +275,7 @@ UTF8String::size_type UTF8String::getIndexOf(const char* comparisonCharacter, si
 	auto currentCharacter = &(mData[0]);
 
 	//this for loop takes multi byte characters into account correctly
-	for (auto i = 0; i < mData.size(); i++)
+	for (size_t i = 0; i < mData.size(); i++)
 	{
 		auto numberOfBytesCurrent = getByteWidthOfCharacter((unsigned char)(*currentCharacter));
 
@@ -306,11 +307,11 @@ UTF8String UTF8String::substring(size_t start, size_t end) const
 		return UTF8String();
 	}
 
-	auto byteOffsetStart = 0;
-	auto byteOffsetEnd = 0;
+	size_t byteOffsetStart = 0;
+	size_t byteOffsetEnd = 0;
 
-	auto index = 0;
-	auto characterCounter = 0;
+	size_t index = 0;
+	size_t characterCounter = 0;
 
 	//collect byte positions correctly counting multi byte characters
 	while(index < mData.size() && ( byteOffsetStart == 0 || byteOffsetEnd == 0))

@@ -26,6 +26,12 @@ class BeaconSendingTerminalStateTest : public testing::Test
 {
 public:
 
+	BeaconSendingTerminalStateTest()
+		: target(nullptr)
+		, mockContext()
+	{
+	}
+
 	void SetUp()
 	{
 		target = std::make_shared<BeaconSendingTerminalState>();

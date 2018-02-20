@@ -26,6 +26,11 @@ class BeaconSendingInitialStateTest : public testing::Test
 {
 public:
 
+	BeaconSendingInitialStateTest()
+		: target(nullptr)
+	{
+	}
+
 	void SetUp()
 	{
 		target = std::shared_ptr<communication::AbstractBeaconSendingState>(new communication::BeaconSendingInitialState());

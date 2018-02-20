@@ -48,6 +48,7 @@ namespace test
 			: BeaconSendingContext(std::make_shared<test::TestHTTPClientProvider>(),
 				std::make_shared<test::TestTimingProvider>(),
 				std::make_shared<configuration::Configuration>(httpClientConfiguration))
+			, mHttpClientProvider()
 		{
 		}
 
