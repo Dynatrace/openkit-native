@@ -16,6 +16,7 @@ set(SOURCES_UNITTEST
 	providers/DefaultTimingProviderTest.cxx
 	communication/AbstractBeaconSendingStateTest.cxx
 	communication/BeaconSendingTerminalStateTest.cxx
+	communication/BeaconSendingInitialStateTest.cxx
 )
 
 add_executable( unittests 

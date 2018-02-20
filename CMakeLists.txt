@@ -14,6 +14,7 @@ fix_default_compiler_settings_()
 check_for_cxx_version_()
 
 if(WIN32)
+	# curl includes windows.h which defines MIN and MAX as macros. We don't want those
 	add_definitions(-DNOMINMAX)
 else()
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wpedantic -std=c++0x -pthread")

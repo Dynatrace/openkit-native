@@ -23,7 +23,7 @@ std::unique_ptr<StatusResponse> BeaconSendingRequestUtil::sendStatusRequest(Beac
 {
 	std::unique_ptr<StatusResponse> statusResponse = nullptr;
 	uint64_t sleepTimeInMillis = initialRetryDelayInMillis;
-	int retry = 0;
+	uint32_t retry = 0;
 
 	while (true) 
 	{
@@ -33,8 +33,8 @@ std::unique_ptr<StatusResponse> BeaconSendingRequestUtil::sendStatusRequest(Beac
 			break;
 		}
 
-		statusResponse = httpClient->sendStatusRequest();
-		if (retry >= numRetries || context.isShutdownRequested() || statusResponse != nullptr) 
+		statusResponse = std::move(httpClient->sendStatusRequest());
+		if (retry >= numRetries || context.isShutdownRequested() || statusResponse != nullptr && statusResponse.get() != nullptr) 
 		{
 			break;
 		}
@@ -45,5 +45,5 @@ std::unique_ptr<StatusResponse> BeaconSendingRequestUtil::sendStatusRequest(Beac
 		retry++;
 	}
 
-	return statusResponse;
+	return std::move(statusResponse);
 }

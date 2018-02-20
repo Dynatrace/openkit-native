@@ -32,6 +32,11 @@ namespace test
 	class MockAbstractBeaconSendingState : public AbstractBeaconSendingState
 	{
 	public:
+		MockAbstractBeaconSendingState()
+			: AbstractBeaconSendingState(communication::AbstractBeaconSendingState::StateType::BEACON_SENDING_COUNT)//no valid state
+		{
+
+		}
 		virtual ~MockAbstractBeaconSendingState() {}
 		virtual std::shared_ptr<AbstractBeaconSendingState> getShutdownState()
 		{

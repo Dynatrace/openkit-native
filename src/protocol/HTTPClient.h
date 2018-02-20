@@ -45,7 +45,7 @@ namespace protocol {
 		///
 		/// Destructor
 		///
-		~HTTPClient();
+		virtual ~HTTPClient() {};
 
 		///
 		/// Delete the copy constructor
@@ -61,7 +61,7 @@ namespace protocol {
 		/// sends a status check request and returns a status response
 		/// @returns a status response with the response data for the request or null on error
 		///
-		std::unique_ptr<StatusResponse> sendStatusRequest();
+		virtual std::unique_ptr<StatusResponse> sendStatusRequest();
 
 		///
 		/// sends a beacon send request and returns a status response

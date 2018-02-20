@@ -14,32 +14,34 @@
 * limitations under the License.
 */
 
-#include "AbstractBeaconSendingState.h"
-#include "communication/BeaconSendingContext.h"
+#ifndef _TEST_PROVIDERS_TESTTIMINGPROVIDER_H
+#define _TEST_PROVIDERS_TESTTIMINGPROVIDER_H
 
-using namespace communication;
+#include "providers/DefaultTimingProvider.h"
 
-AbstractBeaconSendingState::AbstractBeaconSendingState(StateType type)
-	: mStateType(type)
-{
+namespace test {
+	class TestTimingProvider : public providers::DefaultTimingProvider
+	{
+	public:
 
+		///
+		/// Default constructor
+		///
+		TestTimingProvider()
+		{
+
+		}
+
+
+		///
+		/// Sleep given amount of milliseconds.
+		/// @param[in] milliseconds amount of milliseconds to sleep
+		///
+		virtual void sleep(int64_t) override
+		{
+			//no sleep in tests
+		}
+	};
 }
 
-AbstractBeaconSendingState::~AbstractBeaconSendingState()
-{
-
-}
-
-void AbstractBeaconSendingState::execute(BeaconSendingContext& context)
-{
-	doExecute(context);
-
-	if (context.isShutdownRequested()) {
-		context.setNextState(getShutdownState());
-	}
-}
-
-AbstractBeaconSendingState::StateType AbstractBeaconSendingState::getStateType() const
-{
-	return mStateType;
-}
+#endif

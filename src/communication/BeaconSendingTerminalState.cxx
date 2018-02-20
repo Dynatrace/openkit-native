@@ -15,11 +15,12 @@
 */
 
 #include "communication/BeaconSendingTerminalState.h"
-#include "communication/AbstractBeaconSendingState.h"
+#include "communication/BeaconSendingContext.h"
 
 using namespace communication;
 
 BeaconSendingTerminalState::BeaconSendingTerminalState()
+	: AbstractBeaconSendingState(AbstractBeaconSendingState::StateType::BEACON_SENDING_TERMINAL_STATE)
 {
 
 }
@@ -36,7 +37,7 @@ void BeaconSendingTerminalState::doExecute(BeaconSendingContext& context)
 
 std::shared_ptr<AbstractBeaconSendingState> BeaconSendingTerminalState::getShutdownState()
 {
-	return shared_from_this();
+	return std::shared_ptr<AbstractBeaconSendingState>(new BeaconSendingTerminalState());
 }
 
 bool BeaconSendingTerminalState::isAShutdownState()

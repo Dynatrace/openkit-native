@@ -17,20 +17,17 @@
 #ifndef _COMMUNICATION_BEACONSENDINGCONTEXT_H
 #define _COMMUNICATION_BEACONSENDINGCONTEXT_H
 
-#include <atomic>
-#include <memory>
-
 #include "core/util/CountDownLatch.h"
 #include "providers/IHTTPClientProvider.h"
 #include "providers/ITimingProvider.h"
 #include "configuration/Configuration.h"
 #include "protocol/StatusResponse.h"
+#include "communication/AbstractBeaconSendingState.h"
+
+#include <atomic>
+#include <memory>
 
 namespace communication {
-
-	//forward declaration to keep the AbstractBeaconSendingState header out of this header
-	class AbstractBeaconSendingState;
-
 	///
 	/// State context for beacon sending states.
 	///
@@ -53,13 +50,13 @@ namespace communication {
 		/// Register a state following the current state once the current state finished
 		/// @param nextState instance of the  AbstractBeaconSendingState that follows after the current state
 		///
-		void setNextState(std::shared_ptr<AbstractBeaconSendingState> nextState);
+		virtual void setNextState(std::shared_ptr<AbstractBeaconSendingState> nextState);
 
 		///
 		/// Return a flag if the current state of this context is a terminal state
 		/// @returns @c true if the current state is a terminal state
 		///
-		bool isInTerminalState() const;
+		virtual bool isInTerminalState() const;
 
 		///
 		/// Executes the current state
@@ -87,13 +84,13 @@ namespace communication {
 		/// Returns the  HTTPClient created by the current BeaconSendingContext
 		/// @returns a shared pointer to the HTTPClient created by the BeaconSendingContext
 		///
-		std::unique_ptr<protocol::HTTPClient> getHTTPClient();
+		virtual std::unique_ptr<protocol::HTTPClient> getHTTPClient();
 
 		///
 		/// Handle the status response received from the server
 		/// Update the current configuration accordingly
 		///
-		void handleStatusResponse(std::unique_ptr<protocol::StatusResponse> response);
+		virtual void handleStatusResponse(std::unique_ptr<protocol::StatusResponse> response);
 
 		///
 		/// Clears all session data
@@ -111,7 +108,7 @@ namespace communication {
 		/// NOTE: This will wake up every caller waiting in the @c #waitForInit() method. 
 		/// @param[in] success @c true if OpenKit was successfully initialized, @c false if it was interrupted
 		///
-		void setInitCompleted(bool success);
+		virtual void setInitCompleted(bool success);
 
 		///
 		/// Get a boolean indicating whether OpenKit is initialized or not.
@@ -129,13 +126,13 @@ namespace communication {
 		/// Sleep for a given amount of time
 		/// @param[in] ms number of milliseconds
 		///
-		void sleep(uint64_t ms);
+		virtual void sleep(uint64_t ms);
 
 		///
 		/// Get current timestamp
 		/// @returns current timestamp
 		///
-		uint64_t getCurrentTimestamp() const;
+		virtual uint64_t getCurrentTimestamp() const;
 
 		///
 		/// Get timestamp when last status check was performed
@@ -147,7 +144,7 @@ namespace communication {
 		/// Set timestamp when last status check was performed
 		/// @param[in] lastStatusCheckTime timestamp of last status check
 		///
-		void setLastStatusCheckTime(uint64_t lastStatusCheckTime);
+		virtual void setLastStatusCheckTime(uint64_t lastStatusCheckTime);
 
 		///
 		/// Get timestamp when open sessions were sent last
@@ -159,7 +156,13 @@ namespace communication {
 		/// Set timestamp when open sessions were sent last
 		/// @param[in] timestamp  timestamp of last sendinf of open session
 		///
-		void setLastOpenSessionBeaconSendTime(uint64_t timestamp);
+		virtual void setLastOpenSessionBeaconSendTime(uint64_t timestamp);
+
+		///
+		/// Returns the type of state
+		/// @returns type of state as defined in AbstractBeaconSendingState
+		///
+		AbstractBeaconSendingState::StateType getCurrentStateType() const;
 
 	private:
 		/// instance of AbstractBeaconSendingState with the current state
@@ -172,7 +175,7 @@ namespace communication {
 		std::atomic<bool> mShutdown;
 
 		/// Atomic flag for successful initialisation
-		std::atomic<bool> mInitSuceeded;
+		std::atomic<bool> mInitSucceeded;
 
 		/// The configuration to use
 		std::shared_ptr<configuration::Configuration> mConfiguration;

@@ -55,7 +55,7 @@ StatusResponse::StatusResponse(const core::UTF8String response, uint32_t respons
 
 void StatusResponse::parseResponse(const core::UTF8String response)
 {
-	throw std::runtime_error("not implemented");
+
 }
 
 bool StatusResponse::isCapture() const

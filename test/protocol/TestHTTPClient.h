@@ -14,32 +14,24 @@
 * limitations under the License.
 */
 
-#include "AbstractBeaconSendingState.h"
-#include "communication/BeaconSendingContext.h"
+#ifndef _TEST_PROTOCOL_TESTHTTPCLIENT_H
+#define _TEST_PROTOCOL_TESTHTTPCLIENT_H
 
-using namespace communication;
+#include "protocol/HTTPClient.h"
+namespace test {
+	class TestHTTPClient : public protocol::HTTPClient
+	{
+	public:
+		TestHTTPClient(std::shared_ptr<configuration::HTTPClientConfiguration> configuration)
+			: HTTPClient(configuration)
+		{
 
-AbstractBeaconSendingState::AbstractBeaconSendingState(StateType type)
-	: mStateType(type)
-{
+		}
 
+		virtual std::unique_ptr<protocol::StatusResponse> sendStatusRequest() override
+		{
+			return nullptr;
+		}
+	};
 }
-
-AbstractBeaconSendingState::~AbstractBeaconSendingState()
-{
-
-}
-
-void AbstractBeaconSendingState::execute(BeaconSendingContext& context)
-{
-	doExecute(context);
-
-	if (context.isShutdownRequested()) {
-		context.setNextState(getShutdownState());
-	}
-}
-
-AbstractBeaconSendingState::StateType AbstractBeaconSendingState::getStateType() const
-{
-	return mStateType;
-}
+#endif
