@@ -63,7 +63,7 @@ void BeaconSendingInitialState::doExecute(BeaconSendingContext& context)
 		// status request needs to be sent again after some delay
 		context.sleep(REINIT_DELAY_MILLISECONDS[mReinitializeDelayIndex].count());
 
-		mReinitializeDelayIndex = (std::min)(mReinitializeDelayIndex + 1, uint32_t(REINIT_DELAY_MILLISECONDS.size() - 1)); // ensure no out of bounds
+		mReinitializeDelayIndex = std::min(mReinitializeDelayIndex + 1, uint32_t(REINIT_DELAY_MILLISECONDS.size() - 1)); // ensure no out of bounds
 	}
 
 	if (context.isShutdownRequested()) 
