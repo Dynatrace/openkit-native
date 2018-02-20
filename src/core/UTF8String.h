@@ -116,7 +116,8 @@ namespace core
 
 		///
 		/// Returns whether the string is empty or not.
-		/// @returns true of the string is empty (=string length is 0), false otherwise
+		/// @returns @c true of the string is empty (=string length is 0), @c false otherwise
+		//
 		bool empty() const;
 
 	private:
