@@ -18,6 +18,7 @@
 #define _PROTOCOL_HTTPCLIENT_H
 
 #include <memory>
+#include <vector>
 
 #include "curl/curl.h"
 
@@ -47,26 +48,38 @@ namespace protocol {
 		~HTTPClient();
 
 		///
+		/// Delete the copy constructor
+		///
+		HTTPClient(const HTTPClient&) = delete;
+
+		///
+		/// Delete the assignment operator
+		///
+		HTTPClient& operator = (const HTTPClient &) = delete;
+
+		///
 		/// sends a status check request and returns a status response
-		/// @returns a status response with the response data for the request
+		/// @returns a status response with the response data for the request or null on error
 		///
 		std::unique_ptr<StatusResponse> sendStatusRequest();
 
 		///
 		/// sends a beacon send request and returns a status response
-		/// @returns a status response with the response data for the request
+		/// @returns a status response with the response data for the request or null on error
 		///
 		std::unique_ptr<StatusResponse> HTTPClient::sendBeaconRequest(const core::UTF8String& clientIPAddress, const void* data, size_t dataSize);
 
 		///
 		/// sends a timesync request and returns a timesync response
-		/// @returns a timesync response with the response data for the request
+		/// @returns a timesync response with the response data for the request or null on error
 		///
 		std::unique_ptr<TimeSyncResponse> HTTPClient::sendTimeSyncRequest();
 
 	private:
 
+		///
 		/// the type of request sent to the server
+		///
 		enum RequestType
 		{
 			STATUS, ///< status check request
@@ -74,14 +87,25 @@ namespace protocol {
 			TIMESYNC ///< time sync request
 		};
 
+		///
 		/// HTTP methods
+		///
 		enum HttpMethod
 		{
 			GET,
 			POST
 		};
 
+		///
 		/// sends a status check request and returns a status response
+		/// @param[in] requestType the type of request sent to the server
+		/// @param[in] url the url where to send the request to
+		/// @param[in] clientIPAddress optional the IP address of the client. If provided, this is sent in the custom HTTP header "X-Client-IP"
+		/// @param[in] inData optional data to send in the HTTP POST. Data will be gzip compressed.
+		/// @param[in] inDataSize the size of the inData
+		/// @param[in] method the HTTP method to use. Currently either POST or GET
+		/// @returns a status response with the response data for the request or null on error
+		///
 		std::unique_ptr<Response> sendRequestInternal(const HTTPClient::RequestType requestType, const core::UTF8String& url, const core::UTF8String& clientIPAddress, const void* inData, size_t inDataSize, const HTTPClient::HttpMethod method);
 
 		void buildMonitorURL(core::UTF8String& monitorURL, const core::UTF8String& baseURL, const core::UTF8String& applicationID, uint32_t serverID);
@@ -90,7 +114,9 @@ namespace protocol {
 
 		void appendQueryParam(core::UTF8String& url, const char* key, const char* vaalue);
 
-		std::unique_ptr<Response> handleResponse(long httpCode, const std::string& buffer);
+		std::unique_ptr<Response> handleResponse(uint64_t httpCode, const std::string& buffer);
+
+		static size_t readFunction(void *ptr, size_t elementSize, size_t numberOfElements, void* userPtr);
 
 	private:
 
@@ -105,7 +131,14 @@ namespace protocol {
 
 		/// the beacon URL
 		core::UTF8String mTimeSyncURL;
+
+		/// buffer used for curl's read function
+		std::vector<unsigned char> readBuffer;
+
+		/// read position in the read buffer
+		size_t readBufferPos;
 	};
+
 }
 
 #endif

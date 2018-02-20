@@ -30,7 +30,7 @@ TimeSyncResponse::TimeSyncResponse()
 {
 }
 
-TimeSyncResponse::TimeSyncResponse(core::UTF8String response, uint32_t responseCode)
+TimeSyncResponse::TimeSyncResponse(const core::UTF8String response, uint32_t responseCode)
 	: Response(responseCode)
 	, mRequestReceiveTime(-1)
 	, mResponseSendTime(-1)
@@ -38,7 +38,7 @@ TimeSyncResponse::TimeSyncResponse(core::UTF8String response, uint32_t responseC
 	parseResponse(response);
 }
 
-void TimeSyncResponse::parseResponse(core::UTF8String response)
+void TimeSyncResponse::parseResponse(const core::UTF8String response)
 {
 	throw std::runtime_error("not implemented");
 }

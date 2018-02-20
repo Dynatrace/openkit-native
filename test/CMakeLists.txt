@@ -14,7 +14,6 @@ target_link_libraries(curltest LibBase ${CURLIMPLIB} ${ZLIB_LIBRARIES})
 set(SOURCES_UNITTEST
 	core/UTF8StringTest.cxx
 	providers/DefaultTimingProviderTest.cxx
-	protocol/HTTPClientTest.cxx
 	communication/AbstractBeaconSendingStateTest.cxx
 	communication/BeaconSendingTerminalStateTest.cxx
 )

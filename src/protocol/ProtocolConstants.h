@@ -18,19 +18,19 @@
 #define _PROTOCOL_CONSTANTS_H
 
 // request type constants
-constexpr char REQUEST_TYPE_MOBILE[] = ("type=m");
-constexpr char REQUEST_TYPE_TIMESYNC[] = ("type=mts");
+constexpr char REQUEST_TYPE_MOBILE[] = "type=m";
+constexpr char REQUEST_TYPE_TIMESYNC[] = "type=mts";
 
 // query parameter constants
-constexpr char QUERY_KEY_SERVER_ID[] = ("srvid");
-constexpr char QUERY_KEY_APPLICATION[] = ("app");
-constexpr char QUERY_KEY_VERSION[] = ("va");
-constexpr char QUERY_KEY_PLATFORM_TYPE[] = ("pt");
-constexpr char QUERY_KEY_AGENT_TECHNOLOGY_TYPE[] = ("tt");
+constexpr char QUERY_KEY_SERVER_ID[] = "srvid";
+constexpr char QUERY_KEY_APPLICATION[] = "app";
+constexpr char QUERY_KEY_VERSION[] = "va";
+constexpr char QUERY_KEY_PLATFORM_TYPE[] = "pt";
+constexpr char QUERY_KEY_AGENT_TECHNOLOGY_TYPE[] = "tt";
 
 // constant query parameter values
-constexpr char OPENKIT_VERSION[] = ("7.0.0000");
-constexpr char PLATFORM_TYPE_OPENKIT[] = ("1");
-constexpr char AGENT_TECHNOLOGY_TYPE[] = ("okc");	// TODO: What is the actual name? For java it is "okjava"
+constexpr char OPENKIT_VERSION[] = "7.0.0000";
+constexpr char PLATFORM_TYPE_OPENKIT[] = "1";
+constexpr char AGENT_TECHNOLOGY_TYPE[] = "okc";
 
 #endif /* _PROTOCOL_CONSTANTS_H */
