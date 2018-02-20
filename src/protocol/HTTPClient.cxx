@@ -142,7 +142,7 @@ std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::Requ
 		curl_easy_setopt(mCurl, CURLOPT_TIMEOUT, READ_TIMEOUT);
 		// allow servers to send compressed data
 		curl_easy_setopt(mCurl, CURLOPT_ACCEPT_ENCODING, "");
-
+		
 		// To retrieve the response
 		std::string responseBuffer;
 		curl_easy_setopt(mCurl, CURLOPT_WRITEFUNCTION, writeFunction);
@@ -155,10 +155,6 @@ std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::Requ
 			core::UTF8String xClientId("X-Client-IP: ");
 			xClientId.concatenate(clientIPAddress);
 			list = curl_slist_append(list, xClientId.getStringData().c_str());
-			if (list != NULL)
-			{
-				curl_easy_setopt(mCurl, CURLOPT_HTTPHEADER, list);
-			}
 		}
 
 		if (method == POST)
@@ -173,7 +169,14 @@ std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::Requ
 				readBufferPos = 0;
 				curl_easy_setopt(mCurl, CURLOPT_READFUNCTION, readFunction);
 				curl_easy_setopt(mCurl, CURLOPT_READDATA, this);
+				curl_easy_setopt(mCurl, CURLOPT_POSTFIELDSIZE, readBuffer.size());
+				list = curl_slist_append(list, "Content-Encoding: gzip");
 			}
+		}
+
+		if (list != NULL)
+		{
+			curl_easy_setopt(mCurl, CURLOPT_HTTPHEADER, list);
 		}
 
 		// Perform the request, res will get the return code

@@ -17,21 +17,59 @@
 #include "Compressor.h"
 
 #include <algorithm>
-
 #include <zlib.h>
 
 using namespace base::util;
 
-void Compressor::compressMemory(const void* inData, size_t inDataSize, std::vector<unsigned char>& buffer)
+#define WINDOW_BITS   15
+#define GZIP_ENCODING 16
+
+void Compressor::compressMemory(const void* inData, size_t inDataSize, std::vector<unsigned char>& outData)
 {
-	int bufferSize = compressBound(inDataSize); // get buffer size big enough for compression of input data with size in_data_size
+	std::vector<uint8_t> buffer;
 
-	buffer.resize(bufferSize, 0);//init with value 0
-	int result = compress(reinterpret_cast<Bytef*>(&(buffer.at(0))), (unsigned long*)&bufferSize, reinterpret_cast<const Bytef*>(inData), inDataSize);
-	if (result != Z_OK)
+	const size_t BUFSIZE = 128 * 1024;
+	uint8_t temp_buffer[BUFSIZE];
+
+	z_stream strm;
+	strm.zalloc = 0;
+	strm.zfree = 0;
+	strm.next_in = (Bytef*)inData;
+	strm.avail_in = inDataSize;
+	strm.next_out = temp_buffer;
+	strm.avail_out = BUFSIZE;
+
+	// Use GZIP with default compresssion
+	deflateInit2(&strm, Z_DEFAULT_COMPRESSION, Z_DEFLATED, WINDOW_BITS | GZIP_ENCODING, 8, Z_DEFAULT_STRATEGY);
+
+	while (strm.avail_in != 0)
 	{
-		buffer.clear();
-
+		int res = deflate(&strm, Z_NO_FLUSH);
+		//assert(res == Z_OK);
+		if (strm.avail_out == 0)
+		{
+			buffer.insert(buffer.end(), temp_buffer, temp_buffer + BUFSIZE);
+			strm.next_out = temp_buffer;
+			strm.avail_out = BUFSIZE;
+		}
 	}
-	return;
+
+	int deflate_res = Z_OK;
+	while (deflate_res == Z_OK)
+	{
+		if (strm.avail_out == 0)
+		{
+			buffer.insert(buffer.end(), temp_buffer, temp_buffer + BUFSIZE);
+			strm.next_out = temp_buffer;
+			strm.avail_out = BUFSIZE;
+		}
+		deflate_res = deflate(&strm, Z_FINISH);
+	}
+
+	//assert(deflate_res == Z_STREAM_END);
+	buffer.insert(buffer.end(), temp_buffer, temp_buffer + BUFSIZE - strm.avail_out);
+	deflateEnd(&strm);
+
+	outData.swap(buffer);
 }
+
