@@ -37,6 +37,8 @@ BeaconSendingContext::BeaconSendingContext(std::shared_ptr<providers::IHTTPClien
 	, mLastStatusCheckTime(0)
 	, mLastOpenSessionBeaconSendTime(0)
 	, mInitCountdownLatch(1)
+	, mIsTimeSyncSupported(true)
+	, mLastTimeSyncTime(-1)
 {	
 }
 
@@ -174,4 +176,38 @@ void BeaconSendingContext::setLastOpenSessionBeaconSendTime(uint64_t timestamp)
 AbstractBeaconSendingState::StateType BeaconSendingContext::getCurrentStateType() const
 {
 	return mCurrentState->getStateType();
+}
+
+bool BeaconSendingContext::isTimeSyncSupported()
+{
+	return mIsTimeSyncSupported;
+}
+
+
+void BeaconSendingContext::disableTimeSyncSupport()
+{
+	mIsTimeSyncSupported = false;
+}
+
+bool BeaconSendingContext::isTimeSynced()
+{
+	return !mIsTimeSyncSupported || getLastTimeSyncTime() >= 0;
+}
+
+int64_t BeaconSendingContext::getLastTimeSyncTime()
+{
+	return mLastTimeSyncTime;
+}
+
+void BeaconSendingContext::setLastTimeSyncTime(int64_t lastTimeSyncTime)
+{
+	mLastTimeSyncTime = lastTimeSyncTime;
+}
+
+void BeaconSendingContext::initializeTimeSync(int64_t clusterTimeOffset, bool isTimeSyncSupported)
+{
+	if (mTimingProvider != nullptr)
+	{
+		mTimingProvider->initialize(clusterTimeOffset, isTimeSyncSupported);
+	}
 }

@@ -164,6 +164,42 @@ namespace communication {
 		///
 		AbstractBeaconSendingState::StateType getCurrentStateType() const;
 
+		///
+		/// Gets a boolean flag indicating whether time sync is supported or not.
+		/// @returns @c true if time sync is supported, @c false otherwise.
+		///
+		bool isTimeSyncSupported();
+
+		///
+		/// Disables the time sync
+		///
+		void disableTimeSyncSupport();
+
+		///
+		/// Gets a boolean flag indicating whether the time sync has been performed before
+		/// @returns @c true if time sync was performed, @c false otherwise
+		///
+		bool isTimeSynced();
+
+		///
+		/// Returns the timestamp when time sync was executed last time.
+		/// @returns the timestamp of the last successful time sync
+		///
+		int64_t getLastTimeSyncTime();
+
+		///
+		/// Set the timestamp of the last successful time sync
+		/// @param[in] lastTimeSyncTime timestamp 
+		///
+		void setLastTimeSyncTime(int64_t lastTimeSyncTime);
+
+		///
+		/// Initialize time synchronisation with cluster time
+		/// @param[in] clusterTimeOffset the cluster offset
+		/// @param[in] @c true if time sync is supported, otherwise @c false
+		///
+		void initializeTimeSync(int64_t clusterTimeOffset, bool isTimeSyncSupported);
+
 	private:
 		/// instance of AbstractBeaconSendingState with the current state
 		std::shared_ptr<AbstractBeaconSendingState> mCurrentState;
@@ -194,6 +230,12 @@ namespace communication {
 
 		/// countdown latch used for wait-on-initialisation
 		core::util::CountDownLatch mInitCountdownLatch;
+
+		/// flag if time sync is supported
+		bool mIsTimeSyncSupported;
+
+		/// timestamp of the last time sync
+		int64_t mLastTimeSyncTime;
 	};
 }
 #endif

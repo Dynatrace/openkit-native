@@ -19,6 +19,8 @@
 
 #include "communication/AbstractBeaconSendingState.h"
 
+#include <vector>
+
 namespace communication {
 
 	///
@@ -64,6 +66,40 @@ namespace communication {
 		/// @return @c true if this state is a shutdown state, @c false if not
 		///
 		virtual bool isAShutdownState() override;
+
+	private:
+		///
+		/// Uses the BeaconSendingContext to determine if a time sync is required
+		/// @param[in] context BeaconSendingContext used for the check
+		/// @returns @c true if time sync is required, @c false if time sync is not required
+		///
+		bool isTimeSyncRequired(BeaconSendingContext& context);
+
+		///
+		/// Make a transition to the next state based on the capture enable flag of the BeaconSendingContext
+		/// @param[in] context the BeaconSendingContext instance to perform the state transition on
+		///
+		void setNextState(BeaconSendingContext& context);
+
+		///
+		/// Handle the received timesync responses
+		/// @param[in] context the BeaconSendingContext to apply the changes on
+		/// @param[in] timeSyncOffsets the received offsets
+		///
+		void handleTimeSyncResponse(BeaconSendingContext& context, std::vector<int64_t>& timeSyncOffsets);
+
+		///
+		/// Calculates the cluster time offset from the list of time sync offsets 
+		/// @param[in] timeSyncOffsets list of the retrieved offsets
+		/// @returns the cluster time offset
+		///
+		int64_t computeClusterTimeOffset(std::vector<int64_t>& timeSyncOffsets);
+
+		///
+		/// In case of a erroneous time sync request 
+		/// @paramp[in] context BeaconSendingContext keeping the state information
+		///
+		void handleErroneousTimeSyncRequest(BeaconSendingContext& context);
 
 	private:
 		///

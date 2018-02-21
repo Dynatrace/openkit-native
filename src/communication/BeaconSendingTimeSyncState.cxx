@@ -19,8 +19,12 @@
 #include "BeaconSendingContext.h"
 #include "BeaconSendingTerminalState.h"
 
+#include <algorithm> 
+
 using namespace communication;
 
+constexpr std::chrono::milliseconds TIME_SYNC_INTERVAL_IN_MILLIS = std::chrono::minutes(1);
+constexpr uint32_t REQUIRED_TIME_SYNC_REQUESTS = 5;
 BeaconSendingTimeSyncState::BeaconSendingTimeSyncState()
 	: BeaconSendingTimeSyncState(true)
 {
@@ -34,7 +38,16 @@ BeaconSendingTimeSyncState::BeaconSendingTimeSyncState(bool initialSync)
 
 void BeaconSendingTimeSyncState::doExecute(BeaconSendingContext& context)
 {
+	if (isTimeSyncRequired(context))
+	{
+		setNextState(context);
+		return;
+	}
 
+	// mark init being completed if it's the initial time sync
+	if (mInitialTimeSync) {
+		context.setInitCompleted(true);
+	}
 }
 
 std::shared_ptr<AbstractBeaconSendingState> BeaconSendingTimeSyncState::getShutdownState()
@@ -53,4 +66,96 @@ std::shared_ptr<AbstractBeaconSendingState> BeaconSendingTimeSyncState::getShutd
 bool BeaconSendingTimeSyncState::isAShutdownState()
 {
 	return false;
+}
+
+bool BeaconSendingTimeSyncState::isTimeSyncRequired(BeaconSendingContext& context) {
+
+	if (!context.isTimeSyncSupported()) {
+		return false; // time sync not supported by server, therefore not required
+	}
+
+	return ((context.getLastTimeSyncTime() < 0)
+		|| (context.getCurrentTimestamp() - context.getLastTimeSyncTime() > static_cast<int64_t>(TIME_SYNC_INTERVAL_IN_MILLIS.count())));
+}
+
+void BeaconSendingTimeSyncState::setNextState(BeaconSendingContext& context)
+{
+	// advance to next state
+	if (context.isCaptureOn()) {
+		//context.setNextState(new BeaconSendingCaptureOnState());//TODO johannes.baeuerle - once available make transition to capture on state
+	}
+	else {
+		//context.setNextState(new BeaconSendingCaptureOffState());//TODO johannes.baeuerle - once available make transition to capture off state
+	}
+}
+
+void BeaconSendingTimeSyncState::handleTimeSyncResponse(BeaconSendingContext& context, std::vector<int64_t>& timeSyncOffsets)
+{
+	// time sync requests were *not* successful
+	// either because of networking issues
+	// -OR-
+	// the server does not support time sync at all (e.g. AppMon).
+	//
+	// -> handle this case
+	if (timeSyncOffsets.size() < REQUIRED_TIME_SYNC_REQUESTS) {
+		handleErroneousTimeSyncRequest(context);
+		return;
+	}
+
+	// initialize time provider with cluster time offset
+	context.initializeTimeSync(computeClusterTimeOffset(timeSyncOffsets), true);
+
+	// also update the time when last time sync was performed to now
+	context.setLastTimeSyncTime(context.getCurrentTimestamp());
+
+	// set the next state
+	setNextState(context);
+}
+
+int64_t BeaconSendingTimeSyncState::computeClusterTimeOffset(std::vector<int64_t>& timeSyncOffsets) 
+{
+	// time sync requests were successful -> calculate cluster time offset
+	std::sort(timeSyncOffsets.begin(), timeSyncOffsets.end());
+
+	// take median value from sorted offset list
+	auto median = timeSyncOffsets.at(REQUIRED_TIME_SYNC_REQUESTS / 2);
+
+	// calculate variance from median
+	int64_t medianVariance = 0;
+	for (uint32_t i = 0; i < REQUIRED_TIME_SYNC_REQUESTS; i++) {
+		auto diff = timeSyncOffsets.at(i) - median;
+		medianVariance += diff * diff;
+	}
+	medianVariance = medianVariance / REQUIRED_TIME_SYNC_REQUESTS;
+
+	// calculate cluster time offset as arithmetic mean of all offsets that are in range of 1x standard deviation
+	int64_t sum = 0;
+	int64_t count = 0;
+	for (uint32_t i = 0; i < REQUIRED_TIME_SYNC_REQUESTS; i++) {
+		auto diff = timeSyncOffsets.at(i) - median;
+		if (diff * diff <= medianVariance) {
+			sum += timeSyncOffsets.at(i);
+			count++;
+		}
+	}
+
+	return static_cast<int64_t>(std::round(sum / static_cast<double>(count)));
+}
+
+void BeaconSendingTimeSyncState::handleErroneousTimeSyncRequest(BeaconSendingContext& context)
+{
+	// if this is the initial sync try, we have to initialize the time provider
+	// in every other case we keep the previous setting
+	if (mInitialTimeSync) {
+		context.initializeTimeSync(0, context.isTimeSyncSupported());
+	}
+
+	if (context.isTimeSyncSupported()) {
+		// server supports time sync
+		//context.setNextState(new BeaconSendingCaptureOffState());//TODO johannes.baeuerle - once available make transition to capture off state
+	}
+	else {
+		// otherwise set the next state based on the configuration
+		setNextState(context);
+	}
 }
