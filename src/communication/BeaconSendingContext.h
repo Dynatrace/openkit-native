@@ -132,13 +132,13 @@ namespace communication {
 		/// Get current timestamp
 		/// @returns current timestamp
 		///
-		virtual uint64_t getCurrentTimestamp() const;
+		virtual int64_t getCurrentTimestamp() const;
 
 		///
 		/// Get timestamp when last status check was performed
 		/// @returns timestamp of last status check
 		///
-		uint64_t getLastStatusCheckTime() const;
+		int64_t getLastStatusCheckTime() const;
 
 		///
 		/// Set timestamp when last status check was performed
@@ -150,7 +150,7 @@ namespace communication {
 		/// Get timestamp when open sessions were sent last
 		/// @returns timestamp timestamp of last sending of open session
 		///
-		uint64_t getLastOpenSessionBeaconSendTime();
+		int64_t getLastOpenSessionBeaconSendTime();
 
 		///
 		/// Set timestamp when open sessions were sent last

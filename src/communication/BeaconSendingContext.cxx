@@ -142,7 +142,7 @@ void BeaconSendingContext::sleep(uint64_t ms)
 	}
 }
 
-uint64_t BeaconSendingContext::getLastStatusCheckTime() const
+int64_t BeaconSendingContext::getLastStatusCheckTime() const
 {
 	return mLastStatusCheckTime;
 }
@@ -152,7 +152,7 @@ void BeaconSendingContext::setLastStatusCheckTime(uint64_t lastStatusCheckTime)
 	mLastStatusCheckTime = lastStatusCheckTime;
 }
 
-uint64_t BeaconSendingContext::getCurrentTimestamp() const
+int64_t BeaconSendingContext::getCurrentTimestamp() const
 {
 	if (mTimingProvider != nullptr)
 	{
@@ -161,7 +161,7 @@ uint64_t BeaconSendingContext::getCurrentTimestamp() const
 	return 0;
 }
 
-uint64_t BeaconSendingContext::getLastOpenSessionBeaconSendTime()
+int64_t BeaconSendingContext::getLastOpenSessionBeaconSendTime()
 {
 	return mLastOpenSessionBeaconSendTime;
 }
