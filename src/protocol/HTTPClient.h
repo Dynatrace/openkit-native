@@ -83,11 +83,11 @@ namespace protocol {
 
 		///
 		/// sends a beacon send request and returns a status response
-		/// @param[in] the client IP address
-		/// @param[in] the beacon payload
+		/// @param[in] clientIPAdress the client IP address
+		/// @param[in] beaconData the beacon payload
 		/// @returns a status response with the response data for the request or @c nullptr on error
 		///
-		virtual std::unique_ptr<StatusResponse> sendBeaconRequest(const core::UTF8String& clientIPAddress, const core::UTF8String& inData) override;
+		virtual std::unique_ptr<StatusResponse> sendBeaconRequest(const core::UTF8String& clientIPAddress, const core::UTF8String& beaconData) override;
 
 		///
 		/// sends a timesync request and returns a timesync response
@@ -102,11 +102,11 @@ namespace protocol {
 		/// @param[in] requestType the type of request sent to the server
 		/// @param[in] url the url where to send the request to
 		/// @param[in] clientIPAddress optional the IP address of the client. If provided, this is sent in the custom HTTP header "X-Client-IP"
-		/// @param[in] inData optional data to send in the HTTP POST. Data will be gzip compressed.
+		/// @param[in] beaconData optional data to send in the HTTP POST. Data will be gzip compressed.
 		/// @param[in] method the HTTP method to use. Currently either POST or GET
 		/// @returns a status response with the response data for the request or @c nullptr on error
 		///
-		std::unique_ptr<Response> sendRequestInternal(const RequestType requestType, const core::UTF8String& url, const core::UTF8String& clientIPAddress, const core::UTF8String& inData, const HttpMethod method);
+		std::unique_ptr<Response> sendRequestInternal(const RequestType requestType, const core::UTF8String& url, const core::UTF8String& clientIPAddress, const core::UTF8String& beaconData, const HttpMethod method);
 
 		void buildMonitorURL(core::UTF8String& monitorURL, const core::UTF8String& baseURL, const core::UTF8String& applicationID, uint32_t serverID);
 
