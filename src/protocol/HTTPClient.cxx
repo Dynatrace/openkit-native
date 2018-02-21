@@ -18,6 +18,7 @@
 #include <chrono>
 #include <thread>
 #include <algorithm>
+#include <string.h>
 
 #include "HTTPClient.h"
 #include "ProtocolConstants.h"
@@ -33,7 +34,13 @@ using namespace protocol;
 using namespace base::util;
 
 HTTPClient::HTTPClient(std::shared_ptr<configuration::HTTPClientConfiguration> configuration)
-	: mServerID(configuration->getServerID())
+	: mCurl(nullptr)
+	, mServerID(configuration->getServerID())
+	, mMonitorURL()
+	, mTimeSyncURL()
+	, mReadBuffer()
+	, mReadBufferPos(0)
+
 {
 	// build the beacon URLs
 	buildMonitorURL(mMonitorURL, configuration->getBaseURL(), configuration->getApplicationID(), mServerID);
@@ -92,13 +99,13 @@ size_t HTTPClient::readFunction(void *ptr, size_t elementSize, size_t numberOfEl
 	if (userPtr)
 	{
 		HTTPClient *_this = (HTTPClient*)userPtr;
-		size_t available = (_this->readBuffer.size() - _this->readBufferPos);
+		size_t available = (_this->mReadBuffer.size() - _this->mReadBufferPos);
 
 		if (available > 0)
 		{
 			size_t written = std::min(elementSize * numberOfElements, available);
-			memcpy(ptr, ((char*)(_this->readBuffer.data())) + _this->readBufferPos, written);
-			_this->readBufferPos += written;
+			memcpy(ptr, ((char*)(_this->mReadBuffer.data())) + _this->mReadBufferPos, written);
+			_this->mReadBufferPos += written;
 			return written;
 		}
 	}
@@ -166,11 +173,11 @@ std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::Requ
 			if (inData != nullptr && inDataSize > 0)
 			{
 				// Data to send is compressed => Compress the data
-				Compressor::compressMemory(inData, inDataSize, readBuffer);
-				readBufferPos = 0;
+				Compressor::compressMemory(inData, inDataSize, mReadBuffer);
+				mReadBufferPos = 0;
 				curl_easy_setopt(mCurl, CURLOPT_READFUNCTION, readFunction);
 				curl_easy_setopt(mCurl, CURLOPT_READDATA, this);
-				curl_easy_setopt(mCurl, CURLOPT_POSTFIELDSIZE, readBuffer.size());
+				curl_easy_setopt(mCurl, CURLOPT_POSTFIELDSIZE, mReadBuffer.size());
 				list = curl_slist_append(list, "Content-Encoding: gzip");
 			}
 		}

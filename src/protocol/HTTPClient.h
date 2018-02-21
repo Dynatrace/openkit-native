@@ -112,10 +112,10 @@ namespace protocol {
 		core::UTF8String mTimeSyncURL;
 
 		/// buffer used for curl's read function
-		std::vector<unsigned char> readBuffer;
+		std::vector<unsigned char> mReadBuffer;
 
 		/// read position in the read buffer
-		size_t readBufferPos;
+		size_t mReadBufferPos;
 	};
 
 }
