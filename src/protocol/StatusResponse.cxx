@@ -60,11 +60,11 @@ void StatusResponse::parseResponse(const core::UTF8String& response)
 	std::string item;
 	while (std::getline(ss, item, '&'))
 	{
-		size_t found = item.find('=');
+		auto found = item.find('=');
 		if (found != std::string::npos)
 		{
-			std::string key = item.substr(0, found);
-			std::string value = item.substr(found + 1);
+			auto key = item.substr(0, found);
+			auto value = item.substr(found + 1);
 
 			if (!key.empty() && !value.empty())
 			{
