@@ -19,6 +19,7 @@ constexpr char RESPONSE_KEY_RESPONSE_SEND_TIME[] = "t2";
 
 #include "TimeSyncResponse.h"
 
+#include <sstream>
 #include <stdexcept>
 
 using namespace protocol;
@@ -40,7 +41,29 @@ TimeSyncResponse::TimeSyncResponse(const core::UTF8String& response, uint32_t re
 
 void TimeSyncResponse::parseResponse(const core::UTF8String& response)
 {
-	throw std::runtime_error("not implemented");
+	std::stringstream ss(response.getStringData());
+	std::string item;
+	while (std::getline(ss, item, '&'))
+	{
+		size_t found = item.find('=');
+		if (found != std::string::npos)
+		{
+			std::string key = item.substr(0, found);
+			std::string value = item.substr(found + 1);
+
+			if (!key.empty() && !value.empty())
+			{
+				if (key.compare(RESPONSE_KEY_REQUEST_RECEIVE_TIME) == 0)
+				{
+					mRequestReceiveTime = std::stol(value);
+				}
+				else if (key.compare(RESPONSE_KEY_RESPONSE_SEND_TIME) == 0)
+				{
+					mResponseSendTime = std::stol(value);
+				}
+			}
+		}
+	}
 }
 
 int64_t TimeSyncResponse::getRequestReceiveTime() const

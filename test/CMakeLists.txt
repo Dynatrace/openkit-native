@@ -14,10 +14,11 @@ target_link_libraries(curltest LibBase ${CURLIMPLIB} ${ZLIB_LIBRARIES})
 set(SOURCES_UNITTEST
 	core/UTF8StringTest.cxx
 	core/util/CompressorTest.cxx
-	providers/DefaultTimingProviderTest.cxx
-	communication/AbstractBeaconSendingStateTest.cxx
-	communication/BeaconSendingTerminalStateTest.cxx
-	communication/BeaconSendingInitialStateTest.cxx
+	protocol/TimeSyncResponseTest.cxx
+	#providers/DefaultTimingProviderTest.cxx
+	#communication/AbstractBeaconSendingStateTest.cxx
+	#communication/BeaconSendingTerminalStateTest.cxx
+	#communication/BeaconSendingInitialStateTest.cxx
 )
 
 add_executable( unittests 
