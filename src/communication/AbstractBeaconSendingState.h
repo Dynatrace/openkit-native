@@ -35,6 +35,7 @@ namespace communication {
 		enum class StateType
 		{
 			BEACON_SENDING_INIT_STATE,
+			BEACON_SENDING_TIMESYNC_STATE,
 			BEACON_SENDING_TERMINAL_STATE,
 			BEACON_SENDING_COUNT
 		};
