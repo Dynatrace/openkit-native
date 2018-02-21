@@ -44,6 +44,7 @@ public:
 	std::shared_ptr<BeaconSendingTerminalState> target;
 
 	testing::StrictMock<test::MockBeaconSendingContext> mockContext;//StrictMock ensure that  all additional calls on context result in failure
+
 };
 
 TEST_F(BeaconSendingTerminalStateTest, isTerminalStateIsTrueForTheTerminalState)

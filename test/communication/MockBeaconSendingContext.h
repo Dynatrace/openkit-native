@@ -61,7 +61,7 @@ namespace test
 		MOCK_METHOD1(setNextState, void(std::shared_ptr<AbstractBeaconSendingState> nextState));
 		MOCK_CONST_METHOD0(isInTerminalState, bool());
 		MOCK_METHOD1(sleep, void(uint64_t));
-		MOCK_METHOD0(getHTTPClient, std::unique_ptr<protocol::HTTPClient>());
+		MOCK_METHOD0(getHTTPClient, std::shared_ptr<protocol::HTTPClient>());
 
 		void RealSetNextState(std::shared_ptr<AbstractBeaconSendingState> nextState) 
 		{ 
@@ -73,13 +73,13 @@ namespace test
 			return BeaconSendingContext::isInTerminalState();
 		}
 
-		std::unique_ptr<protocol::HTTPClient> RealGetHTTPClient()
+		std::shared_ptr<protocol::HTTPClient> RealGetHTTPClient()
 		{ 
 			auto httpClientConfiguration = std::make_shared<configuration::HTTPClientConfiguration>(core::UTF8String(""), 0, core::UTF8String(""));
 			return mHttpClientProvider.createClient(httpClientConfiguration); 
 		}
 
-		std::unique_ptr<protocol::HTTPClient> TestEmptyGetHTTPClient()
+		std::shared_ptr<protocol::HTTPClient> TestEmptyGetHTTPClient()
 		{
 			return BeaconSendingContext::getHTTPClient();
 		}

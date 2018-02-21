@@ -19,6 +19,7 @@
 
 #include <memory>
 #include <vector>
+#include <string.h>
 
 #include "curl/curl.h"
 
@@ -67,13 +68,13 @@ namespace protocol {
 		/// sends a beacon send request and returns a status response
 		/// @returns a status response with the response data for the request or @c nullptr on error
 		///
-		std::unique_ptr<StatusResponse> HTTPClient::sendBeaconRequest(const core::UTF8String& clientIPAddress, const void* data, size_t dataSize);
+		std::unique_ptr<StatusResponse> sendBeaconRequest(const core::UTF8String& clientIPAddress, const void* data, size_t dataSize);
 
 		///
 		/// sends a timesync request and returns a timesync response
 		/// @returns a timesync response with the response data for the request or @c nullptr on error
 		///
-		std::unique_ptr<TimeSyncResponse> HTTPClient::sendTimeSyncRequest();
+		std::unique_ptr<TimeSyncResponse> sendTimeSyncRequest();
 
 	private:
 

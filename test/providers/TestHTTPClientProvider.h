@@ -24,9 +24,9 @@ namespace test {
 	class TestHTTPClientProvider : public providers::DefaultHTTPClientProvider
 	{
 	public:
-		std::unique_ptr<protocol::HTTPClient> createClient(std::shared_ptr<configuration::HTTPClientConfiguration> configuration)
+		std::shared_ptr<protocol::HTTPClient> createClient(std::shared_ptr<configuration::HTTPClientConfiguration> configuration)
 		{
-			return std::unique_ptr<protocol::HTTPClient>(new test::TestHTTPClient(configuration));
+			return std::shared_ptr<protocol::HTTPClient>(new test::TestHTTPClient(configuration));
 		}
 	};
 }
