@@ -20,6 +20,8 @@ using namespace core::util;
 
 CountDownLatch::CountDownLatch(uint32_t initial)
 	: mCount(initial)
+	, mMutex()
+	, mConditionVariable()
 {
 }
 

@@ -18,6 +18,7 @@
 #include <chrono>
 #include <thread>
 #include <algorithm>
+#include <string.h>
 
 #include "HTTPClient.h"
 #include "ProtocolConstants.h"
@@ -33,7 +34,13 @@ using namespace protocol;
 using namespace base::util;
 
 HTTPClient::HTTPClient(std::shared_ptr<configuration::HTTPClientConfiguration> configuration)
-	: mServerID(configuration->getServerID())
+	: mCurl(nullptr)
+	, mServerID(configuration->getServerID())
+	, mMonitorURL()
+	, mTimeSyncURL()
+	, mReadBuffer()
+	, mReadBufferPos(0)
+
 {
 	// build the beacon URLs
 	buildMonitorURL(mMonitorURL, configuration->getBaseURL(), configuration->getApplicationID(), mServerID);
@@ -51,7 +58,7 @@ HTTPClient::~HTTPClient()
 
 std::unique_ptr<StatusResponse> HTTPClient::sendStatusRequest()
 {
-	auto response = sendRequestInternal(RequestType::STATUS, mMonitorURL, "", nullptr, 0, HttpMethod::GET);
+	auto response = sendRequestInternal(RequestType::STATUS, mMonitorURL, core::UTF8String(""), core::UTF8String(""), HttpMethod::GET);
 	if (response)
 	{
 		return std::unique_ptr<StatusResponse>(reinterpret_cast<StatusResponse*>(response.release()));
@@ -59,9 +66,9 @@ std::unique_ptr<StatusResponse> HTTPClient::sendStatusRequest()
 	return nullptr;
 }
 
-std::unique_ptr<StatusResponse> HTTPClient::sendBeaconRequest(const core::UTF8String& clientIPAddress, const void* data, size_t dataSize)
+std::unique_ptr<StatusResponse> HTTPClient::sendBeaconRequest(const core::UTF8String& clientIPAddress, const core::UTF8String& beaconData)
 {
-	auto response = sendRequestInternal(RequestType::BEACON, mMonitorURL, clientIPAddress, data, dataSize, HttpMethod::POST);
+	auto response = sendRequestInternal(RequestType::BEACON, mMonitorURL, clientIPAddress, beaconData, HttpMethod::POST);
 	if (response)
 	{
 		return std::unique_ptr<StatusResponse>(reinterpret_cast<StatusResponse*>(response.release()));
@@ -71,7 +78,7 @@ std::unique_ptr<StatusResponse> HTTPClient::sendBeaconRequest(const core::UTF8St
 
 std::unique_ptr<TimeSyncResponse> HTTPClient::sendTimeSyncRequest()
 {
-	auto response = sendRequestInternal(RequestType::TIMESYNC, mTimeSyncURL, "", nullptr, 0, HttpMethod::GET);
+	auto response = sendRequestInternal(RequestType::TIMESYNC, mTimeSyncURL, core::UTF8String(""), core::UTF8String("") , HttpMethod::GET);
 	if (response)
 	{
 		return std::unique_ptr<TimeSyncResponse>(reinterpret_cast<TimeSyncResponse*>(response.release()));
@@ -92,13 +99,13 @@ size_t HTTPClient::readFunction(void *ptr, size_t elementSize, size_t numberOfEl
 	if (userPtr)
 	{
 		HTTPClient *_this = (HTTPClient*)userPtr;
-		size_t available = (_this->readBuffer.size() - _this->readBufferPos);
+		size_t available = (_this->mReadBuffer.size() - _this->mReadBufferPos);
 
 		if (available > 0)
 		{
 			size_t written = std::min(elementSize * numberOfElements, available);
-			memcpy(ptr, ((char*)(_this->readBuffer.data())) + _this->readBufferPos, written);
-			_this->readBufferPos += written;
+			memcpy(ptr, ((char*)(_this->mReadBuffer.data())) + _this->mReadBufferPos, written);
+			_this->mReadBufferPos += written;
 			return written;
 		}
 	}
@@ -120,7 +127,8 @@ static size_t writeFunction(void *ptr, size_t elementSize, size_t numberOfElemen
 	return elementSize * numberOfElements;
 }
 
-std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::RequestType requestType, const core::UTF8String& url, const core::UTF8String& clientIPAddress, const void* inData, size_t inDataSize, const HTTPClient::HttpMethod method)
+//TODO: stefan.eberl - use the request type or rethink design
+std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::RequestType /*requestType*/, const core::UTF8String& url, const core::UTF8String& clientIPAddress, const core::UTF8String& beaconData, const HTTPClient::HttpMethod method)
 {
 	// init the curl session - get the curl handle
 	mCurl = curl_easy_init();
@@ -162,14 +170,14 @@ std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::Requ
 			// Do a regular HTTP post
 			curl_easy_setopt(mCurl, CURLOPT_POST, 1L);
 
-			if (inData != nullptr && inDataSize > 0)
+			if (!beaconData.empty())
 			{
 				// Data to send is compressed => Compress the data
-				Compressor::compressMemory(inData, inDataSize, readBuffer);
-				readBufferPos = 0;
+				Compressor::compressMemory(beaconData.getStringData().c_str(), beaconData.getStringLength(), mReadBuffer);
+				mReadBufferPos = 0;
 				curl_easy_setopt(mCurl, CURLOPT_READFUNCTION, readFunction);
 				curl_easy_setopt(mCurl, CURLOPT_READDATA, this);
-				curl_easy_setopt(mCurl, CURLOPT_POSTFIELDSIZE, readBuffer.size());
+				curl_easy_setopt(mCurl, CURLOPT_POSTFIELDSIZE, mReadBuffer.size());
 				list = curl_slist_append(list, "Content-Encoding: gzip");
 			}
 		}

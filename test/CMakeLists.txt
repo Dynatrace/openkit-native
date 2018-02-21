@@ -1,4 +1,6 @@
-include_directories(${GTEST_INCLUDE_DIRS})
+remove_strict_warnings_for_testcode()
+
+include_directories(SYSTEM ${GTEST_INCLUDE_DIRS})
 
 set(SOURCES_CURLTEST
 	communication/curltest.cxx

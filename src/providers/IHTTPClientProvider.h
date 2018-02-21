@@ -30,11 +30,17 @@ namespace providers {
 	class IHTTPClientProvider
 	{
 	public:
+
+		///
+		/// Default destructor
+		///
+		virtual ~IHTTPClientProvider() {};
+
 		///
 		/// Returns an HTTPClient based on the provided configuration.
 		/// @param[in] configuration configuration parameters for the HTTP connection
 		///
-		virtual std::unique_ptr<protocol::HTTPClient> createClient(std::shared_ptr<configuration::HTTPClientConfiguration> configuration) = 0;
+		virtual std::shared_ptr<protocol::IHTTPClient> createClient(std::shared_ptr<configuration::HTTPClientConfiguration> configuration) = 0;
 	};
 }
 

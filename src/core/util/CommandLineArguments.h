@@ -29,6 +29,11 @@ namespace core {
 		public:
 
 			///
+			/// Default constructor
+			///
+			CommandLineArguments();
+
+			///
 			/// Parse the command line and try to fill all required fields
 			/// @param[in] argc number of arguments
 			/// @param[in] argv array of strings with the arguments
@@ -66,7 +71,7 @@ namespace core {
 		private:
 
 			/// Server ID
-			uint32_t mServerID;
+			int32_t mServerID;
 
 			/// application version
 			core::UTF8String mApplicationID;
