@@ -22,6 +22,7 @@
 #include "protocol/StatusResponse.h"
 #include "protocol/TimeSyncResponse.h"
 #include "configuration/HTTPClientConfiguration.h"
+#include "core/UTF8String.h"
 
 namespace protocol {
 	///
@@ -33,24 +34,6 @@ namespace protocol {
 	class IHTTPClient
 	{
 	public:
-		///
-		/// the type of request sent to the server
-		///
-		enum class RequestType
-		{
-			STATUS, ///< status check request
-			BEACON, ///< beacon send request
-			TIMESYNC ///< time sync request
-		};
-
-		///
-		/// HTTP methods
-		///
-		enum HttpMethod
-		{
-			GET,
-			POST
-		};
 
 		///
 		/// Destructor
@@ -65,9 +48,11 @@ namespace protocol {
 
 		///
 		/// sends a beacon send request and returns a status response
+		/// @param[in] the client IP address
+		/// @param[in] the beacon payload
 		/// @returns a status response with the response data for the request or @c nullptr on error
 		///
-		virtual std::unique_ptr<StatusResponse> sendBeaconRequest(const core::UTF8String& clientIPAddress, const void* data, size_t dataSize) = 0;
+		virtual std::unique_ptr<StatusResponse> sendBeaconRequest(const core::UTF8String& clientIPAddress, const core::UTF8String& data) = 0;
 
 		///
 		/// sends a timesync request and returns a timesync response

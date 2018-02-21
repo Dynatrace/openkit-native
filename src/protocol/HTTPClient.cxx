@@ -58,7 +58,7 @@ HTTPClient::~HTTPClient()
 
 std::unique_ptr<StatusResponse> HTTPClient::sendStatusRequest()
 {
-	auto response = sendRequestInternal(RequestType::STATUS, mMonitorURL, "", nullptr, 0, HttpMethod::GET);
+	auto response = sendRequestInternal(RequestType::STATUS, mMonitorURL, core::UTF8String(""), core::UTF8String(""), HttpMethod::GET);
 	if (response)
 	{
 		return std::unique_ptr<StatusResponse>(reinterpret_cast<StatusResponse*>(response.release()));
@@ -66,9 +66,9 @@ std::unique_ptr<StatusResponse> HTTPClient::sendStatusRequest()
 	return nullptr;
 }
 
-std::unique_ptr<StatusResponse> HTTPClient::sendBeaconRequest(const core::UTF8String& clientIPAddress, const void* data, size_t dataSize)
+std::unique_ptr<StatusResponse> HTTPClient::sendBeaconRequest(const core::UTF8String& clientIPAddress, const core::UTF8String& inData)
 {
-	auto response = sendRequestInternal(RequestType::BEACON, mMonitorURL, clientIPAddress, data, dataSize, HttpMethod::POST);
+	auto response = sendRequestInternal(RequestType::BEACON, mMonitorURL, clientIPAddress, inData, HttpMethod::POST);
 	if (response)
 	{
 		return std::unique_ptr<StatusResponse>(reinterpret_cast<StatusResponse*>(response.release()));
@@ -78,7 +78,7 @@ std::unique_ptr<StatusResponse> HTTPClient::sendBeaconRequest(const core::UTF8St
 
 std::unique_ptr<TimeSyncResponse> HTTPClient::sendTimeSyncRequest()
 {
-	auto response = sendRequestInternal(RequestType::TIMESYNC, mTimeSyncURL, "", nullptr, 0, HttpMethod::GET);
+	auto response = sendRequestInternal(RequestType::TIMESYNC, mTimeSyncURL, core::UTF8String(""), core::UTF8String("") , HttpMethod::GET);
 	if (response)
 	{
 		return std::unique_ptr<TimeSyncResponse>(reinterpret_cast<TimeSyncResponse*>(response.release()));
@@ -128,7 +128,7 @@ static size_t writeFunction(void *ptr, size_t elementSize, size_t numberOfElemen
 }
 
 //TODO: stefan.eberl - use the request type or rethink design
-std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::RequestType /*requestType*/, const core::UTF8String& url, const core::UTF8String& clientIPAddress, const void* inData, size_t inDataSize, const HTTPClient::HttpMethod method)
+std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::RequestType /*requestType*/, const core::UTF8String& url, const core::UTF8String& clientIPAddress, const core::UTF8String& inData, const HTTPClient::HttpMethod method)
 {
 	// init the curl session - get the curl handle
 	mCurl = curl_easy_init();
@@ -170,10 +170,10 @@ std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::Requ
 			// Do a regular HTTP post
 			curl_easy_setopt(mCurl, CURLOPT_POST, 1L);
 
-			if (inData != nullptr && inDataSize > 0)
+			if (!inData.empty())
 			{
 				// Data to send is compressed => Compress the data
-				Compressor::compressMemory(inData, inDataSize, mReadBuffer);
+				Compressor::compressMemory(inData.getStringData().c_str(), inData.getStringLength(), mReadBuffer);
 				mReadBufferPos = 0;
 				curl_easy_setopt(mCurl, CURLOPT_READFUNCTION, readFunction);
 				curl_easy_setopt(mCurl, CURLOPT_READDATA, this);

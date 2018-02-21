@@ -34,6 +34,26 @@ namespace protocol {
 	class HTTPClient : public IHTTPClient
 	{
 	public:
+
+		///
+		/// the type of request sent to the server
+		///
+		enum class RequestType
+		{
+			STATUS, ///< status check request
+			BEACON, ///< beacon send request
+			TIMESYNC ///< time sync request
+		};
+
+		///
+		/// HTTP methods
+		///
+		enum HttpMethod
+		{
+			GET,
+			POST
+		};
+
 		///
 		/// Default constructor
 		/// @param[in] configuration configuration parameters for the HTTPClient
@@ -63,9 +83,11 @@ namespace protocol {
 
 		///
 		/// sends a beacon send request and returns a status response
+		/// @param[in] the client IP address
+		/// @param[in] the beacon payload
 		/// @returns a status response with the response data for the request or @c nullptr on error
 		///
-		virtual std::unique_ptr<StatusResponse> sendBeaconRequest(const core::UTF8String& clientIPAddress, const void* data, size_t dataSize) override;
+		virtual std::unique_ptr<StatusResponse> sendBeaconRequest(const core::UTF8String& clientIPAddress, const core::UTF8String& inData) override;
 
 		///
 		/// sends a timesync request and returns a timesync response
@@ -81,11 +103,10 @@ namespace protocol {
 		/// @param[in] url the url where to send the request to
 		/// @param[in] clientIPAddress optional the IP address of the client. If provided, this is sent in the custom HTTP header "X-Client-IP"
 		/// @param[in] inData optional data to send in the HTTP POST. Data will be gzip compressed.
-		/// @param[in] inDataSize the size of the inData
 		/// @param[in] method the HTTP method to use. Currently either POST or GET
 		/// @returns a status response with the response data for the request or @c nullptr on error
 		///
-		std::unique_ptr<Response> sendRequestInternal(const IHTTPClient::RequestType requestType, const core::UTF8String& url, const core::UTF8String& clientIPAddress, const void* inData, size_t inDataSize, const IHTTPClient::HttpMethod method);
+		std::unique_ptr<Response> sendRequestInternal(const RequestType requestType, const core::UTF8String& url, const core::UTF8String& clientIPAddress, const core::UTF8String& inData, const HttpMethod method);
 
 		void buildMonitorURL(core::UTF8String& monitorURL, const core::UTF8String& baseURL, const core::UTF8String& applicationID, uint32_t serverID);
 

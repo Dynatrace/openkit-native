@@ -40,7 +40,7 @@ namespace test {
 
 		MOCK_METHOD0(sendStatusRequestRawPtrProxy, protocol::StatusResponse*());
 
-		MOCK_METHOD3(sendBeaconRequest, std::unique_ptr<protocol::StatusResponse>(const core::UTF8String&, const void*, size_t));
+		MOCK_METHOD2(sendBeaconRequest, std::unique_ptr<protocol::StatusResponse>(const core::UTF8String&, const core::UTF8String&));
 
 		MOCK_METHOD0(sendTimeSyncRequest, std::unique_ptr<protocol::TimeSyncResponse>());
 	private:
