@@ -17,15 +17,12 @@
 #ifndef _PROTOCOL_HTTPCLIENT_H
 #define _PROTOCOL_HTTPCLIENT_H
 
-#include <memory>
 #include <vector>
 #include <string.h>
 
-#include "curl/curl.h"
+#include "protocol/IHTTPClient.h"
 
-#include "protocol/StatusResponse.h"
-#include "protocol/TimeSyncResponse.h"
-#include "configuration/HTTPClientConfiguration.h"
+#include "curl/curl.h"
 
 namespace protocol {
 	///
@@ -34,7 +31,7 @@ namespace protocol {
 	/// - beacon send
 	/// - time sync
 	///
-	class HTTPClient
+	class HTTPClient : public IHTTPClient
 	{
 	public:
 		///
@@ -46,7 +43,7 @@ namespace protocol {
 		///
 		/// Destructor
 		///
-		virtual ~HTTPClient();
+		virtual ~HTTPClient() ;
 
 		///
 		/// Delete the copy constructor
@@ -62,40 +59,21 @@ namespace protocol {
 		/// sends a status check request and returns a status response
 		/// @returns a status response with the response data for the request or @c nullptr on error
 		///
-		virtual std::unique_ptr<StatusResponse> sendStatusRequest();
+		virtual std::unique_ptr<StatusResponse> sendStatusRequest() override;
 
 		///
 		/// sends a beacon send request and returns a status response
 		/// @returns a status response with the response data for the request or @c nullptr on error
 		///
-		std::unique_ptr<StatusResponse> sendBeaconRequest(const core::UTF8String& clientIPAddress, const void* data, size_t dataSize);
+		virtual std::unique_ptr<StatusResponse> sendBeaconRequest(const core::UTF8String& clientIPAddress, const void* data, size_t dataSize) override;
 
 		///
 		/// sends a timesync request and returns a timesync response
 		/// @returns a timesync response with the response data for the request or @c nullptr on error
 		///
-		std::unique_ptr<TimeSyncResponse> sendTimeSyncRequest();
+		virtual std::unique_ptr<TimeSyncResponse> sendTimeSyncRequest() override;
 
 	private:
-
-		///
-		/// the type of request sent to the server
-		///
-		enum RequestType
-		{
-			STATUS, ///< status check request
-			BEACON, ///< beacon send request
-			TIMESYNC ///< time sync request
-		};
-
-		///
-		/// HTTP methods
-		///
-		enum HttpMethod
-		{
-			GET,
-			POST
-		};
 
 		///
 		/// sends a status check request and returns a status response
@@ -107,7 +85,7 @@ namespace protocol {
 		/// @param[in] method the HTTP method to use. Currently either POST or GET
 		/// @returns a status response with the response data for the request or @c nullptr on error
 		///
-		std::unique_ptr<Response> sendRequestInternal(const HTTPClient::RequestType requestType, const core::UTF8String& url, const core::UTF8String& clientIPAddress, const void* inData, size_t inDataSize, const HTTPClient::HttpMethod method);
+		std::unique_ptr<Response> sendRequestInternal(const IHTTPClient::RequestType requestType, const core::UTF8String& url, const core::UTF8String& clientIPAddress, const void* inData, size_t inDataSize, const IHTTPClient::HttpMethod method);
 
 		void buildMonitorURL(core::UTF8String& monitorURL, const core::UTF8String& baseURL, const core::UTF8String& applicationID, uint32_t serverID);
 

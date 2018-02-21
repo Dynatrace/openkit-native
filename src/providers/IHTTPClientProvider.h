@@ -40,7 +40,7 @@ namespace providers {
 		/// Returns an HTTPClient based on the provided configuration.
 		/// @param[in] configuration configuration parameters for the HTTP connection
 		///
-		virtual std::shared_ptr<protocol::HTTPClient> createClient(std::shared_ptr<configuration::HTTPClientConfiguration> configuration) = 0;
+		virtual std::shared_ptr<protocol::IHTTPClient> createClient(std::shared_ptr<configuration::HTTPClientConfiguration> configuration) = 0;
 	};
 }
 

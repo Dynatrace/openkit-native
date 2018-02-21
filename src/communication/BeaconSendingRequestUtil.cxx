@@ -27,7 +27,7 @@ std::unique_ptr<StatusResponse> BeaconSendingRequestUtil::sendStatusRequest(Beac
 
 	while (true) 
 	{
-		std::shared_ptr<HTTPClient> httpClient = context.getHTTPClient();
+		std::shared_ptr<IHTTPClient> httpClient = context.getHTTPClient();
 		if (httpClient == nullptr)
 		{
 			break;

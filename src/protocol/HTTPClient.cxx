@@ -120,7 +120,8 @@ static size_t writeFunction(void *ptr, size_t elementSize, size_t numberOfElemen
 	return elementSize * numberOfElements;
 }
 
-std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::RequestType requestType, const core::UTF8String& url, const core::UTF8String& clientIPAddress, const void* inData, size_t inDataSize, const HTTPClient::HttpMethod method)
+//TODO: stefan.eberl - use the request type or rethink design
+std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::RequestType /*requestType*/, const core::UTF8String& url, const core::UTF8String& clientIPAddress, const void* inData, size_t inDataSize, const HTTPClient::HttpMethod method)
 {
 	// init the curl session - get the curl handle
 	mCurl = curl_easy_init();

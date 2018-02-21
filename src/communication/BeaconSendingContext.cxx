@@ -76,7 +76,7 @@ const std::shared_ptr<configuration::Configuration> BeaconSendingContext::getCon
 	return mConfiguration;
 }
 
-std::shared_ptr<protocol::HTTPClient> BeaconSendingContext::getHTTPClient()
+std::shared_ptr<protocol::IHTTPClient> BeaconSendingContext::getHTTPClient()
 {
 	if (mConfiguration != nullptr && mHTTPClientProvider != nullptr)
 	{
