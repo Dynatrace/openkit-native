@@ -41,25 +41,23 @@ TimeSyncResponse::TimeSyncResponse(const core::UTF8String& response, uint32_t re
 
 void TimeSyncResponse::parseResponse(const core::UTF8String& response)
 {
-	std::stringstream ss(response.getStringData());
-	std::string item;
-	while (std::getline(ss, item, '&'))
-	{
-		size_t found = item.find('=');
+	auto parts = response.split('&');
+	for (auto const& part : parts) {
+		auto found = part.getIndexOf("=");
 		if (found != std::string::npos)
 		{
-			std::string key = item.substr(0, found);
-			std::string value = item.substr(found + 1);
+			auto key = part.substring(0, found);
+			auto value = part.substring(found + 1);
 
 			if (!key.empty() && !value.empty())
 			{
-				if (key.compare(RESPONSE_KEY_REQUEST_RECEIVE_TIME) == 0)
+				if (key.equals(RESPONSE_KEY_REQUEST_RECEIVE_TIME))
 				{
-					mRequestReceiveTime = std::stol(value);
+					mRequestReceiveTime = std::stoll(value.getStringData());
 				}
-				else if (key.compare(RESPONSE_KEY_RESPONSE_SEND_TIME) == 0)
+				else if (key.equals(RESPONSE_KEY_RESPONSE_SEND_TIME))
 				{
-					mResponseSendTime = std::stol(value);
+					mResponseSendTime = std::stoll(value.getStringData());
 				}
 			}
 		}

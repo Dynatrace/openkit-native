@@ -35,17 +35,119 @@ public:
 	}
 };
 
-TEST_F(TimeSyncResponseTest, AllDefaultsTimeSyncResponse)
+TEST_F(TimeSyncResponseTest, RequestReceiveTimeDefault)
 {
 	UTF8String s("");
 	uint32_t responseCode = 200;
 	TimeSyncResponse timeSyncResponse = TimeSyncResponse(s, responseCode);
 
 	EXPECT_EQ(-1, timeSyncResponse.getRequestReceiveTime());
-	EXPECT_EQ(-1, (int)timeSyncResponse.getResponseSendTime());
 }
 
-TEST_F(TimeSyncResponseTest, SomeTypicalTimeSyncResponse)
+TEST_F(TimeSyncResponseTest, RequestReceiveTimeZero)
+{
+	UTF8String s("t1=0");
+	uint32_t responseCode = 200;
+	TimeSyncResponse timeSyncResponse = TimeSyncResponse(s, responseCode);
+
+	EXPECT_EQ(0, timeSyncResponse.getRequestReceiveTime());
+}
+
+TEST_F(TimeSyncResponseTest, RequestReceiveTimeOne)
+{
+	UTF8String s("t1=1");
+	uint32_t responseCode = 200;
+	TimeSyncResponse timeSyncResponse = TimeSyncResponse(s, responseCode);
+
+	EXPECT_EQ(1, timeSyncResponse.getRequestReceiveTime());
+}
+
+TEST_F(TimeSyncResponseTest, RequestReceiveTimeMinusOne)
+{
+	UTF8String s("t1=-1");
+	uint32_t responseCode = 200;
+	TimeSyncResponse timeSyncResponse = TimeSyncResponse(s, responseCode);
+
+	EXPECT_EQ(-1, timeSyncResponse.getRequestReceiveTime());
+}
+
+TEST_F(TimeSyncResponseTest, RequestReceiveTimeLongMax)
+{
+	UTF8String s("t1=9223372036854775807"); // signed int64 max
+	uint32_t responseCode = 200;
+	TimeSyncResponse timeSyncResponse = TimeSyncResponse(s, responseCode);
+
+	EXPECT_EQ(9223372036854775807, timeSyncResponse.getRequestReceiveTime());
+}
+
+TEST_F(TimeSyncResponseTest, DISABLED_RequestReceiveTimeLongMaxPlusOne)
+{
+	UTF8String s("t1=9223372036854775808"); // signed int64 max + 1
+	uint32_t responseCode = 200;
+	TimeSyncResponse timeSyncResponse = TimeSyncResponse(s, responseCode);
+
+	EXPECT_EQ(9223372036854775807, timeSyncResponse.getRequestReceiveTime());
+}
+
+/// -----------------
+
+TEST_F(TimeSyncResponseTest, ResponseSendTimeDefault)
+{
+	UTF8String s("");
+	uint32_t responseCode = 200;
+	TimeSyncResponse timeSyncResponse = TimeSyncResponse(s, responseCode);
+
+	EXPECT_EQ(-1, timeSyncResponse.getResponseSendTime());
+}
+
+TEST_F(TimeSyncResponseTest, ResponseSendTimeZero)
+{
+	UTF8String s("t2=0");
+	uint32_t responseCode = 200;
+	TimeSyncResponse timeSyncResponse = TimeSyncResponse(s, responseCode);
+
+	EXPECT_EQ(0, timeSyncResponse.getResponseSendTime());
+}
+
+TEST_F(TimeSyncResponseTest, ResponseSendTimeOne)
+{
+	UTF8String s("t2=1");
+	uint32_t responseCode = 200;
+	TimeSyncResponse timeSyncResponse = TimeSyncResponse(s, responseCode);
+
+	EXPECT_EQ(1, timeSyncResponse.getResponseSendTime());
+}
+
+TEST_F(TimeSyncResponseTest, ResponseSendTimeMinusOne)
+{
+	UTF8String s("t2=-1");
+	uint32_t responseCode = 200;
+	TimeSyncResponse timeSyncResponse = TimeSyncResponse(s, responseCode);
+
+	EXPECT_EQ(-1, timeSyncResponse.getResponseSendTime());
+}
+
+TEST_F(TimeSyncResponseTest, ResponseSendTimeLongMax)
+{
+	UTF8String s("t2=9223372036854775807"); // signed int64 max
+	uint32_t responseCode = 200;
+	TimeSyncResponse timeSyncResponse = TimeSyncResponse(s, responseCode);
+
+	EXPECT_EQ(9223372036854775807, timeSyncResponse.getResponseSendTime());
+}
+
+TEST_F(TimeSyncResponseTest, DISABLED_ResponseSendTimeLongMaxPlusOne)
+{
+	UTF8String s("t2=9223372036854775808"); // signed int64 max + 1
+	uint32_t responseCode = 200;
+	TimeSyncResponse timeSyncResponse = TimeSyncResponse(s, responseCode);
+
+	EXPECT_EQ(9223372036854775807, timeSyncResponse.getResponseSendTime());
+}
+
+// ---------
+
+TEST_F(TimeSyncResponseTest, RequestReceiveTimeTogetherWithResponseSendTime)
 {
 	UTF8String s("t1=123&t2=456");
 	uint32_t responseCode = 200;
@@ -55,12 +157,13 @@ TEST_F(TimeSyncResponseTest, SomeTypicalTimeSyncResponse)
 	EXPECT_EQ(456, timeSyncResponse.getResponseSendTime());
 }
 
-TEST_F(TimeSyncResponseTest, CorruptTimeSyncResponse)
+TEST_F(TimeSyncResponseTest, NotExistingKey)
 {
-	UTF8String s("t1=123&");
+	UTF8String s("hello=world");
 	uint32_t responseCode = 200;
 	TimeSyncResponse timeSyncResponse = TimeSyncResponse(s, responseCode);
 
-	EXPECT_EQ(123, timeSyncResponse.getRequestReceiveTime());
-	EXPECT_EQ(-1, (int)timeSyncResponse.getResponseSendTime());
+	// verify all defaults
+	EXPECT_EQ(-1, timeSyncResponse.getRequestReceiveTime());
+	EXPECT_EQ(-1, timeSyncResponse.getResponseSendTime());
 }
