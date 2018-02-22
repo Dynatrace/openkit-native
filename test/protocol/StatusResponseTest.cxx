@@ -227,7 +227,7 @@ TEST_F(StatusResponseTest, MonitoringNameValidAsciiName)
 	StatusResponse statusResponse = StatusResponse(s, responseCode);
 
 	EXPECT_TRUE(statusResponse.isCapture());
-	EXPECT_TRUE(statusResponse.getMonitorName().compare("HelloWorld"));
+	EXPECT_TRUE(statusResponse.getMonitorName().equals("HelloWorld"));
 }
 
 TEST_F(StatusResponseTest, MonitoringNameValidUtf8Name)
@@ -238,7 +238,7 @@ TEST_F(StatusResponseTest, MonitoringNameValidUtf8Name)
 
 	EXPECT_TRUE(statusResponse.isCapture());
 	UTF8String cmp(u8"𐋏𝖾ll𝑜 𝙒ᴑ𝒓l𝖽 ｆ𝓻𝗈ｍ 𝒐ᴜ𝑡𝒆𝓇 𝕤𝟈𝛼𝘤ℯ");
-	EXPECT_TRUE(statusResponse.getMonitorName().compare(cmp));
+	EXPECT_TRUE(statusResponse.getMonitorName().equals(cmp));
 }
 
 /// -----------------
@@ -603,7 +603,7 @@ TEST_F(StatusResponseTest, SomeTypicalStatusResponse)
 
 	EXPECT_TRUE(statusResponse.isCapture());
 	EXPECT_EQ(2000, statusResponse.getSendInterval());
-	EXPECT_TRUE(statusResponse.getMonitorName().compare("MyName"));
+	EXPECT_TRUE(statusResponse.getMonitorName().equals("MyName"));
 	EXPECT_EQ(5, statusResponse.getServerID());
 	EXPECT_EQ(3072, statusResponse.getMaxBeaconSize());
 	EXPECT_TRUE(statusResponse.isCaptureErrors());

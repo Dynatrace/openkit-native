@@ -19,6 +19,7 @@
 #define _CORE_UTF8STRING_H
 
 #include <string>
+#include <vector>
 
 namespace core
 {
@@ -37,6 +38,14 @@ namespace core
 		///
 		UTF8String();
 			
+		///
+		/// Initialize using a standard string. Either UTF8 multibyte
+		/// data or plain US-ASCII can be used to initialize strings.
+		/// @param[in] string the string used to initialize this string
+		/// @return a new string initialized to the provided value
+		///
+		UTF8String(std::string string);
+
 		///
 		/// Using a user-provided char sequence initialize this string. Either UTF8 multibyte
 		/// data or plain US-ASCII can be used to initialize strings.
@@ -75,14 +84,14 @@ namespace core
 		/// @param[in] other string to compare this instance against
 		/// @return @c true if strings are equal, @c false if not equal
 		///
-		bool compare(const UTF8String& other) const;
+		bool equals(const UTF8String& other) const;
 
 		///
 		/// Compare two strings
 		/// @param[in] other string to compare this instance against
 		/// @return @c true if strings are equal, @c false if not equal
 		///
-		bool compare(const char* other) const;
+		bool equals(const char* other) const;
 
 		///
 		/// Concatenate two strings
@@ -103,22 +112,29 @@ namespace core
 		/// @param[in] offset start search for character at the given offset
 		/// @return the index of 
 		///
-		size_t getIndexOf(const char* comparisonCharacter, size_t offset) const;
+		size_t getIndexOf(const char* comparisonCharacter, size_t offset = 0) const;
 
 		///
 		/// Create a substring by using the range @c start to @c end. Indices do not refer to bytes, instead they refer to actual
 		/// characters. The reason is that UTF8 characters can span multiple bytes.
-		/// @param[in] start start index of substring
-		/// @param[in] end end end index of the substring
-		/// @returns a substring created from this string with the range from begin to end
+		/// @param[in] start the start index of substring (inclusive)
+		/// @param[in] length the character count to include
+		/// @returns a substring created from this string
 		///
-		UTF8String substring(size_t start, size_t end) const;
+		UTF8String substring(size_t start, size_t length = std::string::npos) const;
 
 		///
 		/// Returns whether the string is empty or not.
 		/// @returns @c true of the string is empty (=string length is 0), @c false otherwise
 		//
 		bool empty() const;
+
+		///
+		/// Splits the string at the provided ascii separator
+		/// @param[in] separator the ASCII character at which to split the string.
+		/// @returns a vector of UTF8 substrings
+		///
+		std::vector<UTF8String> split(char separator) const;
 
 	private:
 

@@ -56,47 +56,45 @@ StatusResponse::StatusResponse(const core::UTF8String& response, uint32_t respon
 
 void StatusResponse::parseResponse(const core::UTF8String& response)
 {
-	std::stringstream ss(response.getStringData());
-	std::string item;
-	while (std::getline(ss, item, '&'))
-	{
-		auto found = item.find('=');
+	auto parts = response.split('&');
+	for (auto const& part : parts) {
+		auto found = part.getIndexOf("="); 
 		if (found != std::string::npos)
 		{
-			auto key = item.substr(0, found);
-			auto value = item.substr(found + 1);
+			auto key = part.substring(0, found);
+			auto value = part.substring(found + 1);
 
 			if (!key.empty() && !value.empty())
 			{
-				if (key.compare(RESPONSE_KEY_CAPTURE) == 0)
+				if (key.equals(RESPONSE_KEY_CAPTURE))
 				{
-					mCapture = std::stoi(value) == 1;
+					mCapture = std::stoi(value.getStringData()) == 1;
 				}
-				else if (key.compare(RESPONSE_KEY_SEND_INTERVAL) == 0)
+				else if (key.equals(RESPONSE_KEY_SEND_INTERVAL))
 				{
-					mSendInterval = std::stoi(value) * 1000;
+					mSendInterval = std::stoi(value.getStringData()) * 1000;
 				}
-				else if (key.compare(RESPONSE_KEY_MONITOR_NAME) == 0)
+				else if (key.equals(RESPONSE_KEY_MONITOR_NAME))
 				{
-					mMonitorName = core::UTF8String(value.c_str());
+					mMonitorName = core::UTF8String(value);
 				}
-				else if (key.compare(RESPONSE_KEY_SERVER_ID) == 0)
+				else if (key.equals(RESPONSE_KEY_SERVER_ID))
 				{
-					mServerID = std::stoi(value);
+					mServerID = std::stoi(value.getStringData());
 				}
-				else if (key.compare(RESPONSE_KEY_MAX_BEACON_SIZE) == 0)
+				else if (key.equals(RESPONSE_KEY_MAX_BEACON_SIZE))
 				{
-					mMaxBeaconSize = std::stoi(value);
+					mMaxBeaconSize = std::stoi(value.getStringData());
 				}
-				else if (key.compare(RESPONSE_KEY_CAPTURE_ERRORS) == 0)
+				else if (key.equals(RESPONSE_KEY_CAPTURE_ERRORS))
 				{
 					/* 1 (always on) and 2 (only on WiFi) are treated the same */
-					mCaptureErrors = std::stoi(value) != 0;
+					mCaptureErrors = std::stoi(value.getStringData()) != 0;
 				}
-				else if (key.compare(RESPONSE_KEY_CAPTURE_CRASHES) == 0)
+				else if (key.equals(RESPONSE_KEY_CAPTURE_CRASHES))
 				{
 					/* 1 (always on) and 2 (only on WiFi) are treated the same */
-					mCaptureCrashes = std::stoi(value) != 0;
+					mCaptureCrashes = std::stoi(value.getStringData()) != 0;
 				}
 			}
 		}
