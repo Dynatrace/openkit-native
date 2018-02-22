@@ -131,10 +131,10 @@ namespace core
 
 		///
 		/// Splits the string at the provided ascii separator
-		/// @param[in] separator the ASCII character at which to split the string.
+		/// @param[in] delimiter the ASCII character at which to split the string.
 		/// @returns a vector of UTF8 substrings
 		///
-		std::vector<UTF8String> split(char separator) const;
+		std::vector<UTF8String> split(char delimiter) const;
 
 	private:
 

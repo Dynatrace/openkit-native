@@ -312,30 +312,40 @@ UTF8String UTF8String::substring(size_t start, size_t length) const
 		return UTF8String();
 	}
 
-	// determine byteIndex by iterating through the characters before start
-	unsigned int byteIndex = 0;
-	for (unsigned int i = 0; i < start; i++)
-	{
-		auto currentCharacter = mData.at(byteIndex);
-		auto numberOfBytes = getByteWidthOfCharacter(currentCharacter);
-		byteIndex += numberOfBytes;
-	}
+	size_t byteIndex = 0;
+	size_t byteOffsetStart = 0;
+	size_t byteOffsetEnd = 0;
+	size_t characterIndex = 0;
+	size_t characterCounter = 0;
 
-	// push the single-byte or multi-byte characters onto the substring
-	UTF8String substring;
-	while (byteIndex < mData.size() && substring.mStringLength < length)
+	//collect byte positions correctly counting multi byte characters
+	while (byteIndex < mData.size() && characterCounter < length)
 	{
-		auto currentCharacter = mData.at(byteIndex);
+		auto currentCharacter = mData[byteIndex];
 		auto numberOfBytes = getByteWidthOfCharacter(currentCharacter);
-		for (unsigned int i = 0; i < numberOfBytes; i++)
+		if (characterIndex == start)
 		{
-			substring.mData.push_back(mData.at(byteIndex + i));
+			byteOffsetStart = byteIndex;
 		}
-		substring.mStringLength++;
-
+		if (characterIndex >= start)
+		{
+			characterCounter++;
+		}
+		byteOffsetEnd = byteIndex + numberOfBytes - 1;
 		byteIndex += numberOfBytes;
+		characterIndex++;
 	}
-	return substring;
+
+	//cut the new string using the indices
+	if (byteOffsetStart >= 0 && byteOffsetStart <= byteOffsetEnd && byteOffsetEnd < mData.size())
+	{
+		UTF8String substring;
+		substring.mStringLength = characterCounter;
+		substring.mData.insert(substring.mData.begin(), mData.begin() + byteOffsetStart, mData.begin() + byteOffsetEnd + 1);
+		
+		return substring;
+	}
+	return UTF8String();
 }
 
 
@@ -344,12 +354,12 @@ bool UTF8String::empty() const
 	return mStringLength == 0;
 }
 
-std::vector<UTF8String> UTF8String::split(char delim) const
+std::vector<UTF8String> UTF8String::split(char delimiter) const
 {
 	std::vector<UTF8String> parts;
 	std::string item;
 	std::stringstream ss(mData);
-	while (std::getline(ss, item, delim))
+	while (std::getline(ss, item, delimiter))
 	{
 		parts.push_back(UTF8String(item));
 	}
