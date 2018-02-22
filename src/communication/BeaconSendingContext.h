@@ -126,7 +126,7 @@ namespace communication {
 		/// Sleep for a given amount of time
 		/// @param[in] ms number of milliseconds
 		///
-		virtual void sleep(uint64_t ms);
+		virtual void sleep(int64_t ms);
 
 		///
 		/// Get current timestamp
@@ -144,7 +144,7 @@ namespace communication {
 		/// Set timestamp when last status check was performed
 		/// @param[in] lastStatusCheckTime timestamp of last status check
 		///
-		virtual void setLastStatusCheckTime(uint64_t lastStatusCheckTime);
+		virtual void setLastStatusCheckTime(int64_t lastStatusCheckTime);
 
 		///
 		/// Get timestamp when open sessions were sent last
@@ -156,7 +156,7 @@ namespace communication {
 		/// Set timestamp when open sessions were sent last
 		/// @param[in] timestamp  timestamp of last sendinf of open session
 		///
-		virtual void setLastOpenSessionBeaconSendTime(uint64_t timestamp);
+		virtual void setLastOpenSessionBeaconSendTime(int64_t timestamp);
 
 		///
 		/// Returns the type of state
@@ -223,10 +223,10 @@ namespace communication {
 		std::shared_ptr<providers::ITimingProvider> mTimingProvider;
 
 		/// time of the last status check
-		uint64_t mLastStatusCheckTime;
+		int64_t mLastStatusCheckTime;
 
 		/// time when open sessions were last sent
-		uint64_t mLastOpenSessionBeaconSendTime;
+		int64_t mLastOpenSessionBeaconSendTime;
 
 		/// countdown latch used for wait-on-initialisation
 		core::util::CountDownLatch mInitCountdownLatch;
