@@ -86,7 +86,7 @@ namespace communication {
 		/// @param[in] context the BeaconSendingContext to apply the changes on
 		/// @param[in] timeSyncOffsets the received offsets
 		///
-		void handleTimeSyncResponse(BeaconSendingContext& context, std::vector<int64_t>& timeSyncOffsets);
+		void handleTimeSyncResponses(BeaconSendingContext& context, std::vector<int64_t>& timeSyncOffsets);
 
 		///
 		/// Calculates the cluster time offset from the list of time sync offsets 
@@ -100,6 +100,13 @@ namespace communication {
 		/// @paramp[in] context BeaconSendingContext keeping the state information
 		///
 		void handleErroneousTimeSyncRequest(BeaconSendingContext& context);
+
+		///
+		/// Execute the time synchronisation requests (HTTP requests).
+		/// @param[in] context the BeconSendingContext used
+		/// @returns a vector of integers with the time sync offsets
+		///
+		std::vector<int64_t> executeTimeSyncRequests(BeaconSendingContext& context);
 
 	private:
 		///

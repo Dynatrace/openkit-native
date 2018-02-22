@@ -25,6 +25,9 @@ using namespace communication;
 
 constexpr std::chrono::milliseconds TIME_SYNC_INTERVAL_IN_MILLIS = std::chrono::minutes(1);
 constexpr uint32_t REQUIRED_TIME_SYNC_REQUESTS = 5;
+constexpr std::chrono::milliseconds INITIAL_RETRY_SLEEP_TIME_MILLISECONDS = std::chrono::seconds(1);
+constexpr uint32_t TIME_SYNC_RETRY_COUNT = 5;
+
 BeaconSendingTimeSyncState::BeaconSendingTimeSyncState()
 	: BeaconSendingTimeSyncState(true)
 {
@@ -38,11 +41,17 @@ BeaconSendingTimeSyncState::BeaconSendingTimeSyncState(bool initialSync)
 
 void BeaconSendingTimeSyncState::doExecute(BeaconSendingContext& context)
 {
-	if (isTimeSyncRequired(context))
+	if (!isTimeSyncRequired(context))
 	{
 		setNextState(context);
 		return;
 	}
+
+	// execute time sync requests - note during initial sync it might be possible
+	// that the time sync capability is disabled.
+	std::vector<int64_t> timeSyncOffsets = executeTimeSyncRequests(context);
+
+	handleTimeSyncResponses(context, timeSyncOffsets);
 
 	// mark init being completed if it's the initial time sync
 	if (mInitialTimeSync) {
@@ -89,7 +98,7 @@ void BeaconSendingTimeSyncState::setNextState(BeaconSendingContext& context)
 	}
 }
 
-void BeaconSendingTimeSyncState::handleTimeSyncResponse(BeaconSendingContext& context, std::vector<int64_t>& timeSyncOffsets)
+void BeaconSendingTimeSyncState::handleTimeSyncResponses(BeaconSendingContext& context, std::vector<int64_t>& timeSyncOffsets)
 {
 	// time sync requests were *not* successful
 	// either because of networking issues
@@ -158,4 +167,50 @@ void BeaconSendingTimeSyncState::handleErroneousTimeSyncRequest(BeaconSendingCon
 		// otherwise set the next state based on the configuration
 		setNextState(context);
 	}
+}
+
+std::vector<int64_t> BeaconSendingTimeSyncState::executeTimeSyncRequests(BeaconSendingContext& context)
+{
+	std::vector<int64_t> timeSyncOffsets;
+
+	int retry = 0;
+	int64_t sleepTimeInMillis = INITIAL_RETRY_SLEEP_TIME_MILLISECONDS.count();
+
+	// no check for shutdown here, time sync has to be completed
+	while (timeSyncOffsets.size() < REQUIRED_TIME_SYNC_REQUESTS && !context.isShutdownRequested()) {
+		// doExecute time-sync request and take timestamps
+		auto requestSendTime = context.getCurrentTimestamp();
+		std::unique_ptr<protocol::TimeSyncResponse> timeSyncResponse = context.getHTTPClient()->sendTimeSyncRequest();
+		long responseReceiveTime = context.getCurrentTimestamp();
+
+		if (timeSyncResponse != nullptr) {
+			int64_t requestReceiveTime = timeSyncResponse->getRequestReceiveTime();
+			int64_t responseSendTime = timeSyncResponse->getResponseSendTime();
+
+			// check both timestamps for being > 0
+			if ((requestReceiveTime > 0) && (responseSendTime > 0)) {
+				// if yes -> continue time-sync
+				auto offset = ((requestReceiveTime - requestSendTime) + (responseSendTime - responseReceiveTime)) / 2;
+				timeSyncOffsets.push_back(offset);
+				retry = 0; // on successful response reset the retry count & initial sleep time
+				sleepTimeInMillis = INITIAL_RETRY_SLEEP_TIME_MILLISECONDS.count();
+			}
+			else {
+				// if no -> stop time sync, it's not supported
+				context.disableTimeSyncSupport();
+				break;
+			}
+		}
+		else if (retry >= TIME_SYNC_RETRY_COUNT) {
+			// retry limits exceeded
+			break;
+		}
+		else {
+			context.sleep(sleepTimeInMillis);
+			sleepTimeInMillis *= 2;
+			retry++;
+		}
+	}
+
+	return timeSyncOffsets;
 }
