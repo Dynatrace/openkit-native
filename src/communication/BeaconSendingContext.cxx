@@ -178,7 +178,7 @@ AbstractBeaconSendingState::StateType BeaconSendingContext::getCurrentStateType(
 	return mCurrentState->getStateType();
 }
 
-bool BeaconSendingContext::isTimeSyncSupported()
+bool BeaconSendingContext::isTimeSyncSupported() const
 {
 	return mIsTimeSyncSupported;
 }
@@ -189,12 +189,12 @@ void BeaconSendingContext::disableTimeSyncSupport()
 	mIsTimeSyncSupported = false;
 }
 
-bool BeaconSendingContext::isTimeSynced()
+bool BeaconSendingContext::isTimeSynced() const
 {
 	return !mIsTimeSyncSupported || getLastTimeSyncTime() >= 0;
 }
 
-int64_t BeaconSendingContext::getLastTimeSyncTime()
+int64_t BeaconSendingContext::getLastTimeSyncTime() const
 {
 	return mLastTimeSyncTime;
 }

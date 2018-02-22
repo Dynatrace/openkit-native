@@ -62,6 +62,9 @@ namespace test
 		MOCK_CONST_METHOD0(isInTerminalState, bool());
 		MOCK_METHOD1(sleep, void(int64_t));
 		MOCK_METHOD0(getHTTPClient, std::shared_ptr<protocol::IHTTPClient>());
+		MOCK_CONST_METHOD0(isTimeSyncSupported, bool());
+		MOCK_CONST_METHOD0(getLastTimeSyncTime, int64_t());
+		MOCK_CONST_METHOD0(isCaptureOn, bool());
 
 
 		void RealSetNextState(std::shared_ptr<AbstractBeaconSendingState> nextState) 

@@ -101,7 +101,7 @@ namespace communication {
 		/// Returns a flag if capturing is enabled
 		/// @returns @c true if capturing is enabled, @c false if capturing is disabled
 		///
-		bool isCaptureOn() const;
+		virtual bool isCaptureOn() const;
 
 		///
 		/// Complete OpenKit initialisation
@@ -168,7 +168,7 @@ namespace communication {
 		/// Gets a boolean flag indicating whether time sync is supported or not.
 		/// @returns @c true if time sync is supported, @c false otherwise.
 		///
-		bool isTimeSyncSupported();
+		virtual bool isTimeSyncSupported() const;
 
 		///
 		/// Disables the time sync
@@ -179,13 +179,13 @@ namespace communication {
 		/// Gets a boolean flag indicating whether the time sync has been performed before
 		/// @returns @c true if time sync was performed, @c false otherwise
 		///
-		bool isTimeSynced();
+		virtual bool isTimeSynced() const;
 
 		///
 		/// Returns the timestamp when time sync was executed last time.
 		/// @returns the timestamp of the last successful time sync
 		///
-		int64_t getLastTimeSyncTime();
+		virtual int64_t getLastTimeSyncTime() const;
 
 		///
 		/// Set the timestamp of the last successful time sync
