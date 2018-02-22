@@ -19,6 +19,7 @@
 
 #include "communication/AbstractBeaconSendingState.h"
 
+#include <chrono>
 #include <vector>
 
 namespace communication {
@@ -67,13 +68,14 @@ namespace communication {
 		///
 		virtual bool isAShutdownState() override;
 
-	private:
 		///
 		/// Uses the BeaconSendingContext to determine if a time sync is required
 		/// @param[in] context BeaconSendingContext used for the check
 		/// @returns @c true if time sync is required, @c false if time sync is not required
 		///
 		bool isTimeSyncRequired(BeaconSendingContext& context);
+
+	private:
 
 		///
 		/// Make a transition to the next state based on the capture enable flag of the BeaconSendingContext
@@ -108,11 +110,19 @@ namespace communication {
 		///
 		std::vector<int64_t> executeTimeSyncRequests(BeaconSendingContext& context);
 
+	public:
+		///
+		/// The tine sync interval in milliseconds
+		///
+		static std::chrono::milliseconds TIME_SYNC_INTERVAL_IN_MILLIS;
+
 	private:
 		///
 		/// Flag if this is the first time time sync is performed
 		///
 		bool mInitialTimeSync;
+
+
 	};
 
 }

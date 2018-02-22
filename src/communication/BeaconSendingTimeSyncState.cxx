@@ -23,7 +23,7 @@
 
 using namespace communication;
 
-constexpr std::chrono::milliseconds TIME_SYNC_INTERVAL_IN_MILLIS = std::chrono::minutes(1);
+std::chrono::milliseconds BeaconSendingTimeSyncState::TIME_SYNC_INTERVAL_IN_MILLIS = std::chrono::minutes(1);
 constexpr uint32_t REQUIRED_TIME_SYNC_REQUESTS = 5;
 constexpr std::chrono::milliseconds INITIAL_RETRY_SLEEP_TIME_MILLISECONDS = std::chrono::seconds(1);
 constexpr uint32_t TIME_SYNC_RETRY_COUNT = 5;
