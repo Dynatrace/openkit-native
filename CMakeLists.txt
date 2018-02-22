@@ -98,8 +98,8 @@ if(BUILD_DOC)
 					  VERBATIM)
 endif()
 
-include_directories(${CURL_INCLUDE_DIRS})
-include_directories(${ZLIB_INCLUDE_DIRS})
+include_directories(SYSTEM ${CURL_INCLUDE_DIRS})
+include_directories(SYSTEM ${ZLIB_INCLUDE_DIRS})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 

@@ -157,7 +157,7 @@ int32_t make_post_request_compressed(CURL* curl)
 	return 0;
 }
 
-int main(int argc, char* *argv)
+int main(int, char**)
 {
 	CURL *curl;
 

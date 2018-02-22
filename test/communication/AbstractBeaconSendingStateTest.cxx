@@ -26,6 +26,11 @@
 class AbstractBeaconSendingStateTest : public testing::Test
 {
 public:
+	AbstractBeaconSendingStateTest()
+		: mockState()
+		, mockContext()
+	{
+	}
 
 	void SetUp()
 	{

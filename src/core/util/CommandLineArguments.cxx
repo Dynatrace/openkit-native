@@ -20,6 +20,13 @@
 
 using namespace core::util;
 
+CommandLineArguments::CommandLineArguments()
+	: mServerID(0)
+	, mApplicationID("")
+	, mBeaconURL("")
+{
+}
+
 void CommandLineArguments::parse(uint32_t argc, char* *argv)
 {
 	uint32_t index = 2;//start at index 2, 0 is the binary name, if only 1 further argument exists this already is an error
@@ -30,17 +37,17 @@ void CommandLineArguments::parse(uint32_t argc, char* *argv)
 			UTF8String previous = UTF8String(argv[index - 1]);
 			UTF8String current = UTF8String(argv[index]);
 
-			if (previous.compare("-a"))
+			if (previous.equals("-a"))
 			{
 				mApplicationID = current;
 			}
 
-			if (previous.compare("-u"))
+			if (previous.equals("-u"))
 			{
 				mBeaconURL = current;
 			}
 
-			if (previous.compare("-s"))
+			if (previous.equals("-s"))
 			{
 				try
 				{

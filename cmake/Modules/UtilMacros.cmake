@@ -27,6 +27,20 @@ macro(fix_default_compiler_settings_)
   endif()
 endmacro()
 
+macro(remove_strict_warnings_for_testcode)
+  if(NOT MSVC)
+      foreach (flag_var
+             CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
+             CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO
+			 CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
+             CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO
+			 )
+      # Remove the -Weffc++ for test code
+      string(REPLACE "-Weffc++" "" ${flag_var} "${${flag_var}}")
+	endforeach()
+  endif()
+endmacro()
+
 macro(check_for_cxx_version_)
 	include(CheckCXXCompilerFlag)
 	##beginning with CMake version 3.1 this check would be possible with 

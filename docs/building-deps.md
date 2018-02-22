@@ -1,4 +1,4 @@
-#Building OpenKit dependencies
+# Building OpenKit dependencies
 
 openkit-c requires the following external libraries:
 
@@ -9,10 +9,10 @@ googletest
 On Linux the artifacts can be obtained with the system package manager.
 On Windows additional building steps are required.
 
-##Windows
+## Windows
 ----------
 
-###Building curl from sources
+### Building curl from sources
 --------------------------------
 
 curl can be obtained from the project page at https://curl.haxx.se/download.html or from the official 
@@ -47,7 +47,7 @@ cmake.exe -G"Visual Studio 15 2017" -DCURL_DISABLE_FILE=1 -DCURL_DISABLE_FTP=1 -
 
 -Fetch result from dist folder, copy contents of dist folder directly to curl specific third party folder of openkit-c (3rdparty\curl-7.57.0)
 
-###Building zlib from sources
+### Building zlib from sources
 -------------------
 
 zlib can be obtained from the official project page of zlib:
@@ -80,7 +80,7 @@ cmake.exe  -G"Visual Studio 15 2017" -DCMAKE_INSTALL_PREFIX=..\dist ..
 
 -Fetch result from dist folder, copy contents of dist folder directly to curl specific third party folder of openkit-c (3rdparty\zlib-1.2.11)
 
-###Building Google Test from sources
+### Building Google Test from sources
 ---------------------
 
 Google Test can be obtained from the project page at https://github.com/google/googletest/releases 
@@ -150,7 +150,7 @@ cmake.exe -G"Visual Studio 15 2017" -Dgtest_force_shared_crt=1 -DCMAKE_CXX_FLAGS
 ##Linux
 ----------
 
-###Building Installing curl and zlib via package manager apt</h2>
+### Building Installing curl and zlib via package manager apt</h2>
 
  Install curl dependencies via package manager
     sudo apt-get install libcurl4-dev-gnutls
@@ -158,7 +158,7 @@ cmake.exe -G"Visual Studio 15 2017" -Dgtest_force_shared_crt=1 -DCMAKE_CXX_FLAGS
  Install zlib dependencies via package manager
     sudo apt-get install zlib1g-dev
 	
-###Building Google Test from sources
+### Building Google Test from sources
 
 googletest can be obtained at the official git repo
 

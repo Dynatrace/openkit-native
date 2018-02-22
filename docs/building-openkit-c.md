@@ -1,6 +1,6 @@
-#Building Openkit-C
+# Building Openkit-C
 
-##Build requirements
+## Build requirements
 
 ### For Windows builds
 
@@ -12,7 +12,7 @@
 * CMake
 * gcc/clang
 
-##Build dependencies
+## Build dependencies
 
 openkit-c has the following dependencies:
 
@@ -23,7 +23,7 @@ openkit-c has the following dependencies:
 It is necessary to build the dependencies according to instructions in the file <ROOT>/docs/building-dependencies.md
 Prior to building the 3rdparty dependencies have to be available in the project subfolder named '3rdparty'
 
-##Fetch sources
+## Fetch sources
 
 The sources of openkit-c can be obtained from the GitHub repo
 
@@ -31,7 +31,7 @@ The sources of openkit-c can be obtained from the GitHub repo
 git clone git@github.com:Dynatrace/openkit-c.git
 ```
 
-##Compile for Windows
+## Compile for Windows
 
 * Open Visual Studio 2017
 
@@ -43,7 +43,7 @@ git clone git@github.com:Dynatrace/openkit-c.git
 
 * Both Debug and Release builds are available
 
-##Compile for Linux
+## Compile for Linux
 
 * Open bash
 

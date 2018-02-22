@@ -84,7 +84,7 @@ namespace communication {
 		/// Returns the  HTTPClient created by the current BeaconSendingContext
 		/// @returns a shared pointer to the HTTPClient created by the BeaconSendingContext
 		///
-		virtual std::unique_ptr<protocol::HTTPClient> getHTTPClient();
+		virtual std::shared_ptr<protocol::IHTTPClient> getHTTPClient();
 
 		///
 		/// Handle the status response received from the server

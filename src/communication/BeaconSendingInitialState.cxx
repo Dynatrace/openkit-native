@@ -57,8 +57,7 @@ void BeaconSendingInitialState::doExecute(BeaconSendingContext& context)
 		context.setLastStatusCheckTime(currentTimestamp);
 
 		statusResponse = BeaconSendingRequestUtil::sendStatusRequest(context, MAX_INITIAL_STATUS_REQUEST_RETRIES, INITIAL_RETRY_SLEEP_TIME_MILLISECONDS.count());
-		bool validStatusResponse = statusResponse != nullptr && statusResponse.get() != nullptr;
-		if (context.isShutdownRequested() || validStatusResponse)
+		if (context.isShutdownRequested() || statusResponse != nullptr)
 		{
 			// shutdown was requested or a status response was received
 			break;

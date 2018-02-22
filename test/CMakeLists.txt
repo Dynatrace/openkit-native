@@ -1,4 +1,6 @@
-include_directories(${GTEST_INCLUDE_DIRS})
+remove_strict_warnings_for_testcode()
+
+include_directories(SYSTEM ${GTEST_INCLUDE_DIRS})
 
 set(SOURCES_CURLTEST
 	communication/curltest.cxx
@@ -14,11 +16,12 @@ target_link_libraries(curltest LibBase ${CURLIMPLIB} ${ZLIB_LIBRARIES})
 set(SOURCES_UNITTEST
 	core/UTF8StringTest.cxx
 	core/util/CompressorTest.cxx
+	protocol/StatusResponseTest.cxx
 	protocol/TimeSyncResponseTest.cxx
-	#providers/DefaultTimingProviderTest.cxx
-	#communication/AbstractBeaconSendingStateTest.cxx
-	#communication/BeaconSendingTerminalStateTest.cxx
-	#communication/BeaconSendingInitialStateTest.cxx
+	providers/DefaultTimingProviderTest.cxx
+	communication/AbstractBeaconSendingStateTest.cxx
+	communication/BeaconSendingTerminalStateTest.cxx
+	communication/BeaconSendingInitialStateTest.cxx
 )
 
 add_executable( unittests 

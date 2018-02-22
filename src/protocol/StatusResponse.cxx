@@ -25,6 +25,7 @@ constexpr char RESPONSE_KEY_CAPTURE_CRASHES[] = "cr";
 #include "StatusResponse.h"
 
 #include <stdexcept>
+#include <sstream>
 
 using namespace protocol;
 
@@ -55,7 +56,49 @@ StatusResponse::StatusResponse(const core::UTF8String& response, uint32_t respon
 
 void StatusResponse::parseResponse(const core::UTF8String& response)
 {
+	auto parts = response.split('&');
+	for (auto const& part : parts) {
+		auto found = part.getIndexOf("="); 
+		if (found != std::string::npos)
+		{
+			auto key = part.substring(0, found);
+			auto value = part.substring(found + 1);
 
+			if (!key.empty() && !value.empty())
+			{
+				if (key.equals(RESPONSE_KEY_CAPTURE))
+				{
+					mCapture = std::stoi(value.getStringData()) == 1;
+				}
+				else if (key.equals(RESPONSE_KEY_SEND_INTERVAL))
+				{
+					mSendInterval = std::stoi(value.getStringData()) * 1000;
+				}
+				else if (key.equals(RESPONSE_KEY_MONITOR_NAME))
+				{
+					mMonitorName = core::UTF8String(value);
+				}
+				else if (key.equals(RESPONSE_KEY_SERVER_ID))
+				{
+					mServerID = std::stoi(value.getStringData());
+				}
+				else if (key.equals(RESPONSE_KEY_MAX_BEACON_SIZE))
+				{
+					mMaxBeaconSize = std::stoi(value.getStringData());
+				}
+				else if (key.equals(RESPONSE_KEY_CAPTURE_ERRORS))
+				{
+					/* 1 (always on) and 2 (only on WiFi) are treated the same */
+					mCaptureErrors = std::stoi(value.getStringData()) != 0;
+				}
+				else if (key.equals(RESPONSE_KEY_CAPTURE_CRASHES))
+				{
+					/* 1 (always on) and 2 (only on WiFi) are treated the same */
+					mCaptureCrashes = std::stoi(value.getStringData()) != 0;
+				}
+			}
+		}
+	}
 }
 
 bool StatusResponse::isCapture() const

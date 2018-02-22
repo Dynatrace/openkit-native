@@ -18,21 +18,28 @@
 #include "memory.h"
 
 #include <stdio.h>
+#include <sstream>
 
 using namespace core;
 
 UTF8String::UTF8String()
-	: mStringLength(0)
+	: mData()
+	, mStringLength(0)
 {
 }
 
-UTF8String::UTF8String(const char* string_data)
-	: mStringLength(0)
+UTF8String::UTF8String(const char* stringData)
+	: UTF8String()
 {
-	if (string_data != nullptr)
+	if (stringData != nullptr)
 	{
-		validateString(string_data);
+		validateString(stringData);
 	}
+}
+
+UTF8String::UTF8String(std::string stringData)
+	: UTF8String(stringData.c_str())
+{
 }
 
 UTF8String::~UTF8String()
@@ -227,17 +234,17 @@ void UTF8String::validateString(const char* stringData)
 	mStringLength = characterCount;
 }
 
-bool UTF8String::compare(const UTF8String& other) const
+bool UTF8String::equals(const UTF8String& other) const
 {
 	return mData.compare(other.mData) == 0;
 }
 
-bool UTF8String::compare(const char* other) const
+bool UTF8String::equals(const char* other) const
 {
 	if (other != nullptr)
 	{
 		UTF8String newString(other);
-		return compare(newString);
+		return equals(newString);
 	}
 	return false;
 }
@@ -258,7 +265,7 @@ void UTF8String::concatenate(const char* string)
 }
 
 //character can be multi-byte
-UTF8String::size_type UTF8String::getIndexOf(const char* comparisonCharacter, size_t offset = 0) const
+UTF8String::size_type UTF8String::getIndexOf(const char* comparisonCharacter, size_t offset) const
 {
 	if (offset < 0 && offset >= mData.size())
 	{
@@ -274,7 +281,7 @@ UTF8String::size_type UTF8String::getIndexOf(const char* comparisonCharacter, si
 	auto currentCharacter = &(mData[0]);
 
 	//this for loop takes multi byte characters into account correctly
-	for (auto i = 0; i < mData.size(); i++)
+	for (size_t i = 0; i < mData.size(); i++)
 	{
 		auto numberOfBytesCurrent = getByteWidthOfCharacter((unsigned char)(*currentCharacter));
 
@@ -297,54 +304,64 @@ UTF8String::size_type UTF8String::getIndexOf(const char* comparisonCharacter, si
 	return std::string::npos;
 }
 
-UTF8String UTF8String::substring(size_t start, size_t end) const
+UTF8String UTF8String::substring(size_t start, size_t length) const
 {
-	if ( start < 0 || start > mData.size()
-		|| end < 0 || end > mData.size()
-		|| end <start )
+	// Sanity
+	if (length == 0 || start > mData.size())
 	{
 		return UTF8String();
 	}
 
-	auto byteOffsetStart = 0;
-	auto byteOffsetEnd = 0;
-
-	auto index = 0;
-	auto characterCounter = 0;
+	size_t byteIndex = 0;
+	size_t byteOffsetStart = 0;
+	size_t byteOffsetEnd = 0;
+	size_t characterIndex = 0;
+	size_t characterCounter = 0;
 
 	//collect byte positions correctly counting multi byte characters
-	while(index < mData.size() && ( byteOffsetStart == 0 || byteOffsetEnd == 0))
+	while (byteIndex < mData.size() && characterCounter < length)
 	{
-		auto currentCharacter = mData[index];
+		auto currentCharacter = mData[byteIndex];
 		auto numberOfBytes = getByteWidthOfCharacter(currentCharacter);
-
-		if (characterCounter == start)
+		if (characterIndex == start)
 		{
-			byteOffsetStart = index;
+			byteOffsetStart = byteIndex;
 		}
-		if (characterCounter == end)
+		if (characterIndex >= start)
 		{
-			byteOffsetEnd = index + numberOfBytes -1;//in case of a multibyte character num - 1 is non-zero
+			characterCounter++;
 		}
-
-		characterCounter++;
-		index += numberOfBytes;
+		byteOffsetEnd = byteIndex + numberOfBytes - 1;
+		byteIndex += numberOfBytes;
+		characterIndex++;
 	}
 
 	//cut the new string using the indices
-	if (byteOffsetStart > 0 && byteOffsetStart < byteOffsetEnd && byteOffsetEnd < mData.size())
+	if (byteOffsetStart >= 0 && byteOffsetStart <= byteOffsetEnd && byteOffsetEnd < mData.size())
 	{
 		UTF8String substring;
-		substring.mStringLength = end - (start - 1);
+		substring.mStringLength = characterCounter;
 		substring.mData.insert(substring.mData.begin(), mData.begin() + byteOffsetStart, mData.begin() + byteOffsetEnd + 1);
-		substring.mData.push_back('\0');
-
+		
 		return substring;
 	}
 	return UTF8String();
 }
 
+
 bool UTF8String::empty() const
 {
 	return mStringLength == 0;
+}
+
+std::vector<UTF8String> UTF8String::split(char delimiter) const
+{
+	std::vector<UTF8String> parts;
+	std::string item;
+	std::stringstream ss(mData);
+	while (std::getline(ss, item, delimiter))
+	{
+		parts.push_back(UTF8String(item));
+	}
+	return parts;
 }
