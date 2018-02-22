@@ -43,6 +43,13 @@ private:
 class DefaultTimingProviderTest : public testing::Test
 {
 public:
+	DefaultTimingProviderTest()
+		: mClusterOffset(0)
+		, mNow(0)
+		, mProvider(mNow)
+	{
+	}
+
 	void SetUp()
 	{
 		std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -50,18 +57,16 @@ public:
 			);
 
 		mNow = ms.count();
-		mProvider = new TestDefaultTimingProvider(mNow);
 		mClusterOffset = 1234LL;
 	}
 
 	void TearDown()
 	{
-		delete mProvider;
 	}
 
 	TestDefaultTimingProvider* getProvider()
 	{
-		return mProvider;
+		return &mProvider;
 	}
 
 	int64_t getClusterOffset()
@@ -79,7 +84,7 @@ private:
 	int64_t mClusterOffset;
 	int64_t mNow;
 
-	TestDefaultTimingProvider* mProvider;
+	TestDefaultTimingProvider mProvider;
 };
 
 TEST_F(DefaultTimingProviderTest, TimeSyncIsSupportedByDefault)

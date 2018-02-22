@@ -21,14 +21,23 @@
 #include "communication/AbstractBeaconSendingState.h"
 
 #include "MockBeaconSendingContext.h"
+#include "../protocol/MockHTTPClient.h"
 
 class BeaconSendingInitialStateTest : public testing::Test
 {
 public:
 
+	BeaconSendingInitialStateTest()
+		: target(nullptr)
+		, mockHTTPClient(nullptr)
+	{
+	}
+
 	void SetUp()
 	{
 		target = std::shared_ptr<communication::AbstractBeaconSendingState>(new communication::BeaconSendingInitialState());
+		std::shared_ptr<configuration::HTTPClientConfiguration> httpClientConfiguration = std::make_shared<configuration::HTTPClientConfiguration>(core::UTF8String(""),0, core::UTF8String(""));
+		mockHTTPClient = std::shared_ptr<test::MockHTTPClient>(new test::MockHTTPClient(httpClientConfiguration));
 	}
 
 	void TearDown()
@@ -36,6 +45,7 @@ public:
 	}
 
 	std::shared_ptr<communication::AbstractBeaconSendingState> target;
+	std::shared_ptr<test::MockHTTPClient> mockHTTPClient;
 
 };
 
@@ -71,7 +81,9 @@ TEST_F(BeaconSendingInitialStateTest, executeSetsLastOpenSessionBeaconSendTime)
 
 	//given
 	ON_CALL(mockContext, getHTTPClient())
-		.WillByDefault(testing::Invoke(&mockContext, &test::MockBeaconSendingContext::RealGetHTTPClient));
+		.WillByDefault(testing::Return(mockHTTPClient));
+	ON_CALL(*mockHTTPClient, sendStatusRequestRawPtrProxy())
+		.WillByDefault(testing::Return(new protocol::StatusResponse()));
 	ON_CALL(mockContext, getCurrentTimestamp())
 		.WillByDefault(testing::Return(123456789L));
 	ON_CALL(mockContext, isShutdownRequested())
@@ -144,7 +156,9 @@ TEST_F(BeaconSendingInitialStateTest, sleepTimeIsDoubledBetweenStatusRequestRetr
 	ON_CALL(mockContext, sleep(testing::_))
 		.WillByDefault(testing::Invoke(&mockContext, &test::MockBeaconSendingContext::RealSleep));
 	ON_CALL(mockContext, getHTTPClient())
-		.WillByDefault(testing::Invoke(&mockContext, &test::MockBeaconSendingContext::TestEmptyGetHTTPClient));
+		.WillByDefault(testing::Return(mockHTTPClient));
+	ON_CALL(*mockHTTPClient, sendStatusRequestRawPtrProxy())
+		.WillByDefault(testing::Return(nullptr));
 
 	// check for 
 	uint64_t initialSleep = communication::BeaconSendingInitialState::INITIAL_RETRY_SLEEP_TIME_MILLISECONDS.count();
@@ -171,7 +185,9 @@ TEST_F(BeaconSendingInitialStateTest, initialStatusRequestGivesUpWhenShutdownReq
 
 	// given
 	ON_CALL(mockContext, getHTTPClient())
-		.WillByDefault(testing::Invoke(&mockContext, &test::MockBeaconSendingContext::TestEmptyGetHTTPClient));
+		.WillByDefault(testing::Return(mockHTTPClient));
+	ON_CALL(*mockHTTPClient, sendStatusRequestRawPtrProxy())
+		.WillByDefault(testing::Return(nullptr));
 	ON_CALL(mockContext, setNextState(testing::_))
 		.WillByDefault(testing::WithArgs<0>(testing::Invoke(&mockContext, &test::MockBeaconSendingContext::RealSetNextState)));
 
@@ -210,7 +226,9 @@ TEST_F(BeaconSendingInitialStateTest, aSuccessfulStatusResponsePerformsStateTran
 
 	// given
 	ON_CALL(mockContext, getHTTPClient())
-		.WillByDefault(testing::Invoke(&mockContext, &test::MockBeaconSendingContext::RealGetHTTPClient));
+		.WillByDefault(testing::Return(mockHTTPClient));
+	ON_CALL(*mockHTTPClient, sendStatusRequestRawPtrProxy())
+		.WillByDefault(testing::Return(new protocol::StatusResponse()));
 
 	// verify state transition
 	EXPECT_CALL(mockContext, setNextState(testing::_))
@@ -236,7 +254,9 @@ TEST_F(BeaconSendingInitialStateTest, reinitializeSleepsBeforeSendingStatusReque
 	ON_CALL(mockContext, sleep(testing::_))
 		.WillByDefault(testing::Invoke(&mockContext, &test::MockBeaconSendingContext::RealSleep));
 	ON_CALL(mockContext, getHTTPClient())
-		.WillByDefault(testing::Invoke(&mockContext, &test::MockBeaconSendingContext::TestEmptyGetHTTPClient));
+		.WillByDefault(testing::Return(mockHTTPClient));
+	ON_CALL(*mockHTTPClient, sendStatusRequestRawPtrProxy())
+		.WillByDefault(testing::Return(nullptr));
 
 	testing::InSequence s;
 

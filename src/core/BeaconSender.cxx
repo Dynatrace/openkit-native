@@ -28,8 +28,10 @@ using namespace providers;
 BeaconSender::BeaconSender(std::shared_ptr<configuration::Configuration> configuration,
 						   std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
 						   std::shared_ptr<providers::ITimingProvider> timingProvider)
+	: mBeaconSendingContext(std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(httpClientProvider, timingProvider, configuration)))
+	, mSendingThread(nullptr)
 {
-	mBeaconSendingContext = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(httpClientProvider, timingProvider, configuration));
+
 }
 
 void beaconSendingLoop(std::shared_ptr<BeaconSendingContext> context)

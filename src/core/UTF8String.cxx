@@ -23,12 +23,13 @@
 using namespace core;
 
 UTF8String::UTF8String()
-	: mStringLength(0)
+	: mData()
+	, mStringLength(0)
 {
 }
 
 UTF8String::UTF8String(const char* stringData)
-	: mStringLength(0)
+	: UTF8String()
 {
 	if (stringData != nullptr)
 	{
@@ -280,7 +281,7 @@ UTF8String::size_type UTF8String::getIndexOf(const char* comparisonCharacter, si
 	auto currentCharacter = &(mData[0]);
 
 	//this for loop takes multi byte characters into account correctly
-	for (auto i = 0; i < mData.size(); i++)
+	for (size_t i = 0; i < mData.size(); i++)
 	{
 		auto numberOfBytesCurrent = getByteWidthOfCharacter((unsigned char)(*currentCharacter));
 
@@ -306,14 +307,14 @@ UTF8String::size_type UTF8String::getIndexOf(const char* comparisonCharacter, si
 UTF8String UTF8String::substring(size_t start, size_t length) const
 {
 	// Sanity
-	if (start < 0 || length <= 0 || start > mData.size())
+	if (length == 0 || start > mData.size())
 	{
 		return UTF8String();
 	}
 
 	// determine byteIndex by iterating through the characters before start
-	auto byteIndex = 0;
-	for (int i = 0; i < start; i++)
+	unsigned int byteIndex = 0;
+	for (unsigned int i = 0; i < start; i++)
 	{
 		auto currentCharacter = mData.at(byteIndex);
 		auto numberOfBytes = getByteWidthOfCharacter(currentCharacter);
@@ -326,7 +327,7 @@ UTF8String UTF8String::substring(size_t start, size_t length) const
 	{
 		auto currentCharacter = mData.at(byteIndex);
 		auto numberOfBytes = getByteWidthOfCharacter(currentCharacter);
-		for (int i = 0; i < numberOfBytes; i++)
+		for (unsigned int i = 0; i < numberOfBytes; i++)
 		{
 			substring.mData.push_back(mData.at(byteIndex + i));
 		}
