@@ -17,6 +17,7 @@ set(SOURCES_UNITTEST
 	core/UTF8StringTest.cxx
 	core/util/CompressorTest.cxx
 	protocol/StatusResponseTest.cxx
+	protocol/TimeSyncResponseTest.cxx
 	providers/DefaultTimingProviderTest.cxx
 	communication/AbstractBeaconSendingStateTest.cxx
 	communication/BeaconSendingTerminalStateTest.cxx
