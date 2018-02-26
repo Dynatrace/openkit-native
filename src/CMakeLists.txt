@@ -19,6 +19,8 @@ SET(SOURCES_PROTOCOL
 	protocol/StatusResponse.cxx
 	protocol/TimeSyncResponse.cxx
 	protocol/HTTPClient.cxx
+	protocol/ssl/SSLBlindTrustManager.cxx
+	protocol/ssl/SSLStrictTrustManager.cxx
 )
 
 SET(SOURCES_PROVIDERS

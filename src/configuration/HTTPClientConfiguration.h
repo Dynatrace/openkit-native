@@ -17,7 +17,11 @@
 #ifndef _CONFIGURATION_HTTPCLIENTCONFIGURATION_H
 #define _CONFIGURATION_HTTPCLIENTCONFIGURATION_H
 
+#include <memory>
+
 #include "core/UTF8String.h"
+#include "protocol/ssl/ISSLTrustManager.h"
+#include "protocol/ssl/SSLBlindTrustManager.h"
 
 namespace configuration {
 	///
@@ -31,8 +35,9 @@ namespace configuration {
 		/// @param[in] url the beacon URL
 		/// @param[in] serverID server id
 		/// @param[in] applicationID the application id
+		/// @param[in] sslTrustManager optional
 		///
-		HTTPClientConfiguration(const core::UTF8String& url, uint32_t serverID, const core::UTF8String& applicationID);
+		HTTPClientConfiguration(const core::UTF8String& url, uint32_t serverID, const core::UTF8String& applicationID, std::shared_ptr<protocol::ISSLTrustManager> sslTrustManager = std::shared_ptr<protocol::ISSLTrustManager>(new protocol::SSLBlindTrustManager()));
 
 		///
 		/// Returns the base url for the http client
@@ -52,6 +57,12 @@ namespace configuration {
 		///
 		const core::UTF8String& getApplicationID() const;
 
+		///
+		/// Returns the trust manager which defines how trust in SSL shall be handled
+		/// @returns the trust manager which defines how trust in SSL shall be handled
+		///
+		const std::shared_ptr<protocol::ISSLTrustManager> getSSLTrustManager() const;
+
 	private:
 		/// the beacon URL
 		const core::UTF8String mBaseURL;
@@ -61,6 +72,9 @@ namespace configuration {
 
 		/// the application id
 		const core::UTF8String mApplicationID;
+
+		/// how the peer's TSL/SSL certificate and the hostname shall be trusted
+		const std::shared_ptr<protocol::ISSLTrustManager> mSSLTrustManager;
 	};
 
 }

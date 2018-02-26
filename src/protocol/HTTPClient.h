@@ -21,7 +21,7 @@
 #include <string.h>
 
 #include "protocol/IHTTPClient.h"
-
+#include "protocol/ssl/ISSLTrustManager.h"
 #include "curl/curl.h"
 
 namespace protocol {
@@ -137,6 +137,9 @@ namespace protocol {
 
 		/// read position in the read buffer
 		size_t mReadBufferPos;
+
+		/// how the peer's TSL/SSL certificate and the hostname shall be trusted
+		const std::shared_ptr<ISSLTrustManager> mSSLTrustManager;
 	};
 
 }
