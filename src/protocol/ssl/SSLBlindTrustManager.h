@@ -36,7 +36,7 @@ namespace protocol {
 	public:
 
 		///
-		/// Instantiates a blind trusting SSL Trust Manager which blindly trusting all certificates.
+		/// Instantiates a blind trusting SSL Trust Manager which blindly trusts all certificates.
 		///
 		SSLBlindTrustManager();
 

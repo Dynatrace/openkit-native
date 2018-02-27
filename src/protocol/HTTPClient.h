@@ -83,7 +83,7 @@ namespace protocol {
 
 		///
 		/// sends a beacon send request and returns a status response
-		/// @param[in] clientIPAdress the client IP address
+		/// @param[in] clientIPAddress the client IP address
 		/// @param[in] beaconData the beacon payload
 		/// @returns a status response with the response data for the request or @c nullptr on error
 		///
