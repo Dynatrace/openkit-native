@@ -48,8 +48,8 @@ namespace protocol {
 
 		///
 		/// sends a beacon send request and returns a status response
-		/// @param[in] the client IP address
-		/// @param[in] the beacon payload
+		/// @param[in] clientIPAddress the client IP address
+		/// @param[in] beaconData the beacon payload
 		/// @returns a status response with the response data for the request or @c nullptr on error
 		///
 		virtual std::unique_ptr<StatusResponse> sendBeaconRequest(const core::UTF8String& clientIPAddress, const core::UTF8String& beaconData) = 0;
