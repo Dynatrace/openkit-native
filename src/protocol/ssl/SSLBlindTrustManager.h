@@ -14,8 +14,8 @@
 * limitations under the License.
 */
 
-#ifndef _PROTOCOL_SSL_TRUSTMANAGER_H
-#define _PROTOCOL_SSL_TRUSTMANAGER_H
+#ifndef _PROTOCOL_SSL_BLINDTRUSTMANAGER_H
+#define _PROTOCOL_SSL_BLINDTRUSTMANAGER_H
 
 #include "protocol/ssl/ISSLTrustManager.h"
 
