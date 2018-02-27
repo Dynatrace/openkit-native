@@ -21,7 +21,7 @@
 #include <string.h>
 
 #include "protocol/IHTTPClient.h"
-
+#include "protocol/ssl/ISSLTrustManager.h"
 #include "curl/curl.h"
 
 namespace protocol {
@@ -83,7 +83,7 @@ namespace protocol {
 
 		///
 		/// sends a beacon send request and returns a status response
-		/// @param[in] clientIPAdress the client IP address
+		/// @param[in] clientIPAddress the client IP address
 		/// @param[in] beaconData the beacon payload
 		/// @returns a status response with the response data for the request or @c nullptr on error
 		///
@@ -137,6 +137,9 @@ namespace protocol {
 
 		/// read position in the read buffer
 		size_t mReadBufferPos;
+
+		/// how the peer's TSL/SSL certificate and the hostname shall be trusted
+		const std::shared_ptr<ISSLTrustManager> mSSLTrustManager;
 	};
 
 }

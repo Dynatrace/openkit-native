@@ -33,20 +33,19 @@ constexpr uint64_t READ_TIMEOUT = 30;		// Time-out the read operation after this
 using namespace protocol;
 using namespace base::util;
 
-HTTPClient::HTTPClient(std::shared_ptr<configuration::HTTPClientConfiguration> configuration)
+HTTPClient::HTTPClient(const std::shared_ptr<configuration::HTTPClientConfiguration> configuration)
 	: mCurl(nullptr)
 	, mServerID(configuration->getServerID())
 	, mMonitorURL()
 	, mTimeSyncURL()
 	, mReadBuffer()
 	, mReadBufferPos(0)
-
+	, mSSLTrustManager(configuration->getSSLTrustManager())
 {
 	// build the beacon URLs
 	buildMonitorURL(mMonitorURL, configuration->getBaseURL(), configuration->getApplicationID(), mServerID);
 	buildTimeSyncURL(mTimeSyncURL, configuration->getBaseURL());
-	// TODO: sslTrustManager = configuration.getSSLTrustManager();
-
+	
 	// set up the program environment that libcurl needs. In windows, this will init the winsock stuff
 	curl_global_init(CURL_GLOBAL_ALL);
 }
@@ -150,7 +149,9 @@ std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::Requ
 		curl_easy_setopt(mCurl, CURLOPT_TIMEOUT, READ_TIMEOUT);
 		// allow servers to send compressed data
 		curl_easy_setopt(mCurl, CURLOPT_ACCEPT_ENCODING, "");
-		
+		// SSL/TSL certificate handling
+		mSSLTrustManager->applyTrustManager(mCurl);
+
 		// To retrieve the response
 		std::string responseBuffer;
 		curl_easy_setopt(mCurl, CURLOPT_WRITEFUNCTION, writeFunction);
