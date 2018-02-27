@@ -28,10 +28,6 @@ SSLBlindTrustManager::SSLBlindTrustManager()
 	std::cerr << "###########################################################" << std::endl;
 }
 
-SSLBlindTrustManager::~SSLBlindTrustManager()
-{
-}
-
 void SSLBlindTrustManager::applyTrustManager(CURL* curl)
 {
 	// disable verification of the peer's TSL/SSL certificate

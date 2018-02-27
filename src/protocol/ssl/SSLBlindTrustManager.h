@@ -41,11 +41,6 @@ namespace protocol {
 		SSLBlindTrustManager();
 
 		///
-		/// Destructor
-		///
-		virtual ~SSLBlindTrustManager() ;
-
-		///
 		/// Delete the copy constructor
 		///
 		SSLBlindTrustManager(const SSLBlindTrustManager&) = delete;

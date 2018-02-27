@@ -22,10 +22,6 @@ SSLStrictTrustManager::SSLStrictTrustManager()
 {
 }
 
-SSLStrictTrustManager::~SSLStrictTrustManager()
-{
-}
-
 void SSLStrictTrustManager::applyTrustManager(CURL* curl)
 {
 	// Sanity

@@ -32,7 +32,7 @@ namespace protocol {
 		///
 		/// Destructor
 		///
-		virtual ~ISSLTrustManager() {};
+		virtual ~ISSLTrustManager() {}
 
 		///
 		/// Apply the trust configuration on the provided curl handle

@@ -38,11 +38,6 @@ namespace protocol {
 		SSLStrictTrustManager();
 
 		///
-		/// Destructor
-		///
-		virtual ~SSLStrictTrustManager() ;
-
-		///
 		/// Delete the copy constructor
 		///
 		SSLStrictTrustManager(const SSLStrictTrustManager&) = delete;
