@@ -116,6 +116,16 @@ namespace communication {
 		///
 		static std::chrono::milliseconds TIME_SYNC_INTERVAL_IN_MILLIS;
 
+		///
+		/// number of time syncs request for a successful time sync
+		///
+		static uint32_t REQUIRED_TIME_SYNC_REQUESTS;
+
+		///
+		/// initial retry sleep time
+		///
+		static std::chrono::milliseconds INITIAL_RETRY_SLEEP_TIME_MILLISECONDS;
+
 	private:
 		///
 		/// Flag if this is the first time time sync is performed
