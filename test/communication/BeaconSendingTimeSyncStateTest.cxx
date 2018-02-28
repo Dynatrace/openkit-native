@@ -100,6 +100,11 @@ public:
 		{
 			delete response;
 		}
+
+		for (auto response : reponsesForASuccessfullTimeSyncWithRetries)
+		{
+			delete response;
+		}
 	}
 
 	std::shared_ptr<communication::AbstractBeaconSendingState> target;//time sync state with initialTimeSync set to true
