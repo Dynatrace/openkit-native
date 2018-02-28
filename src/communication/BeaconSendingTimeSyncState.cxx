@@ -173,7 +173,7 @@ std::vector<int64_t> BeaconSendingTimeSyncState::executeTimeSyncRequests(BeaconS
 {
 	std::vector<int64_t> timeSyncOffsets;
 
-	int retry = 0;
+	uint32_t retry = 0;
 	int64_t sleepTimeInMillis = INITIAL_RETRY_SLEEP_TIME_MILLISECONDS.count();
 
 	// no check for shutdown here, time sync has to be completed
@@ -181,7 +181,7 @@ std::vector<int64_t> BeaconSendingTimeSyncState::executeTimeSyncRequests(BeaconS
 		// doExecute time-sync request and take timestamps
 		auto requestSendTime = context.getCurrentTimestamp();
 		std::unique_ptr<protocol::TimeSyncResponse> timeSyncResponse = context.getHTTPClient()->sendTimeSyncRequest();
-		long responseReceiveTime = context.getCurrentTimestamp();
+		int64_t responseReceiveTime = context.getCurrentTimestamp();
 
 		if (timeSyncResponse != nullptr) {
 			int64_t requestReceiveTime = timeSyncResponse->getRequestReceiveTime();
