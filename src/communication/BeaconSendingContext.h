@@ -173,7 +173,7 @@ namespace communication {
 		///
 		/// Disables the time sync
 		///
-		void disableTimeSyncSupport();
+		virtual void disableTimeSyncSupport();
 
 		///
 		/// Gets a boolean flag indicating whether the time sync has been performed before
@@ -191,14 +191,14 @@ namespace communication {
 		/// Set the timestamp of the last successful time sync
 		/// @param[in] lastTimeSyncTime timestamp 
 		///
-		void setLastTimeSyncTime(int64_t lastTimeSyncTime);
+		virtual void setLastTimeSyncTime(int64_t lastTimeSyncTime);
 
 		///
 		/// Initialize time synchronisation with cluster time
 		/// @param[in] clusterTimeOffset the cluster offset
 		/// @param[in] @c true if time sync is supported, otherwise @c false
 		///
-		void initializeTimeSync(int64_t clusterTimeOffset, bool isTimeSyncSupported);
+		virtual void initializeTimeSync(int64_t clusterTimeOffset, bool isTimeSyncSupported);
 
 	private:
 		/// instance of AbstractBeaconSendingState with the current state

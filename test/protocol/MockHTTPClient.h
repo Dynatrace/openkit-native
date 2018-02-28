@@ -36,13 +36,18 @@ namespace test {
 			return std::unique_ptr<protocol::StatusResponse>(sendStatusRequestRawPtrProxy());
 		}
 
+		virtual std::unique_ptr<protocol::TimeSyncResponse> sendTimeSyncRequest()
+		{
+			return std::unique_ptr<protocol::TimeSyncResponse>(sendTimeSyncRequestRawPtrProxy());
+		}
+
 		virtual ~MockHTTPClient() {};
 
 		MOCK_METHOD0(sendStatusRequestRawPtrProxy, protocol::StatusResponse*());
 
 		MOCK_METHOD2(sendBeaconRequest, std::unique_ptr<protocol::StatusResponse>(const core::UTF8String&, const core::UTF8String&));
 
-		MOCK_METHOD0(sendTimeSyncRequest, std::unique_ptr<protocol::TimeSyncResponse>());
+		MOCK_METHOD0(sendTimeSyncRequestRawPtrProxy, protocol::TimeSyncResponse*());
 	private:
 		std::shared_ptr<configuration::HTTPClientConfiguration> mHTTPClientConfiguration;
 	};

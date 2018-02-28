@@ -65,7 +65,9 @@ namespace test
 		MOCK_CONST_METHOD0(isTimeSyncSupported, bool());
 		MOCK_CONST_METHOD0(getLastTimeSyncTime, int64_t());
 		MOCK_CONST_METHOD0(isCaptureOn, bool());
-
+		MOCK_METHOD2(initializeTimeSync, void (int64_t , bool ));
+		MOCK_METHOD1(setLastTimeSyncTime, void(int64_t));
+		MOCK_METHOD0(disableTimeSyncSupport, void());
 
 		void RealSetNextState(std::shared_ptr<AbstractBeaconSendingState> nextState) 
 		{ 
