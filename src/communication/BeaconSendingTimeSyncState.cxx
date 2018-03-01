@@ -79,7 +79,8 @@ bool BeaconSendingTimeSyncState::isAShutdownState()
 
 bool BeaconSendingTimeSyncState::isTimeSyncRequired(BeaconSendingContext& context) {
 
-	if (!context.isTimeSyncSupported()) {
+	if (!context.isTimeSyncSupported())
+	{
 		return false; // time sync not supported by server, therefore not required
 	}
 
@@ -90,10 +91,12 @@ bool BeaconSendingTimeSyncState::isTimeSyncRequired(BeaconSendingContext& contex
 void BeaconSendingTimeSyncState::setNextState(BeaconSendingContext& context)
 {
 	// advance to next state
-	if (context.isCaptureOn()) {
+	if (context.isCaptureOn())
+	{
 		//context.setNextState(new BeaconSendingCaptureOnState());//TODO johannes.baeuerle - once available make transition to capture on state
 	}
-	else {
+	else
+	{
 		//context.setNextState(new BeaconSendingCaptureOffState());//TODO johannes.baeuerle - once available make transition to capture off state
 	}
 }
@@ -106,7 +109,8 @@ void BeaconSendingTimeSyncState::handleTimeSyncResponses(BeaconSendingContext& c
 	// the server does not support time sync at all (e.g. AppMon).
 	//
 	// -> handle this case
-	if (timeSyncOffsets.size() < REQUIRED_TIME_SYNC_REQUESTS) {
+	if (timeSyncOffsets.size() < REQUIRED_TIME_SYNC_REQUESTS) 
+	{
 		handleErroneousTimeSyncRequest(context);
 		return;
 	}
@@ -131,7 +135,8 @@ int64_t BeaconSendingTimeSyncState::computeClusterTimeOffset(std::vector<int64_t
 
 	// calculate variance from median
 	int64_t medianVariance = 0;
-	for (uint32_t i = 0; i < REQUIRED_TIME_SYNC_REQUESTS; i++) {
+	for (uint32_t i = 0; i < REQUIRED_TIME_SYNC_REQUESTS; i++)
+	{
 		auto diff = timeSyncOffsets.at(i) - median;
 		medianVariance += diff * diff;
 	}
@@ -140,9 +145,11 @@ int64_t BeaconSendingTimeSyncState::computeClusterTimeOffset(std::vector<int64_t
 	// calculate cluster time offset as arithmetic mean of all offsets that are in range of 1x standard deviation
 	int64_t sum = 0;
 	int64_t count = 0;
-	for (uint32_t i = 0; i < REQUIRED_TIME_SYNC_REQUESTS; i++) {
+	for (uint32_t i = 0; i < REQUIRED_TIME_SYNC_REQUESTS; i++)
+	{
 		auto diff = timeSyncOffsets.at(i) - median;
-		if (diff * diff <= medianVariance) {
+		if (diff * diff <= medianVariance)
+		{
 			sum += timeSyncOffsets.at(i);
 			count++;
 		}
@@ -155,15 +162,18 @@ void BeaconSendingTimeSyncState::handleErroneousTimeSyncRequest(BeaconSendingCon
 {
 	// if this is the initial sync try, we have to initialize the time provider
 	// in every other case we keep the previous setting
-	if (mInitialTimeSync) {
+	if (mInitialTimeSync)
+	{
 		context.initializeTimeSync(0, context.isTimeSyncSupported());
 	}
 
-	if (context.isTimeSyncSupported()) {
+	if (context.isTimeSyncSupported())
+	{
 		// server supports time sync
 		//context.setNextState(new BeaconSendingCaptureOffState());//TODO johannes.baeuerle - once available make transition to capture off state
 	}
-	else {
+	else
+	{
 		// otherwise set the next state based on the configuration
 		setNextState(context);
 	}
@@ -177,35 +187,41 @@ std::vector<int64_t> BeaconSendingTimeSyncState::executeTimeSyncRequests(BeaconS
 	int64_t sleepTimeInMillis = INITIAL_RETRY_SLEEP_TIME_MILLISECONDS.count();
 
 	// no check for shutdown here, time sync has to be completed
-	while (timeSyncOffsets.size() < REQUIRED_TIME_SYNC_REQUESTS && !context.isShutdownRequested()) {
+	while (timeSyncOffsets.size() < REQUIRED_TIME_SYNC_REQUESTS && !context.isShutdownRequested())
+	{
 		// doExecute time-sync request and take timestamps
 		auto requestSendTime = context.getCurrentTimestamp();
 		std::unique_ptr<protocol::TimeSyncResponse> timeSyncResponse = context.getHTTPClient()->sendTimeSyncRequest();
 		int64_t responseReceiveTime = context.getCurrentTimestamp();
 
-		if (timeSyncResponse != nullptr) {
+		if (timeSyncResponse != nullptr)
+		{
 			int64_t requestReceiveTime = timeSyncResponse->getRequestReceiveTime();
 			int64_t responseSendTime = timeSyncResponse->getResponseSendTime();
 
 			// check both timestamps for being > 0
-			if ((requestReceiveTime > 0) && (responseSendTime > 0)) {
+			if ((requestReceiveTime > 0) && (responseSendTime > 0))
+			{
 				// if yes -> continue time-sync
 				auto offset = ((requestReceiveTime - requestSendTime) + (responseSendTime - responseReceiveTime)) / 2;
 				timeSyncOffsets.push_back(offset);
 				retry = 0; // on successful response reset the retry count & initial sleep time
 				sleepTimeInMillis = INITIAL_RETRY_SLEEP_TIME_MILLISECONDS.count();
 			}
-			else {
+			else
+			{
 				// if no -> stop time sync, it's not supported
 				context.disableTimeSyncSupport();
 				break;
 			}
 		}
-		else if (retry >= TIME_SYNC_RETRY_COUNT) {
+		else if (retry >= TIME_SYNC_RETRY_COUNT)
+		{
 			// retry limits exceeded
 			break;
 		}
-		else {
+		else
+		{
 			context.sleep(sleepTimeInMillis);
 			sleepTimeInMillis *= 2;
 			retry++;
