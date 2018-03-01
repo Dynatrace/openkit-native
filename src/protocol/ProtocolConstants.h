@@ -16,7 +16,8 @@
 
 #ifndef _PROTOCOL_CONSTANTS_H
 #define _PROTOCOL_CONSTANTS_H
-namespace protocol {
+namespace protocol
+{
 	// request type constants
 	constexpr char REQUEST_TYPE_MOBILE[] = "type=m";
 	constexpr char REQUEST_TYPE_TIMESYNC[] = "type=mts";

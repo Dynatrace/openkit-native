@@ -151,7 +151,7 @@ namespace communication
 		/// Get timestamp when open sessions were sent last
 		/// @returns timestamp timestamp of last sending of open session
 		///
-		int64_t getLastOpenSessionBeaconSendTime();
+		int64_t getLastOpenSessionBeaconSendTime() const;
 
 		///
 		/// Set timestamp when open sessions were sent last

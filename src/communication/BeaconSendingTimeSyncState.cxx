@@ -34,7 +34,7 @@ BeaconSendingTimeSyncState::BeaconSendingTimeSyncState()
 }
 
 BeaconSendingTimeSyncState::BeaconSendingTimeSyncState(bool initialSync)
-	: AbstractBeaconSendingState(AbstractBeaconSendingState::StateType::BEACON_SENDING_TIMESYNC_STATE)
+	: AbstractBeaconSendingState(AbstractBeaconSendingState::StateType::BEACON_SENDING_TIME_SYNC_STATE)
 	, mInitialTimeSync(initialSync)
 {
 }
@@ -137,7 +137,7 @@ int64_t BeaconSendingTimeSyncState::computeClusterTimeOffset(std::vector<int64_t
 	int64_t medianVariance = 0;
 	for (uint32_t i = 0; i < REQUIRED_TIME_SYNC_REQUESTS; i++)
 	{
-		auto diff = timeSyncOffsets.at(i) - median;
+		auto diff = timeSyncOffsets[i] - median;
 		medianVariance += diff * diff;
 	}
 	medianVariance = medianVariance / REQUIRED_TIME_SYNC_REQUESTS;
@@ -147,10 +147,10 @@ int64_t BeaconSendingTimeSyncState::computeClusterTimeOffset(std::vector<int64_t
 	int64_t count = 0;
 	for (uint32_t i = 0; i < REQUIRED_TIME_SYNC_REQUESTS; i++)
 	{
-		auto diff = timeSyncOffsets.at(i) - median;
+		auto diff = timeSyncOffsets[i] - median;
 		if (diff * diff <= medianVariance)
 		{
-			sum += timeSyncOffsets.at(i);
+			sum += timeSyncOffsets[i];
 			count++;
 		}
 	}

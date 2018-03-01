@@ -163,7 +163,7 @@ int64_t BeaconSendingContext::getCurrentTimestamp() const
 	return 0;
 }
 
-int64_t BeaconSendingContext::getLastOpenSessionBeaconSendTime()
+int64_t BeaconSendingContext::getLastOpenSessionBeaconSendTime() const
 {
 	return mLastOpenSessionBeaconSendTime;
 }

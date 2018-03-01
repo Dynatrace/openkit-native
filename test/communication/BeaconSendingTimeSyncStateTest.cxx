@@ -140,7 +140,7 @@ TEST_F(BeaconSendingTimeSyncTest, DISABLED_getShutdownStateGivesAFlushSessionsSt
 
 	//then
 	ASSERT_TRUE(obtained != nullptr);
-	ASSERT_EQ(obtained->getStateType(), communication::AbstractBeaconSendingState::StateType::BEACON_SENDING_FLUSHSESSIONS_STATE);
+	ASSERT_EQ(obtained->getStateType(), communication::AbstractBeaconSendingState::StateType::BEACON_SENDING_FLUSH_SESSIONS_STATE);
 }
 
 TEST_F(BeaconSendingTimeSyncTest, isTimeSyncRequiredReturnsFalseImmediatelyIfTimeSyncIsNotSupported)
@@ -221,7 +221,7 @@ TEST_F(BeaconSendingTimeSyncTest, DISABLED_timeSyncNotRequiredAndCaptureOnTruePe
 	// when
 	target->execute(mockContext);
 
-	ASSERT_EQ(mockContext.getCurrentStateType(), AbstractBeaconSendingState::StateType::BEACON_SENDING_CAPTUREON_STATE);
+	ASSERT_EQ(mockContext.getCurrentStateType(), AbstractBeaconSendingState::StateType::BEACON_SENDING_CAPTURE_ON_STATE);
 }
 
 TEST_F(BeaconSendingTimeSyncTest, timeSyncRequestsAreInterruptedAfterUnsuccessfulRetries)
@@ -642,7 +642,7 @@ TEST_F(BeaconSendingTimeSyncTest, DISABLED_stateTransitionToCaptureOffIsPerforme
 	target->execute(mockContext);
 
 	//then
-	ASSERT_EQ(mockContext.getCurrentStateType(), communication::AbstractBeaconSendingState::StateType::BEACON_SENDING_CAPTUREOFF_STATE);
+	ASSERT_EQ(mockContext.getCurrentStateType(), communication::AbstractBeaconSendingState::StateType::BEACON_SENDING_CAPTURE_OFF_STATE);
 }
 
 //TODO johannes.baeuerle - once BeaconSendingCaptureOnState is available this test can be enabled
@@ -701,7 +701,7 @@ TEST_F(BeaconSendingTimeSyncTest, DISABLED_stateTransitionIsPerformedToAppropria
 	target->execute(mockContext);
 
 	//then
-	ASSERT_EQ(mockContext.getCurrentStateType(), communication::AbstractBeaconSendingState::StateType::BEACON_SENDING_CAPTUREON_STATE);
+	ASSERT_EQ(mockContext.getCurrentStateType(), communication::AbstractBeaconSendingState::StateType::BEACON_SENDING_CAPTURE_ON_STATE);
 }
 
 //TODO johannes.baeuerle - once BeaconSendingCaptureOffState is available this test can be enabled
@@ -762,5 +762,5 @@ TEST_F(BeaconSendingTimeSyncTest, DISABLED_stateTransitionIsPerformedToAppropria
 	target->execute(mockContext);
 
 	//then
-	ASSERT_EQ(mockContext.getCurrentStateType(), communication::AbstractBeaconSendingState::StateType::BEACON_SENDING_CAPTUREOFF_STATE);
+	ASSERT_EQ(mockContext.getCurrentStateType(), communication::AbstractBeaconSendingState::StateType::BEACON_SENDING_CAPTURE_OFF_STATE);
 }
