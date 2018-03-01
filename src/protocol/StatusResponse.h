@@ -20,7 +20,8 @@
 #include "Response.h"
 #include "core/UTF8String.h"
 
-namespace protocol {
+namespace protocol
+{
 	///
 	/// Implements a status response which is sent for the request types status check and beacon send.
 	/// A status response encapsulates settings contained in the status response

@@ -22,7 +22,8 @@
 #include "configuration/HTTPClientConfiguration.h"
 #include "protocol/StatusResponse.h"
 
-namespace configuration {
+namespace configuration
+{
 	///
 	/// The Configuration class holds all configuration settings, both provided by the user and the Dynatrace/AppMon server.
 	///

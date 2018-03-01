@@ -22,7 +22,8 @@
 #include "BeaconSendingContext.h"
 #include  "protocol/StatusResponse.h"
 
-namespace communication {
+namespace communication
+{
 	///
 	/// Utilities to be called as static methods to do actual requests
 	///

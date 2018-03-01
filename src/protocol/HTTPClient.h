@@ -24,7 +24,8 @@
 #include "protocol/ssl/ISSLTrustManager.h"
 #include "curl/curl.h"
 
-namespace protocol {
+namespace protocol
+{
 	///
 	/// HTTP client which abstracts the 3 basic request types:
 	/// - status check

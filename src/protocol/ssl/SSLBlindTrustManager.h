@@ -21,7 +21,8 @@
 
 #include "curl/curl.h"
 
-namespace protocol {
+namespace protocol
+{
 	///
 	/// Implementation of the @c ISSLTrustManager blindly trusting every certificate and every host.
 	///

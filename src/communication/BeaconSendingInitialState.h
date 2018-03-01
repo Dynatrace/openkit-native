@@ -22,8 +22,8 @@
 #include <vector>
 #include <chrono>
 
-namespace communication {
-
+namespace communication
+{
 	///
 	/// Initial state for beacon sending.
 	/// NOTE: The initial state is used to retrieve the configuration from the server and update the configuration.

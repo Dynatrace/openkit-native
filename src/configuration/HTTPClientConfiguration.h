@@ -23,7 +23,8 @@
 #include "protocol/ssl/ISSLTrustManager.h"
 #include "protocol/ssl/SSLBlindTrustManager.h"
 
-namespace configuration {
+namespace configuration
+{
 	///
 	/// The HTTPClientConfiguration holds all http client related settings
 	///

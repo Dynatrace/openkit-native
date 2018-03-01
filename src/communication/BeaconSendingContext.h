@@ -27,7 +27,8 @@
 #include <atomic>
 #include <memory>
 
-namespace communication {
+namespace communication
+{
 	///
 	/// State context for beacon sending states.
 	///

@@ -19,9 +19,8 @@
 
 #include <memory>
 
-namespace communication {
-
-
+namespace communication
+{
 	/// forward declaration of class BeaconSendingContext
 	class BeaconSendingContext;
 
