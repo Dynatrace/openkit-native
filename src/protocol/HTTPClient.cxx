@@ -23,6 +23,7 @@
 #include "HTTPClient.h"
 #include "ProtocolConstants.h"
 #include "core/util/Compressor.h"
+#include "protocol/ssl/SSLStrictTrustManager.h"
 
 // connection constants
 constexpr uint32_t MAX_SEND_RETRIES = 3;	// max number of retries of the HTTP GET or POST operation
@@ -40,12 +41,23 @@ HTTPClient::HTTPClient(const std::shared_ptr<configuration::HTTPClientConfigurat
 	, mTimeSyncURL()
 	, mReadBuffer()
 	, mReadBufferPos(0)
-	, mSSLTrustManager(configuration->getSSLTrustManager())
+	, mSSLTrustManager(nullptr)
 {
 	// build the beacon URLs
 	buildMonitorURL(mMonitorURL, configuration->getBaseURL(), configuration->getApplicationID(), mServerID);
 	buildTimeSyncURL(mTimeSyncURL, configuration->getBaseURL());
-	
+
+	// if configuration provides a trust manager use it, else use strict trust manager
+	auto trustManagerFromConfiguration = configuration->getSSLTrustManager();
+	if (trustManagerFromConfiguration != nullptr)
+	{
+		mSSLTrustManager = trustManagerFromConfiguration;
+	}
+	else
+	{
+		mSSLTrustManager = std::shared_ptr<protocol::ISSLTrustManager>(new protocol::SSLStrictTrustManager());
+	}
+
 	// set up the program environment that libcurl needs. In windows, this will init the winsock stuff
 	curl_global_init(CURL_GLOBAL_ALL);
 }

@@ -16,21 +16,26 @@
 
 #ifndef _PROTOCOL_CONSTANTS_H
 #define _PROTOCOL_CONSTANTS_H
+namespace protocol
+{
+	// request type constants
+	constexpr char REQUEST_TYPE_MOBILE[] = "type=m";
+	constexpr char REQUEST_TYPE_TIMESYNC[] = "type=mts";
 
-// request type constants
-constexpr char REQUEST_TYPE_MOBILE[] = "type=m";
-constexpr char REQUEST_TYPE_TIMESYNC[] = "type=mts";
+	// query parameter constants
+	constexpr char QUERY_KEY_SERVER_ID[] = "srvid";
+	constexpr char QUERY_KEY_APPLICATION[] = "app";
+	constexpr char QUERY_KEY_VERSION[] = "va";
+	constexpr char QUERY_KEY_PLATFORM_TYPE[] = "pt";
+	constexpr char QUERY_KEY_AGENT_TECHNOLOGY_TYPE[] = "tt";
 
-// query parameter constants
-constexpr char QUERY_KEY_SERVER_ID[] = "srvid";
-constexpr char QUERY_KEY_APPLICATION[] = "app";
-constexpr char QUERY_KEY_VERSION[] = "va";
-constexpr char QUERY_KEY_PLATFORM_TYPE[] = "pt";
-constexpr char QUERY_KEY_AGENT_TECHNOLOGY_TYPE[] = "tt";
+	// constant query parameter values
+	constexpr char OPENKIT_VERSION[] = "7.0.0000";
+	constexpr char PLATFORM_TYPE_OPENKIT[] = "1";
+	constexpr char AGENT_TECHNOLOGY_TYPE[] = "okc";
 
-// constant query parameter values
-constexpr char OPENKIT_VERSION[] = "7.0.0000";
-constexpr char PLATFORM_TYPE_OPENKIT[] = "1";
-constexpr char AGENT_TECHNOLOGY_TYPE[] = "okc";
-
+	// time sync response constants
+	constexpr char RESPONSE_KEY_REQUEST_RECEIVE_TIME[] = "t1";
+	constexpr char RESPONSE_KEY_RESPONSE_SEND_TIME[] = "t2";
+}
 #endif /* _PROTOCOL_CONSTANTS_H */

@@ -19,8 +19,10 @@
 
 #include "core/UTF8String.h"
 
-namespace core {
-	namespace util {
+namespace core 
+{
+	namespace util 
+	{
 		///
 		/// Container for command line arguments
 		///

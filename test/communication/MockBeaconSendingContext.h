@@ -54,15 +54,20 @@ namespace test
 
 		MOCK_CONST_METHOD0(isShutdownRequested, bool());
 		MOCK_METHOD0(requestShutdown, void());
-		MOCK_METHOD1(setLastOpenSessionBeaconSendTime, void(uint64_t));
-		MOCK_CONST_METHOD0(getCurrentTimestamp, uint64_t());
-		MOCK_METHOD1(setLastStatusCheckTime, void(uint64_t));
+		MOCK_METHOD1(setLastOpenSessionBeaconSendTime, void(int64_t));
+		MOCK_CONST_METHOD0(getCurrentTimestamp, int64_t());
+		MOCK_METHOD1(setLastStatusCheckTime, void(int64_t));
 		MOCK_METHOD1(setInitCompleted, void(bool));
 		MOCK_METHOD1(setNextState, void(std::shared_ptr<AbstractBeaconSendingState> nextState));
 		MOCK_CONST_METHOD0(isInTerminalState, bool());
-		MOCK_METHOD1(sleep, void(uint64_t));
+		MOCK_METHOD1(sleep, void(int64_t));
 		MOCK_METHOD0(getHTTPClient, std::shared_ptr<protocol::IHTTPClient>());
-
+		MOCK_CONST_METHOD0(isTimeSyncSupported, bool());
+		MOCK_CONST_METHOD0(getLastTimeSyncTime, int64_t());
+		MOCK_CONST_METHOD0(isCaptureOn, bool());
+		MOCK_METHOD2(initializeTimeSync, void (int64_t , bool ));
+		MOCK_METHOD1(setLastTimeSyncTime, void(int64_t));
+		MOCK_METHOD0(disableTimeSyncSupport, void());
 
 		void RealSetNextState(std::shared_ptr<AbstractBeaconSendingState> nextState) 
 		{ 

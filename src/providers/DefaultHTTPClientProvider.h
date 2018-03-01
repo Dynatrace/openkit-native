@@ -21,7 +21,8 @@
 
 #include "configuration/HTTPClientConfiguration.h"
 
-namespace providers {
+namespace providers
+{
 	///
 	/// Implementation of an HTTPClientProvider which creates a HTTP client for executing status check, beacon send and time sync requests.
 	///

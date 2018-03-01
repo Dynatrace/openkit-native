@@ -41,7 +41,7 @@ const core::UTF8String& HTTPClientConfiguration::getApplicationID() const
 	return mApplicationID;
 }
 
-const std::shared_ptr<protocol::ISSLTrustManager> HTTPClientConfiguration::getSSLTrustManager() const
+std::shared_ptr<protocol::ISSLTrustManager> HTTPClientConfiguration::getSSLTrustManager() const
 {
 	return mSSLTrustManager;
 }

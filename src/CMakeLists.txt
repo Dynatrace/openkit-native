@@ -12,6 +12,7 @@ SET(SOURCES_COMMUNICATION
 	communication/BeaconSendingInitialState.cxx
 	communication/BeaconSendingTerminalState.cxx
 	communication/BeaconSendingRequestUtil.cxx
+	communication/BeaconSendingTimeSyncState.cxx
 )
 
 SET(SOURCES_PROTOCOL

@@ -24,7 +24,8 @@
 #include "configuration/HTTPClientConfiguration.h"
 #include "core/UTF8String.h"
 
-namespace protocol {
+namespace protocol
+{
 	///
 	/// HTTP client which abstracts the 3 basic request types:
 	/// - status check

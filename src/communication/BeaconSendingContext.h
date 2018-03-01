@@ -27,7 +27,8 @@
 #include <atomic>
 #include <memory>
 
-namespace communication {
+namespace communication
+{
 	///
 	/// State context for beacon sending states.
 	///
@@ -101,7 +102,7 @@ namespace communication {
 		/// Returns a flag if capturing is enabled
 		/// @returns @c true if capturing is enabled, @c false if capturing is disabled
 		///
-		bool isCaptureOn() const;
+		virtual bool isCaptureOn() const;
 
 		///
 		/// Complete OpenKit initialisation
@@ -126,43 +127,79 @@ namespace communication {
 		/// Sleep for a given amount of time
 		/// @param[in] ms number of milliseconds
 		///
-		virtual void sleep(uint64_t ms);
+		virtual void sleep(int64_t ms);
 
 		///
 		/// Get current timestamp
 		/// @returns current timestamp
 		///
-		virtual uint64_t getCurrentTimestamp() const;
+		virtual int64_t getCurrentTimestamp() const;
 
 		///
 		/// Get timestamp when last status check was performed
 		/// @returns timestamp of last status check
 		///
-		uint64_t getLastStatusCheckTime() const;
+		int64_t getLastStatusCheckTime() const;
 
 		///
 		/// Set timestamp when last status check was performed
 		/// @param[in] lastStatusCheckTime timestamp of last status check
 		///
-		virtual void setLastStatusCheckTime(uint64_t lastStatusCheckTime);
+		virtual void setLastStatusCheckTime(int64_t lastStatusCheckTime);
 
 		///
 		/// Get timestamp when open sessions were sent last
 		/// @returns timestamp timestamp of last sending of open session
 		///
-		uint64_t getLastOpenSessionBeaconSendTime();
+		int64_t getLastOpenSessionBeaconSendTime() const;
 
 		///
 		/// Set timestamp when open sessions were sent last
 		/// @param[in] timestamp  timestamp of last sendinf of open session
 		///
-		virtual void setLastOpenSessionBeaconSendTime(uint64_t timestamp);
+		virtual void setLastOpenSessionBeaconSendTime(int64_t timestamp);
 
 		///
 		/// Returns the type of state
 		/// @returns type of state as defined in AbstractBeaconSendingState
 		///
 		AbstractBeaconSendingState::StateType getCurrentStateType() const;
+
+		///
+		/// Gets a boolean flag indicating whether time sync is supported or not.
+		/// @returns @c true if time sync is supported, @c false otherwise.
+		///
+		virtual bool isTimeSyncSupported() const;
+
+		///
+		/// Disables the time sync
+		///
+		virtual void disableTimeSyncSupport();
+
+		///
+		/// Gets a boolean flag indicating whether the time sync has been performed before
+		/// @returns @c true if time sync was performed, @c false otherwise
+		///
+		virtual bool isTimeSynced() const;
+
+		///
+		/// Returns the timestamp when time sync was executed last time.
+		/// @returns the timestamp of the last successful time sync
+		///
+		virtual int64_t getLastTimeSyncTime() const;
+
+		///
+		/// Set the timestamp of the last successful time sync
+		/// @param[in] lastTimeSyncTime timestamp 
+		///
+		virtual void setLastTimeSyncTime(int64_t lastTimeSyncTime);
+
+		///
+		/// Initialize time synchronisation with cluster time
+		/// @param[in] clusterTimeOffset the cluster offset
+		/// @param[in] @c true if time sync is supported, otherwise @c false
+		///
+		virtual void initializeTimeSync(int64_t clusterTimeOffset, bool isTimeSyncSupported);
 
 	private:
 		/// instance of AbstractBeaconSendingState with the current state
@@ -187,13 +224,19 @@ namespace communication {
 		std::shared_ptr<providers::ITimingProvider> mTimingProvider;
 
 		/// time of the last status check
-		uint64_t mLastStatusCheckTime;
+		int64_t mLastStatusCheckTime;
 
 		/// time when open sessions were last sent
-		uint64_t mLastOpenSessionBeaconSendTime;
+		int64_t mLastOpenSessionBeaconSendTime;
 
 		/// countdown latch used for wait-on-initialisation
 		core::util::CountDownLatch mInitCountdownLatch;
+
+		/// flag if time sync is supported
+		bool mIsTimeSyncSupported;
+
+		/// timestamp of the last time sync
+		int64_t mLastTimeSyncTime;
 	};
 }
 #endif

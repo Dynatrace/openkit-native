@@ -24,7 +24,8 @@
 #include "protocol/ssl/ISSLTrustManager.h"
 #include "curl/curl.h"
 
-namespace protocol {
+namespace protocol
+{
 	///
 	/// HTTP client which abstracts the 3 basic request types:
 	/// - status check
@@ -139,7 +140,7 @@ namespace protocol {
 		size_t mReadBufferPos;
 
 		/// how the peer's TSL/SSL certificate and the hostname shall be trusted
-		const std::shared_ptr<ISSLTrustManager> mSSLTrustManager;
+		std::shared_ptr<ISSLTrustManager> mSSLTrustManager;
 	};
 
 }

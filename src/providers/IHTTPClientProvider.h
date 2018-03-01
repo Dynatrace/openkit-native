@@ -23,7 +23,8 @@
 
 #include "configuration/HTTPClientConfiguration.h"
 
-namespace providers {
+namespace providers
+{
 	///
 	/// Interface for providing an HTTP client. Mostly needed for testing purposes.
 	///

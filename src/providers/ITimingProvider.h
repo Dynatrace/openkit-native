@@ -19,7 +19,8 @@
 
 #include <cstdint>
 
-namespace providers {
+namespace providers
+{
 	///
 	/// Interface providing timing related functionality.
 	///

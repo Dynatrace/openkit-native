@@ -19,7 +19,8 @@
 
 #include "curl/curl.h"
 
-namespace protocol {
+namespace protocol
+{
 	///
 	/// Interface to provide a user-defined trust manager to the configuration.
 	/// When OpenKit connects to a server with self-signed SSL/TLS certificates (e.g. AppMon) then

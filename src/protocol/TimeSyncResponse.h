@@ -20,7 +20,8 @@
 #include "Response.h"
 #include "core/UTF8String.h"
 
-namespace protocol {
+namespace protocol
+{
 	///
 	/// Implements a timesync response which is sent for time sync requests.
 	/// A timesync response encapsulates settings contained in the timesync response

@@ -19,8 +19,8 @@
 
 #include <cstdint>
 
-namespace protocol {
-
+namespace protocol
+{
 	///
 	/// Abstract base class for a response to one of the 3 request types(status check, beacon send, time sync).
 	///
