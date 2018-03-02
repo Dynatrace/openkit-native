@@ -29,6 +29,7 @@
 #include "configuration/Configuration.h"
 #include "protocol/StatusResponse.h"
 #include "providers/DefaultHTTPClientProvider.h"
+#include "providers/DefaultSessionIDProvider.h"
 
 #include "../providers/TestTimingProvider.h"
 #include "TestBeaconSendingState.h"
@@ -48,7 +49,7 @@ namespace test
 		MockBeaconSendingContext(std::shared_ptr<configuration::HTTPClientConfiguration> httpClientConfiguration)
 			: BeaconSendingContext(std::make_shared<providers::DefaultHTTPClientProvider>(),
 				std::make_shared<test::TestTimingProvider>(),
-				std::make_shared<configuration::Configuration>(httpClientConfiguration))
+				std::make_shared<configuration::Configuration>(httpClientConfiguration, std::make_shared<providers::DefaultSessionIDProvider>()))
 		{
 		}
 

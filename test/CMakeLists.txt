@@ -19,6 +19,7 @@ set(SOURCES_UNITTEST
 	protocol/StatusResponseTest.cxx
 	protocol/TimeSyncResponseTest.cxx
 	providers/DefaultTimingProviderTest.cxx
+	providers/DefaultSessionIDProviderTest.cxx
 	communication/AbstractBeaconSendingStateTest.cxx
 	communication/BeaconSendingTerminalStateTest.cxx
 	communication/BeaconSendingInitialStateTest.cxx
