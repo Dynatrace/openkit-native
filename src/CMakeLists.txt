@@ -14,6 +14,9 @@ set(SOURCES_CORE
 	core/UTF8String.cxx
 	core/BeaconSender.cxx
 	core/OpenKit.cxx
+	core/Session.cxx
+	core/Action.cxx
+	core/RootAction.cxx
 )
 
 set(SOURCES_COMMUNICATION
