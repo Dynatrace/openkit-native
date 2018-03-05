@@ -22,6 +22,7 @@ using namespace providers;
 
 DefaultSessionIDProvider::DefaultSessionIDProvider()
 	: mLastSessionNumber(0)
+	, mNextIDMutex()
 {
 	// Seed with a real random value, if available
 
@@ -33,6 +34,7 @@ DefaultSessionIDProvider::DefaultSessionIDProvider()
 
 DefaultSessionIDProvider::DefaultSessionIDProvider(int32_t initialOffset)
 	: mLastSessionNumber(initialOffset)
+	, mNextIDMutex()
 {
 }
 

@@ -23,9 +23,6 @@ using namespace providers;
 class DefaultSessionIDProviderTest : public testing::Test
 {
 public:
-	DefaultSessionIDProviderTest()
-	{
-	}
 
 	void SetUp()
 	{

@@ -20,8 +20,10 @@
 
 using namespace configuration;
 
-Configuration::Configuration(std::shared_ptr<HTTPClientConfiguration> httpClientConfiguration)
+Configuration::Configuration(std::shared_ptr<HTTPClientConfiguration> httpClientConfiguration,
+							std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider)
 	: mHTTPClientConfiguration(httpClientConfiguration)
+	, mSessionIDProvider(sessionIDProvider)
 	, mIsCapture(false)
 {
 }
@@ -50,4 +52,16 @@ void Configuration::updateSettings(std::unique_ptr<protocol::StatusResponse> sta
 bool Configuration::isCapture() const
 {
 	return mIsCapture;
+}
+
+int32_t Configuration::createSessionNumber()
+{
+	if (mSessionIDProvider != nullptr)
+	{
+		return mSessionIDProvider->getNextSessionID();
+	}
+	else
+	{
+		return 0;
+	}
 }

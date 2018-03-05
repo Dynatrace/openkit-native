@@ -19,6 +19,7 @@
 
 #include <memory>
 
+#include "providers/ISessionIDProvider.h"
 #include "configuration/HTTPClientConfiguration.h"
 #include "protocol/StatusResponse.h"
 
@@ -34,7 +35,7 @@ namespace configuration
 		/// Construct a Configuration given a  HTTPClientConfiguration
 		/// @param[in] httpClientConfiguration the  HTTPClientConfiguration to use, will be stored in the  Configuration
 		///
-		Configuration(std::shared_ptr<HTTPClientConfiguration> httpClientConfiguration);
+		Configuration(std::shared_ptr<HTTPClientConfiguration> httpClientConfiguration, std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider);
 
 		///
 		/// Return the  HTTPClientConfiguration to use when constructing a  HTTPClient
@@ -54,9 +55,20 @@ namespace configuration
 		///
 		bool isCapture() const;
 
+		///
+		/// Return next session number
+		/// @returns session number
+		///
+		int32_t createSessionNumber();
+
 	private:
+		/// HTTP client configuration
 		std::shared_ptr<HTTPClientConfiguration> mHTTPClientConfiguration;
 
+		/// session ID provider
+		std::shared_ptr<providers::ISessionIDProvider> mSessionIDProvider;
+
+		/// flag if capturing is enabled
 		bool mIsCapture;
 	};
 }
