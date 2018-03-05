@@ -40,7 +40,7 @@ namespace providers
 		///
 		/// Destructor
 		///
-		virtual ~DefaultSessionIDProvider() {};
+		virtual ~DefaultSessionIDProvider() {}
 
 		///
 		/// Provide the next sessionID

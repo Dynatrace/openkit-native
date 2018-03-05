@@ -27,7 +27,7 @@ namespace providers
 		///
 		/// Destructor
 		///
-		virtual ~ISessionIDProvider() {};
+		virtual ~ISessionIDProvider() {}
 
 		///
 		/// Provide the next sessionID
