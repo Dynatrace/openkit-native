@@ -20,6 +20,7 @@
 #include "providers/ISessionIDProvider.h"
 #include "configuration/HTTPClientConfiguration.h"
 #include "configuration/OpenKitType.h"
+#include "configuration/Device.h"
 #include "protocol/StatusResponse.h"
 
 #include <memory>
@@ -35,6 +36,7 @@ namespace configuration
 	public:
 		///
 		/// Construct a Configuration given a  HTTPClientConfiguration
+		/// @param[in] device device configuration
 		/// @param[in] openKitType AppMon or dynatrace configuration @see OpenKitType
 		/// @param[in] applicationName applicationName application name
 		/// @param[in] applicationID application id
@@ -43,7 +45,7 @@ namespace configuration
 		/// @param[in] httpClientConfiguration the  HTTPClientConfiguration to use, will be stored in the  Configuration
 		/// @param[in] sessionIDProvider provider for session IDs
 		///
-		Configuration(OpenKitType openKitType, const core::UTF8String& applicationName, const core::UTF8String& applicationID, uint64_t deviceID, const core::UTF8String& endpointURL,
+		Configuration(std::shared_ptr<configuration::Device> device,OpenKitType openKitType, const core::UTF8String& applicationName, const core::UTF8String& applicationID, uint64_t deviceID, const core::UTF8String& endpointURL,
 			std::shared_ptr<HTTPClientConfiguration> httpClientConfiguration, std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider);
 
 		///
@@ -112,6 +114,12 @@ namespace configuration
 		///
 		bool isCaptureCrashes() const;
 
+		///
+		/// Returns the device configuration
+		/// @returns the device configuration
+		///
+		std::shared_ptr<configuration::Device> getDevice() const;
+
 	private:
 		/// HTTP client configuration
 		std::shared_ptr<HTTPClientConfiguration> mHTTPClientConfiguration;
@@ -148,6 +156,9 @@ namespace configuration
 
 		///device ID
 		int64_t mDeviceID;
+
+		/// device information
+		std::shared_ptr<configuration::Device> mDevice;
 	};
 }
 

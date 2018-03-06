@@ -26,7 +26,7 @@ constexpr int32_t DEFAULT_MAX_BEACON_SIZE = 30 * 1024;                   // defa
 constexpr bool DEFAULT_CAPTURE_ERRORS = true;                     // default: capture errors on
 constexpr bool DEFAULT_CAPTURE_CRASHES = true;                    // default: capture crashes on
 
-Configuration::Configuration(OpenKitType openKitType, const core::UTF8String& applicationName, const core::UTF8String& applicationID, uint64_t deviceID, const core::UTF8String& endpointURL,
+Configuration::Configuration(std::shared_ptr<configuration::Device> device,OpenKitType openKitType, const core::UTF8String& applicationName, const core::UTF8String& applicationID, uint64_t deviceID, const core::UTF8String& endpointURL,
 	std::shared_ptr<HTTPClientConfiguration> httpClientConfiguration, std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider)
 	: mHTTPClientConfiguration(httpClientConfiguration)
 	, mSessionIDProvider(sessionIDProvider)
@@ -40,6 +40,7 @@ Configuration::Configuration(OpenKitType openKitType, const core::UTF8String& ap
 	, mApplicationID(applicationID)
 	, mEndpointURL(endpointURL)
 	, mDeviceID(deviceID)
+	, mDevice(device)
 {
 }
 
@@ -158,3 +159,7 @@ bool Configuration::isCaptureCrashes() const
 	return mCaptureCrashes;
 }
 
+std::shared_ptr<configuration::Device> Configuration::getDevice() const
+{
+	return mDevice;
+}
