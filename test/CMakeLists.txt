@@ -60,7 +60,11 @@ add_executable( unittests
 )
 
 # Link the CURL and ZLIB libraries, as well as the libraries for Google testing.
-target_link_libraries(unittests ${CURLIMPLIB} ${ZLIB_LIBRARIES} ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} ${GMOCK_MAIN_LIBRARIES})
+if(BUILD_SHARED_LIBS)
+	target_link_libraries(unittests ${CURLIMPLIB} ${ZLIB_LIBRARIES} ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} ${GMOCK_MAIN_LIBRARIES})
+else()
+	target_link_libraries(unittests OpenKit ${CURLIMPLIB} ${ZLIB_LIBRARIES} ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} ${GMOCK_MAIN_LIBRARIES})
+endif()
 target_compile_definitions(unittests PRIVATE -DOPENKIT_STATIC_DEFINE)
 
 if(NOT WIN32)

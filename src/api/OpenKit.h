@@ -25,6 +25,12 @@ namespace api {
 	{
 		friend class AbstractOpenKitBuilder;
 
+	private:
+		///
+		/// Private constructor. OpenKit is instantiated via the Builder
+		///
+		OpenKit();
+
 	public:
 		///
 		/// Destructor
@@ -35,12 +41,6 @@ namespace api {
 		/// Shuts down OpenKit, ending all open Sessions and waiting for them to be sent.
 		///
 		void shutdown();
-
-	private:
-		///
-		/// Private constructor. OpenKit is instantiated via the Builder
-		///
-		OpenKit();
 	};
 }
 

@@ -20,10 +20,9 @@ add_executable(openkit-sample ${SOURCES_SAMPLE})
 # Link the CURL and ZLIB libraries
 target_link_libraries(openkit-sample ${CURLIMPLIB} ${ZLIB_LIBRARIES})
 
-if(NOT BUILD_SHARED_LIBS)
-	# For a STATIC library we set the compiler flag OPENKIT_STATIC_DEFINE, which leaves any export definitions empty
-	target_compile_definitions(openkit-sample PRIVATE -DOPENKIT_STATIC_DEFINE)
-endif()
+# OpenKit sample currently uses the internal functions and therefore builds the sources directly.
+# We therefore set the compiler flag OPENKIT_STATIC_DEFINE, which leaves any export definitions empty.
+target_compile_definitions(openkit-sample PRIVATE -DOPENKIT_STATIC_DEFINE)
 
 if(NOT WIN32)
 	target_link_libraries(openkit-sample pthread)	# TODO Johannes Baeuerle. Check if pthread is necessary

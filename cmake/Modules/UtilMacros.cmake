@@ -14,6 +14,9 @@ macro(fix_default_compiler_settings_)
 		if(${flag_var} MATCHES "/MD")
 			string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
 		endif()
+		if(${flag_var} MATCHES "/MDd")
+			string(REGEX REPLACE "/MDd" "/MTd" ${flag_var} "${${flag_var}}")
+		endif()
       endif()
 
       # We prefer more strict warning checking for building

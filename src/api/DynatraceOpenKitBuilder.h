@@ -23,19 +23,19 @@ namespace api
 {
 	class OPENKIT_EXPORT DynatraceOpenKitBuilder : public AbstractOpenKitBuilder
 	{
-		public:
-			///
-			/// Constructor
-			/// @param[in] endPointURL endpoint OpenKit connects to
-			/// @param[in] applicationID unique application id
-			/// @param[in] deviceID unique device id
-			///
-			DynatraceOpenKitBuilder(const char* endpointURL, const char* applicationID, uint64_t deviceID);
+	public:
+		///
+		/// Constructor
+		/// @param[in] endPointURL endpoint OpenKit connects to
+		/// @param[in] applicationID unique application id
+		/// @param[in] deviceID unique device id
+		///
+		DynatraceOpenKitBuilder(const char* endpointURL, const char* applicationID, uint64_t deviceID);
 
-			///
-			/// Destructor
-			///
-			virtual ~DynatraceOpenKitBuilder() {};
+		///
+		/// Destructor
+		///
+		virtual ~DynatraceOpenKitBuilder() {};
 	};
 }
 

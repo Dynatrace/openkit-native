@@ -23,10 +23,8 @@
 
 namespace api
 {
-	class AbstractOpenKitBuilder
+	class OPENKIT_EXPORT AbstractOpenKitBuilder
 	{
-		//friend class OpenKit;
-
 		public:
 			///
 			/// Constructor
