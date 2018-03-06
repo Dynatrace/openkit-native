@@ -18,13 +18,8 @@
 
 using namespace api;
 
-DynatraceOpenKitBuilder::DynatraceOpenKitBuilder()
+DynatraceOpenKitBuilder::DynatraceOpenKitBuilder(const char* endpointURL, const char* applicationID, uint64_t deviceID)
+	: AbstractOpenKitBuilder(endpointURL, deviceID)
 {
+	throw "function not implemented yet";
 }
-
-/*
-std::unique_ptr<OpenKit> DynatraceOpenKitBuilder::build()
-{
-	return nullptr;
-}
-*/

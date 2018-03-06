@@ -20,10 +20,10 @@ using namespace api;
 
 OpenKit::OpenKit()
 {
-
+	throw "function not implemented yet";
 }
 
 void OpenKit::shutdown()
 {
-
+	throw "function not implemented yet";
 }

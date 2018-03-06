@@ -19,20 +19,13 @@
 
 #include "OpenKit_export.h"
 
-#ifdef __cplusplus  
-extern "C" {
-#endif
-
 namespace api {
 
-	class OpenKit
+	class OPENKIT_EXPORT OpenKit
 	{
-	public:
-		///
-		/// Constructor
-		///
-		OpenKit();
+		friend class AbstractOpenKitBuilder;
 
+	public:
 		///
 		/// Destructor
 		///
@@ -41,12 +34,14 @@ namespace api {
 		///
 		/// Shuts down OpenKit, ending all open Sessions and waiting for them to be sent.
 		///
-		OPENKIT_EXPORT void shutdown();
+		void shutdown();
+
+	private:
+		///
+		/// Private constructor. OpenKit is instantiated via the Builder
+		///
+		OpenKit();
 	};
 }
-
-#ifdef __cplusplus  
-}
-#endif 
 
 #endif

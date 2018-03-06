@@ -25,11 +25,15 @@ namespace api
 {
 	class AbstractOpenKitBuilder
 	{
+		//friend class OpenKit;
+
 		public:
 			///
 			/// Constructor
+			/// @param[in] endpointURL endpoint OpenKit connects to
+			/// @param[in] deviceID unique device id
 			///
-			AbstractOpenKitBuilder();
+			AbstractOpenKitBuilder(const char* endpointURL, uint64_t deviceID);
 
 			///
 			/// Destructor
@@ -40,7 +44,7 @@ namespace api
 			/// Builds an @c OpenKit instance
 			/// @returns an @c OpenKit instance
 			///
-			virtual std::unique_ptr<OpenKit> build() = 0;
+			virtual std::shared_ptr<OpenKit> build() = 0;
 	};
 }
 

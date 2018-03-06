@@ -18,12 +18,12 @@
 
 using namespace api;
 
-AbstractOpenKitBuilder::AbstractOpenKitBuilder()
+AbstractOpenKitBuilder::AbstractOpenKitBuilder(const char* endpointURL, uint64_t deviceID)
 {
-
+	throw "function not implemented yet";
 }
 
-std::unique_ptr<OpenKit> AbstractOpenKitBuilder::build()
+std::shared_ptr<OpenKit> AbstractOpenKitBuilder::build()
 {
-	return std::unique_ptr<OpenKit>(new OpenKit());
+	return std::shared_ptr<OpenKit>(new OpenKit());
 }

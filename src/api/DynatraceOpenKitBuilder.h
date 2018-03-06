@@ -21,21 +21,21 @@
 
 namespace api
 {
-	class DynatraceOpenKitBuilder : public AbstractOpenKitBuilder
+	class OPENKIT_EXPORT DynatraceOpenKitBuilder : public AbstractOpenKitBuilder
 	{
 		public:
 			///
 			/// Constructor
+			/// @param[in] endPointURL endpoint OpenKit connects to
+			/// @param[in] applicationID unique application id
+			/// @param[in] deviceID unique device id
 			///
-			DynatraceOpenKitBuilder();
+			DynatraceOpenKitBuilder(const char* endpointURL, const char* applicationID, uint64_t deviceID);
 
 			///
 			/// Destructor
 			///
 			virtual ~DynatraceOpenKitBuilder() {};
-
-
-			//virtual std::unique_ptr<OpenKit> build() override;
 	};
 }
 
