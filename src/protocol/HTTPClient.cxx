@@ -265,8 +265,7 @@ std::unique_ptr<Response> HTTPClient::handleResponse(uint64_t httpCode, const st
 		// process status response
 		if (response.find(REQUEST_TYPE_TIMESYNC) == 0)
 		{
-			// TODO: Change to TimeSyncResponse
-			return std::unique_ptr<StatusResponse>(new StatusResponse(core::UTF8String(response.c_str()), (uint32_t)httpCode));
+			return std::unique_ptr<TimeSyncResponse>(new TimeSyncResponse(core::UTF8String(response.c_str()), (uint32_t)httpCode));
 		}
 		else if (response.find(REQUEST_TYPE_MOBILE) == 0)
 		{

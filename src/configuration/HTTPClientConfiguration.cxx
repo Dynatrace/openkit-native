@@ -31,7 +31,7 @@ const core::UTF8String& HTTPClientConfiguration::getBaseURL() const
 	return mBaseURL;
 }
 
-uint32_t HTTPClientConfiguration::getServerID() const
+int32_t HTTPClientConfiguration::getServerID() const
 {
 	return mServerID;
 }
