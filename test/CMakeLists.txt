@@ -62,7 +62,7 @@ target_link_libraries(unittests ${CURLIMPLIB} ${ZLIB_LIBRARIES} ${GTEST_LIBRARIE
 target_compile_definitions(unittests PRIVATE -DOPENKIT_STATIC_DEFINE)
 
 if(NOT WIN32)
-	target_link_libraries(unittests pthread)
+	target_link_libraries(unittests pthread)	# TODO Johannes Baeuerle. Check if pthread is necessary
 else()
 	add_custom_command(TARGET curltest POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CURL_LIBRARIES} ${CMAKE_SOURCE_DIR}/3rdparty/zlib-1.2.11/bin/zlib.dll ${CMAKE_BINARY_DIR}/bin
