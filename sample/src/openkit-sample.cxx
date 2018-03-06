@@ -24,6 +24,7 @@
 #include "providers/DefaultTimingProvider.h"
 #include "configuration/HTTPClientConfiguration.h"
 #include "configuration/OpenKitType.h"
+#include "configuration/Device.h"
 
 using namespace core;
 using namespace communication;
@@ -64,7 +65,10 @@ int32_t main(int32_t argc, char** argv)
 	std::shared_ptr<IHTTPClientProvider> httpClientProvider = std::shared_ptr<IHTTPClientProvider>(new DefaultHTTPClientProvider());
 	std::shared_ptr<ITimingProvider> timingProvider = std::shared_ptr<ITimingProvider>(new DefaultTimingProvider());
 	std::shared_ptr<ISessionIDProvider> sessionIDProvider = std::shared_ptr<ISessionIDProvider>(new DefaultSessionIDProvider());
-	std::shared_ptr<Configuration> configuration = std::shared_ptr<Configuration>(new Configuration(configuration::OpenKitType::CreateDynatraceType(),
+
+	std::shared_ptr<configuration::Device> device = std::shared_ptr<configuration::Device>(new configuration::Device(core::UTF8String("ACME OS"), core::UTF8String("Dynatrace"), core::UTF8String("Model E")));
+
+	std::shared_ptr<Configuration> configuration = std::shared_ptr<Configuration>(new Configuration(device, configuration::OpenKitType::CreateDynatraceType(),
 																									core::UTF8String("openkit-sample"), applicationID, serverID, beaconURL,
 																									httpClientConfig, sessionIDProvider));
 
