@@ -76,6 +76,6 @@ endmacro()
 # Prepends the var_arg items with the "prefix" and stores the result in the provided "_list"
 macro(prepend_to_list _list prefix)
    foreach(item ${ARGN})
-      list(APPEND ${_list} "${prefix}/${item}")
+      list(APPEND ${_list} "${prefix}${item}")
    endforeach()
 endmacro()

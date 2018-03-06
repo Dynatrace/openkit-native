@@ -7,7 +7,7 @@
 # Therefore, for the target "openkit-sample", the sources are directly accessed and compiled.
 # This is done by making the list of sources available here and creating the releative path with prepend.
 set(SOURCES_FOR_OPENKIT_SAMPLE)
-prepend_to_list(SOURCES_FOR_OPENKIT_SAMPLE ../src ${SOURCES})
+prepend_to_list(SOURCES_FOR_OPENKIT_SAMPLE ../src/ ${SOURCES})
 
 SET(SOURCES_SAMPLE 
 	src/openkit-sample.cxx
