@@ -20,7 +20,7 @@
 #include "OpenKit_export.h"
 
 #ifdef __cplusplus  
-//extern "C" {
+extern "C" {
 #endif
 
 namespace api {
@@ -46,7 +46,7 @@ namespace api {
 }
 
 #ifdef __cplusplus  
-//}
+}
 #endif 
 
 #endif
