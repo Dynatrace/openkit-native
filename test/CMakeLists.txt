@@ -2,18 +2,44 @@ remove_strict_warnings_for_testcode()
 
 include_directories(SYSTEM ${GTEST_INCLUDE_DIRS})
 
+################
+# CURL showcase
+################
 set(SOURCES_CURLTEST
 	communication/curltest.cxx
 )
 
-add_executable( curltest 
+# Adds the executable "curltest"
+add_executable( curltest
+	# Sources required by the curltest showcase
+	${CMAKE_SOURCE_DIR}/src/core/util/Compressor.cxx
+
+	# Test files
     ${SOURCES_CURLTEST}
 )
 
-target_link_libraries(curltest LibBase ${CURLIMPLIB} ${ZLIB_LIBRARIES})
+# Link the CURL and ZLIB libraries
+target_link_libraries(curltest ${CURLIMPLIB} ${ZLIB_LIBRARIES})
 
+# Setting the compiler flag OPENKIT_STATIC_DEFINE leaves any export definitions empty
+target_compile_definitions(curltest PRIVATE -DOPENKIT_STATIC_DEFINE)
 
+################
+# Unit tests
+################
+
+# The unit tests don't test the public OpenKit-API, but instead they test the OpenKit internal functions.
+# If the OpenKit is built as a shared library, we don't want to export all (internal) symbols.
+# Therefore, for the target "unittests", the sources are directly accessed and compiled.
+# This is done by making the list of sources available here and creating the releative path with prepend.
+set(SOURCES_TO_TEST)
+prepend_to_list(SOURCES_TO_TEST ../src ${SOURCES})
+ 
 set(SOURCES_UNITTEST
+	# Sources to be tested
+	${SOURCES_TO_TEST} 
+
+	# Test files
 	core/UTF8StringTest.cxx
 	core/util/CompressorTest.cxx
 	protocol/StatusResponseTest.cxx
@@ -24,12 +50,14 @@ set(SOURCES_UNITTEST
 	communication/BeaconSendingInitialStateTest.cxx
 )
 
-add_executable( unittests 
+# Adds the executable "unittest"
+add_executable( unittests
     ${SOURCES_UNITTEST}
 )
 
-
-target_link_libraries(unittests LibBase ${CURLIMPLIB} ${ZLIB_LIBRARIES} ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} ${GMOCK_MAIN_LIBRARIES})
+# Link the CURL and ZLIB libraries, as well as the libraries for Google testing.
+target_link_libraries(unittests ${CURLIMPLIB} ${ZLIB_LIBRARIES} ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} ${GMOCK_MAIN_LIBRARIES})
+target_compile_definitions(unittests PRIVATE -DOPENKIT_STATIC_DEFINE)
 
 if(NOT WIN32)
 	target_link_libraries(unittests pthread)
@@ -41,7 +69,6 @@ else()
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CURL_LIBRARIES} ${CMAKE_SOURCE_DIR}/3rdparty/zlib-1.2.11/bin/zlib.dll ${CMAKE_BINARY_DIR}/bin
 	)
 endif()
-
 
 ADD_TEST(NAME CurlTest COMMAND curltest WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 ADD_TEST(NAME UnitTests COMMAND unittests WORKING_DIRECTORY ${CMAKE_BINARY_DIR})

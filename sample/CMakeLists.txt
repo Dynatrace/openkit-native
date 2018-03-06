@@ -1,10 +1,28 @@
+#################
+# OpenKit sample
+#################
+
+# The openkit-sample currently does not use the public OpenKit-API, but instead it uses internal functions.
+# If the OpenKit is built as a shared library, we don't want to export all (internal) symbols.
+# Therefore, for the target "openkit-sample", the sources are directly accessed and compiled.
+# This is done by making the list of sources available here and creating the releative path with prepend.
+set(SOURCES_FOR_OPENKIT_SAMPLE)
+prepend_to_list(SOURCES_FOR_OPENKIT_SAMPLE ../src ${SOURCES})
+
 SET(SOURCES_SAMPLE 
 	src/openkit-sample.cxx
+	${SOURCES_FOR_OPENKIT_SAMPLE}
 )
 
+# Add the OpenKit sample applicatation
 add_executable(openkit-sample ${SOURCES_SAMPLE})
 
-target_link_libraries(openkit-sample LibBase ${CURLIMPLIB} ${ZLIB_LIBRARIES})
+# Link the CURL and ZLIB libraries
+target_link_libraries(openkit-sample ${CURLIMPLIB} ${ZLIB_LIBRARIES})
+
+# Setting the compiler flag OPENKIT_STATIC_DEFINE leaves any export definitions empty
+target_compile_definitions(openkit-sample PRIVATE -DOPENKIT_STATIC_DEFINE)
+
 if(NOT WIN32)
 target_link_libraries(openkit-sample pthread)
 endif()
