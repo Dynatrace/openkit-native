@@ -45,6 +45,7 @@ void beaconSendingLoop(std::shared_ptr<BeaconSendingContext> context)
 bool BeaconSender::initialize()
 {
 	mSendingThread = std::unique_ptr<std::thread>(new std::thread(&beaconSendingLoop, mBeaconSendingContext));
+	mSendingThread->join();
 	return true;
 }
 
