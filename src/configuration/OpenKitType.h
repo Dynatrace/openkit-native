@@ -17,6 +17,8 @@
 #ifndef _CONFIGURATION_OPENKITTYPE_H
 #define _CONFIGURATION_OPENKITTYPE_H
 
+#include <stdint.h>
+
 namespace configuration
 {
 	///
@@ -29,27 +31,19 @@ namespace configuration
 		/// Returns the default server ID
 		/// @returns default server id
 		///
-		int32_t getDefaultServerID() { return mDefaultServerID; }
+		int32_t getDefaultServerID() const;
 
 		/// static instance for AppMon configurations
-		static OpenKitType CreateAppMonType() 
-		{
-			return OpenKitType(appMonDefault);// AppMon: default monitor URL name contains "dynaTraceMonitor" and default Server ID is 1
-		}
-
-		/// static instance for Dynatrace configurations
-		static OpenKitType CreateDynatraceType()
-		{
-			return OpenKitType(dynatraceDefault);// Dynatrace: default monitor URL name contains "mbeacon" and default Server ID is 1
-		}
+		static const OpenKitType APPMON;
+		static const OpenKitType DYNATRACE;
 
 	private:
 
 		/// default server ID
 		int32_t mDefaultServerID;
 
-		static const int32_t appMonDefault = 1;
-		static const int32_t dynatraceDefault = 1;
+		static const int32_t APPMON_DEFAULT_SERVER = 1;
+		static const int32_t DYNATRACE_DEFAULT_SERVER = 1;
 
 		///
 		/// Constructor
@@ -59,9 +53,7 @@ namespace configuration
 			: mDefaultServerID(defaultServerID)
 		{
 		}
-	};
-
-	
+	};	
 }
 
 #endif

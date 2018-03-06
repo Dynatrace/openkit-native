@@ -81,7 +81,7 @@ void Configuration::updateSettings(std::unique_ptr<protocol::StatusResponse> sta
 	}
 
 	// use send interval from beacon response or default
-	int32_t newSendInterval = statusResponse->getSendInterval();
+	auto newSendInterval = statusResponse->getSendInterval();
 	if (newSendInterval == -1)
 	{
 		newSendInterval = DEFAULT_SEND_INTERVAL;
@@ -92,7 +92,7 @@ void Configuration::updateSettings(std::unique_ptr<protocol::StatusResponse> sta
 	}
 
 	// use max beacon size from beacon response or default
-	int32_t newMaxBeaconSize = statusResponse->getMaxBeaconSize();
+	auto newMaxBeaconSize = statusResponse->getMaxBeaconSize();
 	if (newMaxBeaconSize == -1)
 	{
 		newMaxBeaconSize = DEFAULT_MAX_BEACON_SIZE;
