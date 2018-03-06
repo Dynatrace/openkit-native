@@ -28,12 +28,14 @@ target_compile_definitions(curltest PRIVATE -DOPENKIT_STATIC_DEFINE)
 # Unit tests
 ################
 
-# The unit tests don't test the public OpenKit-API, but instead they test the OpenKit internal functions.
-# If the OpenKit is built as a shared library, we don't want to export all (internal) symbols.
-# Therefore, for the target "unittests", the sources are directly accessed and compiled.
-# This is done by making the list of sources available here and creating the releative path with prepend.
 set(SOURCES_TO_TEST)
-prepend_to_list(SOURCES_TO_TEST ../src/ ${SOURCES})
+if(BUILD_SHARED_LIBS)
+	# The unit tests don't test the public OpenKit-API, but instead they test the OpenKit internal functions.
+	# If the OpenKit is built as a shared library, we don't want to export all (internal) symbols.
+	# Therefore, for the target "unittests", the sources are directly accessed and compiled.
+	# This is done by making the list of sources available here and creating the releative path with prepend.
+	prepend_to_list(SOURCES_TO_TEST ../src/ ${SOURCES})
+endif()
  
 set(SOURCES_UNITTEST
 	# Sources to be tested
