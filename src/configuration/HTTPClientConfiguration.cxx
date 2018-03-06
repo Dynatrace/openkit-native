@@ -18,10 +18,11 @@
 
 using namespace configuration;
 
-HTTPClientConfiguration::HTTPClientConfiguration(const core::UTF8String& url, uint32_t serverID, const core::UTF8String& applicationID)
+HTTPClientConfiguration::HTTPClientConfiguration(const core::UTF8String& url, uint32_t serverID, const core::UTF8String& applicationID, std::shared_ptr<protocol::ISSLTrustManager> sslTrustManager)
 	: mBaseURL(url)
 	, mServerID(serverID)
 	, mApplicationID(applicationID)
+	, mSSLTrustManager(sslTrustManager)
 {
 }
 
@@ -39,3 +40,9 @@ const core::UTF8String& HTTPClientConfiguration::getApplicationID() const
 {
 	return mApplicationID;
 }
+
+std::shared_ptr<protocol::ISSLTrustManager> HTTPClientConfiguration::getSSLTrustManager() const
+{
+	return mSSLTrustManager;
+}
+

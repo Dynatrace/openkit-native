@@ -19,9 +19,8 @@
 
 #include <memory>
 
-namespace communication {
-
-
+namespace communication
+{
 	/// forward declaration of class BeaconSendingContext
 	class BeaconSendingContext;
 
@@ -35,6 +34,10 @@ namespace communication {
 		enum class StateType
 		{
 			BEACON_SENDING_INIT_STATE,
+			BEACON_SENDING_TIME_SYNC_STATE,
+			BEACON_SENDING_CAPTURE_ON_STATE,
+			BEACON_SENDING_CAPTURE_OFF_STATE,
+			BEACON_SENDING_FLUSH_SESSIONS_STATE,
 			BEACON_SENDING_TERMINAL_STATE,
 			BEACON_SENDING_COUNT
 		};

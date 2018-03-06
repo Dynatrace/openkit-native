@@ -14,34 +14,27 @@
 * limitations under the License.
 */
 
-#ifndef _PROTOCOL_RESPONSE_H
-#define _PROTOCOL_RESPONSE_H
+#ifndef _PROVIDERS_ISESSIONIDPROVIDER_H
+#define _PROVIDERS_ISESSIONIDPROVIDER_H
 
 #include <cstdint>
 
-namespace protocol
+namespace providers
 {
-	///
-	/// Abstract base class for a response to one of the 3 request types(status check, beacon send, time sync).
-	///
-	class Response
+	class ISessionIDProvider
 	{
 	public:
 		///
-		/// Construct a response given a response code
-		/// @param[in] responseCode a numerical code for the status of a request
+		/// Destructor
 		///
-		Response(uint32_t responseCode);
+		virtual ~ISessionIDProvider() {}
 
 		///
-		/// Return the response code
-		/// @returns the response code
+		/// Provide the next sessionID
+		/// All positive integers greater than 0 can be used as sessionID
+		/// @returns the id that will be used for the next session
 		///
-		uint32_t getResponseCode() const;
-	private:
-		/// numerical response code
-		uint32_t mResponseCode;
+		virtual int32_t getNextSessionID() = 0;
 	};
 }
-
 #endif

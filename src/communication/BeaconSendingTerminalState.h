@@ -19,7 +19,8 @@
 
 #include "communication/AbstractBeaconSendingState.h"
 
-namespace communication {
+namespace communication
+{
 	///
 	/// Terminal state once beacon sending is finished and shutdown is requested.
 	/// NOTE: The initial state is used to retrieve the configuration from the server and update the configuration.

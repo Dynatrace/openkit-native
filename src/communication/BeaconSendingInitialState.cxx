@@ -18,8 +18,10 @@
 
 #include <chrono>
 #include <algorithm>
+#include <memory>
 
 #include "communication/BeaconSendingTerminalState.h"
+#include "communication/BeaconSendingTimeSyncState.h"
 #include "communication/AbstractBeaconSendingState.h"
 #include "communication/BeaconSendingRequestUtil.h"
 #include "communication/BeaconSendingContext.h"
@@ -79,8 +81,7 @@ void BeaconSendingInitialState::doExecute(BeaconSendingContext& context)
 	{
 		// success -> continue with time sync
 		context.handleStatusResponse(std::move(statusResponse));
-		context.setNextState(nullptr);
-		//context.setNextState(new BeaconSendingTimeSyncState(true));//not yet implemented //TODO johannes.baeuerle
+		context.setNextState(std::shared_ptr<AbstractBeaconSendingState>(new BeaconSendingTimeSyncState(true)));
 	}
 }
 

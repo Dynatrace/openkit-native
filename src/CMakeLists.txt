@@ -22,6 +22,7 @@ set(SOURCES_COMMUNICATION
 	communication/BeaconSendingInitialState.cxx
 	communication/BeaconSendingTerminalState.cxx
 	communication/BeaconSendingRequestUtil.cxx
+	communication/BeaconSendingTimeSyncState.cxx
 )
 
 set(SOURCES_PROTOCOL
@@ -29,11 +30,14 @@ set(SOURCES_PROTOCOL
 	protocol/StatusResponse.cxx
 	protocol/TimeSyncResponse.cxx
 	protocol/HTTPClient.cxx
+	protocol/ssl/SSLBlindTrustManager.cxx
+	protocol/ssl/SSLStrictTrustManager.cxx
 )
 
 set(SOURCES_PROVIDERS
 	providers/DefaultTimingProvider.cxx
 	providers/DefaultHTTPClientProvider.cxx
+	providers/DefaultSessionIDProvider.cxx
 )
 
 set(SOURCES_CONFIGURATION

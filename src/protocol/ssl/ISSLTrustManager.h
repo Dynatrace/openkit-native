@@ -14,34 +14,32 @@
 * limitations under the License.
 */
 
-#ifndef _PROTOCOL_RESPONSE_H
-#define _PROTOCOL_RESPONSE_H
+#ifndef _PROTOCOL_SSL_ISSLTRUSTMANAGER_H
+#define _PROTOCOL_SSL_ISSLTRUSTMANAGER_H
 
-#include <cstdint>
+#include "curl/curl.h"
 
 namespace protocol
 {
 	///
-	/// Abstract base class for a response to one of the 3 request types(status check, beacon send, time sync).
+	/// Interface to provide a user-defined trust manager to the configuration.
+	/// When OpenKit connects to a server with self-signed SSL/TLS certificates (e.g. AppMon) then
+	/// an implementation of this interface is required to verify the certificate.
 	///
-	class Response
+	class ISSLTrustManager
 	{
 	public:
-		///
-		/// Construct a response given a response code
-		/// @param[in] responseCode a numerical code for the status of a request
-		///
-		Response(uint32_t responseCode);
 
 		///
-		/// Return the response code
-		/// @returns the response code
+		/// Destructor
 		///
-		uint32_t getResponseCode() const;
-	private:
-		/// numerical response code
-		uint32_t mResponseCode;
+		virtual ~ISSLTrustManager() {}
+
+		///
+		/// Apply the trust configuration on the provided curl handle
+		///
+		virtual void applyTrustManager(CURL* curl) = 0;
+
 	};
 }
-
 #endif

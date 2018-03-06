@@ -37,6 +37,8 @@ BeaconSendingContext::BeaconSendingContext(std::shared_ptr<providers::IHTTPClien
 	, mLastStatusCheckTime(0)
 	, mLastOpenSessionBeaconSendTime(0)
 	, mInitCountdownLatch(1)
+	, mIsTimeSyncSupported(true)
+	, mLastTimeSyncTime(-1)
 {	
 }
 
@@ -134,7 +136,7 @@ bool BeaconSendingContext::waitForInit()
 	return mInitSucceeded;
 }
 
-void BeaconSendingContext::sleep(uint64_t ms)
+void BeaconSendingContext::sleep(int64_t ms)
 {
 	if (mTimingProvider != nullptr)
 	{
@@ -142,17 +144,17 @@ void BeaconSendingContext::sleep(uint64_t ms)
 	}
 }
 
-uint64_t BeaconSendingContext::getLastStatusCheckTime() const
+int64_t BeaconSendingContext::getLastStatusCheckTime() const
 {
 	return mLastStatusCheckTime;
 }
 
-void BeaconSendingContext::setLastStatusCheckTime(uint64_t lastStatusCheckTime)
+void BeaconSendingContext::setLastStatusCheckTime(int64_t lastStatusCheckTime)
 {
 	mLastStatusCheckTime = lastStatusCheckTime;
 }
 
-uint64_t BeaconSendingContext::getCurrentTimestamp() const
+int64_t BeaconSendingContext::getCurrentTimestamp() const
 {
 	if (mTimingProvider != nullptr)
 	{
@@ -161,12 +163,12 @@ uint64_t BeaconSendingContext::getCurrentTimestamp() const
 	return 0;
 }
 
-uint64_t BeaconSendingContext::getLastOpenSessionBeaconSendTime()
+int64_t BeaconSendingContext::getLastOpenSessionBeaconSendTime() const
 {
 	return mLastOpenSessionBeaconSendTime;
 }
 
-void BeaconSendingContext::setLastOpenSessionBeaconSendTime(uint64_t timestamp)
+void BeaconSendingContext::setLastOpenSessionBeaconSendTime(int64_t timestamp)
 {
 	mLastStatusCheckTime = timestamp;
 }
@@ -174,4 +176,38 @@ void BeaconSendingContext::setLastOpenSessionBeaconSendTime(uint64_t timestamp)
 AbstractBeaconSendingState::StateType BeaconSendingContext::getCurrentStateType() const
 {
 	return mCurrentState->getStateType();
+}
+
+bool BeaconSendingContext::isTimeSyncSupported() const
+{
+	return mIsTimeSyncSupported;
+}
+
+
+void BeaconSendingContext::disableTimeSyncSupport()
+{
+	mIsTimeSyncSupported = false;
+}
+
+bool BeaconSendingContext::isTimeSynced() const
+{
+	return !mIsTimeSyncSupported || getLastTimeSyncTime() >= 0;
+}
+
+int64_t BeaconSendingContext::getLastTimeSyncTime() const
+{
+	return mLastTimeSyncTime;
+}
+
+void BeaconSendingContext::setLastTimeSyncTime(int64_t lastTimeSyncTime)
+{
+	mLastTimeSyncTime = lastTimeSyncTime;
+}
+
+void BeaconSendingContext::initializeTimeSync(int64_t clusterTimeOffset, bool isTimeSyncSupported)
+{
+	if (mTimingProvider != nullptr)
+	{
+		mTimingProvider->initialize(clusterTimeOffset, isTimeSyncSupported);
+	}
 }

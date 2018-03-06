@@ -61,6 +61,8 @@ TEST_F(BeaconSendingInitialStateTest, getShutdownStateGivesABeaconSendingTermina
 
 	//then
 	ASSERT_TRUE(obtained != nullptr);
+	ASSERT_EQ(obtained->getStateType(), communication::AbstractBeaconSendingState::StateType::BEACON_SENDING_TERMINAL_STATE);
+
 }
 
 TEST_F(BeaconSendingInitialStateTest, getShutdownStateAlwaysCreatesANewInstance)

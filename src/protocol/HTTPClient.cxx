@@ -23,6 +23,7 @@
 #include "HTTPClient.h"
 #include "ProtocolConstants.h"
 #include "core/util/Compressor.h"
+#include "protocol/ssl/SSLStrictTrustManager.h"
 
 // connection constants
 constexpr uint32_t MAX_SEND_RETRIES = 3;	// max number of retries of the HTTP GET or POST operation
@@ -33,19 +34,29 @@ constexpr uint64_t READ_TIMEOUT = 30;		// Time-out the read operation after this
 using namespace protocol;
 using namespace base::util;
 
-HTTPClient::HTTPClient(std::shared_ptr<configuration::HTTPClientConfiguration> configuration)
+HTTPClient::HTTPClient(const std::shared_ptr<configuration::HTTPClientConfiguration> configuration)
 	: mCurl(nullptr)
 	, mServerID(configuration->getServerID())
 	, mMonitorURL()
 	, mTimeSyncURL()
 	, mReadBuffer()
 	, mReadBufferPos(0)
-
+	, mSSLTrustManager(nullptr)
 {
 	// build the beacon URLs
 	buildMonitorURL(mMonitorURL, configuration->getBaseURL(), configuration->getApplicationID(), mServerID);
 	buildTimeSyncURL(mTimeSyncURL, configuration->getBaseURL());
-	// TODO: sslTrustManager = configuration.getSSLTrustManager();
+
+	// if configuration provides a trust manager use it, else use strict trust manager
+	auto trustManagerFromConfiguration = configuration->getSSLTrustManager();
+	if (trustManagerFromConfiguration != nullptr)
+	{
+		mSSLTrustManager = trustManagerFromConfiguration;
+	}
+	else
+	{
+		mSSLTrustManager = std::shared_ptr<protocol::ISSLTrustManager>(new protocol::SSLStrictTrustManager());
+	}
 
 	// set up the program environment that libcurl needs. In windows, this will init the winsock stuff
 	curl_global_init(CURL_GLOBAL_ALL);
@@ -150,7 +161,9 @@ std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::Requ
 		curl_easy_setopt(mCurl, CURLOPT_TIMEOUT, READ_TIMEOUT);
 		// allow servers to send compressed data
 		curl_easy_setopt(mCurl, CURLOPT_ACCEPT_ENCODING, "");
-		
+		// SSL/TSL certificate handling
+		mSSLTrustManager->applyTrustManager(mCurl);
+
 		// To retrieve the response
 		std::string responseBuffer;
 		curl_easy_setopt(mCurl, CURLOPT_WRITEFUNCTION, writeFunction);

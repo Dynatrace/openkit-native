@@ -20,9 +20,10 @@
 #include <mutex>
 #include <condition_variable>
 
-namespace core {
-	namespace util {
-
+namespace core
+{
+	namespace util
+	{
 		///
 		/// CountDownLatch is a synchronisation mechanism where threads will wait in the @c await() method
 		/// unit the count reaches 0. If 1 is used as initial value this is a simple on/off latch.

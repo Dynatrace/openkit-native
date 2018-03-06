@@ -19,7 +19,8 @@
 
 #include "ITimingProvider.h"
 
-namespace providers {
+namespace providers
+{
 	
 	///
 	/// Default implementation for timing provider

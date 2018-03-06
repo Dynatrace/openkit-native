@@ -14,10 +14,9 @@
 * limitations under the License.
 */
 
-constexpr char RESPONSE_KEY_REQUEST_RECEIVE_TIME[] = "t1";
-constexpr char RESPONSE_KEY_RESPONSE_SEND_TIME[] = "t2";
-
 #include "TimeSyncResponse.h"
+
+#include "protocol/ProtocolConstants.h"
 
 #include <sstream>
 #include <stdexcept>
@@ -51,11 +50,11 @@ void TimeSyncResponse::parseResponse(const core::UTF8String& response)
 
 			if (!key.empty() && !value.empty())
 			{
-				if (key.equals(RESPONSE_KEY_REQUEST_RECEIVE_TIME))
+				if (key.equals(protocol::RESPONSE_KEY_REQUEST_RECEIVE_TIME))
 				{
 					mRequestReceiveTime = std::stoll(value.getStringData());
 				}
-				else if (key.equals(RESPONSE_KEY_RESPONSE_SEND_TIME))
+				else if (key.equals(protocol::RESPONSE_KEY_RESPONSE_SEND_TIME))
 				{
 					mResponseSendTime = std::stoll(value.getStringData());
 				}

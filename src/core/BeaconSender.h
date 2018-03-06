@@ -24,7 +24,8 @@
 #include "providers/IHTTPClientProvider.h"
 #include "providers/ITimingProvider.h"
 
-namespace core {
+namespace core
+{
 	///
 	/// The BeaconSender runs a thread executing the beacon sending states
 	///
