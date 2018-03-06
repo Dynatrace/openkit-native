@@ -20,11 +20,26 @@
 
 using namespace configuration;
 
-Configuration::Configuration(std::shared_ptr<HTTPClientConfiguration> httpClientConfiguration,
-							std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider)
+constexpr bool DEFAULT_CAPTURE = true;                           // default: capture on
+constexpr int64_t DEFAULT_SEND_INTERVAL = 2 * 60 * 1000;                 // default: wait 2m (in ms) to send beacon
+constexpr int32_t DEFAULT_MAX_BEACON_SIZE = 30 * 1024;                   // default: max 30KB (in B) to send in one beacon
+constexpr bool DEFAULT_CAPTURE_ERRORS = true;                     // default: capture errors on
+constexpr bool DEFAULT_CAPTURE_CRASHES = true;                    // default: capture crashes on
+
+Configuration::Configuration(OpenKitType openKitType, const core::UTF8String& applicationName, const core::UTF8String& applicationID, uint64_t deviceID, const core::UTF8String& endpointURL,
+	std::shared_ptr<HTTPClientConfiguration> httpClientConfiguration, std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider)
 	: mHTTPClientConfiguration(httpClientConfiguration)
 	, mSessionIDProvider(sessionIDProvider)
 	, mIsCapture(false)
+	, mSendInterval(DEFAULT_SEND_INTERVAL)
+	, mMaxBeaconSize(DEFAULT_MAX_BEACON_SIZE)
+	, mCaptureErrors(DEFAULT_CAPTURE_ERRORS)
+	, mCaptureCrashes(DEFAULT_CAPTURE_CRASHES)
+	, mOpenKitType(openKitType)
+	, mApplicationName(applicationName)
+	, mApplicationID(applicationID)
+	, mEndpointURL(endpointURL)
+	, mDeviceID(deviceID)
 {
 }
 
@@ -35,18 +50,60 @@ std::shared_ptr<HTTPClientConfiguration> Configuration::getHTTPClientConfigurati
 
 void Configuration::updateSettings(std::unique_ptr<protocol::StatusResponse> statusResponse)
 {
-	if (statusResponse == nullptr)
+	if (statusResponse == nullptr || statusResponse->getResponseCode() != 200)
 	{
 		return;
 	}
 
-	if (statusResponse->getResponseCode() != 200)
+	mIsCapture = statusResponse->isCapture();
+
+	//if capture is off -> leave other settings on their current values
+	if (!statusResponse->isCapture())
 	{
 		return;
 	}
 
-	//TODO johannes.baeuerle update settings based on response
-	//throw std::runtime_error("not implemented");
+	//use server ID from beacon response or default
+	int32_t newServerID = statusResponse->getServerID();
+	if (newServerID == -1)
+	{
+		newServerID = mOpenKitType.getDefaultServerID();
+	}
+
+	//check if HTTP configuration changed
+	if (mHTTPClientConfiguration->getServerID() != newServerID)
+	{
+		mHTTPClientConfiguration = std::make_shared<configuration::HTTPClientConfiguration>(mEndpointURL, 
+																							newServerID,
+																							mApplicationID, 
+																							mHTTPClientConfiguration->getSSLTrustManager());
+	}
+
+	// use send interval from beacon response or default
+	int32_t newSendInterval = statusResponse->getSendInterval();
+	if (newSendInterval == -1)
+	{
+		newSendInterval = DEFAULT_SEND_INTERVAL;
+	}
+	if (newSendInterval != mSendInterval)
+	{
+		mSendInterval = newSendInterval;
+	}
+
+	// use max beacon size from beacon response or default
+	int32_t newMaxBeaconSize = statusResponse->getMaxBeaconSize();
+	if (newMaxBeaconSize == -1)
+	{
+		newMaxBeaconSize = DEFAULT_MAX_BEACON_SIZE;
+	}
+	if (newMaxBeaconSize != mMaxBeaconSize)
+	{
+		mMaxBeaconSize = newMaxBeaconSize;
+	}
+
+	// use capture settings for errors and crashes
+	mCaptureErrors = statusResponse->isCaptureErrors();
+	mCaptureCrashes = statusResponse->isCaptureCrashes();
 }
 
 bool Configuration::isCapture() const
@@ -65,3 +122,39 @@ int32_t Configuration::createSessionNumber()
 		return 0;
 	}
 }
+
+const core::UTF8String& Configuration::getApplicationName() const
+{
+	return mApplicationName;
+}
+
+const core::UTF8String& Configuration::getApplicationID() const
+{
+	return mApplicationID;
+}
+
+int64_t Configuration::getDeviceID() const
+{
+	return mDeviceID;
+}
+
+int64_t Configuration::getSendInterval() const
+{
+	return mSendInterval;
+}
+
+int32_t Configuration::getMaxBeaconSize() const
+{
+	return mMaxBeaconSize;
+}
+
+bool Configuration::isCaptureErrors() const
+{
+	return mCaptureErrors;
+}
+
+bool Configuration::isCaptureCrashes() const
+{
+	return mCaptureCrashes;
+}
+

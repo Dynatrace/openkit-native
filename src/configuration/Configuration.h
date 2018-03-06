@@ -17,11 +17,13 @@
 #ifndef _CONFIGURATION_CONFIGURATION_H
 #define _CONFIGURATION_CONFIGURATION_H
 
-#include <memory>
-
 #include "providers/ISessionIDProvider.h"
 #include "configuration/HTTPClientConfiguration.h"
+#include "configuration/OpenKitType.h"
 #include "protocol/StatusResponse.h"
+
+#include <memory>
+#include <atomic>
 
 namespace configuration
 {
@@ -33,9 +35,16 @@ namespace configuration
 	public:
 		///
 		/// Construct a Configuration given a  HTTPClientConfiguration
+		/// @param[in] openKitType AppMon or dynatrace configuration @see OpenKitType
+		/// @param[in] applicationName applicationName application name
+		/// @param[in] applicationID application id
+		/// @param[in] deviceID device id
+		/// @param[in] endpointURL beacon endpoint URL
 		/// @param[in] httpClientConfiguration the  HTTPClientConfiguration to use, will be stored in the  Configuration
+		/// @param[in] sessionIDProvider provider for session IDs
 		///
-		Configuration(std::shared_ptr<HTTPClientConfiguration> httpClientConfiguration, std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider);
+		Configuration(OpenKitType openKitType, const core::UTF8String& applicationName, const core::UTF8String& applicationID, uint64_t deviceID, const core::UTF8String& endpointURL,
+			std::shared_ptr<HTTPClientConfiguration> httpClientConfiguration, std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider);
 
 		///
 		/// Return the  HTTPClientConfiguration to use when constructing a  HTTPClient
@@ -61,6 +70,48 @@ namespace configuration
 		///
 		int32_t createSessionNumber();
 
+		///
+		/// Returns the application name
+		/// @returns the application name
+		///
+		const core::UTF8String& getApplicationName() const;
+
+		///
+		/// Returns the application id
+		/// @returns the application id
+		///
+		const core::UTF8String& getApplicationID() const;
+
+		///
+		/// Returns the device id
+		/// @returns the device id
+		///
+		int64_t getDeviceID() const;
+
+		///
+		/// Returns the send interval
+		/// @returns the send interval
+		///
+		int64_t getSendInterval() const;
+
+		///
+		/// Returns the maximum beacon size
+		/// @returns the maximum beacon size
+		///
+		int32_t getMaxBeaconSize() const;
+
+		///
+		/// Returns a flag if errors are captured
+		/// @returns @c true if errors are captured @c false if errors are not captured
+		///
+		bool isCaptureErrors() const;
+
+		///
+		/// Returns a flag if crashes are captured
+		/// @returns @c true if crashes are captured @c false if crashes are not captured
+		///
+		bool isCaptureCrashes() const;
+
 	private:
 		/// HTTP client configuration
 		std::shared_ptr<HTTPClientConfiguration> mHTTPClientConfiguration;
@@ -69,7 +120,34 @@ namespace configuration
 		std::shared_ptr<providers::ISessionIDProvider> mSessionIDProvider;
 
 		/// flag if capturing is enabled
-		bool mIsCapture;
+		std::atomic<bool> mIsCapture;
+
+		/// the send interval
+		int64_t mSendInterval;
+		
+		/// maximum beacon size
+		int32_t mMaxBeaconSize;
+
+		/// flag if to capture errors
+		bool mCaptureErrors;
+
+		/// flag if to capture crashes
+		bool mCaptureCrashes;
+
+		/// OpenKit type
+		OpenKitType mOpenKitType;
+
+		/// application name
+		const core::UTF8String& mApplicationName;
+
+		/// application id
+		const core::UTF8String& mApplicationID;
+
+		/// endpoint url
+		const core::UTF8String& mEndpointURL;
+
+		///device ID
+		int64_t mDeviceID;
 	};
 }
 

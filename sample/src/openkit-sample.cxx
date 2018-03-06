@@ -23,6 +23,7 @@
 #include "providers/DefaultSessionIDProvider.h"
 #include "providers/DefaultTimingProvider.h"
 #include "configuration/HTTPClientConfiguration.h"
+#include "configuration/OpenKitType.h"
 
 using namespace core;
 using namespace communication;
@@ -63,7 +64,9 @@ int32_t main(int32_t argc, char** argv)
 	std::shared_ptr<IHTTPClientProvider> httpClientProvider = std::shared_ptr<IHTTPClientProvider>(new DefaultHTTPClientProvider());
 	std::shared_ptr<ITimingProvider> timingProvider = std::shared_ptr<ITimingProvider>(new DefaultTimingProvider());
 	std::shared_ptr<ISessionIDProvider> sessionIDProvider = std::shared_ptr<ISessionIDProvider>(new DefaultSessionIDProvider());
-	std::shared_ptr<Configuration> configuration = std::shared_ptr<Configuration>(new Configuration(httpClientConfig, sessionIDProvider));
+	std::shared_ptr<Configuration> configuration = std::shared_ptr<Configuration>(new Configuration(configuration::OpenKitType::CreateDynatraceType(),
+																									core::UTF8String("openkit-sample"), applicationID, serverID, beaconURL,
+																									httpClientConfig, sessionIDProvider));
 
 	BeaconSender sender(configuration, httpClientProvider, timingProvider);
 	
