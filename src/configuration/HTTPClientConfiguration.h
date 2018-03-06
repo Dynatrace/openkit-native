@@ -50,7 +50,7 @@ namespace configuration
 		/// Returns the server id to be used for the http client
 		/// @returns the server id
 		///
-		uint32_t getServerID() const;
+		int32_t getServerID() const;
 		
 		///
 		/// The application id for the http client
@@ -69,7 +69,7 @@ namespace configuration
 		const core::UTF8String mBaseURL;
 
 		/// the server ID
-		uint32_t mServerID;
+		int32_t mServerID;
 
 		/// the application id
 		const core::UTF8String mApplicationID;

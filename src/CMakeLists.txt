@@ -43,6 +43,8 @@ set(SOURCES_PROVIDERS
 set(SOURCES_CONFIGURATION
 	configuration/HTTPClientConfiguration.cxx
 	configuration/Configuration.cxx
+	configuration/Device.cxx
+	configuration/OpenKitType.cxx
 )
 
 # Create a combined list of all source files
