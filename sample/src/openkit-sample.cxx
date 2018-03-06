@@ -76,9 +76,5 @@ int32_t main(int32_t argc, char** argv)
 	
 	sender.initialize();
 
-	std::this_thread::sleep_for(std::chrono::seconds(2));
-
-	sender.shutdown();
-	
 	return 0;
 }
