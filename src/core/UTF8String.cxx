@@ -19,6 +19,7 @@
 
 #include <stdio.h>
 #include <sstream>
+#include <iomanip>
 
 using namespace core;
 
@@ -364,4 +365,77 @@ std::vector<UTF8String> UTF8String::split(char delimiter) const
 		parts.push_back(UTF8String(item));
 	}
 	return parts;
+}
+
+static const UTF8String reservedRFC3986 = UTF8String("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.~");
+
+UTF8String UTF8String::urlencode() const
+{
+	UTF8String encoded;
+
+	for (size_t i = 0; i < mData.length(); i++)
+	{
+		if (reservedRFC3986.getIndexOf(&mData[i]) != std::string::npos) //character is in the list of unreserved characters -> copy
+		{
+			encoded.mData.push_back(mData[i]);
+		}
+		else // character must be escaped
+		{
+			std::stringstream ss;
+			unsigned char c = mData[i];
+			ss << "%" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << static_cast<int32_t>(c);
+			encoded.concatenate(ss.str().c_str());
+		}
+	}
+
+	return encoded;
+}
+
+UTF8String UTF8String::urldecode() const
+{
+	UTF8String decoded;
+
+	for (size_t i = 0; i < mData.length(); i++)
+	{
+		if (mData[i] != '%')//character is in the list of unreserved characters -> copy
+		{
+			decoded.mData.push_back(mData[i]);
+		}
+		else // character must be 'un'-escaped, the two next characters are hex-encoded byte
+		{
+			if (i < mData.length() - 2)//check if there is enough data for the current percent sign
+			{
+				std::string byte(&mData[i + 1], 2);
+
+				bool validByte = false;
+				if (byte[0] >= 'a' && byte[0] <= 'f' || byte[0] >= 'A' && byte[0] <= 'F' || byte[0] >= '0' && byte[0] <= '9')//valid hex char
+				{
+					if (byte[1] >= 'a' && byte[1] <= 'f' || byte[1] >= 'A' && byte[1] <= 'F' || byte[1] >= '0' && byte[1] <= '9')//valid hex char
+					{
+						validByte = true;
+					}
+				}
+
+				if (validByte)
+				{
+					int32_t codepoint = stoi(byte, nullptr, 16);
+					decoded.mData.push_back(static_cast<int8_t>(codepoint));
+				}
+				else
+				{
+					decoded.mData.push_back('?');
+					decoded.mData.push_back(byte[0]);
+					decoded.mData.push_back(byte[1]);
+				}
+
+				i += 2;
+			}
+			else
+			{
+				break;
+			}
+		}
+	}
+
+	return decoded;
 }
