@@ -29,6 +29,7 @@
 #include "configuration/Configuration.h"
 #include "configuration/OpenKitType.h"
 #include "protocol/StatusResponse.h"
+#include "protocol/ssl/SSLStrictTrustManager.h"
 #include "providers/DefaultHTTPClientProvider.h"
 #include "providers/DefaultSessionIDProvider.h"
 
@@ -43,16 +44,11 @@ namespace test
 	{
 	public:
 		MockBeaconSendingContext()
-			: MockBeaconSendingContext(std::make_shared<configuration::HTTPClientConfiguration>("", 0, ""))
-		{
-		}
-
-		MockBeaconSendingContext(std::shared_ptr<configuration::HTTPClientConfiguration> httpClientConfiguration)
 			: BeaconSendingContext(std::make_shared<providers::DefaultHTTPClientProvider>(),
 				std::make_shared<test::TestTimingProvider>(),
 				std::make_shared<configuration::Configuration>( std::shared_ptr<configuration::Device>(new configuration::Device("", "", "")),configuration::OpenKitType::DYNATRACE, core::UTF8String(""), core::UTF8String(""), 1,  core::UTF8String(""),
-																httpClientConfiguration, 
-																std::make_shared<providers::DefaultSessionIDProvider>()))
+																std::make_shared<providers::DefaultSessionIDProvider>(),
+																std::make_shared<protocol::SSLStrictTrustManager>()))
 		{
 		}
 
