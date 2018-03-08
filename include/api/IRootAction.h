@@ -14,38 +14,28 @@
 * limitations under the License.
 */
 
-#ifndef _PROTOCOL_RESPONSE_H
-#define _PROTOCOL_RESPONSE_H
+#ifndef _API_IROOTACTION_H
+#define _API_IROOTACTION_H
 
-#include <cstdint>
+#include "IAction.h"
 
-namespace protocol
+#include <stdint.h>
+#include <memory>
+
+namespace api
 {
 	///
-	/// Abstract base class for a response to one of the 3 request types(status check, beacon send, time sync).
+	/// This interface provides the same functionality as IAction, additionally it allows to create child actions
 	///
-	class Response
+	class IRootAction : public IAction
 	{
 	public:
 		///
-		/// Construct a response given a response code
-		/// @param[in] responseCode a numerical code for the status of a request
+		/// Enters an Action with a specified name in this Session.
+		/// @param[in] actionName name of the Action
+		/// @returns Action instance to work with
 		///
-		Response(uint32_t responseCode);
-
-		///
-		/// Destructor
-		///
-		virtual ~Response() {};
-
-		///
-		/// Return the response code
-		/// @returns the response code
-		///
-		virtual uint32_t getResponseCode() const;
-	private:
-		/// numerical response code
-		uint32_t mResponseCode;
+		virtual std::shared_ptr<IAction> EnterAction() = 0;
 	};
 }
 #endif

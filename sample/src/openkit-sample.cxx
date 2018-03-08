@@ -25,6 +25,7 @@
 #include "configuration/HTTPClientConfiguration.h"
 #include "configuration/OpenKitType.h"
 #include "configuration/Device.h"
+#include "protocol/ssl/SSLStrictTrustManager.h"
 
 using namespace core;
 using namespace communication;
@@ -60,7 +61,7 @@ int32_t main(int32_t argc, char** argv)
 
 	parseCommandLine(argc, argv, beaconURL, serverID, applicationID);
 
-	std::shared_ptr<HTTPClientConfiguration> httpClientConfig = std::shared_ptr<HTTPClientConfiguration>(new HTTPClientConfiguration(beaconURL, serverID, applicationID));
+	std::shared_ptr<protocol::ISSLTrustManager> trustManager = std::make_shared<protocol::SSLStrictTrustManager>();
 
 	std::shared_ptr<IHTTPClientProvider> httpClientProvider = std::shared_ptr<IHTTPClientProvider>(new DefaultHTTPClientProvider());
 	std::shared_ptr<ITimingProvider> timingProvider = std::shared_ptr<ITimingProvider>(new DefaultTimingProvider());
@@ -70,7 +71,7 @@ int32_t main(int32_t argc, char** argv)
 
 	std::shared_ptr<Configuration> configuration = std::shared_ptr<Configuration>(new Configuration(device, configuration::OpenKitType::DYNATRACE,
 																									core::UTF8String("openkit-sample"), applicationID, serverID, beaconURL,
-																									httpClientConfig, sessionIDProvider));
+																									sessionIDProvider, trustManager ));
 
 	BeaconSender sender(configuration, httpClientProvider, timingProvider);
 	

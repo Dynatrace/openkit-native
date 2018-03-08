@@ -14,38 +14,38 @@
 * limitations under the License.
 */
 
-#ifndef _PROTOCOL_RESPONSE_H
-#define _PROTOCOL_RESPONSE_H
+#ifndef _API_ISESSION_H
+#define _API_ISESSION_H
 
-#include <cstdint>
+#include "IRootAction.h"
 
-namespace protocol
+#include <stdint.h>
+#include <memory>
+
+namespace api
 {
 	///
-	/// Abstract base class for a response to one of the 3 request types(status check, beacon send, time sync).
+	/// This interface provides functionality to create Actions in a Session.
 	///
-	class Response
+	class ISession
 	{
 	public:
 		///
-		/// Construct a response given a response code
-		/// @param[in] responseCode a numerical code for the status of a request
-		///
-		Response(uint32_t responseCode);
-
-		///
 		/// Destructor
 		///
-		virtual ~Response() {};
+		virtual ~ISession() {};
 
 		///
-		/// Return the response code
-		/// @returns the response code
+		/// Enters an Action with a specified name in this Session.
+		/// @param[in] actionName name of the Action
+		/// @returns Action instance to work with
 		///
-		virtual uint32_t getResponseCode() const;
-	private:
-		/// numerical response code
-		uint32_t mResponseCode;
+		virtual std::shared_ptr<IRootAction> EnterAction() = 0;
+
+		///
+		///  Ends this Session and marks it as ready for immediate sending.
+		///
+		virtual void end() = 0;
 	};
 }
 #endif

@@ -37,6 +37,7 @@ namespace configuration
 		static const OpenKitType APPMON;
 		static const OpenKitType DYNATRACE;
 
+
 	private:
 
 		/// default server ID
@@ -53,7 +54,7 @@ namespace configuration
 			: mDefaultServerID(defaultServerID)
 		{
 		}
-	};	
+	};
 }
 
 #endif

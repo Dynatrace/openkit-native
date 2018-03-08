@@ -4,6 +4,9 @@ SET(SOURCES_CORE
 	core/util/CommandLineArguments.cxx
 	core/UTF8String.cxx
 	core/BeaconSender.cxx
+	core/Session.cxx
+	core/Action.cxx
+	core/RootAction.cxx
 )
 
 SET(SOURCES_COMMUNICATION

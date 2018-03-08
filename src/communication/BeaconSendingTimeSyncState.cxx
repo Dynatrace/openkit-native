@@ -16,10 +16,13 @@
 
 #include "BeaconSendingTimeSyncState.h"
 
+#include <math.h>
+#include <algorithm>
+
 #include "BeaconSendingContext.h"
 #include "BeaconSendingTerminalState.h"
 
-#include <algorithm> 
+ 
 
 using namespace communication;
 
