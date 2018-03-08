@@ -45,7 +45,7 @@ namespace protocol
 		///
 		/// Destructor
 		///
-		virtual ~StatusResponse() {};
+		virtual ~StatusResponse() {}
 
 		///
 		/// Get a flag if capturing is enabled by the cluster

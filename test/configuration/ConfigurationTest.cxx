@@ -35,9 +35,6 @@ public:
 		sessionIDProvider = std::shared_ptr<providers::ISessionIDProvider>(new providers::DefaultSessionIDProvider());
 		device = std::shared_ptr<Device>(new Device("", "", ""));
 	}
-	void TearDown()
-	{
-	}
 
 	std::unique_ptr<configuration::Configuration> getDefaultConfiguration()
 	{

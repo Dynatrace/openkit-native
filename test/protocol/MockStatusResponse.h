@@ -32,8 +32,6 @@ namespace test
 		{
 		}
 
-		virtual ~MockStatusResponse() {};
-
 		MOCK_CONST_METHOD0(getResponseCode, uint32_t());
 		MOCK_CONST_METHOD0(isCapture, bool());
 	};
