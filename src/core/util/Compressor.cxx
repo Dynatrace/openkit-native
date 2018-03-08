@@ -16,7 +16,7 @@
 
 #include "Compressor.h"
 
-#include <algorithm>
+#include <stdint.h>
 #include <zlib.h>
 #include "assert.h"
 

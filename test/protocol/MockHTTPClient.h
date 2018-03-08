@@ -14,8 +14,8 @@
 * limitations under the License.
 */
 
-#ifndef _TEST_PROTOCOL_TESTHTTPCLIENT_H
-#define _TEST_PROTOCOL_TESTHTTPCLIENT_H
+#ifndef _TEST_PROTOCOL_MOCKHTTPCLIENT_H
+#define _TEST_PROTOCOL_MOCKHTTPCLIENT_H
 
 #include "protocol/IHTTPClient.h"
 
