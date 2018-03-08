@@ -46,7 +46,7 @@ namespace configuration
 		/// @param[in] sessionIDProvider provider for session IDs
 		///
 		Configuration(std::shared_ptr<configuration::Device> device,OpenKitType openKitType, const core::UTF8String& applicationName, const core::UTF8String& applicationID, uint64_t deviceID, const core::UTF8String& endpointURL,
-			std::shared_ptr<HTTPClientConfiguration> httpClientConfiguration, std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider);
+			std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider, std::shared_ptr<protocol::ISSLTrustManager> sslTrustManager);
 
 		///
 		/// Return the  HTTPClientConfiguration to use when constructing a  HTTPClient
@@ -146,13 +146,13 @@ namespace configuration
 		OpenKitType mOpenKitType;
 
 		/// application name
-		const core::UTF8String& mApplicationName;
+		core::UTF8String mApplicationName;
 
 		/// application id
-		const core::UTF8String& mApplicationID;
+		core::UTF8String mApplicationID;
 
 		/// endpoint url
-		const core::UTF8String& mEndpointURL;
+		core::UTF8String mEndpointURL;
 
 		///device ID
 		int64_t mDeviceID;

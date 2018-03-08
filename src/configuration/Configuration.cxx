@@ -26,9 +26,9 @@ constexpr int32_t DEFAULT_MAX_BEACON_SIZE = 30 * 1024;                   // defa
 constexpr bool DEFAULT_CAPTURE_ERRORS = true;                     // default: capture errors on
 constexpr bool DEFAULT_CAPTURE_CRASHES = true;                    // default: capture crashes on
 
-Configuration::Configuration(std::shared_ptr<configuration::Device> device,OpenKitType openKitType, const core::UTF8String& applicationName, const core::UTF8String& applicationID, uint64_t deviceID, const core::UTF8String& endpointURL,
-	std::shared_ptr<HTTPClientConfiguration> httpClientConfiguration, std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider)
-	: mHTTPClientConfiguration(httpClientConfiguration)
+Configuration::Configuration(std::shared_ptr<configuration::Device> device, OpenKitType openKitType, const core::UTF8String& applicationName, const core::UTF8String& applicationID, uint64_t deviceID, const core::UTF8String& endpointURL,
+	std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider, std::shared_ptr<protocol::ISSLTrustManager> sslTrustManager)
+	: mHTTPClientConfiguration(std::make_shared<configuration::HTTPClientConfiguration>(endpointURL, openKitType.getDefaultServerID(), applicationID, sslTrustManager))
 	, mSessionIDProvider(sessionIDProvider)
 	, mIsCapture(false)
 	, mSendInterval(DEFAULT_SEND_INTERVAL)
