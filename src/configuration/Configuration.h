@@ -61,6 +61,16 @@ namespace configuration
 		void updateSettings(std::unique_ptr<protocol::StatusResponse> statusResponse);
 
 		///
+		/// Enable capturing
+		///
+		void enableCapture();
+
+		///
+		/// Disable capturing
+		///
+		void disableCapture();
+
+		///
 		/// Returns a flag if capturing is enabled
 		/// @returns @c true if capturing is enabled, @c false if capturing is disabled
 		///

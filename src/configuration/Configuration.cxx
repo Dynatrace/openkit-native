@@ -53,6 +53,7 @@ void Configuration::updateSettings(std::unique_ptr<protocol::StatusResponse> sta
 {
 	if (statusResponse == nullptr || statusResponse->getResponseCode() != 200)
 	{
+		disableCapture();
 		return;
 	}
 
@@ -105,6 +106,16 @@ void Configuration::updateSettings(std::unique_ptr<protocol::StatusResponse> sta
 	// use capture settings for errors and crashes
 	mCaptureErrors = statusResponse->isCaptureErrors();
 	mCaptureCrashes = statusResponse->isCaptureCrashes();
+}
+
+void Configuration::enableCapture()
+{
+	mIsCapture = true;
+}
+
+void Configuration::disableCapture()
+{
+	mIsCapture = false;
 }
 
 bool Configuration::isCapture() const
