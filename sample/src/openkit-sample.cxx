@@ -32,6 +32,8 @@ using namespace communication;
 using namespace providers;
 using namespace configuration;
 
+constexpr char APPLICATION_VERSION[] = "1.2.3";
+
 void parseCommandLine(uint32_t argc, char** argv, UTF8String& beaconURL, uint32_t& serverID, UTF8String& applicationID)
 {
 	core::util::CommandLineArguments commandLine;
@@ -70,7 +72,7 @@ int32_t main(int32_t argc, char** argv)
 	std::shared_ptr<configuration::Device> device = std::shared_ptr<configuration::Device>(new configuration::Device(core::UTF8String("ACME OS"), core::UTF8String("Dynatrace"), core::UTF8String("Model E")));
 
 	std::shared_ptr<Configuration> configuration = std::shared_ptr<Configuration>(new Configuration(device, configuration::OpenKitType::DYNATRACE,
-																									core::UTF8String("openkit-sample"), applicationID, serverID, beaconURL,
+																									core::UTF8String("openkit-sample"), APPLICATION_VERSION, applicationID, serverID, beaconURL,
 																									sessionIDProvider, trustManager ));
 
 	BeaconSender sender(configuration, httpClientProvider, timingProvider);

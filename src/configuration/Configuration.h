@@ -39,13 +39,14 @@ namespace configuration
 		/// @param[in] device device configuration
 		/// @param[in] openKitType AppMon or dynatrace configuration @see OpenKitType
 		/// @param[in] applicationName applicationName application name
+		/// @param[in] application version version of the application
 		/// @param[in] applicationID application id
 		/// @param[in] deviceID device id
 		/// @param[in] endpointURL beacon endpoint URL
-		/// @param[in] httpClientConfiguration the  HTTPClientConfiguration to use, will be stored in the  Configuration
 		/// @param[in] sessionIDProvider provider for session IDs
+		/// @param[in] sslTrustManager the ISSLTrustManager instance to use
 		///
-		Configuration(std::shared_ptr<configuration::Device> device,OpenKitType openKitType, const core::UTF8String& applicationName, const core::UTF8String& applicationID, uint64_t deviceID, const core::UTF8String& endpointURL,
+		Configuration(std::shared_ptr<configuration::Device> device,OpenKitType openKitType, const core::UTF8String& applicationName, const core::UTF8String& applicationVersion, const core::UTF8String& applicationID, uint64_t deviceID, const core::UTF8String& endpointURL,
 			std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider, std::shared_ptr<protocol::ISSLTrustManager> sslTrustManager);
 
 		///
@@ -93,6 +94,12 @@ namespace configuration
 		/// @returns the application id
 		///
 		const core::UTF8String& getApplicationID() const;
+
+		///
+		/// Returns the application version
+		/// @returns the application version
+		///
+		const core::UTF8String& getApplicationVersion() const;
 
 		///
 		/// Returns the device id
@@ -160,6 +167,9 @@ namespace configuration
 
 		/// application id
 		core::UTF8String mApplicationID;
+
+		/// the application version
+		core::UTF8String mApplicationVersion;
 
 		/// endpoint url
 		core::UTF8String mEndpointURL;
