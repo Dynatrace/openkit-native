@@ -42,12 +42,16 @@ namespace protocol
 		///
 		StatusResponse(const core::UTF8String& response, uint32_t responseCode);
 
-	public:
+		///
+		/// Destructor
+		///
+		virtual ~StatusResponse() {}
+
 		///
 		/// Get a flag if capturing is enabled by the cluster
 		/// @returns @c true if capturing is enabled, @c false is capturing is not enabled
 		///
-		bool isCapture() const;
+		virtual bool isCapture() const;
 
 		///
 		/// Get the send interval
