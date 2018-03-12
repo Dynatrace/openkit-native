@@ -29,12 +29,10 @@ public:
 
 TEST_F(DefaultThreadIDProviderTest, currentThreadIDIsReturned)
 {
-	// given
+	//when
 	int64_t threadID = provider.getThreadID();
 
-	//when
-	int64_t currentThreadID = std::hash<std::thread::id>()(std::this_thread::get_id());
-
 	// then
-	ASSERT_EQ(threadID, currentThreadID);
+	int64_t expectedThreadID = std::hash<std::thread::id>()(std::this_thread::get_id());
+	ASSERT_EQ(threadID, expectedThreadID);
 }
