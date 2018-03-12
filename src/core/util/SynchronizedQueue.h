@@ -20,7 +20,6 @@
 #include <mutex>
 #include <list>
 #include <algorithm>
-#include <map>
 #include <vector>
 
 namespace core
@@ -112,7 +111,8 @@ namespace core
 			///
 			/// Check if queue is empty
 			/// @returns @true if queue is empty @false if queue is not empty
-			bool isEmpty()
+			////
+			bool isEmpty() const
 			{
 				std::lock_guard<std::mutex> lock(mMutex);
 				return mList.empty();
