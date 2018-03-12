@@ -35,6 +35,7 @@ set(SOURCES_PROTOCOL
 	protocol/HTTPClient.cxx
 	protocol/ssl/SSLBlindTrustManager.cxx
 	protocol/ssl/SSLStrictTrustManager.cxx
+	protocol/Beacon.cxx
 )
 
 set(SOURCES_PROVIDERS
