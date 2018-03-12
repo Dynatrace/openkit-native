@@ -54,7 +54,7 @@ mkdir build & cd build
 mkdir x86-Release & cd x86-Release
 ```
 
-* Create the (NMake) makefiles for the Release build and provide a relativ path to the install via the 'CMAKE_INSTALL_PREFIX'.
+* Create the (NMake) makefiles for the Release build and provide a relative path to the install via the 'CMAKE_INSTALL_PREFIX'.
   Typically you want to set the parameter 'OPENKIT_FORCE_SHARED_CRT' to 'ON', e.g. if other libraries (such as Gtest) use a shared version of the run-time library.
 
 ```
@@ -98,7 +98,7 @@ mkdir -p  build/linux-x86-Release
 cd build/linux-x86-Release
 ```
 
-* Create the makefiles for the Release build and provide a relativ path to the install via the 'CMAKE_INSTALL_PREFIX'.
+* Create the makefiles for the Release build and provide a relative path to the install via the 'CMAKE_INSTALL_PREFIX'.
   Typically you want to set the parameter 'OPENKIT_FORCE_SHARED_CRT' to 'ON', e.g. if other libraries (such as Gtest) use a shared version of the run-time library.
 
 ```
