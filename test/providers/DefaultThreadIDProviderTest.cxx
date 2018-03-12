@@ -14,26 +14,27 @@
 * limitations under the License.
 */
 
-#ifndef _PROVIDERS_DEFAULTTHREADIDPROVIDER_H
-#define _PROVIDERS_DEFAULTTHREADIDPROVIDER_H
+#include "providers/DefaultThreadIDProvider.h"
+#include <gtest/gtest.h>
 
-#include "IThreadIDProvider.h"
+#include <thread>
 
-namespace providers
+using namespace providers;
+
+class DefaultThreadIDProviderTest : public testing::Test
 {
-	
-	///
-	/// Simple ThreadIDProvider implementation for getting the current thread ID.
-	///
-	class DefaultThreadIDProvider : public IThreadIDProvider
-	{
-	public:
-		///
-		/// Provide the current thread ID
-		/// @returns the current thread ID
-		///
-		virtual int64_t getThreadID();
-	};
-}
+public:
+	DefaultThreadIDProvider provider;
+};
 
-#endif
+TEST_F(DefaultThreadIDProviderTest, currentThreadIDIsReturned)
+{
+	// given
+	int64_t threadID = provider.getThreadID();
+
+	//when
+	int64_t currentThreadID = std::hash<std::thread::id>()(std::this_thread::get_id());
+
+	// then
+	ASSERT_EQ(threadID, currentThreadID);
+}

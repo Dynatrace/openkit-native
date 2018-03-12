@@ -48,6 +48,7 @@ set(SOURCES_UNITTEST
 	protocol/TimeSyncResponseTest.cxx
 	providers/DefaultTimingProviderTest.cxx
 	providers/DefaultSessionIDProviderTest.cxx
+	providers/DefaultThreadIDProviderTest.cxx
 	communication/AbstractBeaconSendingStateTest.cxx
 	communication/BeaconSendingTerminalStateTest.cxx
 	communication/BeaconSendingInitialStateTest.cxx
