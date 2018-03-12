@@ -26,7 +26,7 @@ constexpr int32_t DEFAULT_MAX_BEACON_SIZE = 30 * 1024;                   // defa
 constexpr bool DEFAULT_CAPTURE_ERRORS = true;                     // default: capture errors on
 constexpr bool DEFAULT_CAPTURE_CRASHES = true;                    // default: capture crashes on
 
-Configuration::Configuration(std::shared_ptr<configuration::Device> device, OpenKitType openKitType, const core::UTF8String& applicationName, const core::UTF8String& applicationID, uint64_t deviceID, const core::UTF8String& endpointURL,
+Configuration::Configuration(std::shared_ptr<configuration::Device> device, OpenKitType openKitType, const core::UTF8String& applicationName, const core::UTF8String& applicationVersion, const core::UTF8String& applicationID, uint64_t deviceID, const core::UTF8String& endpointURL,
 	std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider, std::shared_ptr<protocol::ISSLTrustManager> sslTrustManager)
 	: mHTTPClientConfiguration(std::make_shared<configuration::HTTPClientConfiguration>(endpointURL, openKitType.getDefaultServerID(), applicationID, sslTrustManager))
 	, mSessionIDProvider(sessionIDProvider)
@@ -38,6 +38,7 @@ Configuration::Configuration(std::shared_ptr<configuration::Device> device, Open
 	, mOpenKitType(openKitType)
 	, mApplicationName(applicationName)
 	, mApplicationID(applicationID)
+	, mApplicationVersion(applicationVersion)
 	, mEndpointURL(endpointURL)
 	, mDeviceID(deviceID)
 	, mDevice(device)
@@ -143,6 +144,11 @@ const core::UTF8String& Configuration::getApplicationName() const
 const core::UTF8String& Configuration::getApplicationID() const
 {
 	return mApplicationID;
+}
+
+const core::UTF8String& Configuration::getApplicationVersion() const
+{
+	return mApplicationVersion;
 }
 
 int64_t Configuration::getDeviceID() const
