@@ -28,6 +28,7 @@ Session::Session(std::shared_ptr<BeaconSender> beaconSender, std::shared_ptr<pro
 	, mEndTime(-1)
 	, mOpenRootActions()
 {
+	mBeaconSender->startSession(shared_from_this());
 }
 
 std::shared_ptr<api::IRootAction> Session::enterAction(const UTF8String& actionName)
@@ -55,6 +56,8 @@ void Session::end()
 	}
 
 	mBeacon->endSession(shared_from_this());
+
+	mBeaconSender->finishSession(shared_from_this());
 }
 
 bool Session::isSessionEnded() const

@@ -59,3 +59,13 @@ void BeaconSender::shutdown()
 	mBeaconSendingContext->requestShutdown();
 	mSendingThread->join();
 }
+
+void BeaconSender::startSession(std::shared_ptr<Session> session)
+{
+
+}
+
+void BeaconSender::finishSessionSession(std::shared_ptr<Session> session)
+{
+
+}

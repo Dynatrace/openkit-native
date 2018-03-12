@@ -18,11 +18,14 @@
 #define CORE_BEACONSENDER_H
 
 #include <thread>
+#include <memory>
 
 #include "communication/BeaconSendingContext.h"
 #include "configuration/Configuration.h"
 #include "providers/IHTTPClientProvider.h"
 #include "providers/ITimingProvider.h"
+
+#include "Session.h"
 
 namespace core
 {
@@ -59,6 +62,21 @@ namespace core
 		/// Shutdown this instance of the BeaconSender
 		///
 		void shutdown();
+
+		///
+		/// When starting a new Session, put it into open Sessions.
+		/// A session is only put into the open Sessions if capturing is enabled.
+		/// In case capturing is disabled, this method has no effect.
+		/// @param[in] session Session to finish
+		///
+		void startSession(std::shared_ptr<Session> session);
+
+		///
+		/// When finishing a Session, remove it from open Sessions and put it into finished Sessions.
+		/// As soon as a session get's finished it will transferred to the server.
+		/// @param[in] session Session to finish
+		///
+		void finishSession(std::shared_ptr<Session> session);
 
 	private:
 
