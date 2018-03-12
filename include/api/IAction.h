@@ -37,7 +37,7 @@ namespace api
 		/// Leaves this Action.
 		/// @returns the parent Action, or @c null if there is no parent Action
 		///
-		virtual std::shared_ptr<IAction> LeaveAction() = 0;
+		virtual std::shared_ptr<IAction> leaveAction() = 0;
 	};
 }
 

@@ -18,6 +18,9 @@
 #define _CORE_ROOTACTION_H
 
 #include "api/IRootAction.h"
+#include "Action.h"
+#include "protocol/Beacon.h"
+#include "UTF8String.h"
 
 #include "memory"
 
@@ -26,9 +29,18 @@ namespace core
 	///
 	/// Actual implementation of the IRootAction interface.
 	///
-	class RootAction : public api::IRootAction
+	class RootAction : public api::IRootAction, public Action
 	{
 	public:
+
+		///
+		/// Create a RootAction given a beacon  and the action name
+		/// @param[in] beacon the beacon used to serialize this Action
+		/// @param[in] name the name of the action
+		/// @param[in] parentActions parent actions
+		///
+		RootAction(std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name, util::SynchronizedQueue<std::shared_ptr<Action>>& parentActions);
+
 		///
 		/// Destructor
 		///
@@ -39,7 +51,30 @@ namespace core
 		/// @param[in] actionName name of the Action
 		/// @returns Action instance to work with
 		///
-		virtual std::shared_ptr<api::IAction> EnterAction();
+		virtual std::shared_ptr<api::IAction> enterAction();
+
+
+		///
+		/// Leaves this action if no leaveAction was already called
+		/// Call @c doLeaveAction if this is the first call to @c leaveAction
+		/// @returns the parent Action, or @c null if there is no parent Action
+		///
+		virtual std::shared_ptr<api::IAction> leaveAction() override;
+
+	private:
+
+		///
+		/// Leaves this Action.
+		/// Called by leaveAction only if this is the first leaveAction call on this Action
+		/// @returns the parent Action, or @c null if there is no parent Action
+		///
+		virtual std::shared_ptr<api::IAction> doLeaveAction();
+
+		/// beacon used for serialization
+		std::shared_ptr<protocol::Beacon> mBeacon;
+
+		/// open Actions of children
+		util::SynchronizedQueue<std::shared_ptr<Action>> mOpenChildActions;
 	};
 }
 #endif

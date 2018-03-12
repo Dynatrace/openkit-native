@@ -18,7 +18,41 @@
 
 using namespace core;
 
-std::shared_ptr<api::IAction> RootAction::EnterAction()
+RootAction::RootAction(std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name, util::SynchronizedQueue<std::shared_ptr<Action>>& parentActions)
+	: Action(beacon, name, parentActions)
+	, mBeacon(beacon)
+	, mOpenChildActions()
 {
-	return nullptr;
+
+}
+
+std::shared_ptr<api::IAction> RootAction::enterAction()
+{
+	if (!isActionLeft())
+	{
+		return std::shared_ptr<Action>(new Action(mBeacon, getName(), shared_from_this(), mOpenChildActions));
+	}
+	return nullptr;//TODO johannes.baeuerle: NullAction
+}
+
+std::shared_ptr<api::IAction> RootAction::doLeaveAction()
+{
+	while (!mOpenChildActions.isEmpty())
+	{
+		auto action = mOpenChildActions.get();
+		action->leaveAction();
+	}
+
+	return Action::leaveAction();
+}
+
+std::shared_ptr<api::IAction> RootAction::leaveAction()
+{
+	int64_t expected = -1L;
+	if (atomic_compare_exchange_strong(&mEndTime, &expected, mBeacon->getCurrentTimestamp()) == false)
+	{
+		return mParentAction;
+	}
+
+	return doLeaveAction();
 }

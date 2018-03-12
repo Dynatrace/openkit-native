@@ -30,12 +30,15 @@ namespace api
 	class IRootAction : public IAction
 	{
 	public:
+
+		virtual ~IRootAction() {}
+
 		///
 		/// Enters an Action with a specified name in this Session.
 		/// @param[in] actionName name of the Action
 		/// @returns Action instance to work with
 		///
-		virtual std::shared_ptr<IAction> EnterAction() = 0;
+		virtual std::shared_ptr<IAction> enterAction() = 0;
 	};
 }
 #endif

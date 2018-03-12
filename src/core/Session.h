@@ -19,16 +19,35 @@
 
 #include "api/ISession.h"
 
-#include "memory"
+#include "Action.h"
+#include "util/SynchronizedQueue.h"
+
+#include <memory>
+#include <atomic>
+
+namespace protocol
+{
+	class Beacon;
+}
 
 namespace core
 {
+	class BeaconSender;
+
 	///
 	///  Actual implementation of the ISession interface.
 	///
-	class Session : public api::ISession
+	class Session : public api::ISession, private std::enable_shared_from_this<core::Session>
 	{
 	public:
+
+		///
+		/// Constructor
+		/// @param[in] beaconSender beacon sender
+		/// @param]in] beacon beacon used for serialization
+		///
+		Session(std::shared_ptr<BeaconSender> beaconSender, std::shared_ptr<protocol::Beacon> beacon);
+			
 		///
 		/// Destructor
 		///
@@ -38,12 +57,40 @@ namespace core
 		/// @param[in] actionName name of the Action
 		/// @returns Action instance to work with
 		///
-		virtual std::shared_ptr<api::IRootAction> EnterAction();
+		virtual std::shared_ptr<api::IRootAction> enterAction(const UTF8String& actionName);
 
 		///
 		///  Ends this Session and marks it as ready for immediate sending.
 		///
 		virtual void end();
+
+		///
+		/// Returns the end time of the session
+		/// @returns the end time of the session
+		///
+		int64_t getEndTime() const;
+
+	private:
+
+		///
+		/// Return a flag if this session was ended already
+		/// @returns @c true if session was already ended, @c false if session is still open
+		///
+		bool isSessionEnded() const;
+
+	private:
+
+		/// beacon sender
+		std::shared_ptr<BeaconSender> mBeaconSender;
+
+		/// beacon used for serialization
+		std::shared_ptr<protocol::Beacon> mBeacon;
+
+		/// end time
+		std::atomic<int64_t> mEndTime;
+
+		/// synchronized queue of root actions of this session
+		util::SynchronizedQueue<std::shared_ptr<Action>> mOpenRootActions;
 	};
 }
 #endif

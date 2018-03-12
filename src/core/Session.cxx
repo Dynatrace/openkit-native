@@ -15,15 +15,54 @@
 */
 
 #include "Session.h"
+#include "protocol/Beacon.h"
+#include "BeaconSender.h"
+#include "Action.h"
+#include "RootAction.h"
 
 using namespace core;
 
-std::shared_ptr<api::IRootAction> Session::EnterAction()
+Session::Session(std::shared_ptr<BeaconSender> beaconSender, std::shared_ptr<protocol::Beacon> beacon)
+	: mBeaconSender(beaconSender)
+	, mBeacon(beacon)
+	, mEndTime(-1)
+	, mOpenRootActions()
 {
-	return nullptr;
+}
+
+std::shared_ptr<api::IRootAction> Session::enterAction(const UTF8String& actionName)
+{
+	if (isSessionEnded())
+	{
+		return nullptr;//TODO johannes.baeuerle add NullRootAction
+	}
+	auto pointer = new RootAction(mBeacon, actionName, mOpenRootActions);
+	return std::shared_ptr<api::IRootAction>(pointer);
 }
 
 void Session::end()
 {
+	int64_t expected = -1L;
+	if (atomic_compare_exchange_strong(&mEndTime, &expected, mBeacon->getCurrentTimestamp()) == false)
+	{
+		return;
+	}
 
+	// leave all Root-Actions for sanity reasons
+	while (!mOpenRootActions.isEmpty()) {
+		auto action = mOpenRootActions.get();
+		action->leaveAction();
+	}
+
+	mBeacon->endSession(shared_from_this());
+}
+
+bool Session::isSessionEnded() const
+{
+	return mEndTime != -1L;
+}
+
+int64_t Session::getEndTime() const
+{
+	return mEndTime;
 }

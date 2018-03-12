@@ -40,7 +40,7 @@ namespace api
 		/// @param[in] actionName name of the Action
 		/// @returns Action instance to work with
 		///
-		virtual std::shared_ptr<IRootAction> EnterAction() = 0;
+		virtual std::shared_ptr<IRootAction> enterAction() = 0;
 
 		///
 		///  Ends this Session and marks it as ready for immediate sending.
