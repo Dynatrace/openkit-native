@@ -65,7 +65,7 @@ void BeaconSender::startSession(std::shared_ptr<Session> session)
 
 }
 
-void BeaconSender::finishSessionSession(std::shared_ptr<Session> session)
+void BeaconSender::finishSession(std::shared_ptr<Session> session)
 {
 
 }

@@ -31,6 +31,7 @@ Beacon::Beacon(std::shared_ptr<configuration::Configuration> configuration, cons
 	, mSessionStartTime(timingProvider->provideTimestampInMilliseconds())
 	, mBasicBeaconData()
 	, mActionDataList()
+	, mEventDataList()
 {
 
 }
@@ -148,9 +149,8 @@ int32_t Beacon::createID()
 
 void Beacon::addAction(std::shared_ptr<core::Action> action)
 {
-	core::UTF8String actionData;
-	createBasicEventData(EventType::ACTION, action->getName());
-	
+	core::UTF8String actionData = createBasicEventData(EventType::ACTION, action->getName());
+
 	addKeyValuePair(actionData, BEACON_KEY_ACTION_ID, action->getID());
 	addKeyValuePair(actionData, BEACON_KEY_PARENT_ACTION_ID, action->getParentID());
 	addKeyValuePair(actionData, BEACON_KEY_START_SEQUENCE_NUMBER, action->getStartSequenceNo());
@@ -172,7 +172,22 @@ void Beacon::storeAction(int64_t timestamp, const core::UTF8String& actionData)
 
 void Beacon::endSession(std::shared_ptr<core::Session> session)
 {
+	core::UTF8String eventData = createBasicEventData(EventType::SESSION_END, nullptr);
 
+	addKeyValuePair(eventData, BEACON_KEY_PARENT_ACTION_ID, 0);
+	addKeyValuePair(eventData, BEACON_KEY_START_SEQUENCE_NUMBER, createSequenceNumber());
+	addKeyValuePair(eventData, BEACON_KEY_TIME_0, getTimeSinceSessionStartTime(session->getEndTime()));
+
+	storeEvent(session->getEndTime(), eventData);
+}
+
+void Beacon::storeEvent(int64_t timestamp, const core::UTF8String& eventData)
+{
+	if (mConfiguration->isCapture())
+	{
+		//TODO: johannes.baeuerle save data in cache
+		mEventDataList.emplace(timestamp, eventData);
+	}
 }
 
 core::UTF8String Beacon::trunctate(const core::UTF8String& string)

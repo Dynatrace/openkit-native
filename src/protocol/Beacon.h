@@ -154,7 +154,15 @@ namespace protocol
 		/// Add previously serialized action data to the beacon list
 		/// @param[in] timestamp The timestamp when the action data occurred.
 		/// @param[in] actionData Contains the serialized action data.
+		///
 		void storeAction(int64_t timestamp, const core::UTF8String& actionData);
+
+		///
+		/// Add previously serialized event data to the beacon list
+		/// @param[in] timestamp The timestamp when the event data occurred.
+		/// @param[in] actionData Contains the serialized event data.
+		///
+		void storeEvent(int64_t timestamp, const core::UTF8String& eventData);
 
 	private:
 		/// configuration
@@ -184,8 +192,11 @@ namespace protocol
 		/// basic beacon data
 		core::UTF8String mBasicBeaconData;
 
-		/// container for action data;
+		/// container for action data
 		std::map<int64_t, core::UTF8String> mActionDataList;
+
+		/// container for event data
+		std::map<int64_t, core::UTF8String> mEventDataList;
 	};
 }
 #endif
