@@ -21,5 +21,5 @@ using namespace api;
 DynatraceOpenKitBuilder::DynatraceOpenKitBuilder(const char* endpointURL, const char* applicationID, uint64_t deviceID)
 	: AbstractOpenKitBuilder(endpointURL, deviceID)
 {
-	throw "function not implemented yet";
+	throw std::runtime_error("function not implemented yet");
 }

@@ -35,7 +35,7 @@ namespace api
 		///
 		/// Destructor
 		///
-		virtual ~DynatraceOpenKitBuilder() {};
+		virtual ~DynatraceOpenKitBuilder() {}
 	};
 }
 

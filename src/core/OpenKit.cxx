@@ -16,14 +16,16 @@
 
 #include "api/OpenKit.h"
 
+#include <stdexcept>
+
 using namespace api;
 
 OpenKit::OpenKit()
 {
-	throw "function not implemented yet";
+	throw std::runtime_error("function not implemented yet");
 }
 
 void OpenKit::shutdown()
 {
-	throw "function not implemented yet";
+	throw std::runtime_error("function not implemented yet");
 }

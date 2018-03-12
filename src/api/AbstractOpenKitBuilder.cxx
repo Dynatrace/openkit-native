@@ -20,7 +20,7 @@ using namespace api;
 
 AbstractOpenKitBuilder::AbstractOpenKitBuilder(const char* endpointURL, uint64_t deviceID)
 {
-	throw "function not implemented yet";
+	throw std::runtime_error("function not implemented yet");
 }
 
 std::shared_ptr<OpenKit> AbstractOpenKitBuilder::build()

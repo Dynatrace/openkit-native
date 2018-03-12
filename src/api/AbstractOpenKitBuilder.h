@@ -20,6 +20,7 @@
 #include "OpenKit.h"
 
 #include <memory>
+#include <stdexcept>
 
 namespace api
 {
@@ -36,7 +37,7 @@ namespace api
 			///
 			/// Destructor
 			///
-			virtual ~AbstractOpenKitBuilder() {};
+			virtual ~AbstractOpenKitBuilder() {}
 
 			///
 			/// Builds an @c OpenKit instance

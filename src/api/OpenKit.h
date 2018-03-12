@@ -35,7 +35,7 @@ namespace api {
 		///
 		/// Destructor
 		///
-		~OpenKit() {};
+		~OpenKit() {}
 
 		///
 		/// Shuts down OpenKit, ending all open Sessions and waiting for them to be sent.

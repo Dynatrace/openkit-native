@@ -89,13 +89,13 @@ nmake install
 * Create a build folder
 
 ```
-mkdir -p  build/linux-x86-Release
+mkdir -p  build/linux-x86-release
 ```
 
 * Go to new folder
 
 ```
-cd build/linux-x86-Release
+cd build/linux-x86-release
 ```
 
 * Create the makefiles for the Release build and provide a relative path to the install via the 'CMAKE_INSTALL_PREFIX'.
