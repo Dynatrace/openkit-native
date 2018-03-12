@@ -18,24 +18,29 @@
 #define _CORE_UTIL_SYNCHRONIZEDQUEUE_H
 
 #include <mutex>
-#include <vector>
+#include <list>
 #include <algorithm>
-///
-/// SynchronizedQueue is an implementation of a data structure that fulfills the following requirements:
-/// - has to be thread-safe for access from multiple threads
-/// - should be non-blocking for performance reasons
-/// - random-delete has to be possible
-/// - first-in, first-out
-/// - shallow copies should be possible
-/// - should be easy to clear
-/// As there was no real fit in the C++11 data structures, this is a simple self-made implementation.
-/// It's for sure not the best-performing implementation and it could make sense to introduce upper bounds, but it works well enough.
-/// @param <T> type of items in the queue instance
-///
+#include <map>
+#include <vector>
+
 namespace core
 {
 	namespace util
 	{
+		///
+		/// SynchronizedQueue is an implementation of a data structure that fulfills the following requirements:
+		/// - has to be thread-safe for access from multiple threads
+		/// - should be non-blocking for performance reasons
+		/// - random-delete has to be possible
+		/// - first-in, first-out
+		/// - shallow copies should be possible
+		/// - should be easy to clear
+		/// As there was no real fit in the C++11 data structures, this is a simple self-made implementation.
+		/// It's for sure not the best-performing implementation and it could make sense to introduce upper bounds, but it works well enough.
+		/// @param <T> type of items in the queue instance.
+		///
+		/// Note elements which are added need to overload the '==' operator
+		///
 		template <class T> class SynchronizedQueue
 		{
 		public:
@@ -53,11 +58,10 @@ namespace core
 			/// @param[in] entry the element to add at the end of the list
 			/// @returns @c true if the element could be placed at the end of the list
 			///
-			bool put(T entry)
+			void put(const T& entry)
 			{
 				std::lock_guard<std::mutex> lock(mMutex);
 				mList.push_back(entry);
-				return true;
 			}
 
 			///
@@ -66,10 +70,16 @@ namespace core
 			///
 			T get()
 			{
+				static T defaultItem;
+
 				std::lock_guard<std::mutex> lock(mMutex);
-				T item = mList.front();
-				remove(item);
-				return item;
+				if (!mList.empty())
+				{
+					T element = *mList.begin();
+					mList.pop_front();
+					return element;
+				}
+				return defaultItem;
 			}
 
 			///
@@ -77,16 +87,17 @@ namespace core
 			/// @param[in] entry the item to search for
 			/// @returns @c true if the element was found in the list and deleted @c false in all other cases
 			///
-			bool remove(T entry)
+			bool remove(const T& entry)
 			{
 				std::lock_guard<std::mutex> lock(mMutex);
-				auto found = std::find(mList.begin(), mList.end(), entry);
-				if ( found != mList.end())
+				auto iterator = find_first(entry);
+				if (iterator == mList.end())
 				{
-					mList.erase(found);
-					return true;
+					return false;
 				}
-				return false;
+
+				mList.erase(iterator);
+				return true;
 			}
 
 			///
@@ -106,12 +117,42 @@ namespace core
 				std::lock_guard<std::mutex> lock(mMutex);
 				return mList.empty();
 			}
+
+			///
+			/// Returns a shallow copy of the list elements for test purposes
+			/// @returns a std::vector created from the list
+			///
+			std::vector<T> toStdVector()
+			{
+				return std::vector<T>(mList.begin(), mList.end());
+			}
 		private:
-			/// The queue
-			std::vector<T> mList;
+
+			typedef typename std::list<T>::iterator queue_iterator;
+
+			///
+			/// find first occurence of a given element
+			/// @param[in] value the element to search for
+			/// @returns if the element was found an iterator to the element is returned
+			///          else the iterator to list.end() is returned
+			///
+			queue_iterator find_first(const T& value)
+			{
+				for (auto it = mList.begin(); it != mList.end(); it++)
+				{
+					if (*it == value)
+					{
+						return it;
+					}
+				}
+				return mList.end();
+			}
+
+			/// The queue is emulated via linked list
+			std::list<T> mList;
 
 			/// mutex for exclusive access to list
-			std::mutex mMutex;
+			mutable std::mutex mMutex;
 		};
 	}
 }
