@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.6)
 
 project(openkit-c)
 
@@ -7,6 +7,22 @@ option(OPENKIT_BUILD_TESTS "Build tests" ON )
 # Check if Doxygen is installed. If installed, provide a documentation build as an option for the user
 find_package(Doxygen)
 option(BUILD_DOC  "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
+
+# Allow the developer to select if OpenKit is built as STATIC (=default) or SHARED library.
+include(GenerateExportHeader)
+option(BUILD_SHARED_LIBS "Build Shared Libraries" OFF)
+set(LIB_TYPE STATIC)
+if(BUILD_SHARED_LIBS)
+	set(LIB_TYPE SHARED)
+endif()
+
+# When other libraries are using a shared version of runtime libraries, OpenKit also has to use one.
+option(OPENKIT_FORCE_SHARED_CRT "Use shared (DLL) run-time lib even when OpenKit is built as static lib." OFF)
+
+# Set the paths where the executable, libraries and header paths
+set(INSTALL_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin" CACHE PATH "Installation directory for executables")
+set(INSTALL_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib" CACHE PATH "Installation directory for libraries")
+set(INSTALL_INC_DIR "${CMAKE_INSTALL_PREFIX}/include" CACHE PATH "Installation directory for headers")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 include(UtilMacros)
@@ -98,12 +114,17 @@ if(BUILD_DOC)
 					  VERBATIM)
 endif()
 
+message("CMAKE_BINARY_DIR = '${CMAKE_BINARY_DIR}'")
+
 include_directories(SYSTEM ${CURL_INCLUDE_DIRS})
 include_directories(SYSTEM ${ZLIB_INCLUDE_DIRS})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
+include_directories(${CMAKE_BINARY_DIR}/include)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 add_subdirectory("src")
-add_subdirectory("test")
+if(OPENKIT_BUILD_TESTS)
+	add_subdirectory("test")
+endif()
 add_subdirectory("sample")

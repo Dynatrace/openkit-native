@@ -9,6 +9,16 @@ macro(fix_default_compiler_settings_)
 			 CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
              CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO
 			 )
+      if (NOT BUILD_SHARED_LIBS AND NOT OPENKIT_FORCE_SHARED_CRT)
+        # When OpenKit is built as a shared library, it should also use shared runtime libraries.
+		if(${flag_var} MATCHES "/MD")
+			string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
+		endif()
+		if(${flag_var} MATCHES "/MDd")
+			string(REGEX REPLACE "/MDd" "/MTd" ${flag_var} "${${flag_var}}")
+		endif()
+      endif()
+
       # We prefer more strict warning checking for building
       # Replaces /W3 with /W4 in defaults.
       string(REPLACE "/W3" "/W4" ${flag_var} "${${flag_var}}")
@@ -64,4 +74,11 @@ macro(check_for_cxx_version_)
 				message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
 		endif()
 	endif()
+endmacro()
+
+# Prepends the var_arg items with the "prefix" and stores the result in the provided "_list"
+macro(prepend_to_list _list prefix)
+   foreach(item ${ARGN})
+      list(APPEND ${_list} "${prefix}${item}")
+   endforeach()
 endmacro()
