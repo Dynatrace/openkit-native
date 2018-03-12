@@ -408,9 +408,9 @@ UTF8String UTF8String::urldecode() const
 				std::string byte(&mData[i + 1], 2);
 
 				bool validByte = false;
-				if (byte[0] >= 'a' && byte[0] <= 'f' || byte[0] >= 'A' && byte[0] <= 'F' || byte[0] >= '0' && byte[0] <= '9')//valid hex char
+				if ((byte[0] >= 'a' && byte[0] <= 'f') || (byte[0] >= 'A' && byte[0] <= 'F') || (byte[0] >= '0' && byte[0] <= '9'))//valid hex char
 				{
-					if (byte[1] >= 'a' && byte[1] <= 'f' || byte[1] >= 'A' && byte[1] <= 'F' || byte[1] >= '0' && byte[1] <= '9')//valid hex char
+					if ((byte[1] >= 'a' && byte[1] <= 'f') || (byte[1] >= 'A' && byte[1] <= 'F') || (byte[1] >= '0' && byte[1] <= '9'))//valid hex char
 					{
 						validByte = true;
 					}
