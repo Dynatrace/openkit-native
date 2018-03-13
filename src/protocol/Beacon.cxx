@@ -29,6 +29,8 @@ Beacon::Beacon(std::shared_ptr<configuration::Configuration> configuration, cons
 	, mID(0)
 	, mSessionNumber(configuration->createSessionNumber())
 	, mSessionStartTime(timingProvider->provideTimestampInMilliseconds())
+	, mBasicBeaconData()
+	, mActionDataList()
 {
 
 }
@@ -146,8 +148,7 @@ int32_t Beacon::createID()
 
 void Beacon::addAction(std::shared_ptr<core::Action> action)
 {
-	//TODO johannes.baeuerle - once Action is implemented enable this code
-	/*core::UTF8String actionData;
+	core::UTF8String actionData;
 	createBasicEventData(EventType::ACTION, action->getName());
 	
 	addKeyValuePair(actionData, BEACON_KEY_ACTION_ID, action->getID());
@@ -157,7 +158,7 @@ void Beacon::addAction(std::shared_ptr<core::Action> action)
 	addKeyValuePair(actionData, BEACON_KEY_END_SEQUENCE_NUMBER, action->getEndSequenceNo());
 	addKeyValuePair(actionData, BEACON_KEY_TIME_1, action->getEndTime() - action->getStartTime());
 	
-	storeAction(action->getStartTime(), actionData);*/
+	storeAction(action->getStartTime(), actionData);
 }
 
 void Beacon::storeAction(int64_t timestamp, const core::UTF8String& actionData)
