@@ -24,15 +24,7 @@ using namespace core;
 class URLEncodingTest : public testing::Test
 {
 public:
-	void SetUp()
-	{
 
-	}
-
-	void TearDown()
-	{
-
-	}
 };
 
 
