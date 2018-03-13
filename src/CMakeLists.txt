@@ -39,6 +39,7 @@ set(SOURCES_PROVIDERS
 	providers/DefaultTimingProvider.cxx
 	providers/DefaultHTTPClientProvider.cxx
 	providers/DefaultSessionIDProvider.cxx
+	providers/DefaultThreadIDProvider.cxx
 )
 
 set(SOURCES_CONFIGURATION

@@ -45,10 +45,12 @@ set(SOURCES_UNITTEST
 	core/UTF8StringTest.cxx
 	core/util/CompressorTest.cxx
 	core/util/URLEncodingTest.cxx
+	core/util/SynchronizedQueueTest.cxx
 	protocol/StatusResponseTest.cxx
 	protocol/TimeSyncResponseTest.cxx
 	providers/DefaultTimingProviderTest.cxx
 	providers/DefaultSessionIDProviderTest.cxx
+	providers/DefaultThreadIDProviderTest.cxx
 	communication/AbstractBeaconSendingStateTest.cxx
 	communication/BeaconSendingTerminalStateTest.cxx
 	communication/BeaconSendingInitialStateTest.cxx
