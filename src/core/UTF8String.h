@@ -136,18 +136,6 @@ namespace core
 		///
 		std::vector<UTF8String> split(char delimiter) const;
 
-		///
-		/// URL-Encode the current string
-		/// @returns url-encoded version of the current string
-		///
-		UTF8String urlencode() const;
-
-		///
-		/// URL-Decode the current string
-		/// @returns url-decoded version of the current string
-		///
-		UTF8String urldecode() const;
-
 	private:
 
 		///

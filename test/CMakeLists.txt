@@ -44,6 +44,7 @@ set(SOURCES_UNITTEST
 	# Test files
 	core/UTF8StringTest.cxx
 	core/util/CompressorTest.cxx
+	core/util/URLEncodingTest.cxx
 	protocol/StatusResponseTest.cxx
 	protocol/TimeSyncResponseTest.cxx
 	providers/DefaultTimingProviderTest.cxx
