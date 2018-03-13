@@ -33,13 +33,13 @@ namespace core
 		{
 		public:
 			///
-			/// URL-Encode the current string
+			/// URL-Encode the given string
 			/// @returns url-encoded version of the current string
 			///
 			static core::UTF8String urlencode(const core::UTF8String& string);
 
 			///
-			/// URL-Decode the current string
+			/// URL-Decode the given string
 			/// @returns url-decoded version of the current string
 			///
 			static core::UTF8String urldecode(const core::UTF8String& string);

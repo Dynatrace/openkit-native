@@ -23,8 +23,10 @@
 
 using namespace core::util;
 
-constexpr char unreserved[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.~";
-const std::unordered_set<unsigned char> URLEncoding::sUnreservedCharactersRFC3986 = std::unordered_set<unsigned char>(unreserved, unreserved + sizeof(unreserved)/sizeof(unsigned char));
+const std::unordered_set<unsigned char> URLEncoding::sUnreservedCharactersRFC3986 = std::unordered_set<unsigned char>({ 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
+																					'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i',
+																					'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1',
+																					'2', '3', '4', '5', '6', '7', '8', '9', '-', '_', '.', '~' });
 
 static std::string escapeHexValueInPercentEncoding(unsigned char c)
 {
@@ -74,7 +76,7 @@ core::UTF8String URLEncoding::urldecode(const core::UTF8String& string)
 		}
 		else // character must be 'un'-escaped, the two next characters are hex-encoded byte
 		{
-			if (static_cast<size_t>(it - stringData.begin()) < stringData.length() - 2)//check if there is enough data for the current percent sign
+			if (stringData.end() - (it + 1) >= 2)//check if there is enough data for the current percent sign
 			{
 				std::string bytes(it + 1, it + 3);
 
