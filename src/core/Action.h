@@ -57,7 +57,7 @@ namespace core
 		///
 		/// Destructor
 		///
-		virtual ~Action() {};
+		virtual ~Action() {}
 
 		///
 		/// Leaves this action if no leaveAction was already called

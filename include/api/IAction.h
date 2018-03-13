@@ -31,7 +31,7 @@ namespace api
 		///
 		/// Destructor
 		///
-		virtual ~IAction() {};
+		virtual ~IAction() {}
 
 		///
 		/// Leaves this Action.

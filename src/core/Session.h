@@ -51,7 +51,7 @@ namespace core
 		///
 		/// Destructor
 		///
-		virtual ~Session() {};
+		virtual ~Session() {}
 		///
 		/// Enters an Action with a specified name in this Session.
 		/// @param[in] actionName name of the Action

@@ -33,7 +33,7 @@ namespace api
 		///
 		/// Destructor
 		///
-		virtual ~ISession() {};
+		virtual ~ISession() {}
 
 		///
 		/// Enters an Action with a specified name in this Session.
@@ -43,7 +43,8 @@ namespace api
 		virtual std::shared_ptr<IRootAction> enterAction() = 0;
 
 		///
-		///  Ends this Session and marks it as ready for immediate sending.
+		/// Ends this Session and marks it as ready for immediate sending.
+		/// @remarks All previously added action are implicitly closed
 		///
 		virtual void end() = 0;
 	};
