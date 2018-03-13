@@ -17,6 +17,7 @@
 #include "Beacon.h"
 #include "ProtocolConstants.h"
 #include "BeaconProtocolConstants.h"
+#include "core/util/URLEncoding.h"
 
 using namespace protocol;
 
@@ -107,7 +108,7 @@ core::UTF8String& Beacon::appendKey(core::UTF8String& s, const core::UTF8String&
 core::UTF8String& Beacon::addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, const core::UTF8String& value)
 {
 	appendKey(s, key);
-	s.concatenate(value);//TODO johannes.baeuerle - add URLEndcoding::urlencode
+	s.concatenate(core::util::URLEncoding::urlencode(value));
 	return s;
 }
 
