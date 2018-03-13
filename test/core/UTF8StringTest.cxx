@@ -119,7 +119,6 @@ TEST_F(UTF8StringTest, AStringCanBeInitializedByReplacingInvalidUTF8SecondByte)
 
 TEST_F(UTF8StringTest, AStringCanBeInitializedUsingATwoByteAndAFourByteUTF8)
 {
-	//third character (is ASCII )breaks the 2nd UTF8 character ( 2 byte wide)
 	UTF8String s("\xD7\xAA\xf0\x9f\x98\x8b");
 
 	const std::string stringData = s.getStringData();
@@ -713,4 +712,3 @@ TEST_F(UTF8StringTest, SplitUtf8StringMultipleDelimExistsWithEmptyParts)
 	EXPECT_TRUE(parts.at(4).equals(u8"Fiv€"));
 	EXPECT_TRUE(parts.at(5).empty());
 }
-
