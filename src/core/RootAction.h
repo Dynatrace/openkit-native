@@ -44,7 +44,7 @@ namespace core
 		///
 		/// Destructor
 		///
-		virtual  ~RootAction();
+		virtual  ~RootAction() {}
 
 		///
 		/// Enters an Action with a specified name in this Session.
