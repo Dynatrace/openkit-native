@@ -7,6 +7,15 @@ set(SOURCES_API
 	api/DynatraceOpenKitBuilder.cxx
 )
 
+set(SOURCES_CACHING
+	caching/BeaconCache.cxx
+	caching/BeaconCacheEntry.cxx
+	caching/BeaconCacheEvictor.cxx
+	caching/BeaconCacheRecord.cxx
+	caching/SpaceEvictionStrategy.cxx
+	caching/TimeEvictionStrategy.cxx
+)
+
 set(SOURCES_CORE
 	core/util/Compressor.cxx
 	core/util/CountDownLatch.cxx
@@ -43,6 +52,7 @@ set(SOURCES_PROVIDERS
 )
 
 set(SOURCES_CONFIGURATION
+	configuration/BeaconCacheConfiguration.cxx
 	configuration/HTTPClientConfiguration.cxx
 	configuration/Configuration.cxx
 	configuration/Device.cxx
@@ -52,6 +62,7 @@ set(SOURCES_CONFIGURATION
 # Create a combined list of all source files
 set(SOURCES
 	${SOURCES_API}
+	${SOURCES_CACHING}
 	${SOURCES_CORE}
 	${SOURCES_COMMUNICATION}
 	${SOURCES_PROVIDERS}
