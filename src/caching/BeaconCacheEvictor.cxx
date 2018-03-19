@@ -25,7 +25,7 @@ using namespace caching;
 constexpr std::chrono::milliseconds EVICTION_THREAD_JOIN_TIMEOUT = std::chrono::seconds(2);
 
 BeaconCacheEvictor::BeaconCacheEvictor(std::shared_ptr<IBeaconCache> beaconCache, std::shared_ptr<configuration::BeaconCacheConfiguration> configuration, std::shared_ptr<providers::ITimingProvider> timingProvider)
-	: BeaconCacheEvictor(beaconCache, std::initializer_list<std::shared_ptr<IBeaconCacheEvictionStrategy>>{std::make_shared<TimeEvictionStrategy>(beaconCache, configuration, timingProvider), std::make_shared<SpaceEvictionStrategy>(beaconCache, configuration)})
+	: BeaconCacheEvictor(beaconCache, {std::make_shared<TimeEvictionStrategy>(beaconCache, configuration, timingProvider), std::make_shared<SpaceEvictionStrategy>(beaconCache, configuration)})
 {
 
 }

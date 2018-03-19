@@ -89,6 +89,8 @@ void TimeEvictionStrategy::doExecute()
 		auto beaconID = *it;
 
 		/*uint32_t numRecordsRemoved =*/ mBeaconCache->evictRecordsByAge(beaconID, smallestAllowedBeaconTimestamp);
+
+		it++;
 	}
 
 	// last but not least update the last runtime

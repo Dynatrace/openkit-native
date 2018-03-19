@@ -65,6 +65,8 @@ void SpaceEvictionStrategy::doExecute()
 			// remove 1 record from Beacon cache for given beaconID
 			// the result is the number of records removed, which might be in range [0, numRecords=1]
 			/*uint32_t numRecordsRemoved =*/ mBeaconCache->evictRecordsByNumber(beaconID, 1);
+
+			it++;
 		}
 	}
 }

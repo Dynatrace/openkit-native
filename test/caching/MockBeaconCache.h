@@ -32,7 +32,7 @@ namespace test
 		{
 		}
 
-		virtual ~MockBeaconCache() {};
+		virtual ~MockBeaconCache() {}
 
 		MOCK_METHOD1(addObserver, void(IObserver*));
 		MOCK_METHOD3(addEventData, void(int32_t, int64_t, const core::UTF8String&));
@@ -46,10 +46,6 @@ namespace test
 		MOCK_METHOD2(evictRecordsByNumber, uint32_t(int32_t, uint32_t));
 		MOCK_CONST_METHOD0(getNumBytesInCache, int64_t());
 		MOCK_METHOD1(isEmpty, bool(int32_t));
-		
-
-	private:
-
 	};
 }
 #endif
