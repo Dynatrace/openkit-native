@@ -35,7 +35,7 @@ namespace providers
 		///
 		/// Default destructor
 		///
-		virtual ~IHTTPClientProvider() {};
+		virtual ~IHTTPClientProvider() {}
 
 		///
 		/// Returns an HTTPClient based on the provided configuration.
