@@ -136,6 +136,22 @@ namespace core
 		///
 		std::vector<UTF8String> split(char delimiter) const;
 
+		///
+		/// Checks if the provided UTF8 string equals to the object
+		///
+		/// @param[in] other
+		/// @return @c true if they are equals, @c false otherwise
+		///
+		bool operator ==(const UTF8String& other) const;
+
+		///
+		/// Checks if the provided UTF8 string not equals to the object
+		///
+		/// @param[in] other
+		/// @return @c true if they are equals, @c false otherwise
+		///
+		bool operator !=(const UTF8String& other) const;
+
 	private:
 
 		///

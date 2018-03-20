@@ -365,3 +365,13 @@ std::vector<UTF8String> UTF8String::split(char delimiter) const
 	}
 	return parts;
 }
+
+bool UTF8String::operator ==(const UTF8String& other) const
+{
+	return this->equals(other);
+}
+
+bool UTF8String::operator !=(const UTF8String& other) const
+{
+	return !this->equals(other);
+}
