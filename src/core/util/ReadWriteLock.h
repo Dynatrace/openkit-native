@@ -17,8 +17,11 @@
 #ifndef _CORE_UTIL_READWRITELOCK_H
 #define _CORE_UTIL_READWRITELOCK_H
 
-#include <mutex>
-#include <condition_variable>
+#if defined(_WIN32) || defined(WIN32) 
+#include <Windows.h>
+#else
+#include <pthread.h>
+#endif
 
 namespace core
 {
@@ -27,67 +30,64 @@ namespace core
 		class ReadWriteLock
 		{
 		public:
+#if defined(_WIN32) || defined(WIN32) 
 			ReadWriteLock()
-				: shared()
-				, readerQ(), writerQ()
-				, active_readers(0), waiting_writers(0), active_writers(0)
+				: mSrwLock()
+			{
+				InitializeSRWLock(&mSrwLock);
+			}
+
+			void ReadLock()
+			{
+				AcquireSRWLockShared(&mSrwLock);
+			}
+
+			void ReadUnlock()
+			{
+				ReleaseSRWLockShared(&mSrwLock);
+			}
+
+			void WriteLock()
+			{
+				AcquireSRWLockExclusive(&mSrwLock);
+			}
+
+			void WriteUnlock()
+			{
+				ReleaseSRWLockExclusive(&mSrwLock);
+			}
+
+		private:
+			SRWLOCK mSrwLock;
+#else
+			ReadWriteLock()
+				: mLock_rw(PTHREAD_RWLOCK_INITIALIZER)
 			{
 			}
 
 			void ReadLock()
 			{
-				std::unique_lock<std::mutex> lk(shared);
-				while (waiting_writers != 0)
-				{
-					readerQ.wait(lk);
-				}
-				++active_readers;
-				lk.unlock();
+				pthread_rwlock_rdlock(&mLock_rw);
 			}
 
 			void ReadUnlock()
 			{
-				std::unique_lock<std::mutex> lk(shared);
-				--active_readers;
-				lk.unlock();
-				writerQ.notify_one();
+				pthread_rwlock_unlock(&mLock_rw);
 			}
 
 			void WriteLock()
 			{
-				std::unique_lock<std::mutex> lk(shared);
-				++waiting_writers;
-				while (active_readers != 0 || active_writers != 0)
-				{
-					writerQ.wait(lk);
-				}
-				++active_writers;
-				lk.unlock();
+				pthread_rwlock_wrlock(&mLock_rw);
 			}
 
 			void WriteUnlock()
 			{
-				std::unique_lock<std::mutex> lk(shared);
-				--waiting_writers;
-				--active_writers;
-				if (waiting_writers > 0)
-				{
-					writerQ.notify_one();
-				}
-				else
-				{
-					readerQ.notify_all();
-				}
-				lk.unlock();
+				pthread_rwlock_unlock(&mLock_rw);
 			}
 
 		private:
-			std::mutex              shared;
-			std::condition_variable readerQ;
-			std::condition_variable writerQ;
-			int                     active_readers;
-			int                     waiting_writers;
-			int                     active_writers;
+			pthread_rwlock_t mLock_rw;
+#endif
 		};
 	}
 }
