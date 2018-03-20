@@ -35,72 +35,64 @@ public:
 
 TEST_F(BeaconCacheRecordTest, getData)
 {
-	// when passing null as argument, then
-	//auto config = new BeaconCacheRecord(0L, nullptr);
-	//ASSERT_EQ(config->getData(), nullptr);
-
 	// when passing an empty string as argument, then
-	auto record = new BeaconCacheRecord(0L, "");
+	BeaconCacheRecord record(0L, "");
 	core::UTF8String expectEmpty("");
-	ASSERT_TRUE(record->getData().equals(expectEmpty));
+	ASSERT_TRUE(record.getData().equals(expectEmpty));
 
 	// when passing string as argument, then
-	record = new BeaconCacheRecord(0L, "foobar");
+	BeaconCacheRecord record2(0L, "foobar");
 	core::UTF8String expectFooBar("foobar");
-	ASSERT_TRUE(record->getData().equals(expectFooBar));
+	ASSERT_TRUE(record2.getData().equals(expectFooBar));
 }
 
 TEST_F(BeaconCacheRecordTest, getTimestamp)
 {
 	// when passing negative timestamp, then
-	auto record = new BeaconCacheRecord(-1L, "a");
-	ASSERT_EQ(record->getTimestamp(), -1L);
+	BeaconCacheRecord record(-1L, "a");
+	ASSERT_EQ(record.getTimestamp(), -1L);
 
 	// and when passing zero as timestamp, then
-	record = new BeaconCacheRecord(0, "a");
-	ASSERT_EQ(record->getTimestamp(), 0L);
+	BeaconCacheRecord record2(0, "a");
+	ASSERT_EQ(record2.getTimestamp(), 0L);
 
 	// and when passing a positive timestamp, then
-	record = new BeaconCacheRecord(1L,"a");
-	ASSERT_EQ(record->getTimestamp(), 1L);
+	BeaconCacheRecord record3(1L,"a");
+	ASSERT_EQ(record3.getTimestamp(), 1L);
 }
 
 TEST_F(BeaconCacheRecordTest, getDataSizeInBytes)
 {
-	// when data is null, then
-	//auto config = new BeaconCacheRecord(0L, nullptr);
-	//ASSERT_EQ(config->getDataSizeInBytes(), 0L);
-
 	// when data is an empty string, then
-	auto record = new BeaconCacheRecord(0L, "");
-	ASSERT_EQ(record->getDataSizeInBytes(), 0L);
+	BeaconCacheRecord record(0L, "");
+	ASSERT_EQ(record.getDataSizeInBytes(), 0L);
 
 	// when data is valid, then
-	record = new BeaconCacheRecord(0L, "a");
-	ASSERT_EQ(record->getDataSizeInBytes(), 1L);
-	record = new BeaconCacheRecord(0L, "ab");
-	ASSERT_EQ(record->getDataSizeInBytes(), 2L);
-	record = new BeaconCacheRecord(0L, "abc");
-	ASSERT_EQ(record->getDataSizeInBytes(), 3L);
+	BeaconCacheRecord record2(0L, "a");
+	ASSERT_EQ(record2.getDataSizeInBytes(), 1L);
+	BeaconCacheRecord record3(0L, "ab");
+	ASSERT_EQ(record3.getDataSizeInBytes(), 2L);
+	BeaconCacheRecord record4(0L, "abc");
+	ASSERT_EQ(record4.getDataSizeInBytes(), 3L);
 }
 
 TEST_F(BeaconCacheRecordTest, markForSending)
 {
 	// given
-	auto target = new BeaconCacheRecord(0L, "abc");
+	BeaconCacheRecord target(0L, "abc");
 
 	// then a newly created record is not marked for sending
-	ASSERT_FALSE(target->isMarkedForSending());
+	ASSERT_FALSE(target.isMarkedForSending());
 
 	// and when explicitly marked for sending
-	target->markForSending();
+	target.markForSending();
 
 	// then
-	ASSERT_TRUE(target->isMarkedForSending());
+	ASSERT_TRUE(target.isMarkedForSending());
 
 	// and when the sending mark is removed
-	target->unsetSending();
+	target.unsetSending();
 
 	// then
-	ASSERT_FALSE(target->isMarkedForSending());
+	ASSERT_FALSE(target.isMarkedForSending());
 }
