@@ -70,8 +70,7 @@ void TimeEvictionStrategy::setLastRunTimestamp(int64_t lastRunTimestamp)
 void TimeEvictionStrategy::doExecute()
 {
 	auto beaconIDs = mBeaconCache->getBeaconIDs();
-	auto it = beaconIDs.begin();
-	if (it == beaconIDs.end())
+	if (beaconIDs.empty())
 	{
 		// no beacons - set last run timestamp and return immediately
 		setLastRunTimestamp(mTimingProvider->provideTimestampInMilliseconds());
@@ -83,7 +82,7 @@ void TimeEvictionStrategy::doExecute()
 	int64_t smallestAllowedBeaconTimestamp = currentTimestamp - mConfiguration->getMaxRecordAge();
 
 	// iterate over the previously obtained set and evict for each beacon
-	it = beaconIDs.begin();
+	auto it = beaconIDs.begin();
 	while (it != beaconIDs.end())
 	{
 		auto beaconID = *it;

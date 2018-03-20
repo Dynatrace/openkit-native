@@ -17,30 +17,28 @@
 #ifndef _TEST_PROVIDERS_TESTTIMINGPROVIDER_H
 #define _TEST_PROVIDERS_TESTTIMINGPROVIDER_H
 
-#include "providers/DefaultTimingProvider.h"
+#include "providers/ITimingProvider.h"
 
 namespace test {
-	class TestTimingProvider : public providers::DefaultTimingProvider
+	class MockTimingProvider : public providers::ITimingProvider
 	{
 	public:
 
 		///
 		/// Default constructor
 		///
-		TestTimingProvider()
+		MockTimingProvider()
 		{
 
 		}
 
+		virtual ~MockTimingProvider() {}
 
-		///
-		/// Sleep given amount of milliseconds.
-		/// @param[in] milliseconds amount of milliseconds to sleep
-		///
-		virtual void sleep(int64_t) override
-		{
-			//no sleep in tests
-		}
+		MOCK_METHOD0(provideTimestampInMilliseconds, int64_t());
+		MOCK_METHOD1(sleep, void(int64_t));
+		MOCK_METHOD2(initialize, void(int64_t, bool));
+		MOCK_METHOD0(isTimeSyncSupported, bool());
+		MOCK_METHOD1(convertToClusterTime, int64_t(int64_t));
 	};
 }
 
