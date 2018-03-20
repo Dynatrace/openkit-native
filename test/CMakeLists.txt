@@ -61,6 +61,7 @@ set(SOURCES_UNITTEST
 	caching/BeaconCacheRecordTest.cxx
 	caching/SpaceEvictionStrategyTest.cxx
 	caching/TimeEvictionStrategyTest.cxx
+	caching/BeaconCacheTest.cxx
 )
 
 # Adds the executable "unittest"

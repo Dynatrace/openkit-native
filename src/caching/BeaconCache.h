@@ -81,7 +81,7 @@ namespace caching
 		/// @param[in] beaconID The beacon id for which to retrieve the events.
 		/// @return List of event data.
 		///
-		std::vector<core::UTF8String> getEvents(int32_t beaconID);
+		const std::vector<core::UTF8String> getEvents(int32_t beaconID);
 
 		///
 		/// Get a deep copy of events that are about to be sent.
@@ -91,7 +91,7 @@ namespace caching
 		/// @param[in] beaconID The beacon id for which to retrieve the events.
 		/// @return List of event data.
 		///
-		std::list<BeaconCacheRecord> getEventsBeingSent(int32_t beaconID);
+		const std::list<BeaconCacheRecord> getEventsBeingSent(int32_t beaconID);
 
 		///
 		/// Get a deep copy of actions collected so far.
@@ -101,7 +101,7 @@ namespace caching
 		/// @param[in] beaconID The beacon id for which to retrieve the actions.
 		/// @return List of action data.
 		///
-		std::vector<core::UTF8String> getActions(int32_t beaconID);
+		const std::vector<core::UTF8String> getActions(int32_t beaconID);
 		
 		///
 		/// Get a deep copy of actions that are about to be sent.
@@ -111,7 +111,7 @@ namespace caching
 		/// @param[in] beaconID The beacon id for which to retrieve the actions.
 		/// @return List of action data.
 		///
-		std::list<BeaconCacheRecord> getActionsBeingSent(int32_t beaconID);
+		const std::list<BeaconCacheRecord> getActionsBeingSent(int32_t beaconID);
 
 		virtual std::unordered_set<int32_t> getBeaconIDs() override;
 

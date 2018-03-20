@@ -16,6 +16,8 @@
 
 #include "BeaconCache.h"
 
+#include <mutex> 
+
 using namespace caching;
  
 BeaconCache::BeaconCache()
@@ -38,9 +40,10 @@ void BeaconCache::addEventData(int32_t beaconID, int64_t timestamp, const core::
 	auto entry = getCachedEntryOrInsert(beaconID);
 
 	BeaconCacheRecord record(timestamp, data);
-	entry->lock();
+	
+	std::unique_lock<std::mutex> lock(entry->getLock());
 	entry->addEventData(record);
-	entry->unlock();
+	lock.unlock();
 
 	// update cache stats
 	mCacheSizeInBytes += record.getDataSizeInBytes();
@@ -55,9 +58,9 @@ void BeaconCache::addActionData(int32_t beaconID, int64_t timestamp, const core:
 	auto entry = getCachedEntryOrInsert(beaconID);
 
 	BeaconCacheRecord record(timestamp, data);
-	entry->lock();
+	std::unique_lock<std::mutex> lock(entry->getLock());
 	entry->addActionData(record);
-	entry->unlock();
+	lock.unlock();
 
 	// update cache stats
 	mCacheSizeInBytes += record.getDataSizeInBytes();
@@ -73,8 +76,8 @@ void BeaconCache::deleteCacheEntry(int32_t beaconID)
 	auto it = mBeacons.find(beaconID);
 	if (it != mBeacons.end())
 	{
-		mBeacons.erase(it);
 		mCacheSizeInBytes -= it->second->getTotalNumberOfBytes();
+		mBeacons.erase(it);
 	}
 	
 	mGlobalCacheLock.WriteUnlock();
@@ -93,10 +96,10 @@ core::UTF8String BeaconCache::getNextBeaconChunk(int32_t beaconID, const core::U
 	{
 		// both entries are null, prepare data for sending
 		int64_t numBytes = 0;
-		entry->lock();
+		std::unique_lock<std::mutex> lock(entry->getLock());
 		numBytes = entry->getTotalNumberOfBytes();
 		entry->copyDataForChunking();
-		entry->unlock();
+		lock.unlock();
 
 		// assumption: sending will work fine, and everything we copied will be removed quite soon
 		mCacheSizeInBytes -= numBytes;
@@ -128,14 +131,17 @@ void BeaconCache::resetChunkedData(int32_t beaconID)
 	}
 
 	int64_t numBytes = 0;
-	entry->lock();
+	std::unique_lock<std::mutex> lock(entry->getLock());
 	int64_t oldSize = entry->getTotalNumberOfBytes();
 	entry->resetDataMarkedForSending();
 	int64_t newSize = entry->getTotalNumberOfBytes();
 	numBytes = newSize - oldSize;
-	entry->unlock();
+	lock.unlock();
 
 	mCacheSizeInBytes += numBytes;
+
+	// notify observers
+	onDataAdded();
 }
 
 std::shared_ptr<BeaconCacheEntry> BeaconCache::getCachedEntryOrInsert(int beaconID)
@@ -150,7 +156,8 @@ std::shared_ptr<BeaconCacheEntry> BeaconCache::getCachedEntryOrInsert(int beacon
 		auto it = mBeacons.find(beaconID);
 		if (it == mBeacons.end())
 		{
-			mBeacons.insert(std::make_pair(beaconID, std::make_shared<BeaconCacheEntry>()));
+			entry = std::make_shared<BeaconCacheEntry>();
+			mBeacons.insert(std::make_pair(beaconID, entry));
 		}
 		else
 		{
@@ -163,7 +170,7 @@ std::shared_ptr<BeaconCacheEntry> BeaconCache::getCachedEntryOrInsert(int beacon
 	return entry;
 }
 
-std::vector<core::UTF8String> BeaconCache::getEvents(int32_t beaconID)
+const std::vector<core::UTF8String> BeaconCache::getEvents(int32_t beaconID)
 {
 	auto entry = getCachedEntry(beaconID);
 	if (entry == nullptr)
@@ -173,13 +180,13 @@ std::vector<core::UTF8String> BeaconCache::getEvents(int32_t beaconID)
 	}
 
 	std::vector<core::UTF8String> events;
-	entry->lock();
+	std::unique_lock<std::mutex> lock(entry->getLock());
 	events = extractData(entry->getEventData());
-	entry->unlock();
+	lock.unlock();
 	return events;
 }
 
-std::list<BeaconCacheRecord> BeaconCache::getEventsBeingSent(int32_t beaconID)
+const std::list<BeaconCacheRecord> BeaconCache::getEventsBeingSent(int32_t beaconID)
 {
 	auto entry = getCachedEntry(beaconID);
 	if (entry == nullptr)
@@ -191,7 +198,7 @@ std::list<BeaconCacheRecord> BeaconCache::getEventsBeingSent(int32_t beaconID)
 	return entry->getEventDataBeingSent();
 }
 
-std::vector<core::UTF8String> BeaconCache::getActions(int32_t beaconID)
+const std::vector<core::UTF8String> BeaconCache::getActions(int32_t beaconID)
 {
 	auto entry = getCachedEntry(beaconID);
 	if (entry == nullptr)
@@ -201,13 +208,13 @@ std::vector<core::UTF8String> BeaconCache::getActions(int32_t beaconID)
 	}
 
 	std::vector<core::UTF8String> actions;
-	entry->lock();
+	std::unique_lock<std::mutex> lock(entry->getLock());
 	actions = extractData(entry->getActionData());
-	entry->unlock();
+	lock.unlock();
 	return actions;
 }
 
-std::list<BeaconCacheRecord> BeaconCache::getActionsBeingSent(int32_t beaconID)
+const std::list<BeaconCacheRecord> BeaconCache::getActionsBeingSent(int32_t beaconID)
 {
 	auto entry = getCachedEntry(beaconID);
 	if (entry == nullptr)
@@ -221,7 +228,7 @@ std::list<BeaconCacheRecord> BeaconCache::getActionsBeingSent(int32_t beaconID)
 
 std::vector<core::UTF8String> BeaconCache::extractData(const std::list<BeaconCacheRecord>& eventData)
 {
-	std::vector<core::UTF8String> result(eventData.size());
+	std::vector<core::UTF8String> result;
 	for (auto const& value : eventData)
 	{
 		result.push_back(value.getData());
@@ -269,9 +276,9 @@ uint32_t BeaconCache::evictRecordsByAge(int32_t beaconID, int64_t minTimestamp)
 		return 0;
 	}
 
-	entry->lock();
+	std::unique_lock<std::mutex> lock(entry->getLock());
 	uint32_t numRecordsRemoved = entry->removeRecordsOlderThan(minTimestamp);
-	entry->unlock();
+	lock.unlock();
 
 	return numRecordsRemoved;
 }
@@ -285,9 +292,9 @@ uint32_t BeaconCache::evictRecordsByNumber(int32_t beaconID, uint32_t numRecords
 		return 0;
 	}
 
-	entry->lock();
+	std::unique_lock<std::mutex> lock(entry->getLock());
 	uint32_t numRecordsRemoved = entry->removeOldestRecords(numRecords);
-	entry->unlock();
+	lock.unlock();
 
 	return numRecordsRemoved;
 }
@@ -317,9 +324,9 @@ bool BeaconCache::isEmpty(int32_t beaconID)
 		return true;
 	}
 
-	entry->lock();
+	std::unique_lock<std::mutex> lock(entry->getLock());
 	bool isEmpty = entry->getTotalNumberOfBytes() == 0;
-	entry->unlock();
+	lock.unlock();
 	
 	return isEmpty;
 }

@@ -29,14 +29,9 @@ BeaconCacheEntry::BeaconCacheEntry()
 
 }
 
-void BeaconCacheEntry::lock()
+std::mutex& BeaconCacheEntry::getLock()
 {
-	mMutex.lock();
-}
-
-void BeaconCacheEntry::unlock()
-{
-	mMutex.unlock();
+	return mMutex;
 }
 
 void BeaconCacheEntry::addEventData(const BeaconCacheRecord& record)
@@ -59,14 +54,9 @@ bool BeaconCacheEntry::needsDataCopyBeforeChunking() const
 
 void BeaconCacheEntry::copyDataForChunking()
 {
-	mActionDataBeingSent.clear(); // TODO: Remove after unit testing
 	mActionDataBeingSent.splice(mActionDataBeingSent.begin(), mActionData);
-
-	mEventDataBeingSent.clear();// TODO: Remove after unit testing
 	mEventDataBeingSent.splice(mEventDataBeingSent.begin(), mEventData);
 
-	mActionData.clear();// TODO: Remove after unit testing
-	mEventData.clear();// TODO: Remove after unit testing
 	mTotalNumBytes = 0;
 }
 

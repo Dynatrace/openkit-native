@@ -42,18 +42,21 @@ namespace caching
 		///
 		BeaconCacheEntry();
 
+
+		std::mutex& getLock();
+
 		///
 		/// Lock this @c BeaconCacheEntry for reading & writing.
 		/// When locking is no longer required, @ref unlock() must be called.
 		///
-		void lock();
+		//void lock();
 
 		///
 		/// Release this @c BeaconCacheEntry lock, so that other threads can access this object.
 		///
 		/// When calling this method ensure @ref lock() was called before.
 		///
-		void unlock();
+		//void unlock();
 
 		///
 		/// Add new event data record to cache.

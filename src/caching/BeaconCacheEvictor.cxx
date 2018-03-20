@@ -50,7 +50,6 @@ bool BeaconCacheEvictor::start()
 	}
 
 	mEvictionThread = std::unique_ptr<std::thread>(new std::thread(&BeaconCacheEvictor::cacheEvictionLoopFunc, this));
-	//mEvictionThread->join(); // TODO: Ask Stefan why would I need this.
 
 	return true;
 }
