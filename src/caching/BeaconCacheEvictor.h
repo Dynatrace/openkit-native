@@ -67,14 +67,13 @@ namespace caching
 		///
 		bool stop();
 
-#if 0
 		///
-		/// Stops the eviction thread with the given @c timeout.
+		/// Stops the eviction thread with the given @c timeout. If the timeout is reached the thread is terminated forcefully.
 		/// @param[in] timeout The number of milliseconds to join the thread.
 		/// @return @c true if stopping was successful, @c false if eviction thread is not running or could not be stopped in time.
 		///
 		bool stop(int64_t timeout);
-#endif
+
 		///
 		/// Checks if the eviction thread is running or not.
 		/// @return @c true if running, @c false otherwise
@@ -100,6 +99,9 @@ namespace caching
 
 		/// Thread being responsible for evicting records from the cache, based on an eviction strategy
 		std::unique_ptr<std::thread> mEvictionThread;
+
+		/// Flag indicating if the eviction thread is currently running
+		bool mRunning;
 
 		/// Flag to stop the eviction thread
 		bool mStop;
