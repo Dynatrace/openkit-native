@@ -38,13 +38,13 @@ namespace test
 		MOCK_METHOD3(addEventData, void(int32_t, int64_t, const core::UTF8String&));
 		MOCK_METHOD3(addActionData, void(int32_t, int64_t, const core::UTF8String&));
 		MOCK_METHOD1(deleteCacheEntry, void(int32_t));
-		MOCK_METHOD4(getNextBeaconChunk, core::UTF8String(int32_t, const core::UTF8String&, int32_t, const char*));
+		MOCK_METHOD4(getNextBeaconChunk, const core::UTF8String(int32_t, const core::UTF8String&, int32_t, const char*));
 		MOCK_METHOD1(removeChunkedData, void(int32_t));
 		MOCK_METHOD1(resetChunkedData, void(int32_t));
-		MOCK_METHOD0(getBeaconIDs, std::unordered_set<int32_t>());
+		MOCK_METHOD0(getBeaconIDs, const std::unordered_set<int32_t>());
 		MOCK_METHOD2(evictRecordsByAge, uint32_t(int32_t, int64_t));
 		MOCK_METHOD2(evictRecordsByNumber, uint32_t(int32_t, uint32_t));
-		MOCK_CONST_METHOD0(getNumBytesInCache, int64_t());
+		MOCK_CONST_METHOD0(getNumBytesInCache, const int64_t());
 		MOCK_METHOD1(isEmpty, bool(int32_t));
 	};
 }

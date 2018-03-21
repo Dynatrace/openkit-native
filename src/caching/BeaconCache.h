@@ -67,7 +67,7 @@ namespace caching
 
 		virtual void deleteCacheEntry(int32_t beaconID) override;
 
-		virtual core::UTF8String getNextBeaconChunk(int32_t beaconID, const core::UTF8String& chunkPrefix, int32_t maxSize, const char* delimiter) override;
+		virtual const core::UTF8String getNextBeaconChunk(int32_t beaconID, const core::UTF8String& chunkPrefix, int32_t maxSize, const char* delimiter) override;
 
 		virtual void removeChunkedData(int32_t beaconID) override;
 
@@ -113,13 +113,13 @@ namespace caching
 		///
 		const std::list<BeaconCacheRecord> getActionsBeingSent(int32_t beaconID);
 
-		virtual std::unordered_set<int32_t> getBeaconIDs() override;
+		virtual const std::unordered_set<int32_t> getBeaconIDs() override;
 
 		virtual uint32_t evictRecordsByAge(int32_t beaconID, int64_t minTimestamp) override;
 
 		virtual uint32_t evictRecordsByNumber(int32_t beaconID, uint32_t numRecords) override;
 
-		virtual int64_t getNumBytesInCache() const override;
+		virtual const int64_t getNumBytesInCache() const override;
 
 		virtual bool isEmpty(int32_t beaconID) override;
 

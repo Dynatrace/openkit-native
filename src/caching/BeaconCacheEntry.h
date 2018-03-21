@@ -42,21 +42,11 @@ namespace caching
 		///
 		BeaconCacheEntry();
 
-
+		///
+		/// Returns the lock of this @c BeaconCacheEntry. Use this lock when operating on this object.
+		/// @return the lock reference
+		///
 		std::mutex& getLock();
-
-		///
-		/// Lock this @c BeaconCacheEntry for reading & writing.
-		/// When locking is no longer required, @ref unlock() must be called.
-		///
-		//void lock();
-
-		///
-		/// Release this @c BeaconCacheEntry lock, so that other threads can access this object.
-		///
-		/// When calling this method ensure @ref lock() was called before.
-		///
-		//void unlock();
 
 		///
 		/// Add new event data record to cache.
@@ -94,10 +84,10 @@ namespace caching
 		/// @param[in] delimiter   The delimiter between data chunks.
 		/// @return The string to send or an empty string if there is no more data to send.
 		///
-		core::UTF8String getChunk(const core::UTF8String& chunkPrefix, int32_t maxSize, const char* delimiter);
+		const core::UTF8String getChunk(const core::UTF8String& chunkPrefix, int32_t maxSize, const char* delimiter);
 
 		///
-		/// Remove data that was previously marked for sending when getNextChunk was called.
+		/// Remove data that was previously marked for sending when @ref getNextChunk was called.
 		///
 		void removeDataMarkedForSending();
 
@@ -182,7 +172,7 @@ namespace caching
 		/// @param[in] delimiter   The delimiter between data chunks.
 		/// @return The string to send or an empty string if there is no more data to send.
 		///
-		core::UTF8String getNextChunk(const core::UTF8String& chunkPrefix, uint32_t maxSize, const char* delimiter);
+		const core::UTF8String getNextChunk(const core::UTF8String& chunkPrefix, uint32_t maxSize, const char* delimiter);
 
 		///
 		/// Iterates (up to the @c maxSize) the provided @c dataBeingSent list and appends the data together with the @c delimiter to the provided @c chunk.

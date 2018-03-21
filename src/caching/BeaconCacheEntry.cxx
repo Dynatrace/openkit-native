@@ -60,7 +60,7 @@ void BeaconCacheEntry::copyDataForChunking()
 	mTotalNumBytes = 0;
 }
 
-core::UTF8String BeaconCacheEntry::getChunk(const core::UTF8String& chunkPrefix, int32_t maxSize, const char* delimiter)
+const core::UTF8String BeaconCacheEntry::getChunk(const core::UTF8String& chunkPrefix, int32_t maxSize, const char* delimiter)
 {
 	if (!hasDataToSend())
 	{
@@ -77,7 +77,7 @@ bool BeaconCacheEntry::hasDataToSend() const
 	return !mEventDataBeingSent.empty() || !mActionDataBeingSent.empty();
 }
 
-core::UTF8String BeaconCacheEntry::getNextChunk(const core::UTF8String& chunkPrefix, uint32_t maxSize, const char* delimiter)
+const core::UTF8String BeaconCacheEntry::getNextChunk(const core::UTF8String& chunkPrefix, uint32_t maxSize, const char* delimiter)
 {
 	core::UTF8String chunk;
 

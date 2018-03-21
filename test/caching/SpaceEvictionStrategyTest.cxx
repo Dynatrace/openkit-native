@@ -31,28 +31,28 @@ class SpaceEvictionStrategyTest : public testing::Test
 {
 public:
 	SpaceEvictionStrategyTest()
-		: mockBeaconCache()
+		: mMockBeaconCache()
 	{
 	}
 
 	void SetUp()
 	{
-		mockBeaconCache = std::shared_ptr<testing::NiceMock<test::MockBeaconCache>>(new testing::NiceMock<test::MockBeaconCache>());
+		mMockBeaconCache = std::shared_ptr<testing::NiceMock<test::MockBeaconCache>>(new testing::NiceMock<test::MockBeaconCache>());
 	}
 
 	void TearDown()
 	{
-		mockBeaconCache = nullptr;
+		mMockBeaconCache = nullptr;
 	}
 
-	std::shared_ptr<testing::NiceMock<test::MockBeaconCache>> mockBeaconCache;
+	std::shared_ptr<testing::NiceMock<test::MockBeaconCache>> mMockBeaconCache;
 };
 
 TEST_F(SpaceEvictionStrategyTest, theStrategyIsDisabledIfCacheSizeLowerBoundIsEqualToZero)
 {
 	// given
 	auto configuration = std::make_shared<BeaconCacheConfiguration>(1000L, 0L, 2000L);
-	SpaceEvictionStrategy target(mockBeaconCache, configuration);
+	SpaceEvictionStrategy target(mMockBeaconCache, configuration);
 
 	// then
 	ASSERT_TRUE(target.isStrategyDisabled());
@@ -62,7 +62,7 @@ TEST_F(SpaceEvictionStrategyTest, theStrategyIsDisabledIfCacheSizeLowerBoundIsLe
 {
 	// given
 	auto configuration = std::make_shared<BeaconCacheConfiguration>(1000L, -1L, 2000L);
-	SpaceEvictionStrategy target(mockBeaconCache, configuration);
+	SpaceEvictionStrategy target(mMockBeaconCache, configuration);
 
 	// then
 	ASSERT_TRUE(target.isStrategyDisabled());
@@ -72,7 +72,7 @@ TEST_F(SpaceEvictionStrategyTest, theStrategyIsDisabledIfCacheSizeUpperBoundIsEq
 {
 	// given
 	auto configuration = std::make_shared<BeaconCacheConfiguration>(1000L, 1000L, 0L);
-	SpaceEvictionStrategy target(mockBeaconCache, configuration);
+	SpaceEvictionStrategy target(mMockBeaconCache, configuration);
 
 	// then
 	ASSERT_TRUE(target.isStrategyDisabled());
@@ -82,7 +82,7 @@ TEST_F(SpaceEvictionStrategyTest, theStrategyIsDisabledIfCacheSizeUpperBoundIsLe
 {
 	// given
 	auto configuration = std::make_shared<BeaconCacheConfiguration>(1000L, 1000L, 999L);
-	SpaceEvictionStrategy target(mockBeaconCache, configuration);
+	SpaceEvictionStrategy target(mMockBeaconCache, configuration);
 
 	// then
 	ASSERT_TRUE(target.isStrategyDisabled());
@@ -92,10 +92,10 @@ TEST_F(SpaceEvictionStrategyTest, shouldRunGivesTrueIfNumBytesInCacheIsGreaterTh
 {
 	// given
 	auto configuration = std::make_shared<BeaconCacheConfiguration>(1000L, 1000L, 2000L);
-	SpaceEvictionStrategy target(mockBeaconCache, configuration);
+	SpaceEvictionStrategy target(mMockBeaconCache, configuration);
 
 	//when
-	ON_CALL(*mockBeaconCache, getNumBytesInCache())
+	ON_CALL(*mMockBeaconCache, getNumBytesInCache())
 		.WillByDefault(testing::Return(configuration->getCacheSizeUpperBound() + 1));
 
 	// then
@@ -106,10 +106,10 @@ TEST_F(SpaceEvictionStrategyTest, shouldRunGivesFalseIfNumBytesInCacheIsEqualToU
 {
 	// given
 	auto configuration = std::make_shared<BeaconCacheConfiguration>(1000L, 1000L, 2000L);
-	SpaceEvictionStrategy target(mockBeaconCache, configuration);
+	SpaceEvictionStrategy target(mMockBeaconCache, configuration);
 
 	//when
-	ON_CALL(*mockBeaconCache, getNumBytesInCache())
+	ON_CALL(*mMockBeaconCache, getNumBytesInCache())
 		.WillByDefault(testing::Return(configuration->getCacheSizeUpperBound()));
 
 	// then
@@ -120,10 +120,10 @@ TEST_F(SpaceEvictionStrategyTest, shouldRunGivesFalseIfNumBytesInCacheIsLessThan
 {
 	// given
 	auto configuration = std::make_shared<BeaconCacheConfiguration>(1000L, 1000L, 2000L);
-	SpaceEvictionStrategy target(mockBeaconCache, configuration);
+	SpaceEvictionStrategy target(mMockBeaconCache, configuration);
 
 	//when
-	ON_CALL(*mockBeaconCache, getNumBytesInCache())
+	ON_CALL(*mMockBeaconCache, getNumBytesInCache())
 		.WillByDefault(testing::Return(configuration->getCacheSizeUpperBound() - 1));
 
 	// then
@@ -144,10 +144,10 @@ TEST_F(SpaceEvictionStrategyTest, executeEvictionCallsCacheMethodForEachBeacon)
 {
 	// given
 	auto configuration = std::make_shared<BeaconCacheConfiguration>(1000L, 1000L, 2000L);
-	SpaceEvictionStrategy target(mockBeaconCache, configuration);
+	SpaceEvictionStrategy target(mMockBeaconCache, configuration);
 
 	uint32_t callCount = 0;
-	ON_CALL(*mockBeaconCache, getNumBytesInCache())
+	ON_CALL(*mMockBeaconCache, getNumBytesInCache())
 		.WillByDefault(testing::Invoke(
 			[&callCount]() -> int64_t {
 				// callCount 1 => 2001 for SpaceEvictionStrategy::shouldRun()
@@ -159,15 +159,15 @@ TEST_F(SpaceEvictionStrategyTest, executeEvictionCallsCacheMethodForEachBeacon)
 				return callCount < 5 ? 2001L : 0L;
 			}
 		));
-	ON_CALL(*mockBeaconCache, getBeaconIDs())
+	ON_CALL(*mMockBeaconCache, getBeaconIDs())
 		.WillByDefault(testing::Return(std::unordered_set<int32_t>({ 1, 42 })));
 
 	// then
-	EXPECT_CALL(*mockBeaconCache, getNumBytesInCache())
+	EXPECT_CALL(*mMockBeaconCache, getNumBytesInCache())
 		.Times(testing::Exactly(5));
-	EXPECT_CALL(*mockBeaconCache, evictRecordsByNumber(1, 1))
+	EXPECT_CALL(*mMockBeaconCache, evictRecordsByNumber(1, 1))
 		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockBeaconCache, evictRecordsByNumber(42, 1))
+	EXPECT_CALL(*mMockBeaconCache, evictRecordsByNumber(42, 1))
 		.Times(testing::Exactly(1));
 
 	// when
@@ -188,10 +188,10 @@ TEST_F(SpaceEvictionStrategyTest, executeEvictionRunsUntilTheCacheSizeIsLessThan
 {
 	// given
 	auto configuration = std::make_shared<BeaconCacheConfiguration>(1000L, 1000L, 2000L);
-	SpaceEvictionStrategy target(mockBeaconCache, configuration);
+	SpaceEvictionStrategy target(mMockBeaconCache, configuration);
 
 	uint32_t callCount = 0;
-	ON_CALL(*mockBeaconCache, getNumBytesInCache())
+	ON_CALL(*mMockBeaconCache, getNumBytesInCache())
 		.WillByDefault(testing::Invoke(
 			[&callCount]() -> int64_t {
 		callCount++;
@@ -226,15 +226,15 @@ TEST_F(SpaceEvictionStrategyTest, executeEvictionRunsUntilTheCacheSizeIsLessThan
 		}
 	}
 	));
-	ON_CALL(*mockBeaconCache, getBeaconIDs())
+	ON_CALL(*mMockBeaconCache, getBeaconIDs())
 		.WillByDefault(testing::Return(std::unordered_set<int32_t>({ 1, 42 })));
 
 	// then
-	EXPECT_CALL(*mockBeaconCache, getNumBytesInCache())
+	EXPECT_CALL(*mMockBeaconCache, getNumBytesInCache())
 		.Times(testing::Exactly(8));
-	EXPECT_CALL(*mockBeaconCache, evictRecordsByNumber(1, 1))
+	EXPECT_CALL(*mMockBeaconCache, evictRecordsByNumber(1, 1))
 		.Times(testing::Exactly(2));
-	EXPECT_CALL(*mockBeaconCache, evictRecordsByNumber(42, 1))
+	EXPECT_CALL(*mMockBeaconCache, evictRecordsByNumber(42, 1))
 		.Times(testing::Exactly(2));
 
 	// when
@@ -246,10 +246,10 @@ TEST_F(SpaceEvictionStrategyTest, executeEvictionStopsIfThreadGetsInterruptedBet
 {
 	// given
 	auto configuration = std::make_shared<BeaconCacheConfiguration>(1000L, 1000L, 2000L);
-	SpaceEvictionStrategy target(mockBeaconCache, configuration);
+	SpaceEvictionStrategy target(mMockBeaconCache, configuration);
 
 	uint32_t callCount = 0;
-	ON_CALL(*mockBeaconCache, getNumBytesInCache())
+	ON_CALL(*mMockBeaconCache, getNumBytesInCache())
 		.WillByDefault(testing::Invoke(
 			[&callCount]() -> int64_t {
 		callCount++;
@@ -284,15 +284,15 @@ TEST_F(SpaceEvictionStrategyTest, executeEvictionStopsIfThreadGetsInterruptedBet
 		}
 	}
 	));
-	ON_CALL(*mockBeaconCache, getBeaconIDs())
+	ON_CALL(*mMockBeaconCache, getBeaconIDs())
 		.WillByDefault(testing::Return(std::unordered_set<int32_t>({ 1, 42 })));
 
 	// then
-	EXPECT_CALL(*mockBeaconCache, getNumBytesInCache())
+	EXPECT_CALL(*mMockBeaconCache, getNumBytesInCache())
 		.Times(testing::Exactly(8));
-	EXPECT_CALL(*mockBeaconCache, evictRecordsByNumber(1, 1))
+	EXPECT_CALL(*mMockBeaconCache, evictRecordsByNumber(1, 1))
 		.Times(testing::Exactly(2));
-	EXPECT_CALL(*mockBeaconCache, evictRecordsByNumber(42, 1))
+	EXPECT_CALL(*mMockBeaconCache, evictRecordsByNumber(42, 1))
 		.Times(testing::Exactly(2));
 
 	// when
@@ -304,10 +304,10 @@ TEST_F(SpaceEvictionStrategyTest, executeEvictionStopsIfNumBytesInCacheFallsBelo
 {
 	// given
 	auto configuration = std::make_shared<BeaconCacheConfiguration>(1000L, 1000L, 2000L);
-	SpaceEvictionStrategy target(mockBeaconCache, configuration);
+	SpaceEvictionStrategy target(mMockBeaconCache, configuration);
 
 	uint32_t callCount = 0;
-	ON_CALL(*mockBeaconCache, getNumBytesInCache())
+	ON_CALL(*mMockBeaconCache, getNumBytesInCache())
 		.WillByDefault(testing::Invoke(
 			[&callCount]() -> int64_t {
 		callCount++;
@@ -341,13 +341,13 @@ TEST_F(SpaceEvictionStrategyTest, executeEvictionStopsIfNumBytesInCacheFallsBelo
 		}
 	}
 	));
-	ON_CALL(*mockBeaconCache, getBeaconIDs())
+	ON_CALL(*mMockBeaconCache, getBeaconIDs())
 		.WillByDefault(testing::Return(std::unordered_set<int32_t>({ 1, 42 })));
 
 	// then
-	EXPECT_CALL(*mockBeaconCache, getNumBytesInCache())
+	EXPECT_CALL(*mMockBeaconCache, getNumBytesInCache())
 		.Times(testing::Exactly(8));
-	EXPECT_CALL(*mockBeaconCache, evictRecordsByNumber(testing::An<int32_t>(), 1))
+	EXPECT_CALL(*mMockBeaconCache, evictRecordsByNumber(testing::An<int32_t>(), 1))
 		.Times(testing::Exactly(3));
 	
 	// when

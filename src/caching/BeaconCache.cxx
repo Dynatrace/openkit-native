@@ -83,7 +83,7 @@ void BeaconCache::deleteCacheEntry(int32_t beaconID)
 	mGlobalCacheLock.WriteUnlock();
 }
 
-core::UTF8String BeaconCache::getNextBeaconChunk(int32_t beaconID, const core::UTF8String& chunkPrefix, int32_t maxSize, const char* delimiter)
+const core::UTF8String BeaconCache::getNextBeaconChunk(int32_t beaconID, const core::UTF8String& chunkPrefix, int32_t maxSize, const char* delimiter)
 {
 	auto entry = getCachedEntry(beaconID);
 	if (entry == nullptr)
@@ -252,7 +252,7 @@ std::shared_ptr<BeaconCacheEntry> BeaconCache::getCachedEntry(int32_t beaconID)
 	return entry;
 }
 
-std::unordered_set<int32_t> BeaconCache::getBeaconIDs()
+const std::unordered_set<int32_t> BeaconCache::getBeaconIDs()
 {
 	std::unordered_set<int32_t> result;
 	
@@ -299,7 +299,7 @@ uint32_t BeaconCache::evictRecordsByNumber(int32_t beaconID, uint32_t numRecords
 	return numRecordsRemoved;
 }
 
-int64_t BeaconCache::getNumBytesInCache() const
+int64_t const BeaconCache::getNumBytesInCache() const
 {
 	return mCacheSizeInBytes;
 }

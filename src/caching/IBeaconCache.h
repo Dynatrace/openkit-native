@@ -80,7 +80,7 @@ namespace caching
 		/// @param[in] delimiter Delimiter between consecutive chunks.
 		/// @return the next chunk to send or an empty string, if either the given @c beaconID does not exist or if there is no more data to send.
 		///
-		virtual core::UTF8String getNextBeaconChunk(int32_t beaconID, const core::UTF8String& chunkPrefix, int32_t maxSize, const char* delimiter) = 0;
+		virtual const core::UTF8String getNextBeaconChunk(int32_t beaconID, const core::UTF8String& chunkPrefix, int32_t maxSize, const char* delimiter) = 0;
 
 		///
 		/// Remove all data that was previously included in chunks.
@@ -111,7 +111,7 @@ namespace caching
 		///
 		/// @return Snapshot of all beacon ids in the cache.
 		///
-		virtual std::unordered_set<int32_t> getBeaconIDs() = 0;
+		virtual const std::unordered_set<int32_t> getBeaconIDs() = 0;
 
 		///
 		/// Evict @ref BeaconCacheRecord by age for a given beacon.
@@ -136,7 +136,7 @@ namespace caching
 		///
 		/// @return Number of bytes currently stored in cache.
 		///
-		virtual int64_t getNumBytesInCache() const = 0;
+		virtual const int64_t getNumBytesInCache() const = 0;
 
 		///
 		/// Tests if an cached entry for @c beaconID is empty.
