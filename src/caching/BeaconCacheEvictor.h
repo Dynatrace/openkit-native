@@ -30,6 +30,7 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
+#include <atomic>
 
 namespace caching
 {
@@ -62,7 +63,7 @@ namespace caching
 		bool start();
 
 		///
-		/// Stops the eviction thread and joins with @ref EVICTION_THREAD_JOIN_TIMEOUT
+		/// Stops the eviction thread with the default timeout of @ref EVICTION_THREAD_JOIN_TIMEOUT.
 		/// See also @ref stop(int64_t) const
 		///
 		bool stop();
@@ -72,7 +73,14 @@ namespace caching
 		/// @param[in] timeout The number of milliseconds to join the thread.
 		/// @return @c true if stopping was successful, @c false if eviction thread is not running or could not be stopped in time.
 		///
-		bool stop(int64_t timeout);
+		bool stop(std::chrono::milliseconds timeout);
+
+		///
+		/// Stops the eviction thread and joins.
+		/// This function is indented for unit testing only as it potentially joins endlessly.
+		/// @return @c true if stopping was successful, @c false if eviction thread is not running.
+		///
+		bool stopAndJoin();
 
 		///
 		/// Checks if the eviction thread is running or not.
@@ -104,10 +112,16 @@ namespace caching
 		bool mRunning;
 
 		/// Flag to stop the eviction thread
-		bool mStop;
+		std::atomic<bool> mStop;
 
 		/// Flag, which indicates that a new record was added to the cache, thus we need to execute the eviction strategies
 		bool mRecordAdded;
+
+		/// Mutex for synchronization of the start/stop functions
+		std::mutex mStartStopMutex;
+
+		/// To wait in the @ref start() function until the thread has started
+		std::condition_variable mStartConditionVariable;
 
 		/// Mutex for condition variable
 		std::mutex mMutex;

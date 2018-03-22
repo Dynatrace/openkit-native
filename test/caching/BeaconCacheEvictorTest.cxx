@@ -19,6 +19,8 @@
 
 #include "caching/BeaconCache.h"
 #include "caching/BeaconCacheEvictor.h"
+#include "core/util/CountDownLatch.h"
+#include "core/util/CyclicBarrier.h"
 #include "../caching/MockBeaconCache.h"
 #include "../caching/MockBeaconCacheEvictionStrategy.h"
 
@@ -32,25 +34,24 @@ public:
 	void SetUp()
 	{
 		mMockBeaconCache = std::shared_ptr<testing::NiceMock<test::MockBeaconCache>>(new testing::NiceMock<test::MockBeaconCache>());
-		//mEvictor = std::shared_ptr<BeaconCacheEvictor>(new BeaconCacheEvictor(mMockBeaconCache, {}));
+		mMockStrategyOne = std::shared_ptr<testing::NiceMock<test::MockBeaconCacheEvictionStrategy>>(new testing::NiceMock<test::MockBeaconCacheEvictionStrategy>());
+		mMockStrategyTwo = std::shared_ptr<testing::NiceMock<test::MockBeaconCacheEvictionStrategy>>(new testing::NiceMock<test::MockBeaconCacheEvictionStrategy>());
 	}
 
 	void TearDown()
 	{
-		//if (mEvictor != nullptr)
-		//{
-		//	mEvictor->stop();
-		//}
 		mMockBeaconCache = nullptr;
+		mMockStrategyOne = nullptr;
+		mMockStrategyTwo = nullptr;
 	}
 
 	//std::shared_ptr<BeaconCacheEvictor> mEvictor;
-	testing::NiceMock<test::MockBeaconCacheEvictionStrategy> mockStrategyOne;
-	testing::NiceMock<test::MockBeaconCacheEvictionStrategy> mockStrategyTwo;
+	std::shared_ptr<testing::NiceMock<test::MockBeaconCacheEvictionStrategy>> mMockStrategyOne;
+	std::shared_ptr<testing::NiceMock<test::MockBeaconCacheEvictionStrategy>> mMockStrategyTwo;
 	std::shared_ptr<testing::NiceMock<test::MockBeaconCache>> mMockBeaconCache;
 };
 
-TEST_F(BeaconCacheEvictorTest, afterStartingABeaconCacheEvictorItIsAlive)
+TEST_F(BeaconCacheEvictorTest, aDefaultConstructedBeaconCacheEvictorIsNotAlive)
 {
 	// given
 	BeaconCacheEvictor evictor(mMockBeaconCache, {});
@@ -59,7 +60,7 @@ TEST_F(BeaconCacheEvictorTest, afterStartingABeaconCacheEvictorItIsAlive)
 	ASSERT_FALSE(evictor.isAlive());
 }
 
-TEST_F(BeaconCacheEvictorTest, aDefaultConstructedBeaconCacheEvictorIsNotAlive)
+TEST_F(BeaconCacheEvictorTest, afterStartingABeaconCacheEvictorItIsAlive)
 {
 	// given
 	BeaconCacheEvictor evictor(mMockBeaconCache, {});
@@ -69,8 +70,10 @@ TEST_F(BeaconCacheEvictorTest, aDefaultConstructedBeaconCacheEvictorIsNotAlive)
 	ASSERT_TRUE(obtained);
 	ASSERT_TRUE(evictor.isAlive());
 
-	evictor.stop();
+	evictor.stopAndJoin();
 }
+
+
 
 TEST_F(BeaconCacheEvictorTest, startingAnAlreadyAliveBeaconCacheEvictorDoesNothing)
 {
@@ -99,32 +102,125 @@ TEST_F(BeaconCacheEvictorTest, stoppingABeaconCacheEvictorWhichIsNotAliveDoesNot
 	// then
 	ASSERT_FALSE(obtained);
 	ASSERT_FALSE(evictor.isAlive());
+}
 
-	evictor.stop();
+TEST_F(BeaconCacheEvictorTest, stoppingAnAliveBeaconCacheEvictor)
+{
+	// given
+	BeaconCacheEvictor evictor(mMockBeaconCache, {});
+	evictor.start();
+
+	// when
+	auto obtained = evictor.stop();
+
+	// then
+	ASSERT_TRUE(obtained);
+	ASSERT_FALSE(evictor.isAlive());
+}
+
+TEST_F(BeaconCacheEvictorTest, stoppingABeaconCacheEvictorWithASmallTimeout)
+{
+	// given
+	ON_CALL(*mMockStrategyOne, execute())
+		.WillByDefault(testing::Invoke(
+			[]() -> void
+	{
+		// simulate the strategy execution to take 1s
+		std::this_thread::sleep_for(std::chrono::seconds(1));
+	}
+	));
+
+	BeaconCacheEvictor evictor(mMockBeaconCache, { mMockStrategyOne });
+	evictor.start();
+
+	// give the eviction thread enough time to at least execute the strategy before stopping it
+	std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+	// when
+	auto stopped = evictor.stop(std::chrono::seconds(10));
+
+	// then
+	ASSERT_TRUE(stopped);
 }
 
 TEST_F(BeaconCacheEvictorTest, stoppingABeaconCacheEvictorWithAHugeTimeout)
 {
 	// given
-	BeaconCacheEvictor evictor(mMockBeaconCache, {});
-	auto obtained = evictor.start();
+	ON_CALL(*mMockStrategyOne, execute())
+		.WillByDefault(testing::Invoke(
+			[]() -> void
+	{
+		// simulate the strategy execution to take 10s
+		std::this_thread::sleep_for(std::chrono::seconds(10));
+	}
+	));
+
+	BeaconCacheEvictor evictor(mMockBeaconCache, { mMockStrategyOne });
+	evictor.start();
+
+	// give the eviction thread enough time to at least execute the strategy before stopping it
+	std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
 	// when
-	obtained = evictor.stop(10000); // 10s
+	auto stopped = evictor.stop(std::chrono::seconds(1));
 
 	// then
-	ASSERT_TRUE(obtained);
+	ASSERT_TRUE(stopped);
 }
 
-TEST_F(BeaconCacheEvictorTest, stoppingABeaconCacheEvictorWithAZeroTimeout)
+TEST_F(BeaconCacheEvictorTest, triggeringEvictionStrategiesInThread)
 {
 	// given
-	BeaconCacheEvictor evictor(mMockBeaconCache, {});
-	auto obtained = evictor.start();
+	std::vector<IObserver*> observers;
+	core::util::CountDownLatch addObserverLatch(1);
+	core::util::CyclicBarrier strategyInvokedBarrier(2);
 
-	// when
-	obtained = evictor.stop(0);
+	ON_CALL(*mMockBeaconCache, addObserver(testing::_))
+		.WillByDefault(testing::Invoke(
+			[&observers, &addObserverLatch](IObserver* observer) -> void
+			{
+				observers.push_back(observer);
+				addObserverLatch.countDown();
+			}
+		));
+
+	ON_CALL(*mMockStrategyTwo, execute())
+		.WillByDefault(testing::Invoke(
+			[&strategyInvokedBarrier]() -> void
+			{
+				strategyInvokedBarrier.await();
+			}
+		));
+
+	// first step start the eviction thread
+	BeaconCacheEvictor evictor(mMockBeaconCache, { mMockStrategyOne, mMockStrategyTwo });
+	evictor.start();
+
+	// wait until the eviction thread registered itself as observer
+	addObserverLatch.await();
+
+	// verify the observer was set
+	ASSERT_FALSE(observers.empty());
+
+	// update() shall (indirectly) trigger execute() on the eviction strategy
+	EXPECT_CALL(*mMockStrategyOne, execute())
+		.Times(testing::Exactly(10));
+	EXPECT_CALL(*mMockStrategyTwo, execute())
+		.Times(testing::Exactly(10));
+
+	// do some updates
+	for (int i = 0; i < 10; i++)
+	{
+		auto it = observers.begin();
+		(*it)->update();
+		strategyInvokedBarrier.await();
+		strategyInvokedBarrier.reset();
+	}
+
+	// stop the stuff and ensure it's invoked
+	auto stopped = evictor.stop();
 
 	// then
-	ASSERT_FALSE(obtained);
+	ASSERT_TRUE(stopped);
+	ASSERT_FALSE(evictor.isAlive());
 }
