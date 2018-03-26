@@ -29,8 +29,8 @@ namespace core
 	{
 		class ReadWriteLock
 		{
-		public:
 #if defined(_WIN32) || defined(WIN32) 
+		public:
 			ReadWriteLock()
 				: mSrwLock()
 			{
@@ -60,6 +60,7 @@ namespace core
 		private:
 			SRWLOCK mSrwLock;
 #else
+		public:
 			ReadWriteLock()
 				: mLock_rw(PTHREAD_RWLOCK_INITIALIZER)
 			{
