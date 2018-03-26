@@ -221,17 +221,17 @@ int32_t BeaconCacheEntry::removeOldestRecords(int32_t numRecords)
 	{
 		if (eventsIterator == mEventData.end())
 		{
-			// actions is not null -> remove action
+			// actions is not empty -> remove action
 			actionsIterator = mActionData.erase(actionsIterator);
 		}
 		else if (actionsIterator == mActionData.end())
 		{
-			// events is not null -> remove event
+			// events is not empty -> remove event
 			eventsIterator = mEventData.erase(eventsIterator);
 		}
 		else
 		{
-			// both are not null -> compare by timestamp and take the older one
+			// both are not empty -> compare by timestamp and take the older one
 			if ((*actionsIterator).getTimestamp() < (*eventsIterator).getTimestamp())
 			{
 				// first action is older than first event
