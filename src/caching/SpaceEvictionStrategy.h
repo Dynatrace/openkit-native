@@ -38,7 +38,6 @@ namespace caching
 		/// Constructor.
 		/// @param[in] beaconCache The beacon cache to evict if necessary.
 		/// @param[in] configuration The configuration providing the boundary settings for this strategy.
-		/// @param[in] timingProvider Timing provider required for time retrieval
 		///
 		SpaceEvictionStrategy(std::shared_ptr<IBeaconCache> beaconCache, std::shared_ptr<configuration::BeaconCacheConfiguration> configuration);
 
