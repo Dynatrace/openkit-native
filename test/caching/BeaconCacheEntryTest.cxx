@@ -25,14 +25,6 @@ using namespace caching;
 
 class BeaconCacheEntryTest : public testing::Test
 {
-public:
-	void SetUp()
-	{
-	}
-
-	void TearDown()
-	{
-	}
 };
 
 TEST_F(BeaconCacheEntryTest, aDefaultConstructedInstanceHasNoData)

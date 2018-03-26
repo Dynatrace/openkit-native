@@ -27,15 +27,6 @@ using namespace caching;
 
 class BeaconCacheTest : public testing::Test
 {
-public:
-	void SetUp()
-	{
-
-	}
-
-	void TearDown()
-	{
-	}
 };
 
 TEST_F(BeaconCacheTest, aDefaultConstructedCacheDoesNotContainBeacons)

@@ -23,14 +23,6 @@ using namespace caching;
 
 class BeaconCacheRecordTest : public testing::Test
 {
-public:
-	void SetUp()
-	{
-	}
-
-	void TearDown()
-	{
-	}
 };
 
 TEST_F(BeaconCacheRecordTest, getData)
