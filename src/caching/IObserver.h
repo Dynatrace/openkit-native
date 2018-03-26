@@ -28,6 +28,9 @@ namespace caching
 		///
 		virtual ~IObserver() {}
 
+		///
+		/// Called to notify/update the registered observers.
+		///
 		virtual void update() = 0;
 	};
 }

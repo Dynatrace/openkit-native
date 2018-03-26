@@ -31,8 +31,8 @@ namespace caching
 	///
 	/// Represents an entry in the @ref BeaconCache.
 	///
-	/// The caller is responsible to lock this element, before the first method is invoked using
-	/// @ref lock() and after the last operation is invoked @ref unlock() must be called.
+	/// The caller is responsible to lock this element via the mutex returned with @ref getLock()
+	/// before the first method is invoked, and to unlock it after the last operation is invoked.
 	///
 	class BeaconCacheEntry
 	{
