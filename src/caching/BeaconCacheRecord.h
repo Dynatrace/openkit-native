@@ -70,10 +70,13 @@ namespace caching
 		void unsetSending();
 
 	private:
+		/// The data's timestamp
 		int64_t mTimestamp;
 
+		/// The data of the event or action
 		const core::UTF8String mData;
 
+		/// Indicates if this record is marked for sending
 		bool mMarkedForSending;
 	};
 

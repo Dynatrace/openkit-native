@@ -207,6 +207,7 @@ namespace caching
 		///	List storing all action data being sent.
 		std::list<BeaconCacheRecord> mActionDataBeingSent;
 
+		/// Sum of all record's data size estimation.
 		int64_t mTotalNumBytes;
 	};
 }

@@ -161,6 +161,7 @@ namespace caching
 		/// The central part of the cache are the beacons (key=beaconID, value=
 		std::unordered_map<int32_t, std::shared_ptr<BeaconCacheEntry>> mBeacons;
 
+		/// Sum of all record's data size estimation.
 		std::atomic<int64_t> mCacheSizeInBytes;
 	};
 }
