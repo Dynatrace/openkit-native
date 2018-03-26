@@ -17,6 +17,11 @@
 #ifndef _CORE_ACTION_H
 #define _CORE_ACTION_H
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnon-virtual-dtor" // enable_shared_from_this has a public non virtual destructor throwing a false positive in this code
+#endif
+
 #include "api/IAction.h"
 #include "core/util/SynchronizedQueue.h"
 #include "core/UTF8String.h"
@@ -31,8 +36,12 @@ namespace protocol
 
 namespace core
 {
+	class RootAction;
 	///
 	/// Actual implementation of the IAction interface.
+	/// It is intentional that Action does not serve as a base class for RootAction. This would result in the diamond-inheritance
+	/// problem in RootAction. This is because RootAction would inherit from Action which inherits from IAction. But RootAction iself also
+	/// inherited from IAction. The code duplication between Action and RootAction is the easiest way to avoid the diamond-inheritance.
 	///
 	class Action : public api::IAction, public std::enable_shared_from_this<core::Action>
 	{
@@ -44,7 +53,7 @@ namespace core
 		/// @param[in] name the name of the action
 		/// @param[in] sameLevelActions actions on the same level
 		///
-		Action(std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name, util::SynchronizedQueue<std::shared_ptr<Action>>& sameLevelActions );
+		Action(std::shared_ptr<protocol::Beacon> beacon, const char* name);
 
 		///
 		/// Create an action given a beacon  and the action name
@@ -52,7 +61,7 @@ namespace core
 		/// @param[in] name the name of the action
 		/// @param[in] parentAction parent action
 		///
-		Action(std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name, std::shared_ptr<Action> parentAction, util::SynchronizedQueue<std::shared_ptr<Action>>& sameLevelActions);
+		Action(std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name, std::shared_ptr<RootAction> parentAction);
 
 		///
 		/// Destructor
@@ -64,7 +73,7 @@ namespace core
 		/// Call @c doLeaveAction if this is the first call to @c leaveAction
 		/// @returns the parent Action, or @c null if there is no parent Action
 		///
-		virtual std::shared_ptr<api::IAction> leaveAction();
+		virtual std::shared_ptr<api::IRootAction> leaveAction();
 
 		///
 		/// Returns the action ID
@@ -117,7 +126,7 @@ namespace core
 	protected:
 
 		/// parent action
-		std::shared_ptr<Action> mParentAction;
+		std::shared_ptr<RootAction> mParentAction;
 
 		/// action end time
 		std::atomic<int64_t> mEndTime;
@@ -128,7 +137,7 @@ namespace core
 		/// Called by leaveAction only if this is the first leaveAction call on this Action
 		/// @returns the parent Action, or @c null if there is no parent Action
 		///
-		virtual std::shared_ptr<api::IAction> doLeaveAction();
+		virtual std::shared_ptr<api::IRootAction> doLeaveAction();
 
 		/// beacon used for serialization
 		std::shared_ptr<protocol::Beacon> mBeacon;
@@ -137,7 +146,7 @@ namespace core
 		int32_t mID;
 
 		/// action name
-		const core::UTF8String& mName;
+		const core::UTF8String mName;
 
 		/// action start time
 		int64_t mStartTime;
@@ -147,9 +156,11 @@ namespace core
 
 		/// action end sequence number
 		int32_t mEndSequenceNumber;
-
-		/// actions that reside on the same Level
-		util::SynchronizedQueue<std::shared_ptr<Action>>& mSameLevelActions;
 	};
 }
+
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#endif
+
 #endif

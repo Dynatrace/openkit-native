@@ -85,6 +85,9 @@ namespace core
 
 		/// thread instance running the beacon sending state machine
 		std::unique_ptr<std::thread> mSendingThread;
+
+		/// list of open session
+		std::vector<std::shared_ptr<Session>> mOpenSessions;
 	};
 }
 #endif

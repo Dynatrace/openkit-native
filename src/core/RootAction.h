@@ -14,10 +14,17 @@
 * limitations under the License.
 */
 
+
 #ifndef _CORE_ROOTACTION_H
 #define _CORE_ROOTACTION_H
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnon-virtual-dtor" // enable_shared_from_this has a public non virtual destructor throwing a false positive in this code
+#endif
+
 #include "api/IRootAction.h"
+
 #include "Action.h"
 #include "protocol/Beacon.h"
 #include "UTF8String.h"
@@ -26,10 +33,15 @@
 
 namespace core
 {
+	class Session;
+
 	///
 	/// Actual implementation of the IRootAction interface.
+	/// It is intentional that Action does not serve as a base class for RootAction. This would result in the diamond-inheritance
+	/// problem in RootAction. This is because RootAction would inherit from Action which inherits from IAction. But RootAction iself also
+	/// inherited from IAction. The code duplication between Action and RootAction is the easiest way to avoid the diamond-inheritance.
 	///
-	class RootAction : public api::IRootAction, public Action
+	class RootAction : public api::IRootAction, public std::enable_shared_from_this<core::RootAction>
 	{
 	public:
 
@@ -38,8 +50,9 @@ namespace core
 		/// @param[in] beacon the beacon used to serialize this Action
 		/// @param[in] name the name of the action
 		/// @param[in] parentActions parent actions
+		/// @param[in] session the session object keeping track of all root actions of this level
 		///
-		RootAction(std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name, util::SynchronizedQueue<std::shared_ptr<Action>>& parentActions);
+		RootAction(std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name, std::shared_ptr<Session> session);
 
 		///
 		/// Destructor
@@ -51,7 +64,7 @@ namespace core
 		/// @param[in] actionName name of the Action
 		/// @returns Action instance to work with
 		///
-		virtual std::shared_ptr<api::IAction> enterAction();
+		virtual std::shared_ptr<api::IAction> enterAction(const char* actionName) override;
 
 
 		///
@@ -59,7 +72,60 @@ namespace core
 		/// Call @c doLeaveAction if this is the first call to @c leaveAction
 		/// @returns the parent Action, or @c null if there is no parent Action
 		///
-		virtual std::shared_ptr<api::IAction> leaveAction() override;
+		virtual void leaveAction() override;
+
+		///
+		/// Method to be called by the child action upon the call of leaveAction
+		/// @param[in] childAction child Action that was closed
+		///
+		void childActionEnded(std::shared_ptr<Action> childAction);
+
+		///
+		/// Returns the action ID
+		/// @returns the action ID
+		///
+		int32_t getID() const;
+
+		///
+		/// Returns the action name
+		/// @returns the action name
+		///
+		const core::UTF8String& getName() const;
+
+		///
+		/// Returns the start time of the action
+		/// @returns the start time of the action
+		///
+		int64_t getStartTime() const;
+
+		///
+		/// Returns the end time of the action
+		/// @returns the end time of the action
+		///
+		int64_t getEndTime() const;
+
+		///
+		/// Returns the start sequence number of the action
+		/// @returns the start sequence number of the action
+		///
+		int32_t getStartSequenceNo() const;
+
+		///
+		/// Returns the end sequence number of the action
+		/// @returns the end sequence number of the action
+		///
+		int32_t getEndSequenceNo()const;
+
+	protected:
+		///
+		/// Return a flag if this action has been closed already
+		/// @returns @c true if action was already left, @c false if action is open
+		///
+		bool isActionLeft() const;
+
+	protected:
+
+
 
 	private:
 
@@ -68,13 +134,38 @@ namespace core
 		/// Called by leaveAction only if this is the first leaveAction call on this Action
 		/// @returns the parent Action, or @c null if there is no parent Action
 		///
-		virtual std::shared_ptr<api::IAction> doLeaveAction();
+		virtual void doLeaveAction();
 
 		/// beacon used for serialization
 		std::shared_ptr<protocol::Beacon> mBeacon;
 
 		/// open Actions of children
-		util::SynchronizedQueue<std::shared_ptr<Action>> mOpenChildActions;
+		util::SynchronizedQueue<std::shared_ptr<api::IAction>> mOpenChildActions;
+
+		/// session keeping track of all root actions
+		std::shared_ptr<Session> mSession;
+
+		///action id
+		int32_t mID;
+
+		/// action name
+		const core::UTF8String& mName;
+
+		/// action start time
+		int64_t mStartTime;
+
+		/// action start sequence number
+		int32_t mStartSequenceNumber;
+
+		/// action end sequence number
+		int32_t mEndSequenceNumber;
+
+		/// action end time
+		std::atomic<int64_t> mEndTime;
 	};
 }
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#endif
+
 #endif

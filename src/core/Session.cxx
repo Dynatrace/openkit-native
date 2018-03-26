@@ -28,17 +28,23 @@ Session::Session(std::shared_ptr<BeaconSender> beaconSender, std::shared_ptr<pro
 	, mEndTime(-1)
 	, mOpenRootActions()
 {
+
+}
+
+void Session::startSession()
+{
 	mBeaconSender->startSession(shared_from_this());
 }
 
-std::shared_ptr<api::IRootAction> Session::enterAction(const UTF8String& actionName)
+std::shared_ptr<api::IRootAction> Session::enterAction(const char* actionName)
 {
 	if (isSessionEnded())
 	{
 		return nullptr;//TODO johannes.baeuerle add NullRootAction
 	}
-	auto pointer = new RootAction(mBeacon, actionName, mOpenRootActions);
-	return std::shared_ptr<api::IRootAction>(pointer);
+	std::shared_ptr<api::IRootAction> pointer = std::make_shared<RootAction>(mBeacon, UTF8String(actionName), shared_from_this());
+	mOpenRootActions.put(pointer);
+	return pointer;
 }
 
 void Session::end()
@@ -68,4 +74,9 @@ bool Session::isSessionEnded() const
 int64_t Session::getEndTime() const
 {
 	return mEndTime;
+}
+
+void Session::rootActionEnded(std::shared_ptr<RootAction> rootAction)
+{
+	mOpenRootActions.remove(rootAction);
 }

@@ -17,17 +17,17 @@
 #ifndef _API_IROOTACTION_H
 #define _API_IROOTACTION_H
 
-#include "IAction.h"
 
 #include <stdint.h>
 #include <memory>
 
 namespace api
 {
+	class IAction;
 	///
 	/// This interface provides the same functionality as IAction, additionally it allows to create child actions
 	///
-	class IRootAction : public IAction
+	class IRootAction
 	{
 	public:
 
@@ -38,7 +38,12 @@ namespace api
 		/// @param[in] actionName name of the Action
 		/// @returns Action instance to work with
 		///
-		virtual std::shared_ptr<IAction> enterAction() = 0;
+		virtual std::shared_ptr<IAction> enterAction(const char* actionName) = 0;
+
+		///
+		/// Leaves this Action.
+		///
+		virtual void leaveAction() = 0;
 	};
 }
 #endif

@@ -17,6 +17,7 @@
 #ifndef _API_IACTION_H
 #define _API_IACTION_H
 
+#include "api/IRootAction.h"
 #include <stdint.h>
 #include <memory>
 
@@ -37,7 +38,7 @@ namespace api
 		/// Leaves this Action.
 		/// @returns the parent Action, or @c null if there is no parent Action
 		///
-		virtual std::shared_ptr<IAction> leaveAction() = 0;
+		virtual std::shared_ptr<IRootAction> leaveAction() = 0;
 	};
 }
 

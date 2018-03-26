@@ -17,9 +17,15 @@
 #ifndef _CORE_SESSION_H
 #define _CORE_SESSION_H
 
-#include "api/ISession.h"
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnon-virtual-dtor" // enable_shared_from_this has a public non virtual destructor throwing a false positive in this code
+#endif
 
-#include "Action.h"
+#include "api/ISession.h"
+#include "api/IRootAction.h"
+
+#include "UTF8String.h"
 #include "util/SynchronizedQueue.h"
 
 #include <memory>
@@ -34,10 +40,12 @@ namespace core
 {
 	class BeaconSender;
 
+	class RootAction;
+
 	///
 	///  Actual implementation of the ISession interface.
 	///
-	class Session : public api::ISession, private std::enable_shared_from_this<core::Session>
+	class Session : public api::ISession, public std::enable_shared_from_this<core::Session>
 	{
 	public:
 
@@ -57,7 +65,7 @@ namespace core
 		/// @param[in] actionName name of the Action
 		/// @returns Action instance to work with
 		///
-		virtual std::shared_ptr<api::IRootAction> enterAction(const UTF8String& actionName);
+		virtual std::shared_ptr<api::IRootAction> enterAction(const char* actionName);
 
 		///
 		///  Ends this Session and marks it as ready for immediate sending.
@@ -69,6 +77,17 @@ namespace core
 		/// @returns the end time of the session
 		///
 		int64_t getEndTime() const;
+
+		///
+		/// Method to be called by the child action upon the call of leaveAction
+		/// @param[in] rootAction RootAction that was closed
+		///
+		void rootActionEnded(std::shared_ptr<RootAction> rootAction);
+
+		///
+		/// Start a session
+		///
+		void startSession();
 
 	private:
 
@@ -90,7 +109,12 @@ namespace core
 		std::atomic<int64_t> mEndTime;
 
 		/// synchronized queue of root actions of this session
-		util::SynchronizedQueue<std::shared_ptr<Action>> mOpenRootActions;
+		util::SynchronizedQueue<std::shared_ptr<api::IRootAction>> mOpenRootActions;
 	};
 }
+
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#endif
+
 #endif

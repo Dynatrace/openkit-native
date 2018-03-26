@@ -16,26 +16,36 @@
 
 #include "RootAction.h"
 
+#include <memory>
+
 using namespace core;
 
-RootAction::RootAction(std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name, util::SynchronizedQueue<std::shared_ptr<Action>>& parentActions)
-	: Action(beacon, name, parentActions)
-	, mBeacon(beacon)
+RootAction::RootAction(std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name, std::shared_ptr<Session> session)
+	: mBeacon(beacon)
 	, mOpenChildActions()
+	, mSession(session)
+	, mID(mBeacon->createID())
+	, mName(name)
+	, mStartTime(mBeacon->getCurrentTimestamp())
+	, mStartSequenceNumber(mBeacon->createSequenceNumber())
+	, mEndSequenceNumber(-1)
+	, mEndTime(-1)
 {
 
 }
 
-std::shared_ptr<api::IAction> RootAction::enterAction()
+std::shared_ptr<api::IAction> RootAction::enterAction(const char* actionName)
 {
 	if (!isActionLeft())
 	{
-		return std::shared_ptr<Action>(new Action(mBeacon, getName(), shared_from_this(), mOpenChildActions));
+		auto childAction = std::make_shared<Action>(mBeacon, UTF8String(actionName), shared_from_this());
+		mOpenChildActions.put(std::static_pointer_cast<api::IAction>(childAction));
+		return childAction;
 	}
 	return nullptr;//TODO johannes.baeuerle: NullAction
 }
 
-std::shared_ptr<api::IAction> RootAction::doLeaveAction()
+void RootAction::doLeaveAction()
 {
 	while (!mOpenChildActions.isEmpty())
 	{
@@ -43,16 +53,57 @@ std::shared_ptr<api::IAction> RootAction::doLeaveAction()
 		action->leaveAction();
 	}
 
-	return Action::leaveAction();
+	mSession->rootActionEnded(std::static_pointer_cast<RootAction>(shared_from_this()));
+	mSession = nullptr;
 }
 
-std::shared_ptr<api::IAction> RootAction::leaveAction()
+void RootAction::leaveAction()
 {
 	int64_t expected = -1L;
 	if (atomic_compare_exchange_strong(&mEndTime, &expected, mBeacon->getCurrentTimestamp()) == false)
 	{
-		return mParentAction;
+		return;
 	}
 
-	return doLeaveAction();
+	doLeaveAction();
+}
+
+void RootAction::childActionEnded(std::shared_ptr<Action> childAction)
+{
+	mOpenChildActions.remove(childAction);
+}
+
+int32_t RootAction::getID() const
+{
+	return mID;
+}
+
+const UTF8String& RootAction::getName() const
+{
+	return mName;
+}
+
+int64_t RootAction::getStartTime() const
+{
+	return mStartTime;
+}
+
+int64_t RootAction::getEndTime() const
+{
+	return mEndTime;
+}
+
+int32_t RootAction::getStartSequenceNo() const
+{
+	return mStartSequenceNumber;
+}
+
+int32_t RootAction::getEndSequenceNo() const
+{
+	return mEndSequenceNumber;
+}
+
+bool RootAction::isActionLeft() const
+{
+	return mEndTime != -1;
 }

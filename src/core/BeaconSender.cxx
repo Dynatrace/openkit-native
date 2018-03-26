@@ -30,6 +30,7 @@ BeaconSender::BeaconSender(std::shared_ptr<configuration::Configuration> configu
 						   std::shared_ptr<providers::ITimingProvider> timingProvider)
 	: mBeaconSendingContext(std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(httpClientProvider, timingProvider, configuration)))
 	, mSendingThread(nullptr)
+	, mOpenSessions()
 {
 
 }
@@ -45,7 +46,6 @@ void beaconSendingLoop(std::shared_ptr<BeaconSendingContext> context)
 bool BeaconSender::initialize()
 {
 	mSendingThread = std::unique_ptr<std::thread>(new std::thread(&beaconSendingLoop, mBeaconSendingContext));
-	mSendingThread->join();
 	return true;
 }
 
@@ -62,7 +62,7 @@ void BeaconSender::shutdown()
 
 void BeaconSender::startSession(std::shared_ptr<Session> session)
 {
-
+	mOpenSessions.push_back(session);
 }
 
 void BeaconSender::finishSession(std::shared_ptr<Session> session)

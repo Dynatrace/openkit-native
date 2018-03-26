@@ -16,19 +16,20 @@
 
 #include "Action.h"
 #include "protocol/Beacon.h"
+#include "RootAction.h"
 
 #include <atomic>
 #include <memory>
 
 using namespace core;
 
-Action::Action(std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name, util::SynchronizedQueue<std::shared_ptr<Action>>& sameLevelActions)
-	: Action(beacon, name, nullptr, sameLevelActions)
+Action::Action(std::shared_ptr<protocol::Beacon> beacon, const char* name)
+	: Action(beacon, UTF8String(name), nullptr)
 {
 
 }
 
-Action::Action(std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name, std::shared_ptr<Action> parentAction, util::SynchronizedQueue<std::shared_ptr<Action>>& sameLevelActions)
+Action::Action(std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name, std::shared_ptr<RootAction> parentAction)
 	: mParentAction(parentAction)
 	, mEndTime(-1)
 	, mBeacon(beacon)
@@ -37,12 +38,11 @@ Action::Action(std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name,
 	, mStartTime(mBeacon->getCurrentTimestamp())
 	, mStartSequenceNumber(mBeacon->createSequenceNumber())
 	, mEndSequenceNumber(-1)
-	, mSameLevelActions(sameLevelActions)
 {
-	mSameLevelActions.put(shared_from_this());
+
 }
 
-std::shared_ptr<api::IAction> Action::leaveAction()
+std::shared_ptr<api::IRootAction> Action::leaveAction()
 {
 	int64_t expected = -1L;
 	if (atomic_compare_exchange_strong(&mEndTime, &expected, mBeacon->getCurrentTimestamp()) == false)
@@ -53,7 +53,7 @@ std::shared_ptr<api::IAction> Action::leaveAction()
 	return doLeaveAction();
 }
 
-std::shared_ptr<api::IAction> Action::doLeaveAction()
+std::shared_ptr<api::IRootAction> Action::doLeaveAction()
 {
 	mEndTime = mBeacon->getCurrentTimestamp();
 	mEndSequenceNumber = mBeacon->createSequenceNumber();
@@ -62,9 +62,12 @@ std::shared_ptr<api::IAction> Action::doLeaveAction()
 	mBeacon->addAction(shared_from_this());
 
 	//remove Action from the Actions on this level
-	mSameLevelActions.remove(shared_from_this());
+	mParentAction->childActionEnded(shared_from_this());
 
-	return mParentAction;
+	auto returnValue = std::static_pointer_cast<api::IRootAction>(mParentAction);
+	mParentAction = nullptr;
+
+	return returnValue;
 }
 
 int32_t Action::getID() const
