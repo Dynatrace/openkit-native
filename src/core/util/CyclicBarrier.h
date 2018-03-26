@@ -30,6 +30,10 @@ namespace core
 		class CyclicBarrier
 		{
 		public:
+			///
+			/// Constructor
+			/// @param[in] numThreads the number of threads required for the synchronization barrier to notify
+			///
 			CyclicBarrier(uint32_t numThreads);
 
 			///
