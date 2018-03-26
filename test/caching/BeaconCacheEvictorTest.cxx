@@ -214,7 +214,6 @@ TEST_F(BeaconCacheEvictorTest, triggeringEvictionStrategiesInThread)
 		auto it = observers.begin();
 		(*it)->update();
 		strategyInvokedBarrier.await();
-		strategyInvokedBarrier.reset();
 	}
 
 	// stop the stuff and ensure it's invoked

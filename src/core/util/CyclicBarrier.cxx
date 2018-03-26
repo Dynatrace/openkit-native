@@ -25,7 +25,6 @@ CyclicBarrier::CyclicBarrier(uint32_t numThreads)
 	: mNumThreads(numThreads)
 	, mWaits(0)
 	, mMutex()
-	, mMutexReset()
 	, mConditionVariable()
 {
 }
@@ -40,17 +39,8 @@ void CyclicBarrier::await()
 	}
 	else
 	{
-		std::lock_guard<std::mutex> resetLock(mMutexReset);
-		lock.unlock();
 		mConditionVariable.notify_all();
+		mWaits = 0;
+		lock.unlock();
 	}
-}
-
-void CyclicBarrier::reset()
-{
-	mMutex.lock();
-	std::lock_guard<std::mutex> rstl(mMutexReset);
-	mMutex.unlock();
-	mConditionVariable.notify_all();
-	mWaits = 0;
 }

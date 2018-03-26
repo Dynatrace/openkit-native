@@ -34,15 +34,11 @@ namespace core
 
 			///
 			/// Wait for the required number of threads upon the barrier object.
-			/// If the number is reached, the waiting threads are unlocked.
+			/// If the number is reached, the waiting threads are unlocked and
+			/// the cyclic barrier resets itself to become reusable.
 			///
 			void await();
-
-			///
-			/// Makes the cyclic barrier object reusable, also unlocking any waiting threads.
-			///
-			void reset();
-
+			
 		private:
 			/// number of threads
 			uint32_t mNumThreads;
@@ -52,9 +48,6 @@ namespace core
 
 			/// mutex used for sychronisation
 			std::mutex mMutex;
-
-			/// mutex used for sychronisation of the reset call
-			std::mutex mMutexReset;
 
 			/// condition variable used as the waiting spot
 			std::condition_variable mConditionVariable;
