@@ -19,6 +19,9 @@
 
 namespace caching
 {
+	///
+	/// The observer interface describes the methods to be implemented by a concrete observer.
+	///
 	class IObserver
 	{
 	public:
