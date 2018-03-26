@@ -144,7 +144,7 @@ namespace caching
 		/// @param[in] eventData the records from which to extract the data
 		/// @return the extracted data
 		///
-		std::vector<core::UTF8String> extractData(const std::list<BeaconCacheRecord>& eventData);
+		static std::vector<core::UTF8String> extractData(const std::list<BeaconCacheRecord>& eventData);
 
 		///
 		/// Call this method when something was added (size of cache increased).
