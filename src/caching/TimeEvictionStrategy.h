@@ -44,7 +44,7 @@ namespace caching
 		TimeEvictionStrategy(std::shared_ptr<IBeaconCache> beaconCache, std::shared_ptr<configuration::BeaconCacheConfiguration> configuration, std::shared_ptr<providers::ITimingProvider> timingProvider);
 
 		///
-		/// Default Destructor
+		/// Destructor
 		///
 		virtual ~TimeEvictionStrategy() {}
 

@@ -43,7 +43,7 @@ namespace caching
 		SpaceEvictionStrategy(std::shared_ptr<IBeaconCache> beaconCache, std::shared_ptr<configuration::BeaconCacheConfiguration> configuration);
 
 		///
-		/// Default Destructor
+		/// Destructor
 		///
 		virtual ~SpaceEvictionStrategy() {}
 

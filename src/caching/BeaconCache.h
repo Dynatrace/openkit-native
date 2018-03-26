@@ -45,7 +45,7 @@ namespace caching
 		BeaconCache();
 
 		///
-		/// Default destructor
+		/// destructor
 		///
 		virtual ~BeaconCache() {}
 

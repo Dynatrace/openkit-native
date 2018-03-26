@@ -33,7 +33,7 @@ namespace providers
 	public:
 
 		///
-		/// Default destructor
+		/// Destructor
 		///
 		virtual ~IHTTPClientProvider() {}
 
