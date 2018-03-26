@@ -92,6 +92,8 @@ void TimeEvictionStrategy::doExecute()
 		it++;
 	}
 
+	// TODO: Add debug output once the logger is implemented
+
 	// last but not least update the last runtime
 	setLastRunTimestamp(currentTimestamp);
 }
