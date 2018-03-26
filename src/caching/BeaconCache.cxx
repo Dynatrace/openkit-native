@@ -71,8 +71,8 @@ void BeaconCache::addActionData(int32_t beaconID, int64_t timestamp, const core:
 
 void BeaconCache::deleteCacheEntry(int32_t beaconID)
 {
-	mGlobalCacheLock.WriteLock();
-
+	core::util::ScopedWriteLock lock(mGlobalCacheLock);
+	
 	auto it = mBeacons.find(beaconID);
 	if (it != mBeacons.end())
 	{
@@ -80,7 +80,7 @@ void BeaconCache::deleteCacheEntry(int32_t beaconID)
 		mBeacons.erase(it);
 	}
 	
-	mGlobalCacheLock.WriteUnlock();
+	lock.unlock();
 }
 
 const core::UTF8String BeaconCache::getNextBeaconChunk(int32_t beaconID, const core::UTF8String& chunkPrefix, int32_t maxSize, const core::UTF8String& delimiter)
@@ -150,8 +150,8 @@ std::shared_ptr<BeaconCacheEntry> BeaconCache::getCachedEntryOrInsert(int beacon
 	if (entry == nullptr)
 	{
 		// does not exist, and needs to be inserted
-		mGlobalCacheLock.WriteLock();
-
+		core::util::ScopedWriteLock lock(mGlobalCacheLock);
+		
 		// double check since this could have been added in the mean time
 		auto it = mBeacons.find(beaconID);
 		if (it == mBeacons.end())
@@ -164,7 +164,7 @@ std::shared_ptr<BeaconCacheEntry> BeaconCache::getCachedEntryOrInsert(int beacon
 			entry = it->second;
 		}
 
-		mGlobalCacheLock.WriteUnlock();
+		lock.unlock();
 	}
 
 	return entry;
@@ -241,14 +241,14 @@ std::shared_ptr<BeaconCacheEntry> BeaconCache::getCachedEntry(int32_t beaconID)
 	std::shared_ptr<BeaconCacheEntry> entry = nullptr;
 
 	// acquire read lock and get the entry
-	mGlobalCacheLock.ReadLock();
+	core::util::ScopedReadLock lock(mGlobalCacheLock);
 	auto it = mBeacons.find(beaconID);
 	if (it != mBeacons.end())
 	{
 		entry = it->second;
 	}
-	mGlobalCacheLock.ReadUnlock();
-
+	lock.unlock();
+	
 	return entry;
 }
 
@@ -256,14 +256,13 @@ const std::unordered_set<int32_t> BeaconCache::getBeaconIDs()
 {
 	std::unordered_set<int32_t> result;
 	
-	mGlobalCacheLock.ReadLock();
+	core::util::ScopedReadLock lock(mGlobalCacheLock);
 	for (auto const& beacon : mBeacons)
 	{
 		result.insert(beacon.first);
 	}
-
-	mGlobalCacheLock.ReadUnlock();
-
+	lock.unlock();
+	
 	return result;
 }
 

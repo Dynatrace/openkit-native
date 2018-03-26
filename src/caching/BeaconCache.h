@@ -19,7 +19,8 @@
 
 #include "caching/IObserver.h"
 #include "caching/IBeaconCache.h"
-#include "core/util/ReadWriteLock.h"
+#include "core/util/ScopedReadLock.h"
+#include "core/util/ScopedWriteLock.h"
 #include "caching/BeaconCacheEntry.h"
 
 #include <unordered_set>
