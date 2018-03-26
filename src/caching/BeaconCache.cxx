@@ -31,7 +31,10 @@ BeaconCache::BeaconCache()
 
 void BeaconCache::addObserver(IObserver* observer)
 {
-	observers.push_back(observer);
+	if (observer != nullptr)
+	{
+		observers.push_back(observer);
+	}
 }
 
 void BeaconCache::addEventData(int32_t beaconID, int64_t timestamp, const core::UTF8String& data)
@@ -305,12 +308,9 @@ int64_t const BeaconCache::getNumBytesInCache() const
 
 void BeaconCache::onDataAdded()
 {
-	for (std::vector<IObserver*>::const_iterator iter = observers.begin(); iter != observers.end(); ++iter)
+	for (auto iter = observers.begin(); iter != observers.end(); ++iter)
 	{
-		if ((*iter) != nullptr)
-		{
-			(*iter)->update();
-		}
+		(*iter)->update();
 	}
 }
 
