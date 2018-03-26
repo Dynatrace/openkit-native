@@ -80,7 +80,7 @@ namespace caching
 		/// @param[in] delimiter Delimiter between consecutive chunks.
 		/// @return the next chunk to send or an empty string, if either the given @c beaconID does not exist or if there is no more data to send.
 		///
-		virtual const core::UTF8String getNextBeaconChunk(int32_t beaconID, const core::UTF8String& chunkPrefix, int32_t maxSize, const char* delimiter) = 0;
+		virtual const core::UTF8String getNextBeaconChunk(int32_t beaconID, const core::UTF8String& chunkPrefix, int32_t maxSize, const core::UTF8String& delimiter) = 0;
 
 		///
 		/// Remove all data that was previously included in chunks.

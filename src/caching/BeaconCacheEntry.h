@@ -84,7 +84,7 @@ namespace caching
 		/// @param[in] delimiter   The delimiter between data chunks.
 		/// @return The string to send or an empty string if there is no more data to send.
 		///
-		const core::UTF8String getChunk(const core::UTF8String& chunkPrefix, int32_t maxSize, const char* delimiter);
+		const core::UTF8String getChunk(const core::UTF8String& chunkPrefix, int32_t maxSize, const core::UTF8String& delimiter);
 
 		///
 		/// Remove data that was previously marked for sending when @ref getNextChunk was called.
@@ -172,7 +172,7 @@ namespace caching
 		/// @param[in] delimiter   The delimiter between data chunks.
 		/// @return The string to send or an empty string if there is no more data to send.
 		///
-		const core::UTF8String getNextChunk(const core::UTF8String& chunkPrefix, uint32_t maxSize, const char* delimiter);
+		const core::UTF8String getNextChunk(const core::UTF8String& chunkPrefix, uint32_t maxSize, const core::UTF8String& delimiter);
 
 		///
 		/// Iterates (up to the @c maxSize) the provided @c dataBeingSent list and appends the data together with the @c delimiter to the provided @c chunk.
@@ -181,7 +181,7 @@ namespace caching
 		/// param[in] maxSize in characters for one chunk. Up to this size data (if available) is appended
 		/// param[in] delimiter the delimiter between data chunks 
 		///
-		static void chunkifyDataList(core::UTF8String& chunk, std::list<BeaconCacheRecord>& dataBeingSent, uint32_t maxSize, const char* delimiter);
+		static void chunkifyDataList(core::UTF8String& chunk, std::list<BeaconCacheRecord>& dataBeingSent, uint32_t maxSize, const core::UTF8String& delimiter);
 
 		///
 		/// Remove all @ref BeaconCacheRecord from @c records.

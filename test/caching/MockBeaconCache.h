@@ -38,7 +38,7 @@ namespace test
 		MOCK_METHOD3(addEventData, void(int32_t, int64_t, const core::UTF8String&));
 		MOCK_METHOD3(addActionData, void(int32_t, int64_t, const core::UTF8String&));
 		MOCK_METHOD1(deleteCacheEntry, void(int32_t));
-		MOCK_METHOD4(getNextBeaconChunk, const core::UTF8String(int32_t, const core::UTF8String&, int32_t, const char*));
+		MOCK_METHOD4(getNextBeaconChunk, const core::UTF8String(int32_t, const core::UTF8String&, int32_t, const core::UTF8String&));
 		MOCK_METHOD1(removeChunkedData, void(int32_t));
 		MOCK_METHOD1(resetChunkedData, void(int32_t));
 		MOCK_METHOD0(getBeaconIDs, const std::unordered_set<int32_t>());

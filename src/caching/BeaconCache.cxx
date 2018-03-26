@@ -83,7 +83,7 @@ void BeaconCache::deleteCacheEntry(int32_t beaconID)
 	mGlobalCacheLock.WriteUnlock();
 }
 
-const core::UTF8String BeaconCache::getNextBeaconChunk(int32_t beaconID, const core::UTF8String& chunkPrefix, int32_t maxSize, const char* delimiter)
+const core::UTF8String BeaconCache::getNextBeaconChunk(int32_t beaconID, const core::UTF8String& chunkPrefix, int32_t maxSize, const core::UTF8String& delimiter)
 {
 	auto entry = getCachedEntry(beaconID);
 	if (entry == nullptr)
