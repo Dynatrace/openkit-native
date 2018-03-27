@@ -38,7 +38,7 @@ namespace core
 				: mLock(&lk)
 				, mOwns(false)
 			{
-				mLock->ReadLock();
+				mLock->WriteLock();
 				mOwns = true;
 			}
 
@@ -49,7 +49,7 @@ namespace core
 			{
 				if (mOwns)
 				{
-					mLock->ReadUnlock();
+					mLock->WriteUnlock();
 				}
 			}
 
@@ -70,7 +70,7 @@ namespace core
 			{
 				if (!mOwns)
 				{
-					mLock->ReadLock();
+					mLock->WriteLock();
 					mOwns = true;
 				}
 			}
@@ -82,7 +82,7 @@ namespace core
 			{
 				if (mOwns)
 				{
-					mLock->ReadUnlock();
+					mLock->WriteUnlock();
 					mOwns = false;
 				}
 			}
