@@ -14,33 +14,27 @@
 * limitations under the License.
 */
 
-#ifndef _TEST_PROVIDERS_TESTTIMINGPROVIDER_H
-#define _TEST_PROVIDERS_TESTTIMINGPROVIDER_H
+#ifndef _CACHING_IOBSERVER_H
+#define _CACHING_IOBSERVER_H
 
-#include "providers/DefaultTimingProvider.h"
-
-namespace test {
-	class TestTimingProvider : public providers::DefaultTimingProvider
+namespace caching
+{
+	///
+	/// The observer interface describes the methods to be implemented by a concrete observer.
+	///
+	class IObserver
 	{
 	public:
 
 		///
-		/// Default constructor
+		/// Destructor
 		///
-		TestTimingProvider()
-		{
-
-		}
-
+		virtual ~IObserver() {}
 
 		///
-		/// Sleep given amount of milliseconds.
-		/// @param[in] milliseconds amount of milliseconds to sleep
+		/// Called to notify/update the registered observers.
 		///
-		virtual void sleep(int64_t) override
-		{
-			//no sleep in tests
-		}
+		virtual void update() = 0;
 	};
 }
 

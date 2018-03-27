@@ -712,3 +712,39 @@ TEST_F(UTF8StringTest, SplitUtf8StringMultipleDelimExistsWithEmptyParts)
 	EXPECT_TRUE(parts.at(4).equals(u8"Fiv€"));
 	EXPECT_TRUE(parts.at(5).empty());
 }
+
+TEST_F(UTF8StringTest, EqualAsciiStrings)
+{
+	UTF8String s1("Hello World");
+	UTF8String s2("Hello World");
+
+	EXPECT_TRUE(s1 == s2);
+	EXPECT_FALSE(s1 != s2);
+}
+
+TEST_F(UTF8StringTest, NotEqualAsciiStrings)
+{
+	UTF8String s1("Hello");
+	UTF8String s2("World");
+
+	EXPECT_FALSE(s1 == s2);
+	EXPECT_TRUE(s1 != s2);
+}
+
+TEST_F(UTF8StringTest, EqualUtf8Strings)
+{
+	UTF8String s1(u8"H€llo World");
+	UTF8String s2(u8"H€llo World");
+
+	EXPECT_TRUE(s1 == s2);
+	EXPECT_FALSE(s1 != s2);
+}
+
+TEST_F(UTF8StringTest, NotEqualUtf8Strings)
+{
+	UTF8String s1(u8"H€llo");
+	UTF8String s2(u8"World");
+
+	EXPECT_FALSE(s1 == s2);
+	EXPECT_TRUE(s1 != s2);
+}

@@ -56,6 +56,13 @@ set(SOURCES_UNITTEST
 	communication/BeaconSendingInitialStateTest.cxx
 	communication/BeaconSendingTimeSyncStateTest.cxx
 	configuration/ConfigurationTest.cxx
+	configuration/BeaconCacheConfigurationTest.cxx
+	caching/BeaconCacheEntryTest.cxx
+	caching/BeaconCacheRecordTest.cxx
+	caching/SpaceEvictionStrategyTest.cxx
+	caching/TimeEvictionStrategyTest.cxx
+	caching/BeaconCacheEvictorTest.cxx
+	caching/BeaconCacheTest.cxx
 )
 
 # Adds the executable "unittest"

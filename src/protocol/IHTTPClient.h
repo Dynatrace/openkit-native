@@ -39,7 +39,7 @@ namespace protocol
 		///
 		/// Destructor
 		///
-		virtual ~IHTTPClient() {};
+		virtual ~IHTTPClient() {}
 
 		///
 		/// sends a status check request and returns a status response

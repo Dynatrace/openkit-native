@@ -18,6 +18,7 @@
 
 #include <memory>
 #include <gtest/gtest.h>
+#include <memory>
 
 using namespace core::util;
 
