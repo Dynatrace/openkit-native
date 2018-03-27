@@ -33,9 +33,13 @@ namespace protocol
 	constexpr char OPENKIT_VERSION[] = "7.0.0000";
 	constexpr char PLATFORM_TYPE_OPENKIT[] = "1";
 	constexpr char AGENT_TECHNOLOGY_TYPE[] = "okc";
+	constexpr int32_t PROTOCOL_VERSION = 3;
 
 	// time sync response constants
 	constexpr char RESPONSE_KEY_REQUEST_RECEIVE_TIME[] = "t1";
 	constexpr char RESPONSE_KEY_RESPONSE_SEND_TIME[] = "t2";
+
+	//maximum supported name length
+	constexpr int32_t MAX_NAME_LEN = 250;
 }
 #endif /* _PROTOCOL_CONSTANTS_H */

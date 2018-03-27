@@ -16,6 +16,7 @@
 
 #include "core/util/SynchronizedQueue.h"
 
+#include <memory>
 #include <gtest/gtest.h>
 #include <memory>
 
