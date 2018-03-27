@@ -22,10 +22,14 @@
 #include "providers/DefaultHTTPClientProvider.h"
 #include "providers/DefaultSessionIDProvider.h"
 #include "providers/DefaultTimingProvider.h"
+#include "providers/DefaultThreadIDProvider.h"
 #include "configuration/HTTPClientConfiguration.h"
 #include "configuration/OpenKitType.h"
 #include "configuration/Device.h"
 #include "protocol/ssl/SSLStrictTrustManager.h"
+#include "protocol/Beacon.h"
+#include "core/Session.h"
+#include "core/RootAction.h"
 
 using namespace core;
 using namespace communication;
@@ -68,6 +72,7 @@ int32_t main(int32_t argc, char** argv)
 	std::shared_ptr<IHTTPClientProvider> httpClientProvider = std::shared_ptr<IHTTPClientProvider>(new DefaultHTTPClientProvider());
 	std::shared_ptr<ITimingProvider> timingProvider = std::shared_ptr<ITimingProvider>(new DefaultTimingProvider());
 	std::shared_ptr<ISessionIDProvider> sessionIDProvider = std::shared_ptr<ISessionIDProvider>(new DefaultSessionIDProvider());
+	std::shared_ptr<IThreadIDProvider> threadIDProvider = std::shared_ptr<IThreadIDProvider>(new DefaultThreadIDProvider());
 
 	std::shared_ptr<configuration::Device> device = std::shared_ptr<configuration::Device>(new configuration::Device(core::UTF8String("ACME OS"), core::UTF8String("Dynatrace"), core::UTF8String("Model E")));
 
@@ -75,9 +80,20 @@ int32_t main(int32_t argc, char** argv)
 																									core::UTF8String("openkit-sample"), APPLICATION_VERSION, applicationID, serverID, beaconURL,
 																									sessionIDProvider, trustManager ));
 
-	BeaconSender sender(configuration, httpClientProvider, timingProvider);
+	std::shared_ptr<protocol::Beacon> beacon = std::make_shared<protocol::Beacon>(configuration, UTF8String(""), threadIDProvider, timingProvider);
 	
-	sender.initialize();
+	std::shared_ptr<core::BeaconSender> sender = std::make_shared<core::BeaconSender>(configuration, httpClientProvider, timingProvider);
+	sender->initialize();
+
+	std::shared_ptr<Session> sampleSession(new Session(sender, beacon));
+	sampleSession->startSession();
+	auto rootAction1 = sampleSession->enterAction("root action");
+	auto childAction1 = rootAction1->enterAction("child action");
+
+	childAction1->leaveAction();
+	rootAction1->leaveAction();
+
+	
 
 	return 0;
 }

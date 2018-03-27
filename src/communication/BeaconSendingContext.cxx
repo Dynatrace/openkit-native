@@ -39,6 +39,8 @@ BeaconSendingContext::BeaconSendingContext(std::shared_ptr<providers::IHTTPClien
 	, mInitCountdownLatch(1)
 	, mIsTimeSyncSupported(true)
 	, mLastTimeSyncTime(-1)
+	, mOpenSessions()
+	, mFinishedSessions()
 {	
 }
 
@@ -209,5 +211,18 @@ void BeaconSendingContext::initializeTimeSync(int64_t clusterTimeOffset, bool is
 	if (mTimingProvider != nullptr)
 	{
 		mTimingProvider->initialize(clusterTimeOffset, isTimeSyncSupported);
+	}
+}
+
+void BeaconSendingContext::startSession(std::shared_ptr<core::Session> session)
+{
+	mOpenSessions.put(session);
+}
+
+void BeaconSendingContext::finishSession(std::shared_ptr<core::Session> session)
+{
+	if (mOpenSessions.remove(session))
+	{
+		mFinishedSessions.put(session);
 	}
 }

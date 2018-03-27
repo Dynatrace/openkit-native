@@ -45,7 +45,6 @@ void beaconSendingLoop(std::shared_ptr<BeaconSendingContext> context)
 bool BeaconSender::initialize()
 {
 	mSendingThread = std::unique_ptr<std::thread>(new std::thread(&beaconSendingLoop, mBeaconSendingContext));
-	mSendingThread->join();
 	return true;
 }
 
@@ -58,4 +57,14 @@ void BeaconSender::shutdown()
 {
 	mBeaconSendingContext->requestShutdown();
 	mSendingThread->join();
+}
+
+void BeaconSender::startSession(std::shared_ptr<Session> session)
+{
+	mBeaconSendingContext->startSession(session);
+}
+
+void BeaconSender::finishSession(std::shared_ptr<Session> session)
+{
+	mBeaconSendingContext->finishSession(session);
 }

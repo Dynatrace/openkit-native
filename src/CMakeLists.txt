@@ -25,6 +25,9 @@ set(SOURCES_CORE
 	core/UTF8String.cxx
 	core/BeaconSender.cxx
 	core/OpenKit.cxx
+	core/Session.cxx
+	core/Action.cxx
+	core/RootAction.cxx
 )
 
 set(SOURCES_COMMUNICATION
@@ -43,6 +46,7 @@ set(SOURCES_PROTOCOL
 	protocol/HTTPClient.cxx
 	protocol/ssl/SSLBlindTrustManager.cxx
 	protocol/ssl/SSLStrictTrustManager.cxx
+	protocol/Beacon.cxx
 )
 
 set(SOURCES_PROVIDERS

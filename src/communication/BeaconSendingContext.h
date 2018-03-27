@@ -18,11 +18,14 @@
 #define _COMMUNICATION_BEACONSENDINGCONTEXT_H
 
 #include "core/util/CountDownLatch.h"
+#include "core/util/SynchronizedQueue.h"
 #include "providers/IHTTPClientProvider.h"
 #include "providers/ITimingProvider.h"
 #include "configuration/Configuration.h"
 #include "protocol/StatusResponse.h"
 #include "communication/AbstractBeaconSendingState.h"
+#include "core/Session.h"
+
 
 #include <atomic>
 #include <memory>
@@ -201,6 +204,21 @@ namespace communication
 		///
 		virtual void initializeTimeSync(int64_t clusterTimeOffset, bool isTimeSyncSupported);
 
+		///
+		/// Start a new session.
+		/// This add the @c session to the internal container of open sessions.
+		/// @param[in] session The new session to start.
+		///
+		void startSession(std::shared_ptr<core::Session> session);
+
+		///
+		/// Finish a session which has been started previously using startSession(SessionImpl)
+		/// If the session cannot be found in the container storing all open sessions, the parameter is ignored,
+		/// otherwise it's removed from the container storing open sessions and added to the finished session container.
+		/// @param[in] session The session to finish.
+		///
+		void finishSession(std::shared_ptr<core::Session> session);
+
 	private:
 		/// instance of AbstractBeaconSendingState with the current state
 		std::shared_ptr<AbstractBeaconSendingState> mCurrentState;
@@ -237,6 +255,12 @@ namespace communication
 
 		/// timestamp of the last time sync
 		int64_t mLastTimeSyncTime;
+
+		/// container storing all open sessions
+		core::util::SynchronizedQueue<std::shared_ptr<core::Session>> mOpenSessions;
+
+		/// container storing all finished sessions
+		core::util::SynchronizedQueue<std::shared_ptr<core::Session>> mFinishedSessions;
 	};
 }
 #endif
