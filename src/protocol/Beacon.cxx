@@ -92,7 +92,7 @@ core::UTF8String Beacon::createBasicEventData(protocol::EventType eventType, con
 	return eventData;
 }
 
-core::UTF8String& Beacon::appendKey(core::UTF8String& s, const core::UTF8String& key)
+void Beacon::appendKey(core::UTF8String& s, const core::UTF8String& key)
 {
 	if (!s.empty())
 	{
@@ -101,36 +101,30 @@ core::UTF8String& Beacon::appendKey(core::UTF8String& s, const core::UTF8String&
 
 	s.concatenate(key);
 	s.concatenate("=");
-
-	return s;
 }
 
-core::UTF8String& Beacon::addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, const core::UTF8String& value)
+void Beacon::addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, const core::UTF8String& value)
 {
 	appendKey(s, key);
 	s.concatenate(core::util::URLEncoding::urlencode(value));
-	return s;
 }
 
-core::UTF8String& Beacon::addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, int32_t value)
+void Beacon::addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, int32_t value)
 {
 	appendKey(s, key);
 	s.concatenate(std::to_string(value));
-	return s;
 }
 
-core::UTF8String& Beacon::addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, int64_t value)
+void Beacon::addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, int64_t value)
 {
 	appendKey(s, key);
 	s.concatenate(std::to_string(value));
-	return s;
 }
 
-core::UTF8String& Beacon::addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, double value)
+void Beacon::addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, double value)
 {
 	appendKey(s, key);
 	s.concatenate(std::to_string(value));
-	return s;
 }
 
 int32_t Beacon::createSequenceNumber()

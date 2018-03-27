@@ -95,9 +95,8 @@ namespace protocol
 		/// Serialization helper method for appending a key.
 		/// @param[in] s reference to string containing serialized data
 		/// @param[in] key key to append to string
-		/// @returns the serialization data including the new key
 		///
-		core::UTF8String& appendKey(core::UTF8String& s, const core::UTF8String& key);
+		void appendKey(core::UTF8String& s, const core::UTF8String& key);
 
 		///
 		/// Serialization helper method for adding key/value pairs with string values
@@ -106,34 +105,34 @@ namespace protocol
 		/// @param[in] value the string value to add
 		/// @returs the serialization data including the new key value pair
 		///
-		core::UTF8String& addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, const core::UTF8String& value);
+		void addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, const core::UTF8String& value);
 
 		///
-		/// Serialization helper method for adding key/value pairs with string values
+		/// Serialization helper method for adding key/value pairs with int32 values
 		/// @param[in] s reference to string containing serialized data
 		/// @param[in] key key to append to string
 		/// @param[in] value the integer value to add
 		/// @returs the serialization data including the new key value pair
 		///
-		core::UTF8String& addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, int32_t value);
+		void addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, int32_t value);
 
 		///
-		/// Serialization helper method for adding key/value pairs with string values
+		/// Serialization helper method for adding key/value pairs with int64 values
 		/// @param[in] s reference to string containing serialized data
 		/// @param[in] key key to append to string
 		/// @param[in] value the long value to add
 		/// @returs the serialization data including the new key value pair
 		///
-		core::UTF8String& addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, int64_t value);
+		void addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, int64_t value);
 
 		///
-		/// Serialization helper method for adding key/value pairs with string values
+		/// Serialization helper method for adding key/value pairs with double values
 		/// @param[in] s reference to string containing serialized data
 		/// @param[in] key key to append to string
 		/// @param[in] value the double value to add
 		/// @returs the serialization data including the new key value pair
 		///
-		core::UTF8String& addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, double value);
+		void addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, double value);
 
 		///
 		/// helper method for truncating name at max name size
