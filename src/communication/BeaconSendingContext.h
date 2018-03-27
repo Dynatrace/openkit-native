@@ -253,10 +253,10 @@ namespace communication
 		/// timestamp of the last time sync
 		int64_t mLastTimeSyncTime;
 
-		/// list of open session
+		/// container storing all open sessions
 		core::util::SynchronizedQueue<std::shared_ptr<core::Session>> mOpenSessions;
 
-		/// list of open session
+		/// container storing all finished sessions
 		core::util::SynchronizedQueue<std::shared_ptr<core::Session>> mFinishedSessions;
 	};
 }
