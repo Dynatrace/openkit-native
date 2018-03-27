@@ -51,7 +51,7 @@ public:
 
 TEST_F(BeaconSendingInitialStateTest, initStateIsNotATerminalState)
 {
-	EXPECT_FALSE(target->isAShutdownState());
+	EXPECT_FALSE(target->isTerminalState());
 }
 
 TEST_F(BeaconSendingInitialStateTest, getShutdownStateGivesABeaconSendingTerminalStateInstance)

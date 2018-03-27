@@ -52,7 +52,7 @@ void BeaconSendingContext::setNextState(std::shared_ptr<AbstractBeaconSendingSta
 
 bool BeaconSendingContext::isInTerminalState() const
 {
-	return mCurrentState->isAShutdownState();
+	return mCurrentState->isTerminalState();
 }
 
 void BeaconSendingContext::executeCurrentState()

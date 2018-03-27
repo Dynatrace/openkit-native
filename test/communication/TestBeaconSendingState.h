@@ -34,11 +34,6 @@ namespace test {
 			return std::make_shared<BeaconSendingTerminalState>();
 		}
 
-		virtual bool isAShutdownState()
-		{
-			return false;
-		}
-
 	protected:
 		virtual void doExecute(BeaconSendingContext&)
 		{

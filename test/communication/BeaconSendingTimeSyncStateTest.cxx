@@ -119,7 +119,7 @@ public:
 
 TEST_F(BeaconSendingTimeSyncTest, timeSyncStateIsNotATerminalState)
 {
-	ASSERT_FALSE(target->isAShutdownState());
+	ASSERT_FALSE(target->isTerminalState());
 }
 
 TEST_F(BeaconSendingTimeSyncTest, getShutdownStateGivesATerminalStateInstanceForInitialTimeSync)

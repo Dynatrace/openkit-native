@@ -49,7 +49,7 @@ public:
 
 TEST_F(BeaconSendingTerminalStateTest, isTerminalStateIsTrueForTheTerminalState)
 {
-	EXPECT_TRUE(target->isAShutdownState());
+	EXPECT_TRUE(target->isTerminalState());
 }
 
 TEST_F(BeaconSendingTerminalStateTest, theShutdownStateIsNeverTheSameReference)
