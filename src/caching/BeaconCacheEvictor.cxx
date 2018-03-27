@@ -54,7 +54,10 @@ bool BeaconCacheEvictor::start()
 	}
 
 	mEvictionThread = std::unique_ptr<std::thread>(new std::thread(&BeaconCacheEvictor::cacheEvictionLoopFunc, this));
-	mStartConditionVariable.wait(lock);
+	if (!mRunning)
+	{
+		mStartConditionVariable.wait(lock);
+	}
 	return true;
 }
 
