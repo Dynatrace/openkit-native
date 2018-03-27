@@ -68,12 +68,7 @@ namespace core
 		///
 		virtual ~Action() {}
 
-		///
-		/// Leaves this action if no leaveAction was already called
-		/// Call @c doLeaveAction if this is the first call to @c leaveAction
-		/// @returns the parent Action, or @c null if there is no parent Action
-		///
-		virtual std::shared_ptr<api::IRootAction> leaveAction();
+		virtual std::shared_ptr<api::IRootAction> leaveAction() override;
 
 		///
 		/// Returns the action ID
@@ -115,7 +110,7 @@ namespace core
 		/// Returns the end sequence number of the action
 		/// @returns the end sequence number of the action
 		///
-		int32_t getEndSequenceNo()const;
+		int32_t getEndSequenceNo() const;
 	protected:
 		///
 		/// Return a flag if this action has been closed already
@@ -135,7 +130,7 @@ namespace core
 		///
 		/// Leaves this Action.
 		/// Called by leaveAction only if this is the first leaveAction call on this Action
-		/// @returns the parent Action, or @c null if there is no parent Action
+		/// @returns the parent Action, or @c nullptr if there is no parent Action
 		///
 		virtual std::shared_ptr<api::IRootAction> doLeaveAction();
 

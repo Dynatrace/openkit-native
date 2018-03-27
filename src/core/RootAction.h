@@ -49,7 +49,6 @@ namespace core
 		/// Create a RootAction given a beacon  and the action name
 		/// @param[in] beacon the beacon used to serialize this Action
 		/// @param[in] name the name of the action
-		/// @param[in] parentActions parent actions
 		/// @param[in] session the session object keeping track of all root actions of this level
 		///
 		RootAction(std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name, std::shared_ptr<Session> session);
@@ -59,19 +58,8 @@ namespace core
 		///
 		virtual  ~RootAction() {}
 
-		///
-		/// Enters an Action with a specified name in this Session.
-		/// @param[in] actionName name of the Action
-		/// @returns Action instance to work with
-		///
 		virtual std::shared_ptr<api::IAction> enterAction(const char* actionName) override;
 
-
-		///
-		/// Leaves this action if no leaveAction was already called
-		/// Call @c doLeaveAction if this is the first call to @c leaveAction
-		/// @returns the parent Action, or @c null if there is no parent Action
-		///
 		virtual void leaveAction() override;
 
 		///
@@ -132,7 +120,7 @@ namespace core
 		///
 		/// Leaves this Action.
 		/// Called by leaveAction only if this is the first leaveAction call on this Action
-		/// @returns the parent Action, or @c null if there is no parent Action
+		/// @returns the parent Action, or @c nullptr if there is no parent Action
 		///
 		virtual void doLeaveAction();
 

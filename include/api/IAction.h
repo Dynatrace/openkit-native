@@ -36,7 +36,7 @@ namespace api
 
 		///
 		/// Leaves this Action.
-		/// @returns the parent Action, or @c null if there is no parent Action
+		/// @returns the parent Action, or @c nullptr if there is no parent Action
 		///
 		virtual std::shared_ptr<IRootAction> leaveAction() = 0;
 	};
