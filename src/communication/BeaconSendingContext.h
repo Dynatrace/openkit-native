@@ -205,14 +205,17 @@ namespace communication
 		virtual void initializeTimeSync(int64_t clusterTimeOffset, bool isTimeSyncSupported);
 
 		///
-		/// After a session is started add it to the open sessions list
-		/// @param[in] session new session to add to open sessions list
+		/// Start a new session.
+		/// This add the @c session to the internal container of open sessions.
+		/// @param[in] session The new session to start.
 		///
 		void startSession(std::shared_ptr<core::Session> session);
 
 		///
-		/// After a session is finished move it from the open sessions to the finished sessions list
-		/// @param[in] session existing session to move from open to finished session list
+		/// Finish a session which has been started previously using startSession(SessionImpl)
+		/// If the session cannot be found in the container storing all open sessions, the parameter is ignored,
+		/// otherwise it's removed from the container storing open sessions and added to the finished session container.
+		/// @param[in] session The session to finish.
 		///
 		void finishSession(std::shared_ptr<core::Session> session);
 
