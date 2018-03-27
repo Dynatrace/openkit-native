@@ -33,7 +33,7 @@
 #include "providers/DefaultHTTPClientProvider.h"
 #include "providers/DefaultSessionIDProvider.h"
 
-#include "../providers/TestTimingProvider.h"
+#include "../providers/MockTimingProvider.h"
 #include "TestBeaconSendingState.h"
 #include "../protocol/MockHTTPClient.h"
 
@@ -45,7 +45,7 @@ namespace test
 	public:
 		MockBeaconSendingContext()
 			: BeaconSendingContext(std::make_shared<providers::DefaultHTTPClientProvider>(),
-				std::make_shared<test::TestTimingProvider>(),
+				std::make_shared<test::MockTimingProvider>(),
 				std::make_shared<configuration::Configuration>( std::shared_ptr<configuration::Device>(new configuration::Device("", "", "")),configuration::OpenKitType::DYNATRACE, core::UTF8String(""), core::UTF8String(""), core::UTF8String(""), 1,  core::UTF8String(""),
 																std::make_shared<providers::DefaultSessionIDProvider>(),
 																std::make_shared<protocol::SSLStrictTrustManager>()))
