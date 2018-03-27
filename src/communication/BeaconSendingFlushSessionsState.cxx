@@ -27,7 +27,7 @@
 using namespace communication;
 
 BeaconSendingFlushSessionsState::BeaconSendingFlushSessionsState()
-	: AbstractBeaconSendingState(AbstractBeaconSendingState::StateType::BEACON_SENDING_CAPTURE_ON_STATE)
+	: AbstractBeaconSendingState(AbstractBeaconSendingState::StateType::BEACON_SENDING_FLUSH_SESSIONS_STATE)
 {
 
 }
@@ -39,6 +39,6 @@ void BeaconSendingFlushSessionsState::doExecute(BeaconSendingContext& context)
 
 std::shared_ptr<AbstractBeaconSendingState> BeaconSendingFlushSessionsState::getShutdownState()
 {
-	return std::shared_ptr<AbstractBeaconSendingState>(new BeaconSendingFlushSessionsState());
+	return std::shared_ptr<AbstractBeaconSendingState>(new BeaconSendingTerminalState());
 }
 
