@@ -30,7 +30,6 @@ BeaconSender::BeaconSender(std::shared_ptr<configuration::Configuration> configu
 						   std::shared_ptr<providers::ITimingProvider> timingProvider)
 	: mBeaconSendingContext(std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(httpClientProvider, timingProvider, configuration)))
 	, mSendingThread(nullptr)
-	, mOpenSessions()
 {
 
 }
@@ -62,10 +61,10 @@ void BeaconSender::shutdown()
 
 void BeaconSender::startSession(std::shared_ptr<Session> session)
 {
-	mOpenSessions.push_back(session);
+	mBeaconSendingContext->startSession(session);
 }
 
 void BeaconSender::finishSession(std::shared_ptr<Session> session)
 {
-
+	mBeaconSendingContext->finishSession(session);
 }
