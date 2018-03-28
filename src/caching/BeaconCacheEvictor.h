@@ -86,7 +86,7 @@ namespace caching
 		/// Checks if the eviction thread is running or not.
 		/// @return @c true if running, @c false otherwise
 		///
-		bool isAlive() const;
+		bool isAlive();
 
 		///
 		/// Update function to be notified about a new record being added.
@@ -112,16 +112,10 @@ namespace caching
 		bool mRunning;
 
 		/// Flag to stop the eviction thread
-		std::atomic<bool> mStop;
+		bool mStop;
 
 		/// Flag, which indicates that a new record was added to the cache, thus we need to execute the eviction strategies
 		bool mRecordAdded;
-
-		/// Mutex for synchronization of the start/stop functions
-		std::mutex mStartStopMutex;
-
-		/// To wait in the @ref start() function until the thread has started
-		std::condition_variable mStartConditionVariable;
 
 		/// Mutex for condition variable
 		std::mutex mMutex;
