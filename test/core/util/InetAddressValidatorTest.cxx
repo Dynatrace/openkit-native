@@ -324,7 +324,7 @@ TEST_F(InetAddressValidatorTest, IPV6AddressLinkLocalIsInvalidZoneIndexUsedWithI
 	ASSERT_FALSE(InetAddressValidator::IsValidIP(ipv6TestStringLinkLocal));
 }
 
-// the following two addresses are not valid according to RFC5952 but are accepted by python's implementation and also ours
+// the following two addresses are not valid according to RFC5952 but are accepted by glibc's implementation and also ours
 
 TEST_F(InetAddressValidatorTest, IPV6AddressValid_RFCLeadingZeros)
 {
