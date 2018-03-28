@@ -46,6 +46,7 @@ set(SOURCES_UNITTEST
 	core/util/CompressorTest.cxx
 	core/util/URLEncodingTest.cxx
 	core/util/SynchronizedQueueTest.cxx
+	core/util/InetAddressValidatorTest.cxx
 	protocol/StatusResponseTest.cxx
 	protocol/TimeSyncResponseTest.cxx
 	providers/DefaultTimingProviderTest.cxx
