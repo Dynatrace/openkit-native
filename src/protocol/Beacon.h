@@ -168,7 +168,7 @@ namespace protocol
 		std::shared_ptr<configuration::Configuration> mConfiguration;
 
 		/// client IP Address
-		const core::UTF8String mClientIPAddress;
+		core::UTF8String mClientIPAddress;
 
 		/// timing provider
 		std::shared_ptr<providers::ITimingProvider> mTimingProvider;

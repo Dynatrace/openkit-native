@@ -18,12 +18,13 @@
 #include "ProtocolConstants.h"
 #include "BeaconProtocolConstants.h"
 #include "core/util/URLEncoding.h"
+#include "core/util/InetAddressValidator.h"
 
 using namespace protocol;
 
 Beacon::Beacon(std::shared_ptr<configuration::Configuration> configuration, const core::UTF8String clientIPAddress, std::shared_ptr<providers::IThreadIDProvider> threadIDProvider, std::shared_ptr<providers::ITimingProvider> timingProvider)
 	: mConfiguration(configuration)
-	, mClientIPAddress(clientIPAddress)
+	, mClientIPAddress(core::UTF8String(""))
 	, mTimingProvider(timingProvider)
 	, mThreadIDProvider(threadIDProvider)
 	, mSequenceNumber(0)
@@ -34,7 +35,10 @@ Beacon::Beacon(std::shared_ptr<configuration::Configuration> configuration, cons
 	, mActionDataList()
 	, mEventDataList()
 {
-
+	if (core::util::InetAddressValidator::IsValidIP(clientIPAddress))
+	{
+		mClientIPAddress = clientIPAddress;
+	}
 }
 
 core::UTF8String Beacon::createBasicBeaconData()
