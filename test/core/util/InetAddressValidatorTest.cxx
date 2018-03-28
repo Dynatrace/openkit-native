@@ -35,6 +35,51 @@ TEST_F(InetAddressValidatorTest, IPV4AddressIsValid)
 	ASSERT_TRUE(InetAddressValidator::IsValidIP(ipv4TestString));
 }
 
+TEST_F(InetAddressValidatorTest, IPV4AddressIsValidAllZero)
+{
+	//given
+	core::UTF8String ipv4TestString("0.0.0.0");
+
+	//then 
+	ASSERT_TRUE(InetAddressValidator::IsValidIP(ipv4TestString));
+}
+
+TEST_F(InetAddressValidatorTest, IPV4AddressIsValidAllEigth)
+{
+	//given
+	core::UTF8String ipv4TestString("8.8.8.8");
+
+	//then 
+	ASSERT_TRUE(InetAddressValidator::IsValidIP(ipv4TestString));
+}
+
+TEST_F(InetAddressValidatorTest, IPV4AddressIsValidHighestPossible)
+{
+	//given
+	core::UTF8String ipv4TestString("255.255.255.255");
+
+	//then 
+	ASSERT_TRUE(InetAddressValidator::IsValidIP(ipv4TestString));
+}
+
+TEST_F(InetAddressValidatorTest, IPV4AddressIsInvalidBecauseOfOverflow)
+{
+	//given
+	core::UTF8String ipv4TestString("255.255.255.256");
+
+	//then 
+	ASSERT_FALSE(InetAddressValidator::IsValidIP(ipv4TestString));
+}
+
+TEST_F(InetAddressValidatorTest, IPV4AddressIsInvalidDoubleColonsInsteadOfPoints)
+{
+	//given
+	core::UTF8String ipv4TestString("255:255:255:255");
+
+	//then 
+	ASSERT_FALSE(InetAddressValidator::IsValidIP(ipv4TestString));
+}
+
 TEST_F(InetAddressValidatorTest, IPV4AddressIsInvalidDueToAdditionalCharacterInFirstBlock)
 {
 	//given
@@ -277,4 +322,42 @@ TEST_F(InetAddressValidatorTest, IPV6AddressLinkLocalIsInvalidZoneIndexUsedWithI
 
 	//then 
 	ASSERT_FALSE(InetAddressValidator::IsValidIP(ipv6TestStringLinkLocal));
+}
+
+// the following two addresses are not valid according to RFC5952 but are accepted by python's implementation and also ours
+
+TEST_F(InetAddressValidatorTest, IPV6AddressValid_RFCLeadingZeros)
+{
+	//given
+	core::UTF8String ipv6TestStringLinkLocal("2001:0db8::0001");
+
+	//then 
+	ASSERT_TRUE(InetAddressValidator::IsValidIP(ipv6TestStringLinkLocal));
+}
+
+TEST_F(InetAddressValidatorTest, IPV6AddressValid_RFCEmptyBlockNotShortened)
+{
+	//given
+	core::UTF8String ipv6TestStringLinkLocal("2001:db8::0:1");
+
+	//then 
+	ASSERT_TRUE(InetAddressValidator::IsValidIP(ipv6TestStringLinkLocal));
+}
+
+TEST_F(InetAddressValidatorTest, IPV6AddressValid_RFCInvalidBlockCompress)
+{
+	//given
+	core::UTF8String ipv6TestStringLinkLocal("2001:db8::1:1:1:1:1 ");
+
+	//then 
+	ASSERT_FALSE(InetAddressValidator::IsValidIP(ipv6TestStringLinkLocal));
+}
+
+TEST_F(InetAddressValidatorTest, IPV6AddressValid_RFCExample)
+{
+	//given
+	core::UTF8String ipv6TestStringLinkLocal("2001:db8::1:0:0:1");
+
+	//then 
+	ASSERT_TRUE(InetAddressValidator::IsValidIP(ipv6TestStringLinkLocal));
 }

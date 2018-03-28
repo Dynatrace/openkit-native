@@ -33,7 +33,7 @@ namespace core
 			///
 			/// Check if input is a valid IPv4 or IPv6 address.
 			/// @param[in] ipAddress ip-address to check
-			/// @returns @c true if ipAddress is in correct IPv4 notation, else @c false is returned
+			/// @returns @c true if ipAddress is in correct IPv4 or IPv6 notation, else @c false is returned
 			///
 			static bool IsValidIP(const core::UTF8String& ipAddress);
 
@@ -56,7 +56,7 @@ namespace core
 			///	 -IPv4 - mapped - to - IPV6 address
 			///	 -IPv6 mixed address
 			/// @param[in] ipAddress ip-address to check
-			/// @returns @c true if ipAddress is in correct IPv4 notation, else @c false is returned
+			/// @returns @c true if ipAddress is in correct IPv6 notation, else @c false is returned
 			///
 			static bool IsIPv6Address(const core::UTF8String& ipAddress);
 
@@ -74,7 +74,7 @@ namespace core
 			/// The format is 'xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx'.If all digits in a block are '0'
 			/// the block can be left empty.
 			/// @param[in] ipAddress ip-address to check
-			/// @returns @c true if ipAddress is in correct IPv4 notation, else @c false is returned
+			/// @returns @c true if ipAddress is in correct IPv6 standard notation, else @c false is returned
 			///
 			static bool IsIPv6HexCompressedAddress(const core::UTF8String& ipAddress);
 
@@ -88,7 +88,7 @@ namespace core
 			/// Check if the given address is a link local IPv6 address starting with "fe80:" and containing
 			/// a zone index with "%xxx".The zone index will not be checked.
 			/// @param[in] ipAddress ip-address to check
-			/// @returns @c true if ipAddress is in correct IPv4 notation, else @c false is returned
+			/// @returns @c true if ipAddress is in correct IPv6 notation with zone index, else @c false is returned
 			///
 			static bool IsLinkLocalIPv6WithZoneIndex(const core::UTF8String& ipAddress);
 		};
