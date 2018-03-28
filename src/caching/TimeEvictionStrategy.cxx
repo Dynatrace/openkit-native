@@ -14,15 +14,16 @@
 * limitations under the License.
 */
 
-#include "TimeEvictionStrategy.h"
+#include "caching/TimeEvictionStrategy.h"
 
 using namespace caching;
 
-TimeEvictionStrategy::TimeEvictionStrategy(std::shared_ptr<IBeaconCache> beaconCache, std::shared_ptr<configuration::BeaconCacheConfiguration> configuration, std::shared_ptr<providers::ITimingProvider> timingProvider)
+TimeEvictionStrategy::TimeEvictionStrategy(std::shared_ptr<IBeaconCache> beaconCache, std::shared_ptr<configuration::BeaconCacheConfiguration> configuration, std::shared_ptr<providers::ITimingProvider> timingProvider, std::function<bool()> isAlive)
 	: mBeaconCache(beaconCache)
 	, mConfiguration(configuration)
 	, mTimingProvider(timingProvider)
 	, mLastRunTimestamp(-1)
+	, mIsAlive(isAlive)
 {
 }
 
@@ -83,7 +84,7 @@ void TimeEvictionStrategy::doExecute()
 
 	// iterate over the previously obtained set and evict for each beacon
 	auto it = beaconIDs.begin();
-	while (it != beaconIDs.end())
+	while (mIsAlive() && it != beaconIDs.end())
 	{
 		auto beaconID = *it;
 

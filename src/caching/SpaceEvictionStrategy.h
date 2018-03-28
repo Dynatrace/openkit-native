@@ -22,6 +22,7 @@
 #include "configuration/BeaconCacheConfiguration.h"
 
 #include <memory>
+#include <functional>
 
 namespace caching
 {
@@ -38,8 +39,9 @@ namespace caching
 		/// Constructor.
 		/// @param[in] beaconCache The beacon cache to evict if necessary.
 		/// @param[in] configuration The configuration providing the boundary settings for this strategy.
+		/// @param[in] isAlive function to check whether the eviction thread is running or not
 		///
-		SpaceEvictionStrategy(std::shared_ptr<IBeaconCache> beaconCache, std::shared_ptr<configuration::BeaconCacheConfiguration> configuration);
+		SpaceEvictionStrategy(std::shared_ptr<IBeaconCache> beaconCache, std::shared_ptr<configuration::BeaconCacheConfiguration> configuration, std::function<bool()> isAlive);
 
 		///
 		/// Destructor
@@ -93,6 +95,9 @@ namespace caching
 
 		/// The configuration providing the boundary settings for this strategy.
 		std::shared_ptr<configuration::BeaconCacheConfiguration> mConfiguration;
+
+		/// Function to check whether the eviction thread is running or not
+		std::function<bool()> mIsAlive;
 	};
 
 }
