@@ -44,7 +44,17 @@ BeaconSendingCaptureOffState::BeaconSendingCaptureOffState()
 
 void BeaconSendingCaptureOffState::doExecute(BeaconSendingContext& context)
 {
-	// TODO
+#if 0
+	// disable capturing - avoid collecting further data
+	context.disableCapture();
+
+	auto currentTime = context.getCurrentTimestamp();
+
+	auto delta = STATUS_CHECK_INTERVAL - (currentTime - context.getLastStatusCheckTime());
+	if (delta > 0 && !context.isShutdownRequested()) {
+		context.sleep(delta);
+	}
+#endif
 }
 
 std::shared_ptr<AbstractBeaconSendingState> BeaconSendingCaptureOffState::getShutdownState()

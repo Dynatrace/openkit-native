@@ -23,6 +23,7 @@
 #include "communication/BeaconSendingFlushSessionsState.h"
 #include "communication/AbstractBeaconSendingState.h"
 #include "communication/BeaconSendingContext.h"
+#include "communication/BeaconSendingTerminalState.h"
 
 using namespace communication;
 
