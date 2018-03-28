@@ -151,20 +151,22 @@ void BeaconCacheEvictor::cacheEvictionLoopFunc()
 
 	while (true)
 	{
-		std::unique_lock<std::mutex> lock(mMutex);
-		while (!mRecordAdded && !mStop)
 		{
-			mConditionVariable.wait(lock);
-		}	
+			std::unique_lock<std::mutex> lock(mMutex);
+			while (!mRecordAdded && !mStop)
+			{
+				mConditionVariable.wait(lock);
+			}
 
-		if (mStop)
-		{
-			// exit the thread
-			break;
+			if (mStop)
+			{
+				// exit the thread
+				break;
+			}
+
+			// reset the added flag
+			mRecordAdded = false;
 		}
-
-		// reset the added flag
-		mRecordAdded = false;
 
 		// a new record has been added to the cache
 		// run all eviction strategies, to perform cache cleanup
