@@ -115,7 +115,7 @@ namespace caching
 		int64_t mLastRunTimestamp;
 
 		/// Function to check whether the eviction thread is running or not
-		std::function<bool()> mIsAlive;
+		std::function<bool()> mIsAliveFunction;
 	};
 
 }

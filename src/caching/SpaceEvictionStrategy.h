@@ -97,7 +97,7 @@ namespace caching
 		std::shared_ptr<configuration::BeaconCacheConfiguration> mConfiguration;
 
 		/// Function to check whether the eviction thread is running or not
-		std::function<bool()> mIsAlive;
+		std::function<bool()> mIsAliveFunction;
 	};
 
 }

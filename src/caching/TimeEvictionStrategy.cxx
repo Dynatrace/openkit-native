@@ -23,7 +23,7 @@ TimeEvictionStrategy::TimeEvictionStrategy(std::shared_ptr<IBeaconCache> beaconC
 	, mConfiguration(configuration)
 	, mTimingProvider(timingProvider)
 	, mLastRunTimestamp(-1)
-	, mIsAlive(isAlive)
+	, mIsAliveFunction(isAlive)
 {
 }
 
@@ -84,7 +84,7 @@ void TimeEvictionStrategy::doExecute()
 
 	// iterate over the previously obtained set and evict for each beacon
 	auto it = beaconIDs.begin();
-	while (mIsAlive() && it != beaconIDs.end())
+	while (mIsAliveFunction() && it != beaconIDs.end())
 	{
 		auto beaconID = *it;
 

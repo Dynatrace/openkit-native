@@ -23,7 +23,7 @@ using namespace caching;
 SpaceEvictionStrategy::SpaceEvictionStrategy(std::shared_ptr<IBeaconCache> beaconCache, std::shared_ptr<configuration::BeaconCacheConfiguration> configuration, std::function<bool()> isAlive)
 	: mBeaconCache(beaconCache)
 	, mConfiguration(configuration)
-	, mIsAlive(isAlive)
+	, mIsAliveFunction(isAlive)
 {
 }
 
@@ -55,11 +55,11 @@ bool SpaceEvictionStrategy::shouldRun() const
 
 void SpaceEvictionStrategy::doExecute()
 {
-	while (mIsAlive() && mBeaconCache->getNumBytesInCache() > mConfiguration->getCacheSizeLowerBound())
+	while (mIsAliveFunction() && mBeaconCache->getNumBytesInCache() > mConfiguration->getCacheSizeLowerBound())
 	{
 		auto beaconIDs = mBeaconCache->getBeaconIDs();
 		auto it = beaconIDs.begin();
-		while (mIsAlive() && it != beaconIDs.end() && mBeaconCache->getNumBytesInCache() > mConfiguration->getCacheSizeLowerBound())
+		while (mIsAliveFunction() && it != beaconIDs.end() && mBeaconCache->getNumBytesInCache() > mConfiguration->getCacheSizeLowerBound())
 		{
 			auto beaconID = *it;
 
