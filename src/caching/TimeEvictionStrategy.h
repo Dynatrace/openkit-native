@@ -24,6 +24,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <functional>
 
 namespace caching
 {
@@ -40,8 +41,9 @@ namespace caching
 		/// @param[in] beaconCache The beacon cache to evict if necessary.
 		/// @param[in] configuration The configuration providing the boundary settings for this strategy.
 		/// @param[in] timingProvider Timing provider required for time retrieval
+		/// @param[in] isAlive function to check whether the eviction thread is running or not
 		///
-		TimeEvictionStrategy(std::shared_ptr<IBeaconCache> beaconCache, std::shared_ptr<configuration::BeaconCacheConfiguration> configuration, std::shared_ptr<providers::ITimingProvider> timingProvider);
+		TimeEvictionStrategy(std::shared_ptr<IBeaconCache> beaconCache, std::shared_ptr<configuration::BeaconCacheConfiguration> configuration, std::shared_ptr<providers::ITimingProvider> timingProvider, std::function<bool()> isAlive);
 
 		///
 		/// Destructor
@@ -111,6 +113,9 @@ namespace caching
 
 		/// Timestamp of the last eviction strategy execution
 		int64_t mLastRunTimestamp;
+
+		/// Function to check whether the eviction thread is running or not
+		std::function<bool()> mIsAliveFunction;
 	};
 
 }

@@ -25,7 +25,10 @@ using namespace caching;
 constexpr std::chrono::milliseconds EVICTION_THREAD_JOIN_TIMEOUT = std::chrono::seconds(2);
 
 BeaconCacheEvictor::BeaconCacheEvictor(std::shared_ptr<IBeaconCache> beaconCache, std::shared_ptr<configuration::BeaconCacheConfiguration> configuration, std::shared_ptr<providers::ITimingProvider> timingProvider)
-	: BeaconCacheEvictor(beaconCache, {std::make_shared<TimeEvictionStrategy>(beaconCache, configuration, timingProvider), std::make_shared<SpaceEvictionStrategy>(beaconCache, configuration)})
+	: BeaconCacheEvictor(beaconCache, {
+		std::make_shared<TimeEvictionStrategy>(beaconCache, configuration, timingProvider, std::bind(&BeaconCacheEvictor::isAlive, this)),
+		std::make_shared<SpaceEvictionStrategy>(beaconCache, configuration, std::bind(&BeaconCacheEvictor::isAlive, this))
+		})
 {
 
 }
@@ -37,8 +40,6 @@ BeaconCacheEvictor::BeaconCacheEvictor(std::shared_ptr<IBeaconCache> beaconCache
 	, mRunning(false)
 	, mStop(false)
 	, mRecordAdded(false)
-	, mStartStopMutex()
-	, mStartConditionVariable()
 	, mMutex()
 	, mConditionVariable()
 {
@@ -46,15 +47,18 @@ BeaconCacheEvictor::BeaconCacheEvictor(std::shared_ptr<IBeaconCache> beaconCache
 
 bool BeaconCacheEvictor::start()
 {
-	std::unique_lock<std::mutex> lock(mStartStopMutex);
 	if (isAlive())
 	{
 		// eviction thread already running
 		return false;
 	}
 
+	std::unique_lock<std::mutex> lock(mMutex);
 	mEvictionThread = std::unique_ptr<std::thread>(new std::thread(&BeaconCacheEvictor::cacheEvictionLoopFunc, this));
-	mStartConditionVariable.wait(lock);
+	while (!mRunning)
+	{
+		mConditionVariable.wait(lock);
+	}
 	return true;
 }
 
@@ -65,15 +69,17 @@ bool BeaconCacheEvictor::stop()
 
 bool BeaconCacheEvictor::stop(std::chrono::milliseconds timeout)
 {
-	std::unique_lock<std::mutex> lock(mStartStopMutex);
 	if (!isAlive())
 	{
 		// eviction thread not running, nothing to stop
 		return false;
 	}
 
-	mStop = true;
-	mConditionVariable.notify_all();
+	{
+		std::unique_lock<std::mutex> lock(mMutex);
+		mStop = true;
+		mConditionVariable.notify_all();
+	}
 	
 	// Instead of join() (=waiting for the thread to terminate) we detach the thread and wait up to the timeout time
 	mEvictionThread->detach();
@@ -87,7 +93,7 @@ bool BeaconCacheEvictor::stop(std::chrono::milliseconds timeout)
 	}
 	mEvictionThread = nullptr;
 
-	if (mRunning)
+	if (isAlive())
 	{
 		// not stopped in time
 		return false;
@@ -98,23 +104,27 @@ bool BeaconCacheEvictor::stop(std::chrono::milliseconds timeout)
 
 bool BeaconCacheEvictor::stopAndJoin()
 {
-	std::unique_lock<std::mutex> lock(mStartStopMutex);
 	if (!isAlive())
 	{
 		// eviction thread not running, nothing to stop
 		return false;
 	}
 
-	mStop = true;
-	mConditionVariable.notify_all();
+	{
+		std::unique_lock<std::mutex> lock(mMutex);
+		mStop = true;
+		mConditionVariable.notify_all();
+	}
+
 	mEvictionThread->join();
 	mEvictionThread = nullptr;
 
 	return true;
 }
 
-bool BeaconCacheEvictor::isAlive() const
+bool BeaconCacheEvictor::isAlive()
 {
+	std::unique_lock<std::mutex> lock(mMutex);
 	return mRunning;
 }
 
@@ -128,30 +138,35 @@ void BeaconCacheEvictor::update()
 
 void BeaconCacheEvictor::cacheEvictionLoopFunc()
 {
-	std::unique_lock<std::mutex> lock(mMutex);
-	mRunning = true;
+	{
+		std::unique_lock<std::mutex> lock(mMutex);
+		mRunning = true;
 
-	// we've started up -> let the start() function return
-	mStartConditionVariable.notify_all();
+		// we've started up -> let the start() function return
+		mConditionVariable.notify_all();
+	}
 
 	// first register ourselves
 	mBeaconCache->addObserver(this);
 
 	while (true)
 	{
-		while (!mRecordAdded && !mStop)
 		{
-			mConditionVariable.wait(lock);
-		}	
+			std::unique_lock<std::mutex> lock(mMutex);
+			while (!mRecordAdded && !mStop)
+			{
+				mConditionVariable.wait(lock);
+			}
 
-		if (mStop)
-		{
-			// exit the thread
-			break;
+			if (mStop)
+			{
+				// exit the thread
+				break;
+			}
+
+			// reset the added flag
+			mRecordAdded = false;
 		}
-
-		// reset the added flag
-		mRecordAdded = false;
 
 		// a new record has been added to the cache
 		// run all eviction strategies, to perform cache cleanup
@@ -160,6 +175,7 @@ void BeaconCacheEvictor::cacheEvictionLoopFunc()
 			it->get()->execute();
 		}
 	}
-	
+
+	std::unique_lock<std::mutex> lock(mMutex);
 	mRunning = false;
 }

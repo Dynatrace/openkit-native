@@ -27,6 +27,19 @@
 using namespace configuration;
 using namespace caching;
 
+// To mock a change in the isAlive() method we need to create a dummy mock class holding the mocked isAlive method.
+class MockIsAlive
+{
+public:
+	MockIsAlive()
+	{
+	}
+
+	virtual ~MockIsAlive() {}
+
+	MOCK_METHOD0(isAlive, bool());
+};
+
 class SpaceEvictionStrategyTest : public testing::Test
 {
 public:
@@ -46,13 +59,18 @@ public:
 	}
 
 	std::shared_ptr<testing::NiceMock<test::MockBeaconCache>> mMockBeaconCache;
+
+	bool mockedIsAliveFunctionAlwaysTrue()
+	{
+		return true;
+	}
 };
 
 TEST_F(SpaceEvictionStrategyTest, theStrategyIsDisabledIfCacheSizeLowerBoundIsEqualToZero)
 {
 	// given
 	auto configuration = std::make_shared<BeaconCacheConfiguration>(1000L, 0L, 2000L);
-	SpaceEvictionStrategy target(mMockBeaconCache, configuration);
+	SpaceEvictionStrategy target(mMockBeaconCache, configuration, std::bind(&SpaceEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this));
 
 	// then
 	ASSERT_TRUE(target.isStrategyDisabled());
@@ -62,7 +80,7 @@ TEST_F(SpaceEvictionStrategyTest, theStrategyIsDisabledIfCacheSizeLowerBoundIsLe
 {
 	// given
 	auto configuration = std::make_shared<BeaconCacheConfiguration>(1000L, -1L, 2000L);
-	SpaceEvictionStrategy target(mMockBeaconCache, configuration);
+	SpaceEvictionStrategy target(mMockBeaconCache, configuration, std::bind(&SpaceEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this));
 
 	// then
 	ASSERT_TRUE(target.isStrategyDisabled());
@@ -72,7 +90,7 @@ TEST_F(SpaceEvictionStrategyTest, theStrategyIsDisabledIfCacheSizeUpperBoundIsEq
 {
 	// given
 	auto configuration = std::make_shared<BeaconCacheConfiguration>(1000L, 1000L, 0L);
-	SpaceEvictionStrategy target(mMockBeaconCache, configuration);
+	SpaceEvictionStrategy target(mMockBeaconCache, configuration, std::bind(&SpaceEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this));
 
 	// then
 	ASSERT_TRUE(target.isStrategyDisabled());
@@ -82,7 +100,7 @@ TEST_F(SpaceEvictionStrategyTest, theStrategyIsDisabledIfCacheSizeUpperBoundIsLe
 {
 	// given
 	auto configuration = std::make_shared<BeaconCacheConfiguration>(1000L, 1000L, 999L);
-	SpaceEvictionStrategy target(mMockBeaconCache, configuration);
+	SpaceEvictionStrategy target(mMockBeaconCache, configuration, std::bind(&SpaceEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this));
 
 	// then
 	ASSERT_TRUE(target.isStrategyDisabled());
@@ -92,7 +110,7 @@ TEST_F(SpaceEvictionStrategyTest, shouldRunGivesTrueIfNumBytesInCacheIsGreaterTh
 {
 	// given
 	auto configuration = std::make_shared<BeaconCacheConfiguration>(1000L, 1000L, 2000L);
-	SpaceEvictionStrategy target(mMockBeaconCache, configuration);
+	SpaceEvictionStrategy target(mMockBeaconCache, configuration, std::bind(&SpaceEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this));
 
 	//when
 	ON_CALL(*mMockBeaconCache, getNumBytesInCache())
@@ -106,7 +124,7 @@ TEST_F(SpaceEvictionStrategyTest, shouldRunGivesFalseIfNumBytesInCacheIsEqualToU
 {
 	// given
 	auto configuration = std::make_shared<BeaconCacheConfiguration>(1000L, 1000L, 2000L);
-	SpaceEvictionStrategy target(mMockBeaconCache, configuration);
+	SpaceEvictionStrategy target(mMockBeaconCache, configuration, std::bind(&SpaceEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this));
 
 	//when
 	ON_CALL(*mMockBeaconCache, getNumBytesInCache())
@@ -120,7 +138,7 @@ TEST_F(SpaceEvictionStrategyTest, shouldRunGivesFalseIfNumBytesInCacheIsLessThan
 {
 	// given
 	auto configuration = std::make_shared<BeaconCacheConfiguration>(1000L, 1000L, 2000L);
-	SpaceEvictionStrategy target(mMockBeaconCache, configuration);
+	SpaceEvictionStrategy target(mMockBeaconCache, configuration, std::bind(&SpaceEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this));
 
 	//when
 	ON_CALL(*mMockBeaconCache, getNumBytesInCache())
@@ -144,7 +162,7 @@ TEST_F(SpaceEvictionStrategyTest, executeEvictionCallsCacheMethodForEachBeacon)
 {
 	// given
 	auto configuration = std::make_shared<BeaconCacheConfiguration>(1000L, 1000L, 2000L);
-	SpaceEvictionStrategy target(mMockBeaconCache, configuration);
+	SpaceEvictionStrategy target(mMockBeaconCache, configuration, std::bind(&SpaceEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this));
 
 	uint32_t callCount = 0;
 	ON_CALL(*mMockBeaconCache, getNumBytesInCache())
@@ -188,7 +206,7 @@ TEST_F(SpaceEvictionStrategyTest, executeEvictionRunsUntilTheCacheSizeIsLessThan
 {
 	// given
 	auto configuration = std::make_shared<BeaconCacheConfiguration>(1000L, 1000L, 2000L);
-	SpaceEvictionStrategy target(mMockBeaconCache, configuration);
+	SpaceEvictionStrategy target(mMockBeaconCache, configuration, std::bind(&SpaceEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this));
 
 	uint32_t callCount = 0;
 	ON_CALL(*mMockBeaconCache, getNumBytesInCache())
@@ -241,12 +259,12 @@ TEST_F(SpaceEvictionStrategyTest, executeEvictionRunsUntilTheCacheSizeIsLessThan
 	target.execute();
 }
 
-#if 0 // The code currently does not support thread isInterrupted() checking
 TEST_F(SpaceEvictionStrategyTest, executeEvictionStopsIfThreadGetsInterruptedBetweenTwoBeacons)
 {
 	// given
 	auto configuration = std::make_shared<BeaconCacheConfiguration>(1000L, 1000L, 2000L);
-	SpaceEvictionStrategy target(mMockBeaconCache, configuration);
+	auto mockIsAlive = std::shared_ptr<testing::NiceMock<MockIsAlive>>(new testing::NiceMock<MockIsAlive>());
+	SpaceEvictionStrategy target(mMockBeaconCache, configuration, std::bind(&MockIsAlive::isAlive, mockIsAlive));
 
 	uint32_t callCount = 0;
 	ON_CALL(*mMockBeaconCache, getNumBytesInCache())
@@ -284,27 +302,33 @@ TEST_F(SpaceEvictionStrategyTest, executeEvictionStopsIfThreadGetsInterruptedBet
 		}
 	}
 	));
+	uint32_t callCountIsAlive = 0;
+	ON_CALL(*mockIsAlive, isAlive())
+		.WillByDefault(testing::Invoke(
+			[&callCountIsAlive]() -> bool {
+		// isAlive shall return "false" after the 2nd call
+		callCountIsAlive++;
+		return callCountIsAlive <= 2;
+	}
+	));
 	ON_CALL(*mMockBeaconCache, getBeaconIDs())
 		.WillByDefault(testing::Return(std::unordered_set<int32_t>({ 1, 42 })));
 
 	// then
 	EXPECT_CALL(*mMockBeaconCache, getNumBytesInCache())
-		.Times(testing::Exactly(8));
-	EXPECT_CALL(*mMockBeaconCache, evictRecordsByNumber(1, 1))
-		.Times(testing::Exactly(2));
-	EXPECT_CALL(*mMockBeaconCache, evictRecordsByNumber(42, 1))
-		.Times(testing::Exactly(2));
-
+		.Times(testing::Exactly(3));
+	EXPECT_CALL(*mMockBeaconCache, evictRecordsByNumber(testing::_, 1))
+		.Times(testing::Exactly(1));
+	
 	// when
 	target.execute();
 }
-#endif
 
 TEST_F(SpaceEvictionStrategyTest, executeEvictionStopsIfNumBytesInCacheFallsBelowLowerBoundBetweenTwoBeacons)
 {
 	// given
 	auto configuration = std::make_shared<BeaconCacheConfiguration>(1000L, 1000L, 2000L);
-	SpaceEvictionStrategy target(mMockBeaconCache, configuration);
+	SpaceEvictionStrategy target(mMockBeaconCache, configuration, std::bind(&SpaceEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this));
 
 	uint32_t callCount = 0;
 	ON_CALL(*mMockBeaconCache, getNumBytesInCache())
