@@ -22,6 +22,7 @@ set(SOURCES_CORE
 	core/util/CommandLineArguments.cxx
 	core/util/URLEncoding.cxx
 	core/util/CyclicBarrier.cxx
+	core/util/InetAddressValidator.cxx
 	core/UTF8String.cxx
 	core/BeaconSender.cxx
 	core/OpenKit.cxx
