@@ -181,7 +181,10 @@ namespace communication
 
 		// TODO: int32_t getSendInterval();
 
-		// TODO: void disableCapture();
+		///
+		/// Disable data capturing.
+		///
+		void disableCapture();
 
 		///
 		/// Handle the status response received from the server

@@ -18,7 +18,9 @@
 #define _COMMUNICATION_BEACONSENDINGCAPTUREOFFSTATE_H
 
 #include "communication/AbstractBeaconSendingState.h"
+#include "protocol/StatusResponse.h"
 
+#include <memory>
 #include <vector>
 #include <chrono>
 
@@ -54,7 +56,7 @@ namespace communication
 		static const std::chrono::milliseconds INITIAL_RETRY_SLEEP_TIME_MILLISECONDS;
 		
 	private:
-
+		static void handleStatusResponse(BeaconSendingContext& context, std::unique_ptr<protocol::StatusResponse> statusResponse);
 	};
 }
 #endif

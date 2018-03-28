@@ -156,6 +156,13 @@ void BeaconSendingContext::setLastStatusCheckTime(int64_t lastStatusCheckTime)
 	mLastStatusCheckTime = lastStatusCheckTime;
 }
 
+void BeaconSendingContext::disableCapture()
+{
+	// first disable in configuration, so no further data will get collected
+	mConfiguration->disableCapture();
+	clearAllSessionData();
+}
+
 int64_t BeaconSendingContext::getCurrentTimestamp() const
 {
 	if (mTimingProvider != nullptr)
