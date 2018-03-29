@@ -22,6 +22,7 @@
 
 #include "MockBeaconSendingContext.h"
 #include "../protocol/MockHTTPClient.h"
+#include "../communication/CustomMatchers.h"
 
 class BeaconSendingInitialStateTest : public testing::Test
 {
@@ -132,7 +133,7 @@ TEST_F(BeaconSendingInitialStateTest, initIsTerminatedIfShutdownRequestedWithVal
 	//check
 	EXPECT_CALL(mockContext, setInitCompleted(false))
 		.Times(::testing::Exactly(1));
-	EXPECT_CALL(mockContext, setNextState(testing::_))
+	EXPECT_CALL(mockContext, setNextState(IsABeaconSenderTerminalState()))
 		.Times(::testing::Exactly(1));
 
 	//when
@@ -205,7 +206,7 @@ TEST_F(BeaconSendingInitialStateTest, initialStatusRequestGivesUpWhenShutdownReq
 	// then
 	EXPECT_CALL(mockContext, setInitCompleted(false))
 		.Times(::testing::Exactly(1));
-	EXPECT_CALL(mockContext, setNextState(testing::_))
+	EXPECT_CALL(mockContext, setNextState(IsABeaconSenderTerminalState()))
 		.Times(::testing::Exactly(1));
 							
 	// verify that the requests where sent N times - defined as constants in the state itself
@@ -233,7 +234,7 @@ TEST_F(BeaconSendingInitialStateTest, aSuccessfulStatusResponsePerformsStateTran
 		.WillByDefault(testing::Return(new protocol::StatusResponse()));
 
 	// verify state transition
-	EXPECT_CALL(mockContext, setNextState(testing::_))
+	EXPECT_CALL(mockContext, setNextState(IsABeaconSendingTimeSyncState()))
 		.Times(::testing::Exactly(1));
 
 	// when

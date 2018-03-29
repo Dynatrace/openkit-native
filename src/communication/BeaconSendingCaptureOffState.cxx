@@ -69,7 +69,8 @@ std::shared_ptr<AbstractBeaconSendingState> BeaconSendingCaptureOffState::getShu
 
 void BeaconSendingCaptureOffState::handleStatusResponse(BeaconSendingContext& context, std::unique_ptr<protocol::StatusResponse> statusResponse)
 {
-	if (statusResponse != nullptr) {
+	bool statusReponseIsNull = statusResponse == nullptr;
+	if (!statusReponseIsNull) {
 		context.handleStatusResponse(std::move(statusResponse));
 	}
 	// if initial time sync failed before
@@ -78,7 +79,7 @@ void BeaconSendingCaptureOffState::handleStatusResponse(BeaconSendingContext& co
 		// then retry initial time sync
 		context.setNextState(std::shared_ptr<AbstractBeaconSendingState>(new BeaconSendingTimeSyncState(true)));
 	}
-	else if (statusResponse != nullptr && context.isCaptureOn())
+	else if (!statusReponseIsNull && context.isCaptureOn())
 	{
 		// capturing is re-enabled again, but only if we received a response from the server
 		context.setNextState(std::shared_ptr<AbstractBeaconSendingState>(new BeaconSendingCaptureOnState()));

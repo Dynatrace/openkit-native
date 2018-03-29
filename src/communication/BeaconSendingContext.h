@@ -184,7 +184,7 @@ namespace communication
 		///
 		/// Disable data capturing.
 		///
-		void disableCapture();
+		virtual void disableCapture();
 
 		///
 		/// Handle the status response received from the server
