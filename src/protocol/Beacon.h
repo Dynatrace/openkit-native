@@ -23,6 +23,7 @@
 #include "configuration/Configuration.h"
 #include "core/Action.h"
 #include "core/Session.h"
+#include "caching/BeaconCache.h"
 #include "EventType.h"
 
 #include <memory>
@@ -38,11 +39,12 @@ namespace protocol
 	public:
 		///
 		/// Constructor for Beacon
+		/// @param[in] beaconCache Cache storing beacon related data.
 		/// @param[in] configuration Configuration object
 		/// @param[in] clientIPAddress IP Address of the client
 		/// @param[in] timingProvider timing provider used to retrieve timestamps
 		///
-		Beacon(std::shared_ptr<configuration::Configuration> configuration, const core::UTF8String clientIPAddress, std::shared_ptr<providers::IThreadIDProvider> threadIDProvider , std::shared_ptr<providers::ITimingProvider> timingProvider);
+		Beacon(std::shared_ptr<caching::BeaconCache> beaconCache, std::shared_ptr<configuration::Configuration> configuration, const core::UTF8String clientIPAddress, std::shared_ptr<providers::IThreadIDProvider> threadIDProvider , std::shared_ptr<providers::ITimingProvider> timingProvider);
 
 		///
 		/// Create unique sequence number
@@ -154,14 +156,14 @@ namespace protocol
 		/// @param[in] timestamp The timestamp when the action data occurred.
 		/// @param[in] actionData Contains the serialized action data.
 		///
-		void storeAction(int64_t timestamp, const core::UTF8String& actionData);
+		void addActionData(int64_t timestamp, const core::UTF8String& actionData);
 
 		///
 		/// Add previously serialized event data to the beacon list
 		/// @param[in] timestamp The timestamp when the event data occurred.
 		/// @param[in] actionData Contains the serialized event data.
 		///
-		void storeEvent(int64_t timestamp, const core::UTF8String& eventData);
+		void addEventData(int64_t timestamp, const core::UTF8String& eventData);
 
 	private:
 		/// configuration
@@ -191,11 +193,8 @@ namespace protocol
 		/// basic beacon data
 		core::UTF8String mBasicBeaconData;
 
-		/// container for action data
-		std::map<int64_t, core::UTF8String> mActionDataList;
-
-		/// container for event data
-		std::map<int64_t, core::UTF8String> mEventDataList;
+		///cache for beacons
+		std::shared_ptr<caching::BeaconCache> mBeaconCache;
 	};
 }
 #endif

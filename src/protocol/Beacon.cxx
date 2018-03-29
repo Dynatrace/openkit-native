@@ -22,7 +22,7 @@
 
 using namespace protocol;
 
-Beacon::Beacon(std::shared_ptr<configuration::Configuration> configuration, const core::UTF8String clientIPAddress, std::shared_ptr<providers::IThreadIDProvider> threadIDProvider, std::shared_ptr<providers::ITimingProvider> timingProvider)
+Beacon::Beacon(std::shared_ptr<caching::BeaconCache> beaconCache, std::shared_ptr<configuration::Configuration> configuration, const core::UTF8String clientIPAddress, std::shared_ptr<providers::IThreadIDProvider> threadIDProvider, std::shared_ptr<providers::ITimingProvider> timingProvider)
 	: mConfiguration(configuration)
 	, mClientIPAddress(core::UTF8String(""))
 	, mTimingProvider(timingProvider)
@@ -32,8 +32,7 @@ Beacon::Beacon(std::shared_ptr<configuration::Configuration> configuration, cons
 	, mSessionNumber(configuration->createSessionNumber())
 	, mSessionStartTime(timingProvider->provideTimestampInMilliseconds())
 	, mBasicBeaconData()
-	, mActionDataList()
-	, mEventDataList()
+	, mBeaconCache(beaconCache)
 {
 	if (core::util::InetAddressValidator::IsValidIP(clientIPAddress))
 	{
@@ -157,15 +156,14 @@ void Beacon::addAction(std::shared_ptr<core::Action> action)
 	addKeyValuePair(actionData, BEACON_KEY_END_SEQUENCE_NUMBER, action->getEndSequenceNo());
 	addKeyValuePair(actionData, BEACON_KEY_TIME_1, action->getEndTime() - action->getStartTime());
 	
-	storeAction(action->getStartTime(), actionData);
+	addActionData(action->getStartTime(), actionData);
 }
 
-void Beacon::storeAction(int64_t timestamp, const core::UTF8String& actionData)
+void Beacon::addActionData(int64_t timestamp, const core::UTF8String& actionData)
 {
 	if (mConfiguration->isCapture())
 	{
-		//TODO: johannes.baeuerle save data in cache
-		mActionDataList.emplace(timestamp, actionData);
+		mBeaconCache->addActionData(mSessionNumber, timestamp, actionData);
 	}
 }
 
@@ -177,15 +175,14 @@ void Beacon::endSession(std::shared_ptr<core::Session> session)
 	addKeyValuePair(eventData, BEACON_KEY_START_SEQUENCE_NUMBER, createSequenceNumber());
 	addKeyValuePair(eventData, BEACON_KEY_TIME_0, getTimeSinceSessionStartTime(session->getEndTime()));
 
-	storeEvent(session->getEndTime(), eventData);
+	addEventData(session->getEndTime(), eventData);
 }
 
-void Beacon::storeEvent(int64_t timestamp, const core::UTF8String& eventData)
+void Beacon::addEventData(int64_t timestamp, const core::UTF8String& eventData)
 {
 	if (mConfiguration->isCapture())
 	{
-		//TODO: johannes.baeuerle save data in cache
-		mEventDataList.emplace(timestamp, eventData);
+		mBeaconCache->addEventData(mSessionNumber, timestamp, eventData);
 	}
 }
 

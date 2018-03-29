@@ -30,6 +30,7 @@
 #include "protocol/Beacon.h"
 #include "core/Session.h"
 #include "core/RootAction.h"
+#include "caching/BeaconCache.h"
 
 using namespace core;
 using namespace communication;
@@ -80,7 +81,9 @@ int32_t main(int32_t argc, char** argv)
 																									core::UTF8String("openkit-sample"), APPLICATION_VERSION, applicationID, serverID, beaconURL,
 																									sessionIDProvider, trustManager ));
 
-	std::shared_ptr<protocol::Beacon> beacon = std::make_shared<protocol::Beacon>(configuration, UTF8String(""), threadIDProvider, timingProvider);
+	std::shared_ptr<caching::BeaconCache> beaconCache = std::make_shared<caching::BeaconCache>();
+
+	std::shared_ptr<protocol::Beacon> beacon = std::make_shared<protocol::Beacon>(beaconCache, configuration, UTF8String(""), threadIDProvider, timingProvider);
 	
 	std::shared_ptr<core::BeaconSender> sender = std::make_shared<core::BeaconSender>(configuration, httpClientProvider, timingProvider);
 	sender->initialize();
