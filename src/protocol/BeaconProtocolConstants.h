@@ -46,6 +46,11 @@ namespace protocol
 	constexpr char BEACON_KEY_TIME_0[] = "t0";
 	constexpr char BEACON_KEY_END_SEQUENCE_NUMBER[] = "s1";
 	constexpr char BEACON_KEY_TIME_1[] = "t1";
+
+	// data, error & crash capture constants
+	constexpr char BEACON_KEY_ERROR_CODE[] = "ev";
+	constexpr char BEACON_KEY_ERROR_REASON[] = "rs";
+	constexpr char BEACON_KEY_ERROR_STACKTRACE[] = "st";
 }
 
 #endif

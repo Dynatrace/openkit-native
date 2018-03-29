@@ -38,14 +38,55 @@ void Session::startSession()
 
 std::shared_ptr<api::IRootAction> Session::enterAction(const char* actionName)
 {
+	UTF8String actionNameString(actionName);
+	if (actionName == nullptr || actionNameString.empty())
+	{
+		//TODO: add logger
+		return NULL_ROOT_ACTION;
+	}
+
 	if (isSessionEnded())
 	{
-		return nullptr;//TODO johannes.baeuerle add NullRootAction
+		return NULL_ROOT_ACTION;
 	}
-	std::shared_ptr<api::IRootAction> pointer = std::make_shared<RootAction>(mBeacon, UTF8String(actionName), shared_from_this());
+	std::shared_ptr<api::IRootAction> pointer = std::make_shared<RootAction>(mBeacon, actionNameString, shared_from_this());
 	mOpenRootActions.put(pointer);
 	return pointer;
 }
+
+void Session::identifyUser(const char* userTag)
+{
+	UTF8String userTagString(userTag);
+
+	if (userTag == nullptr || userTagString.empty())
+	{
+		//TODO: add logger
+		return;
+	}
+
+	if (!isSessionEnded())
+	{
+		mBeacon->identifyUser(userTagString);
+	}
+}
+
+void Session::reportCrash(const char* errorName, const char* reason, const char* stacktrace)
+{
+	UTF8String errorNameString(errorName);
+
+	if (errorName == nullptr || errorNameString.empty())
+	{
+		//TODO: add logger
+		return;
+	}
+
+
+	if (!isSessionEnded())
+	{
+		mBeacon->reportCrash(errorNameString, UTF8String(reason), UTF8String(stacktrace));
+	}
+}
+
 
 void Session::end()
 {

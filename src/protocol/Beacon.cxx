@@ -178,6 +178,38 @@ void Beacon::endSession(std::shared_ptr<core::Session> session)
 	addEventData(session->getEndTime(), eventData);
 }
 
+void Beacon::reportCrash(const core::UTF8String& errorName, const core::UTF8String& reason, const core::UTF8String& stacktrace)
+{
+	if (!mConfiguration->isCaptureCrashes()) {
+		return;
+	}
+
+	core::UTF8String eventData = createBasicEventData(EventType::FAILURE_CRASH, errorName);
+
+	auto timestamp = mTimingProvider->provideTimestampInMilliseconds();
+
+	addKeyValuePair(eventData, BEACON_KEY_PARENT_ACTION_ID, 0);                                  // no parent action
+	addKeyValuePair(eventData, BEACON_KEY_START_SEQUENCE_NUMBER, createSequenceNumber());
+	addKeyValuePair(eventData, BEACON_KEY_TIME_0, getTimeSinceSessionStartTime(timestamp));
+	addKeyValuePair(eventData, BEACON_KEY_ERROR_REASON, reason);
+	addKeyValuePair(eventData, BEACON_KEY_ERROR_STACKTRACE, stacktrace);
+
+	addEventData(timestamp, eventData);
+}
+
+void Beacon::identifyUser(const core::UTF8String& userTag)
+{
+	core::UTF8String eventData = createBasicEventData(EventType::IDENTIFY_USER, userTag);
+
+	auto timestamp = mTimingProvider->provideTimestampInMilliseconds();
+
+	addKeyValuePair(eventData, BEACON_KEY_PARENT_ACTION_ID, 0);
+	addKeyValuePair(eventData, BEACON_KEY_START_SEQUENCE_NUMBER, createSequenceNumber());
+	addKeyValuePair(eventData, BEACON_KEY_TIME_0, getTimeSinceSessionStartTime(timestamp));
+
+	addEventData(timestamp, eventData);
+}
+
 void Beacon::addEventData(int64_t timestamp, const core::UTF8String& eventData)
 {
 	if (mConfiguration->isCapture())

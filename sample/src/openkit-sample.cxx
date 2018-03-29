@@ -89,7 +89,9 @@ int32_t main(int32_t argc, char** argv)
 	sender->initialize();
 
 	std::shared_ptr<Session> sampleSession(new Session(sender, beacon));
+	sampleSession->identifyUser("test user");
 	sampleSession->startSession();
+
 	auto rootAction1 = sampleSession->enterAction("root action");
 	auto childAction1 = rootAction1->enterAction("child action");
 

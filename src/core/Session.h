@@ -24,6 +24,7 @@
 
 #include "api/ISession.h"
 #include "api/IRootAction.h"
+#include "NullRootAction.h"
 
 #include "UTF8String.h"
 #include "util/SynchronizedQueue.h"
@@ -60,17 +61,14 @@ namespace core
 		/// Destructor
 		///
 		virtual ~Session() {}
-		///
-		/// Enters an Action with a specified name in this Session.
-		/// @param[in] actionName name of the Action
-		/// @returns Action instance to work with
-		///
-		virtual std::shared_ptr<api::IRootAction> enterAction(const char* actionName);
 
-		///
-		///  Ends this Session and marks it as ready for immediate sending.
-		///
-		virtual void end();
+		virtual std::shared_ptr<api::IRootAction> enterAction(const char* actionName) override;
+
+		virtual void identifyUser(const char* userTag) override;
+
+		virtual void reportCrash(const char* errorName, const char* reason, const char* stacktrace) override;
+
+		virtual void end() override;
 
 		///
 		/// Returns the end time of the session
@@ -110,6 +108,9 @@ namespace core
 
 		/// synchronized queue of root actions of this session
 		util::SynchronizedQueue<std::shared_ptr<api::IRootAction>> mOpenRootActions;
+
+		/// instance of NullRootAction
+		std::shared_ptr<NullRootAction> NULL_ROOT_ACTION;
 	};
 }
 

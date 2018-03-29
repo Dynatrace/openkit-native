@@ -80,6 +80,22 @@ namespace protocol
 		/// @param[in] session ended session that is added to the Beacon
 		///
 		void endSession(std::shared_ptr<core::Session> session);
+
+		///
+		/// Add crash to Beacon
+		/// The serialized data is added to {@ref BeaconCache}
+		/// @param[in] errorName Error's name.
+		/// @param[in] reason Reason for that error.
+		/// @param[in] stacktrace Crash stacktrace.
+		///
+		void reportCrash(const core::UTF8String& errorName, const core::UTF8String& reason, const core::UTF8String& stacktrace);
+
+		///
+		/// Add user identification to Beacon.
+		/// The serialized data is added to {@ref BeaconCache}
+		/// @param[in] userTag User tag containing data to serialize.
+		///
+		void identifyUser(const core::UTF8String& userTag);
 	private:
 		///
 		/// Serialization helper method for creating basic beacon protocol data.
