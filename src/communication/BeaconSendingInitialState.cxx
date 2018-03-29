@@ -89,8 +89,3 @@ std::shared_ptr<AbstractBeaconSendingState> BeaconSendingInitialState::getShutdo
 {
 	return std::shared_ptr<AbstractBeaconSendingState>(new BeaconSendingTerminalState());
 }
-
-bool BeaconSendingInitialState::isAShutdownState()
-{
-	return false;
-}

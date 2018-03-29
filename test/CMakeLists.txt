@@ -56,6 +56,7 @@ set(SOURCES_UNITTEST
 	communication/BeaconSendingTerminalStateTest.cxx
 	communication/BeaconSendingInitialStateTest.cxx
 	communication/BeaconSendingTimeSyncStateTest.cxx
+	communication/BeaconSendingCaptureOffStateTest.cxx
 	configuration/ConfigurationTest.cxx
 	configuration/BeaconCacheConfigurationTest.cxx
 	caching/BeaconCacheEntryTest.cxx

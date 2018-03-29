@@ -54,7 +54,7 @@ void BeaconSendingContext::setNextState(std::shared_ptr<AbstractBeaconSendingSta
 
 bool BeaconSendingContext::isInTerminalState() const
 {
-	return mCurrentState->isAShutdownState();
+	return mCurrentState->isTerminalState();
 }
 
 void BeaconSendingContext::executeCurrentState()
@@ -127,7 +127,7 @@ void BeaconSendingContext::setInitCompleted(bool success)
 	mInitCountdownLatch.countDown();
 }
 
-bool BeaconSendingContext::isInitialised() const
+bool BeaconSendingContext::isInitialized() const
 {
 	return mInitSucceeded;
 }
@@ -154,6 +154,13 @@ int64_t BeaconSendingContext::getLastStatusCheckTime() const
 void BeaconSendingContext::setLastStatusCheckTime(int64_t lastStatusCheckTime)
 {
 	mLastStatusCheckTime = lastStatusCheckTime;
+}
+
+void BeaconSendingContext::disableCapture()
+{
+	// first disable in configuration, so no further data will get collected
+	mConfiguration->disableCapture();
+	clearAllSessionData();
 }
 
 int64_t BeaconSendingContext::getCurrentTimestamp() const

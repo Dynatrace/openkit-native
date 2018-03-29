@@ -14,32 +14,40 @@
 * limitations under the License.
 */
 
-#ifndef _COMMUNICATION_BEACONSENDINGTERMINALSTATE_H
-#define _COMMUNICATION_BEACONSENDINGTERMINALSTATE_H
+#ifndef _COMMUNICATION_BEACONSENDINGFLUSHSESSIONSTATE_H
+#define _COMMUNICATION_BEACONSENDINGFLUSHSESSIONSTATE_H
 
 #include "communication/AbstractBeaconSendingState.h"
+
+#include <vector>
+#include <chrono>
 
 namespace communication
 {
 	///
-	/// Terminal state once beacon sending is finished and shutdown is requested.
+	/// In this state open sessions are finished. After that all sessions are sent to the server.
 	///
-	class BeaconSendingTerminalState : public AbstractBeaconSendingState
+	/// Transition to:
+	///   - @ref BeaconSendingTerminalState
+	///
+	class BeaconSendingFlushSessionsState : public AbstractBeaconSendingState
 	{
 	public:
 		///
 		/// Constructor
 		///
-		BeaconSendingTerminalState();
+		BeaconSendingFlushSessionsState();
 
 		///
 		/// Destructor
 		///
-		virtual ~BeaconSendingTerminalState();
+		virtual ~BeaconSendingFlushSessionsState() {}
 
 		virtual void doExecute(BeaconSendingContext& context) override;
 
 		virtual std::shared_ptr<AbstractBeaconSendingState> getShutdownState() override;
+
+	private:
 
 	};
 }

@@ -26,10 +26,12 @@ namespace communication {
 
 	///
 	/// The state responsible for the time sync. In this state a time sync is performed.
-	/// If capturing is enabled this state transitions to BeaconSendingCaptureOnState
-	/// If capturing is disabled this tate transitions to BeaconSendingCaptureOffState
-	/// If this is not the initial time sync and shutdown was requested this state transitions to BeaconSendingFlushSessionsState
-	/// If this is the initial time sync and shutdown was requested this state transitions to BeaconSendingTerminalState
+	///
+	/// Transition to:
+	///   - @ref BeaconSendingCaptureOnState if capturing is enabled (@ref BeaconSendingContext::isCaptureOn() == @c true)
+	///   - @ref BeaconSendingCaptureOffState if capturing is disabled (@ref BeaconSendingContext::isCaptureOn() == @c false) or time sync failed
+	///   - @ref BeaconSendingFlushSessionsState on shutdown if not initial time sync
+	///   - @ref BeaconSendingTerminalState on shutdown if initial time sync
 	///
 	class BeaconSendingTimeSyncState : public AbstractBeaconSendingState
 	{
@@ -41,7 +43,7 @@ namespace communication {
 
 		///
 		/// Constructor with a flag if this is the initial time sync
-		/// @param[in] initialSync @c true if 
+		/// @param[in] initialSync @c true if initial time sync
 		///
 		BeaconSendingTimeSyncState(bool initialSync);
 
@@ -50,27 +52,13 @@ namespace communication {
 		///
 		virtual ~BeaconSendingTimeSyncState() {};
 
-		///
-		/// Execute this state
-		/// @param context Instance of the BeaconSendingContext responsible for state transitions
-		///
 		virtual void doExecute(BeaconSendingContext& context) override;
 
-		///
-		/// Return the shutdown state
-		/// @returns an instance of @c AbstractBeaconSendingState handling the shutdown after the init state
-		///
 		virtual std::shared_ptr<AbstractBeaconSendingState> getShutdownState() override;
 
 		///
-		/// Return a flag if this is a shutdown state.
-		/// @return @c true if this state is a shutdown state, @c false if not
-		///
-		virtual bool isAShutdownState() override;
-
-		///
-		/// Uses the BeaconSendingContext to determine if a time sync is required
-		/// @param[in] context BeaconSendingContext used for the check
+		/// Uses the @ref BeaconSendingContext to determine if a time sync is required
+		/// @param[in] context @ref BeaconSendingContext used for the check
 		/// @returns @c true if time sync is required, @c false if time sync is not required
 		///
 		bool isTimeSyncRequired(BeaconSendingContext& context);
@@ -78,14 +66,14 @@ namespace communication {
 	private:
 
 		///
-		/// Make a transition to the next state based on the capture enable flag of the BeaconSendingContext
+		/// Make a transition to the next state based on the capture enable flag of the @ref BeaconSendingContext
 		/// @param[in] context the BeaconSendingContext instance to perform the state transition on
 		///
 		void setNextState(BeaconSendingContext& context);
 
 		///
 		/// Handle the received timesync responses
-		/// @param[in] context the BeaconSendingContext to apply the changes on
+		/// @param[in] context the @ref BeaconSendingContext to apply the changes on
 		/// @param[in] timeSyncOffsets the received offsets
 		///
 		void handleTimeSyncResponses(BeaconSendingContext& context, std::vector<int64_t>& timeSyncOffsets);
@@ -99,13 +87,13 @@ namespace communication {
 
 		///
 		/// In case of a erroneous time sync request 
-		/// @paramp[in] context BeaconSendingContext keeping the state information
+		/// @paramp[in] context @ref BeaconSendingContext keeping the state information
 		///
 		void handleErroneousTimeSyncRequest(BeaconSendingContext& context);
 
 		///
 		/// Execute the time synchronisation requests (HTTP requests).
-		/// @param[in] context the BeconSendingContext used
+		/// @param[in] context the @ref BeconSendingContext used
 		/// @returns a vector of integers with the time sync offsets
 		///
 		std::vector<int64_t> executeTimeSyncRequests(BeaconSendingContext& context);

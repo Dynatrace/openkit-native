@@ -75,11 +75,6 @@ std::shared_ptr<AbstractBeaconSendingState> BeaconSendingTimeSyncState::getShutd
 	}
 }
 
-bool BeaconSendingTimeSyncState::isAShutdownState()
-{
-	return false;
-}
-
 bool BeaconSendingTimeSyncState::isTimeSyncRequired(BeaconSendingContext& context) {
 
 	if (!context.isTimeSyncSupported())

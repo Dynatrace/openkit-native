@@ -14,32 +14,42 @@
 * limitations under the License.
 */
 
-#ifndef _COMMUNICATION_BEACONSENDINGTERMINALSTATE_H
-#define _COMMUNICATION_BEACONSENDINGTERMINALSTATE_H
+#ifndef _COMMUNICATION_BEACONSENDINGCAPTUREONSTATE_H
+#define _COMMUNICATION_BEACONSENDINGCAPTUREONSTATE_H
 
 #include "communication/AbstractBeaconSendingState.h"
+
+#include <vector>
+#include <chrono>
 
 namespace communication
 {
 	///
-	/// Terminal state once beacon sending is finished and shutdown is requested.
+	/// The sending state, when init is completed and capturing is turned on.
 	///
-	class BeaconSendingTerminalState : public AbstractBeaconSendingState
+	/// Transition to:
+	///   - @ref BeaconSendingTimeSyncState if BeaconSendingTimeSyncState::isTimeSyncRequired(BeaconSendingContext) is @c true
+	///   - @ref BeaconSendingCaptureOffState if capturing is turned off
+	///   - @ref BeaconSendingFlushSessionsState on shutdown
+	///
+	class BeaconSendingCaptureOnState : public AbstractBeaconSendingState
 	{
 	public:
 		///
 		/// Constructor
 		///
-		BeaconSendingTerminalState();
+		BeaconSendingCaptureOnState();
 
 		///
 		/// Destructor
 		///
-		virtual ~BeaconSendingTerminalState();
+		virtual ~BeaconSendingCaptureOnState() {}
 
 		virtual void doExecute(BeaconSendingContext& context) override;
 
 		virtual std::shared_ptr<AbstractBeaconSendingState> getShutdownState() override;
+
+	private:
 
 	};
 }

@@ -43,3 +43,8 @@ AbstractBeaconSendingState::StateType AbstractBeaconSendingState::getStateType()
 {
 	return mStateType;
 }
+
+bool AbstractBeaconSendingState::isTerminalState() const
+{
+	return mStateType == AbstractBeaconSendingState::StateType::BEACON_SENDING_TERMINAL_STATE;
+}

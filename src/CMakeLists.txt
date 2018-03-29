@@ -38,6 +38,9 @@ set(SOURCES_COMMUNICATION
 	communication/BeaconSendingTerminalState.cxx
 	communication/BeaconSendingRequestUtil.cxx
 	communication/BeaconSendingTimeSyncState.cxx
+	communication/BeaconSendingCaptureOffState.cxx
+	communication/BeaconSendingCaptureOnState.cxx
+	communication/BeaconSendingFlushSessionsState.cxx
 )
 
 set(SOURCES_PROTOCOL

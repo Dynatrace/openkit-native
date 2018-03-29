@@ -14,36 +14,39 @@
 * limitations under the License.
 */
 
-#ifndef _COMMUNICATION_BEACONSENDINGINITIALSTATE_H
-#define _COMMUNICATION_BEACONSENDINGINITIALSTATE_H
+#ifndef _COMMUNICATION_BEACONSENDINGCAPTUREOFFSTATE_H
+#define _COMMUNICATION_BEACONSENDINGCAPTUREOFFSTATE_H
 
 #include "communication/AbstractBeaconSendingState.h"
+#include "protocol/StatusResponse.h"
 
+#include <memory>
 #include <vector>
 #include <chrono>
 
 namespace communication
 {
 	///
-	/// Initial state for beacon sending.
-	/// The initial state is used to retrieve the configuration from the server and update the configuration.
+	/// State where no data is captured. Periodically issues a status request to check if capturing shall be re-enabled.
+	/// The check interval is defined in @ref INITIAL_RETRY_SLEEP_TIME_MILLISECONDS.
 	///
 	/// Transition to:
-	///   - @ref BeaconSendingTerminalState upon shutdown request
-	///   - @ref BeaconSendingTimeSyncState if initial status request succeeded
+	///   - @ref BeaconSendingCaptureOnState if capturing is re-enabled
+	///   - @ref BeaconSendingFlushSessionsState on shutdown
+	///   - @ref BeaconSendingTimeSyncState if initial time sync failed
 	///
-	class BeaconSendingInitialState : public AbstractBeaconSendingState
+	class BeaconSendingCaptureOffState : public AbstractBeaconSendingState
 	{
 	public:
 		///
 		/// Constructor
 		///
-		BeaconSendingInitialState();
+		BeaconSendingCaptureOffState();
 
 		///
 		/// Destructor
 		///
-		virtual ~BeaconSendingInitialState() {}
+		virtual ~BeaconSendingCaptureOffState() {}
 
 		virtual void doExecute(BeaconSendingContext& context) override;
 
@@ -51,16 +54,9 @@ namespace communication
 
 		/// The initial delay which is later on doubled between one unsuccessful attempt and the next retry
 		static const std::chrono::milliseconds INITIAL_RETRY_SLEEP_TIME_MILLISECONDS;
-
-		/// Times to use as delay between consecutive re-executions of this state, when no state transition is performed
-		static const std::vector<std::chrono::milliseconds> REINIT_DELAY_MILLISECONDS;
-
+		
 	private:
-
-		///
-		/// Index to re-initialize delays
-		///
-		uint32_t mReinitializeDelayIndex;
+		static void handleStatusResponse(BeaconSendingContext& context, std::unique_ptr<protocol::StatusResponse> statusResponse);
 	};
 }
 #endif
