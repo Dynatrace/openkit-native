@@ -43,7 +43,7 @@ namespace communication
 		///
 		/// Destructor
 		///
-		virtual ~BeaconSendingInitialState() {};
+		virtual ~BeaconSendingInitialState() {}
 
 		virtual void doExecute(BeaconSendingContext& context) override;
 

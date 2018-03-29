@@ -71,7 +71,7 @@ namespace communication
 		/// Returns @c true if this state is a terminal state, @c false otherwise.
 		/// @returns @c true if this state is a terminal state, @c false otherwise.
 		///
-		virtual bool isTerminalState() const;
+		bool isTerminalState() const;
 
 		///
 		/// Returns the enum for the state

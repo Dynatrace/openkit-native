@@ -48,6 +48,8 @@ public:
 
 	void TearDown()
 	{
+		target = nullptr;
+		mockHTTPClient = nullptr;
 	}
 
 	std::shared_ptr<communication::AbstractBeaconSendingState> target;

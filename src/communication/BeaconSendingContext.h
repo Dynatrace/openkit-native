@@ -67,15 +67,15 @@ namespace communication
 		virtual bool isShutdownRequested() const;
 
 		///
-		/// Blocking method waiting until initialisation finished
-		/// @return @c true if initialisation suceeded, @c false if initialisation failed
+		/// Blocking method waiting until initialization finished
+		/// @return @c true if initialization suceeded, @c false if initialization failed
 		///
 		bool waitForInit();
 
 		// TODO: bool waitForInit(int64_t timeoutMillis);
 
 		///
-		/// Complete OpenKit initialisation
+		/// Complete OpenKit initialization
 		/// NOTE: This will wake up every caller waiting in the @c #waitForInit() method. 
 		/// @param[in] success @c true if OpenKit was successfully initialized, @c false if it was interrupted
 		///
@@ -85,7 +85,7 @@ namespace communication
 		/// Get a boolean indicating whether OpenKit is initialized or not.
 		/// @returns @c true  if OpenKit is initialized, @c false otherwise.
 		///
-		bool isInitialised() const;
+		bool isInitialized() const;
 
 		///
 		/// Return a flag if the current state of this context is a terminal state
@@ -157,13 +157,13 @@ namespace communication
 
 		///
 		/// Get timestamp when open sessions were sent last
-		/// @returns timestamp timestamp of last sending of open session
+		/// @returns timestamp of last sending of open session
 		///
 		int64_t getLastOpenSessionBeaconSendTime() const;
 
 		///
 		/// Set timestamp when open sessions were sent last
-		/// @param[in] timestamp  timestamp of last sendinf of open session
+		/// @param[in] timestamp of last sendinf of open session
 		///
 		virtual void setLastOpenSessionBeaconSendTime(int64_t timestamp);
 
@@ -255,7 +255,7 @@ namespace communication
 		/// Atomic shutdown flag
 		std::atomic<bool> mShutdown;
 
-		/// Atomic flag for successful initialisation
+		/// Atomic flag for successful initialization
 		std::atomic<bool> mInitSucceeded;
 
 		/// The configuration to use
@@ -273,7 +273,7 @@ namespace communication
 		/// time when open sessions were last sent
 		int64_t mLastOpenSessionBeaconSendTime;
 
-		/// countdown latch used for wait-on-initialisation
+		/// countdown latch used for wait-on-initialization
 		core::util::CountDownLatch mInitCountdownLatch;
 
 		/// flag if time sync is supported

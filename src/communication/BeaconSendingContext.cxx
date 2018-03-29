@@ -127,7 +127,7 @@ void BeaconSendingContext::setInitCompleted(bool success)
 	mInitCountdownLatch.countDown();
 }
 
-bool BeaconSendingContext::isInitialised() const
+bool BeaconSendingContext::isInitialized() const
 {
 	return mInitSucceeded;
 }
