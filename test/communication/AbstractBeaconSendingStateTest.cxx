@@ -41,7 +41,7 @@ public:
 	}
 
 
-	test::MockAbstractBeaconSendingState mockState;
+	testing::NiceMock<test::MockAbstractBeaconSendingState> mockState;
 	testing::StrictMock<test::MockBeaconSendingContext> mockContext;//StrictMock ensure that  all additional calls on context result in failure
 };
 

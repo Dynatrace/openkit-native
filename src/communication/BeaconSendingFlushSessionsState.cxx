@@ -14,31 +14,32 @@
 * limitations under the License.
 */
 
-#ifndef _TEST_COMMUNICATION_TESTBEACONSENDINGSTATE_H
-#define _TEST_COMMUNICATION_TESTBEACONSENDINGSTATE_H
+#include "BeaconSendingFlushSessionsState.h"
 
+#include <chrono>
+#include <algorithm>
+#include <memory>
+
+#include "communication/BeaconSendingFlushSessionsState.h"
 #include "communication/AbstractBeaconSendingState.h"
+#include "communication/BeaconSendingContext.h"
 #include "communication/BeaconSendingTerminalState.h"
 
 using namespace communication;
 
-namespace test {
+BeaconSendingFlushSessionsState::BeaconSendingFlushSessionsState()
+	: AbstractBeaconSendingState(AbstractBeaconSendingState::StateType::BEACON_SENDING_FLUSH_SESSIONS_STATE)
+{
 
-	class TestBeaconSendingState : public AbstractBeaconSendingState
-	{
-	public:
-		virtual	~TestBeaconSendingState() {}
-
-		virtual std::shared_ptr<AbstractBeaconSendingState> getShutdownState()
-		{
-			return std::make_shared<BeaconSendingTerminalState>();
-		}
-
-	protected:
-		virtual void doExecute(BeaconSendingContext&)
-		{
-			// do nothing
-		}
-	};
 }
-#endif
+
+void BeaconSendingFlushSessionsState::doExecute(BeaconSendingContext& context)
+{
+	// TODO
+}
+
+std::shared_ptr<AbstractBeaconSendingState> BeaconSendingFlushSessionsState::getShutdownState()
+{
+	return std::shared_ptr<AbstractBeaconSendingState>(new BeaconSendingTerminalState());
+}
+

@@ -48,19 +48,7 @@ namespace communication
 			std::shared_ptr<providers::ITimingProvider> timingProvider,
 			std::shared_ptr<configuration::Configuration> configuration);
 
-		virtual ~BeaconSendingContext() {};
-
-		///
-		/// Register a state following the current state once the current state finished
-		/// @param nextState instance of the  AbstractBeaconSendingState that follows after the current state
-		///
-		virtual void setNextState(std::shared_ptr<AbstractBeaconSendingState> nextState);
-
-		///
-		/// Return a flag if the current state of this context is a terminal state
-		/// @returns @c true if the current state is a terminal state
-		///
-		virtual bool isInTerminalState() const;
+		virtual ~BeaconSendingContext() {}
 
 		///
 		/// Executes the current state
@@ -79,36 +67,15 @@ namespace communication
 		virtual bool isShutdownRequested() const;
 
 		///
-		/// Return the currently used Configuration
-		/// @return configuration isntance
+		/// Blocking method waiting until initialization finished
+		/// @return @c true if initialization suceeded, @c false if initialization failed
 		///
-		const std::shared_ptr<configuration::Configuration> getConfiguration() const;
+		bool waitForInit();
+
+		// TODO: bool waitForInit(int64_t timeoutMillis);
 
 		///
-		/// Returns the  HTTPClient created by the current BeaconSendingContext
-		/// @returns a shared pointer to the HTTPClient created by the BeaconSendingContext
-		///
-		virtual std::shared_ptr<protocol::IHTTPClient> getHTTPClient();
-
-		///
-		/// Handle the status response received from the server
-		/// Update the current configuration accordingly
-		///
-		virtual void handleStatusResponse(std::unique_ptr<protocol::StatusResponse> response);
-
-		///
-		/// Clears all session data
-		///
-		void clearAllSessionData();
-
-		///
-		/// Returns a flag if capturing is enabled
-		/// @returns @c true if capturing is enabled, @c false if capturing is disabled
-		///
-		virtual bool isCaptureOn() const;
-
-		///
-		/// Complete OpenKit initialisation
+		/// Complete OpenKit initialization
 		/// NOTE: This will wake up every caller waiting in the @c #waitForInit() method. 
 		/// @param[in] success @c true if OpenKit was successfully initialized, @c false if it was interrupted
 		///
@@ -118,55 +85,26 @@ namespace communication
 		/// Get a boolean indicating whether OpenKit is initialized or not.
 		/// @returns @c true  if OpenKit is initialized, @c false otherwise.
 		///
-		bool isInitialised() const;
+		bool isInitialized() const;
 
 		///
-		/// Blocking method waiting until initialisation finished
-		/// @return @c true if initialisation suceeded, @c false if initialisation failed
+		/// Return a flag if the current state of this context is a terminal state
+		/// @returns @c true if the current state is a terminal state
 		///
-		bool waitForInit();
+		virtual bool isInTerminalState() const;
 
 		///
-		/// Sleep for a given amount of time
-		/// @param[in] ms number of milliseconds
+		/// Returns a flag if capturing is enabled
+		/// @returns @c true if capturing is enabled, @c false if capturing is disabled
 		///
-		virtual void sleep(int64_t ms);
+		virtual bool isCaptureOn() const;
 
 		///
-		/// Get current timestamp
-		/// @returns current timestamp
+		/// Initialize time synchronisation with cluster time
+		/// @param[in] clusterTimeOffset the cluster offset
+		/// @param[in] @c true if time sync is supported, otherwise @c false
 		///
-		virtual int64_t getCurrentTimestamp() const;
-
-		///
-		/// Get timestamp when last status check was performed
-		/// @returns timestamp of last status check
-		///
-		int64_t getLastStatusCheckTime() const;
-
-		///
-		/// Set timestamp when last status check was performed
-		/// @param[in] lastStatusCheckTime timestamp of last status check
-		///
-		virtual void setLastStatusCheckTime(int64_t lastStatusCheckTime);
-
-		///
-		/// Get timestamp when open sessions were sent last
-		/// @returns timestamp timestamp of last sending of open session
-		///
-		int64_t getLastOpenSessionBeaconSendTime() const;
-
-		///
-		/// Set timestamp when open sessions were sent last
-		/// @param[in] timestamp  timestamp of last sendinf of open session
-		///
-		virtual void setLastOpenSessionBeaconSendTime(int64_t timestamp);
-
-		///
-		/// Returns the type of state
-		/// @returns type of state as defined in AbstractBeaconSendingState
-		///
-		AbstractBeaconSendingState::StateType getCurrentStateType() const;
+		virtual void initializeTimeSync(int64_t clusterTimeOffset, bool isTimeSyncSupported);
 
 		///
 		/// Gets a boolean flag indicating whether time sync is supported or not.
@@ -185,6 +123,86 @@ namespace communication
 		///
 		virtual bool isTimeSynced() const;
 
+		// TODO: std::shared_ptr<AbstractBeaconSendingState> getCurrentState();
+
+		///
+		/// Register a state following the current state once the current state finished
+		/// @param nextState instance of the  AbstractBeaconSendingState that follows after the current state
+		///
+		virtual void setNextState(std::shared_ptr<AbstractBeaconSendingState> nextState);
+
+		// TODO: void initCompleted(bool success);
+
+		// TODO: std::shared_ptr<providers::HTTPClientProvider> getHTTPClientProvider();
+
+		///
+		/// Returns the  HTTPClient created by the current BeaconSendingContext
+		/// @returns a shared pointer to the HTTPClient created by the BeaconSendingContext
+		///
+		virtual std::shared_ptr<protocol::IHTTPClient> getHTTPClient();
+
+		///
+		/// Get current timestamp
+		/// @returns current timestamp
+		///
+		virtual int64_t getCurrentTimestamp() const;
+
+		// TODO: void sleep();
+
+		///
+		/// Sleep for a given amount of time
+		/// @param[in] ms number of milliseconds
+		///
+		virtual void sleep(int64_t ms);
+
+		///
+		/// Get timestamp when open sessions were sent last
+		/// @returns timestamp of last sending of open session
+		///
+		int64_t getLastOpenSessionBeaconSendTime() const;
+
+		///
+		/// Set timestamp when open sessions were sent last
+		/// @param[in] timestamp of last sendinf of open session
+		///
+		virtual void setLastOpenSessionBeaconSendTime(int64_t timestamp);
+
+		///
+		/// Get timestamp when last status check was performed
+		/// @returns timestamp of last status check
+		///
+		int64_t getLastStatusCheckTime() const;
+
+		///
+		/// Set timestamp when last status check was performed
+		/// @param[in] lastStatusCheckTime timestamp of last status check
+		///
+		virtual void setLastStatusCheckTime(int64_t lastStatusCheckTime);
+
+		// TODO: int32_t getSendInterval();
+
+		///
+		/// Disable data capturing.
+		///
+		virtual void disableCapture();
+
+		///
+		/// Handle the status response received from the server
+		/// Update the current configuration accordingly
+		///
+		virtual void handleStatusResponse(std::unique_ptr<protocol::StatusResponse> response);
+
+		///
+		/// Clears all session data
+		///
+		void clearAllSessionData();
+
+		// TODO: std::shared_ptr<core::Session> getNextFinishedSession();
+
+		// TODO: std::vector<std::shared_ptr<core::Session>> getAllOpenSessions();
+
+		// TODO: std::vector<std::shared_ptr<core::Session>> getAllFinishedSessions();
+
 		///
 		/// Returns the timestamp when time sync was executed last time.
 		/// @returns the timestamp of the last successful time sync
@@ -197,12 +215,6 @@ namespace communication
 		///
 		virtual void setLastTimeSyncTime(int64_t lastTimeSyncTime);
 
-		///
-		/// Initialize time synchronisation with cluster time
-		/// @param[in] clusterTimeOffset the cluster offset
-		/// @param[in] @c true if time sync is supported, otherwise @c false
-		///
-		virtual void initializeTimeSync(int64_t clusterTimeOffset, bool isTimeSyncSupported);
 
 		///
 		/// Start a new session.
@@ -211,6 +223,8 @@ namespace communication
 		///
 		void startSession(std::shared_ptr<core::Session> session);
 
+		// TODO: void pushBackFinishedSession(std::shared_ptr<core::Session> session);
+
 		///
 		/// Finish a session which has been started previously using startSession(SessionImpl)
 		/// If the session cannot be found in the container storing all open sessions, the parameter is ignored,
@@ -218,6 +232,18 @@ namespace communication
 		/// @param[in] session The session to finish.
 		///
 		void finishSession(std::shared_ptr<core::Session> session);
+
+		///
+		/// Return the currently used Configuration
+		/// @return configuration isntance
+		///
+		const std::shared_ptr<configuration::Configuration> getConfiguration() const;
+
+		///
+		/// Returns the type of state
+		/// @returns type of state as defined in AbstractBeaconSendingState
+		///
+		AbstractBeaconSendingState::StateType getCurrentStateType() const;
 
 	private:
 		/// instance of AbstractBeaconSendingState with the current state
@@ -229,7 +255,7 @@ namespace communication
 		/// Atomic shutdown flag
 		std::atomic<bool> mShutdown;
 
-		/// Atomic flag for successful initialisation
+		/// Atomic flag for successful initialization
 		std::atomic<bool> mInitSucceeded;
 
 		/// The configuration to use
@@ -247,7 +273,7 @@ namespace communication
 		/// time when open sessions were last sent
 		int64_t mLastOpenSessionBeaconSendTime;
 
-		/// countdown latch used for wait-on-initialisation
+		/// countdown latch used for wait-on-initialization
 		core::util::CountDownLatch mInitCountdownLatch;
 
 		/// flag if time sync is supported

@@ -30,7 +30,7 @@ namespace communication
 	class AbstractBeaconSendingState
 	{
 	public:
-		///this is pseudo runtime type information used in the tests
+		/// This is pseudo runtime type information used in the tests
 		enum class StateType
 		{
 			BEACON_SENDING_INIT_STATE,
@@ -43,41 +43,49 @@ namespace communication
 		};
 
 		///
-		///constructor
+		/// Constructor
 		///
 		explicit AbstractBeaconSendingState(StateType type);
 
 		///
-		/// destructor
+		/// Destructor
 		///
 		virtual	~AbstractBeaconSendingState();
 
 
 		///
-		/// execute the state, exit in case of shutdown requests
-		/// @param context the @see BeaconSendingContext that takes care of state transitions
+		/// Execute the current state.
+		///
+		/// In case shutdown was requested, a state transition is performed by this method to the @ref AbstractBeaconSendingState returned by @ref AbstractBeaconSendingState::getShutdownState().
+		/// @param[in] context the @ref BeaconSendingContext that takes care of state transitions
 		///
 		void execute(BeaconSendingContext& context);
 
 		///
-		/// Get an instance of the shutdown state of the @see AbstractBeaconSendingState that is called upon shutdown
+		/// Get an instance of the {@ref AbstractBeaconSendingState} to which a transition is made upon shutdown request.
 		/// @returns the follow-up state taking care of the shutdown
 		///
 		virtual std::shared_ptr<AbstractBeaconSendingState> getShutdownState() = 0;
 
 		///
-		/// Return a flag whether the current state is a shutdown state or not.
+		/// Returns @c true if this state is a terminal state, @c false otherwise.
+		/// @returns @c true if this state is a terminal state, @c false otherwise.
 		///
-		virtual bool isAShutdownState() = 0;
+		bool isTerminalState() const;
 
+		///
+		/// Returns the enum for the state
+		/// @returns the enum for the state
+		///
 		StateType getStateType() const;
 
 	protected:
 		///
-		/// execute the state - real state execution - has to overriden by subclas
+		/// Execute the state - real state execution - has to overriden by subclas
 		/// @param context the @see BeaconSendingContext that takes care of state transitions
 		///
 		virtual void doExecute(BeaconSendingContext& context) = 0;
+
 	private:
 		StateType mStateType;
 	};

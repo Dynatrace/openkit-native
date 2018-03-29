@@ -44,7 +44,7 @@ namespace test
 		}
 
 		MOCK_METHOD0(nonCopyableReturnProxy, AbstractBeaconSendingState*());
-		MOCK_METHOD0(isAShutdownState, bool());
+		MOCK_CONST_METHOD0(isTerminalState, bool());
 		MOCK_METHOD1(doExecute, void(BeaconSendingContext&));
 		MOCK_METHOD1(execute, void(BeaconSendingContext&));
 

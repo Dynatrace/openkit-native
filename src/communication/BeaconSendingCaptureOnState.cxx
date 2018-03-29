@@ -14,28 +14,32 @@
 * limitations under the License.
 */
 
-#include "communication/BeaconSendingTerminalState.h"
+#include "BeaconSendingCaptureOnState.h"
+
+#include <chrono>
+#include <algorithm>
+#include <memory>
+
+#include "communication/BeaconSendingFlushSessionsState.h"
+#include "communication/AbstractBeaconSendingState.h"
 #include "communication/BeaconSendingContext.h"
+
+#include "protocol/StatusResponse.h"
 
 using namespace communication;
 
-BeaconSendingTerminalState::BeaconSendingTerminalState()
-	: AbstractBeaconSendingState(AbstractBeaconSendingState::StateType::BEACON_SENDING_TERMINAL_STATE)
+BeaconSendingCaptureOnState::BeaconSendingCaptureOnState()
+	: AbstractBeaconSendingState(AbstractBeaconSendingState::StateType::BEACON_SENDING_CAPTURE_ON_STATE)
 {
 
 }
 
-BeaconSendingTerminalState::~BeaconSendingTerminalState()
+void BeaconSendingCaptureOnState::doExecute(BeaconSendingContext& context)
 {
-
+	// TODO
 }
 
-void BeaconSendingTerminalState::doExecute(BeaconSendingContext& context)
+std::shared_ptr<AbstractBeaconSendingState> BeaconSendingCaptureOnState::getShutdownState()
 {
-	context.requestShutdown();
-}
-
-std::shared_ptr<AbstractBeaconSendingState> BeaconSendingTerminalState::getShutdownState()
-{
-	return std::shared_ptr<AbstractBeaconSendingState>(new BeaconSendingTerminalState());
+	return std::shared_ptr<AbstractBeaconSendingState>(new BeaconSendingFlushSessionsState());
 }
