@@ -88,7 +88,7 @@ TEST_F(ConfigurationTest, capturingIsDisabledIfStatusResponseIsNull)
 TEST_F(ConfigurationTest, capturingIsEnabledFromStatusResponse)
 {
 	//given
-	auto mockResponse = std::unique_ptr<test::MockStatusResponse>(new test::MockStatusResponse());
+	auto mockResponse = std::unique_ptr<testing::NiceMock<test::MockStatusResponse>>(new testing::NiceMock<test::MockStatusResponse>());
 
 	//when
 	auto target = getDefaultConfiguration();
@@ -108,7 +108,7 @@ TEST_F(ConfigurationTest, capturingIsEnabledFromStatusResponse)
 TEST_F(ConfigurationTest, capturingIsDisabledFromStatusResponse)
 {
 	//given
-	auto mockResponse = std::unique_ptr<test::MockStatusResponse>(new test::MockStatusResponse());
+	auto mockResponse = std::unique_ptr<testing::NiceMock<test::MockStatusResponse>>(new testing::NiceMock<test::MockStatusResponse>());
 
 	//when
 	auto target = getDefaultConfiguration();

@@ -39,7 +39,7 @@ public:
 	{
 		target = std::shared_ptr<communication::AbstractBeaconSendingState>(new communication::BeaconSendingCaptureOffState());
 		std::shared_ptr<configuration::HTTPClientConfiguration> httpClientConfiguration = std::make_shared<configuration::HTTPClientConfiguration>(core::UTF8String(""),0, core::UTF8String(""));
-		mockHTTPClient = std::shared_ptr<test::MockHTTPClient>(new test::MockHTTPClient(httpClientConfiguration));
+		mockHTTPClient = std::shared_ptr<testing::NiceMock<test::MockHTTPClient>>(new testing::NiceMock<test::MockHTTPClient>(httpClientConfiguration));
 		mockStatusResponse = std::shared_ptr<test::MockStatusResponse>(new test::MockStatusResponse());
 
 		ON_CALL(*mockHTTPClient, sendStatusRequestRawPtrProxy())
@@ -51,7 +51,7 @@ public:
 	}
 
 	std::shared_ptr<communication::AbstractBeaconSendingState> target;
-	std::shared_ptr<test::MockHTTPClient> mockHTTPClient;
+	std::shared_ptr<testing::NiceMock<test::MockHTTPClient>> mockHTTPClient;
 	std::shared_ptr<test::MockStatusResponse> mockStatusResponse;
 };
 

@@ -39,7 +39,7 @@ public:
 		target = std::shared_ptr<communication::AbstractBeaconSendingState>(new communication::BeaconSendingTimeSyncState(true));
 		targetNotInitial = std::shared_ptr<communication::AbstractBeaconSendingState>(new communication::BeaconSendingTimeSyncState(false));
 		std::shared_ptr<configuration::HTTPClientConfiguration> httpClientConfiguration = std::make_shared<configuration::HTTPClientConfiguration>(core::UTF8String(""),0, core::UTF8String(""));
-		mockHTTPClient = std::shared_ptr<test::MockHTTPClient>(new test::MockHTTPClient(httpClientConfiguration));
+		mockHTTPClient = std::shared_ptr<testing::NiceMock<test::MockHTTPClient>>(new testing::NiceMock<test::MockHTTPClient>(httpClientConfiguration));
 
 		core::UTF8String response1 = core::UTF8String(protocol::RESPONSE_KEY_REQUEST_RECEIVE_TIME);
 		response1.concatenate("=6&");
@@ -109,7 +109,7 @@ public:
 
 	std::shared_ptr<communication::AbstractBeaconSendingState> target;//time sync state with initialTimeSync set to true
 	std::shared_ptr<communication::AbstractBeaconSendingState> targetNotInitial;//time sync state with initialTimeSync set to false
-	std::shared_ptr<test::MockHTTPClient> mockHTTPClient;
+	std::shared_ptr<testing::NiceMock<test::MockHTTPClient>> mockHTTPClient;
 	std::vector<protocol::TimeSyncResponse*> reponsesForASuccessfullTimeSync;
 	std::vector<protocol::TimeSyncResponse*> reponsesForASuccessfullTimeSyncWithRetries;
 	std::vector<uint64_t> timestampsForASuccessfullTimeSync;
