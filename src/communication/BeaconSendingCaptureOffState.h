@@ -56,6 +56,7 @@ namespace communication
 		static const std::chrono::milliseconds INITIAL_RETRY_SLEEP_TIME_MILLISECONDS;
 		
 	private:
+		/// Handle the status response received from the server and transistion the states accordingly
 		static void handleStatusResponse(BeaconSendingContext& context, std::unique_ptr<protocol::StatusResponse> statusResponse);
 	};
 }

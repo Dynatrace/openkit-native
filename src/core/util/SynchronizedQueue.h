@@ -126,9 +126,28 @@ namespace core
 			{
 				return std::vector<T>(mList.begin(), mList.end());
 			}
-		private:
 
 			typedef typename std::list<T>::iterator queue_iterator;
+
+			///
+			/// Returns an iterator pointing to the first element in the queue.
+			/// @returns an iterator pointing to the first element in the queue.
+			///
+			queue_iterator begin()
+			{
+				return mList.begin();
+			}
+
+			///
+			/// Returns an iterator referring to the past-the-end element in the queue.
+			/// @returns an iterator referring to the past-the-end element in the queue.
+			///
+			queue_iterator end()
+			{
+				return mList.end();
+			}
+
+		private:
 
 			///
 			/// find first occurence of a given element

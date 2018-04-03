@@ -64,11 +64,11 @@ namespace test
 		MOCK_METHOD1(setNextState, void(std::shared_ptr<AbstractBeaconSendingState> nextState));
 		MOCK_METHOD0(getHTTPClient, std::shared_ptr<protocol::IHTTPClient>());
 		MOCK_CONST_METHOD0(getCurrentTimestamp, int64_t());
+		MOCK_METHOD0(sleep, void());
 		MOCK_METHOD1(sleep, void(int64_t));
 		MOCK_METHOD1(setLastOpenSessionBeaconSendTime, void(int64_t));
 		MOCK_METHOD1(setLastStatusCheckTime, void(int64_t));
 		MOCK_METHOD0(disableCapture, void());
-		//MOCK_METHOD1(handleStatusResponse, void(std::unique_ptr<protocol::StatusResponse>));
 		MOCK_CONST_METHOD0(getLastTimeSyncTime, int64_t());
 		MOCK_METHOD1(setLastTimeSyncTime, void(int64_t));
 		

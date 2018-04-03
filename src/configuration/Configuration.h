@@ -46,8 +46,10 @@ namespace configuration
 		/// @param[in] sessionIDProvider provider for session IDs
 		/// @param[in] sslTrustManager the ISSLTrustManager instance to use
 		///
-		Configuration(std::shared_ptr<configuration::Device> device,OpenKitType openKitType, const core::UTF8String& applicationName, const core::UTF8String& applicationVersion, const core::UTF8String& applicationID, uint64_t deviceID, const core::UTF8String& endpointURL,
+		Configuration(std::shared_ptr<configuration::Device> device, OpenKitType openKitType, const core::UTF8String& applicationName, const core::UTF8String& applicationVersion, const core::UTF8String& applicationID, uint64_t deviceID, const core::UTF8String& endpointURL,
 			std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider, std::shared_ptr<protocol::ISSLTrustManager> sslTrustManager);
+
+		virtual ~Configuration() {}
 
 		///
 		/// Return the  HTTPClientConfiguration to use when constructing a  HTTPClient
@@ -112,6 +114,13 @@ namespace configuration
 		/// @returns the send interval
 		///
 		int64_t getSendInterval() const;
+
+		///
+		/// Sets the send interval.
+		/// This method is intended for unit testing.
+		/// @param[in] sendInterval
+		///
+		void setSendInterval(int64_t sendInterval);
 
 		///
 		/// Returns the maximum beacon size

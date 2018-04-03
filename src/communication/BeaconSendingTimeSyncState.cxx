@@ -14,14 +14,16 @@
 * limitations under the License.
 */
 
-#include "BeaconSendingTimeSyncState.h"
+#include "communication/BeaconSendingTimeSyncState.h"
 
 #include <math.h>
 #include <algorithm>
 
-#include "BeaconSendingContext.h"
-#include "BeaconSendingTerminalState.h"
-
+#include "communication/BeaconSendingContext.h"
+#include "communication/BeaconSendingTerminalState.h"
+#include "communication/BeaconSendingCaptureOffState.h"
+#include "communication/BeaconSendingCaptureOnState.h"
+#include "communication/BeaconSendingFlushSessionsState.h"
  
 
 using namespace communication;
@@ -70,8 +72,7 @@ std::shared_ptr<AbstractBeaconSendingState> BeaconSendingTimeSyncState::getShutd
 	}
 	else
 	{
-		return std::shared_ptr<AbstractBeaconSendingState>(new BeaconSendingTerminalState());//TODO johannes.baeuerle - once available make transition to flush sessions state
-		//return std::shared_ptr<AbstractBeaconSendingState>(new BeaconSendingFlushSessionsState());
+		return std::shared_ptr<AbstractBeaconSendingState>(new BeaconSendingFlushSessionsState());
 	}
 }
 
@@ -91,11 +92,11 @@ void BeaconSendingTimeSyncState::setNextState(BeaconSendingContext& context)
 	// advance to next state
 	if (context.isCaptureOn())
 	{
-		//context.setNextState(new BeaconSendingCaptureOnState());//TODO johannes.baeuerle - once available make transition to capture on state
+		context.setNextState(std::shared_ptr<AbstractBeaconSendingState>(new BeaconSendingCaptureOnState()));
 	}
 	else
 	{
-		//context.setNextState(new BeaconSendingCaptureOffState());//TODO johannes.baeuerle - once available make transition to capture off state
+		context.setNextState(std::shared_ptr<AbstractBeaconSendingState>(new BeaconSendingCaptureOffState()));
 	}
 }
 

@@ -61,7 +61,7 @@ namespace communication {
 		/// @param[in] context @ref BeaconSendingContext used for the check
 		/// @returns @c true if time sync is required, @c false if time sync is not required
 		///
-		bool isTimeSyncRequired(BeaconSendingContext& context);
+		static bool isTimeSyncRequired(BeaconSendingContext& context);
 
 	private:
 
