@@ -77,6 +77,14 @@ namespace core
 		int64_t getEndTime() const;
 
 		///
+		/// Test if this session is empty or not
+		///
+		/// A session is considered to be empty, if it does not contain any action or event data.
+		/// @returns @c true if the session is empty, @c false otherwise
+
+		bool isEmpty() const;
+
+		///
 		/// Method to be called by the child action upon the call of leaveAction
 		/// @param[in] rootAction RootAction that was closed
 		///
@@ -87,13 +95,18 @@ namespace core
 		///
 		void startSession();
 
-	private:
-
 		///
 		/// Return a flag if this session was ended already
 		/// @returns @c true if session was already ended, @c false if session is still open
 		///
 		bool isSessionEnded() const;
+
+		///
+		/// Clears data that has been captured so far.
+		///
+		/// This is called, when capturing is turned off to avoid having too much data.
+		///
+		void clearCapturedData();
 
 	private:
 

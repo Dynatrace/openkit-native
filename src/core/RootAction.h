@@ -111,10 +111,6 @@ namespace core
 		///
 		bool isActionLeft() const;
 
-	protected:
-
-
-
 	private:
 
 		///
@@ -137,7 +133,7 @@ namespace core
 		int32_t mID;
 
 		/// action name
-		const core::UTF8String& mName;
+		const core::UTF8String mName;
 
 		/// action start time
 		int64_t mStartTime;

@@ -159,6 +159,20 @@ void Beacon::addAction(std::shared_ptr<core::Action> action)
 	addActionData(action->getStartTime(), actionData);
 }
 
+void Beacon::addAction(std::shared_ptr<core::RootAction> action)
+{
+	core::UTF8String actionData = createBasicEventData(EventType::ACTION, action->getName());
+
+	addKeyValuePair(actionData, BEACON_KEY_ACTION_ID, action->getID());
+	addKeyValuePair(actionData, BEACON_KEY_PARENT_ACTION_ID, 0);
+	addKeyValuePair(actionData, BEACON_KEY_START_SEQUENCE_NUMBER, action->getStartSequenceNo());
+	addKeyValuePair(actionData, BEACON_KEY_TIME_0, getTimeSinceSessionStartTime(action->getStartTime()));
+	addKeyValuePair(actionData, BEACON_KEY_END_SEQUENCE_NUMBER, action->getEndSequenceNo());
+	addKeyValuePair(actionData, BEACON_KEY_TIME_1, action->getEndTime() - action->getStartTime());
+
+	addActionData(action->getStartTime(), actionData);
+}
+
 void Beacon::addActionData(int64_t timestamp, const core::UTF8String& actionData)
 {
 	if (mConfiguration->isCapture())
@@ -230,4 +244,15 @@ core::UTF8String Beacon::trunctate(const core::UTF8String& string)
 int64_t Beacon::getTimeSinceSessionStartTime(int64_t timestamp)
 {
 	return timestamp - mSessionStartTime;
+}
+
+bool Beacon::isEmpty() const
+{
+	return mBeaconCache->isEmpty(mSessionNumber);
+}
+
+void Beacon::clearData()
+{
+	// remove all cached data for this Beacon from the cache
+	mBeaconCache->deleteCacheEntry(mSessionNumber);
 }
