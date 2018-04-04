@@ -116,7 +116,7 @@ namespace protocol
 		/// @param[in] clientProvider the IHTTPClientProvider to use for sending
 		/// @returns the status response returned for the Beacon data
 		///
-		virtual std::unique_ptr<protocol::StatusResponse> Beacon::send(std::shared_ptr<providers::IHTTPClientProvider> clientProvider);
+		virtual std::unique_ptr<protocol::StatusResponse> send(std::shared_ptr<providers::IHTTPClientProvider> clientProvider);
 
 		///
 		/// Tests if the Beacon is empty
