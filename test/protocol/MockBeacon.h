@@ -40,12 +40,18 @@ namespace test {
 
 		}
 
+		std::unique_ptr<protocol::StatusResponse> RealSend(std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider)
+		{
+			return protocol::Beacon::send(httpClientProvider);
+		}
+
 		virtual ~MockBeacon() {};
 
 		MOCK_METHOD1(identifyUser, void(const core::UTF8String& userTag));
 		MOCK_METHOD3(reportCrash, void(const core::UTF8String&, const core::UTF8String&, const core::UTF8String&));
 		MOCK_METHOD1(endSession, void(std::shared_ptr<core::Session>));
 		MOCK_CONST_METHOD0(getCurrentTimestamp, int64_t(void));
+		MOCK_METHOD1(send, std::unique_ptr<protocol::StatusResponse>(std::shared_ptr<providers::IHTTPClientProvider>));
 	};
 }
 #endif

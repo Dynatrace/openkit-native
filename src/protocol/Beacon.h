@@ -21,6 +21,7 @@
 #include "providers/ITimingProvider.h"
 #include "providers/IThreadIDProvider.h"
 #include "configuration/Configuration.h"
+#include "configuration/HTTPClientConfiguration.h"
 #include "core/Action.h"
 #include "core/RootAction.h"
 #include "core/Session.h"
@@ -110,6 +111,13 @@ namespace protocol
 		///
 		virtual void identifyUser(const core::UTF8String& userTag);
 
+		/// 
+		/// Sends the current Beacon state
+		/// @param[in] clientProvider the IHTTPClientProvider to use for sending
+		/// @returns the status response returned for the Beacon data
+		///
+		virtual std::unique_ptr<protocol::StatusResponse> Beacon::send(std::shared_ptr<providers::IHTTPClientProvider> clientProvider);
+
 		///
 		/// Tests if the Beacon is empty
 		/// 
@@ -137,6 +145,11 @@ namespace protocol
 		///
 		core::UTF8String createBasicEventData(EventType eventType, const core::UTF8String& eventName);
 
+		///
+		/// Serialization helper method for creating basic timestamp data.
+		/// @return Serialized data
+		///
+		core::UTF8String createTimestampData();
 		///
 		/// Serialization helper method for appending a key.
 		/// @param[in] s reference to string containing serialized data
@@ -239,6 +252,9 @@ namespace protocol
 
 		///cache for beacons
 		std::shared_ptr<caching::BeaconCache> mBeaconCache;
+
+		/// HTTP client configuration
+		std::shared_ptr<configuration::HTTPClientConfiguration> mHTTPClientConfiguration;
 	};
 }
 #endif

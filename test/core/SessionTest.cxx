@@ -50,7 +50,7 @@ public:
 		sessionIDProvider = std::make_shared<providers::DefaultSessionIDProvider>();
 
 		std::shared_ptr<configuration::HTTPClientConfiguration> httpClientConfiguration = std::make_shared<configuration::HTTPClientConfiguration>(core::UTF8String(""), 0, core::UTF8String(""));
-		mockHTTPClientProvider = std::make_shared<test::MockHTTPClientProvider>();
+		mockHTTPClientProvider = std::make_shared<testing::NiceMock<test::MockHTTPClientProvider>>();
 		mockHTTPClient = std::shared_ptr<testing::NiceMock<test::MockHTTPClient>>(new testing::NiceMock<test::MockHTTPClient>(httpClientConfiguration));
 
 		trustManager = std::make_shared<protocol::SSLStrictTrustManager>();
@@ -77,7 +77,7 @@ public:
 	std::shared_ptr<providers::IThreadIDProvider> threadIDProvider;
 	std::shared_ptr<providers::ITimingProvider> timingProvider;
 	std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider;
-	std::shared_ptr<providers::IHTTPClientProvider> mockHTTPClientProvider;
+	
 	std::shared_ptr<testing::NiceMock<test::MockHTTPClient>> mockHTTPClient;
 	std::shared_ptr<protocol::ISSLTrustManager> trustManager;
 
@@ -87,6 +87,7 @@ public:
 	std::shared_ptr<testing::StrictMock<test::MockBeaconSender>> mockBeaconSender;
 	std::shared_ptr<testing::StrictMock<test::MockBeacon>> mockBeaconStrict;
 	std::shared_ptr<testing::NiceMock<test::MockBeacon>> mockBeaconNice;
+	std::shared_ptr<testing::NiceMock<test::MockHTTPClientProvider>> mockHTTPClientProvider;
 };
 
 TEST_F(SessionTest, constructorReturnsValidDefaults)
@@ -398,48 +399,72 @@ TEST_F(SessionTest, endSessionTwice)
 	ASSERT_NE(testSession->getEndTime(), -1);
 }
 
-/* TODO johannes.baeuerle: Port once the send beacon method exists
-    @Test
-    public void endSessionWithOpenRootActions() {
-        // create test environment
-        final SessionImpl session = new SessionImpl(logger, beaconSender, beacon);
+TEST_F(SessionTest, endSessionWithOpenRootActions)
+{
+	// set mock behavior of HTTPClient and HTTPClientProvider
+	protocol::StatusResponse* response = new protocol::StatusResponse(core::UTF8String(""), 200);
 
-        // end the session containing open (=not left) actions
-        session.enterAction("Some action 1");
-        session.enterAction("Some action 2");
-        session.end();
+	ON_CALL(*mockHTTPClientProvider, createClient(testing::_))
+		.WillByDefault(testing::Return(mockHTTPClient));
+	// mock a valid status response via the HTTPClient to be sure the beacon cache is empty
+	ON_CALL(*mockHTTPClient, sendBeaconRequestRawPtrProxy(testing::_, testing::_))
+		.WillByDefault(testing::Return(response));
+	// call the real send method to ensure correct interaction with the beacon cache
+	ON_CALL(*mockBeaconStrict, send(testing::_))
+		.WillByDefault(testing::WithArgs<0>(testing::Invoke(&*mockBeaconStrict, &test::MockBeacon::RealSend)));
 
-        // mock a valid status response via the HTTPClient to be sure the beacon cache is empty
-        final HTTPClient httpClient = mock(HTTPClient.class);
-        final StatusResponse statusResponse = new StatusResponse("", 200);
-        when(httpClient.sendBeaconRequest(isA(String.class), any(byte[].class))).thenReturn(statusResponse);
-        final HTTPClientProvider clientProvider = mock(HTTPClientProvider.class);
-        when(clientProvider.createClient(any(HTTPClientConfiguration.class))).thenReturn(httpClient);
+	// verify the proper methods being called
+	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
+		.Times(testing::Exactly(1));
+	EXPECT_CALL(*mockBeaconStrict, getCurrentTimestamp())
+		.Times(testing::Exactly(7));
+	EXPECT_CALL(*mockBeaconStrict, endSession(testing::_))
+		.Times(testing::Exactly(1));
+	EXPECT_CALL(*mockBeaconSender, finishSession(testing::_))
+		.Times(testing::Exactly(1));
+	EXPECT_CALL(*mockBeaconStrict, send(testing::_))
+		.Times(testing::Exactly(1));
 
-        session.sendBeacon(clientProvider);
-        // verify that the actions if the action is still active, it is not in the beacon cache (thus cache is empty)
-        assertThat(session.isEmpty(), is(true));
-    }
 
-    @Test
-    public void sendBeacon() {
-        // create test environment
-        final Beacon beacon = mock(Beacon.class);
-        final SessionImpl session = new SessionImpl(logger, beaconSender, beacon);
-        final HTTPClientProvider clientProvider = mock(HTTPClientProvider.class);
+    // create test environment
+	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(mockBeaconSender, mockBeaconStrict);
+	testSession->startSession();
 
-        session.sendBeacon(clientProvider);
+    // end the session containing open (=not left) actions
+	testSession->enterAction("Some action 1");
+	testSession->enterAction("Some action 2");
+	testSession->end();
 
-        // verify the proper methods being called
-        verify(beaconSender, times(1)).startSession(session);
-        verify(beacon, times(1)).send(clientProvider);
-    }
-*/
+	testSession->sendBeacon(mockHTTPClientProvider);
+    // verify that the actions if the action is still active, it is not in the beacon cache (thus cache is empty)
+	ASSERT_TRUE(testSession->isEmpty());
+}
+
+TEST_F(SessionTest, sendBeacon)
+{
+    // verify the proper methods being called
+	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
+		.Times(testing::Exactly(1));
+	EXPECT_CALL(*mockBeaconNice, send(testing::_))
+		.Times(testing::Exactly(1));
+
+	// create test environment
+	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(mockBeaconSender, mockBeaconNice);
+	testSession->startSession();
+
+	//when
+	testSession->sendBeacon(mockHTTPClientProvider);
+}
 
 TEST_F(SessionTest, clearCapturedData)
 {
+	//check that finishSession is called
+	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
+		.Times(testing::Exactly(1));
+
     // create test environment
 	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(mockBeaconSender, mockBeaconNice);
+	testSession->startSession();
 
     // end the session containing closed actions (moved to the beacon cache)
 	auto rootAction1 = testSession->enterAction("Some action 1");
@@ -459,8 +484,13 @@ TEST_F(SessionTest, clearCapturedData)
 
 TEST_F(SessionTest, aNewlyConstructedSessionIsNotEnded)
 {
+	//check that finishSession is called
+	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
+		.Times(testing::Exactly(1));
+
 	//given
 	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(mockBeaconSender, mockBeaconNice);
+	testSession->startSession();
 
 	//when, then
 	ASSERT_FALSE(testSession->isSessionEnded());
@@ -469,11 +499,14 @@ TEST_F(SessionTest, aNewlyConstructedSessionIsNotEnded)
 TEST_F(SessionTest, aSessionIsEndedIfEndIsCalled)
 {
 	//check that finishSession is called
+	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
+		.Times(testing::Exactly(1));
 	EXPECT_CALL(*mockBeaconSender, finishSession(testing::_))
 		.Times(testing::Exactly(1));
 
 	//given
 	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(mockBeaconSender, mockBeaconNice);
+	testSession->startSession();
 	testSession->end();
 
 	// then session is ended
@@ -483,11 +516,14 @@ TEST_F(SessionTest, aSessionIsEndedIfEndIsCalled)
 TEST_F(SessionTest, enterActionGivesNullRootActionIfSessionIsAlreadyEnded)
 {
 	//check that finishSession is called
+	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
+		.Times(testing::Exactly(1));
 	EXPECT_CALL(*mockBeaconSender, finishSession(testing::_))
 		.Times(testing::Exactly(1));
 
     // given
 	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(mockBeaconSender, mockBeaconNice);
+	testSession->startSession();
 	testSession->end();
 
     // when entering an action on already ended session
@@ -500,10 +536,13 @@ TEST_F(SessionTest, enterActionGivesNullRootActionIfSessionIsAlreadyEnded)
 
 TEST_F(SessionTest, identifyUserDoesNothingIfSessionIsEnded)
 {
+	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
+		.Times(testing::Exactly(1));
 	EXPECT_CALL(*mockBeaconSender, finishSession(testing::_))
 		.Times(testing::Exactly(1));
 	//given
 	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(mockBeaconSender, mockBeaconNice);
+	testSession->startSession();
 	testSession->end();
 
 	// when trying to identify a user on an ended session
@@ -515,11 +554,14 @@ TEST_F(SessionTest, identifyUserDoesNothingIfSessionIsEnded)
 
 TEST_F(SessionTest, reportCrashDoesNothingIfSessionIsEnded)
 {
+	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
+		.Times(testing::Exactly(1));
 	EXPECT_CALL(*mockBeaconSender, finishSession(testing::_))
 		.Times(testing::Exactly(1));
 
 	//given
 	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(mockBeaconSender, mockBeaconNice);
+	testSession->startSession();
 	testSession->end();
 
 	// when trying to identify a user on an ended session

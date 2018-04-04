@@ -41,11 +41,16 @@ namespace test {
 			return std::unique_ptr<protocol::TimeSyncResponse>(sendTimeSyncRequestRawPtrProxy());
 		}
 
+		virtual std::unique_ptr<protocol::StatusResponse> sendBeaconRequest(const core::UTF8String& clientIPAddress, const core::UTF8String& beaconData)
+		{
+			return std::unique_ptr<protocol::StatusResponse>(sendBeaconRequestRawPtrProxy(clientIPAddress, beaconData));
+		}
+
 		virtual ~MockHTTPClient() {};
 
 		MOCK_METHOD0(sendStatusRequestRawPtrProxy, protocol::StatusResponse*());
 
-		MOCK_METHOD2(sendBeaconRequest, std::unique_ptr<protocol::StatusResponse>(const core::UTF8String&, const core::UTF8String&));
+		MOCK_METHOD2(sendBeaconRequestRawPtrProxy, protocol::StatusResponse*(const core::UTF8String&, const core::UTF8String&));
 
 		MOCK_METHOD0(sendTimeSyncRequestRawPtrProxy, protocol::TimeSyncResponse*());
 	private:

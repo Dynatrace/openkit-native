@@ -33,11 +33,14 @@ Beacon::Beacon(std::shared_ptr<caching::BeaconCache> beaconCache, std::shared_pt
 	, mSessionStartTime(timingProvider->provideTimestampInMilliseconds())
 	, mBasicBeaconData()
 	, mBeaconCache(beaconCache)
+	, mHTTPClientConfiguration(configuration->getHTTPClientConfiguration())
 {
 	if (core::util::InetAddressValidator::IsValidIP(clientIPAddress))
 	{
 		mClientIPAddress = clientIPAddress;
 	}
+
+	mBasicBeaconData = createBasicBeaconData();
 }
 
 core::UTF8String Beacon::createBasicBeaconData()
@@ -93,6 +96,18 @@ core::UTF8String Beacon::createBasicEventData(protocol::EventType eventType, con
 	}
 	addKeyValuePair(eventData, BEACON_KEY_THREAD_ID, mThreadIDProvider->getThreadID());
 	return eventData;
+}
+
+core::UTF8String Beacon::createTimestampData()
+{
+	core::UTF8String timestampData;
+	addKeyValuePair(timestampData, BEACON_KEY_SESSION_START_TIME, mTimingProvider->convertToClusterTime(mSessionStartTime));
+	addKeyValuePair(timestampData, BEACON_KEY_TIMESYNC_TIME, mTimingProvider->convertToClusterTime(mSessionStartTime));
+	if (!mTimingProvider->isTimeSyncSupported())
+	{
+		addKeyValuePair(timestampData, BEACON_KEY_TRANSMISSION_TIME, mTimingProvider->provideTimestampInMilliseconds());
+	}
+	return timestampData;
 }
 
 void Beacon::appendKey(core::UTF8String& s, const core::UTF8String& key)
@@ -222,6 +237,44 @@ void Beacon::identifyUser(const core::UTF8String& userTag)
 	addKeyValuePair(eventData, BEACON_KEY_TIME_0, getTimeSinceSessionStartTime(timestamp));
 
 	addEventData(timestamp, eventData);
+}
+
+std::unique_ptr<protocol::StatusResponse> Beacon::send(std::shared_ptr<providers::IHTTPClientProvider> clientProvider)
+{
+	std::shared_ptr<protocol::IHTTPClient> httpClient = clientProvider->createClient(mHTTPClientConfiguration);
+
+	std::unique_ptr<protocol::StatusResponse> response = nullptr;
+
+	while (true)
+	{
+		// prefix for this chunk - must be built up newly, due to changing timestamps
+		core::UTF8String prefix = mBasicBeaconData;
+		prefix.concatenate(core::UTF8String(&BEACON_DATA_DELIMITER));
+		prefix.concatenate(createTimestampData());
+
+		core::UTF8String chunk = mBeaconCache->getNextBeaconChunk(mSessionNumber, prefix, mConfiguration->getMaxBeaconSize() - 1024, core::UTF8String(&BEACON_DATA_DELIMITER));
+		if (chunk == nullptr || chunk.empty())
+		{
+			return response;
+		}
+
+		// send the request
+		response = httpClient->sendBeaconRequest(mClientIPAddress, chunk);
+		if (response == nullptr)
+		{
+			// error happened - but don't know what exactly
+			// reset the previously retrieved chunk (restore it in internal cache) & retry another time
+			mBeaconCache->resetChunkedData(mSessionNumber);
+			break;
+		}
+		else
+		{
+			// worked -> remove previously retrieved chunk from cache
+			mBeaconCache->removeChunkedData(mSessionNumber);
+		}
+	}
+
+	return response;
 }
 
 void Beacon::addEventData(int64_t timestamp, const core::UTF8String& eventData)

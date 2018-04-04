@@ -138,3 +138,8 @@ void Session::clearCapturedData()
 {
 	mBeacon->clearData();
 }
+
+std::unique_ptr<protocol::StatusResponse> Session::sendBeacon(std::shared_ptr<providers::IHTTPClientProvider> clientProvider)
+{
+	return mBeacon->send(clientProvider);
+}

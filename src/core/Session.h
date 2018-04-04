@@ -29,6 +29,8 @@
 #include "UTF8String.h"
 #include "util/SynchronizedQueue.h"
 
+#include "providers/IHTTPClientProvider.h"
+
 #include <memory>
 #include <atomic>
 
@@ -109,6 +111,13 @@ namespace core
 		/// This is called, when capturing is turned off to avoid having too much data.
 		///
 		void clearCapturedData();
+
+		/// 
+		/// sends the current Beacon state
+		/// @param[in] clientProvider the IHTTPClientProvider to use for sending
+		/// @returns the status response returned for the Beacon data
+		///
+		std::unique_ptr<protocol::StatusResponse> sendBeacon(std::shared_ptr<providers::IHTTPClientProvider> clientProvider);
 
 	private:
 
