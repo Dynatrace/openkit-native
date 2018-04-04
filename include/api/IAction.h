@@ -39,6 +39,13 @@ namespace api
 		/// @returns the parent Action, or @c nullptr if there is no parent Action
 		///
 		virtual std::shared_ptr<IRootAction> leaveAction() = 0;
+
+		///
+		/// Returns true if this instance of IAction is an object using 
+		/// the NullObject pattern
+		/// @returns @c true if the current IAction is a NullObject, @c false in all other cases
+		///
+		virtual bool isNullObject() = 0;
 	};
 }
 

@@ -70,6 +70,8 @@ namespace core
 
 		virtual void end() override;
 
+		virtual bool isNullObject() override;
+
 		///
 		/// Returns the end time of the session
 		/// @returns the end time of the session

@@ -26,7 +26,7 @@
 #include "providers/DefaultSessionIDProvider.h"
 #include "providers/DefaultHTTPClientProvider.h"
 
-
+#include "api/IRootAction.h"
 #include "configuration/Configuration.h"
 
 #include "../protocol/MockHTTPClient.h"
@@ -100,37 +100,30 @@ TEST_F(SessionTest, constructorReturnsValidDefaults)
 	ASSERT_TRUE(testSession->isEmpty());
 }
 
-/*
-@Test
-    public void enterActionWithNullActionName() {
-        // create test environment
-        final SessionImpl session = new SessionImpl(logger, beaconSender, beacon);
+TEST_F(SessionTest, enterActionWithNullActionName)
+{
+	// create test environment
+	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(mockBeaconSender, mockBeaconNice);
 
-        // add/enter "null-action"
-        final RootAction rootAction = session.enterAction(null);
+    // add/enter "null-action"
+    std::shared_ptr<api::IRootAction> rootAction = testSession->enterAction(nullptr);
 
-        // we definitely got a NullRootAction instance
-            assertThat(rootAction, is(instanceOf(NullRootAction.class)));
+    // we definitely got a NullRootAction instance
+    ASSERT_TRUE(rootAction->isNullObject());
+}
 
-        // ensure that some log message has been written
-        verify(logger, times(1)).warning("Session.enterAction: actionName must not be null or empty");
-    }
+TEST_F(SessionTest, enterActionWithEmptyActionName)
+{
+	// create test environment
+	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(mockBeaconSender, mockBeaconNice);
 
-    @Test
-    public void enterActionWithEmptyActionName() {
-        // create test environment
-        final SessionImpl session = new SessionImpl(logger, beaconSender, beacon);
+	// add/enter "null-action"
+	std::shared_ptr<api::IRootAction> rootAction = testSession->enterAction("");
 
-        // add/enter "null-action"
-        final RootAction rootAction = session.enterAction("");
+	// we definitely got a NullRootAction instance
+	ASSERT_TRUE(rootAction->isNullObject());
+}
 
-        // we definitely got a NullRootAction instance
-        assertThat(rootAction, is(instanceOf(NullRootAction.class)));
-
-        // ensure that some log message has been written
-        verify(logger, times(1)).warning("Session.enterAction: actionName must not be null or empty");
-    }
-*/
 TEST_F(SessionTest, enterNotClosedAction)
 {
 	// create test environment
@@ -487,22 +480,23 @@ TEST_F(SessionTest, aSessionIsEndedIfEndIsCalled)
 	ASSERT_TRUE(testSession->isSessionEnded());
 }
 
-/*
-    @Test
-    public void enterActionGivesNullRootActionIfSessionIsAlreadyEnded() {
+TEST_F(SessionTest, enterActionGivesNullRootActionIfSessionIsAlreadyEnded)
+{
+	//check that finishSession is called
+	EXPECT_CALL(*mockBeaconSender, finishSession(testing::_))
+		.Times(testing::Exactly(1));
 
-        // given
-        SessionImpl session = new SessionImpl(logger, beaconSender, beacon);
-        session.end();
+    // given
+	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(mockBeaconSender, mockBeaconNice);
+	testSession->end();
 
-        // when entering an action on already ended session
-        RootAction obtained = session.enterAction("Test");
+    // when entering an action on already ended session
+    std::shared_ptr<api::IRootAction> obtained = testSession->enterAction("Test");
 
-        // then
-        assertThat(obtained, is(notNullValue()));
-        assertThat(obtained, is(instanceOf(NullRootAction.class)));
-    }
-*/
+    // then
+	ASSERT_TRUE(obtained != nullptr);
+	ASSERT_TRUE(obtained->isNullObject());
+}
 
 TEST_F(SessionTest, identifyUserDoesNothingIfSessionIsEnded)
 {

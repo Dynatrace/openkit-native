@@ -70,6 +70,11 @@ std::shared_ptr<api::IRootAction> Action::doLeaveAction()
 	return returnValue;
 }
 
+bool Action::isNullObject()
+{
+	return false;
+}
+
 int32_t Action::getID() const
 {
 	return mID;

@@ -70,6 +70,8 @@ namespace core
 
 		virtual std::shared_ptr<api::IRootAction> leaveAction() override;
 
+		virtual bool isNullObject() override;
+
 		///
 		/// Returns the action ID
 		/// @returns the action ID
@@ -111,6 +113,7 @@ namespace core
 		/// @returns the end sequence number of the action
 		///
 		int32_t getEndSequenceNo() const;
+
 	protected:
 		///
 		/// Return a flag if this action has been closed already

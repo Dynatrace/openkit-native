@@ -62,6 +62,8 @@ namespace core
 
 		virtual void leaveAction() override;
 
+		virtual bool isNullObject() override;
+
 		///
 		/// Method to be called by the child action upon the call of leaveAction
 		/// @param[in] childAction child Action that was closed
