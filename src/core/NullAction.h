@@ -27,7 +27,7 @@ namespace core
 	/// This class is returned as Action by @ref OpenKit#createSession(String) when the @ref OpenKit#shutdown()
 	/// has been called before.
 	///
-	class NullAction : public api::IAction
+	class NullAction : public api::IAction, public std::enable_shared_from_this<NullAction>
 	{
 	public:
 
@@ -38,6 +38,36 @@ namespace core
 		NullAction(std::shared_ptr<api::IRootAction> parent)
 			: mParentAction(parent)
 		{}
+
+		std::shared_ptr<IAction> reportEvent(const char* /*eventName*/) override
+		{
+			std::shared_ptr<api::IAction> pointer = shared_from_this();
+			return pointer;
+		}
+
+		std::shared_ptr<IAction> reportValue(const char* /*valueName*/, int32_t /*value*/) override
+		{
+			std::shared_ptr<api::IAction> pointer = shared_from_this();
+			return pointer;
+		}
+
+		std::shared_ptr<IAction> reportValue(const char* /*valueName*/, double /*value*/) override
+		{
+			std::shared_ptr<api::IAction> pointer = shared_from_this();
+			return pointer;
+		}
+
+		std::shared_ptr<IAction> reportValue(const char* /*valueName*/, const char* /*value*/) override
+		{
+			std::shared_ptr<api::IAction> pointer = shared_from_this();
+			return pointer;
+		}
+
+		std::shared_ptr<IAction> reportError(const char* /*errorName*/, int32_t /*errorCode*/, const char* /*reason*/) override
+		{
+			std::shared_ptr<api::IAction> pointer = shared_from_this();
+			return pointer;
+		}
 
 		virtual std::shared_ptr<api::IRootAction> leaveAction() override
 		{
