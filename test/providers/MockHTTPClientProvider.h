@@ -17,17 +17,12 @@
 #ifndef _TEST_PROVIDERS_MOCKHTTPCLIENTPROVIDER_H
 #define _TEST_PROVIDERS_MOCKHTTPCLIENTPROVIDER_H
 
-#include "configuration/HTTPClientConfiguration.h"
 #include "providers/IHTTPClientProvider.h"
-#include "protocol/IHTTPClient.h"
-
-#include <memory>
 
 namespace test {
 	class MockHTTPClientProvider : public providers::IHTTPClientProvider
 	{
 	public:
-
 		///
 		/// Default constructor
 		///
@@ -43,3 +38,4 @@ namespace test {
 }
 
 #endif
+

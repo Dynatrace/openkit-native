@@ -47,6 +47,12 @@ std::shared_ptr<api::IAction> RootAction::enterAction(const char* actionName)
 
 void RootAction::doLeaveAction()
 {
+	mEndTime = mBeacon->getCurrentTimestamp();
+	mEndSequenceNumber = mBeacon->createSequenceNumber();
+
+	// add Action to Beacon
+	mBeacon->addAction(shared_from_this());
+
 	while (!mOpenChildActions.isEmpty())
 	{
 		auto action = mOpenChildActions.get();
@@ -66,6 +72,11 @@ void RootAction::leaveAction()
 	}
 
 	doLeaveAction();
+}
+
+bool RootAction::isNullObject()
+{
+	return false;
 }
 
 void RootAction::childActionEnded(std::shared_ptr<Action> childAction)

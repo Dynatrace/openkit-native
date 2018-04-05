@@ -22,7 +22,7 @@
 
 using namespace protocol;
 
-Beacon::Beacon(std::shared_ptr<configuration::Configuration> configuration, const core::UTF8String clientIPAddress, std::shared_ptr<providers::IThreadIDProvider> threadIDProvider, std::shared_ptr<providers::ITimingProvider> timingProvider)
+Beacon::Beacon(std::shared_ptr<caching::BeaconCache> beaconCache, std::shared_ptr<configuration::Configuration> configuration, const core::UTF8String clientIPAddress, std::shared_ptr<providers::IThreadIDProvider> threadIDProvider, std::shared_ptr<providers::ITimingProvider> timingProvider)
 	: mConfiguration(configuration)
 	, mClientIPAddress(core::UTF8String(""))
 	, mTimingProvider(timingProvider)
@@ -32,13 +32,15 @@ Beacon::Beacon(std::shared_ptr<configuration::Configuration> configuration, cons
 	, mSessionNumber(configuration->createSessionNumber())
 	, mSessionStartTime(timingProvider->provideTimestampInMilliseconds())
 	, mBasicBeaconData()
-	, mActionDataList()
-	, mEventDataList()
+	, mBeaconCache(beaconCache)
+	, mHTTPClientConfiguration(configuration->getHTTPClientConfiguration())
 {
 	if (core::util::InetAddressValidator::IsValidIP(clientIPAddress))
 	{
 		mClientIPAddress = clientIPAddress;
 	}
+
+	mBasicBeaconData = createBasicBeaconData();
 }
 
 core::UTF8String Beacon::createBasicBeaconData()
@@ -94,6 +96,18 @@ core::UTF8String Beacon::createBasicEventData(protocol::EventType eventType, con
 	}
 	addKeyValuePair(eventData, BEACON_KEY_THREAD_ID, mThreadIDProvider->getThreadID());
 	return eventData;
+}
+
+core::UTF8String Beacon::createTimestampData()
+{
+	core::UTF8String timestampData;
+	addKeyValuePair(timestampData, BEACON_KEY_SESSION_START_TIME, mTimingProvider->convertToClusterTime(mSessionStartTime));
+	addKeyValuePair(timestampData, BEACON_KEY_TIMESYNC_TIME, mTimingProvider->convertToClusterTime(mSessionStartTime));
+	if (!mTimingProvider->isTimeSyncSupported())
+	{
+		addKeyValuePair(timestampData, BEACON_KEY_TRANSMISSION_TIME, mTimingProvider->provideTimestampInMilliseconds());
+	}
+	return timestampData;
 }
 
 void Beacon::appendKey(core::UTF8String& s, const core::UTF8String& key)
@@ -157,15 +171,28 @@ void Beacon::addAction(std::shared_ptr<core::Action> action)
 	addKeyValuePair(actionData, BEACON_KEY_END_SEQUENCE_NUMBER, action->getEndSequenceNo());
 	addKeyValuePair(actionData, BEACON_KEY_TIME_1, action->getEndTime() - action->getStartTime());
 	
-	storeAction(action->getStartTime(), actionData);
+	addActionData(action->getStartTime(), actionData);
 }
 
-void Beacon::storeAction(int64_t timestamp, const core::UTF8String& actionData)
+void Beacon::addAction(std::shared_ptr<core::RootAction> action)
+{
+	core::UTF8String actionData = createBasicEventData(EventType::ACTION, action->getName());
+
+	addKeyValuePair(actionData, BEACON_KEY_ACTION_ID, action->getID());
+	addKeyValuePair(actionData, BEACON_KEY_PARENT_ACTION_ID, 0);
+	addKeyValuePair(actionData, BEACON_KEY_START_SEQUENCE_NUMBER, action->getStartSequenceNo());
+	addKeyValuePair(actionData, BEACON_KEY_TIME_0, getTimeSinceSessionStartTime(action->getStartTime()));
+	addKeyValuePair(actionData, BEACON_KEY_END_SEQUENCE_NUMBER, action->getEndSequenceNo());
+	addKeyValuePair(actionData, BEACON_KEY_TIME_1, action->getEndTime() - action->getStartTime());
+
+	addActionData(action->getStartTime(), actionData);
+}
+
+void Beacon::addActionData(int64_t timestamp, const core::UTF8String& actionData)
 {
 	if (mConfiguration->isCapture())
 	{
-		//TODO: johannes.baeuerle save data in cache
-		mActionDataList.emplace(timestamp, actionData);
+		mBeaconCache->addActionData(mSessionNumber, timestamp, actionData);
 	}
 }
 
@@ -177,15 +204,84 @@ void Beacon::endSession(std::shared_ptr<core::Session> session)
 	addKeyValuePair(eventData, BEACON_KEY_START_SEQUENCE_NUMBER, createSequenceNumber());
 	addKeyValuePair(eventData, BEACON_KEY_TIME_0, getTimeSinceSessionStartTime(session->getEndTime()));
 
-	storeEvent(session->getEndTime(), eventData);
+	addEventData(session->getEndTime(), eventData);
 }
 
-void Beacon::storeEvent(int64_t timestamp, const core::UTF8String& eventData)
+void Beacon::reportCrash(const core::UTF8String& errorName, const core::UTF8String& reason, const core::UTF8String& stacktrace)
+{
+	if (!mConfiguration->isCaptureCrashes()) {
+		return;
+	}
+
+	core::UTF8String eventData = createBasicEventData(EventType::FAILURE_CRASH, errorName);
+
+	auto timestamp = mTimingProvider->provideTimestampInMilliseconds();
+
+	addKeyValuePair(eventData, BEACON_KEY_PARENT_ACTION_ID, 0);                                  // no parent action
+	addKeyValuePair(eventData, BEACON_KEY_START_SEQUENCE_NUMBER, createSequenceNumber());
+	addKeyValuePair(eventData, BEACON_KEY_TIME_0, getTimeSinceSessionStartTime(timestamp));
+	addKeyValuePair(eventData, BEACON_KEY_ERROR_REASON, reason);
+	addKeyValuePair(eventData, BEACON_KEY_ERROR_STACKTRACE, stacktrace);
+
+	addEventData(timestamp, eventData);
+}
+
+void Beacon::identifyUser(const core::UTF8String& userTag)
+{
+	core::UTF8String eventData = createBasicEventData(EventType::IDENTIFY_USER, userTag);
+
+	auto timestamp = mTimingProvider->provideTimestampInMilliseconds();
+
+	addKeyValuePair(eventData, BEACON_KEY_PARENT_ACTION_ID, 0);
+	addKeyValuePair(eventData, BEACON_KEY_START_SEQUENCE_NUMBER, createSequenceNumber());
+	addKeyValuePair(eventData, BEACON_KEY_TIME_0, getTimeSinceSessionStartTime(timestamp));
+
+	addEventData(timestamp, eventData);
+}
+
+std::unique_ptr<protocol::StatusResponse> Beacon::send(std::shared_ptr<providers::IHTTPClientProvider> clientProvider)
+{
+	std::shared_ptr<protocol::IHTTPClient> httpClient = clientProvider->createClient(mHTTPClientConfiguration);
+
+	std::unique_ptr<protocol::StatusResponse> response = nullptr;
+
+	while (true)
+	{
+		// prefix for this chunk - must be built up newly, due to changing timestamps
+		core::UTF8String prefix = mBasicBeaconData;
+		prefix.concatenate(core::UTF8String(&BEACON_DATA_DELIMITER));
+		prefix.concatenate(createTimestampData());
+
+		core::UTF8String chunk = mBeaconCache->getNextBeaconChunk(mSessionNumber, prefix, mConfiguration->getMaxBeaconSize() - 1024, core::UTF8String(&BEACON_DATA_DELIMITER));
+		if (chunk == nullptr || chunk.empty())
+		{
+			return response;
+		}
+
+		// send the request
+		response = httpClient->sendBeaconRequest(mClientIPAddress, chunk);
+		if (response == nullptr)
+		{
+			// error happened - but don't know what exactly
+			// reset the previously retrieved chunk (restore it in internal cache) & retry another time
+			mBeaconCache->resetChunkedData(mSessionNumber);
+			break;
+		}
+		else
+		{
+			// worked -> remove previously retrieved chunk from cache
+			mBeaconCache->removeChunkedData(mSessionNumber);
+		}
+	}
+
+	return response;
+}
+
+void Beacon::addEventData(int64_t timestamp, const core::UTF8String& eventData)
 {
 	if (mConfiguration->isCapture())
 	{
-		//TODO: johannes.baeuerle save data in cache
-		mEventDataList.emplace(timestamp, eventData);
+		mBeaconCache->addEventData(mSessionNumber, timestamp, eventData);
 	}
 }
 
@@ -201,4 +297,15 @@ core::UTF8String Beacon::trunctate(const core::UTF8String& string)
 int64_t Beacon::getTimeSinceSessionStartTime(int64_t timestamp)
 {
 	return timestamp - mSessionStartTime;
+}
+
+bool Beacon::isEmpty() const
+{
+	return mBeaconCache->isEmpty(mSessionNumber);
+}
+
+void Beacon::clearData()
+{
+	// remove all cached data for this Beacon from the cache
+	mBeaconCache->deleteCacheEntry(mSessionNumber);
 }

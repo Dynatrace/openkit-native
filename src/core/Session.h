@@ -24,9 +24,12 @@
 
 #include "api/ISession.h"
 #include "api/IRootAction.h"
+#include "NullRootAction.h"
 
 #include "UTF8String.h"
 #include "util/SynchronizedQueue.h"
+#include "providers/IHTTPClientProvider.h"
+
 #include "providers/IHTTPClientProvider.h"
 
 #include <memory>
@@ -61,23 +64,23 @@ namespace core
 		/// Destructor
 		///
 		virtual ~Session() {}
-		///
-		/// Enters an Action with a specified name in this Session.
-		/// @param[in] actionName name of the Action
-		/// @returns Action instance to work with
-		///
-		virtual std::shared_ptr<api::IRootAction> enterAction(const char* actionName);
 
-		///
-		///  Ends this Session and marks it as ready for immediate sending.
-		///
-		virtual void end();
+		virtual std::shared_ptr<api::IRootAction> enterAction(const char* actionName) override;
+
+		virtual void identifyUser(const char* userTag) override;
+
+		virtual void reportCrash(const char* errorName, const char* reason, const char* stacktrace) override;
+
+		virtual void end() override;
+
+		virtual bool isNullObject() override;
 
 		///
 		/// Returns the end time of the session
 		/// @returns the end time of the session
 		///
 		int64_t getEndTime() const;
+
 
 		///
 		/// Method to be called by the child action upon the call of leaveAction
@@ -90,15 +93,28 @@ namespace core
 		///
 		void startSession();
 
+		///
+		/// Sends the current Beacon state
+		/// @param[in] clientProvider the IHTTPClientProvider to use for sending
+		/// @returns the status response returned for the Beacon data
+		///
 		virtual std::unique_ptr<protocol::StatusResponse> sendBeacon(std::shared_ptr<providers::IHTTPClientProvider> clientProvider);
 
+		///
+		/// Test if this session is empty or not
+		///
+		/// A session is considered to be empty, if it does not contain any action or event data.
+		/// @returns @c true if the session is empty, @c false otherwise
+		///
 		virtual bool isEmpty() const;
 
+
+		///
+		/// Clears data that has been captured so far.
+		///
+		/// This is called, when capturing is turned off to avoid having too much data.
+		///
 		virtual void clearCapturedData();
-
-		virtual void setLastOpenSessionBeaconSendTime(int64_t timestamp);
-
-	private:
 
 		///
 		/// Return a flag if this session was ended already
@@ -119,6 +135,9 @@ namespace core
 
 		/// synchronized queue of root actions of this session
 		util::SynchronizedQueue<std::shared_ptr<api::IRootAction>> mOpenRootActions;
+
+		/// instance of NullRootAction
+		std::shared_ptr<NullRootAction> NULL_ROOT_ACTION;
 	};
 }
 

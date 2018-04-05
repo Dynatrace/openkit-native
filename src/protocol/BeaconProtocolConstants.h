@@ -19,6 +19,9 @@
 
 namespace protocol
 {
+	//delimiter
+	constexpr char BEACON_DATA_DELIMITER = '&';
+
 	// basic data constants
 	constexpr char BEACON_KEY_PROTOCOL_VERSION[] = "vv";
 	constexpr char BEACON_KEY_OPENKIT_VERSION[] = "va";
@@ -36,6 +39,11 @@ namespace protocol
 	constexpr char BEACON_KEY_DEVICE_MANUFACTURER[] = "mf";
 	constexpr char BEACON_KEY_DEVICE_MODEL[] = "md";
 
+	// timestamp constants
+	constexpr char BEACON_KEY_SESSION_START_TIME[] = "tv";
+	constexpr char BEACON_KEY_TIMESYNC_TIME[] = "ts";
+	constexpr char BEACON_KEY_TRANSMISSION_TIME[] = "tx";
+
 	//action related constants
 	constexpr char BEACON_KEY_EVENT_TYPE[] = "et";
 	constexpr char BEACON_KEY_NAME[] = "na";
@@ -46,6 +54,11 @@ namespace protocol
 	constexpr char BEACON_KEY_TIME_0[] = "t0";
 	constexpr char BEACON_KEY_END_SEQUENCE_NUMBER[] = "s1";
 	constexpr char BEACON_KEY_TIME_1[] = "t1";
+
+	// data, error & crash capture constants
+	constexpr char BEACON_KEY_ERROR_CODE[] = "ev";
+	constexpr char BEACON_KEY_ERROR_REASON[] = "rs";
+	constexpr char BEACON_KEY_ERROR_STACKTRACE[] = "st";
 }
 
 #endif

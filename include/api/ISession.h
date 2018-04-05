@@ -43,10 +43,32 @@ namespace api
 		virtual std::shared_ptr<IRootAction> enterAction(const char* actionName) = 0;
 
 		///
+		/// Tags a session with the provided userTag.
+		/// @param[in] userTag id of the user
+		///
+
+		virtual void identifyUser(const char* userTag) = 0;
+
+		///
+		/// Reports a crash with a specified error name, crash reason and a stacktrace.
+		/// @param[in] errorName  name of the error leading to the crash(e.g.Exception class)
+		/// @param[in] reason     reason or description of that error
+		/// @param[in] stacktrace stacktrace leading to that crash
+		///
+		virtual void reportCrash(const char* errorName, const char* reason, const char* stacktrace) = 0;
+
+		///
 		/// Ends this Session and marks it as ready for immediate sending.
 		/// @remarks All previously added action are implicitly closed
 		///
 		virtual void end() = 0;
+
+		///
+		/// Returns true if this instance of ISession is an object using 
+		/// the NullObject pattern
+		/// @returns @c true if the current ISesion is a NullObject, @c false in all other cases
+		///
+		virtual bool isNullObject() = 0;
 	};
 }
 #endif

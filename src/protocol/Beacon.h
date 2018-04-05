@@ -21,8 +21,11 @@
 #include "providers/ITimingProvider.h"
 #include "providers/IThreadIDProvider.h"
 #include "configuration/Configuration.h"
+#include "configuration/HTTPClientConfiguration.h"
 #include "core/Action.h"
+#include "core/RootAction.h"
 #include "core/Session.h"
+#include "caching/BeaconCache.h"
 #include "EventType.h"
 
 #include <memory>
@@ -38,11 +41,17 @@ namespace protocol
 	public:
 		///
 		/// Constructor for Beacon
+		/// @param[in] beaconCache Cache storing beacon related data.
 		/// @param[in] configuration Configuration object
 		/// @param[in] clientIPAddress IP Address of the client
 		/// @param[in] timingProvider timing provider used to retrieve timestamps
 		///
-		Beacon(std::shared_ptr<configuration::Configuration> configuration, const core::UTF8String clientIPAddress, std::shared_ptr<providers::IThreadIDProvider> threadIDProvider , std::shared_ptr<providers::ITimingProvider> timingProvider);
+		Beacon(std::shared_ptr<caching::BeaconCache> beaconCache, std::shared_ptr<configuration::Configuration> configuration, const core::UTF8String clientIPAddress, std::shared_ptr<providers::IThreadIDProvider> threadIDProvider , std::shared_ptr<providers::ITimingProvider> timingProvider);
+
+		///
+		/// Destructor 
+		///
+		virtual ~Beacon() {}
 
 		///
 		/// Create unique sequence number
@@ -56,7 +65,7 @@ namespace protocol
 		/// Get the current timestamp in milliseconds by delegating to TimingProvider
 		/// @returns Current timestamp in milliseconds
 		///
-		int64_t getCurrentTimestamp() const;
+		virtual int64_t getCurrentTimestamp() const;
 
 		///
 		/// Create a unique identifier.
@@ -74,10 +83,55 @@ namespace protocol
 		void addAction(std::shared_ptr<core::Action> action);
 
 		///
+		/// Add RootAction to Beacon
+		/// The serialized data is added to the Beacon
+		/// @param[in] action root action to add to the Beacon
+		///
+		void addAction(std::shared_ptr<core::RootAction> action);
+
+		///
 		/// Add Session to Beacon when session is ended.
 		/// @param[in] session ended session that is added to the Beacon
 		///
-		void endSession(std::shared_ptr<core::Session> session);
+		virtual void endSession(std::shared_ptr<core::Session> session);
+
+		///
+		/// Add crash to Beacon
+		/// The serialized data is added to {@ref BeaconCache}
+		/// @param[in] errorName Error's name.
+		/// @param[in] reason Reason for that error.
+		/// @param[in] stacktrace Crash stacktrace.
+		///
+		virtual void reportCrash(const core::UTF8String& errorName, const core::UTF8String& reason, const core::UTF8String& stacktrace);
+
+		///
+		/// Add user identification to Beacon.
+		/// The serialized data is added to {@ref BeaconCache}
+		/// @param[in] userTag User tag containing data to serialize.
+		///
+		virtual void identifyUser(const core::UTF8String& userTag);
+
+		/// 
+		/// Sends the current Beacon state
+		/// @param[in] clientProvider the IHTTPClientProvider to use for sending
+		/// @returns the status response returned for the Beacon data
+		///
+		virtual std::unique_ptr<protocol::StatusResponse> send(std::shared_ptr<providers::IHTTPClientProvider> clientProvider);
+
+		///
+		/// Tests if the Beacon is empty
+		/// 
+		/// A beacon is considered to be empty, if it does not contain any action or event data.
+		/// @returns @c true if the beacon is empty, @c false otherwise
+		///
+		bool isEmpty() const;
+
+		///
+		/// Clears all previously collected data for this Beacon.
+		///
+		/// This only affects the so far serialized data, which gets removed from the cache.
+		///
+		void clearData();
 	private:
 		///
 		/// Serialization helper method for creating basic beacon protocol data.
@@ -91,6 +145,11 @@ namespace protocol
 		///
 		core::UTF8String createBasicEventData(EventType eventType, const core::UTF8String& eventName);
 
+		///
+		/// Serialization helper method for creating basic timestamp data.
+		/// @return Serialized data
+		///
+		core::UTF8String createTimestampData();
 		///
 		/// Serialization helper method for appending a key.
 		/// @param[in] s reference to string containing serialized data
@@ -154,14 +213,14 @@ namespace protocol
 		/// @param[in] timestamp The timestamp when the action data occurred.
 		/// @param[in] actionData Contains the serialized action data.
 		///
-		void storeAction(int64_t timestamp, const core::UTF8String& actionData);
+		void addActionData(int64_t timestamp, const core::UTF8String& actionData);
 
 		///
 		/// Add previously serialized event data to the beacon list
 		/// @param[in] timestamp The timestamp when the event data occurred.
 		/// @param[in] actionData Contains the serialized event data.
 		///
-		void storeEvent(int64_t timestamp, const core::UTF8String& eventData);
+		void addEventData(int64_t timestamp, const core::UTF8String& eventData);
 
 	private:
 		/// configuration
@@ -191,11 +250,11 @@ namespace protocol
 		/// basic beacon data
 		core::UTF8String mBasicBeaconData;
 
-		/// container for action data
-		std::map<int64_t, core::UTF8String> mActionDataList;
+		///cache for beacons
+		std::shared_ptr<caching::BeaconCache> mBeaconCache;
 
-		/// container for event data
-		std::map<int64_t, core::UTF8String> mEventDataList;
+		/// HTTP client configuration
+		std::shared_ptr<configuration::HTTPClientConfiguration> mHTTPClientConfiguration;
 	};
 }
 #endif

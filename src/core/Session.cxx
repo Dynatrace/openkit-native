@@ -27,6 +27,7 @@ Session::Session(std::shared_ptr<BeaconSender> beaconSender, std::shared_ptr<pro
 	, mBeacon(beacon)
 	, mEndTime(-1)
 	, mOpenRootActions()
+	, NULL_ROOT_ACTION(std::make_shared<NullRootAction>())
 {
 
 }
@@ -38,14 +39,56 @@ void Session::startSession()
 
 std::shared_ptr<api::IRootAction> Session::enterAction(const char* actionName)
 {
+	UTF8String actionNameString(actionName);
+	if (actionNameString.empty())
+	{
+		//TODO: add logger
+		return NULL_ROOT_ACTION;
+	}
+
 	if (isSessionEnded())
 	{
-		return nullptr;//TODO johannes.baeuerle add NullRootAction
+		//TODO: add logger
+		return NULL_ROOT_ACTION;
 	}
-	std::shared_ptr<api::IRootAction> pointer = std::make_shared<RootAction>(mBeacon, UTF8String(actionName), shared_from_this());
+	std::shared_ptr<api::IRootAction> pointer = std::make_shared<RootAction>(mBeacon, actionNameString, shared_from_this());
 	mOpenRootActions.put(pointer);
 	return pointer;
 }
+
+void Session::identifyUser(const char* userTag)
+{
+	UTF8String userTagString(userTag);
+
+	if (userTag == nullptr || userTagString.empty())
+	{
+		//TODO: add logger
+		return;
+	}
+
+	if (!isSessionEnded())
+	{
+		mBeacon->identifyUser(userTagString);
+	}
+}
+
+void Session::reportCrash(const char* errorName, const char* reason, const char* stacktrace)
+{
+	UTF8String errorNameString(errorName);
+
+	if (errorName == nullptr || errorNameString.empty())
+	{
+		//TODO: add logger
+		return;
+	}
+
+
+	if (!isSessionEnded())
+	{
+		mBeacon->reportCrash(errorNameString, UTF8String(reason), UTF8String(stacktrace));
+	}
+}
+
 
 void Session::end()
 {
@@ -66,6 +109,11 @@ void Session::end()
 	mBeaconSender->finishSession(shared_from_this());
 }
 
+bool Session::isNullObject()
+{
+	return false;
+}
+
 bool Session::isSessionEnded() const
 {
 	return mEndTime != -1L;
@@ -83,22 +131,15 @@ void Session::rootActionEnded(std::shared_ptr<RootAction> rootAction)
 
 std::unique_ptr<protocol::StatusResponse> Session::sendBeacon(std::shared_ptr<providers::IHTTPClientProvider> clientProvider)
 {
-	// TODO: Proper implementation
-	return nullptr;
+	return mBeacon->send(clientProvider);
 }
 
 bool Session::isEmpty() const
 {
-	// TODO: Proper implementation
-	return true;
+	return mBeacon->isEmpty();
 }
 
 void Session::clearCapturedData()
 {
-	// TODO: Proper implementation
-}
-
-void Session::setLastOpenSessionBeaconSendTime(int64_t timestamp)
-{
-	// TODO: Proper implementation
+	mBeacon->clearData();
 }

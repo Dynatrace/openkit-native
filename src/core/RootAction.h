@@ -62,6 +62,8 @@ namespace core
 
 		virtual void leaveAction() override;
 
+		virtual bool isNullObject() override;
+
 		///
 		/// Method to be called by the child action upon the call of leaveAction
 		/// @param[in] childAction child Action that was closed
@@ -111,10 +113,6 @@ namespace core
 		///
 		bool isActionLeft() const;
 
-	protected:
-
-
-
 	private:
 
 		///
@@ -137,7 +135,7 @@ namespace core
 		int32_t mID;
 
 		/// action name
-		const core::UTF8String& mName;
+		const core::UTF8String mName;
 
 		/// action start time
 		int64_t mStartTime;

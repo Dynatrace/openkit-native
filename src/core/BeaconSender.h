@@ -45,6 +45,8 @@ namespace core
 			std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
 			std::shared_ptr<providers::ITimingProvider> timingProvider);
 
+		virtual ~BeaconSender() {}
+
 		///
 		/// Initialize this BeaconSender
 		/// @return @c true if initialization succeeded, @c false otherwise
@@ -67,16 +69,16 @@ namespace core
 		/// When starting a new Session, put it into open Sessions.
 		/// A session is only put into the open Sessions if capturing is enabled.
 		/// In case capturing is disabled, this method has no effect.
-		/// @param[in] session Session to finish
+		/// @param[in] session Session to start
 		///
-		void startSession(std::shared_ptr<Session> session);
+		virtual void startSession(std::shared_ptr<Session> session);
 
 		///
 		/// When finishing a Session, remove it from open Sessions and put it into finished Sessions.
-		/// As soon as a session gets finished it will transferred to the server.
+		/// As soon as a session gets finished it will be transferred to the server.
 		/// @param[in] session Session to finish
 		///
-		void finishSession(std::shared_ptr<Session> session);
+		virtual void finishSession(std::shared_ptr<Session> session);
 
 	private:
 
