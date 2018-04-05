@@ -23,6 +23,7 @@
 
 #include "MockBeaconSendingContext.h"
 #include "../protocol/MockHTTPClient.h"
+#include "../communication/CustomMatchers.h"
 
 class BeaconSendingTimeSyncTest : public testing::Test
 {
@@ -129,18 +130,17 @@ TEST_F(BeaconSendingTimeSyncTest, getShutdownStateGivesATerminalStateInstanceFor
 
 	//then
 	ASSERT_TRUE(obtained != nullptr);
-	ASSERT_EQ(obtained->getStateType(), communication::AbstractBeaconSendingState::StateType::BEACON_SENDING_TERMINAL_STATE);
+	ASSERT_THAT(obtained, IsABeaconSendingTerminalState());
 }
 
-//TODO: johannes.baeuerle wait for actual flushsessions state
-TEST_F(BeaconSendingTimeSyncTest, DISABLED_getShutdownStateGivesAFlushSessionsStateInstanceForInitialTimeSync)
+TEST_F(BeaconSendingTimeSyncTest, getShutdownStateGivesAFlushSessionsStateInstanceForInitialTimeSync)
 {
 	// when
-	std::shared_ptr<AbstractBeaconSendingState> obtained = target->getShutdownState();
+	std::shared_ptr<AbstractBeaconSendingState> obtained = targetNotInitial->getShutdownState();
 
 	//then
 	ASSERT_TRUE(obtained != nullptr);
-	ASSERT_EQ(obtained->getStateType(), communication::AbstractBeaconSendingState::StateType::BEACON_SENDING_FLUSH_SESSIONS_STATE);
+	ASSERT_THAT(obtained, IsABeaconSendingFlushSessionsState());
 }
 
 TEST_F(BeaconSendingTimeSyncTest, isTimeSyncRequiredReturnsFalseImmediatelyIfTimeSyncIsNotSupported)
@@ -204,8 +204,7 @@ TEST_F(BeaconSendingTimeSyncTest, isTimeSyncRequiredBoundaries)
 	 ASSERT_TRUE(underTest->isTimeSyncRequired(mockContext));
 }
 
-//TODO: johannes.baeuerle wait for actual captureon state
-TEST_F(BeaconSendingTimeSyncTest, DISABLED_timeSyncNotRequiredAndCaptureOnTruePerformsStateTransitionToCaptureOnState)
+TEST_F(BeaconSendingTimeSyncTest, timeSyncNotRequiredAndCaptureOnTruePerformsStateTransitionToCaptureOnState)
 {
 	// given
 	testing::NiceMock<test::MockBeaconSendingContext> mockContext;//NiceMock: ensure that required calls are there but do not object about other calls
@@ -215,13 +214,11 @@ TEST_F(BeaconSendingTimeSyncTest, DISABLED_timeSyncNotRequiredAndCaptureOnTruePe
 		.WillByDefault(testing::Return(true));
 
 	// then
-	EXPECT_CALL(mockContext, setNextState(testing::_))
+	EXPECT_CALL(mockContext, setNextState(IsABeaconSendingCaptureOnState()))
 		.Times(::testing::Exactly(1));
 
 	// when
 	target->execute(mockContext);
-
-	ASSERT_EQ(mockContext.getCurrentStateType(), AbstractBeaconSendingState::StateType::BEACON_SENDING_CAPTURE_ON_STATE);
 }
 
 TEST_F(BeaconSendingTimeSyncTest, timeSyncRequestsAreInterruptedAfterUnsuccessfulRetries)
@@ -620,8 +617,7 @@ TEST_F(BeaconSendingTimeSyncTest, timeProviderInitializeIsCalledIfItIsAnInitialT
 	target->execute(mockContext);
 }
 
-//TODO johannes.baeuerle - once BeaconSendingCaptureOffState is available this test can be enabled
-TEST_F(BeaconSendingTimeSyncTest, DISABLED_stateTransitionToCaptureOffIsPerformedIfTimeSyncIsSupportedButFailed)
+TEST_F(BeaconSendingTimeSyncTest, stateTransitionToCaptureOffIsPerformedIfTimeSyncIsSupportedButFailed)
 {
 	// given
 	testing::NiceMock<test::MockBeaconSendingContext> mockContext;//NiceMock: ensure that required calls are there but do not object about other calls
@@ -635,18 +631,14 @@ TEST_F(BeaconSendingTimeSyncTest, DISABLED_stateTransitionToCaptureOffIsPerforme
 		.WillByDefault(testing::Return(nullptr));
 
 	// then
-	EXPECT_CALL(mockContext, setNextState(testing::_))
+	EXPECT_CALL(mockContext, setNextState(IsABeaconSendingCaptureOffState()))
 		.Times(testing::Exactly(1));
 
 	// when
 	target->execute(mockContext);
-
-	//then
-	ASSERT_EQ(mockContext.getCurrentStateType(), communication::AbstractBeaconSendingState::StateType::BEACON_SENDING_CAPTURE_OFF_STATE);
 }
 
-//TODO johannes.baeuerle - once BeaconSendingCaptureOnState is available this test can be enabled
-TEST_F(BeaconSendingTimeSyncTest, DISABLED_stateTransitionIsPerformedToAppropriateStateIfTimeSyncIsSupportedAndCapturingIsEnabled)
+TEST_F(BeaconSendingTimeSyncTest, stateTransitionIsPerformedToAppropriateStateIfTimeSyncIsSupportedAndCapturingIsEnabled)
 {
 	// given
 	testing::NiceMock<test::MockBeaconSendingContext> mockContext;//NiceMock: ensure that required calls are there but do not object about other calls
@@ -660,6 +652,8 @@ TEST_F(BeaconSendingTimeSyncTest, DISABLED_stateTransitionIsPerformedToAppropria
 		.WillByDefault(testing::Return(mockHTTPClient));
 	ON_CALL(*mockHTTPClient, sendTimeSyncRequestRawPtrProxy())
 		.WillByDefault(testing::Return(nullptr));
+	ON_CALL(mockContext, isCaptureOn())
+		.WillByDefault(testing::Return(true));
 
 	std::vector<protocol::TimeSyncResponse*>& responses = reponsesForASuccessfullTimeSync;
 	ON_CALL(*mockHTTPClient, sendTimeSyncRequestRawPtrProxy())
@@ -695,17 +689,13 @@ TEST_F(BeaconSendingTimeSyncTest, DISABLED_stateTransitionIsPerformedToAppropria
 
 
 	// verify init was done
-	EXPECT_CALL(mockContext, setNextState(testing::_));
+	EXPECT_CALL(mockContext, setNextState(IsABeaconSendingCaptureOnState()));
 
 	// when
 	target->execute(mockContext);
-
-	//then
-	ASSERT_EQ(mockContext.getCurrentStateType(), communication::AbstractBeaconSendingState::StateType::BEACON_SENDING_CAPTURE_ON_STATE);
 }
 
-//TODO johannes.baeuerle - once BeaconSendingCaptureOffState is available this test can be enabled
-TEST_F(BeaconSendingTimeSyncTest, DISABLED_stateTransitionIsPerformedToAppropriateStateIfTimeSyncIsSupportedAndCapturingIsDisabled)
+TEST_F(BeaconSendingTimeSyncTest, stateTransitionIsPerformedToAppropriateStateIfTimeSyncIsSupportedAndCapturingIsDisabled)
 {
 	// given
 	testing::NiceMock<test::MockBeaconSendingContext> mockContext;//NiceMock: ensure that required calls are there but do not object about other calls
@@ -756,11 +746,8 @@ TEST_F(BeaconSendingTimeSyncTest, DISABLED_stateTransitionIsPerformedToAppropria
 
 
 	// verify init was done
-	EXPECT_CALL(mockContext, setNextState(testing::_));
+	EXPECT_CALL(mockContext, setNextState(IsABeaconSendingCaptureOffState()));
 
 	// when
 	target->execute(mockContext);
-
-	//then
-	ASSERT_EQ(mockContext.getCurrentStateType(), communication::AbstractBeaconSendingState::StateType::BEACON_SENDING_CAPTURE_OFF_STATE);
 }
