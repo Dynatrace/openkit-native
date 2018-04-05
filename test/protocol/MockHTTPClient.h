@@ -46,7 +46,7 @@ namespace test {
 			return std::unique_ptr<protocol::StatusResponse>(sendBeaconRequestRawPtrProxy(clientIPAddress, beaconData));
 		}
 
-		virtual ~MockHTTPClient() {};
+		virtual ~MockHTTPClient() {}
 
 		MOCK_METHOD0(sendStatusRequestRawPtrProxy, protocol::StatusResponse*());
 

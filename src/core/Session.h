@@ -28,6 +28,7 @@
 
 #include "UTF8String.h"
 #include "util/SynchronizedQueue.h"
+#include "providers/IHTTPClientProvider.h"
 
 #include "providers/IHTTPClientProvider.h"
 
@@ -80,13 +81,6 @@ namespace core
 		///
 		int64_t getEndTime() const;
 
-		///
-		/// Test if this session is empty or not
-		///
-		/// A session is considered to be empty, if it does not contain any action or event data.
-		/// @returns @c true if the session is empty, @c false otherwise
-
-		bool isEmpty() const;
 
 		///
 		/// Method to be called by the child action upon the call of leaveAction
@@ -99,25 +93,17 @@ namespace core
 		///
 		void startSession();
 
+		virtual std::unique_ptr<protocol::StatusResponse> sendBeacon(std::shared_ptr<providers::IHTTPClientProvider> clientProvider);
+
+		virtual bool isEmpty() const;
+
+		virtual void clearCapturedData();
+
 		///
 		/// Return a flag if this session was ended already
 		/// @returns @c true if session was already ended, @c false if session is still open
 		///
 		bool isSessionEnded() const;
-
-		///
-		/// Clears data that has been captured so far.
-		///
-		/// This is called, when capturing is turned off to avoid having too much data.
-		///
-		void clearCapturedData();
-
-		/// 
-		/// sends the current Beacon state
-		/// @param[in] clientProvider the IHTTPClientProvider to use for sending
-		/// @returns the status response returned for the Beacon data
-		///
-		std::unique_ptr<protocol::StatusResponse> sendBeacon(std::shared_ptr<providers::IHTTPClientProvider> clientProvider);
 
 	private:
 

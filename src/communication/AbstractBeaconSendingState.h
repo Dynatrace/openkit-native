@@ -59,7 +59,7 @@ namespace communication
 		/// In case shutdown was requested, a state transition is performed by this method to the @ref AbstractBeaconSendingState returned by @ref AbstractBeaconSendingState::getShutdownState().
 		/// @param[in] context the @ref BeaconSendingContext that takes care of state transitions
 		///
-		void execute(BeaconSendingContext& context);
+		virtual void execute(BeaconSendingContext& context);
 
 		///
 		/// Get an instance of the {@ref AbstractBeaconSendingState} to which a transition is made upon shutdown request.
@@ -71,7 +71,7 @@ namespace communication
 		/// Returns @c true if this state is a terminal state, @c false otherwise.
 		/// @returns @c true if this state is a terminal state, @c false otherwise.
 		///
-		bool isTerminalState() const;
+		virtual bool isTerminalState() const;
 
 		///
 		/// Returns the enum for the state

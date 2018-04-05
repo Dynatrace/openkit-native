@@ -23,11 +23,19 @@ namespace test {
 	class MockHTTPClientProvider : public providers::IHTTPClientProvider
 	{
 	public:
+		///
+		/// Default constructor
+		///
+		MockHTTPClientProvider()
+		{
+
+		}
+
+		virtual ~MockHTTPClientProvider() {}
 
 		MOCK_METHOD1(createClient, std::shared_ptr<protocol::IHTTPClient>(std::shared_ptr<configuration::HTTPClientConfiguration>));
-
 	};
 }
 
 #endif
-//virtual std::shared_ptr<protocol::IHTTPClient> createClient(std::shared_ptr<configuration::HTTPClientConfiguration> configuration) = 0;
+

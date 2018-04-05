@@ -14,8 +14,8 @@
 * limitations under the License.
 */
 
-#ifndef _TEST_PROVIDERS_TESTTIMINGPROVIDER_H
-#define _TEST_PROVIDERS_TESTTIMINGPROVIDER_H
+#ifndef _TEST_PROVIDERS_MOCKTIMINGPROVIDER_H
+#define _TEST_PROVIDERS_MOCKTIMINGPROVIDER_H
 
 #include "providers/ITimingProvider.h"
 

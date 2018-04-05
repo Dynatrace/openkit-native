@@ -124,22 +124,22 @@ int64_t Session::getEndTime() const
 	return mEndTime;
 }
 
-bool Session::isEmpty() const
-{
-	return mBeacon->isEmpty();
-}
-
 void Session::rootActionEnded(std::shared_ptr<RootAction> rootAction)
 {
 	mOpenRootActions.remove(rootAction);
 }
 
-void Session::clearCapturedData()
-{
-	mBeacon->clearData();
-}
-
 std::unique_ptr<protocol::StatusResponse> Session::sendBeacon(std::shared_ptr<providers::IHTTPClientProvider> clientProvider)
 {
 	return mBeacon->send(clientProvider);
+}
+
+bool Session::isEmpty() const
+{
+	return mBeacon->isEmpty();
+}
+
+void Session::clearCapturedData()
+{
+	mBeacon->clearData();
 }

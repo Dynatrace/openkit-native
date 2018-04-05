@@ -20,9 +20,12 @@
 #include "communication/BeaconSendingInitialState.h"
 
 #include "protocol/HTTPClient.h"
+#include "configuration/Configuration.h"
 #include "configuration/HTTPClientConfiguration.h"
 
 using namespace communication;
+
+const std::chrono::milliseconds BeaconSendingContext::DEFAULT_SLEEP_TIME_MILLISECONDS(std::chrono::seconds(1));
 
 BeaconSendingContext::BeaconSendingContext(std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
 										   std::shared_ptr<providers::ITimingProvider> timingProvider,
@@ -46,10 +49,7 @@ BeaconSendingContext::BeaconSendingContext(std::shared_ptr<providers::IHTTPClien
 
 void BeaconSendingContext::setNextState(std::shared_ptr<AbstractBeaconSendingState> nextState)
 {
-	if (nextState != nullptr)
-	{
-		mCurrentState = nextState;
-	}
+	mCurrentState = nextState;
 }
 
 bool BeaconSendingContext::isInTerminalState() const
@@ -59,10 +59,7 @@ bool BeaconSendingContext::isInTerminalState() const
 
 void BeaconSendingContext::executeCurrentState()
 {
-	if (mCurrentState != nullptr)
-	{
-		mCurrentState->execute(*this);
-	}
+	mCurrentState->execute(*this);
 }
 
 void BeaconSendingContext::requestShutdown()
@@ -80,45 +77,59 @@ const std::shared_ptr<configuration::Configuration> BeaconSendingContext::getCon
 	return mConfiguration;
 }
 
+std::shared_ptr<providers::IHTTPClientProvider> BeaconSendingContext::getHTTPClientProvider()
+{
+	return mHTTPClientProvider;
+}
+
 std::shared_ptr<protocol::IHTTPClient> BeaconSendingContext::getHTTPClient()
 {
-	if (mConfiguration != nullptr && mHTTPClientProvider != nullptr)
-	{
-		std::shared_ptr<configuration::HTTPClientConfiguration> httpClientConfig = mConfiguration->getHTTPClientConfiguration();
-		if (httpClientConfig != nullptr)
-		{
-			return mHTTPClientProvider->createClient(httpClientConfig);
-		}
-	}
-	return nullptr;
+	std::shared_ptr<configuration::HTTPClientConfiguration> httpClientConfig = mConfiguration->getHTTPClientConfiguration();
+	return mHTTPClientProvider->createClient(httpClientConfig);
+}
+
+int64_t BeaconSendingContext::getSendInterval() const
+{
+	return mConfiguration->getSendInterval();
 }
 
 void BeaconSendingContext::handleStatusResponse(std::unique_ptr<protocol::StatusResponse> response)
 {
-	if (mConfiguration != nullptr)
-	{
-		mConfiguration->updateSettings(std::move(response));
+	mConfiguration->updateSettings(std::move(response));
 
-		if (!isCaptureOn())
-		{
-			// capturing was turned off
-			clearAllSessionData();
-		}
+	if (!isCaptureOn())
+	{
+		// capturing was turned off
+		clearAllSessionData();
 	}
 }
 
 void BeaconSendingContext::clearAllSessionData()
 {
+	// clear captured data from finished sessions
+	auto finishedSessionsVec = mFinishedSessions.toStdVector();
+	for (auto it = finishedSessionsVec.begin(); it != finishedSessionsVec.end(); it++)
+	{
+		(*it)->clearCapturedData();
+	}
+	mFinishedSessions.clear();
 
+	// clear captured data from open sessions
+	auto openSessionsVec = mOpenSessions.toStdVector();
+	for (auto it = openSessionsVec.begin(); it != openSessionsVec.end(); it++)
+	{
+		(*it)->clearCapturedData();
+	}
 }
 
 bool BeaconSendingContext::isCaptureOn() const
 {
-	if (mConfiguration != nullptr)
-	{
-		return mConfiguration->isCapture();
-	}
-	return false;
+	return mConfiguration->isCapture();
+}
+
+std::shared_ptr<AbstractBeaconSendingState> BeaconSendingContext::getCurrentState() const
+{
+	return mCurrentState;
 }
 
 void BeaconSendingContext::setInitCompleted(bool success)
@@ -138,12 +149,14 @@ bool BeaconSendingContext::waitForInit()
 	return mInitSucceeded;
 }
 
+void BeaconSendingContext::sleep()
+{
+	mTimingProvider->sleep(DEFAULT_SLEEP_TIME_MILLISECONDS.count());
+}
+
 void BeaconSendingContext::sleep(int64_t ms)
 {
-	if (mTimingProvider != nullptr)
-	{
-		mTimingProvider->sleep(ms);
-	}
+	mTimingProvider->sleep(ms);
 }
 
 int64_t BeaconSendingContext::getLastStatusCheckTime() const
@@ -165,11 +178,7 @@ void BeaconSendingContext::disableCapture()
 
 int64_t BeaconSendingContext::getCurrentTimestamp() const
 {
-	if (mTimingProvider != nullptr)
-	{
-		return mTimingProvider->provideTimestampInMilliseconds();
-	}
-	return 0;
+	return mTimingProvider->provideTimestampInMilliseconds();
 }
 
 int64_t BeaconSendingContext::getLastOpenSessionBeaconSendTime() const
@@ -179,7 +188,7 @@ int64_t BeaconSendingContext::getLastOpenSessionBeaconSendTime() const
 
 void BeaconSendingContext::setLastOpenSessionBeaconSendTime(int64_t timestamp)
 {
-	mLastStatusCheckTime = timestamp;
+	mLastOpenSessionBeaconSendTime = timestamp;
 }
 
 AbstractBeaconSendingState::StateType BeaconSendingContext::getCurrentStateType() const
@@ -215,15 +224,17 @@ void BeaconSendingContext::setLastTimeSyncTime(int64_t lastTimeSyncTime)
 
 void BeaconSendingContext::initializeTimeSync(int64_t clusterTimeOffset, bool isTimeSyncSupported)
 {
-	if (mTimingProvider != nullptr)
-	{
-		mTimingProvider->initialize(clusterTimeOffset, isTimeSyncSupported);
-	}
+	mTimingProvider->initialize(clusterTimeOffset, isTimeSyncSupported);
 }
 
 void BeaconSendingContext::startSession(std::shared_ptr<core::Session> session)
 {
 	mOpenSessions.put(session);
+}
+
+void BeaconSendingContext::pushBackFinishedSession(std::shared_ptr<core::Session> session)
+{
+	mFinishedSessions.put(session);
 }
 
 void BeaconSendingContext::finishSession(std::shared_ptr<core::Session> session)
@@ -232,4 +243,21 @@ void BeaconSendingContext::finishSession(std::shared_ptr<core::Session> session)
 	{
 		mFinishedSessions.put(session);
 	}
+}
+
+std::shared_ptr<core::Session> BeaconSendingContext::getNextFinishedSession()
+{
+	return mFinishedSessions.get();
+}
+
+std::vector<std::shared_ptr<core::Session>> BeaconSendingContext::getAllOpenSessions()
+{
+	auto result = mOpenSessions.toStdVector();
+	return result;
+}
+
+std::vector<std::shared_ptr<core::Session>> BeaconSendingContext::getAllFinishedSessions()
+{
+	auto result = mFinishedSessions.toStdVector();
+	return result;
 }
