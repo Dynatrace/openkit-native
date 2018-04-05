@@ -35,7 +35,24 @@ BeaconSendingFlushSessionsState::BeaconSendingFlushSessionsState()
 
 void BeaconSendingFlushSessionsState::doExecute(BeaconSendingContext& context)
 {
-	// TODO
+	// end open sessions -> will be flushed afterwards
+	auto openSessions = context.getAllOpenSessions();
+	for (auto const& openSession : openSessions)
+	{
+		openSession->end();
+	}
+
+	// flush already finished (and previously ended) sessions
+	auto finishedSession = context.getNextFinishedSession();
+	while (finishedSession != nullptr)
+	{
+		finishedSession->sendBeacon(context.getHTTPClientProvider());
+		finishedSession->clearCapturedData();
+		finishedSession = context.getNextFinishedSession();
+	}
+
+	// make last state transition to terminal state
+	context.setNextState(std::shared_ptr<AbstractBeaconSendingState>(new BeaconSendingTerminalState()));
 }
 
 std::shared_ptr<AbstractBeaconSendingState> BeaconSendingFlushSessionsState::getShutdownState()
