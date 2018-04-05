@@ -76,7 +76,7 @@ MATCHER(IsABeaconSendingCaptureOffState, "")
 }
 
 /// Checks if the argument (of type @ref AbstractBeaconSendingState) is of StateType BEACON_SENDING_FLUSH_SESSIONS_STATE
-MATCHER(IsABeaconSenderFlushSessionsState, "")
+MATCHER(IsABeaconSendingFlushSessionsState, "")
 {
 	if (arg->getStateType() == communication::AbstractBeaconSendingState::StateType::BEACON_SENDING_FLUSH_SESSIONS_STATE)
 	{
@@ -88,7 +88,7 @@ MATCHER(IsABeaconSenderFlushSessionsState, "")
 }
 
 /// Checks if the argument (of type @ref AbstractBeaconSendingState) is of StateType BEACON_SENDING_TERMINAL_STATE
-MATCHER(IsABeaconSenderTerminalState, "")
+MATCHER(IsABeaconSendingTerminalState, "")
 {
 	if (arg->getStateType() == communication::AbstractBeaconSendingState::StateType::BEACON_SENDING_TERMINAL_STATE)
 	{

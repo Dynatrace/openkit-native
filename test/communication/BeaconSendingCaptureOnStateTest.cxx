@@ -116,7 +116,7 @@ TEST_F(BeaconSendingCaptureOnStateTest, aBeaconSendingCaptureOnStateHasTerminalS
 	auto terminalState = target->getShutdownState();
 
 	// verify that terminal state is BeaconSendingFlushSessions
-	ASSERT_THAT(terminalState, IsABeaconSenderFlushSessionsState());
+	ASSERT_THAT(terminalState, IsABeaconSendingFlushSessionsState());
 }
 
 TEST_F(BeaconSendingCaptureOnStateTest, aBeaconSendingCaptureOnStateTransitionsToTimeSyncStateWhenLastSyncTimeIsNegative)
