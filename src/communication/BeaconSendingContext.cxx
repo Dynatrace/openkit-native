@@ -252,7 +252,6 @@ std::shared_ptr<core::Session> BeaconSendingContext::getNextFinishedSession()
 
 std::vector<std::shared_ptr<core::Session>> BeaconSendingContext::getAllOpenSessions()
 {
-	// TODO: The "toStdVector" method is commented with "for test purposes". Can I still use it in production code?
 	auto result = mOpenSessions.toStdVector();
 	return result;
 }
