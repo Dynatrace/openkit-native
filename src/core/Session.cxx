@@ -40,7 +40,7 @@ void Session::startSession()
 std::shared_ptr<api::IRootAction> Session::enterAction(const char* actionName)
 {
 	UTF8String actionNameString(actionName);
-	if (actionName == nullptr || actionNameString.empty())
+	if (actionNameString.empty())
 	{
 		//TODO: add logger
 		return NULL_ROOT_ACTION;

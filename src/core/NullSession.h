@@ -21,7 +21,7 @@ namespace core
 {
 
 	///
-	/// This class is returned as Session by {@ref OpenKit#createSession(String)} when the {@link OpenKit#shutdown()}
+	/// This class is returned as Session by @ref OpenKit#createSession(String) when the @ref OpenKit#shutdown()
 	/// has been called before.
 	///
 	class NullSession : public api::ISession

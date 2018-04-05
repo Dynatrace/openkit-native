@@ -45,7 +45,7 @@ namespace test {
 			return protocol::Beacon::send(httpClientProvider);
 		}
 
-		virtual ~MockBeacon() {};
+		virtual ~MockBeacon() {}
 
 		MOCK_METHOD1(identifyUser, void(const core::UTF8String& userTag));
 		MOCK_METHOD3(reportCrash, void(const core::UTF8String&, const core::UTF8String&, const core::UTF8String&));

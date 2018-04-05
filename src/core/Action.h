@@ -70,7 +70,7 @@ namespace core
 
 		virtual std::shared_ptr<api::IRootAction> leaveAction() override;
 
-		virtual bool isNullObject() override;
+		virtual bool isNullObject() const override;
 
 		///
 		/// Returns the action ID

@@ -45,7 +45,7 @@ namespace api
 		/// the NullObject pattern
 		/// @returns @c true if the current IAction is a NullObject, @c false in all other cases
 		///
-		virtual bool isNullObject() = 0;
+		virtual bool isNullObject() const = 0;
 	};
 }
 

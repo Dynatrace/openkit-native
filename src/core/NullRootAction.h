@@ -26,7 +26,7 @@ namespace core
 {
 
 	///
-	/// This class is returned as RootAction by {@ref OpenKit#createSession(String)} when the {@link OpenKit#shutdown()}
+	/// This class is returned as RootAction by @ref OpenKit#createSession(String) when the @ref OpenKit#shutdown()
 	/// has been called before.
 	///
 	class NullRootAction  : public api::IRootAction, public std::enable_shared_from_this<core::NullRootAction>

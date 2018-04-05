@@ -41,7 +41,7 @@ namespace test {
 
 		}
 
-		virtual ~MockBeaconSender() {};
+		virtual ~MockBeaconSender() {}
 
 		MOCK_METHOD1(startSession, void(std::shared_ptr<core::Session>));
 		MOCK_METHOD1(finishSession, void(std::shared_ptr<core::Session>));

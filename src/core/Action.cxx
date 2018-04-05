@@ -70,7 +70,7 @@ std::shared_ptr<api::IRootAction> Action::doLeaveAction()
 	return returnValue;
 }
 
-bool Action::isNullObject()
+bool Action::isNullObject() const
 {
 	return false;
 }

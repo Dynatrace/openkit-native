@@ -24,15 +24,15 @@ namespace core
 {
 
 	///
-	/// This class is returned as Action by {@ref OpenKit#createSession(String)} when the {@link OpenKit#shutdown()}
+	/// This class is returned as Action by @ref OpenKit#createSession(String) when the @ref OpenKit#shutdown()
 	/// has been called before.
 	///
-	class NullAction : public api::IAction, public std::enable_shared_from_this<core::NullAction>
+	class NullAction : public api::IAction
 	{
 	public:
 
 		NullAction()
-			: mParentAction(nullptr)
+			: NullAction(nullptr)
 		{}
 
 		NullAction(std::shared_ptr<api::IRootAction> parent)
@@ -44,7 +44,7 @@ namespace core
 			return mParentAction;
 		}
 
-		virtual bool isNullObject() override
+		virtual bool isNullObject() const override
 		{
 			return  true;
 		}

@@ -334,7 +334,7 @@ TEST_F(SessionTest, reportMultipleCrashes)
 
     // report multiple crashes
 	testSession->reportCrash( "error name 1", "error reason 1", "the stacktrace causing the error 1");
-	testSession->reportCrash( "error name 1", "error reason 2", "the stacktrace causing the error 2");
+	testSession->reportCrash( "error name 2", "error reason 2", "the stacktrace causing the error 2");
 }
 
 TEST_F(SessionTest, reportSameCrash)
