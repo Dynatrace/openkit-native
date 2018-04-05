@@ -107,16 +107,18 @@ void BeaconSendingContext::handleStatusResponse(std::unique_ptr<protocol::Status
 void BeaconSendingContext::clearAllSessionData()
 {
 	// clear captured data from finished sessions
-	for (auto it = mFinishedSessions.begin(); it != mFinishedSessions.end(); it++)
+	auto finishedSessionsVec = mFinishedSessions.toStdVector();
+	for (auto it = finishedSessionsVec.begin(); it != finishedSessionsVec.end(); it++)
 	{
-		//(*it)->clearCapturedData();	// TODO: Enable once sessions are implemented
+		(*it)->clearCapturedData();
 	}
 	mFinishedSessions.clear();
 
 	// clear captured data from open sessions
-	for (auto it = mOpenSessions.begin(); it != mOpenSessions.end(); it++)
+	auto openSessionsVec = mOpenSessions.toStdVector();
+	for (auto it = openSessionsVec.begin(); it != openSessionsVec.end(); it++)
 	{
-		//(*it)->.clearCapturedData();	// TODO: Enable once sessions are implemented
+		(*it)->clearCapturedData();
 	}
 }
 
