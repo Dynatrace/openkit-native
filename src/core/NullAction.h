@@ -41,32 +41,27 @@ namespace core
 
 		std::shared_ptr<IAction> reportEvent(const char* /*eventName*/) override
 		{
-			std::shared_ptr<api::IAction> pointer = shared_from_this();
-			return pointer;
+			return shared_from_this();
 		}
 
 		std::shared_ptr<IAction> reportValue(const char* /*valueName*/, int32_t /*value*/) override
 		{
-			std::shared_ptr<api::IAction> pointer = shared_from_this();
-			return pointer;
+			return shared_from_this();
 		}
 
 		std::shared_ptr<IAction> reportValue(const char* /*valueName*/, double /*value*/) override
 		{
-			std::shared_ptr<api::IAction> pointer = shared_from_this();
-			return pointer;
+			return shared_from_this();
 		}
 
 		std::shared_ptr<IAction> reportValue(const char* /*valueName*/, const char* /*value*/) override
 		{
-			std::shared_ptr<api::IAction> pointer = shared_from_this();
-			return pointer;
+			return shared_from_this();
 		}
 
 		std::shared_ptr<IAction> reportError(const char* /*errorName*/, int32_t /*errorCode*/, const char* /*reason*/) override
 		{
-			std::shared_ptr<api::IAction> pointer = shared_from_this();
-			return pointer;
+			return shared_from_this();
 		}
 
 		virtual std::shared_ptr<api::IRootAction> leaveAction() override
