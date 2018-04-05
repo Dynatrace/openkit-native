@@ -169,7 +169,7 @@ void BeaconSendingTimeSyncState::handleErroneousTimeSyncRequest(BeaconSendingCon
 	if (context.isTimeSyncSupported())
 	{
 		// server supports time sync
-		//context.setNextState(new BeaconSendingCaptureOffState());//TODO johannes.baeuerle - once available make transition to capture off state
+		context.setNextState(std::shared_ptr<AbstractBeaconSendingState>(new BeaconSendingCaptureOffState()));
 	}
 	else
 	{
