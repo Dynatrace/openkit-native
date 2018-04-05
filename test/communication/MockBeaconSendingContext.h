@@ -46,7 +46,7 @@ namespace test
 		MockBeaconSendingContext()
 			: BeaconSendingContext(std::make_shared<providers::DefaultHTTPClientProvider>(),
 				std::make_shared<test::MockTimingProvider>(),
-				std::make_shared<configuration::Configuration>( std::shared_ptr<configuration::Device>(new configuration::Device("", "", "")),configuration::OpenKitType::DYNATRACE, core::UTF8String(""), core::UTF8String(""), core::UTF8String(""), 1,  core::UTF8String(""),
+				std::make_shared<configuration::Configuration>( std::shared_ptr<configuration::Device>(new configuration::Device("", "", "")), configuration::OpenKitType::DYNATRACE, core::UTF8String(""), core::UTF8String(""), core::UTF8String(""), 1,  core::UTF8String(""),
 																std::make_shared<providers::DefaultSessionIDProvider>(),
 																std::make_shared<protocol::SSLStrictTrustManager>()))
 		{
@@ -62,16 +62,21 @@ namespace test
 		MOCK_METHOD0(disableTimeSyncSupport, void());
 		MOCK_CONST_METHOD0(isTimeSynced, bool());
 		MOCK_METHOD1(setNextState, void(std::shared_ptr<AbstractBeaconSendingState> nextState));
+		MOCK_METHOD0(getHTTPClientProvider, std::shared_ptr<providers::IHTTPClientProvider>());
 		MOCK_METHOD0(getHTTPClient, std::shared_ptr<protocol::IHTTPClient>());
 		MOCK_CONST_METHOD0(getCurrentTimestamp, int64_t());
 		MOCK_METHOD0(sleep, void());
 		MOCK_METHOD1(sleep, void(int64_t));
 		MOCK_METHOD1(setLastOpenSessionBeaconSendTime, void(int64_t));
 		MOCK_METHOD1(setLastStatusCheckTime, void(int64_t));
+		MOCK_CONST_METHOD0(getSendInterval, int64_t());
+		MOCK_METHOD0(getNextFinishedSession, std::shared_ptr<core::Session>());
+		MOCK_METHOD0(getAllOpenSessions, std::vector<std::shared_ptr<core::Session>>());
 		MOCK_METHOD0(disableCapture, void());
 		MOCK_CONST_METHOD0(getLastTimeSyncTime, int64_t());
 		MOCK_METHOD1(setLastTimeSyncTime, void(int64_t));
-		
+		MOCK_METHOD1(pushBackFinishedSession, void(std::shared_ptr<core::Session>));
+
 		void RealSetNextState(std::shared_ptr<AbstractBeaconSendingState> nextState) 
 		{ 
 			return BeaconSendingContext::setNextState(nextState); 

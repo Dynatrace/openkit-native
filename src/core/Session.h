@@ -27,6 +27,7 @@
 
 #include "UTF8String.h"
 #include "util/SynchronizedQueue.h"
+#include "providers/IHTTPClientProvider.h"
 
 #include <memory>
 #include <atomic>
@@ -88,6 +89,14 @@ namespace core
 		/// Start a session
 		///
 		void startSession();
+
+		virtual std::unique_ptr<protocol::StatusResponse> sendBeacon(std::shared_ptr<providers::IHTTPClientProvider> clientProvider);
+
+		virtual bool isEmpty() const;
+
+		virtual void clearCapturedData();
+
+		virtual void setLastOpenSessionBeaconSendTime(int64_t timestamp);
 
 	private:
 

@@ -147,7 +147,7 @@ namespace communication
 		/// Gets the HTTP client provider.
 		/// @return a class responsible for retrieving an instance of @ref IHTTPClient.
 		///
-		std::shared_ptr<providers::IHTTPClientProvider> getHTTPClientProvider();
+		virtual std::shared_ptr<providers::IHTTPClientProvider> getHTTPClientProvider();
 
 		///
 		/// Returns the  HTTPClient created by the current BeaconSendingContext
@@ -201,7 +201,7 @@ namespace communication
 		/// Get the send interval for open sessions.
 		/// @return the send interval for open sessions
 		///
-		int64_t getSendInterval() const;
+		virtual int64_t getSendInterval() const;
 
 		///
 		/// Disable data capturing.
@@ -212,7 +212,7 @@ namespace communication
 		/// Handle the status response received from the server
 		/// Update the current configuration accordingly
 		///
-		virtual void handleStatusResponse(std::unique_ptr<protocol::StatusResponse> response);
+		void handleStatusResponse(std::unique_ptr<protocol::StatusResponse> response);
 
 		///
 		/// Clears all session data
@@ -226,14 +226,14 @@ namespace communication
 		/// If there are no finished sessions any more, this method returns a nullptr.
 		/// @return a finished session or @c nullptr if there is no finished session
 		///
-		std::shared_ptr<core::Session> getNextFinishedSession();
+		virtual std::shared_ptr<core::Session> getNextFinishedSession();
 
 		///
 		/// Gets all open sessions.
 		/// This returns a shallow copy of all open sessions.
 		/// @return a shallow copy of all open sessions.
 		///
-		std::vector<std::shared_ptr<core::Session>> getAllOpenSessions();
+		virtual std::vector<std::shared_ptr<core::Session>> getAllOpenSessions();
 
 		///
 		/// Gets all finished sessions.
@@ -255,7 +255,6 @@ namespace communication
 		///
 		virtual void setLastTimeSyncTime(int64_t lastTimeSyncTime);
 
-
 		///
 		/// Start a new session.
 		/// This add the @c session to the internal container of open sessions.
@@ -268,7 +267,7 @@ namespace communication
 		/// This method will not check for duplicate entries, so be careful what's pushed back.
 		/// @param[in] session The session to push back to the list of finished ones.
 		///
-		void pushBackFinishedSession(std::shared_ptr<core::Session> session);
+		virtual void pushBackFinishedSession(std::shared_ptr<core::Session> session);
 
 		///
 		/// Finish a session which has been started previously using startSession(SessionImpl)

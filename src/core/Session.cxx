@@ -80,3 +80,25 @@ void Session::rootActionEnded(std::shared_ptr<RootAction> rootAction)
 {
 	mOpenRootActions.remove(rootAction);
 }
+
+std::unique_ptr<protocol::StatusResponse> Session::sendBeacon(std::shared_ptr<providers::IHTTPClientProvider> clientProvider)
+{
+	// TODO: Proper implementation
+	return nullptr;
+}
+
+bool Session::isEmpty() const
+{
+	// TODO: Proper implementation
+	return true;
+}
+
+void Session::clearCapturedData()
+{
+	// TODO: Proper implementation
+}
+
+void Session::setLastOpenSessionBeaconSendTime(int64_t timestamp)
+{
+	// TODO: Proper implementation
+}

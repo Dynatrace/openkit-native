@@ -50,9 +50,12 @@ void BeaconSendingCaptureOnState::doExecute(BeaconSendingContext& context)
 	context.sleep();
 
 	statusResponse = nullptr;
-
+	
 	// send all finished sessions (this method may set this.statusResponse)
 	sendFinishedSessions(context);
+
+	// check if we need to send open sessions & do it if necessary (this method may set this.statusResponse)
+	sendOpenSessions(context);
 
 	// handle the last statusResponse received (or null if none was received) from the server
 	handleStatusResponse(context, std::move(statusResponse));
@@ -68,11 +71,11 @@ void BeaconSendingCaptureOnState::sendFinishedSessions(BeaconSendingContext& con
 	auto finishedSession = context.getNextFinishedSession();
 	while (finishedSession != nullptr)
 	{
-		//statusResponse = finishedSession->sendBeacon(context.getHTTPClientProvider()); // TODO: Enable once sendBeacon is implemented
+		statusResponse = std::move(finishedSession->sendBeacon(context.getHTTPClientProvider()));
 		if (statusResponse == nullptr)
 		{
 			// something went wrong,
-			//if (!finishedSession.isEmpty()) // TODO: Enable once sendBeacon is implemented
+			if (!finishedSession->isEmpty())
 			{
 				// well there is more data to send, and we could not do it (now)
 				// just push it back
@@ -82,7 +85,7 @@ void BeaconSendingCaptureOnState::sendFinishedSessions(BeaconSendingContext& con
 		}
 
 		// session was sent - so remove it from beacon cache
-		//finishedSession.clearCapturedData(); // TODO: Enable once sendBeacon is implemented
+		finishedSession->clearCapturedData();
 		finishedSession = context.getNextFinishedSession();
 	}
 }
@@ -96,9 +99,9 @@ void BeaconSendingCaptureOnState::sendOpenSessions(BeaconSendingContext& context
 	}
 
 	auto openSessions = context.getAllOpenSessions();
-	for (size_t i = 0; i < openSessions.size(); i++)
+	for (auto it = openSessions.begin(); it != openSessions.end(); it++)
 	{
-		//statusResponse = session.sendBeacon(context.getHTTPClientProvider()); // TODO: Enable once sendBeacon is implemented
+		statusResponse = std::move((*it)->sendBeacon(context.getHTTPClientProvider()));
 	}
 
 	context.setLastOpenSessionBeaconSendTime(currentTimestamp);
