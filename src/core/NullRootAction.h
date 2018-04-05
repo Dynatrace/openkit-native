@@ -37,6 +37,32 @@ namespace core
 		{
 			return std::shared_ptr<NullAction>(new NullAction(shared_from_this()));
 		}
+
+		virtual std::shared_ptr<IRootAction> reportEvent(const char* /*eventName*/) override
+		{
+			return shared_from_this();
+		}
+
+		virtual std::shared_ptr<IRootAction> reportValue(const char* /*valueName*/, int32_t /*value*/) override
+		{
+			return shared_from_this();
+		}
+
+		virtual std::shared_ptr<IRootAction> reportValue(const char* /*valueName*/, double /*value*/) override
+		{
+			return shared_from_this();
+		}
+
+		virtual std::shared_ptr<IRootAction> reportValue(const char* /*valueName*/, const char* /*value*/) override
+		{
+			return shared_from_this();
+		}
+
+		virtual std::shared_ptr<IRootAction> reportError(const char* /*errorName*/, int32_t /*errorCode*/, const char* /*reason*/)
+		{
+			return shared_from_this();
+		}
+
 		virtual void leaveAction() override
 		{
 			// intentionally left empty, due to NullObject pattern

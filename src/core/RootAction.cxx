@@ -30,6 +30,7 @@ RootAction::RootAction(std::shared_ptr<protocol::Beacon> beacon, const UTF8Strin
 	, mStartSequenceNumber(mBeacon->createSequenceNumber())
 	, mEndSequenceNumber(-1)
 	, mEndTime(-1)
+	, NULL_ACTION(std::make_shared<NullAction>())
 {
 
 }
@@ -42,7 +43,83 @@ std::shared_ptr<api::IAction> RootAction::enterAction(const char* actionName)
 		mOpenChildActions.put(std::static_pointer_cast<api::IAction>(childAction));
 		return childAction;
 	}
-	return nullptr;//TODO johannes.baeuerle: NullAction
+	return NULL_ACTION;
+}
+
+std::shared_ptr<api::IRootAction> RootAction::reportEvent(const char* eventName)
+{
+	UTF8String eventNameString(eventName);
+	if (eventNameString.empty())
+	{
+		return shared_from_this();
+	}
+
+	if (!isActionLeft())
+	{
+		mBeacon->reportEvent(shared_from_this(), eventNameString);
+	}
+	return shared_from_this();
+}
+
+std::shared_ptr<api::IRootAction> RootAction::reportValue(const char* valueName, int32_t value)
+{
+	UTF8String valueNameString(valueName);
+	if (valueNameString.empty())
+	{
+		return shared_from_this();
+	}
+
+	if (!isActionLeft())
+	{
+		mBeacon->reportValue(shared_from_this(), valueNameString, value);
+	}
+	return shared_from_this();
+}
+
+std::shared_ptr<api::IRootAction> RootAction::reportValue(const char* valueName, double value)
+{
+	UTF8String valueNameString(valueName);
+	if (valueNameString.empty())
+	{
+		return shared_from_this();
+	}
+
+	if (!isActionLeft())
+	{
+		mBeacon->reportValue(shared_from_this(), valueNameString, value);
+	}
+	return shared_from_this();
+}
+
+std::shared_ptr<api::IRootAction> RootAction::reportValue(const char* valueName, const char* value)
+{
+	UTF8String valueNameString(valueName);
+	if (valueNameString.empty())
+	{
+		return shared_from_this();
+	}
+
+	if (!isActionLeft())
+	{
+		mBeacon->reportValue(shared_from_this(), valueNameString, value);
+	}
+	return shared_from_this();
+}
+
+std::shared_ptr<api::IRootAction> RootAction::reportError(const char* errorName, int32_t errorCode, const char* reason)
+{
+	UTF8String errorNameString(errorName);
+	UTF8String reasonString(reason);
+	if (errorNameString.empty())
+	{
+		return shared_from_this();
+	}
+
+	if (!isActionLeft())
+	{
+		mBeacon->reportError(shared_from_this(), errorNameString, errorCode, reasonString);
+	}
+	return shared_from_this();
 }
 
 void RootAction::doLeaveAction()

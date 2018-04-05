@@ -151,6 +151,61 @@ namespace protocol
 		virtual void reportError(std::shared_ptr<core::Action> parentAction, const core::UTF8String& errorName, int32_t errorCode, const core::UTF8String& reason);
 
 		///
+		/// Add key-value-pair to Beacon.
+		///
+		/// The serialized data is added to @ref BeaconCache.
+		///
+		/// @param parentAction The {@link com.dynatrace.openkit.api.Action} on which this value was reported.
+		/// @param valueName Value's name.
+		/// @param value Actual value to report.
+		///
+		virtual void reportValue(std::shared_ptr<core::RootAction> parentAction, const core::UTF8String& valueName, int32_t value);
+
+		///
+		/// Add key-value-pair to Beacon.
+		///
+		/// The serialized data is added to @ref BeaconCache.
+		///
+		/// @param parentAction The {@link com.dynatrace.openkit.api.Action} on which this value was reported.
+		/// @param valueName Value's name.
+		/// @param value Actual value to report.
+		///
+		virtual void reportValue(std::shared_ptr<core::RootAction> parentAction, const core::UTF8String& valueName, double value);
+
+		///
+		/// Add key-value-pair to Beacon.
+		///
+		/// The serialized data is added to @ref BeaconCache.
+		///
+		/// @param parentAction The {@link com.dynatrace.openkit.api.Action} on which this value was reported.
+		/// @param valueName Value's name.
+		/// @param value Actual value to report.
+		///
+		virtual void reportValue(std::shared_ptr<core::RootAction> parentAction, const core::UTF8String& valueName, const core::UTF8String& value);
+
+		///
+		/// Add event (aka. named event) to Beacon.
+		///
+		/// The serialized data is added to @ref BeaconCache.
+		///
+		/// @param parentAction The @ref Action on which this event was reported.
+		/// @param eventName Event's name.
+		///
+		virtual void reportEvent(std::shared_ptr<core::RootAction> parentAction, core::UTF8String eventName);
+
+		///
+		/// Add error to Beacon.
+		///
+		/// The serialized data is added to @ref BeaconCache.
+		///
+		/// @param parentAction The @ref Action on which this error was reported.
+		/// @param errorName Error's name.
+		/// @param errorCode Some error code.
+		/// @param reason Reason for that error.
+		///
+		virtual void reportError(std::shared_ptr<core::RootAction> parentAction, const core::UTF8String& errorName, int32_t errorCode, const core::UTF8String& reason);
+
+		///
 		/// Add crash to Beacon
 		/// The serialized data is added to {@ref BeaconCache}
 		/// @param[in] errorName Error's name.
@@ -210,11 +265,11 @@ namespace protocol
 		/// Serialization helper for event data.
 		/// @param[in] name The event's type.
 		/// @param[in] name Event name
-		/// @param[in] parentAction The action on which this event was reported.
+		/// @param[in] parentActionID The ID of the action on which this event was reported.
 		/// @param[inout] eventTimestamp uint64_t var that will be filled with the event timestamp
 		/// @return The timestamp associated with the event(timestamp since session start time).
 		///
-		core::UTF8String buildEvent(EventType eventType, const core::UTF8String& name, std::shared_ptr<core::Action> parentAction, uint64_t& eventTimestamp);
+		core::UTF8String buildEvent(EventType eventType, const core::UTF8String& name, int32_t parentActionID, uint64_t& eventTimestamp);
 
 		///
 		/// Serialization helper method for appending a key.
