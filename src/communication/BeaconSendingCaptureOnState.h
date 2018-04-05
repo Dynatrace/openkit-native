@@ -18,7 +18,9 @@
 #define _COMMUNICATION_BEACONSENDINGCAPTUREONSTATE_H
 
 #include "communication/AbstractBeaconSendingState.h"
+#include "protocol/StatusResponse.h"
 
+#include <memory>
 #include <vector>
 #include <chrono>
 
@@ -50,7 +52,23 @@ namespace communication
 		virtual std::shared_ptr<AbstractBeaconSendingState> getShutdownState() override;
 
 	private:
+		///
+		/// Send all sessions which have been finished previously.
+		/// param[in] context the state context
+		///
+		void sendFinishedSessions(BeaconSendingContext& context);
 
+		///
+		/// Check if the send interval (configured by server) has expired and start to send open sessions if it has expired.
+		/// param[in] context the state context
+		///
+		void sendOpenSessions(BeaconSendingContext& context);
+
+		/// Handle the status response received from the server and transistion the states accordingly
+		static void handleStatusResponse(BeaconSendingContext& context, std::unique_ptr<protocol::StatusResponse> statusResponse);
+	private:
+		/// store last received status response
+		std::unique_ptr<protocol::StatusResponse> statusResponse;
 	};
 }
 #endif

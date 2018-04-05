@@ -26,9 +26,9 @@
 #include "communication/AbstractBeaconSendingState.h"
 #include "core/Session.h"
 
-
 #include <atomic>
 #include <memory>
+#include <chrono>
 
 namespace communication
 {
@@ -72,6 +72,12 @@ namespace communication
 		///
 		bool waitForInit();
 
+		///
+		/// Wait until OpenKit has been fully initialized or timeout expired.
+		/// If initialization is interrupted (e.g. @ref requestShutdown() was called), then this method also returns.
+		/// @param[in] timeoutMillis The maximum number of milliseconds to wait for initialization being completed.
+		/// @return @c true if OpenKit is fully initialized, @c false if OpenKit init got interrupted or time to wait expired
+		///
 		// TODO: bool waitForInit(int64_t timeoutMillis);
 
 		///
@@ -123,7 +129,11 @@ namespace communication
 		///
 		virtual bool isTimeSynced() const;
 
-		// TODO: std::shared_ptr<AbstractBeaconSendingState> getCurrentState();
+		///
+		/// Gets the current state.
+		/// @returns the current state
+		///
+		std::shared_ptr<AbstractBeaconSendingState> getCurrentState() const;
 
 		///
 		/// Register a state following the current state once the current state finished
@@ -133,7 +143,11 @@ namespace communication
 
 		// TODO: void initCompleted(bool success);
 
-		// TODO: std::shared_ptr<providers::HTTPClientProvider> getHTTPClientProvider();
+		///
+		/// Gets the HTTP client provider.
+		/// @return a class responsible for retrieving an instance of @ref IHTTPClient.
+		///
+		virtual std::shared_ptr<providers::IHTTPClientProvider> getHTTPClientProvider();
 
 		///
 		/// Returns the  HTTPClient created by the current BeaconSendingContext
@@ -147,7 +161,11 @@ namespace communication
 		///
 		virtual int64_t getCurrentTimestamp() const;
 
-		// TODO: void sleep();
+		///
+		/// Sleep some time (@ref DEFAULT_SLEEP_TIME_MILLISECONDS}
+		/// @param[in] ms number of milliseconds
+		///
+		virtual void sleep();
 
 		///
 		/// Sleep for a given amount of time
@@ -179,7 +197,11 @@ namespace communication
 		///
 		virtual void setLastStatusCheckTime(int64_t lastStatusCheckTime);
 
-		// TODO: int32_t getSendInterval();
+		///
+		/// Get the send interval for open sessions.
+		/// @return the send interval for open sessions
+		///
+		virtual int64_t getSendInterval() const;
 
 		///
 		/// Disable data capturing.
@@ -190,18 +212,36 @@ namespace communication
 		/// Handle the status response received from the server
 		/// Update the current configuration accordingly
 		///
-		virtual void handleStatusResponse(std::unique_ptr<protocol::StatusResponse> response);
+		void handleStatusResponse(std::unique_ptr<protocol::StatusResponse> response);
 
 		///
 		/// Clears all session data
 		///
 		void clearAllSessionData();
 
-		// TODO: std::shared_ptr<core::Session> getNextFinishedSession();
+		///
+		/// Gets the next finished session from the list of all finished sessions.
+		///
+		/// This call also removes the session from the underlying data structure.
+		/// If there are no finished sessions any more, this method returns a nullptr.
+		/// @return a finished session or @c nullptr if there is no finished session
+		///
+		virtual std::shared_ptr<core::Session> getNextFinishedSession();
 
-		// TODO: std::vector<std::shared_ptr<core::Session>> getAllOpenSessions();
+		///
+		/// Gets all open sessions.
+		/// This returns a shallow copy of all open sessions.
+		/// @return a shallow copy of all open sessions.
+		///
+		virtual std::vector<std::shared_ptr<core::Session>> getAllOpenSessions();
 
-		// TODO: std::vector<std::shared_ptr<core::Session>> getAllFinishedSessions();
+		///
+		/// Gets all finished sessions.
+		/// This returns a shallow copy of all finished sessions and is intended only
+		/// for testing purposes.
+		/// @return a shallow copy of all finished sessions.
+		///
+		std::vector<std::shared_ptr<core::Session>> getAllFinishedSessions();
 
 		///
 		/// Returns the timestamp when time sync was executed last time.
@@ -215,7 +255,6 @@ namespace communication
 		///
 		virtual void setLastTimeSyncTime(int64_t lastTimeSyncTime);
 
-
 		///
 		/// Start a new session.
 		/// This add the @c session to the internal container of open sessions.
@@ -223,7 +262,12 @@ namespace communication
 		///
 		void startSession(std::shared_ptr<core::Session> session);
 
-		// TODO: void pushBackFinishedSession(std::shared_ptr<core::Session> session);
+		///
+		/// Push back a finished session, that was previously retrieved via @ref getNextFinishedSession().
+		/// This method will not check for duplicate entries, so be careful what's pushed back.
+		/// @param[in] session The session to push back to the list of finished ones.
+		///
+		virtual void pushBackFinishedSession(std::shared_ptr<core::Session> session);
 
 		///
 		/// Finish a session which has been started previously using startSession(SessionImpl)
@@ -244,6 +288,11 @@ namespace communication
 		/// @returns type of state as defined in AbstractBeaconSendingState
 		///
 		AbstractBeaconSendingState::StateType getCurrentStateType() const;
+
+		///
+		/// Default sleep time in milliseconds (used by @ref sleep()).
+		///
+		static const std::chrono::milliseconds DEFAULT_SLEEP_TIME_MILLISECONDS;
 
 	private:
 		/// instance of AbstractBeaconSendingState with the current state

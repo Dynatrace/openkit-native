@@ -119,15 +119,16 @@ namespace core
 			}
 
 			///
-			/// Returns a shallow copy of the list elements for test purposes
+			/// Returns a shallow copy of the list elements.
 			/// @returns a std::vector created from the list
 			///
 			std::vector<T> toStdVector()
 			{
+				std::lock_guard<std::mutex> lock(mMutex);
 				return std::vector<T>(mList.begin(), mList.end());
 			}
-		private:
 
+		private:
 			typedef typename std::list<T>::iterator queue_iterator;
 
 			///

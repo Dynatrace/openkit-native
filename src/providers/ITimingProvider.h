@@ -28,7 +28,7 @@ namespace providers
 	{
 	public:
 
-		virtual ~ITimingProvider() {};
+		virtual ~ITimingProvider() {}
 		///
 		/// Provide the current timestamp in milliseconds.
 		/// @returns the current timestamp

@@ -161,6 +161,11 @@ int64_t Configuration::getSendInterval() const
 	return mSendInterval;
 }
 
+void Configuration::setSendInterval(int64_t sendInterval)
+{
+	mSendInterval = sendInterval;
+}
+
 int32_t Configuration::getMaxBeaconSize() const
 {
 	return mMaxBeaconSize;
@@ -180,3 +185,4 @@ std::shared_ptr<configuration::Device> Configuration::getDevice() const
 {
 	return mDevice;
 }
+

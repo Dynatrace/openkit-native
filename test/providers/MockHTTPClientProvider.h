@@ -14,31 +14,31 @@
 * limitations under the License.
 */
 
-#ifndef _TEST_PROVIDERS_MOCKTIMINGPROVIDER_H
-#define _TEST_PROVIDERS_MOCKTIMINGPROVIDER_H
+#ifndef _TEST_PROVIDERS_MOCKHTTPCLIENTPROVIDER_H
+#define _TEST_PROVIDERS_MOCKHTTPCLIENTPROVIDER_H
 
-#include "providers/ITimingProvider.h"
+#include "configuration/HTTPClientConfiguration.h"
+#include "providers/IHTTPClientProvider.h"
+#include "protocol/IHTTPClient.h"
+
+#include <memory>
 
 namespace test {
-	class MockTimingProvider : public providers::ITimingProvider
+	class MockHTTPClientProvider : public providers::IHTTPClientProvider
 	{
 	public:
 
 		///
 		/// Default constructor
 		///
-		MockTimingProvider()
+		MockHTTPClientProvider()
 		{
 
 		}
 
-		virtual ~MockTimingProvider() {}
+		virtual ~MockHTTPClientProvider() {}
 
-		MOCK_METHOD0(provideTimestampInMilliseconds, int64_t());
-		MOCK_METHOD1(sleep, void(int64_t));
-		MOCK_METHOD2(initialize, void(int64_t, bool));
-		MOCK_METHOD0(isTimeSyncSupported, bool());
-		MOCK_METHOD1(convertToClusterTime, int64_t(int64_t));
+		MOCK_METHOD1(createClient, std::shared_ptr<protocol::IHTTPClient>(std::shared_ptr<configuration::HTTPClientConfiguration>));
 	};
 }
 
