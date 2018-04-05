@@ -93,10 +93,27 @@ namespace core
 		///
 		void startSession();
 
+		///
+		/// Sends the current Beacon state
+		/// @param[in] clientProvider the IHTTPClientProvider to use for sending
+		/// @returns the status response returned for the Beacon data
+		///
 		virtual std::unique_ptr<protocol::StatusResponse> sendBeacon(std::shared_ptr<providers::IHTTPClientProvider> clientProvider);
 
+		///
+		/// Test if this session is empty or not
+		///
+		/// A session is considered to be empty, if it does not contain any action or event data.
+		/// @returns @c true if the session is empty, @c false otherwise
+		///
 		virtual bool isEmpty() const;
 
+
+		///
+		/// Clears data that has been captured so far.
+		///
+		/// This is called, when capturing is turned off to avoid having too much data.
+		///
 		virtual void clearCapturedData();
 
 		///
