@@ -133,7 +133,7 @@ TEST_F(BeaconSendingTimeSyncTest, getShutdownStateGivesATerminalStateInstanceFor
 	ASSERT_THAT(obtained, IsABeaconSendingTerminalState());
 }
 
-TEST_F(BeaconSendingTimeSyncTest, getShutdownStateGivesAFlushSessionsStateInstanceForInitialTimeSync)
+TEST_F(BeaconSendingTimeSyncTest, getShutdownStateGivesAFlushSessionsStateInstanceForNotInitialTimeSync)
 {
 	// when
 	std::shared_ptr<AbstractBeaconSendingState> obtained = targetNotInitial->getShutdownState();
