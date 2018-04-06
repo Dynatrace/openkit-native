@@ -87,7 +87,7 @@ private:
 	TestDefaultTimingProvider mProvider;
 };
 
-TEST_F(DefaultTimingProviderTest, TimeSyncIsSupportedByDefault)
+TEST_F(DefaultTimingProviderTest, timeSyncIsSupportedByDefault)
 {
 	// given
 	auto provider = getProvider();
@@ -97,7 +97,7 @@ TEST_F(DefaultTimingProviderTest, TimeSyncIsSupportedByDefault)
 }
 
 
-TEST_F(DefaultTimingProviderTest, TimeSyncIsSupportedIfInitCalledWithTrue)
+TEST_F(DefaultTimingProviderTest, timeSyncIsSupportedIfInitCalledWithTrue)
 {
 	//given
 	auto provider = getProvider();
@@ -109,7 +109,7 @@ TEST_F(DefaultTimingProviderTest, TimeSyncIsSupportedIfInitCalledWithTrue)
 	EXPECT_TRUE(provider->isTimeSyncSupported());
 }
 
-TEST_F(DefaultTimingProviderTest, TimeSyncIsNotSupportedIfInitCalledWithFalse)
+TEST_F(DefaultTimingProviderTest, timeSyncIsNotSupportedIfInitCalledWithFalse)
 {
 	//given
 	auto provider = getProvider();
@@ -121,7 +121,7 @@ TEST_F(DefaultTimingProviderTest, TimeSyncIsNotSupportedIfInitCalledWithFalse)
 	EXPECT_FALSE(provider->isTimeSyncSupported());
 }
 
-TEST_F(DefaultTimingProviderTest, ATimingProviderCanConvertToClusterTime)
+TEST_F(DefaultTimingProviderTest, aTimingProviderCanConvertToClusterTime)
 {
 	//given
 	auto provider = getProvider();
