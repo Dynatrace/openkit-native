@@ -20,7 +20,7 @@
 #include "communication/BeaconSendingCaptureOffState.h"
 #include "communication/AbstractBeaconSendingState.h"
 
-#include "MockBeaconSendingContext.h"
+#include "../communication/MockBeaconSendingContext.h"
 #include "../protocol/MockHTTPClient.h"
 #include "../protocol/MockStatusResponse.h"
 #include "../communication/CustomMatchers.h"

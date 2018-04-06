@@ -35,7 +35,7 @@ public:
 	}
 };
 
-TEST_F(TimeSyncResponseTest, RequestReceiveTimeDefault)
+TEST_F(TimeSyncResponseTest, requestReceiveTimeDefault)
 {
 	UTF8String s("");
 	uint32_t responseCode = 200;
@@ -44,7 +44,7 @@ TEST_F(TimeSyncResponseTest, RequestReceiveTimeDefault)
 	EXPECT_EQ(-1, timeSyncResponse.getRequestReceiveTime());
 }
 
-TEST_F(TimeSyncResponseTest, RequestReceiveTimeZero)
+TEST_F(TimeSyncResponseTest, requestReceiveTimeZero)
 {
 	UTF8String s("t1=0");
 	uint32_t responseCode = 200;
@@ -53,7 +53,7 @@ TEST_F(TimeSyncResponseTest, RequestReceiveTimeZero)
 	EXPECT_EQ(0, timeSyncResponse.getRequestReceiveTime());
 }
 
-TEST_F(TimeSyncResponseTest, RequestReceiveTimeOne)
+TEST_F(TimeSyncResponseTest, requestReceiveTimeOne)
 {
 	UTF8String s("t1=1");
 	uint32_t responseCode = 200;
@@ -62,7 +62,7 @@ TEST_F(TimeSyncResponseTest, RequestReceiveTimeOne)
 	EXPECT_EQ(1, timeSyncResponse.getRequestReceiveTime());
 }
 
-TEST_F(TimeSyncResponseTest, RequestReceiveTimeMinusOne)
+TEST_F(TimeSyncResponseTest, requestReceiveTimeMinusOne)
 {
 	UTF8String s("t1=-1");
 	uint32_t responseCode = 200;
@@ -71,7 +71,7 @@ TEST_F(TimeSyncResponseTest, RequestReceiveTimeMinusOne)
 	EXPECT_EQ(-1, timeSyncResponse.getRequestReceiveTime());
 }
 
-TEST_F(TimeSyncResponseTest, RequestReceiveTimeLongMax)
+TEST_F(TimeSyncResponseTest, requestReceiveTimeLongMax)
 {
 	UTF8String s("t1=9223372036854775807"); // signed int64 max
 	uint32_t responseCode = 200;
@@ -80,7 +80,7 @@ TEST_F(TimeSyncResponseTest, RequestReceiveTimeLongMax)
 	EXPECT_EQ(9223372036854775807, timeSyncResponse.getRequestReceiveTime());
 }
 
-TEST_F(TimeSyncResponseTest, DISABLED_RequestReceiveTimeLongMaxPlusOne)
+TEST_F(TimeSyncResponseTest, DISABLED_requestReceiveTimeLongMaxPlusOne)
 {
 	UTF8String s("t1=9223372036854775808"); // signed int64 max + 1
 	uint32_t responseCode = 200;
@@ -91,7 +91,7 @@ TEST_F(TimeSyncResponseTest, DISABLED_RequestReceiveTimeLongMaxPlusOne)
 
 /// -----------------
 
-TEST_F(TimeSyncResponseTest, ResponseSendTimeDefault)
+TEST_F(TimeSyncResponseTest, responseSendTimeDefault)
 {
 	UTF8String s("");
 	uint32_t responseCode = 200;
@@ -100,7 +100,7 @@ TEST_F(TimeSyncResponseTest, ResponseSendTimeDefault)
 	EXPECT_EQ(-1, timeSyncResponse.getResponseSendTime());
 }
 
-TEST_F(TimeSyncResponseTest, ResponseSendTimeZero)
+TEST_F(TimeSyncResponseTest, responseSendTimeZero)
 {
 	UTF8String s("t2=0");
 	uint32_t responseCode = 200;
@@ -109,7 +109,7 @@ TEST_F(TimeSyncResponseTest, ResponseSendTimeZero)
 	EXPECT_EQ(0, timeSyncResponse.getResponseSendTime());
 }
 
-TEST_F(TimeSyncResponseTest, ResponseSendTimeOne)
+TEST_F(TimeSyncResponseTest, responseSendTimeOne)
 {
 	UTF8String s("t2=1");
 	uint32_t responseCode = 200;
@@ -118,7 +118,7 @@ TEST_F(TimeSyncResponseTest, ResponseSendTimeOne)
 	EXPECT_EQ(1, timeSyncResponse.getResponseSendTime());
 }
 
-TEST_F(TimeSyncResponseTest, ResponseSendTimeMinusOne)
+TEST_F(TimeSyncResponseTest, responseSendTimeMinusOne)
 {
 	UTF8String s("t2=-1");
 	uint32_t responseCode = 200;
@@ -127,7 +127,7 @@ TEST_F(TimeSyncResponseTest, ResponseSendTimeMinusOne)
 	EXPECT_EQ(-1, timeSyncResponse.getResponseSendTime());
 }
 
-TEST_F(TimeSyncResponseTest, ResponseSendTimeLongMax)
+TEST_F(TimeSyncResponseTest, responseSendTimeLongMax)
 {
 	UTF8String s("t2=9223372036854775807"); // signed int64 max
 	uint32_t responseCode = 200;
@@ -136,7 +136,7 @@ TEST_F(TimeSyncResponseTest, ResponseSendTimeLongMax)
 	EXPECT_EQ(9223372036854775807, timeSyncResponse.getResponseSendTime());
 }
 
-TEST_F(TimeSyncResponseTest, DISABLED_ResponseSendTimeLongMaxPlusOne)
+TEST_F(TimeSyncResponseTest, DISABLED_responseSendTimeLongMaxPlusOne)
 {
 	UTF8String s("t2=9223372036854775808"); // signed int64 max + 1
 	uint32_t responseCode = 200;
@@ -147,7 +147,7 @@ TEST_F(TimeSyncResponseTest, DISABLED_ResponseSendTimeLongMaxPlusOne)
 
 // ---------
 
-TEST_F(TimeSyncResponseTest, RequestReceiveTimeTogetherWithResponseSendTime)
+TEST_F(TimeSyncResponseTest, requestReceiveTimeTogetherWithResponseSendTime)
 {
 	UTF8String s("t1=123&t2=456");
 	uint32_t responseCode = 200;
@@ -157,7 +157,7 @@ TEST_F(TimeSyncResponseTest, RequestReceiveTimeTogetherWithResponseSendTime)
 	EXPECT_EQ(456, timeSyncResponse.getResponseSendTime());
 }
 
-TEST_F(TimeSyncResponseTest, NotExistingKey)
+TEST_F(TimeSyncResponseTest, notExistingKey)
 {
 	UTF8String s("hello=world");
 	uint32_t responseCode = 200;

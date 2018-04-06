@@ -20,7 +20,7 @@
 #include "communication/BeaconSendingInitialState.h"
 #include "communication/AbstractBeaconSendingState.h"
 
-#include "MockBeaconSendingContext.h"
+#include "../communication/MockBeaconSendingContext.h"
 #include "../protocol/MockHTTPClient.h"
 #include "../communication/CustomMatchers.h"
 
@@ -47,7 +47,6 @@ public:
 
 	std::shared_ptr<communication::AbstractBeaconSendingState> target;
 	std::shared_ptr<testing::NiceMock<test::MockHTTPClient>> mockHTTPClient;
-
 };
 
 TEST_F(BeaconSendingInitialStateTest, initStateIsNotATerminalState)
@@ -63,7 +62,6 @@ TEST_F(BeaconSendingInitialStateTest, getShutdownStateGivesABeaconSendingTermina
 	//then
 	ASSERT_TRUE(obtained != nullptr);
 	ASSERT_EQ(obtained->getStateType(), communication::AbstractBeaconSendingState::StateType::BEACON_SENDING_TERMINAL_STATE);
-
 }
 
 TEST_F(BeaconSendingInitialStateTest, getShutdownStateAlwaysCreatesANewInstance)

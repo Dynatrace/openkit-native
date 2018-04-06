@@ -26,7 +26,7 @@ class InetAddressValidatorTest : public testing::Test
 
 };
 
-TEST_F(InetAddressValidatorTest, IPV4AddressIsValid)
+TEST_F(InetAddressValidatorTest, ipV4AddressIsValid)
 {
 	//given
 	core::UTF8String ipv4TestString("122.133.55.22");
@@ -35,7 +35,7 @@ TEST_F(InetAddressValidatorTest, IPV4AddressIsValid)
 	ASSERT_TRUE(InetAddressValidator::IsValidIP(ipv4TestString));
 }
 
-TEST_F(InetAddressValidatorTest, IPV4AddressIsValidAllZero)
+TEST_F(InetAddressValidatorTest, ipV4AddressIsValidAllZero)
 {
 	//given
 	core::UTF8String ipv4TestString("0.0.0.0");
@@ -44,7 +44,7 @@ TEST_F(InetAddressValidatorTest, IPV4AddressIsValidAllZero)
 	ASSERT_TRUE(InetAddressValidator::IsValidIP(ipv4TestString));
 }
 
-TEST_F(InetAddressValidatorTest, IPV4AddressIsValidAllEigth)
+TEST_F(InetAddressValidatorTest, ipV4AddressIsValidAllEigtht)
 {
 	//given
 	core::UTF8String ipv4TestString("8.8.8.8");
@@ -53,7 +53,7 @@ TEST_F(InetAddressValidatorTest, IPV4AddressIsValidAllEigth)
 	ASSERT_TRUE(InetAddressValidator::IsValidIP(ipv4TestString));
 }
 
-TEST_F(InetAddressValidatorTest, IPV4AddressIsValidHighestPossible)
+TEST_F(InetAddressValidatorTest, ipV4AddressIsValidHighestPossible)
 {
 	//given
 	core::UTF8String ipv4TestString("255.255.255.255");
@@ -62,7 +62,7 @@ TEST_F(InetAddressValidatorTest, IPV4AddressIsValidHighestPossible)
 	ASSERT_TRUE(InetAddressValidator::IsValidIP(ipv4TestString));
 }
 
-TEST_F(InetAddressValidatorTest, IPV4AddressIsInvalidBecauseOfOverflow)
+TEST_F(InetAddressValidatorTest, ipV4AddressIsInvalidBecauseOfOverflow)
 {
 	//given
 	core::UTF8String ipv4TestString("255.255.255.256");
@@ -71,7 +71,7 @@ TEST_F(InetAddressValidatorTest, IPV4AddressIsInvalidBecauseOfOverflow)
 	ASSERT_FALSE(InetAddressValidator::IsValidIP(ipv4TestString));
 }
 
-TEST_F(InetAddressValidatorTest, IPV4AddressIsInvalidDoubleColonsInsteadOfPoints)
+TEST_F(InetAddressValidatorTest, ipV4AddressIsInvalidDoubleColonsInsteadOfPoints)
 {
 	//given
 	core::UTF8String ipv4TestString("255:255:255:255");
@@ -80,7 +80,7 @@ TEST_F(InetAddressValidatorTest, IPV4AddressIsInvalidDoubleColonsInsteadOfPoints
 	ASSERT_FALSE(InetAddressValidator::IsValidIP(ipv4TestString));
 }
 
-TEST_F(InetAddressValidatorTest, IPV4AddressIsInvalidDueToAdditionalCharacterInFirstBlock)
+TEST_F(InetAddressValidatorTest, ipV4AddressIsInvalidDueToAdditionalCharacterInFirstBlock)
 {
 	//given
 	core::UTF8String ipv4TestString("122x.133.55.22");
@@ -89,7 +89,7 @@ TEST_F(InetAddressValidatorTest, IPV4AddressIsInvalidDueToAdditionalCharacterInF
 	ASSERT_FALSE(InetAddressValidator::IsValidIP(ipv4TestString));
 }
 
-TEST_F(InetAddressValidatorTest, IPV4AddressIsInvalidDueToAdditionalCharacterInSecondBlock)
+TEST_F(InetAddressValidatorTest, ipV4AddressIsInvalidDueToAdditionalCharacterInSecondBlock)
 {
 	//given
 	core::UTF8String ipv4TestString("122.133x.55.22");
@@ -98,7 +98,7 @@ TEST_F(InetAddressValidatorTest, IPV4AddressIsInvalidDueToAdditionalCharacterInS
 	ASSERT_FALSE(InetAddressValidator::IsValidIP(ipv4TestString));
 }
 
-TEST_F(InetAddressValidatorTest, IPV4AddressIsInvalidDueToAdditionalCharacterInThirdBlock)
+TEST_F(InetAddressValidatorTest, ipV4AddressIsInvalidDueToAdditionalCharacterInThirdBlock)
 {
 	//given
 	core::UTF8String ipv4TestString("122.133.55x.22");
@@ -107,7 +107,7 @@ TEST_F(InetAddressValidatorTest, IPV4AddressIsInvalidDueToAdditionalCharacterInT
 	ASSERT_FALSE(InetAddressValidator::IsValidIP(ipv4TestString));
 }
 
-TEST_F(InetAddressValidatorTest, IPV4AddressIsInvalidDueToAdditionalCharacterInFourthBlock)
+TEST_F(InetAddressValidatorTest, ipV4AddressIsInvalidDueToAdditionalCharacterInFourthBlock)
 {
 	//given
 	core::UTF8String ipv4TestString("122.133.55.22x");
@@ -116,7 +116,7 @@ TEST_F(InetAddressValidatorTest, IPV4AddressIsInvalidDueToAdditionalCharacterInF
 	ASSERT_FALSE(InetAddressValidator::IsValidIP(ipv4TestString));
 }
 
-TEST_F(InetAddressValidatorTest, IPV4AddressIsInvalidDueToIllegalValueOverrun)
+TEST_F(InetAddressValidatorTest, ipV4AddressIsInvalidDueToIllegalValueOverrun)
 {
 	//given
 	core::UTF8String ipv4TestString("122.133.256.22");
@@ -125,7 +125,7 @@ TEST_F(InetAddressValidatorTest, IPV4AddressIsInvalidDueToIllegalValueOverrun)
 	ASSERT_FALSE(InetAddressValidator::IsValidIP(ipv4TestString));
 }
 
-TEST_F(InetAddressValidatorTest, IPV4AddressIsInvalidDueToIllegalValueNegative)
+TEST_F(InetAddressValidatorTest, ipV4AddressIsInvalidDueToIllegalValueNegative)
 {
 	//given
 	core::UTF8String ipv4TestString("122.133.256.-22");
@@ -134,7 +134,7 @@ TEST_F(InetAddressValidatorTest, IPV4AddressIsInvalidDueToIllegalValueNegative)
 	ASSERT_FALSE(InetAddressValidator::IsValidIP(ipv4TestString));
 }
 
-TEST_F(InetAddressValidatorTest, IPV6AddressIsValid)
+TEST_F(InetAddressValidatorTest, ipV6AddressIsValid)
 {
 	//given
 	core::UTF8String ipv6TestString("23fe:33af:1232:5522:abcd:2532:1a2b:1");
@@ -143,7 +143,7 @@ TEST_F(InetAddressValidatorTest, IPV6AddressIsValid)
 	ASSERT_TRUE(InetAddressValidator::IsValidIP(ipv6TestString));
 }
 
-TEST_F(InetAddressValidatorTest, IPV6AddressIsInvalidOverflow)
+TEST_F(InetAddressValidatorTest, ipV6AddressIsInvalidOverflow)
 {
 	//given
 	core::UTF8String ipv6TestString("23fec:33af:1232:5522:abcd:2532:1a2b:1");
@@ -152,7 +152,7 @@ TEST_F(InetAddressValidatorTest, IPV6AddressIsInvalidOverflow)
 	ASSERT_FALSE(InetAddressValidator::IsValidIP(ipv6TestString));
 }
 
-TEST_F(InetAddressValidatorTest, IPV6AddressIsInvalidIllegalCharacter)
+TEST_F(InetAddressValidatorTest, ipV6AddressIsInvalidIllegalCharacter)
 {
 	//given
 	core::UTF8String ipv6TestString("23fl:33af:1232:5522:abcd:2532:1a2b:1");
@@ -161,7 +161,7 @@ TEST_F(InetAddressValidatorTest, IPV6AddressIsInvalidIllegalCharacter)
 	ASSERT_FALSE(InetAddressValidator::IsValidIP(ipv6TestString));
 }
 
-TEST_F(InetAddressValidatorTest, IPV6AddressIsInvalidTooManyBlocks)
+TEST_F(InetAddressValidatorTest, ipV6AddressIsInvalidTooManyBlocks)
 {
 	//given
 	core::UTF8String ipv6TestString("23fl:33af:1232:5522:abcd:2532:1a2b:1:2:3");
@@ -170,7 +170,7 @@ TEST_F(InetAddressValidatorTest, IPV6AddressIsInvalidTooManyBlocks)
 	ASSERT_FALSE(InetAddressValidator::IsValidIP(ipv6TestString));
 }
 
-TEST_F(InetAddressValidatorTest, IPV6AddressHexCompressedIsValidBlock4)
+TEST_F(InetAddressValidatorTest, ipV6AddressHexCompressedIsValidBlock4)
 {
 	//given
 	core::UTF8String ipv6TestString("2001:db:85:b::1A");
@@ -179,7 +179,7 @@ TEST_F(InetAddressValidatorTest, IPV6AddressHexCompressedIsValidBlock4)
 	ASSERT_TRUE(InetAddressValidator::IsValidIP(ipv6TestString));
 }
 
-TEST_F(InetAddressValidatorTest, IPV6AddressHexCompressedIsValidBlock3)
+TEST_F(InetAddressValidatorTest, ipV6AddressHexCompressedIsValidBlock3)
 {
 	//given
 	core::UTF8String ipv6TestString("2001:db:85::b:1A");
@@ -188,7 +188,7 @@ TEST_F(InetAddressValidatorTest, IPV6AddressHexCompressedIsValidBlock3)
 	ASSERT_TRUE(InetAddressValidator::IsValidIP(ipv6TestString));
 }
 
-TEST_F(InetAddressValidatorTest, IPV6AddressHexCompressedIsValidBlock2)
+TEST_F(InetAddressValidatorTest, ipV6AddressHexCompressedIsValidBlock2)
 {
 	//given
 	core::UTF8String ipv6TestString("2001:db::85:b:1A");
@@ -197,7 +197,7 @@ TEST_F(InetAddressValidatorTest, IPV6AddressHexCompressedIsValidBlock2)
 	ASSERT_TRUE(InetAddressValidator::IsValidIP(ipv6TestString));
 }
 
-TEST_F(InetAddressValidatorTest, IPV6AddressHexCompressedIsValidBlock1)
+TEST_F(InetAddressValidatorTest, ipV6AddressHexCompressedIsValidBlock1)
 {
 	//given
 	core::UTF8String ipv6TestString("2001::db:85:b:1A");
@@ -206,7 +206,7 @@ TEST_F(InetAddressValidatorTest, IPV6AddressHexCompressedIsValidBlock1)
 	ASSERT_TRUE(InetAddressValidator::IsValidIP(ipv6TestString));
 }
 
-TEST_F(InetAddressValidatorTest, IPV6AddressHexCompressedIsValidShortestPossible)
+TEST_F(InetAddressValidatorTest, ipV6AddressHexCompressedIsValidShortestPossible)
 {
 	//given
 	core::UTF8String ipv6TestString("2001::b1A");
@@ -215,7 +215,7 @@ TEST_F(InetAddressValidatorTest, IPV6AddressHexCompressedIsValidShortestPossible
 	ASSERT_TRUE(InetAddressValidator::IsValidIP(ipv6TestString));
 }
 
-TEST_F(InetAddressValidatorTest, IPV6AddressHexCompressedIsInvalidTwoCompressedBlocks)
+TEST_F(InetAddressValidatorTest, ipV6AddressHexCompressedIsInvalidTwoCompressedBlocks)
 {
 	//given
 	core::UTF8String ipv6TestString("2001::db:85::b1A");
@@ -224,7 +224,7 @@ TEST_F(InetAddressValidatorTest, IPV6AddressHexCompressedIsInvalidTwoCompressedB
 	ASSERT_FALSE(InetAddressValidator::IsValidIP(ipv6TestString));
 }
 
-TEST_F(InetAddressValidatorTest, IPV6AddressHexCompressedIsInvalidFirstBlockMissing)
+TEST_F(InetAddressValidatorTest, ipV6AddressHexCompressedIsInvalidFirstBlockMissing)
 {
 	//given
 	core::UTF8String ipv6TestString(":4::5:6");
@@ -234,7 +234,7 @@ TEST_F(InetAddressValidatorTest, IPV6AddressHexCompressedIsInvalidFirstBlockMiss
 }
 
 
-TEST_F(InetAddressValidatorTest, IPV6AddressMixedNotationIsValid)
+TEST_F(InetAddressValidatorTest, ipV6AddressMixedNotationIsValid)
 {
 	//given
 	core::UTF8String ipv6TestString("0::FF:FF:172.12.55.18");
@@ -243,7 +243,7 @@ TEST_F(InetAddressValidatorTest, IPV6AddressMixedNotationIsValid)
 	ASSERT_TRUE(InetAddressValidator::IsValidIP(ipv6TestString));
 }
 
-TEST_F(InetAddressValidatorTest, IPV6AddressMixedNotationIsInvalidOnly3IPv4Blocks)
+TEST_F(InetAddressValidatorTest, ipV6AddressMixedNotationIsInvalidOnly3IPv4Blocks)
 {
 	//given
 	core::UTF8String ipv6TestString("0::FF:FF:172.12.55");
@@ -252,7 +252,7 @@ TEST_F(InetAddressValidatorTest, IPV6AddressMixedNotationIsInvalidOnly3IPv4Block
 	ASSERT_FALSE(InetAddressValidator::IsValidIP(ipv6TestString));
 }
 
-TEST_F(InetAddressValidatorTest, IPV6AddressMixedNotationIsInvalidIPV6PartInvalid)
+TEST_F(InetAddressValidatorTest, ipV6AddressMixedNotationIsInvalidIPV6PartInvalid)
 {
 	//given
 	core::UTF8String ipv6TestString("0::FF:FF:FF:172.12.55");
@@ -261,7 +261,7 @@ TEST_F(InetAddressValidatorTest, IPV6AddressMixedNotationIsInvalidIPV6PartInvali
 	ASSERT_FALSE(InetAddressValidator::IsValidIP(ipv6TestString));
 }
 
-TEST_F(InetAddressValidatorTest, IPV6AddressMixedNotationIsInvalidMissingNumberFirstBlock)
+TEST_F(InetAddressValidatorTest, ipV6AddressMixedNotationIsInvalidMissingNumberFirstBlock)
 {
 	//given
 	core::UTF8String ipv6TestString("::FF:FF:172.12.55");
@@ -270,7 +270,7 @@ TEST_F(InetAddressValidatorTest, IPV6AddressMixedNotationIsInvalidMissingNumberF
 	ASSERT_FALSE(InetAddressValidator::IsValidIP(ipv6TestString));
 }
 
-TEST_F(InetAddressValidatorTest, IPV6AddressLinkLocalIsValid)
+TEST_F(InetAddressValidatorTest, ipV6AddressLinkLocalIsValid)
 {
 	//given
 	core::UTF8String ipv6TestStringLinkLocal("fe80::208:74ff:feda:625c%5");
@@ -279,7 +279,7 @@ TEST_F(InetAddressValidatorTest, IPV6AddressLinkLocalIsValid)
 	ASSERT_TRUE(InetAddressValidator::IsValidIP(ipv6TestStringLinkLocal));
 }
 
-TEST_F(InetAddressValidatorTest, IPV6AddressLinkLocalIsValidVeryShortLinkLocal)
+TEST_F(InetAddressValidatorTest, ipV6AddressLinkLocalIsValidVeryShortLinkLocal)
 {
 	//given
 	core::UTF8String ipv6TestStringLinkLocal("fe80::625c%5");
@@ -288,7 +288,7 @@ TEST_F(InetAddressValidatorTest, IPV6AddressLinkLocalIsValidVeryShortLinkLocal)
 	ASSERT_TRUE(InetAddressValidator::IsValidIP(ipv6TestStringLinkLocal));
 }
 
-TEST_F(InetAddressValidatorTest, IPV6AddressLinkLocalIsInvalidTooManyBlocks)
+TEST_F(InetAddressValidatorTest, ipV6AddressLinkLocalIsInvalidTooManyBlocks)
 {
 	//given
 	core::UTF8String ipv6TestStringLinkLocal("fe80:34:208:74ff:feda:dada:625c:8976:abcd%5");
@@ -297,7 +297,7 @@ TEST_F(InetAddressValidatorTest, IPV6AddressLinkLocalIsInvalidTooManyBlocks)
 	ASSERT_FALSE(InetAddressValidator::IsValidIP(ipv6TestStringLinkLocal));
 }
 
-TEST_F(InetAddressValidatorTest, IPV6AddressLinkLocalIsInvalidIllegalNonHexCharacter)
+TEST_F(InetAddressValidatorTest, ipV6AddressLinkLocalIsInvalidIllegalNonHexCharacter)
 {
 	//given
 	core::UTF8String ipv6TestStringLinkLocal("fe80::208t:74ff:feda:dada:625c%5");
@@ -306,7 +306,7 @@ TEST_F(InetAddressValidatorTest, IPV6AddressLinkLocalIsInvalidIllegalNonHexChara
 	ASSERT_FALSE(InetAddressValidator::IsValidIP(ipv6TestStringLinkLocal));
 }
 
-TEST_F(InetAddressValidatorTest, IPV6AddressLinkLocalIsInvalidDueToTwoDoubleColonsInAddress)
+TEST_F(InetAddressValidatorTest, ipV6AddressLinkLocalIsInvalidDueToTwoDoubleColonsInAddress)
 {
 	//given
 	core::UTF8String ipv6TestStringLinkLocal("fe80::208:74ff::dada:625c%5");
@@ -315,7 +315,7 @@ TEST_F(InetAddressValidatorTest, IPV6AddressLinkLocalIsInvalidDueToTwoDoubleColo
 	ASSERT_FALSE(InetAddressValidator::IsValidIP(ipv6TestStringLinkLocal));
 }
 
-TEST_F(InetAddressValidatorTest, IPV6AddressLinkLocalIsInvalidZoneIndexUsedWithInvalidPrefix)
+TEST_F(InetAddressValidatorTest, ipV6AddressLinkLocalIsInvalidZoneIndexUsedWithInvalidPrefix)
 {
 	//given
 	core::UTF8String ipv6TestStringLinkLocal("fedd::208:74ff::dada:625c%5");
@@ -326,7 +326,7 @@ TEST_F(InetAddressValidatorTest, IPV6AddressLinkLocalIsInvalidZoneIndexUsedWithI
 
 // the following two addresses are not valid according to RFC5952 but are accepted by glibc's implementation and also ours
 
-TEST_F(InetAddressValidatorTest, IPV6AddressValid_RFCLeadingZeros)
+TEST_F(InetAddressValidatorTest, ipV6AddressValid_RFCLeadingZeros)
 {
 	//given
 	core::UTF8String ipv6TestStringLinkLocal("2001:0db8::0001");
@@ -335,7 +335,7 @@ TEST_F(InetAddressValidatorTest, IPV6AddressValid_RFCLeadingZeros)
 	ASSERT_TRUE(InetAddressValidator::IsValidIP(ipv6TestStringLinkLocal));
 }
 
-TEST_F(InetAddressValidatorTest, IPV6AddressValid_RFCEmptyBlockNotShortened)
+TEST_F(InetAddressValidatorTest, ipV6AddressValid_RFCEmptyBlockNotShortened)
 {
 	//given
 	core::UTF8String ipv6TestStringLinkLocal("2001:db8::0:1");
@@ -344,7 +344,7 @@ TEST_F(InetAddressValidatorTest, IPV6AddressValid_RFCEmptyBlockNotShortened)
 	ASSERT_TRUE(InetAddressValidator::IsValidIP(ipv6TestStringLinkLocal));
 }
 
-TEST_F(InetAddressValidatorTest, IPV6AddressValid_RFCInvalidBlockCompress)
+TEST_F(InetAddressValidatorTest, ipV6AddressValid_RFCInvalidBlockCompress)
 {
 	//given
 	core::UTF8String ipv6TestStringLinkLocal("2001:db8::1:1:1:1:1 ");
@@ -353,7 +353,7 @@ TEST_F(InetAddressValidatorTest, IPV6AddressValid_RFCInvalidBlockCompress)
 	ASSERT_FALSE(InetAddressValidator::IsValidIP(ipv6TestStringLinkLocal));
 }
 
-TEST_F(InetAddressValidatorTest, IPV6AddressValid_RFCExample)
+TEST_F(InetAddressValidatorTest, ipV6AddressValid_RFCExample)
 {
 	//given
 	core::UTF8String ipv6TestStringLinkLocal("2001:db8::1:0:0:1");

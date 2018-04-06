@@ -35,7 +35,7 @@ public:
 	}
 };
 
-TEST_F(StatusResponseTest, CaptureDefault)
+TEST_F(StatusResponseTest, captureDefault)
 {
 	UTF8String s("");
 	uint32_t responseCode = 200;
@@ -44,7 +44,7 @@ TEST_F(StatusResponseTest, CaptureDefault)
 	EXPECT_TRUE(statusResponse.isCapture());
 }
 
-TEST_F(StatusResponseTest, CaptureEnabled)
+TEST_F(StatusResponseTest, captureEnabled)
 {
 	UTF8String s("cp=1");
 	uint32_t responseCode = 200;
@@ -53,7 +53,7 @@ TEST_F(StatusResponseTest, CaptureEnabled)
 	EXPECT_TRUE(statusResponse.isCapture());
 }
 
-TEST_F(StatusResponseTest, CaptureDisabledWithZero)
+TEST_F(StatusResponseTest, captureDisabledWithZero)
 {
 	UTF8String s("cp=0");
 	uint32_t responseCode = 200;
@@ -62,7 +62,7 @@ TEST_F(StatusResponseTest, CaptureDisabledWithZero)
 	EXPECT_FALSE(statusResponse.isCapture());
 }
 
-TEST_F(StatusResponseTest, CaptureDisabledWithTwo)
+TEST_F(StatusResponseTest, captureDisabledWithTwo)
 {
 	UTF8String s("cp=2");
 	uint32_t responseCode = 200;
@@ -71,7 +71,7 @@ TEST_F(StatusResponseTest, CaptureDisabledWithTwo)
 	EXPECT_FALSE(statusResponse.isCapture());
 }
 
-TEST_F(StatusResponseTest, CaptureDisabledWithMinusOne)
+TEST_F(StatusResponseTest, captureDisabledWithMinusOne)
 {
 	UTF8String s("cp=-1");
 	uint32_t responseCode = 200;
@@ -80,7 +80,7 @@ TEST_F(StatusResponseTest, CaptureDisabledWithMinusOne)
 	EXPECT_FALSE(statusResponse.isCapture());
 }
 
-TEST_F(StatusResponseTest, CaptureDisabledWithSignedIntegerMax)
+TEST_F(StatusResponseTest, captureDisabledWithSignedIntegerMax)
 {
 	UTF8String s("cp=2147483647");
 	uint32_t responseCode = 200;
@@ -89,7 +89,7 @@ TEST_F(StatusResponseTest, CaptureDisabledWithSignedIntegerMax)
 	EXPECT_FALSE(statusResponse.isCapture());
 }
 
-TEST_F(StatusResponseTest, DISABLED_CaptureDisabledWithUnsignedIntegerMax)
+TEST_F(StatusResponseTest, DISABLED_captureDisabledWithUnsignedIntegerMax)
 {
 	UTF8String s("cp=4294967295");
 	uint32_t responseCode = 200;
@@ -98,7 +98,7 @@ TEST_F(StatusResponseTest, DISABLED_CaptureDisabledWithUnsignedIntegerMax)
 	EXPECT_FALSE(statusResponse.isCapture());
 }
 
-TEST_F(StatusResponseTest, DISABLED_CaptureDisabledWithUnsignedIntegerMaxPlusOne)
+TEST_F(StatusResponseTest, DISABLED_captureDisabledWithUnsignedIntegerMaxPlusOne)
 {
 	UTF8String s("cp=4294967296");
 	uint32_t responseCode = 200;
@@ -107,7 +107,7 @@ TEST_F(StatusResponseTest, DISABLED_CaptureDisabledWithUnsignedIntegerMaxPlusOne
 	EXPECT_FALSE(statusResponse.isCapture());
 }
 
-TEST_F(StatusResponseTest, CaptureEnabledButThenTruncatedString)
+TEST_F(StatusResponseTest, captureEnabledButThenTruncatedString)
 {
 	UTF8String s("cp=1&");
 	uint32_t responseCode = 200;
@@ -116,7 +116,7 @@ TEST_F(StatusResponseTest, CaptureEnabledButThenTruncatedString)
 	EXPECT_TRUE(statusResponse.isCapture());
 }
 
-TEST_F(StatusResponseTest, CaptureEnabledDefaultDueToTruncatedString)
+TEST_F(StatusResponseTest, captureEnabledDefaultDueToTruncatedString)
 {
 	UTF8String s("cp=");
 	uint32_t responseCode = 200;
@@ -127,7 +127,7 @@ TEST_F(StatusResponseTest, CaptureEnabledDefaultDueToTruncatedString)
 
 /// -----------------
 
-TEST_F(StatusResponseTest, SendIntervalDefault)
+TEST_F(StatusResponseTest, sendIntervalDefault)
 {
 	UTF8String s("");
 	uint32_t responseCode = 200;
@@ -136,7 +136,7 @@ TEST_F(StatusResponseTest, SendIntervalDefault)
 	EXPECT_EQ(-1, statusResponse.getSendInterval());
 }
 
-TEST_F(StatusResponseTest, SendIntervalZero)
+TEST_F(StatusResponseTest, sendIntervalZero)
 {
 	UTF8String s("si=0");
 	uint32_t responseCode = 200;
@@ -145,7 +145,7 @@ TEST_F(StatusResponseTest, SendIntervalZero)
 	EXPECT_EQ(0, statusResponse.getSendInterval());
 }
 
-TEST_F(StatusResponseTest, SendIntervalOne)
+TEST_F(StatusResponseTest, sendIntervalOne)
 {
 	UTF8String s("si=1");
 	uint32_t responseCode = 200;
@@ -154,7 +154,7 @@ TEST_F(StatusResponseTest, SendIntervalOne)
 	EXPECT_EQ(1000, statusResponse.getSendInterval());
 }
 
-TEST_F(StatusResponseTest, SendIntervalTwo)
+TEST_F(StatusResponseTest, sendIntervalTwo)
 {
 	UTF8String s("si=1");
 	uint32_t responseCode = 200;
@@ -163,7 +163,7 @@ TEST_F(StatusResponseTest, SendIntervalTwo)
 	EXPECT_EQ(1000, statusResponse.getSendInterval());
 }
 
-TEST_F(StatusResponseTest, SendIntervalMinusOne)
+TEST_F(StatusResponseTest, sendIntervalMinusOne)
 {
 	UTF8String s("si=-1");
 	uint32_t responseCode = 200;
@@ -172,7 +172,7 @@ TEST_F(StatusResponseTest, SendIntervalMinusOne)
 	EXPECT_EQ(-1000, statusResponse.getSendInterval());
 }
 
-TEST_F(StatusResponseTest, SendIntervalLarge)
+TEST_F(StatusResponseTest, sendIntervalLarge)
 {
 	UTF8String s("si=2147483000"); // multiplied by 1000 will overflow the signed int
 	uint32_t responseCode = 200;
@@ -181,7 +181,7 @@ TEST_F(StatusResponseTest, SendIntervalLarge)
 	EXPECT_EQ(-648000, statusResponse.getSendInterval());
 }
 
-TEST_F(StatusResponseTest, DISABLED_SendIntervalSignedIntegerMax)
+TEST_F(StatusResponseTest, DISABLED_sendIntervalSignedIntegerMax)
 {
 	UTF8String s("si=2147483647");
 	uint32_t responseCode = 200;
@@ -190,7 +190,7 @@ TEST_F(StatusResponseTest, DISABLED_SendIntervalSignedIntegerMax)
 	EXPECT_EQ(-1, statusResponse.getSendInterval());
 }
 
-TEST_F(StatusResponseTest, DISABLED_SendIntervalUnsignedIntegerMax)
+TEST_F(StatusResponseTest, DISABLED_sendIntervalUnsignedIntegerMax)
 {
 	UTF8String s("si=4294967295");
 	uint32_t responseCode = 200;
@@ -199,7 +199,7 @@ TEST_F(StatusResponseTest, DISABLED_SendIntervalUnsignedIntegerMax)
 	EXPECT_EQ(-1, statusResponse.getSendInterval());
 }
 
-TEST_F(StatusResponseTest, SendIntervalTruncated)
+TEST_F(StatusResponseTest, sendIntervalTruncated)
 {
 	UTF8String s("si=");
 	uint32_t responseCode = 200;
@@ -210,7 +210,7 @@ TEST_F(StatusResponseTest, SendIntervalTruncated)
 
 /// -----------------
 
-TEST_F(StatusResponseTest, MonitoringNameDefault)
+TEST_F(StatusResponseTest, monitoringNameDefault)
 {
 	UTF8String s("");
 	uint32_t responseCode = 200;
@@ -220,7 +220,7 @@ TEST_F(StatusResponseTest, MonitoringNameDefault)
 	EXPECT_TRUE(statusResponse.getMonitorName().empty());
 }
 
-TEST_F(StatusResponseTest, MonitoringNameValidAsciiName)
+TEST_F(StatusResponseTest, monitoringNameValidAsciiName)
 {
 	UTF8String s("bn=HelloWorld");
 	uint32_t responseCode = 200;
@@ -230,7 +230,7 @@ TEST_F(StatusResponseTest, MonitoringNameValidAsciiName)
 	EXPECT_TRUE(statusResponse.getMonitorName().equals("HelloWorld"));
 }
 
-TEST_F(StatusResponseTest, MonitoringNameValidUtf8Name)
+TEST_F(StatusResponseTest, monitoringNameValidUtf8Name)
 {
 	UTF8String s(u8"bn=𐋏𝖾ll𝑜 𝙒ᴑ𝒓l𝖽 ｆ𝓻𝗈ｍ 𝒐ᴜ𝑡𝒆𝓇 𝕤𝟈𝛼𝘤ℯ");
 	uint32_t responseCode = 200;
@@ -243,7 +243,7 @@ TEST_F(StatusResponseTest, MonitoringNameValidUtf8Name)
 
 /// -----------------
 
-TEST_F(StatusResponseTest, ServerIdDefault)
+TEST_F(StatusResponseTest, serverIdDefault)
 {
 	UTF8String s("");
 	uint32_t responseCode = 200;
@@ -252,7 +252,7 @@ TEST_F(StatusResponseTest, ServerIdDefault)
 	EXPECT_EQ(-1, statusResponse.getServerID());
 }
 
-TEST_F(StatusResponseTest, ServerIdOne)
+TEST_F(StatusResponseTest, serverIdOne)
 {
 	UTF8String s("id=1");
 	uint32_t responseCode = 200;
@@ -261,7 +261,7 @@ TEST_F(StatusResponseTest, ServerIdOne)
 	EXPECT_EQ(1, statusResponse.getServerID());
 }
 
-TEST_F(StatusResponseTest, ServerIdTwo)
+TEST_F(StatusResponseTest, serverIdTwo)
 {
 	UTF8String s("id=2");
 	uint32_t responseCode = 200;
@@ -270,7 +270,7 @@ TEST_F(StatusResponseTest, ServerIdTwo)
 	EXPECT_EQ(2, statusResponse.getServerID());
 }
 
-TEST_F(StatusResponseTest, ServerIdMinusOne)
+TEST_F(StatusResponseTest, serverIdMinusOne)
 {
 	UTF8String s("id=-1");
 	uint32_t responseCode = 200;
@@ -279,7 +279,7 @@ TEST_F(StatusResponseTest, ServerIdMinusOne)
 	EXPECT_EQ(-1, statusResponse.getServerID());
 }
 
-TEST_F(StatusResponseTest, ServerIdSignedIntegerMax)
+TEST_F(StatusResponseTest, serverIdSignedIntegerMax)
 {
 	UTF8String s("id=2147483647");
 	uint32_t responseCode = 200;
@@ -288,7 +288,7 @@ TEST_F(StatusResponseTest, ServerIdSignedIntegerMax)
 	EXPECT_EQ(2147483647, statusResponse.getServerID());
 }
 
-TEST_F(StatusResponseTest, DISABLED_ServerIdUnsignedIntegerMax)
+TEST_F(StatusResponseTest, DISABLED_serverIdUnsignedIntegerMax)
 {
 	UTF8String s("id=4294967295");
 	uint32_t responseCode = 200;
@@ -297,7 +297,7 @@ TEST_F(StatusResponseTest, DISABLED_ServerIdUnsignedIntegerMax)
 	EXPECT_EQ(4294967295, statusResponse.getServerID());
 }
 
-TEST_F(StatusResponseTest, DISABLED_ServerIdUnsignedIntegerMaxPlusOne)
+TEST_F(StatusResponseTest, DISABLED_serverIdUnsignedIntegerMaxPlusOne)
 {
 	UTF8String s("id=4294967296");
 	uint32_t responseCode = 200;
@@ -308,7 +308,7 @@ TEST_F(StatusResponseTest, DISABLED_ServerIdUnsignedIntegerMaxPlusOne)
 
 /// -----------------
 
-TEST_F(StatusResponseTest, MaxBeaconSizeDefault)
+TEST_F(StatusResponseTest, maxBeaconSizeDefault)
 {
 	UTF8String s("");
 	uint32_t responseCode = 200;
@@ -317,7 +317,7 @@ TEST_F(StatusResponseTest, MaxBeaconSizeDefault)
 	EXPECT_EQ(-1, statusResponse.getMaxBeaconSize());
 }
 
-TEST_F(StatusResponseTest, MaxBeaconSizeOne)
+TEST_F(StatusResponseTest, maxBeaconSizeOne)
 {
 	UTF8String s("bl=1");
 	uint32_t responseCode = 200;
@@ -326,7 +326,7 @@ TEST_F(StatusResponseTest, MaxBeaconSizeOne)
 	EXPECT_EQ(1, statusResponse.getMaxBeaconSize());
 }
 
-TEST_F(StatusResponseTest, MaxBeaconSizeTwo)
+TEST_F(StatusResponseTest, maxBeaconSizeTwo)
 {
 	UTF8String s("bl=2");
 	uint32_t responseCode = 200;
@@ -335,7 +335,7 @@ TEST_F(StatusResponseTest, MaxBeaconSizeTwo)
 	EXPECT_EQ(2, statusResponse.getMaxBeaconSize());
 }
 
-TEST_F(StatusResponseTest, MaxBeaconSizeMinusOne)
+TEST_F(StatusResponseTest, maxBeaconSizeMinusOne)
 {
 	UTF8String s("bl=-1");
 	uint32_t responseCode = 200;
@@ -344,7 +344,7 @@ TEST_F(StatusResponseTest, MaxBeaconSizeMinusOne)
 	EXPECT_EQ(-1, statusResponse.getMaxBeaconSize());
 }
 
-TEST_F(StatusResponseTest, MaxBeaconSizeSignedIntegerMax)
+TEST_F(StatusResponseTest, maxBeaconSizeSignedIntegerMax)
 {
 	UTF8String s("bl=2147483647");
 	uint32_t responseCode = 200;
@@ -353,7 +353,7 @@ TEST_F(StatusResponseTest, MaxBeaconSizeSignedIntegerMax)
 	EXPECT_EQ(2147483647, statusResponse.getMaxBeaconSize());
 }
 
-TEST_F(StatusResponseTest, DISABLED_MaxBeaconSizeUnsignedIntegerMax)
+TEST_F(StatusResponseTest, DISABLED_maxBeaconSizeUnsignedIntegerMax)
 {
 	UTF8String s("bl=4294967295");
 	uint32_t responseCode = 200;
@@ -362,7 +362,7 @@ TEST_F(StatusResponseTest, DISABLED_MaxBeaconSizeUnsignedIntegerMax)
 	EXPECT_EQ(4294967295, statusResponse.getMaxBeaconSize());
 }
 
-TEST_F(StatusResponseTest, DISABLED_MaxBeaconSizeUnsignedIntegerMaxPlusOne)
+TEST_F(StatusResponseTest, DISABLED_maxBeaconSizeUnsignedIntegerMaxPlusOne)
 {
 	UTF8String s("bl=4294967296");
 	uint32_t responseCode = 200;
@@ -373,7 +373,7 @@ TEST_F(StatusResponseTest, DISABLED_MaxBeaconSizeUnsignedIntegerMaxPlusOne)
 
 /// -----------------
 
-TEST_F(StatusResponseTest, CaptureErrorsDefault)
+TEST_F(StatusResponseTest, captureErrorsDefault)
 {
 	UTF8String s("");
 	uint32_t responseCode = 200;
@@ -382,7 +382,7 @@ TEST_F(StatusResponseTest, CaptureErrorsDefault)
 	EXPECT_TRUE(statusResponse.isCaptureErrors());
 }
 
-TEST_F(StatusResponseTest, CaptureErrorsDisabled)
+TEST_F(StatusResponseTest, captureErrorsDisabled)
 {
 	UTF8String s("er=0");
 	uint32_t responseCode = 200;
@@ -391,7 +391,7 @@ TEST_F(StatusResponseTest, CaptureErrorsDisabled)
 	EXPECT_FALSE(statusResponse.isCaptureErrors());
 }
 
-TEST_F(StatusResponseTest, CaptureErrorsEnabledWithOne)
+TEST_F(StatusResponseTest, captureErrorsEnabledWithOne)
 {
 	UTF8String s("er=1");
 	uint32_t responseCode = 200;
@@ -400,7 +400,7 @@ TEST_F(StatusResponseTest, CaptureErrorsEnabledWithOne)
 	EXPECT_TRUE(statusResponse.isCaptureErrors());
 }
 
-TEST_F(StatusResponseTest, CaptureErrorsEnabledWithTwo)
+TEST_F(StatusResponseTest, captureErrorsEnabledWithTwo)
 {
 	UTF8String s("er=2");
 	uint32_t responseCode = 200;
@@ -409,7 +409,7 @@ TEST_F(StatusResponseTest, CaptureErrorsEnabledWithTwo)
 	EXPECT_TRUE(statusResponse.isCaptureErrors());
 }
 
-TEST_F(StatusResponseTest, CaptureErrorsEnabledWithMinusOne)
+TEST_F(StatusResponseTest, captureErrorsEnabledWithMinusOne)
 {
 	UTF8String s("er=-1");
 	uint32_t responseCode = 200;
@@ -418,7 +418,7 @@ TEST_F(StatusResponseTest, CaptureErrorsEnabledWithMinusOne)
 	EXPECT_TRUE(statusResponse.isCaptureErrors());
 }
 
-TEST_F(StatusResponseTest, CaptureErrorsEnabledWithSignedIntegerMax)
+TEST_F(StatusResponseTest, captureErrorsEnabledWithSignedIntegerMax)
 {
 	UTF8String s("er=2147483647");
 	uint32_t responseCode = 200;
@@ -427,7 +427,7 @@ TEST_F(StatusResponseTest, CaptureErrorsEnabledWithSignedIntegerMax)
 	EXPECT_TRUE(statusResponse.isCaptureErrors());
 }
 
-TEST_F(StatusResponseTest, DISABLED_CaptureErrorsEnabledWithUnsignedIntegerMax)
+TEST_F(StatusResponseTest, DISABLED_captureErrorsEnabledWithUnsignedIntegerMax)
 {
 	UTF8String s("er=4294967295");
 	uint32_t responseCode = 200;
@@ -436,7 +436,7 @@ TEST_F(StatusResponseTest, DISABLED_CaptureErrorsEnabledWithUnsignedIntegerMax)
 	EXPECT_TRUE(statusResponse.isCaptureErrors());
 }
 
-TEST_F(StatusResponseTest, DISABLED_CaptureErrorsEnabledWithUnsignedIntegerMaxPlusOne)
+TEST_F(StatusResponseTest, DISABLED_captureErrorsEnabledWithUnsignedIntegerMaxPlusOne)
 {
 	UTF8String s("er=4294967296");
 	uint32_t responseCode = 200;
@@ -445,7 +445,7 @@ TEST_F(StatusResponseTest, DISABLED_CaptureErrorsEnabledWithUnsignedIntegerMaxPl
 	EXPECT_TRUE(statusResponse.isCaptureErrors());
 }
 
-TEST_F(StatusResponseTest, CaptureErrorsEnabledByTruncatedString)
+TEST_F(StatusResponseTest, captureErrorsEnabledByTruncatedString)
 {
 	UTF8String s("er=");
 	uint32_t responseCode = 200;
@@ -454,7 +454,7 @@ TEST_F(StatusResponseTest, CaptureErrorsEnabledByTruncatedString)
 	EXPECT_TRUE(statusResponse.isCaptureErrors());
 }
 
-TEST_F(StatusResponseTest, CaptureErrorsEnabledButThenTruncatedString)
+TEST_F(StatusResponseTest, captureErrorsEnabledButThenTruncatedString)
 {
 	UTF8String s("er=1&");
 	uint32_t responseCode = 200;
@@ -465,7 +465,7 @@ TEST_F(StatusResponseTest, CaptureErrorsEnabledButThenTruncatedString)
 
 /// -----------------
 
-TEST_F(StatusResponseTest, CaptureCrashesDefault)
+TEST_F(StatusResponseTest, captureCrashesDefault)
 {
 	UTF8String s("");
 	uint32_t responseCode = 200;
@@ -474,7 +474,7 @@ TEST_F(StatusResponseTest, CaptureCrashesDefault)
 	EXPECT_TRUE(statusResponse.isCaptureCrashes());
 }
 
-TEST_F(StatusResponseTest, CaptureCrashesDisabled)
+TEST_F(StatusResponseTest, captureCrashesDisabled)
 {
 	UTF8String s("cr=0");
 	uint32_t responseCode = 200;
@@ -483,7 +483,7 @@ TEST_F(StatusResponseTest, CaptureCrashesDisabled)
 	EXPECT_FALSE(statusResponse.isCaptureCrashes());
 }
 
-TEST_F(StatusResponseTest, CaptureCrashesEnabledWithOne)
+TEST_F(StatusResponseTest, captureCrashesEnabledWithOne)
 {
 	UTF8String s("cr=1");
 	uint32_t responseCode = 200;
@@ -492,7 +492,7 @@ TEST_F(StatusResponseTest, CaptureCrashesEnabledWithOne)
 	EXPECT_TRUE(statusResponse.isCaptureCrashes());
 }
 
-TEST_F(StatusResponseTest, CaptureCrashesEnabledWithTwo)
+TEST_F(StatusResponseTest, captureCrashesEnabledWithTwo)
 {
 	UTF8String s("cr=2");
 	uint32_t responseCode = 200;
@@ -501,7 +501,7 @@ TEST_F(StatusResponseTest, CaptureCrashesEnabledWithTwo)
 	EXPECT_TRUE(statusResponse.isCaptureCrashes());
 }
 
-TEST_F(StatusResponseTest, CaptureCrashesEnabledWithMinusOne)
+TEST_F(StatusResponseTest, captureCrashesEnabledWithMinusOne)
 {
 	UTF8String s("er=-1");
 	uint32_t responseCode = 200;
@@ -510,7 +510,7 @@ TEST_F(StatusResponseTest, CaptureCrashesEnabledWithMinusOne)
 	EXPECT_TRUE(statusResponse.isCaptureCrashes());
 }
 
-TEST_F(StatusResponseTest, CaptureCrashesEnabledWithSignedIntegerMax)
+TEST_F(StatusResponseTest, captureCrashesEnabledWithSignedIntegerMax)
 {
 	UTF8String s("cr=2147483647");
 	uint32_t responseCode = 200;
@@ -519,7 +519,7 @@ TEST_F(StatusResponseTest, CaptureCrashesEnabledWithSignedIntegerMax)
 	EXPECT_TRUE(statusResponse.isCaptureCrashes());
 }
 
-TEST_F(StatusResponseTest, DISABLED_CaptureCrashesEnabledWithUnsignedIntegerMax)
+TEST_F(StatusResponseTest, DISABLED_captureCrashesEnabledWithUnsignedIntegerMax)
 {
 	UTF8String s("cr=4294967295");
 	uint32_t responseCode = 200;
@@ -528,7 +528,7 @@ TEST_F(StatusResponseTest, DISABLED_CaptureCrashesEnabledWithUnsignedIntegerMax)
 	EXPECT_TRUE(statusResponse.isCaptureCrashes());
 }
 
-TEST_F(StatusResponseTest, DISABLED_CaptureCrashesEnabledWithUnsignedIntegerMaxPlusOne)
+TEST_F(StatusResponseTest, DISABLED_captureCrashesEnabledWithUnsignedIntegerMaxPlusOne)
 {
 	UTF8String s("cr=4294967296");
 	uint32_t responseCode = 200;
@@ -537,7 +537,7 @@ TEST_F(StatusResponseTest, DISABLED_CaptureCrashesEnabledWithUnsignedIntegerMaxP
 	EXPECT_TRUE(statusResponse.isCaptureCrashes());
 }
 
-TEST_F(StatusResponseTest, CaptureCrashesEnabledByTruncatedString)
+TEST_F(StatusResponseTest, captureCrashesEnabledByTruncatedString)
 {
 	UTF8String s("cr=");
 	uint32_t responseCode = 200;
@@ -546,7 +546,7 @@ TEST_F(StatusResponseTest, CaptureCrashesEnabledByTruncatedString)
 	EXPECT_TRUE(statusResponse.isCaptureCrashes());
 }
 
-TEST_F(StatusResponseTest, CaptureCrashesEnabledButThenTruncatedString)
+TEST_F(StatusResponseTest, captureCrashesEnabledButThenTruncatedString)
 {
 	UTF8String s("cr=1&");
 	uint32_t responseCode = 200;
@@ -557,7 +557,7 @@ TEST_F(StatusResponseTest, CaptureCrashesEnabledButThenTruncatedString)
 
 /// -----------------
 
-TEST_F(StatusResponseTest, CaptureTogetherWithSendInterval)
+TEST_F(StatusResponseTest, captureTogetherWithSendInterval)
 {
 	UTF8String s("cp=1&si=3");
 	uint32_t responseCode = 200;
@@ -567,7 +567,7 @@ TEST_F(StatusResponseTest, CaptureTogetherWithSendInterval)
 	EXPECT_EQ(3000, statusResponse.getSendInterval());
 }
 
-TEST_F(StatusResponseTest, CaptureTogetherWithCorruptSendInterval)
+TEST_F(StatusResponseTest, captureTogetherWithCorruptSendInterval)
 {
 	UTF8String s("cp=1&=");
 	uint32_t responseCode = 200;
@@ -577,7 +577,7 @@ TEST_F(StatusResponseTest, CaptureTogetherWithCorruptSendInterval)
 	EXPECT_EQ(-1, statusResponse.getSendInterval());
 }
 
-TEST_F(StatusResponseTest, NotExistingKey)
+TEST_F(StatusResponseTest, notExistingKey)
 {
 	UTF8String s("hello=world");
 	uint32_t responseCode = 200;
@@ -595,7 +595,7 @@ TEST_F(StatusResponseTest, NotExistingKey)
 
 /// -----------------
 
-TEST_F(StatusResponseTest, SomeTypicalStatusResponse)
+TEST_F(StatusResponseTest, someTypicalStatusResponse)
 {
 	UTF8String s("cp=1&si=2&bn=MyName&id=5&bl=3072&er=1&cr=0");
 	uint32_t responseCode = 200;

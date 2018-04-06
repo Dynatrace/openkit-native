@@ -37,7 +37,7 @@ public:
 	}
 };
 
-TEST_F(CompressorTest, GzipCompressHelloWorld)
+TEST_F(CompressorTest, gzipCompressHelloWorld)
 {
 	const char inData[] = "Hello World";
 	size_t inDataSize = strlen(inData) + 1;

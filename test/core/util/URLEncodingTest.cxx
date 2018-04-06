@@ -28,7 +28,7 @@ public:
 };
 
 
-TEST_F(URLEncodingTest, UrlEncodeQueryParameterWithSpacesAndEqualsSign)
+TEST_F(URLEncodingTest, urlEncodeQueryParameterWithSpacesAndEqualsSign)
 {
 	UTF8String s("q=greater than 5");
 	UTF8String expectation("q%3Dgreater%20than%205");
@@ -37,7 +37,7 @@ TEST_F(URLEncodingTest, UrlEncodeQueryParameterWithSpacesAndEqualsSign)
 	EXPECT_TRUE(encoded.equals(expectation));
 }
 
-TEST_F(URLEncodingTest, UrlEncodeQueryParameterWithSpacesAndEqualsSignFinallyDecodeAgain)
+TEST_F(URLEncodingTest, urlEncodeQueryParameterWithSpacesAndEqualsSignFinallyDecodeAgain)
 {
 	UTF8String s("q=greater than 5");
 	UTF8String encoded = core::util::URLEncoding::urlencode(s);
@@ -46,7 +46,7 @@ TEST_F(URLEncodingTest, UrlEncodeQueryParameterWithSpacesAndEqualsSignFinallyDec
 	EXPECT_TRUE(decoded.equals(s));
 }
 
-TEST_F(URLEncodingTest, UrlEncodeStringNotChangedAllCharactersAllowed)
+TEST_F(URLEncodingTest, urlEncodeStringNotChangedAllCharactersAllowed)
 {
 	UTF8String s(".All-this~characters_are_Allowed.");
 
@@ -54,7 +54,7 @@ TEST_F(URLEncodingTest, UrlEncodeStringNotChangedAllCharactersAllowed)
 	EXPECT_TRUE(encoded.equals(s));
 }
 
-TEST_F(URLEncodingTest, UrlEncodeUTF8MultibyteName)
+TEST_F(URLEncodingTest, urlEncodeUTF8MultibyteName)
 {
 	UTF8String s("\xD7\xAA\xf0\x9f\x98\x8b");
 	UTF8String expectation("%D7%AA%F0%9F%98%8B");
@@ -63,7 +63,7 @@ TEST_F(URLEncodingTest, UrlEncodeUTF8MultibyteName)
 	EXPECT_TRUE(encoded.equals(expectation));
 }
 
-TEST_F(URLEncodingTest, UrlEncodeUTF8MultibyteNameFinallyDecodeAgain)
+TEST_F(URLEncodingTest, urlEncodeUTF8MultibyteNameFinallyDecodeAgain)
 {
 	UTF8String s("\xD7\xAA\xf0\x9f\x98\x8b");
 	UTF8String encoded = core::util::URLEncoding::urlencode(s);
@@ -71,7 +71,7 @@ TEST_F(URLEncodingTest, UrlEncodeUTF8MultibyteNameFinallyDecodeAgain)
 	EXPECT_TRUE(decoded.equals(s));
 }
 
-TEST_F(URLEncodingTest, UrlDecodeFailing_PercentFollowedByNonHexCharacterTwoInvalidBytes)
+TEST_F(URLEncodingTest, urlDecodeFailing_PercentFollowedByNonHexCharacterTwoInvalidBytes)
 {
 	UTF8String s("invalid%string");
 	UTF8String decoded = core::util::URLEncoding::urldecode(s);
@@ -80,7 +80,7 @@ TEST_F(URLEncodingTest, UrlDecodeFailing_PercentFollowedByNonHexCharacterTwoInva
 	EXPECT_TRUE(decoded.equals(expectation));
 }
 
-TEST_F(URLEncodingTest, UrlDecodeFailing_PercentFollowedByNonHexCharacterSecondByteInvalid)
+TEST_F(URLEncodingTest, urlDecodeFailing_PercentFollowedByNonHexCharacterSecondByteInvalid)
 {
 	UTF8String s("invalid%ARstring");
 	UTF8String decoded = core::util::URLEncoding::urldecode(s);
@@ -89,7 +89,7 @@ TEST_F(URLEncodingTest, UrlDecodeFailing_PercentFollowedByNonHexCharacterSecondB
 	EXPECT_TRUE(decoded.equals(expectation));
 }
 
-TEST_F(URLEncodingTest, UrlDecodeFailing_PercentFollowedByNonHexCharacterFirstByteInvalid)
+TEST_F(URLEncodingTest, urlDecodeFailing_PercentFollowedByNonHexCharacterFirstByteInvalid)
 {
 	UTF8String s("invalid%XString");
 	UTF8String decoded = core::util::URLEncoding::urldecode(s);
@@ -98,7 +98,7 @@ TEST_F(URLEncodingTest, UrlDecodeFailing_PercentFollowedByNonHexCharacterFirstBy
 	EXPECT_TRUE(decoded.equals(expectation));
 }
 
-TEST_F(URLEncodingTest, UrlDecodeFailing_OneCharacterMissingAtTheEnd)
+TEST_F(URLEncodingTest, urlDecodeFailing_OneCharacterMissingAtTheEnd)
 {
 	UTF8String s("invalidstring%E");
 	UTF8String decoded = core::util::URLEncoding::urldecode(s);
@@ -107,7 +107,7 @@ TEST_F(URLEncodingTest, UrlDecodeFailing_OneCharacterMissingAtTheEnd)
 	EXPECT_TRUE(decoded.equals(expectation));
 }
 
-TEST_F(URLEncodingTest, UrlDecodeFailing_BothCharactersMissingAtTheEnd)
+TEST_F(URLEncodingTest, urlDecodeFailing_BothCharactersMissingAtTheEnd)
 {
 	UTF8String s("invalidstring%");
 	UTF8String decoded = core::util::URLEncoding::urldecode(s);
@@ -116,7 +116,7 @@ TEST_F(URLEncodingTest, UrlDecodeFailing_BothCharactersMissingAtTheEnd)
 	EXPECT_TRUE(decoded.equals(expectation));
 }
 
-TEST_F(URLEncodingTest, UrlEncodeDecodePercentSignPreserved)
+TEST_F(URLEncodingTest, urlEncodeDecodePercentSignPreserved)
 {
 	UTF8String s("this text contains a % as valid codepoint");
 
