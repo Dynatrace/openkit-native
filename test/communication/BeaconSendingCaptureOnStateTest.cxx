@@ -180,6 +180,17 @@ TEST_F(BeaconSendingCaptureOnStateTest, aBeaconSendingCaptureOnStateSendsFinishe
 	target.doExecute(*mMockContext);
 }
 
+MATCHER_P(IsAmockedSession, mock, "")
+{
+	if (arg == mock)
+	{
+		return true;
+	}
+	*result_listener << "Unexpected mock";
+
+	return false;
+}
+
 TEST_F(BeaconSendingCaptureOnStateTest, aBeaconSendingCaptureOnStatePushesBackFinishedSessionIfSendWasUnsuccessful)
 {
 	// given
@@ -198,7 +209,7 @@ TEST_F(BeaconSendingCaptureOnStateTest, aBeaconSendingCaptureOnStatePushesBackFi
 		.Times(testing::Exactly(0));
 	EXPECT_CALL(*mMockContext, getNextFinishedSession())
 		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mMockContext, pushBackFinishedSession(testing::_)) // improvement mMockSession4Finished
+	EXPECT_CALL(*mMockContext, pushBackFinishedSession(IsAmockedSession(mMockSession3Finished)))
 		.Times(testing::Exactly(1));
 
 	// when calling execute
