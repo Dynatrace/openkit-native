@@ -53,7 +53,7 @@ namespace core
 		/// @param[in] name the name of the action
 		/// @param[in] sameLevelActions actions on the same level
 		///
-		Action(std::shared_ptr<protocol::Beacon> beacon, const char* name);
+		Action(std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name);
 
 		///
 		/// Create an action given a beacon  and the action name
@@ -124,7 +124,6 @@ namespace core
 		///
 		int32_t getEndSequenceNo() const;
 
-	protected:
 		///
 		/// Return a flag if this action has been closed already
 		/// @returns @c true if action was already left, @c false if action is open

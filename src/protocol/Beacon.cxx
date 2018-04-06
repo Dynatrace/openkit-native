@@ -159,7 +159,7 @@ void Beacon::addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, d
 
 int32_t Beacon::createSequenceNumber()
 {
-	return mSequenceNumber++;
+	return ++mSequenceNumber;
 }
 
 int64_t Beacon::getCurrentTimestamp() const
@@ -169,7 +169,7 @@ int64_t Beacon::getCurrentTimestamp() const
 
 int32_t Beacon::createID()
 {
-	return mID++;
+	return ++mID;
 }
 
 void Beacon::addAction(std::shared_ptr<core::Action> action)
@@ -249,7 +249,7 @@ void Beacon::reportValue(std::shared_ptr<core::Action> parentAction, const core:
 	addEventData(eventTimestamp, eventData);
 }
 
-void Beacon::reportEvent(std::shared_ptr<core::Action> parentAction, core::UTF8String eventName)
+void Beacon::reportEvent(std::shared_ptr<core::Action> parentAction, const core::UTF8String& eventName)
 {
 	uint64_t eventTimestamp;
 	core::UTF8String eventData = buildEvent(EventType::NAMED_EVENT, eventName, parentAction->getID(), eventTimestamp);

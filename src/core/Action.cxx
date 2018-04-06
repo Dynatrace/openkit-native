@@ -23,8 +23,8 @@
 
 using namespace core;
 
-Action::Action(std::shared_ptr<protocol::Beacon> beacon, const char* name)
-	: Action(beacon, UTF8String(name), nullptr)
+Action::Action(std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name)
+	: Action(beacon, name, nullptr)
 {
 
 }
@@ -137,13 +137,17 @@ std::shared_ptr<api::IRootAction> Action::doLeaveAction()
 	// add Action to Beacon
 	mBeacon->addAction(shared_from_this());
 
-	//remove Action from the Actions on this level
-	mParentAction->childActionEnded(shared_from_this());
+	if (mParentAction != nullptr)
+	{
+		//remove Action from the Actions on this level
+		mParentAction->childActionEnded(shared_from_this());
+	}
 
 	auto returnValue = std::static_pointer_cast<api::IRootAction>(mParentAction);
 	mParentAction = nullptr;
 
 	return returnValue;
+
 }
 
 bool Action::isNullObject() const

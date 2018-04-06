@@ -37,6 +37,12 @@ RootAction::RootAction(std::shared_ptr<protocol::Beacon> beacon, const UTF8Strin
 
 std::shared_ptr<api::IAction> RootAction::enterAction(const char* actionName)
 {
+	UTF8String actionNameString(actionName);
+	if (actionNameString.empty())
+	{
+		return NULL_ACTION;
+	}
+
 	if (!isActionLeft())
 	{
 		auto childAction = std::make_shared<Action>(mBeacon, UTF8String(actionName), shared_from_this());
@@ -124,9 +130,6 @@ std::shared_ptr<api::IRootAction> RootAction::reportError(const char* errorName,
 
 void RootAction::doLeaveAction()
 {
-	mEndTime = mBeacon->getCurrentTimestamp();
-	mEndSequenceNumber = mBeacon->createSequenceNumber();
-
 	// add Action to Beacon
 	mBeacon->addAction(shared_from_this());
 
@@ -135,6 +138,10 @@ void RootAction::doLeaveAction()
 		auto action = mOpenChildActions.get();
 		action->leaveAction();
 	}
+
+	// leave event of the root action must be later than the leaveAction calls of the childs
+	mEndTime = mBeacon->getCurrentTimestamp();
+	mEndSequenceNumber = mBeacon->createSequenceNumber();
 
 	mSession->rootActionEnded(std::static_pointer_cast<RootAction>(shared_from_this()));
 	mSession = nullptr;
@@ -194,4 +201,9 @@ int32_t RootAction::getEndSequenceNo() const
 bool RootAction::isActionLeft() const
 {
 	return mEndTime != -1;
+}
+
+bool RootAction::hasOpenChildActions() const
+{
+	return !mOpenChildActions.isEmpty();
 }

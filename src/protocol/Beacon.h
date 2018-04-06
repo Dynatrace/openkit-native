@@ -136,7 +136,7 @@ namespace protocol
 		/// @param parentAction The @ref Action on which this event was reported.
 		/// @param eventName Event's name.
 		///
-		virtual void reportEvent(std::shared_ptr<core::Action> parentAction, core::UTF8String eventName);
+		virtual void reportEvent(std::shared_ptr<core::Action> parentAction, const core::UTF8String& eventName);
 
 		///
 		/// Add error to Beacon.

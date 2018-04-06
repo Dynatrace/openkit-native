@@ -117,7 +117,13 @@ namespace core
 		///
 		int32_t getEndSequenceNo()const;
 
-	protected:
+		///
+		/// Returns if this RootAction has open child actions
+		/// This method is required for unit testing
+		/// @returns @c true if there are any open child actions
+		///
+		bool hasOpenChildActions() const;
+
 		///
 		/// Return a flag if this action has been closed already
 		/// @returns @c true if action was already left, @c false if action is open
