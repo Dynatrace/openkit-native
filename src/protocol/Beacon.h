@@ -100,7 +100,7 @@ namespace protocol
 		///
 		/// The serialized data is added to @ref BeaconCache.
 		///
-		/// @param parentAction The {@link com.dynatrace.openkit.api.Action} on which this value was reported.
+		/// @param parentAction The @ref Action on which this value was reported.
 		/// @param valueName Value's name.
 		/// @param value Actual value to report.
 		///
@@ -111,7 +111,7 @@ namespace protocol
 		///
 		/// The serialized data is added to @ref BeaconCache.
 		///
-		/// @param parentAction The {@link com.dynatrace.openkit.api.Action} on which this value was reported.
+		/// @param parentAction The @ref Action on which this value was reported.
 		/// @param valueName Value's name.
 		/// @param value Actual value to report.
 		///
@@ -122,7 +122,7 @@ namespace protocol
 		///
 		/// The serialized data is added to @ref BeaconCache.
 		///
-		/// @param parentAction The {@link com.dynatrace.openkit.api.Action} on which this value was reported.
+		/// @param parentAction The @ref Action on which this value was reported.
 		/// @param valueName Value's name.
 		/// @param value Actual value to report.
 		///
@@ -155,7 +155,7 @@ namespace protocol
 		///
 		/// The serialized data is added to @ref BeaconCache.
 		///
-		/// @param parentAction The {@link com.dynatrace.openkit.api.Action} on which this value was reported.
+		/// @param parentAction The @ref Action on which this value was reported.
 		/// @param valueName Value's name.
 		/// @param value Actual value to report.
 		///
@@ -166,7 +166,7 @@ namespace protocol
 		///
 		/// The serialized data is added to @ref BeaconCache.
 		///
-		/// @param parentAction The {@link com.dynatrace.openkit.api.Action} on which this value was reported.
+		/// @param parentAction The @ref RootAction on which this value was reported.
 		/// @param valueName Value's name.
 		/// @param value Actual value to report.
 		///
@@ -177,7 +177,7 @@ namespace protocol
 		///
 		/// The serialized data is added to @ref BeaconCache.
 		///
-		/// @param parentAction The {@link com.dynatrace.openkit.api.Action} on which this value was reported.
+		/// @param parentAction The @ref RootAction on which this value was reported.
 		/// @param valueName Value's name.
 		/// @param value Actual value to report.
 		///
@@ -188,7 +188,7 @@ namespace protocol
 		///
 		/// The serialized data is added to @ref BeaconCache.
 		///
-		/// @param parentAction The @ref Action on which this event was reported.
+		/// @param parentAction The @ref RootAction on which this event was reported.
 		/// @param eventName Event's name.
 		///
 		virtual void reportEvent(std::shared_ptr<core::RootAction> parentAction, core::UTF8String eventName);
@@ -198,7 +198,7 @@ namespace protocol
 		///
 		/// The serialized data is added to @ref BeaconCache.
 		///
-		/// @param parentAction The @ref Action on which this error was reported.
+		/// @param parentAction The @ref RootAction on which this error was reported.
 		/// @param errorName Error's name.
 		/// @param errorCode Some error code.
 		/// @param reason Reason for that error.
@@ -207,7 +207,7 @@ namespace protocol
 
 		///
 		/// Add crash to Beacon
-		/// The serialized data is added to {@ref BeaconCache}
+		/// The serialized data is added to @ref BeaconCache
 		/// @param[in] errorName Error's name.
 		/// @param[in] reason Reason for that error.
 		/// @param[in] stacktrace Crash stacktrace.
@@ -216,7 +216,7 @@ namespace protocol
 
 		///
 		/// Add user identification to Beacon.
-		/// The serialized data is added to {@ref BeaconCache}
+		/// The serialized data is added to @ref BeaconCache
 		/// @param[in] userTag User tag containing data to serialize.
 		///
 		virtual void identifyUser(const core::UTF8String& userTag);
