@@ -172,6 +172,30 @@ int32_t Beacon::createID()
 	return ++mID;
 }
 
+core::UTF8String Beacon::createTag(int32_t parentActionID, int32_t sequenceNumber)
+{
+	core::UTF8String webRequestTag(TAG_PREFIX);
+
+	webRequestTag.concatenate("_");
+	webRequestTag.concatenate(std::to_string(PROTOCOL_VERSION));
+	webRequestTag.concatenate("_");
+	webRequestTag.concatenate(std::to_string(mHTTPClientConfiguration->getServerID()));
+	webRequestTag.concatenate("_");
+	webRequestTag.concatenate(std::to_string(mConfiguration->getDeviceID()));
+	webRequestTag.concatenate("_");
+	webRequestTag.concatenate(std::to_string(mSessionNumber));
+	webRequestTag.concatenate("_");
+	webRequestTag.concatenate(mConfiguration->getApplicationID());
+	webRequestTag.concatenate("_");
+	webRequestTag.concatenate(std::to_string(parentActionID));
+	webRequestTag.concatenate("_");
+	webRequestTag.concatenate(std::to_string(mThreadIDProvider->getThreadID()));
+	webRequestTag.concatenate("_");
+	webRequestTag.concatenate(std::to_string(sequenceNumber));
+
+	return webRequestTag;
+}
+
 void Beacon::addAction(std::shared_ptr<core::Action> action)
 {
 	core::UTF8String actionData = createBasicEventData(EventType::ACTION, action->getName());
@@ -352,6 +376,37 @@ void Beacon::reportCrash(const core::UTF8String& errorName, const core::UTF8Stri
 	addKeyValuePair(eventData, BEACON_KEY_ERROR_STACKTRACE, stacktrace);
 
 	addEventData(timestamp, eventData);
+}
+
+void Beacon::addWebRequest(int32_t parentActionID, std::shared_ptr<core::WebRequestTracerBase> webRequestTracer)
+{
+	core::UTF8String eventData = createBasicEventData(EventType::WEBREQUEST, webRequestTracer->getURL());
+
+	addKeyValuePair(eventData, BEACON_KEY_PARENT_ACTION_ID, parentActionID);
+	addKeyValuePair(eventData, BEACON_KEY_START_SEQUENCE_NUMBER, webRequestTracer->getStartSequenceNo());
+	addKeyValuePair(eventData, BEACON_KEY_TIME_0, getTimeSinceSessionStartTime(webRequestTracer->getStartTime()));
+	addKeyValuePair(eventData, BEACON_KEY_END_SEQUENCE_NUMBER, webRequestTracer->getEndSequenceNo());
+	addKeyValuePair(eventData, BEACON_KEY_TIME_1, webRequestTracer->getEndTime() - webRequestTracer->getStartTime());
+
+	int32_t bytesSent = webRequestTracer->getBytesSent();
+	if (bytesSent > -1)
+	{
+		addKeyValuePair(eventData, BEACON_KEY_WEBREQUEST_BYTES_SENT, bytesSent);
+	}
+
+	int32_t bytesReceived = webRequestTracer->getBytesReceived();
+	if (bytesReceived > -1)
+	{
+		addKeyValuePair(eventData, BEACON_KEY_WEBREQUEST_BYTES_RECEIVED, bytesReceived);
+	}
+
+	int32_t responseCode = webRequestTracer->getResponseCode();
+	if (responseCode > -1)
+	{
+		addKeyValuePair(eventData, BEACON_KEY_WEBREQUEST_RESPONSE_CODE, responseCode);
+	}
+
+	addEventData(webRequestTracer->getStartTime(), eventData);
 }
 
 void Beacon::identifyUser(const core::UTF8String& userTag)

@@ -29,6 +29,7 @@ set(SOURCES_CORE
 	core/Session.cxx
 	core/Action.cxx
 	core/RootAction.cxx
+	core/WebRequestTracerBase.cxx
 )
 
 set(SOURCES_COMMUNICATION
