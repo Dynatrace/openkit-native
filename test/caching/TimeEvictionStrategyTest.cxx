@@ -176,22 +176,11 @@ TEST_F(TimeEvictionStrategyTest, lastRuntimeStampIsAdjustedDuringFirstExecution)
 	// given
 	auto configuration = std::make_shared<BeaconCacheConfiguration>(1000L, 1000L, 2000L);
 	TimeEvictionStrategy target(mMockBeaconCache, configuration, mMockTimingProvider, std::bind(&TimeEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this));
-
-	uint32_t callCount = 0;
-	ON_CALL(*mMockTimingProvider, provideTimestampInMilliseconds())
-		.WillByDefault(testing::Invoke(
-			[&callCount]() -> int64_t {
-				// callCount 1 => 1000 for TimeEvictionStrategy::execute() (first time execution)
-				// callCount 2 => 1001 for TimeEvictionStrategy::shouldRun()
-				// callCount 3 => 1001 for TimeEvictionStrategy::doExecute() with no beacons
-				callCount++;
-				return callCount == 1 ? 1000L : 1001L;
-			}
-		));
-
+	
 	// when executing the first time
 	EXPECT_CALL(*mMockTimingProvider, provideTimestampInMilliseconds())
-		.Times(testing::Exactly(2));
+		.WillOnce(testing::Return(1000L))		// 1000 for TimeEvictionStrategy::execute() (first time execution)
+		.WillOnce(testing::Return(1001L));		// 1001 for TimeEvictionStrategy::shouldRun()
 	target.execute();
 
 	// then
@@ -199,7 +188,7 @@ TEST_F(TimeEvictionStrategyTest, lastRuntimeStampIsAdjustedDuringFirstExecution)
 
 	// when executing the second time
 	EXPECT_CALL(*mMockTimingProvider, provideTimestampInMilliseconds())
-		.Times(testing::Exactly(1));
+		.WillOnce(testing::Return(1001L));		// 1001 for TimeEvictionStrategy::doExecute() with no beacons
 	target.execute();
 
 	// then
@@ -213,18 +202,6 @@ TEST_F(TimeEvictionStrategyTest, executeEvictionStopsIfNoBeaconIdsAreAvailableIn
 	auto mockTimingProvider = std::shared_ptr<testing::StrictMock<test::MockTimingProvider>>(new testing::StrictMock<test::MockTimingProvider>());
 	auto configuration = std::make_shared<BeaconCacheConfiguration>(1000L, 1000L, 2000L);
 	TimeEvictionStrategy target(mockBeaconCache, configuration, mockTimingProvider, std::bind(&TimeEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this));
-
-	uint32_t callCount = 0;
-	ON_CALL(*mockTimingProvider, provideTimestampInMilliseconds())
-		.WillByDefault(testing::Invoke(
-			[&callCount]() -> int64_t {
-				// callCount 1 => 1000 for TimeEvictionStrategy::execute() (first time execution)
-				// callCount 2 => 2000 for TimeEvictionStrategy::shouldRun()
-				// callCount 3 => 2000 for TimeEvictionStrategy::doExecute() with no beacons
-				callCount++;
-				return callCount == 1 ? 1000L : 2000L;
-			}
-		));
 	ON_CALL(*mockBeaconCache, getBeaconIDs())
 		.WillByDefault(testing::Return(std::unordered_set<int32_t>()));
 
@@ -232,7 +209,9 @@ TEST_F(TimeEvictionStrategyTest, executeEvictionStopsIfNoBeaconIdsAreAvailableIn
 	EXPECT_CALL(*mockBeaconCache, getBeaconIDs())
 		.Times(testing::Exactly(1));
 	EXPECT_CALL(*mockTimingProvider, provideTimestampInMilliseconds())
-		.Times(testing::Exactly(3));
+		.WillOnce(testing::Return(1000L))		// 1000 for TimeEvictionStrategy::execute() (first time execution)
+		.WillOnce(testing::Return(2000L))		// 2000 for TimeEvictionStrategy::shouldRun()
+		.WillOnce(testing::Return(2000L));		// 2000 for inner while loop in SpaceEvictionStrategy::doExecute() which evicts beaconID 1
 	target.execute();
 
 	// also ensure that the last run timestamp was updated
@@ -246,18 +225,6 @@ TEST_F(TimeEvictionStrategyTest, executeEvictionCallsEvictionForEachBeaconSepara
 	auto mockTimingProvider = std::shared_ptr<testing::StrictMock<test::MockTimingProvider>>(new testing::StrictMock<test::MockTimingProvider>());
 	auto configuration = std::make_shared<BeaconCacheConfiguration>(1000L, 1000L, 2000L);
 	TimeEvictionStrategy target(mockBeaconCache, configuration, mockTimingProvider, std::bind(&TimeEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this));
-
-	uint32_t callCount = 0;
-	ON_CALL(*mockTimingProvider, provideTimestampInMilliseconds())
-		.WillByDefault(testing::Invoke(
-			[&callCount]() -> int64_t {
-				// callCount 1 => 1000 for TimeEvictionStrategy::execute() (first time execution)
-				// callCount 2 => 2099 for TimeEvictionStrategy::shouldRun()
-				// callCount 3 => 2099 for TimeEvictionStrategy::doExecute() with no beacons
-				callCount++;
-				return callCount == 1 ? 1000L : 2099L;
-			}
-		));
 	ON_CALL(*mockBeaconCache, getBeaconIDs())
 		.WillByDefault(testing::Return(std::unordered_set<int32_t>({ 1, 42 } )));
 
@@ -269,7 +236,9 @@ TEST_F(TimeEvictionStrategyTest, executeEvictionCallsEvictionForEachBeaconSepara
 	EXPECT_CALL(*mockBeaconCache, evictRecordsByAge(42, 2099L - configuration->getMaxRecordAge()))
 		.Times(testing::Exactly(1));
 	EXPECT_CALL(*mockTimingProvider, provideTimestampInMilliseconds())
-		.Times(testing::Exactly(3));
+		.WillOnce(testing::Return(1000L))		// 1000 for TimeEvictionStrategy::execute() (first time execution)
+		.WillOnce(testing::Return(2099L))		// 2099 for TimeEvictionStrategy::shouldRun()
+		.WillOnce(testing::Return(2099L));		// 2099 for TimeEvictionStrategy::doExecute() with no beacons
 
 	// when 
 	target.execute();
@@ -291,18 +260,6 @@ TEST_F(TimeEvictionStrategyTest, executeEvictionIsStoppedIfThreadGetsInterrupted
 	auto configuration = std::make_shared<BeaconCacheConfiguration>(1000L, 1000L, 2000L);
 	auto mockIsAlive = std::shared_ptr<testing::NiceMock<MockIsAlive>>(new testing::NiceMock<MockIsAlive>());
 	TimeEvictionStrategy target(mockBeaconCache, configuration, mockTimingProvider, std::bind(&MockIsAlive::isAlive, mockIsAlive));
-
-	uint32_t callCount = 0;
-	ON_CALL(*mockTimingProvider, provideTimestampInMilliseconds())
-		.WillByDefault(testing::Invoke(
-			[&callCount]() -> int64_t {
-		// callCount 1 => 1000 for TimeEvictionStrategy::execute() (first time execution)
-		// callCount 2 => 2099 for TimeEvictionStrategy::shouldRun()
-		// callCount 3 => 2099 for TimeEvictionStrategy::doExecute() with no beacons
-		callCount++;
-		return callCount == 1 ? 1000L : 2099L;
-	}
-	));
 	uint32_t callCountIsAlive = 0;
 	ON_CALL(*mockIsAlive, isAlive())
 		.WillByDefault(testing::Invoke(
@@ -321,8 +278,9 @@ TEST_F(TimeEvictionStrategyTest, executeEvictionIsStoppedIfThreadGetsInterrupted
 	EXPECT_CALL(*mockBeaconCache, evictRecordsByAge(testing::_, 2099L - configuration->getMaxRecordAge()))
 		.Times(testing::Exactly(1));
 	EXPECT_CALL(*mockTimingProvider, provideTimestampInMilliseconds())
-		.Times(testing::Exactly(3));
-
+		.WillOnce(testing::Return(1000L))		// 1000 for TimeEvictionStrategy::execute() (first time execution)
+		.WillOnce(testing::Return(2099L))		// 2099 for TimeEvictionStrategy::shouldRun()
+		.WillOnce(testing::Return(2099L));		// 2099 for TimeEvictionStrategy::doExecute() with no beacons
 	// when 
 	target.execute();
 }

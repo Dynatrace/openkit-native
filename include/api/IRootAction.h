@@ -41,6 +41,54 @@ namespace api
 		virtual std::shared_ptr<IAction> enterAction(const char* actionName) = 0;
 
 		///
+		/// Reports an event with a specified name (but without any value).
+		///
+		/// If given @c eventName is @c nullptr then no event is reported to the system.
+		///
+		/// @param eventName name of the event
+		/// @return this Action (for usage as fluent API)
+		///
+		virtual std::shared_ptr<IRootAction> reportEvent(const char* eventName) = 0;
+
+		///
+		/// Reports an int value with a specified name.
+		///
+		/// @param valueName name of this value
+		/// @param value     value itself
+		/// @return this Action (for usage as fluent API)
+		///
+		virtual std::shared_ptr<IRootAction> reportValue(const char* valueName, int32_t value) = 0;
+
+		///
+		/// Reports a double value with a specified name.
+		///
+		/// @param valueName name of this value
+		/// @param value     value itself
+		/// @return this Action (for usage as fluent API)
+		///
+		virtual std::shared_ptr<IRootAction> reportValue(const char* valueName, double value) = 0;
+
+		///
+		/// Reports a String value with a specified name.
+		///
+		/// @param valueName name of this value
+		/// @param value     value itself
+		/// @return this Action (for usage as fluent API)
+		///
+		virtual std::shared_ptr<IRootAction> reportValue(const char* valueName, const char* value) = 0;
+
+		///
+		/// Reports an error with a specified name, error code and reason.
+		///
+		/// @param errorName name of this error
+		/// @param errorCode numeric error code of this error
+		/// @param reason    reason for this error
+		/// @return this Action (for usage as fluent API)
+		///
+		virtual std::shared_ptr<IRootAction> reportError(const char* errorName, int32_t errorCode, const char* reason) = 0;
+
+
+		///
 		/// Leaves this Action.
 		///
 		virtual void leaveAction() = 0;

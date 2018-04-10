@@ -45,9 +45,73 @@ namespace test {
 			return protocol::Beacon::send(httpClientProvider);
 		}
 
+		/// for actions
+
+		void reportEvent(std::shared_ptr<core::Action> parentAction, const core::UTF8String& eventName)
+		{
+			reportEventGivenAction(parentAction, eventName);
+		}
+
+		void reportValue(std::shared_ptr<core::Action> parentAction, const core::UTF8String& valueName, int32_t value) override
+		{
+			reportValueInt32GivenAction(parentAction, valueName, value);
+		}
+
+		void reportValue(std::shared_ptr<core::Action> parentAction, const core::UTF8String& valueName, double value) override
+		{
+			reportValueDoubleGivenAction(parentAction, valueName, value);
+		}
+
+		void reportValue(std::shared_ptr<core::Action> parentAction, const core::UTF8String& valueName, const core::UTF8String& value) override
+		{
+			reportValueStringGivenAction(parentAction, valueName, value);
+		}
+
+		void reportError(std::shared_ptr<core::Action> parentAction, const core::UTF8String& errorName, int32_t reason, const core::UTF8String& stacktrace)
+		{
+			reportErrorGivenAction(parentAction, errorName, reason, stacktrace);
+		}
+
+		// for root actions
+
+		void reportEvent(std::shared_ptr<core::RootAction> parentAction, const core::UTF8String& eventName)
+		{
+			reportEventGivenRootAction(parentAction, eventName);
+		}
+
+		void reportValue(std::shared_ptr<core::RootAction> parentAction, const core::UTF8String& valueName, int32_t value) override
+		{
+			reportValueInt32GivenRootAction(parentAction, valueName, value);
+		}
+
+		void reportValue(std::shared_ptr<core::RootAction> parentAction, const core::UTF8String& valueName, double value) override
+		{
+			reportValueDoubleGivenRootAction(parentAction, valueName, value);
+		}
+
+		void reportValue(std::shared_ptr<core::RootAction> parentAction, const core::UTF8String& valueName, const core::UTF8String& value) override
+		{
+			reportValueStringGivenRootAction(parentAction, valueName, value);
+		}
+
+		void reportError(std::shared_ptr<core::RootAction> parentAction, const core::UTF8String& errorName, int32_t reason, const core::UTF8String& stacktrace)
+		{
+			reportErrorGivenRootAction(parentAction, errorName, reason, stacktrace);
+		}
+
 		virtual ~MockBeacon() {}
 
 		MOCK_METHOD1(identifyUser, void(const core::UTF8String& userTag));
+		MOCK_METHOD2(reportEventGivenAction, void(std::shared_ptr<core::Action>, const core::UTF8String&));
+		MOCK_METHOD3(reportValueInt32GivenAction, void(std::shared_ptr<core::Action>, const core::UTF8String&, int32_t));
+		MOCK_METHOD3(reportValueDoubleGivenAction, void(std::shared_ptr<core::Action>, const core::UTF8String&, double));
+		MOCK_METHOD3(reportValueStringGivenAction, void(std::shared_ptr<core::Action>, const core::UTF8String&, const core::UTF8String&));
+		MOCK_METHOD4(reportErrorGivenAction, void(std::shared_ptr<core::Action>, const core::UTF8String&, int32_t, const core::UTF8String&));
+		MOCK_METHOD2(reportEventGivenRootAction, void(std::shared_ptr<core::RootAction>, const core::UTF8String&));
+		MOCK_METHOD3(reportValueInt32GivenRootAction, void(std::shared_ptr<core::RootAction>, const core::UTF8String&, int32_t));
+		MOCK_METHOD3(reportValueDoubleGivenRootAction, void(std::shared_ptr<core::RootAction>, const core::UTF8String&, double));
+		MOCK_METHOD3(reportValueStringGivenRootAction, void(std::shared_ptr<core::RootAction>, const core::UTF8String&, const core::UTF8String&));
+		MOCK_METHOD4(reportErrorGivenRootAction, void(std::shared_ptr<core::RootAction>, const core::UTF8String&, int32_t, const core::UTF8String&));
 		MOCK_METHOD3(reportCrash, void(const core::UTF8String&, const core::UTF8String&, const core::UTF8String&));
 		MOCK_METHOD1(endSession, void(std::shared_ptr<core::Session>));
 		MOCK_CONST_METHOD0(getCurrentTimestamp, int64_t(void));
