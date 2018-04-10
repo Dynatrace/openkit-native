@@ -18,6 +18,9 @@
 #define _API_OPENKIT_H
 
 #include "OpenKit_export.h"
+#include "api/ILogger.h"
+
+#include <memory>
 
 namespace api {
 
@@ -29,7 +32,7 @@ namespace api {
 		///
 		/// Private constructor. OpenKit is instantiated via the Builder
 		///
-		OpenKit();
+		OpenKit(std::shared_ptr<ILogger> logger);
 
 	public:
 		///
