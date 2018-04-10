@@ -14,8 +14,8 @@
 * limitations under the License.
 */
 
-#ifndef _TEST_UTIL_CYCLICBARRIER_H
-#define _TEST_UTIL_CYCLICBARRIER_H
+#ifndef _UTIL_CYCLICBARRIER_H
+#define _UTIL_CYCLICBARRIER_H
 
 #include <mutex>
 #include <condition_variable>

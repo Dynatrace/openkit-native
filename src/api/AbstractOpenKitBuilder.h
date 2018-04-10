@@ -17,7 +17,8 @@
 #ifndef _API_ABSTRACTOPENKITBUILDER_H
 #define _API_ABSTRACTOPENKITBUILDER_H
 
-#include "OpenKit.h"
+#include "api/OpenKit.h"
+#include "api/ILogger.h"
 
 #include <memory>
 #include <stdexcept>
@@ -40,10 +41,41 @@ namespace api
 			virtual ~AbstractOpenKitBuilder() {}
 
 			///
-			/// Builds an @c OpenKit instance
-			/// @returns an @c OpenKit instance
+			/// Enables verbose mode. Verbose mode is only enabled if the the default logger is used.
+			/// If a custom logger is provided (by calling @ref withLogger()) debug and info log output
+			/// depends on the values returned by @ref isDebugEnabled() and @ref isInfoEnabled().
+			///
+			///
+			AbstractOpenKitBuilder& enableVerbose();
+
+			///
+			/// Sets the logger. If no logger is set the default console logger is used. For the default
+			/// logger verbose mode is enabled by calling @c enableVerbose.
+			/// @param[in] logger the logger
+			/// @return @c this for fluent usage
+			///
+			AbstractOpenKitBuilder& withLogger(std::shared_ptr<ILogger> logger);
+
+			///
+			/// Builds an @ref OpenKit instance
+			/// @return an @ref OpenKit instance
 			///
 			virtual std::shared_ptr<OpenKit> build() = 0;
+
+		private:
+			///
+			/// Returns a logger. If no longer is set, when building the OpenKit with @ref build(),
+			/// the default logger is returned.
+			/// @return a logger
+			///
+			std::shared_ptr<ILogger> getLogger();
+
+		private:
+			/// Flag to enable INFO and DEBUG logs
+			bool mVerbose;
+
+			/// The logger used to log traces
+			std::shared_ptr<ILogger> mLogger;
 	};
 }
 

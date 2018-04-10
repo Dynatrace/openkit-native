@@ -50,6 +50,7 @@ set(SOURCES_UNITTEST
 	core/util/URLEncodingTest.cxx
 	core/util/SynchronizedQueueTest.cxx
 	core/util/InetAddressValidatorTest.cxx
+	core/util/DefaultLoggerTest.cxx
 	protocol/StatusResponseTest.cxx
 	protocol/TimeSyncResponseTest.cxx
 	providers/DefaultTimingProviderTest.cxx

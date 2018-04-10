@@ -14,16 +14,40 @@
 * limitations under the License.
 */
 
-#include "AbstractOpenKitBuilder.h"
+#include "api/AbstractOpenKitBuilder.h"
+#include "core/util/DefaultLogger.h"
 
 using namespace api;
 
 AbstractOpenKitBuilder::AbstractOpenKitBuilder(const char* endpointURL, uint64_t deviceID)
+	: mVerbose(false)
+	, mLogger(nullptr)
 {
 	throw std::runtime_error("function not implemented yet");
 }
 
+AbstractOpenKitBuilder& AbstractOpenKitBuilder::enableVerbose()
+{
+	mVerbose = true;
+	return *this;
+}
+
+AbstractOpenKitBuilder& AbstractOpenKitBuilder::withLogger(std::shared_ptr<ILogger> logger)
+{
+	mLogger = logger;
+	return *this;
+}
+
 std::shared_ptr<OpenKit> AbstractOpenKitBuilder::build()
 {
-	return std::shared_ptr<OpenKit>(new OpenKit());
+	return std::shared_ptr<OpenKit>(new OpenKit(getLogger()));
+}
+
+std::shared_ptr<ILogger> AbstractOpenKitBuilder::getLogger()
+{
+	if (mLogger != nullptr)
+	{
+		return mLogger;
+	}
+	return std::shared_ptr<ILogger>(new core::util::DefaultLogger());
 }
