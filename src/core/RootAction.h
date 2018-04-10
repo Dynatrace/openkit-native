@@ -28,6 +28,7 @@
 #include "Action.h"
 #include "protocol/Beacon.h"
 #include "UTF8String.h"
+#include "NullAction.h"
 
 #include "memory"
 
@@ -59,6 +60,16 @@ namespace core
 		virtual  ~RootAction() {}
 
 		virtual std::shared_ptr<api::IAction> enterAction(const char* actionName) override;
+
+		std::shared_ptr<IRootAction> reportEvent(const char* eventName) override;
+
+		std::shared_ptr<IRootAction> reportValue(const char* valueName, int32_t value) override;
+
+		std::shared_ptr<IRootAction> reportValue(const char* valueName, double value) override;
+
+		std::shared_ptr<IRootAction> reportValue(const char* valueName, const char* value) override;
+
+		std::shared_ptr<IRootAction> reportError(const char* errorName, int32_t errorCode, const char* reason) override;
 
 		virtual void leaveAction() override;
 
@@ -106,7 +117,13 @@ namespace core
 		///
 		int32_t getEndSequenceNo()const;
 
-	protected:
+		///
+		/// Returns if this RootAction has open child actions
+		/// This method is required for unit testing
+		/// @returns @c true if there are any open child actions
+		///
+		bool hasOpenChildActions() const;
+
 		///
 		/// Return a flag if this action has been closed already
 		/// @returns @c true if action was already left, @c false if action is open
@@ -148,6 +165,9 @@ namespace core
 
 		/// action end time
 		std::atomic<int64_t> mEndTime;
+
+		/// NullAction
+		std::shared_ptr<NullAction> NULL_ACTION;
 	};
 }
 #ifdef __GNUC__

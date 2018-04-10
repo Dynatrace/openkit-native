@@ -110,6 +110,18 @@ core::UTF8String Beacon::createTimestampData()
 	return timestampData;
 }
 
+core::UTF8String Beacon::buildEvent(EventType eventType, const core::UTF8String& name, int32_t parentActionID, uint64_t& eventTimestamp)
+{
+	core::UTF8String eventData = createBasicEventData(eventType, name);
+
+	eventTimestamp = mTimingProvider->provideTimestampInMilliseconds();
+	addKeyValuePair(eventData, BEACON_KEY_PARENT_ACTION_ID, parentActionID);
+	addKeyValuePair(eventData, BEACON_KEY_START_SEQUENCE_NUMBER, createSequenceNumber());
+	addKeyValuePair(eventData, BEACON_KEY_TIME_0, getTimeSinceSessionStartTime(eventTimestamp));
+
+	return eventData;
+}
+
 void Beacon::appendKey(core::UTF8String& s, const core::UTF8String& key)
 {
 	if (!s.empty())
@@ -147,7 +159,7 @@ void Beacon::addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, d
 
 int32_t Beacon::createSequenceNumber()
 {
-	return mSequenceNumber++;
+	return ++mSequenceNumber;
 }
 
 int64_t Beacon::getCurrentTimestamp() const
@@ -157,7 +169,7 @@ int64_t Beacon::getCurrentTimestamp() const
 
 int32_t Beacon::createID()
 {
-	return mID++;
+	return ++mID;
 }
 
 void Beacon::addAction(std::shared_ptr<core::Action> action)
@@ -205,6 +217,122 @@ void Beacon::endSession(std::shared_ptr<core::Session> session)
 	addKeyValuePair(eventData, BEACON_KEY_TIME_0, getTimeSinceSessionStartTime(session->getEndTime()));
 
 	addEventData(session->getEndTime(), eventData);
+}
+
+void Beacon::reportValue(std::shared_ptr<core::Action> parentAction, const core::UTF8String& valueName, int32_t value)
+{
+	uint64_t eventTimestamp;
+	core::UTF8String eventData = buildEvent(EventType::VALUE_INT, valueName, parentAction->getID(), eventTimestamp);
+
+	addKeyValuePair(eventData, BEACON_KEY_VALUE, value);
+
+	addEventData(eventTimestamp, eventData);
+}
+
+void Beacon::reportValue(std::shared_ptr<core::Action> parentAction, const core::UTF8String& valueName, double value)
+{
+	uint64_t eventTimestamp;
+	core::UTF8String eventData = buildEvent(EventType::VALUE_DOUBLE, valueName, parentAction->getID(), eventTimestamp);
+
+	addKeyValuePair(eventData, BEACON_KEY_VALUE, value);
+
+	addEventData(eventTimestamp, eventData);
+}
+
+void Beacon::reportValue(std::shared_ptr<core::Action> parentAction, const core::UTF8String& valueName, const core::UTF8String& value)
+{
+	uint64_t eventTimestamp;
+	core::UTF8String eventData = buildEvent(EventType::VALUE_STRING, valueName, parentAction->getID(), eventTimestamp);
+
+	addKeyValuePair(eventData, BEACON_KEY_VALUE, value);
+
+	addEventData(eventTimestamp, eventData);
+}
+
+void Beacon::reportEvent(std::shared_ptr<core::Action> parentAction, const core::UTF8String& eventName)
+{
+	uint64_t eventTimestamp;
+	core::UTF8String eventData = buildEvent(EventType::NAMED_EVENT, eventName, parentAction->getID(), eventTimestamp);
+
+	addEventData(eventTimestamp, eventData);
+}
+
+void Beacon::reportError(std::shared_ptr<core::Action> parentAction, const core::UTF8String& errorName, int32_t errorCode, const core::UTF8String& reason)
+{
+	if (!mConfiguration->isCaptureErrors()) {
+		return;
+	}
+
+	core::UTF8String eventData = createBasicEventData(EventType::FAILURE_ERROR, errorName);
+	uint64_t timestamp = mTimingProvider->provideTimestampInMilliseconds();
+	addKeyValuePair(eventData, BEACON_KEY_PARENT_ACTION_ID, parentAction->getID());
+	addKeyValuePair(eventData, BEACON_KEY_START_SEQUENCE_NUMBER, createSequenceNumber());
+	addKeyValuePair(eventData, BEACON_KEY_TIME_0, getTimeSinceSessionStartTime(timestamp));
+	addKeyValuePair(eventData, BEACON_KEY_ERROR_CODE, errorCode);
+	if (reason != nullptr)
+	{
+		addKeyValuePair(eventData, BEACON_KEY_ERROR_REASON, reason);
+	}
+
+	addEventData(timestamp, eventData);
+}
+
+void Beacon::reportValue(std::shared_ptr<core::RootAction> parentAction, const core::UTF8String& valueName, int32_t value)
+{
+	uint64_t eventTimestamp;
+	core::UTF8String eventData = buildEvent(EventType::VALUE_INT, valueName, parentAction->getID(), eventTimestamp);
+
+	addKeyValuePair(eventData, BEACON_KEY_VALUE, value);
+
+	addEventData(eventTimestamp, eventData);
+}
+
+void Beacon::reportValue(std::shared_ptr<core::RootAction> parentAction, const core::UTF8String& valueName, double value)
+{
+	uint64_t eventTimestamp;
+	core::UTF8String eventData = buildEvent(EventType::VALUE_DOUBLE, valueName, parentAction->getID(), eventTimestamp);
+
+	addKeyValuePair(eventData, BEACON_KEY_VALUE, value);
+
+	addEventData(eventTimestamp, eventData);
+}
+
+void Beacon::reportValue(std::shared_ptr<core::RootAction> parentAction, const core::UTF8String& valueName, const core::UTF8String& value)
+{
+	uint64_t eventTimestamp;
+	core::UTF8String eventData = buildEvent(EventType::VALUE_STRING, valueName, parentAction->getID(), eventTimestamp);
+
+	addKeyValuePair(eventData, BEACON_KEY_VALUE, value);
+
+	addEventData(eventTimestamp, eventData);
+}
+
+void Beacon::reportEvent(std::shared_ptr<core::RootAction> parentAction, core::UTF8String eventName)
+{
+	uint64_t eventTimestamp;
+	core::UTF8String eventData = buildEvent(EventType::NAMED_EVENT, eventName, parentAction->getID(), eventTimestamp);
+
+	addEventData(eventTimestamp, eventData);
+}
+
+void Beacon::reportError(std::shared_ptr<core::RootAction> parentAction, const core::UTF8String& errorName, int32_t errorCode, const core::UTF8String& reason)
+{
+	if (!mConfiguration->isCaptureErrors()) {
+		return;
+	}
+
+	core::UTF8String eventData = createBasicEventData(EventType::FAILURE_ERROR, errorName);
+	uint64_t timestamp = mTimingProvider->provideTimestampInMilliseconds();
+	addKeyValuePair(eventData, BEACON_KEY_PARENT_ACTION_ID, parentAction->getID());
+	addKeyValuePair(eventData, BEACON_KEY_START_SEQUENCE_NUMBER, createSequenceNumber());
+	addKeyValuePair(eventData, BEACON_KEY_TIME_0, getTimeSinceSessionStartTime(timestamp));
+	addKeyValuePair(eventData, BEACON_KEY_ERROR_CODE, errorCode);
+	if (reason != nullptr)
+	{
+		addKeyValuePair(eventData, BEACON_KEY_ERROR_REASON, reason);
+	}
+
+	addEventData(timestamp, eventData);
 }
 
 void Beacon::reportCrash(const core::UTF8String& errorName, const core::UTF8String& reason, const core::UTF8String& stacktrace)
