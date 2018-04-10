@@ -423,6 +423,9 @@ TEST_F(RootActionTest, reportErrorWithEmptyNullErrorReasonDoesReport)
 
 TEST_F(RootActionTest, leaveAction)
 {
+	EXPECT_CALL(*mockBeacon, createSequenceNumber())
+		.WillOnce(testing::Return((int32_t)1))
+		.WillRepeatedly(testing::Return((int32_t)2));
 	EXPECT_CALL(*mockBeacon, getCurrentTimestamp())
 		.WillOnce(testing::Return((int32_t)42))
 		.WillRepeatedly(testing::Return((int32_t)48));
@@ -457,6 +460,12 @@ TEST_F(RootActionTest, leaveActionTwice)
 
 TEST_F(RootActionTest, verifySequenceNumbersParents)
 {
+	EXPECT_CALL(*mockBeacon, createSequenceNumber())
+		.WillOnce(testing::Return((int32_t)1))
+		.WillOnce(testing::Return((int32_t)2))
+		.WillOnce(testing::Return((int32_t)3))
+		.WillRepeatedly(testing::Return((int32_t)4));
+
 	//create two actions
 	auto testAction1 = std::make_shared<core::RootAction>(mockBeacon, core::UTF8String("test action 1"), session);
 	ASSERT_EQ(testAction1->getStartSequenceNo(), 1);
@@ -476,6 +485,12 @@ TEST_F(RootActionTest, verifySequenceNumbersParents)
 
 TEST_F(RootActionTest, verifySequenceNumbersParents2)
 {
+	EXPECT_CALL(*mockBeacon, createSequenceNumber())
+		.WillOnce(testing::Return((int32_t)1))
+		.WillOnce(testing::Return((int32_t)2))
+		.WillOnce(testing::Return((int32_t)3))
+		.WillRepeatedly(testing::Return((int32_t)4));
+
 	//create two actions
 	auto testAction1 = std::make_shared<core::RootAction>(mockBeacon, core::UTF8String("test action 1"), session);
 	ASSERT_EQ(testAction1->getStartSequenceNo(), 1);

@@ -355,6 +355,9 @@ TEST_F(ActionTest, leaveAction)
 	EXPECT_CALL(*mockBeacon, getCurrentTimestamp())
 		.WillOnce(testing::Return((int32_t)42))
 		.WillRepeatedly(testing::Return((int32_t)48));
+	EXPECT_CALL(*mockBeacon, createSequenceNumber())
+		.WillOnce(testing::Return((int32_t)1))
+		.WillRepeatedly(testing::Return((int32_t)2));
 	auto testAction = std::make_shared<core::Action>(mockBeacon, core::UTF8String("test action"));
 	// execute the test call: simulate a few reportValues and then leaveAction
 	ASSERT_EQ(testAction->getStartTime(), (int64_t)42);
@@ -388,6 +391,12 @@ TEST_F(ActionTest, leaveActionTwice)
 
 TEST_F(ActionTest, verifySequenceNumbersParents)
 {
+	EXPECT_CALL(*mockBeacon, createSequenceNumber())
+		.WillOnce(testing::Return((int32_t)1))
+		.WillOnce(testing::Return((int32_t)2))
+		.WillOnce(testing::Return((int32_t)3))
+		.WillRepeatedly(testing::Return((int32_t)4));
+
 	//create two actions
 	auto testAction1 = std::make_shared<core::Action>(mockBeacon, core::UTF8String("test action 1"));
 	ASSERT_EQ(testAction1->getStartSequenceNo(), 1);
@@ -407,6 +416,12 @@ TEST_F(ActionTest, verifySequenceNumbersParents)
 
 TEST_F(ActionTest, verifySequenceNumbersParents2)
 {
+	EXPECT_CALL(*mockBeacon, createSequenceNumber())
+		.WillOnce(testing::Return((int32_t)1))
+		.WillOnce(testing::Return((int32_t)2))
+		.WillOnce(testing::Return((int32_t)3))
+		.WillRepeatedly(testing::Return((int32_t)4));
+
 	//create two actions
 	auto testAction1 = std::make_shared<core::Action>(mockBeacon, core::UTF8String("test action 1"));
 	ASSERT_EQ(testAction1->getStartSequenceNo(), 1);
@@ -426,6 +441,14 @@ TEST_F(ActionTest, verifySequenceNumbersParents2)
 
 TEST_F(ActionTest, verifySequenceNumbersParentWithTwoChildren)
 {
+	EXPECT_CALL(*mockBeacon, createSequenceNumber())
+		.WillOnce(testing::Return((int32_t)1))
+		.WillOnce(testing::Return((int32_t)2))
+		.WillOnce(testing::Return((int32_t)3))
+		.WillOnce(testing::Return((int32_t)4))
+		.WillOnce(testing::Return((int32_t)5))
+		.WillRepeatedly(testing::Return((int32_t)6));
+
 	//create root action with two child actions attached via parent link in the child action
 	auto testRootAction = std::make_shared<core::RootAction>(mockBeacon, core::UTF8String("test action"), session);
 	ASSERT_EQ(testRootAction->getStartSequenceNo(), 1);
@@ -452,6 +475,14 @@ TEST_F(ActionTest, verifySequenceNumbersParentWithTwoChildren)
 
 TEST_F(ActionTest, verifySequenceNumbersParentWithTwoChildrenParentLeavesFirst)
 {
+	EXPECT_CALL(*mockBeacon, createSequenceNumber())
+		.WillOnce(testing::Return((int32_t)1))
+		.WillOnce(testing::Return((int32_t)2))
+		.WillOnce(testing::Return((int32_t)3))
+		.WillOnce(testing::Return((int32_t)4))
+		.WillOnce(testing::Return((int32_t)5))
+		.WillRepeatedly(testing::Return((int32_t)6));
+
 	//create root action and create two child actions via the root action method enterAction
 	auto testRootAction = std::make_shared<core::RootAction>(mockBeacon, core::UTF8String("test action"), session);
 	ASSERT_EQ(testRootAction->getStartSequenceNo(), 1);
