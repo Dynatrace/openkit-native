@@ -22,8 +22,9 @@
 
 using namespace core;
 
-Session::Session(std::shared_ptr<BeaconSender> beaconSender, std::shared_ptr<protocol::Beacon> beacon)
-	: mBeaconSender(beaconSender)
+Session::Session(std::shared_ptr<api::ILogger> logger, std::shared_ptr<BeaconSender> beaconSender, std::shared_ptr<protocol::Beacon> beacon)
+	: mLogger(logger)
+	, mBeaconSender(beaconSender)
 	, mBeacon(beacon)
 	, mEndTime(-1)
 	, mOpenRootActions()
@@ -51,7 +52,7 @@ std::shared_ptr<api::IRootAction> Session::enterAction(const char* actionName)
 		//TODO: add logger
 		return NULL_ROOT_ACTION;
 	}
-	std::shared_ptr<api::IRootAction> pointer = std::make_shared<RootAction>(mBeacon, actionNameString, shared_from_this());
+	std::shared_ptr<api::IRootAction> pointer = std::make_shared<RootAction>(mLogger, mBeacon, actionNameString, shared_from_this());
 	mOpenRootActions.put(pointer);
 	return pointer;
 }

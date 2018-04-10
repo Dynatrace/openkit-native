@@ -24,6 +24,7 @@
 
 #include "api/ISession.h"
 #include "api/IRootAction.h"
+#include "api/ILogger.h"
 #include "NullRootAction.h"
 
 #include "UTF8String.h"
@@ -55,10 +56,11 @@ namespace core
 
 		///
 		/// Constructor
+		/// @param[in] logger to write traces to
 		/// @param[in] beaconSender beacon sender
 		/// @param]in] beacon beacon used for serialization
 		///
-		Session(std::shared_ptr<BeaconSender> beaconSender, std::shared_ptr<protocol::Beacon> beacon);
+		Session(std::shared_ptr<api::ILogger> logger, std::shared_ptr<BeaconSender> beaconSender, std::shared_ptr<protocol::Beacon> beacon);
 			
 		///
 		/// Destructor
@@ -123,6 +125,8 @@ namespace core
 		bool isSessionEnded() const;
 
 	private:
+		/// Logger to write traces to
+		std::shared_ptr<api::ILogger> mLogger;
 
 		/// beacon sender
 		std::shared_ptr<BeaconSender> mBeaconSender;

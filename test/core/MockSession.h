@@ -18,6 +18,7 @@
 #define _TEST_CORE_MOCKSESSION_H
 
 #include "core/Session.h"
+#include "core/util/DefaultLogger.h"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -31,7 +32,9 @@ namespace test
 	{
 	public:
 		MockSession()
-			: Session(std::shared_ptr<BeaconSender>(),
+			: Session(
+				std::shared_ptr<api::ILogger>(new core::util::DefaultLogger(true)), 
+				std::shared_ptr<BeaconSender>(),
 				std::shared_ptr<protocol::Beacon>())
 		{
 		}

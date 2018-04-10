@@ -23,6 +23,7 @@
 #endif
 
 #include "api/IAction.h"
+#include "api/ILogger.h"
 #include "core/util/SynchronizedQueue.h"
 #include "core/UTF8String.h"
 
@@ -48,20 +49,22 @@ namespace core
 	public:
 
 		///
-		/// Create an action given a beacon  and the action name
+		/// Create an action given a beacon and the action name
+		/// @param[in] logger to write traces to
 		/// @param[in] beacon the beacon used to serialize this Action
 		/// @param[in] name the name of the action
 		/// @param[in] sameLevelActions actions on the same level
 		///
-		Action(std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name);
+		Action(std::shared_ptr<api::ILogger> logger, std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name);
 
 		///
-		/// Create an action given a beacon  and the action name
+		/// Create an action given a beacon and the action name
+		/// @param[in] logger to write traces to
 		/// @param[in] beacon the beacon used to serialize this Action
 		/// @param[in] name the name of the action
 		/// @param[in] parentAction parent action
 		///
-		Action(std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name, std::shared_ptr<RootAction> parentAction);
+		Action(std::shared_ptr<api::ILogger> logger, std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name, std::shared_ptr<RootAction> parentAction);
 
 		///
 		/// Destructor
@@ -130,21 +133,22 @@ namespace core
 		///
 		bool isActionLeft() const;
 
-	protected:
-
-		/// parent action
-		std::shared_ptr<RootAction> mParentAction;
-
-		/// action end time
-		std::atomic<int64_t> mEndTime;
 	private:
-
 		///
 		/// Leaves this Action.
 		/// Called by leaveAction only if this is the first leaveAction call on this Action
 		/// @returns the parent Action, or @c nullptr if there is no parent Action
 		///
 		virtual std::shared_ptr<api::IRootAction> doLeaveAction();
+
+		/// Logger to write traces to
+		std::shared_ptr<api::ILogger> mLogger;
+
+		/// parent action
+		std::shared_ptr<RootAction> mParentAction;
+
+		/// action end time
+		std::atomic<int64_t> mEndTime;
 
 		/// beacon used for serialization
 		std::shared_ptr<protocol::Beacon> mBeacon;

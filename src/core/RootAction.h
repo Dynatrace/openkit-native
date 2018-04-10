@@ -48,11 +48,12 @@ namespace core
 
 		///
 		/// Create a RootAction given a beacon  and the action name
+		/// @param[in] logger to write traces to
 		/// @param[in] beacon the beacon used to serialize this Action
 		/// @param[in] name the name of the action
 		/// @param[in] session the session object keeping track of all root actions of this level
 		///
-		RootAction(std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name, std::shared_ptr<Session> session);
+		RootAction(std::shared_ptr<api::ILogger> logger, std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name, std::shared_ptr<Session> session);
 
 		///
 		/// Destructor
@@ -138,6 +139,9 @@ namespace core
 		/// @returns the parent Action, or @c nullptr if there is no parent Action
 		///
 		virtual void doLeaveAction();
+
+		/// Logger to write traces to
+		std::shared_ptr<api::ILogger> mLogger;
 
 		/// beacon used for serialization
 		std::shared_ptr<protocol::Beacon> mBeacon;

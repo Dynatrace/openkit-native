@@ -19,7 +19,7 @@
 #include <gmock/gmock.h>
 
 #include "caching/BeaconCache.h"
-
+#include "core/util/DefaultLogger.h"
 #include "providers/DefaultThreadIDProvider.h"
 #include "providers/DefaultTimingProvider.h"
 #include "protocol/ssl/SSLStrictTrustManager.h"
@@ -45,6 +45,7 @@ class SessionTest : public testing::Test
 public:
 	void SetUp()
 	{
+		logger = std::shared_ptr<api::ILogger>(new core::util::DefaultLogger(true));
 		threadIDProvider = std::make_shared<providers::DefaultThreadIDProvider>();
 		timingProvider = std::make_shared<providers::DefaultTimingProvider>();
 		sessionIDProvider = std::make_shared<providers::DefaultSessionIDProvider>();
@@ -73,7 +74,8 @@ public:
 	{
 
 	}
-public:		
+public:	
+	std::shared_ptr<api::ILogger> logger;
 	std::shared_ptr<providers::IThreadIDProvider> threadIDProvider;
 	std::shared_ptr<providers::ITimingProvider> timingProvider;
 	std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider;
@@ -93,7 +95,7 @@ public:
 TEST_F(SessionTest, constructorReturnsValidDefaults)
 {
     // test the constructor call
-	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(mockBeaconSender, mockBeaconNice);
+	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(logger, mockBeaconSender, mockBeaconNice);
 
     // verify default values
 	ASSERT_TRUE(testSession != nullptr);
@@ -104,7 +106,7 @@ TEST_F(SessionTest, constructorReturnsValidDefaults)
 TEST_F(SessionTest, enterActionWithNullActionName)
 {
 	// create test environment
-	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(mockBeaconSender, mockBeaconNice);
+	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(logger, mockBeaconSender, mockBeaconNice);
 
     // add/enter "null-action"
     std::shared_ptr<api::IRootAction> rootAction = testSession->enterAction(nullptr);
@@ -116,7 +118,7 @@ TEST_F(SessionTest, enterActionWithNullActionName)
 TEST_F(SessionTest, enterActionWithEmptyActionName)
 {
 	// create test environment
-	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(mockBeaconSender, mockBeaconNice);
+	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(logger, mockBeaconSender, mockBeaconNice);
 
 	// add/enter "null-action"
 	std::shared_ptr<api::IRootAction> rootAction = testSession->enterAction("");
@@ -128,7 +130,7 @@ TEST_F(SessionTest, enterActionWithEmptyActionName)
 TEST_F(SessionTest, enterNotClosedAction)
 {
 	// create test environment
-	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(mockBeaconSender, mockBeaconNice);
+	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(logger, mockBeaconSender, mockBeaconNice);
 
     // add/enter one action
     auto rootAction = testSession->enterAction("Some action");
@@ -142,7 +144,7 @@ TEST_F(SessionTest, enterNotClosedAction)
 TEST_F(SessionTest, enterSingleAction)
 {
 	// create test environment
-	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(mockBeaconSender, mockBeaconNice);
+	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(logger, mockBeaconSender, mockBeaconNice);
 
 	// add/enter one action
 	auto rootAction = testSession->enterAction("some action");
@@ -155,7 +157,7 @@ TEST_F(SessionTest, enterSingleAction)
 TEST_F(SessionTest, enterMultipleActions)
 {
 	// create test environment
-	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(mockBeaconSender, mockBeaconNice);
+	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(logger, mockBeaconSender, mockBeaconNice);
 
 	// add/enter two actions
 	auto rootAction1 = testSession->enterAction("some action 1");
@@ -171,7 +173,7 @@ TEST_F(SessionTest, enterMultipleActions)
 TEST_F(SessionTest, enterSameActions)
 {
 	// create test environment
-	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(mockBeaconSender, mockBeaconNice);
+	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(logger, mockBeaconSender, mockBeaconNice);
 	
 	// add/enter two actions
 	auto rootAction1 = testSession->enterAction("some action");
@@ -188,7 +190,7 @@ TEST_F(SessionTest, enterSameActions)
 TEST_F(SessionTest, identifyUserWithNullTagDoesNothing)
 {
 	// create test environment
-	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(mockBeaconSender, mockBeaconStrict);
+	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(logger, mockBeaconSender, mockBeaconStrict);
 
 	// identify a "null-user" must be possible
 	EXPECT_CALL(*mockBeaconStrict, identifyUser(testing::_))
@@ -201,7 +203,7 @@ TEST_F(SessionTest, identifyUserWithNullTagDoesNothing)
 TEST_F(SessionTest, identifyUserWithEmptyTagDoesNothing)
 {
 	// create test environment
-	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(mockBeaconSender, mockBeaconStrict);
+	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(logger, mockBeaconSender, mockBeaconStrict);
 
     // identify a "null-user" must be possible
 	EXPECT_CALL(*mockBeaconStrict, identifyUser(testing::_))
@@ -220,7 +222,7 @@ TEST_F(SessionTest, identifySingleUser)
 		.Times(testing::Exactly(1));
 
 	// create test environment
-	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(mockBeaconSender, mockBeaconStrict);
+	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(logger, mockBeaconSender, mockBeaconStrict);
 	testSession->startSession();
 	// identify a single user
 	testSession->identifyUser("Some user");
@@ -239,7 +241,7 @@ TEST_F(SessionTest, identifyMultipleUsers)
 		.Times(testing::Exactly(1));
 
 	// create test environment
-	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(mockBeaconSender, mockBeaconStrict);
+	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(logger, mockBeaconSender, mockBeaconStrict);
 	testSession->startSession();
 
 	// identify multiple users
@@ -257,7 +259,7 @@ TEST_F(SessionTest, identifySameUser)
 		.Times(testing::Exactly(1));
 
 	// create test environment
-	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(mockBeaconSender, mockBeaconStrict);
+	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(logger, mockBeaconSender, mockBeaconStrict);
 	testSession->startSession();
 
 	// identify two identical users
@@ -272,7 +274,7 @@ TEST_F(SessionTest, reportingCrashWithNullErrorNameDoesNotReportAnything)
 		.Times(0);
 
 	// create test environment
-	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(mockBeaconSender, mockBeaconStrict);
+	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(logger, mockBeaconSender, mockBeaconStrict);
 
 	// report a crash, passing null values
 	testSession->reportCrash(nullptr, "some reason", "some stack trace");
@@ -285,7 +287,7 @@ TEST_F(SessionTest, reportingCrashWithEmptyErrorNameDoesNotReportAnything)
 		.Times(0);
 
 	// create test environment
-	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(mockBeaconSender, mockBeaconStrict);
+	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(logger, mockBeaconSender, mockBeaconStrict);
 
 	// report a crash, passing null values
 	testSession->reportCrash( "", "some reason", "some stack trace");
@@ -298,7 +300,7 @@ TEST_F(SessionTest, reportingCrashWithNullReasonAndStacktraceWorks)
 		.Times(1);
 
 	// create test environment
-	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(mockBeaconSender, mockBeaconStrict);
+	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(logger, mockBeaconSender, mockBeaconStrict);
 
 	// report a crash, passing null values
 	testSession->reportCrash( "errorName", nullptr, nullptr);
@@ -313,7 +315,7 @@ TEST_F(SessionTest, reportSingleCrash)
 		.Times(1);
 
 	// create test environment
-	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(mockBeaconSender, mockBeaconStrict);
+	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(logger, mockBeaconSender, mockBeaconStrict);
 	testSession->startSession();
 
 	// report a single crash
@@ -329,7 +331,7 @@ TEST_F(SessionTest, reportMultipleCrashes)
 		.Times(1);
 
 	// create test environment
-	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(mockBeaconSender, mockBeaconStrict);
+	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(logger, mockBeaconSender, mockBeaconStrict);
 	testSession->startSession();
 
     // report multiple crashes
@@ -346,7 +348,7 @@ TEST_F(SessionTest, reportSameCrash)
 		.Times(1);
 
 	// create test environment
-	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(mockBeaconSender, mockBeaconStrict);
+	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(logger, mockBeaconSender, mockBeaconStrict);
 	testSession->startSession();
 
     // report multiple crashes
@@ -367,7 +369,7 @@ TEST_F(SessionTest, endSession)
 		.Times(testing::Exactly(1));
 
 	// create test environment
-	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(mockBeaconSender, mockBeaconStrict);
+	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(logger, mockBeaconSender, mockBeaconStrict);
 	testSession->startSession();
 
 	//end the session
@@ -388,7 +390,7 @@ TEST_F(SessionTest, endSessionTwice)
 		.Times(testing::Exactly(1));
 
 	// create test environment
-	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(mockBeaconSender, mockBeaconStrict);
+	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(logger, mockBeaconSender, mockBeaconStrict);
 	testSession->startSession();
 
 	//try to end the same session twice
@@ -427,7 +429,7 @@ TEST_F(SessionTest, endSessionWithOpenRootActions)
 
 
     // create test environment
-	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(mockBeaconSender, mockBeaconStrict);
+	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(logger, mockBeaconSender, mockBeaconStrict);
 	testSession->startSession();
 
     // end the session containing open (=not left) actions
@@ -449,7 +451,7 @@ TEST_F(SessionTest, sendBeacon)
 		.Times(testing::Exactly(1));
 
 	// create test environment
-	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(mockBeaconSender, mockBeaconNice);
+	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(logger, mockBeaconSender, mockBeaconNice);
 	testSession->startSession();
 
 	//when
@@ -463,7 +465,7 @@ TEST_F(SessionTest, clearCapturedData)
 		.Times(testing::Exactly(1));
 
     // create test environment
-	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(mockBeaconSender, mockBeaconNice);
+	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(logger, mockBeaconSender, mockBeaconNice);
 	testSession->startSession();
 
     // end the session containing closed actions (moved to the beacon cache)
@@ -489,7 +491,7 @@ TEST_F(SessionTest, aNewlyConstructedSessionIsNotEnded)
 		.Times(testing::Exactly(1));
 
 	//given
-	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(mockBeaconSender, mockBeaconNice);
+	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(logger, mockBeaconSender, mockBeaconNice);
 	testSession->startSession();
 
 	//when, then
@@ -505,7 +507,7 @@ TEST_F(SessionTest, aSessionIsEndedIfEndIsCalled)
 		.Times(testing::Exactly(1));
 
 	//given
-	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(mockBeaconSender, mockBeaconNice);
+	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(logger, mockBeaconSender, mockBeaconNice);
 	testSession->startSession();
 	testSession->end();
 
@@ -522,7 +524,7 @@ TEST_F(SessionTest, enterActionGivesNullRootActionIfSessionIsAlreadyEnded)
 		.Times(testing::Exactly(1));
 
     // given
-	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(mockBeaconSender, mockBeaconNice);
+	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(logger, mockBeaconSender, mockBeaconNice);
 	testSession->startSession();
 	testSession->end();
 
@@ -541,7 +543,7 @@ TEST_F(SessionTest, identifyUserDoesNothingIfSessionIsEnded)
 	EXPECT_CALL(*mockBeaconSender, finishSession(testing::_))
 		.Times(testing::Exactly(1));
 	//given
-	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(mockBeaconSender, mockBeaconNice);
+	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(logger, mockBeaconSender, mockBeaconNice);
 	testSession->startSession();
 	testSession->end();
 
@@ -560,7 +562,7 @@ TEST_F(SessionTest, reportCrashDoesNothingIfSessionIsEnded)
 		.Times(testing::Exactly(1));
 
 	//given
-	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(mockBeaconSender, mockBeaconNice);
+	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(logger, mockBeaconSender, mockBeaconNice);
 	testSession->startSession();
 	testSession->end();
 
