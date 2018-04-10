@@ -21,6 +21,7 @@
 using namespace api;
 
 OpenKit::OpenKit(std::shared_ptr<ILogger> logger)
+	: mLogger(logger)
 {
 	logger->error("Function not yet implemented");
 	throw std::runtime_error("function not implemented yet");

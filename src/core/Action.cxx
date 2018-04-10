@@ -23,14 +23,15 @@
 
 using namespace core;
 
-Action::Action(std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name)
-	: Action(beacon, name, nullptr)
+Action::Action(std::shared_ptr<api::ILogger> logger, std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name)
+	: Action(logger, beacon, name, nullptr)
 {
 
 }
 
-Action::Action(std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name, std::shared_ptr<RootAction> parentAction)
-	: mParentAction(parentAction)
+Action::Action(std::shared_ptr<api::ILogger> logger, std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name, std::shared_ptr<RootAction> parentAction)
+	: mLogger(logger)
+	, mParentAction(parentAction)
 	, mEndTime(-1)
 	, mBeacon(beacon)
 	, mID(mBeacon->createID())
