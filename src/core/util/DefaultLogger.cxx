@@ -60,18 +60,24 @@ void DefaultLogger::warning(const char *format, ...)
 
 void DefaultLogger::info(const char *format, ...)
 {
-	va_list args;
-	va_start(args, format);
-	doLog("[INFO ]", format, args);
-	va_end(args);
+	if (isInfoEnabled())
+	{
+		va_list args;
+		va_start(args, format);
+		doLog("[INFO ]", format, args);
+		va_end(args);
+	}
 }
 
 void DefaultLogger::debug(const char *format, ...)
 {
-	va_list args;
-	va_start(args, format);
-	doLog("[DEBUG]", format, args);
-	va_end(args);
+	if (isDebugEnabled())
+	{
+		va_list args;
+		va_start(args, format);
+		doLog("[DEBUG]", format, args);
+		va_end(args);
+	}
 }
 
 bool DefaultLogger::isErrorEnabled() const

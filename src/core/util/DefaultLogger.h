@@ -35,7 +35,7 @@ namespace core
 
 			///
 			/// Constructor
-			/// param[in] versbose a flag which is @c true to enable INFO and DEBUG traces
+			/// param[in] verbose a flag which is @c true to enable INFO and DEBUG traces
 			///
 			DefaultLogger(bool verbose);
 

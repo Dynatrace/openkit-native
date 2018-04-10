@@ -57,8 +57,8 @@ namespace api
 			AbstractOpenKitBuilder& withLogger(std::shared_ptr<ILogger> logger);
 
 			///
-			/// Builds an @c OpenKit instance
-			/// @return an @c OpenKit instance
+			/// Builds an @ref OpenKit instance
+			/// @return an @ref OpenKit instance
 			///
 			virtual std::shared_ptr<OpenKit> build() = 0;
 

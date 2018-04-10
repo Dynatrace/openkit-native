@@ -14,8 +14,8 @@
 * limitations under the License.
 */
 
-#ifndef _CACHING_ILOGGER_H
-#define _CACHING_ILOGGER_H
+#ifndef _API_ILOGGER_H
+#define _API_ILOGGER_H
 
 #include <iostream>
 
