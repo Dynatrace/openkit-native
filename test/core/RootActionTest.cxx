@@ -45,7 +45,7 @@ class RootActionTest : public testing::Test
 public:
 	void SetUp()
 	{
-		logger = std::shared_ptr<api::ILogger>(new core::util::DefaultLogger(true));
+		logger = std::shared_ptr<api::ILogger>(new core::util::DefaultLogger(devNull, true));
 		threadIDProvider = std::make_shared<providers::DefaultThreadIDProvider>();
 		timingProvider = std::make_shared<providers::DefaultTimingProvider>();
 		sessionIDProvider = std::make_shared<providers::DefaultSessionIDProvider>();
@@ -76,7 +76,8 @@ public:
 
 	}
 
-public:		
+public:
+	std::ostringstream devNull;
 	std::shared_ptr<api::ILogger> logger;
 	std::shared_ptr<providers::IThreadIDProvider> threadIDProvider;
 	std::shared_ptr<providers::ITimingProvider> timingProvider;

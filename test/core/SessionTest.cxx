@@ -74,7 +74,8 @@ public:
 	{
 
 	}
-public:	
+public:
+	std::ostringstream devNull;
 	std::shared_ptr<api::ILogger> logger;
 	std::shared_ptr<providers::IThreadIDProvider> threadIDProvider;
 	std::shared_ptr<providers::ITimingProvider> timingProvider;
