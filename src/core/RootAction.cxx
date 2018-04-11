@@ -23,8 +23,9 @@
 
 using namespace core;
 
-RootAction::RootAction(std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name, std::shared_ptr<Session> session)
-	: mBeacon(beacon)
+RootAction::RootAction(std::shared_ptr<api::ILogger> logger, std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name, std::shared_ptr<Session> session)
+	: mLogger(logger)
+	, mBeacon(beacon)
 	, mOpenChildActions()
 	, mSession(session)
 	, mID(mBeacon->createID())
@@ -49,7 +50,7 @@ std::shared_ptr<api::IAction> RootAction::enterAction(const char* actionName)
 
 	if (!isActionLeft())
 	{
-		auto childAction = std::make_shared<Action>(mBeacon, UTF8String(actionName), shared_from_this());
+		auto childAction = std::make_shared<Action>(mLogger, mBeacon, UTF8String(actionName), shared_from_this());
 		mOpenChildActions.put(std::static_pointer_cast<api::IAction>(childAction));
 		return childAction;
 	}

@@ -28,6 +28,7 @@
 
 #include "api/IRootAction.h"
 #include "configuration/Configuration.h"
+#include "core/util/DefaultLogger.h"
 
 #include "../protocol/MockHTTPClient.h"
 #include "../protocol/MockBeacon.h"
@@ -46,6 +47,9 @@ class WebRequestTracerTest : public testing::Test
 public:
 	void SetUp()
 	{
+		std::ostringstream devNull;
+		logger = std::shared_ptr<api::ILogger>(new core::util::DefaultLogger(devNull, true));
+
 		threadIDProvider = std::make_shared<providers::DefaultThreadIDProvider>();
 		timingProvider = std::make_shared<providers::DefaultTimingProvider>();
 		sessionIDProvider = std::make_shared<providers::DefaultSessionIDProvider>();
@@ -69,7 +73,7 @@ public:
 		mockBeaconStrict = std::make_shared<testing::StrictMock<test::MockBeacon>>(beaconCache, configuration, core::UTF8String(""), threadIDProvider, timingProvider);	
 		mockBeaconNice = std::make_shared<testing::NiceMock<test::MockBeacon>>(beaconCache, configuration, core::UTF8String(""), threadIDProvider, timingProvider);	
 
-		action = std::make_shared<core::Action>(mockBeaconNice, core::UTF8String("test action"));
+		action = std::make_shared<core::Action>(logger, mockBeaconNice, core::UTF8String("test action"));
 	}
 
 	void TearDown()
@@ -77,6 +81,8 @@ public:
 
 	}
 public:		
+	std::shared_ptr<api::ILogger> logger;
+	
 	std::shared_ptr<providers::IThreadIDProvider> threadIDProvider;
 	std::shared_ptr<providers::ITimingProvider> timingProvider;
 	std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider;

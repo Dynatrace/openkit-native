@@ -23,6 +23,7 @@ set(SOURCES_CORE
 	core/util/URLEncoding.cxx
 	core/util/CyclicBarrier.cxx
 	core/util/InetAddressValidator.cxx
+	core/util/DefaultLogger.cxx
 	core/UTF8String.cxx
 	core/BeaconSender.cxx
 	core/OpenKit.cxx

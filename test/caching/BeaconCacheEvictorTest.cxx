@@ -21,6 +21,7 @@
 #include "caching/BeaconCacheEvictor.h"
 #include "core/util/CountDownLatch.h"
 #include "core/util/CyclicBarrier.h"
+#include "core/util/DefaultLogger.h"
 #include "../caching/MockBeaconCache.h"
 #include "../caching/MockBeaconCacheEvictionStrategy.h"
 
@@ -33,6 +34,7 @@ class BeaconCacheEvictorTest : public testing::Test
 public:
 	void SetUp()
 	{
+		mLogger = std::shared_ptr<api::ILogger>(new core::util::DefaultLogger(devNull, true));
 		mMockBeaconCache = std::shared_ptr<testing::NiceMock<test::MockBeaconCache>>(new testing::NiceMock<test::MockBeaconCache>());
 		mMockStrategyOne = std::shared_ptr<testing::NiceMock<test::MockBeaconCacheEvictionStrategy>>(new testing::NiceMock<test::MockBeaconCacheEvictionStrategy>());
 		mMockStrategyTwo = std::shared_ptr<testing::NiceMock<test::MockBeaconCacheEvictionStrategy>>(new testing::NiceMock<test::MockBeaconCacheEvictionStrategy>());
@@ -40,12 +42,14 @@ public:
 
 	void TearDown()
 	{
+		mLogger = nullptr;
 		mMockBeaconCache = nullptr;
 		mMockStrategyOne = nullptr;
 		mMockStrategyTwo = nullptr;
 	}
 
-	//std::shared_ptr<BeaconCacheEvictor> mEvictor;
+	std::ostringstream devNull;
+	std::shared_ptr<api::ILogger> mLogger;
 	std::shared_ptr<testing::NiceMock<test::MockBeaconCacheEvictionStrategy>> mMockStrategyOne;
 	std::shared_ptr<testing::NiceMock<test::MockBeaconCacheEvictionStrategy>> mMockStrategyTwo;
 	std::shared_ptr<testing::NiceMock<test::MockBeaconCache>> mMockBeaconCache;
@@ -54,7 +58,7 @@ public:
 TEST_F(BeaconCacheEvictorTest, aDefaultConstructedBeaconCacheEvictorIsNotAlive)
 {
 	// given
-	BeaconCacheEvictor evictor(mMockBeaconCache, {});
+	BeaconCacheEvictor evictor(mLogger, mMockBeaconCache, {});
 
 	// then
 	ASSERT_FALSE(evictor.isAlive());
@@ -63,7 +67,7 @@ TEST_F(BeaconCacheEvictorTest, aDefaultConstructedBeaconCacheEvictorIsNotAlive)
 TEST_F(BeaconCacheEvictorTest, afterStartingABeaconCacheEvictorItIsAlive)
 {
 	// given
-	BeaconCacheEvictor evictor(mMockBeaconCache, {});
+	BeaconCacheEvictor evictor(mLogger, mMockBeaconCache, {});
 	auto obtained = evictor.start();
 
 	// then
@@ -78,7 +82,7 @@ TEST_F(BeaconCacheEvictorTest, afterStartingABeaconCacheEvictorItIsAlive)
 TEST_F(BeaconCacheEvictorTest, startingAnAlreadyAliveBeaconCacheEvictorDoesNothing)
 {
 	// given
-	BeaconCacheEvictor evictor(mMockBeaconCache, {});
+	BeaconCacheEvictor evictor(mLogger, mMockBeaconCache, {});
 	evictor.start();
 
 	// when trying to start the evictor again
@@ -94,7 +98,7 @@ TEST_F(BeaconCacheEvictorTest, startingAnAlreadyAliveBeaconCacheEvictorDoesNothi
 TEST_F(BeaconCacheEvictorTest, stoppingABeaconCacheEvictorWhichIsNotAliveDoesNothing)
 {
 	// given
-	BeaconCacheEvictor evictor(mMockBeaconCache, {});
+	BeaconCacheEvictor evictor(mLogger, mMockBeaconCache, {});
 	
 	// when
 	auto obtained = evictor.stop();
@@ -107,7 +111,7 @@ TEST_F(BeaconCacheEvictorTest, stoppingABeaconCacheEvictorWhichIsNotAliveDoesNot
 TEST_F(BeaconCacheEvictorTest, stoppingAnAliveBeaconCacheEvictor)
 {
 	// given
-	BeaconCacheEvictor evictor(mMockBeaconCache, {});
+	BeaconCacheEvictor evictor(mLogger, mMockBeaconCache, {});
 	evictor.start();
 
 	// when
@@ -130,7 +134,7 @@ TEST_F(BeaconCacheEvictorTest, stoppingABeaconCacheEvictorWithASmallTimeout)
 	}
 	));
 
-	BeaconCacheEvictor evictor(mMockBeaconCache, { mMockStrategyOne });
+	BeaconCacheEvictor evictor(mLogger, mMockBeaconCache, { mMockStrategyOne });
 	evictor.start();
 
 	// give the eviction thread enough time to at least execute the strategy before stopping it
@@ -155,7 +159,7 @@ TEST_F(BeaconCacheEvictorTest, stoppingABeaconCacheEvictorWithAHugeTimeout)
 	}
 	));
 
-	BeaconCacheEvictor evictor(mMockBeaconCache, { mMockStrategyOne });
+	BeaconCacheEvictor evictor(mLogger, mMockBeaconCache, { mMockStrategyOne });
 	evictor.start();
 
 	// give the eviction thread enough time to at least execute the strategy before stopping it
@@ -193,7 +197,7 @@ TEST_F(BeaconCacheEvictorTest, triggeringEvictionStrategiesInThread)
 		));
 
 	// first step start the eviction thread
-	BeaconCacheEvictor evictor(mMockBeaconCache, { mMockStrategyOne, mMockStrategyTwo });
+	BeaconCacheEvictor evictor(mLogger, mMockBeaconCache, { mMockStrategyOne, mMockStrategyTwo });
 	evictor.start();
 
 	// wait until the eviction thread registered itself as observer

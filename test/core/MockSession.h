@@ -18,6 +18,7 @@
 #define _TEST_CORE_MOCKSESSION_H
 
 #include "core/Session.h"
+#include "core/util/DefaultLogger.h"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -31,7 +32,9 @@ namespace test
 	{
 	public:
 		MockSession()
-			: Session(std::shared_ptr<BeaconSender>(),
+			: Session(
+				std::shared_ptr<api::ILogger>(new core::util::DefaultLogger(devNull, true)),
+				std::shared_ptr<BeaconSender>(),
 				std::shared_ptr<protocol::Beacon>())
 		{
 		}
@@ -46,6 +49,9 @@ namespace test
 		MOCK_METHOD1(sendBeaconRawPtrProxy, protocol::StatusResponse*(std::shared_ptr<providers::IHTTPClientProvider>));
 		MOCK_CONST_METHOD0(isEmpty, bool());
 		MOCK_METHOD0(clearCapturedData, void());
+
+	private:
+		std::ostringstream devNull;
 	};
 }
 

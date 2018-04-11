@@ -20,6 +20,7 @@
 
 #include "caching/BeaconCache.h"
 
+#include "core/util/DefaultLogger.h"
 #include "providers/DefaultThreadIDProvider.h"
 #include "providers/DefaultTimingProvider.h"
 #include "protocol/ssl/SSLStrictTrustManager.h"
@@ -44,6 +45,7 @@ class RootActionTest : public testing::Test
 public:
 	void SetUp()
 	{
+		logger = std::shared_ptr<api::ILogger>(new core::util::DefaultLogger(devNull, true));
 		threadIDProvider = std::make_shared<providers::DefaultThreadIDProvider>();
 		timingProvider = std::make_shared<providers::DefaultTimingProvider>();
 		sessionIDProvider = std::make_shared<providers::DefaultSessionIDProvider>();
@@ -66,14 +68,17 @@ public:
 		beaconSender = std::make_shared<core::BeaconSender>(configuration, mockHTTPClientProvider, timingProvider);
 		mockBeacon = std::make_shared<testing::NiceMock<test::MockBeacon>>(beaconCache, configuration, core::UTF8String(""), threadIDProvider, timingProvider);
 
-		session = std::make_shared<core::Session>(beaconSender, mockBeacon);
+		session = std::make_shared<core::Session>(logger, beaconSender, mockBeacon);
 	}
 
 	void TearDown()
 	{
 
 	}
-public:		
+
+public:
+	std::ostringstream devNull;
+	std::shared_ptr<api::ILogger> logger;
 	std::shared_ptr<providers::IThreadIDProvider> threadIDProvider;
 	std::shared_ptr<providers::ITimingProvider> timingProvider;
 	std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider;
@@ -95,7 +100,7 @@ TEST_F(RootActionTest, enterActionWithNullNameGivesNullAction)
 {
 	// create test environment
 	// create root action with a null child action (must be valid)
-	auto testRootAction = std::make_shared<core::RootAction>(mockBeacon, core::UTF8String("test root action"), session);
+	auto testRootAction = std::make_shared<core::RootAction>(logger, mockBeacon, core::UTF8String("test root action"), session);
 
 	//when
 	auto childAction = testRootAction->enterAction(nullptr);
@@ -107,7 +112,7 @@ TEST_F(RootActionTest, enterActionWithEmptyNameGivesNullAction)
 {
 	// create test environment
 	// create root action with a null child action (must be valid)
-	auto testRootAction = std::make_shared<core::RootAction>(mockBeacon, core::UTF8String("test root action"), session);
+	auto testRootAction = std::make_shared<core::RootAction>(logger, mockBeacon, core::UTF8String("test root action"), session);
 
 	//when
 	auto childAction = testRootAction->enterAction("");
@@ -119,7 +124,7 @@ TEST_F(RootActionTest, enterAndLeaveActions)
 {
 	// given: create root action with child action
 	const char* rootActionName = "test root action";
-	auto testRootAction = std::make_shared<core::RootAction>(mockBeacon, core::UTF8String(rootActionName), session);
+	auto testRootAction = std::make_shared<core::RootAction>(logger, mockBeacon, core::UTF8String(rootActionName), session);
 	const char* childActionName = "test child action";
 	auto childAction = testRootAction->enterAction(childActionName);
 
@@ -142,7 +147,7 @@ TEST_F(RootActionTest, enterAndLeaveActionsWithMultipleChildren)
 {
 	// given: create root action with child action
 	const char* rootActionName = "test root action";
-	auto testRootAction = std::make_shared<core::RootAction>(mockBeacon, core::UTF8String(rootActionName), session);
+	auto testRootAction = std::make_shared<core::RootAction>(logger, mockBeacon, core::UTF8String(rootActionName), session);
 	const char* childActionName1 = "first test child action";
 	const char* childActionName2 = "second test child action";
 	auto childActionOne = testRootAction->enterAction(childActionName1);
@@ -169,7 +174,7 @@ TEST_F(RootActionTest, enterAndLeaveActionsWithMultipleChildren)
 TEST_F(RootActionTest, enterActionGivesNullActionIfAlreadyLeft)
 {
 	const char* rootActionName = "test root action";
-	auto testRootAction = std::make_shared<core::RootAction>(mockBeacon, core::UTF8String(rootActionName), session);
+	auto testRootAction = std::make_shared<core::RootAction>(logger, mockBeacon, core::UTF8String(rootActionName), session);
 
 	testRootAction->leaveAction();
 
@@ -183,7 +188,7 @@ TEST_F(RootActionTest, reportEvent)
 {
 	// create test environment
 	// create action without parent action
-	auto testAction = std::make_shared<core::RootAction>(mockBeacon, core::UTF8String("test action"), session);
+	auto testAction = std::make_shared<core::RootAction>(logger, mockBeacon, core::UTF8String("test action"), session);
 
 	//when
 	const char* eventName = "TestEvent";
@@ -202,7 +207,7 @@ TEST_F(RootActionTest, reportEventDoesNothingIfEventNameIsNull)
 
 	// create test environment
 	// create action without parent action
-	auto testAction = std::make_shared<core::RootAction>(mockBeacon, core::UTF8String("test action"), session);
+	auto testAction = std::make_shared<core::RootAction>(logger, mockBeacon, core::UTF8String("test action"), session);
 
 	//when
 	auto returnedAction = testAction->reportEvent(nullptr);
@@ -218,7 +223,7 @@ TEST_F(RootActionTest, reportEventDoesNothingIfEventNameIsEmpty)
 
 	// create test environment
 	// create action without parent action
-	auto testAction = std::make_shared<core::RootAction>(mockBeacon, core::UTF8String("test action"), session);
+	auto testAction = std::make_shared<core::RootAction>(logger, mockBeacon, core::UTF8String("test action"), session);
 
 	//when
 	auto returnedAction = testAction->reportEvent("");
@@ -234,7 +239,7 @@ TEST_F(RootActionTest, reportValueIntWithNullNameDoesNotReportValue)
 
 	// create test environment
 	// create action without parent action
-	auto testAction = std::make_shared<core::RootAction>(mockBeacon, core::UTF8String("test action"), session);
+	auto testAction = std::make_shared<core::RootAction>(logger, mockBeacon, core::UTF8String("test action"), session);
 
 	//when
 	auto returnedAction = testAction->reportValue(nullptr, 42);
@@ -250,7 +255,7 @@ TEST_F(RootActionTest, reportValueIntWithEmptyNameDoesNotReportValue)
 
 	// create test environment
 	// create action without parent action
-	auto testAction = std::make_shared<core::RootAction>(mockBeacon, core::UTF8String("test action"), session);
+	auto testAction = std::make_shared<core::RootAction>(logger, mockBeacon, core::UTF8String("test action"), session);
 
 	//when
 	auto returnedAction = testAction->reportValue("", 42);
@@ -268,7 +273,7 @@ TEST_F(RootActionTest, reportValueIntWithValidValue)
 
 	// create test environment
 	// create action without parent action
-	auto testAction = std::make_shared<core::RootAction>(mockBeacon, core::UTF8String("test action"), session);
+	auto testAction = std::make_shared<core::RootAction>(logger, mockBeacon, core::UTF8String("test action"), session);
 
 	//when
 	auto returnedAction = testAction->reportValue(integerValueName, 42);
@@ -284,7 +289,7 @@ TEST_F(RootActionTest, reportValueDoubleWithNullNameDoesNotReportValue)
 
 	// create test environment
 	// create action without parent action
-	auto testAction = std::make_shared<core::RootAction>(mockBeacon, core::UTF8String("test action"), session);
+	auto testAction = std::make_shared<core::RootAction>(logger, mockBeacon, core::UTF8String("test action"), session);
 
 	//when
 	auto returnedAction = testAction->reportValue(nullptr, 42.1337);
@@ -300,7 +305,7 @@ TEST_F(RootActionTest, reportValueDoubleWithEmptyNameDoesNotReportValue)
 
 	// create test environment
 	// create action without parent action
-	auto testAction = std::make_shared<core::RootAction>(mockBeacon, core::UTF8String("test action"), session);
+	auto testAction = std::make_shared<core::RootAction>(logger, mockBeacon, core::UTF8String("test action"), session);
 
 	//when
 	auto returnedAction = testAction->reportValue("", 42.1337);
@@ -316,7 +321,7 @@ TEST_F(RootActionTest, reportValueDoubleWithValidValue)
 
 	// create test environment
 	// create action without parent action
-	auto testAction = std::make_shared<core::RootAction>(mockBeacon, core::UTF8String("test action"), session);
+	auto testAction = std::make_shared<core::RootAction>(logger, mockBeacon, core::UTF8String("test action"), session);
 
 	//when
 	auto returnedAction = testAction->reportValue("DoubleValue", 42.1337);
@@ -332,7 +337,7 @@ TEST_F(RootActionTest, reportValueStringWithValidValue)
 
 	// create test environment
 	// create action without parent action
-	auto testAction = std::make_shared<core::RootAction>(mockBeacon, core::UTF8String("test action"), session);
+	auto testAction = std::make_shared<core::RootAction>(logger, mockBeacon, core::UTF8String("test action"), session);
 
 	//when
 	auto returnedAction = testAction->reportValue("StringValue", "This is a string");
@@ -348,7 +353,7 @@ TEST_F(RootActionTest, reportValueStringWithValueNull)
 
 	// create test environment
 	// create action without parent action
-	auto testAction = std::make_shared<core::RootAction>(mockBeacon, core::UTF8String("test action"), session);
+	auto testAction = std::make_shared<core::RootAction>(logger, mockBeacon, core::UTF8String("test action"), session);
 
 	//when
 	auto returnedAction = testAction->reportValue("StringValue", nullptr);
@@ -364,7 +369,7 @@ TEST_F(RootActionTest, reportErrorWithAllValuesSet)
 
 	// create test environment
 	// create action without parent action
-	auto testAction = std::make_shared<core::RootAction>(mockBeacon, core::UTF8String("test action"), session);
+	auto testAction = std::make_shared<core::RootAction>(logger, mockBeacon, core::UTF8String("test action"), session);
 
 	//when
 	auto returnedAction = testAction->reportError("FATAL Error", 0x8005037, "Some reason for this fatal error");
@@ -380,7 +385,7 @@ TEST_F(RootActionTest, reportErrorWithNullErrorNameDoesNotReportTheError)
 
 	// create test environment
 	// create action without parent action
-	auto testAction = std::make_shared<core::RootAction>(mockBeacon, core::UTF8String("test action"), session);
+	auto testAction = std::make_shared<core::RootAction>(logger, mockBeacon, core::UTF8String("test action"), session);
 
 	//when
 	auto returnedAction = testAction->reportError(nullptr, 0x8005037, "Some reason for this fatal error");
@@ -396,7 +401,7 @@ TEST_F(RootActionTest, reportErrorWithEmptyErrorNameDoesNotReportTheError)
 
 	// create test environment
 	// create action without parent action
-	auto testAction = std::make_shared<core::RootAction>(mockBeacon, core::UTF8String("test action"), session);
+	auto testAction = std::make_shared<core::RootAction>(logger, mockBeacon, core::UTF8String("test action"), session);
 
 	//when
 	auto returnedAction = testAction->reportError("", 0x8005037, "Some reason for this fatal error");
@@ -412,7 +417,7 @@ TEST_F(RootActionTest, reportErrorWithEmptyNullErrorReasonDoesReport)
 
 	// create test environment
 	// create action without parent action
-	auto testAction = std::make_shared<core::RootAction>(mockBeacon, core::UTF8String("test action"), session);
+	auto testAction = std::make_shared<core::RootAction>(logger, mockBeacon, core::UTF8String("test action"), session);
 
 	//when
 	auto returnedAction = testAction->reportError("FATAL ERROR", 0x8005037, nullptr);
@@ -425,7 +430,7 @@ TEST_F(RootActionTest, canTraceWebRequestUrl)
 	core::UTF8String urlStr("http://example.com/pages/");
 	// create test environment
 	// create action without parent action
-	auto testAction = std::make_shared<core::Action>(mockBeacon, core::UTF8String("test action"));
+	auto testAction = std::make_shared<core::Action>(logger, mockBeacon, core::UTF8String("test action"));
 
 	// execute the test call
 	auto webRequestTracer = testAction->traceWebRequest(urlStr.getStringData().c_str());
@@ -446,7 +451,7 @@ TEST_F(RootActionTest, canTraceWebRequestUrlWithParameters)
 
 	// create test environment
 	// create action without parent action
-	auto testAction = std::make_shared<core::Action>(mockBeacon, core::UTF8String("test action"));
+	auto testAction = std::make_shared<core::Action>(logger, mockBeacon, core::UTF8String("test action"));
 
 	// execute the test call
 	auto webRequestTracer = testAction->traceWebRequest(urlWithParamString.getStringData().c_str());
@@ -460,7 +465,7 @@ TEST_F(RootActionTest, tracingANullStringWebRequestIsNotAllowed)
 {
 	// create test environment
 	// create action without parent action
-	auto testAction = std::make_shared<core::Action>(mockBeacon, core::UTF8String("test action"));
+	auto testAction = std::make_shared<core::Action>(logger, mockBeacon, core::UTF8String("test action"));
 
 	// execute the test call
 	auto webRequestTracer = testAction->traceWebRequest(nullptr);
@@ -474,7 +479,7 @@ TEST_F(RootActionTest, tracingAnEmptyStringWebRequestIsNotAllowed)
 {
 	// create test environment
 	// create action without parent action
-	auto testAction = std::make_shared<core::Action>(mockBeacon, core::UTF8String("test action"));
+	auto testAction = std::make_shared<core::Action>(logger, mockBeacon, core::UTF8String("test action"));
 
 	// execute the test call
 	auto webRequestTracer = testAction->traceWebRequest("");
@@ -493,7 +498,7 @@ TEST_F(RootActionTest, leaveAction)
 	EXPECT_CALL(*mockBeacon, getCurrentTimestamp())
 		.WillOnce(testing::Return((int32_t)42))
 		.WillRepeatedly(testing::Return((int32_t)48));
-	auto testAction = std::make_shared<core::RootAction>(mockBeacon, core::UTF8String("test action"), session);
+	auto testAction = std::make_shared<core::RootAction>(logger, mockBeacon, core::UTF8String("test action"), session);
 	// execute the test call: simulate a few reportValues and then leaveAction
 	ASSERT_EQ(testAction->getStartTime(), (int64_t)42);
 	ASSERT_EQ(testAction->getEndTime(), (int64_t)-1);
@@ -513,7 +518,7 @@ TEST_F(RootActionTest, leaveAction)
 
 TEST_F(RootActionTest, leaveActionTwice)
 {
-	auto testAction = std::make_shared<core::RootAction>(mockBeacon, core::UTF8String("test action"), session);
+	auto testAction = std::make_shared<core::RootAction>(logger, mockBeacon, core::UTF8String("test action"), session);
 	// execute the test call: simulate a few reportValues and then leaveAction
 	testAction->reportValue("DoubleValue", 3.141592654);
 	testAction->reportValue("IntValue", 42);
@@ -531,10 +536,10 @@ TEST_F(RootActionTest, verifySequenceNumbersParents)
 		.WillRepeatedly(testing::Return((int32_t)4));
 
 	//create two actions
-	auto testAction1 = std::make_shared<core::RootAction>(mockBeacon, core::UTF8String("test action 1"), session);
+	auto testAction1 = std::make_shared<core::RootAction>(logger, mockBeacon, core::UTF8String("test action 1"), session);
 	ASSERT_EQ(testAction1->getStartSequenceNo(), 1);
 	ASSERT_EQ(testAction1->getEndSequenceNo(), -1);
-	auto testAction2 = std::make_shared<core::RootAction>(mockBeacon, core::UTF8String("test action 2"), session);
+	auto testAction2 = std::make_shared<core::RootAction>(logger, mockBeacon, core::UTF8String("test action 2"), session);
 	ASSERT_EQ(testAction2->getStartSequenceNo(), 2);
 	ASSERT_EQ(testAction2->getEndSequenceNo(), -1);
 
@@ -556,10 +561,10 @@ TEST_F(RootActionTest, verifySequenceNumbersParents2)
 		.WillRepeatedly(testing::Return((int32_t)4));
 
 	//create two actions
-	auto testAction1 = std::make_shared<core::RootAction>(mockBeacon, core::UTF8String("test action 1"), session);
+	auto testAction1 = std::make_shared<core::RootAction>(logger, mockBeacon, core::UTF8String("test action 1"), session);
 	ASSERT_EQ(testAction1->getStartSequenceNo(), 1);
 	ASSERT_EQ(testAction1->getEndSequenceNo(), -1);
-	auto testAction2 = std::make_shared<core::RootAction>(mockBeacon, core::UTF8String("test action 2"), session);
+	auto testAction2 = std::make_shared<core::RootAction>(logger, mockBeacon, core::UTF8String("test action 2"), session);
 	ASSERT_EQ(testAction2->getStartSequenceNo(), 2);
 	ASSERT_EQ(testAction2->getEndSequenceNo(), -1);
 
@@ -575,7 +580,7 @@ TEST_F(RootActionTest, verifySequenceNumbersParents2)
 TEST_F(RootActionTest, verifyGetters)
 {
 	//given
-	auto testAction = std::make_shared<core::RootAction>(mockBeacon, core::UTF8String("test action"), session);
+	auto testAction = std::make_shared<core::RootAction>(logger, mockBeacon, core::UTF8String("test action"), session);
 
 	//then
 	ASSERT_EQ(testAction->getID(), 1);
@@ -585,7 +590,7 @@ TEST_F(RootActionTest, verifyGetters)
 TEST_F(RootActionTest, aNewlyCreatedActionIsNotLeft)
 {
 	//given
-	auto testAction = std::make_shared<core::RootAction>(mockBeacon, core::UTF8String("test action"), session);
+	auto testAction = std::make_shared<core::RootAction>(logger, mockBeacon, core::UTF8String("test action"), session);
 
 	//then
 	ASSERT_FALSE(testAction->isActionLeft());
@@ -594,7 +599,7 @@ TEST_F(RootActionTest, aNewlyCreatedActionIsNotLeft)
 TEST_F(RootActionTest, afterLeavingAnActionItIsLeft)
 {
 	//given
-	auto testAction = std::make_shared<core::RootAction>(mockBeacon, core::UTF8String("test action"), session);
+	auto testAction = std::make_shared<core::RootAction>(logger, mockBeacon, core::UTF8String("test action"), session);
 
 	//when
 	testAction->leaveAction();
@@ -606,7 +611,7 @@ TEST_F(RootActionTest, afterLeavingAnActionItIsLeft)
 TEST_F(RootActionTest, reportEventDoesNothingIfActionIsLeft)
 {
 	//given
-	auto testAction = std::make_shared<core::RootAction>(mockBeacon, core::UTF8String("test action"), session);
+	auto testAction = std::make_shared<core::RootAction>(logger, mockBeacon, core::UTF8String("test action"), session);
 	testAction->leaveAction();
 	mockBeacon->clearData();
 
@@ -621,7 +626,7 @@ TEST_F(RootActionTest, reportEventDoesNothingIfActionIsLeft)
 TEST_F(RootActionTest, reportIntValueDoesNothingIfActionIsLeft)
 {
 	//given
-	auto testAction = std::make_shared<core::RootAction>(mockBeacon, core::UTF8String("test action"), session);
+	auto testAction = std::make_shared<core::RootAction>(logger, mockBeacon, core::UTF8String("test action"), session);
 	testAction->leaveAction();
 	mockBeacon->clearData();
 
@@ -636,7 +641,7 @@ TEST_F(RootActionTest, reportIntValueDoesNothingIfActionIsLeft)
 TEST_F(RootActionTest, reportDoubleValueDoesNothingIfActionIsLeft)
 {
 	//given
-	auto testAction = std::make_shared<core::RootAction>(mockBeacon, core::UTF8String("test action"), session);
+	auto testAction = std::make_shared<core::RootAction>(logger, mockBeacon, core::UTF8String("test action"), session);
 	testAction->leaveAction();
 	mockBeacon->clearData();
 
@@ -651,7 +656,7 @@ TEST_F(RootActionTest, reportDoubleValueDoesNothingIfActionIsLeft)
 TEST_F(RootActionTest, reportStringValueDoesNothingIfActionIsLeft)
 {
 	//given
-	auto testAction = std::make_shared<core::RootAction>(mockBeacon, core::UTF8String("test action"), session);
+	auto testAction = std::make_shared<core::RootAction>(logger, mockBeacon, core::UTF8String("test action"), session);
 	testAction->leaveAction();
 	mockBeacon->clearData();
 
@@ -666,7 +671,7 @@ TEST_F(RootActionTest, reportStringValueDoesNothingIfActionIsLeft)
 TEST_F(RootActionTest, reportErrorDoesNothingIfActionIsLeft)
 {
 	//given
-	auto testAction = std::make_shared<core::RootAction>(mockBeacon, core::UTF8String("test action"), session);
+	auto testAction = std::make_shared<core::RootAction>(logger, mockBeacon, core::UTF8String("test action"), session);
 	testAction->leaveAction();
 	mockBeacon->clearData();
 

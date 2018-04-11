@@ -19,6 +19,7 @@
 
 #include "core/BeaconSender.h"
 #include "core/util/CommandLineArguments.h"
+#include "core/util/DefaultLogger.h"
 #include "providers/DefaultHTTPClientProvider.h"
 #include "providers/DefaultSessionIDProvider.h"
 #include "providers/DefaultTimingProvider.h"
@@ -88,7 +89,8 @@ int32_t main(int32_t argc, char** argv)
 	std::shared_ptr<core::BeaconSender> sender = std::make_shared<core::BeaconSender>(configuration, httpClientProvider, timingProvider);
 	sender->initialize();
 
-	std::shared_ptr<Session> sampleSession(new Session(sender, beacon));
+	auto logger = std::shared_ptr<api::ILogger>(new core::util::DefaultLogger(true));
+	std::shared_ptr<Session> sampleSession(new Session(logger, sender, beacon));
 	sampleSession->identifyUser("test user");
 	sampleSession->startSession();
 

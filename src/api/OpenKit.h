@@ -18,6 +18,9 @@
 #define _API_OPENKIT_H
 
 #include "OpenKit_export.h"
+#include "api/ILogger.h"
+
+#include <memory>
 
 namespace api {
 
@@ -28,8 +31,9 @@ namespace api {
 	private:
 		///
 		/// Private constructor. OpenKit is instantiated via the Builder
+		/// @param[in] logger to write traces to
 		///
-		OpenKit();
+		OpenKit(std::shared_ptr<ILogger> logger);
 
 	public:
 		///
@@ -41,6 +45,10 @@ namespace api {
 		/// Shuts down OpenKit, ending all open Sessions and waiting for them to be sent.
 		///
 		void shutdown();
+
+	private:
+		/// Logger to write traces to
+		std::shared_ptr<api::ILogger> mLogger;
 	};
 }
 
