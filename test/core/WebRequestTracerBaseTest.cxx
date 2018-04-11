@@ -108,6 +108,8 @@ TEST_F(WebRequestTracerTest, defaultValues)
 	//given
 	ON_CALL(*mockBeaconNice, createSequenceNumber())
 		.WillByDefault(testing::Return(42));
+	ON_CALL(*mockBeaconNice, getCurrentTimestamp())
+		.WillByDefault(testing::Return(123456789L));
 
 	// test the constructor call
 	std::shared_ptr<core::WebRequestTracerBase> testWebRequestTracer = std::make_shared<core::WebRequestTracerBase>(mockBeaconNice, action->getID());
@@ -116,7 +118,7 @@ TEST_F(WebRequestTracerTest, defaultValues)
 	auto tracerURL = testWebRequestTracer->getURL();
 	ASSERT_TRUE(core::UTF8String(tracerURL).equals(core::UTF8String("<unknown>")));
 	ASSERT_EQ(testWebRequestTracer->getResponseCode(), -1);
-	ASSERT_EQ(testWebRequestTracer->getStartTime(), -1);
+	ASSERT_EQ(testWebRequestTracer->getStartTime(), 123456789L);
 	ASSERT_EQ(testWebRequestTracer->getEndTime(), -1);
 	ASSERT_EQ(testWebRequestTracer->getStartSequenceNo(), 42);
 	ASSERT_EQ(testWebRequestTracer->getEndSequenceNo(), -1);
@@ -268,7 +270,7 @@ TEST_F(WebRequestTracerTest, startDoesNothingIfAlreadyStopped)
 
 	// verify
 	ASSERT_EQ(obtained, testWebRequestTracer);
-	ASSERT_EQ(testWebRequestTracer->getStartTime(), -1);
+	ASSERT_EQ(testWebRequestTracer->getStartTime(), 123456789L);
 }
 
 TEST_F(WebRequestTracerTest, stopCanOnlyBeExecutedOnce)
