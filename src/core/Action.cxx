@@ -128,8 +128,7 @@ std::shared_ptr<api::IWebRequestTracer> Action::traceWebRequest(const char* url)
 	core::UTF8String urlString(url);
 	if (urlString.empty())
 	{
-		//TODO: enable
-		//logger.warning("Action.traceWebRequest (URLConnection): connection must not be null");
+		mLogger->warning("Action.traceWebRequest (URLConnection): connection must not be null");
 		return NULL_WEB_REQUEST_TRACER;
 	}
 	if (!isActionLeft())

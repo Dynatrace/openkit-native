@@ -24,14 +24,13 @@
 #endif
 
 #include "api/IRootAction.h"
-
-#include "Action.h"
+#include "api/ILogger.h"
 #include "protocol/Beacon.h"
 #include "UTF8String.h"
 #include "NullAction.h"
 #include "NullWebRequestTracer.h"
 
-#include "memory"
+#include <memory>
 
 namespace core
 {
