@@ -25,6 +25,7 @@
 #include "core/Action.h"
 #include "core/RootAction.h"
 #include "core/Session.h"
+#include "core/WebRequestTracerBase.h"
 #include "caching/BeaconCache.h"
 #include "EventType.h"
 
@@ -59,7 +60,7 @@ namespace protocol
 		/// Calling this method on two different Beacon instances, might give the same result.
 		/// @returns a unique sequencen number;
 		///
-		int32_t createSequenceNumber();
+		virtual int32_t createSequenceNumber();
 
 		///
 		/// Get the current timestamp in milliseconds by delegating to TimingProvider
@@ -74,6 +75,15 @@ namespace protocol
 		/// @returns a unique identifier
 		///
 		int32_t createID();
+
+		///
+		/// Create a web request tag
+		/// Web request tags can be attached as HTTP header for web request tracing.
+		/// @param[in] parentActionID The ID of the @ref Action for which to create a web request tag. 
+		/// @param[in] sequenceNumber Sequence number of the @ref WebRequestTracer
+		/// @returns A web request tracer tag
+		///
+		virtual core::UTF8String createTag(int32_t parentActionID, int32_t sequenceNumber);
 
 		///
 		/// Add Action to Beacon
@@ -213,6 +223,14 @@ namespace protocol
 		/// @param[in] stacktrace Crash stacktrace.
 		///
 		virtual void reportCrash(const core::UTF8String& errorName, const core::UTF8String& reason, const core::UTF8String& stacktrace);
+
+		///
+		/// Add web request to Beacon
+		/// The serialized data is added to @ref BeaconCache
+		/// @param[in] The @ref Action on which the web request was reported
+		/// @param[in] @ref WebRequestTracer to serialize
+		///
+		virtual void addWebRequest(int32_t parentActionID, std::shared_ptr<core::WebRequestTracerBase> webRequestTracer);
 
 		///
 		/// Add user identification to Beacon.

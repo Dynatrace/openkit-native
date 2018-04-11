@@ -17,6 +17,7 @@
 #ifndef _API_IROOTACTION_H
 #define _API_IROOTACTION_H
 
+#include "api/IWebRequestTracer.h"
 
 #include <stdint.h>
 #include <memory>
@@ -87,6 +88,17 @@ namespace api
 		///
 		virtual std::shared_ptr<IRootAction> reportError(const char* errorName, int32_t errorCode, const char* reason) = 0;
 
+		///
+		/// Allows tracing and timing of a web request handled by any 3rd party HTTP Client (e.g. CURL, EasyHttp, ...).
+		/// In this case the Dynatrace HTTP header (@ref OpenKitConstants::WEBREQUEST_TAG_HEADER) has to be set manually to the
+		/// tag value of this WebRequestTracer. <br>
+		/// If the web request is continued on a server-side Agent (e.g. Java, .NET, ...) this Session will be correlated to
+		/// the resulting server-side PurePath.
+		///
+		/// @param url the URL of the web request to be tagged and timed
+		/// @return a WebRequestTracer which allows getting the tag value and adding timing information
+		///
+		virtual std::shared_ptr<IWebRequestTracer> traceWebRequest(const char* url) = 0;
 
 		///
 		/// Leaves this Action.

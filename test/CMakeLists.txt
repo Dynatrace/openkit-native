@@ -46,6 +46,7 @@ set(SOURCES_UNITTEST
 	core/SessionTest.cxx
 	core/ActionTest.cxx
 	core/RootActionTest.cxx
+	core/WebRequestTracerBaseTest.cxx
 	core/util/CompressorTest.cxx
 	core/util/URLEncodingTest.cxx
 	core/util/SynchronizedQueueTest.cxx

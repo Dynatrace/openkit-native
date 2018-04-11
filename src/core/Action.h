@@ -26,6 +26,7 @@
 #include "api/ILogger.h"
 #include "core/util/SynchronizedQueue.h"
 #include "core/UTF8String.h"
+#include "core/NullWebRequestTracer.h"
 
 #include <memory>
 #include <atomic>
@@ -80,6 +81,8 @@ namespace core
 		std::shared_ptr<IAction> reportValue(const char* valueName, const char* value) override;
 
 		std::shared_ptr<IAction> reportError(const char* errorName, int32_t errorCode, const char* reason) override;
+
+		std::shared_ptr<api::IWebRequestTracer> traceWebRequest(const char* url) override;
 
 		virtual std::shared_ptr<api::IRootAction> leaveAction() override;
 
@@ -167,6 +170,9 @@ namespace core
 
 		/// action end sequence number
 		int32_t mEndSequenceNumber;
+
+		/// Null WebRequestTracer
+		std::shared_ptr<NullWebRequestTracer> NULL_WEB_REQUEST_TRACER;
 	};
 }
 

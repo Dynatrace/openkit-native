@@ -27,7 +27,7 @@
 #include "providers/DefaultSessionIDProvider.h"
 #include "providers/DefaultHTTPClientProvider.h"
 #include "core/BeaconSender.h"
-
+#include "core/WebRequestTracerStringURL.h"
 #include "core/RootAction.h"
 #include "configuration/Configuration.h"
 
@@ -425,9 +425,76 @@ TEST_F(RootActionTest, reportErrorWithEmptyNullErrorReasonDoesReport)
 	ASSERT_EQ(testAction, returnedAction);
 }
 
+TEST_F(RootActionTest, canTraceWebRequestUrl)
+{
+	core::UTF8String urlStr("http://example.com/pages/");
+	// create test environment
+	// create action without parent action
+	auto testAction = std::make_shared<core::Action>(logger, mockBeacon, core::UTF8String("test action"));
+
+	// execute the test call
+	auto webRequestTracer = testAction->traceWebRequest(urlStr.getStringData().c_str());
+
+	// verify the returned request
+	std::shared_ptr<core::WebRequestTracerStringURL> webRequestTracerStringURL = std::static_pointer_cast<core::WebRequestTracerStringURL>(webRequestTracer);
+	EXPECT_TRUE(webRequestTracerStringURL->getURL().equals(urlStr));
+}
+
+TEST_F(RootActionTest, canTraceWebRequestUrlWithParameters)
+{
+	core::UTF8String urlStr("http://example.com/pages/");
+	core::UTF8String paramString("someParameter=hello&someOtherParameter=world");
+
+	core::UTF8String urlWithParamString(urlStr);
+	urlWithParamString.concatenate("?");
+	urlWithParamString.concatenate(paramString);
+
+	// create test environment
+	// create action without parent action
+	auto testAction = std::make_shared<core::Action>(logger, mockBeacon, core::UTF8String("test action"));
+
+	// execute the test call
+	auto webRequestTracer = testAction->traceWebRequest(urlWithParamString.getStringData().c_str());
+
+	// verify the returned request
+	std::shared_ptr<core::WebRequestTracerStringURL> webRequestTracerStringURL = std::static_pointer_cast<core::WebRequestTracerStringURL>(webRequestTracer);
+	EXPECT_TRUE(webRequestTracerStringURL->getURL().equals(urlStr));
+}
+
+TEST_F(RootActionTest, tracingANullStringWebRequestIsNotAllowed)
+{
+	// create test environment
+	// create action without parent action
+	auto testAction = std::make_shared<core::Action>(logger, mockBeacon, core::UTF8String("test action"));
+
+	// execute the test call
+	auto webRequestTracer = testAction->traceWebRequest(nullptr);
+
+	// verify the returned request
+	EXPECT_TRUE(webRequestTracer != nullptr);
+	EXPECT_TRUE(webRequestTracer->isNullObject());
+}
+
+TEST_F(RootActionTest, tracingAnEmptyStringWebRequestIsNotAllowed)
+{
+	// create test environment
+	// create action without parent action
+	auto testAction = std::make_shared<core::Action>(logger, mockBeacon, core::UTF8String("test action"));
+
+	// execute the test call
+	auto webRequestTracer = testAction->traceWebRequest("");
+
+	// verify the returned request
+	EXPECT_TRUE(webRequestTracer != nullptr);
+	EXPECT_TRUE(webRequestTracer->isNullObject());
+}
+
 
 TEST_F(RootActionTest, leaveAction)
 {
+	EXPECT_CALL(*mockBeacon, createSequenceNumber())
+		.WillOnce(testing::Return((int32_t)1))
+		.WillRepeatedly(testing::Return((int32_t)2));
 	EXPECT_CALL(*mockBeacon, getCurrentTimestamp())
 		.WillOnce(testing::Return((int32_t)42))
 		.WillRepeatedly(testing::Return((int32_t)48));
@@ -462,6 +529,12 @@ TEST_F(RootActionTest, leaveActionTwice)
 
 TEST_F(RootActionTest, verifySequenceNumbersParents)
 {
+	EXPECT_CALL(*mockBeacon, createSequenceNumber())
+		.WillOnce(testing::Return((int32_t)1))
+		.WillOnce(testing::Return((int32_t)2))
+		.WillOnce(testing::Return((int32_t)3))
+		.WillRepeatedly(testing::Return((int32_t)4));
+
 	//create two actions
 	auto testAction1 = std::make_shared<core::RootAction>(logger, mockBeacon, core::UTF8String("test action 1"), session);
 	ASSERT_EQ(testAction1->getStartSequenceNo(), 1);
@@ -481,6 +554,12 @@ TEST_F(RootActionTest, verifySequenceNumbersParents)
 
 TEST_F(RootActionTest, verifySequenceNumbersParents2)
 {
+	EXPECT_CALL(*mockBeacon, createSequenceNumber())
+		.WillOnce(testing::Return((int32_t)1))
+		.WillOnce(testing::Return((int32_t)2))
+		.WillOnce(testing::Return((int32_t)3))
+		.WillRepeatedly(testing::Return((int32_t)4));
+
 	//create two actions
 	auto testAction1 = std::make_shared<core::RootAction>(logger, mockBeacon, core::UTF8String("test action 1"), session);
 	ASSERT_EQ(testAction1->getStartSequenceNo(), 1);
