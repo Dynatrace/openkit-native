@@ -26,13 +26,15 @@
 #include "providers/DefaultSessionIDProvider.h"
 #include "providers/DefaultHTTPClientProvider.h"
 #include "core/BeaconSender.h"
-
+#include "core/WebRequestTracerStringURL.h"
 #include "core/Action.h"
 #include "configuration/Configuration.h"
 
 #include "../protocol/MockHTTPClient.h"
 #include "../providers/MockHTTPClientProvider.h"
 #include "../protocol/MockBeacon.h"
+
+
 
 using namespace core;
 
@@ -330,6 +332,71 @@ TEST_F(ActionTest, reportErrorWithEmptyNullErrorReasonDoesReport)
 	auto returnedAction = testAction->reportError("FATAL ERROR", 0x8005037, nullptr);
 
 	ASSERT_EQ(testAction, returnedAction);
+}
+
+
+TEST_F(ActionTest, canTraceWebRequestUrl)
+{
+	core::UTF8String urlStr("http://example.com/pages/");
+	// create test environment
+	// create action without parent action
+	auto testAction = std::make_shared<core::Action>(mockBeacon, core::UTF8String("test action"));
+
+	// execute the test call
+	auto webRequestTracer = testAction->traceWebRequest(urlStr.getStringData().c_str());
+
+	// verify the returned request
+	std::shared_ptr<core::WebRequestTracerStringURL> webRequestTracerStringURL = std::static_pointer_cast<core::WebRequestTracerStringURL>(webRequestTracer);
+	EXPECT_TRUE(webRequestTracerStringURL->getURL().equals(urlStr));
+}
+
+TEST_F(ActionTest, canTraceWebRequestUrlWithParameters)
+{
+	core::UTF8String urlStr("http://example.com/pages/");
+	core::UTF8String paramString("someParameter=hello&someOtherParameter=world");
+
+	core::UTF8String urlWithParamString(urlStr);
+	urlWithParamString.concatenate("?");
+	urlWithParamString.concatenate(paramString);
+
+	// create test environment
+	// create action without parent action
+	auto testAction = std::make_shared<core::Action>(mockBeacon, core::UTF8String("test action"));
+
+	// execute the test call
+	auto webRequestTracer = testAction->traceWebRequest(urlWithParamString.getStringData().c_str());
+
+	// verify the returned request
+	std::shared_ptr<core::WebRequestTracerStringURL> webRequestTracerStringURL = std::static_pointer_cast<core::WebRequestTracerStringURL>(webRequestTracer);
+	EXPECT_TRUE(webRequestTracerStringURL->getURL().equals(urlStr));
+}
+
+TEST_F(ActionTest, tracingANullStringWebRequestIsNotAllowed)
+{
+	// create test environment
+	// create action without parent action
+	auto testAction = std::make_shared<core::Action>(mockBeacon, core::UTF8String("test action"));
+
+	// execute the test call
+	auto webRequestTracer = testAction->traceWebRequest(nullptr);
+
+	// verify the returned request
+	EXPECT_TRUE(webRequestTracer != nullptr);
+	EXPECT_TRUE(webRequestTracer->isNullObject());
+}
+
+TEST_F(ActionTest, tracingAnEmptyStringWebRequestIsNotAllowed)
+{
+	// create test environment
+	// create action without parent action
+	auto testAction = std::make_shared<core::Action>(mockBeacon, core::UTF8String("test action"));
+
+	// execute the test call
+	auto webRequestTracer = testAction->traceWebRequest("");
+
+	// verify the returned request
+	EXPECT_TRUE(webRequestTracer != nullptr);
+	EXPECT_TRUE(webRequestTracer->isNullObject());
 }
 
 TEST_F(ActionTest, actionsEnteredAndLeft)
