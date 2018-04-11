@@ -1,0 +1,78 @@
+/**
+* Copyright 2018 Dynatrace LLC
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+#ifndef _API_WEBREQUESTTRACER_H
+#define _API_WEBREQUESTTRACER_H
+
+#include <stdint.h>
+#include <memory>
+
+namespace api
+{
+	///
+	/// This interface allows tracing and timing of a web request.
+	///
+	class IWebRequestTracer
+	{
+	public:
+
+		virtual ~IWebRequestTracer() {}
+
+		///
+		/// Returns the Dynatrace tag which has to be set manually as Dynatrace HTTP header
+		/// ( @ref OpenKitConstants::WEBREQUEST_TAG_HEADER).
+		/// This is only necessary for tracing web requests via 3rd party HTTP clients.
+		///
+		/// @returna the Dynatrace tag to be set as HTTP header value or an empty String if capture is off
+		///
+		virtual const char* getTag() = 0;
+
+		///
+		/// Sets the response code of this web request. Has to be called before @ref IWebRequestTracer::stop().
+		///
+		/// @param[in] responseCode response code of this web request
+		/// @returns pointer to this WebRequestTracer instance that can be used for a fluent-API call
+		///
+		virtual std::shared_ptr<IWebRequestTracer> setResponseCode(int32_t responseCode) = 0;
+
+		///
+		/// Sets the amount of sent data of this web request. Has to be called before @ref IWebRequestTracer::stop().
+		///
+		/// @param[in] bytesSent number of bytes sent
+		/// @returns pointer to this WebRequestTracer instance that can be used for a fluent-API call
+		///
+		virtual std::shared_ptr<IWebRequestTracer> setBytesSent(int32_t bytesSent) = 0;
+
+		///
+		/// Sets the amount of received data of this web request. Has to be called before @ref IWebRequestTracer::stop().
+		///
+		/// @param[in] bytesReceived number of bytes received
+		/// @returns pointer to this WebRequestTracer instance that can be used for a fluent-API call
+		///
+		virtual std::shared_ptr<IWebRequestTracer> setBytesReceived(int32_t bytesReceived) = 0;
+
+		///
+		/// Starts the web request timing. Should be called when the web request is initiated.
+		///
+		virtual std::shared_ptr<IWebRequestTracer> start() = 0;
+
+		///
+		/// Stops the web request timing. Should be called when the web request is finished.
+		///
+		virtual void stop() = 0;
+	};
+}
+#endif

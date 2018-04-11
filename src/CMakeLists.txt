@@ -30,6 +30,7 @@ set(SOURCES_CORE
 	core/Action.cxx
 	core/RootAction.cxx
 	core/WebRequestTracerBase.cxx
+	core/WebRequestTracerStringURL.cxx
 )
 
 set(SOURCES_COMMUNICATION
