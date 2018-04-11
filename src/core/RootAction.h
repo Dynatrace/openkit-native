@@ -29,6 +29,7 @@
 #include "protocol/Beacon.h"
 #include "UTF8String.h"
 #include "NullAction.h"
+#include "NullWebRequestTracer.h"
 
 #include "memory"
 
@@ -70,6 +71,8 @@ namespace core
 		std::shared_ptr<IRootAction> reportValue(const char* valueName, const char* value) override;
 
 		std::shared_ptr<IRootAction> reportError(const char* errorName, int32_t errorCode, const char* reason) override;
+
+		std::shared_ptr<api::IWebRequestTracer> traceWebRequest(const char* url) override;
 
 		virtual void leaveAction() override;
 
@@ -168,6 +171,9 @@ namespace core
 
 		/// NullAction
 		std::shared_ptr<NullAction> NULL_ACTION;
+
+		//NullWebRequestTracer
+		std::shared_ptr<NullWebRequestTracer> NULL_WEB_REQUEST_TRACER;
 	};
 }
 #ifdef __GNUC__

@@ -35,17 +35,17 @@ namespace core
 			return "";
 		}
 
-		virtual std::shared_ptr<api::IWebRequestTracer> setResponseCode(int32_t responseCode) override
+		virtual std::shared_ptr<api::IWebRequestTracer> setResponseCode(int32_t /*responseCode*/) override
 		{
 			return shared_from_this();
 		}
 
-		virtual std::shared_ptr<api::IWebRequestTracer> setBytesSent(int32_t bytesSent) override
+		virtual std::shared_ptr<api::IWebRequestTracer> setBytesSent(int32_t /*bytesSent*/) override
 		{
 			return shared_from_this();
 		}
 
-		virtual std::shared_ptr<api::IWebRequestTracer> setBytesReceived(int32_t bytesReceived) override
+		virtual std::shared_ptr<api::IWebRequestTracer> setBytesReceived(int32_t /*bytesReceived*/) override
 		{
 			return shared_from_this();
 		}

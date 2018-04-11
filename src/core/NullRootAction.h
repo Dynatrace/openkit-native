@@ -19,6 +19,7 @@
 
 #include "api/IRootAction.h"
 #include "NullAction.h"
+#include "NullWebRequestTracer.h"
 
 #include <memory>
 
@@ -61,6 +62,11 @@ namespace core
 		virtual std::shared_ptr<IRootAction> reportError(const char* /*errorName*/, int32_t /*errorCode*/, const char* /*reason*/)
 		{
 			return shared_from_this();
+		}
+
+		virtual std::shared_ptr<api::IWebRequestTracer> traceWebRequest(const char* /*url*/) override
+		{
+			return std::make_shared<NullWebRequestTracer>();
 		}
 
 		virtual void leaveAction() override

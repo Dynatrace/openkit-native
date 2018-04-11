@@ -21,6 +21,9 @@
 #include <atomic>
 #include <memory>
 
+#include "NullWebRequestTracer.h"
+#include "WebRequestTracerStringURL.h"
+
 using namespace core;
 
 Action::Action(std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name)
@@ -38,6 +41,7 @@ Action::Action(std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name,
 	, mStartTime(mBeacon->getCurrentTimestamp())
 	, mStartSequenceNumber(mBeacon->createSequenceNumber())
 	, mEndSequenceNumber(-1)
+	, NULL_WEB_REQUEST_TRACER(std::make_shared<NullWebRequestTracer>())
 {
 
 }
@@ -116,6 +120,23 @@ std::shared_ptr<api::IAction> Action::reportError(const char* errorName, int32_t
 		mBeacon->reportError(shared_from_this(), errorNameString, errorCode, reasonString);
 	}
 	return shared_from_this();
+}
+
+std::shared_ptr<api::IWebRequestTracer> Action::traceWebRequest(const char* url)
+{
+	core::UTF8String urlString(url);
+	if (urlString.empty())
+	{
+		//TODO: enable
+		//logger.warning("Action.traceWebRequest (URLConnection): connection must not be null");
+		return NULL_WEB_REQUEST_TRACER;
+	}
+	if (!isActionLeft())
+	{
+		return std::make_shared<core::WebRequestTracerStringURL>(mBeacon, getID(), urlString);
+	}
+
+	return NULL_WEB_REQUEST_TRACER;
 }
 
 std::shared_ptr<api::IRootAction> Action::leaveAction()

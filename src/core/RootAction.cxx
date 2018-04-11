@@ -18,6 +18,9 @@
 
 #include <memory>
 
+#include "NullWebRequestTracer.h"
+#include "WebRequestTracerStringURL.h"
+
 using namespace core;
 
 RootAction::RootAction(std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name, std::shared_ptr<Session> session)
@@ -31,6 +34,7 @@ RootAction::RootAction(std::shared_ptr<protocol::Beacon> beacon, const UTF8Strin
 	, mEndSequenceNumber(-1)
 	, mEndTime(-1)
 	, NULL_ACTION(std::make_shared<NullAction>())
+	, NULL_WEB_REQUEST_TRACER(std::make_shared<NullWebRequestTracer>())
 {
 
 }
@@ -126,6 +130,23 @@ std::shared_ptr<api::IRootAction> RootAction::reportError(const char* errorName,
 		mBeacon->reportError(shared_from_this(), errorNameString, errorCode, reasonString);
 	}
 	return shared_from_this();
+}
+
+std::shared_ptr<api::IWebRequestTracer> RootAction::traceWebRequest(const char* url)
+{
+	core::UTF8String urlString(url);
+	if (urlString.empty())
+	{
+		//TODO: enable
+		//ogger.warning("Action.traceWebRequest (URLConnection): connection must not be null");
+		return NULL_WEB_REQUEST_TRACER;
+	}
+	if (!isActionLeft())
+	{
+		return std::make_shared<core::WebRequestTracerStringURL>(mBeacon, getID(), urlString);
+	}
+
+	return NULL_WEB_REQUEST_TRACER;
 }
 
 void RootAction::doLeaveAction()
