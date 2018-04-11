@@ -73,6 +73,13 @@ namespace api
 		/// Stops the web request timing. Should be called when the web request is finished.
 		///
 		virtual void stop() = 0;
+
+		///
+		/// Returns true if this instance of IWebRequestTracer is an object using 
+		/// the NullObject pattern
+		/// @returns @c true if the current IWebRequestTracer is a NullObject, @c false in all other cases
+		///
+		virtual bool isNullObject() = 0;
 	};
 }
 #endif

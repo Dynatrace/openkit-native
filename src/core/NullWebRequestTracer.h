@@ -59,6 +59,11 @@ namespace core
 		{
 			// intentionally left empty, due to NullObject pattern
 		}
+
+		virtual bool isNullObject() override
+		{
+			return true;
+		}
 	};
 }
 
