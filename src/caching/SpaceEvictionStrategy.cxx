@@ -20,10 +20,12 @@
 
 using namespace caching;
 
-SpaceEvictionStrategy::SpaceEvictionStrategy(std::shared_ptr<IBeaconCache> beaconCache, std::shared_ptr<configuration::BeaconCacheConfiguration> configuration, std::function<bool()> isAlive)
-	: mBeaconCache(beaconCache)
+SpaceEvictionStrategy::SpaceEvictionStrategy(std::shared_ptr<api::ILogger> logger, std::shared_ptr<IBeaconCache> beaconCache, std::shared_ptr<configuration::BeaconCacheConfiguration> configuration, std::function<bool()> isAlive)
+	: mLogger(logger)
+	, mBeaconCache(beaconCache)
 	, mConfiguration(configuration)
 	, mIsAliveFunction(isAlive)
+	, mInfoShown(false)
 {
 }
 
@@ -32,6 +34,12 @@ void SpaceEvictionStrategy::execute()
 	if (isStrategyDisabled())
 	{
 		// immediately return if this strategy is disabled
+		if (!mInfoShown && mLogger->isInfoEnabled())
+		{
+			mLogger->info("SpaceEvictionStrategy is disabled");
+			// suppress any further log output
+			mInfoShown = true;
+		}
 		return;
 	}
 
@@ -55,6 +63,7 @@ bool SpaceEvictionStrategy::shouldRun() const
 
 void SpaceEvictionStrategy::doExecute()
 {
+	std::map<int32_t, uint32_t> removedRecordsPerBeacon;
 	while (mIsAliveFunction() && mBeaconCache->getNumBytesInCache() > mConfiguration->getCacheSizeLowerBound())
 	{
 		auto beaconIDs = mBeaconCache->getBeaconIDs();
@@ -65,11 +74,29 @@ void SpaceEvictionStrategy::doExecute()
 
 			// remove 1 record from Beacon cache for given beaconID
 			// the result is the number of records removed, which might be in range [0, numRecords=1]
-			/*uint32_t numRecordsRemoved =*/ mBeaconCache->evictRecordsByNumber(beaconID, 1);
+			uint32_t numRecordsRemoved = mBeaconCache->evictRecordsByNumber(beaconID, 1);
+
+			if (mLogger->isDebugEnabled())
+			{
+				auto itr = removedRecordsPerBeacon.find(beaconID);
+				if (itr == removedRecordsPerBeacon.end())
+				{
+					removedRecordsPerBeacon.insert(std::make_pair(beaconID, numRecordsRemoved));
+				}
+				else
+				{
+					removedRecordsPerBeacon.insert(std::make_pair(beaconID, itr->second + numRecordsRemoved));
+				}
+			}
 
 			it++;
 		}
 	}
 
-	// TODO: Add debug output once the logger is implemented
+	if (mLogger->isDebugEnabled()) {
+		for (auto itr = removedRecordsPerBeacon.begin(); itr != removedRecordsPerBeacon.end(); itr++)
+		{
+			mLogger->debug("SpaceEvictionStrategy: Removed %u records from Beacon with ID %d", itr->second, itr->first);
+		}
+	}
 }

@@ -16,14 +16,18 @@
 
 #include "caching/TimeEvictionStrategy.h"
 
+#include <map>
+
 using namespace caching;
 
-TimeEvictionStrategy::TimeEvictionStrategy(std::shared_ptr<IBeaconCache> beaconCache, std::shared_ptr<configuration::BeaconCacheConfiguration> configuration, std::shared_ptr<providers::ITimingProvider> timingProvider, std::function<bool()> isAlive)
-	: mBeaconCache(beaconCache)
+TimeEvictionStrategy::TimeEvictionStrategy(std::shared_ptr<api::ILogger> logger, std::shared_ptr<IBeaconCache> beaconCache, std::shared_ptr<configuration::BeaconCacheConfiguration> configuration, std::shared_ptr<providers::ITimingProvider> timingProvider, std::function<bool()> isAlive)
+	: mLogger(logger)
+	, mBeaconCache(beaconCache)
 	, mConfiguration(configuration)
 	, mTimingProvider(timingProvider)
 	, mLastRunTimestamp(-1)
 	, mIsAliveFunction(isAlive)
+	, mInfoShown(false)
 {
 }
 
@@ -32,6 +36,12 @@ void TimeEvictionStrategy::execute()
 	if (isStrategyDisabled())
 	{
 		// immediately return if this strategy is disabled
+		if (!mInfoShown && mLogger->isInfoEnabled())
+		{
+			mLogger->info("TimeEvictionStrategy is disabled");
+			// suppress any further log output
+			mInfoShown = true;
+		}
 		return;
 	}
 
@@ -88,12 +98,17 @@ void TimeEvictionStrategy::doExecute()
 	{
 		auto beaconID = *it;
 
-		/*uint32_t numRecordsRemoved =*/ mBeaconCache->evictRecordsByAge(beaconID, smallestAllowedBeaconTimestamp);
+		uint32_t numRecordsRemoved = mBeaconCache->evictRecordsByAge(beaconID, smallestAllowedBeaconTimestamp);
+
+		if (numRecordsRemoved > 0 && mLogger->isDebugEnabled())
+		{
+			mLogger->debug("TimeEvictionStrategy: Removed %u records from Beacon with ID %d", numRecordsRemoved, beaconID);
+		}
 
 		it++;
 	}
 
-	// TODO: Add debug output once the logger is implemented
+
 
 	// last but not least update the last runtime
 	setLastRunTimestamp(currentTimestamp);
