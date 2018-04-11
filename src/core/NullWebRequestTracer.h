@@ -30,9 +30,9 @@ namespace core
 	{
 	public:
 
-		const char* getTag() override
+		const char* getTag() const override
 		{
-			return "";
+			return emptyString;
 		}
 
 		virtual std::shared_ptr<api::IWebRequestTracer> setResponseCode(int32_t /*responseCode*/) override
@@ -60,10 +60,13 @@ namespace core
 			// intentionally left empty, due to NullObject pattern
 		}
 
-		virtual bool isNullObject() override
+		virtual bool isNullObject() const override
 		{
 			return true;
 		}
+
+	private:
+		const char* emptyString = "";
 	};
 }
 

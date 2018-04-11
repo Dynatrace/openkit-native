@@ -17,6 +17,11 @@
 #ifndef _CORE_WEBREQUESTTRACERBASE_H
 #define _CORE_WEBREQUESTTRACERBASE_H
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnon-virtual-dtor" // enable_shared_from_this has a public non virtual destructor throwing a false positive in this code
+#endif
+
 #include "api/IWebRequestTracer.h"
 
 #include <atomic>
@@ -45,7 +50,7 @@ namespace core
 		///
 		WebRequestTracerBase(std::shared_ptr<protocol::Beacon> beacon, int32_t parentActionID);
 
-		const char* getTag() override;
+		const char* getTag() const override;
 
 		virtual std::shared_ptr<IWebRequestTracer> setResponseCode(int32_t responseCode) override;
 
@@ -57,7 +62,7 @@ namespace core
 
 		virtual void stop() override;
 
-		virtual bool isNullObject() override;
+		virtual bool isNullObject() const override;
 
 		///
 		/// Returns the target URL of the web request
@@ -151,5 +156,9 @@ namespace core
 		UTF8String mURL;
 	};
 }
+
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#endif
 
 #endif

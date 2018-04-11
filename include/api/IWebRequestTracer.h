@@ -36,9 +36,9 @@ namespace api
 		/// ( @ref OpenKitConstants::WEBREQUEST_TAG_HEADER).
 		/// This is only necessary for tracing web requests via 3rd party HTTP clients.
 		///
-		/// @returna the Dynatrace tag to be set as HTTP header value or an empty String if capture is off
+		/// @returns the Dynatrace tag to be set as HTTP header value or an empty String if capture is off
 		///
-		virtual const char* getTag() = 0;
+		virtual const char* getTag() const = 0;
 
 		///
 		/// Sets the response code of this web request. Has to be called before @ref IWebRequestTracer::stop().
@@ -79,7 +79,7 @@ namespace api
 		/// the NullObject pattern
 		/// @returns @c true if the current IWebRequestTracer is a NullObject, @c false in all other cases
 		///
-		virtual bool isNullObject() = 0;
+		virtual bool isNullObject() const = 0;
 	};
 }
 #endif

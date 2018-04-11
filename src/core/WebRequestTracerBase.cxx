@@ -36,7 +36,7 @@ namespace core
 
 	}
 
-	const char* WebRequestTracerBase::getTag()
+	const char* WebRequestTracerBase::getTag() const
 	{
 		return mWebRequestTag.getStringData().c_str();
 	}
@@ -91,7 +91,7 @@ namespace core
 		mBeacon->addWebRequest(mParentActionID, shared_from_this());
 	}
 
-	bool WebRequestTracerBase::isNullObject()
+	bool WebRequestTracerBase::isNullObject() const
 	{
 		return false;
 	}

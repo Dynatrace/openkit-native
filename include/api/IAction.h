@@ -83,8 +83,8 @@ namespace api
 		virtual std::shared_ptr<IAction> reportError(const char* errorName, int32_t errorCode, const char* reason) = 0;
 
 		///
-		/// Allows tracing and timing of a web request handled by any 3rd party HTTP Client (e.g. Apache, Google, Jetty, ...).
-		/// In this case the Dynatrace HTTP header (@ref OpenKitConstants.WEBREQUEST_TAG_HEADER) has to be set manually to the
+		/// Allows tracing and timing of a web request handled by any 3rd party HTTP Client (e.g. CURL, EasyHttp, ...).
+		/// In this case the Dynatrace HTTP header (@ref OpenKitConstants::WEBREQUEST_TAG_HEADER) has to be set manually to the
 		/// tag value of this WebRequestTracer. <br>
 		/// If the web request is continued on a server-side Agent (e.g. Java, .NET, ...) this Session will be correlated to
 		/// the resulting server-side PurePath.
