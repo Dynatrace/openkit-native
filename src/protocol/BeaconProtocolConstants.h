@@ -22,6 +22,9 @@ namespace protocol
 	//delimiter
 	constexpr char BEACON_DATA_DELIMITER = '&';
 
+	//web request tag prefix constant
+	constexpr char TAG_PREFIX[] = "MT";
+
 	// basic data constants
 	constexpr char BEACON_KEY_PROTOCOL_VERSION[] = "vv";
 	constexpr char BEACON_KEY_OPENKIT_VERSION[] = "va";
@@ -60,6 +63,9 @@ namespace protocol
 	constexpr char BEACON_KEY_ERROR_CODE[] = "ev";
 	constexpr char BEACON_KEY_ERROR_REASON[] = "rs";
 	constexpr char BEACON_KEY_ERROR_STACKTRACE[] = "st";
+	constexpr char BEACON_KEY_WEBREQUEST_RESPONSE_CODE[] = "rc";
+	constexpr char BEACON_KEY_WEBREQUEST_BYTES_SENT[] = "bs";
+	constexpr char BEACON_KEY_WEBREQUEST_BYTES_RECEIVED[] = "br";
 }
 
 #endif

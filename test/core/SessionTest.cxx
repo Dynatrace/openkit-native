@@ -417,6 +417,8 @@ TEST_F(SessionTest, endSessionWithOpenRootActions)
 		.WillByDefault(testing::WithArgs<0>(testing::Invoke(&*mockBeaconStrict, &test::MockBeacon::RealSend)));
 
 	// verify the proper methods being called
+	EXPECT_CALL(*mockBeaconStrict, createSequenceNumber())
+		.Times(testing::Exactly(4));
 	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
 		.Times(testing::Exactly(1));
 	EXPECT_CALL(*mockBeaconStrict, getCurrentTimestamp())
