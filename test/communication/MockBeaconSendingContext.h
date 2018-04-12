@@ -82,6 +82,11 @@ namespace test
 			return BeaconSendingContext::setNextState(nextState); 
 		}
 
+		std::shared_ptr<AbstractBeaconSendingState> RealGetNextState()
+		{
+			return BeaconSendingContext::getNextState();
+		}
+
 		bool RealIsInTerminalState() 
 		{
 			return BeaconSendingContext::isInTerminalState();

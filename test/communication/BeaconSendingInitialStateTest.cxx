@@ -136,7 +136,9 @@ TEST_F(BeaconSendingInitialStateTest, initIsTerminatedIfShutdownRequestedWithVal
 
 	//when
 	target->execute(mockContext);
-	EXPECT_TRUE(mockContext.isInTerminalState());
+	auto nextState = mockContext.RealGetNextState();
+	EXPECT_TRUE(nextState != nullptr);
+	EXPECT_TRUE(nextState->isTerminalState());
 }
 
 
@@ -215,8 +217,9 @@ TEST_F(BeaconSendingInitialStateTest, initialStatusRequestGivesUpWhenShutdownReq
 
 	// when executing the state
 	target->execute(mockContext);
-
-	EXPECT_EQ(mockContext.getCurrentStateType(), communication::AbstractBeaconSendingState::StateType::BEACON_SENDING_TERMINAL_STATE);
+	auto nextState = mockContext.RealGetNextState();
+	ASSERT_TRUE(nextState != nullptr);
+	ASSERT_TRUE(nextState->isTerminalState());
 }
 
 TEST_F(BeaconSendingInitialStateTest, aSuccessfulStatusResponsePerformsStateTransitionToTimeSyncState)

@@ -87,17 +87,17 @@ TEST_F(BeaconSendingContextTest, setCurrentStateChangesState)
 
 	// then
 	ASSERT_NE(target->getCurrentState(), nullptr);
-	ASSERT_EQ(target->getCurrentState(), mMockState);
+	ASSERT_EQ(target->getNextState(), mMockState);
 }
 
 TEST_F(BeaconSendingContextTest, executeCurrentStateCallsExecuteOnCurrentState)
 {
 	// given
-	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
-	target->setNextState(mMockState);
+	auto initMockState = new testing::StrictMock<test::MockAbstractBeaconSendingState>();
+	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mMockHttpClientProvider, mMockTimingProvider, mConfiguration, std::unique_ptr<testing::StrictMock<test::MockAbstractBeaconSendingState>>(initMockState)));
 
 	// then
-	EXPECT_CALL(*mMockState, execute(testing::_))
+	EXPECT_CALL(*initMockState, execute(testing::_))
 		.Times(testing::Exactly(1));
 
 	// when
@@ -226,8 +226,8 @@ TEST_F(BeaconSendingContextTest, isInTerminalStateChecksCurrentState)
 		.Times(testing::Exactly(1));
 
 	// then
-	bool obtained = target->isInTerminalState();
-	ASSERT_FALSE(obtained);
+	auto nextState = target->getNextState();
+	ASSERT_FALSE(nextState->isTerminalState());
 
 	// and when terminal state is current state
 	target->setNextState(terminalState);
@@ -237,8 +237,8 @@ TEST_F(BeaconSendingContextTest, isInTerminalStateChecksCurrentState)
 		.Times(testing::Exactly(1));
 
 	// then
-	obtained = target->isInTerminalState();
-	ASSERT_TRUE(obtained);
+	nextState = target->getNextState();
+	ASSERT_TRUE(nextState->isTerminalState());
 }
 
 TEST_F(BeaconSendingContextTest, isCaptureOnReturnsValueFromConfiguration)

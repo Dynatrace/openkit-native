@@ -48,6 +48,18 @@ namespace communication
 			std::shared_ptr<providers::ITimingProvider> timingProvider,
 			std::shared_ptr<configuration::Configuration> configuration);
 
+		///
+		/// Constructor
+		/// @param[in] httpClientProvider provider for HTTPClient objects
+		/// @param[in] timingProvider utility class for timing related stuff
+		/// @param[in] configuration general configuration options
+		/// @param[in] initialState the initial state
+		///
+		BeaconSendingContext(std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
+			std::shared_ptr<providers::ITimingProvider> timingProvider,
+			std::shared_ptr<configuration::Configuration> configuration,
+			std::unique_ptr<communication::AbstractBeaconSendingState> initialState);
+
 		virtual ~BeaconSendingContext() {}
 
 		///
@@ -140,6 +152,12 @@ namespace communication
 		/// @param nextState instance of the  AbstractBeaconSendingState that follows after the current state
 		///
 		virtual void setNextState(std::shared_ptr<AbstractBeaconSendingState> nextState);
+
+		///
+		/// Return the next state for testing purposes
+		/// @returns the next state
+		///
+		std::shared_ptr<AbstractBeaconSendingState> getNextState();
 
 		// TODO: void initCompleted(bool success);
 

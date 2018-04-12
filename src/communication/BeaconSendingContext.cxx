@@ -29,8 +29,9 @@ const std::chrono::milliseconds BeaconSendingContext::DEFAULT_SLEEP_TIME_MILLISE
 
 BeaconSendingContext::BeaconSendingContext(std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
 										   std::shared_ptr<providers::ITimingProvider> timingProvider,
-										   std::shared_ptr<configuration::Configuration> configuration)
-	: mCurrentState(std::unique_ptr<AbstractBeaconSendingState>(new BeaconSendingInitialState()))
+										   std::shared_ptr<configuration::Configuration> configuration,
+										   std::unique_ptr<communication::AbstractBeaconSendingState> initialState)
+	: mCurrentState(std::move(initialState))
 	, mNextState(nullptr)
 	, mIsInTerminalState(false)
 	, mShutdown(false)
@@ -45,6 +46,13 @@ BeaconSendingContext::BeaconSendingContext(std::shared_ptr<providers::IHTTPClien
 	, mLastTimeSyncTime(-1)
 	, mOpenSessions()
 	, mFinishedSessions()
+{
+}
+
+BeaconSendingContext::BeaconSendingContext(std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
+										   std::shared_ptr<providers::ITimingProvider> timingProvider,
+										   std::shared_ptr<configuration::Configuration> configuration)
+	: BeaconSendingContext(httpClientProvider, timingProvider, configuration, std::unique_ptr<AbstractBeaconSendingState>(new BeaconSendingInitialState()))
 {	
 }
 
@@ -267,4 +275,9 @@ std::vector<std::shared_ptr<core::Session>> BeaconSendingContext::getAllFinished
 {
 	auto result = mFinishedSessions.toStdVector();
 	return result;
+}
+
+std::shared_ptr<AbstractBeaconSendingState> BeaconSendingContext::getNextState()
+{
+	return mNextState;
 }
