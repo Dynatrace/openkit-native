@@ -25,10 +25,11 @@ using namespace core;
 using namespace communication;
 using namespace providers;
 
-BeaconSender::BeaconSender(std::shared_ptr<configuration::Configuration> configuration,
+BeaconSender::BeaconSender(std::shared_ptr<api::ILogger> logger,
+						   std::shared_ptr<configuration::Configuration> configuration,
 						   std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
 						   std::shared_ptr<providers::ITimingProvider> timingProvider)
-	: mBeaconSendingContext(std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(httpClientProvider, timingProvider, configuration)))
+	: mBeaconSendingContext(std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(logger, httpClientProvider, timingProvider, configuration)))
 	, mSendingThread(nullptr)
 {
 

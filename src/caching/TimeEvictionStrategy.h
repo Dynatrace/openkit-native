@@ -17,6 +17,7 @@
 #ifndef _CACHING_TIMEEVICTIONSTRATEGY_H
 #define _CACHING_TIMEEVICTIONSTRATEGY_H
 
+#include "api/ILogger.h"
 #include "caching/IBeaconCache.h"
 #include "caching/IBeaconCacheEvictionStrategy.h"
 #include "configuration/BeaconCacheConfiguration.h"
@@ -38,12 +39,13 @@ namespace caching
 	public:
 		///
 		/// Constructor.
+		/// @param[in] logger to write traces to
 		/// @param[in] beaconCache The beacon cache to evict if necessary.
 		/// @param[in] configuration The configuration providing the boundary settings for this strategy.
 		/// @param[in] timingProvider Timing provider required for time retrieval
 		/// @param[in] isAlive function to check whether the eviction thread is running or not
 		///
-		TimeEvictionStrategy(std::shared_ptr<IBeaconCache> beaconCache, std::shared_ptr<configuration::BeaconCacheConfiguration> configuration, std::shared_ptr<providers::ITimingProvider> timingProvider, std::function<bool()> isAlive);
+		TimeEvictionStrategy(std::shared_ptr<api::ILogger> logger, std::shared_ptr<IBeaconCache> beaconCache, std::shared_ptr<configuration::BeaconCacheConfiguration> configuration, std::shared_ptr<providers::ITimingProvider> timingProvider, std::function<bool()> isAlive);
 
 		///
 		/// Destructor
@@ -102,6 +104,9 @@ namespace caching
 		void doExecute();
 
 	private:
+		/// Logger to write traces to
+		std::shared_ptr<api::ILogger> mLogger;
+
 		/// The Beacon cache to check if entries need to be evicted
 		std::shared_ptr<IBeaconCache> mBeaconCache;
 
@@ -116,6 +121,9 @@ namespace caching
 
 		/// Function to check whether the eviction thread is running or not
 		std::function<bool()> mIsAliveFunction;
+
+		/// Flag to suppress cyclic log output
+		bool mInfoShown;
 	};
 
 }

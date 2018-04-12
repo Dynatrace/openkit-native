@@ -24,6 +24,7 @@
 
 #include <memory>
 
+#include "core/util/DefaultLogger.h"
 #include "core/Session.h"
 #include "providers/IHTTPClientProvider.h"
 #include "providers/ITimingProvider.h"
@@ -36,7 +37,7 @@ namespace test {
 		MockBeaconSender(std::shared_ptr<configuration::Configuration> configuration,
 			std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
 			std::shared_ptr<providers::ITimingProvider> timingProvider)
-			: BeaconSender(configuration,  httpClientProvider, timingProvider)
+			: BeaconSender(std::shared_ptr<api::ILogger>(new core::util::DefaultLogger(devNull, true)), configuration,  httpClientProvider, timingProvider)
 		{
 
 		}
@@ -45,6 +46,9 @@ namespace test {
 
 		MOCK_METHOD1(startSession, void(std::shared_ptr<core::Session>));
 		MOCK_METHOD1(finishSession, void(std::shared_ptr<core::Session>));
+
+	private:
+		std::ostringstream devNull;
 	};
 }
 #endif

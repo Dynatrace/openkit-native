@@ -24,6 +24,7 @@
 
 #include <memory>
 
+#include "core/util/DefaultLogger.h"
 #include "caching/BeaconCache.h"
 #include "configuration/Configuration.h"
 #include "core/UTF8String.h"
@@ -35,7 +36,7 @@ namespace test {
 	{
 	public:
 		MockBeacon(std::shared_ptr<caching::BeaconCache> beaconCache, std::shared_ptr<configuration::Configuration> configuration, const core::UTF8String clientIPAddress, std::shared_ptr<providers::IThreadIDProvider> threadIDProvider, std::shared_ptr<providers::ITimingProvider> timingProvider)
-			: Beacon(beaconCache, configuration, clientIPAddress, threadIDProvider, timingProvider)
+			: Beacon(std::shared_ptr<api::ILogger>(new core::util::DefaultLogger(devNull, true)), beaconCache, configuration, clientIPAddress, threadIDProvider, timingProvider)
 		{
 
 		}
@@ -119,6 +120,9 @@ namespace test {
 		MOCK_METHOD1(send, std::unique_ptr<protocol::StatusResponse>(std::shared_ptr<providers::IHTTPClientProvider>));
 		MOCK_METHOD2(createTag, core::UTF8String(int32_t, int32_t));
 		MOCK_METHOD0(createSequenceNumber, int32_t());
+
+	private:
+		std::ostringstream devNull;
 	};
 }
 #endif

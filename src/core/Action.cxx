@@ -52,6 +52,7 @@ std::shared_ptr<api::IAction> Action::reportEvent(const char* eventName)
 	UTF8String eventNameString(eventName);
 	if (eventNameString.empty())
 	{
+		mLogger->warning("Action.reportEvent: eventName must not be null or empty");
 		return shared_from_this();
 	}
 
@@ -67,6 +68,7 @@ std::shared_ptr<api::IAction> Action::reportValue(const char* valueName, int32_t
 	UTF8String valueNameString(valueName);
 	if (valueNameString.empty())
 	{
+		mLogger->warning("Action.reportValue (int): valueName must not be null or empty");
 		return shared_from_this();
 	}
 
@@ -82,6 +84,7 @@ std::shared_ptr<api::IAction> Action::reportValue(const char* valueName, double 
 	UTF8String valueNameString(valueName);
 	if (valueNameString.empty())
 	{
+		mLogger->warning("Action.reportValue (double): valueName must not be null or empty");
 		return shared_from_this();
 	}
 
@@ -97,6 +100,7 @@ std::shared_ptr<api::IAction> Action::reportValue(const char* valueName, const c
 	UTF8String valueNameString(valueName);
 	if (valueNameString.empty())
 	{
+		mLogger->warning("Action.reportValue (string): valueName must not be null or empty");
 		return shared_from_this();
 	}
 
@@ -113,6 +117,7 @@ std::shared_ptr<api::IAction> Action::reportError(const char* errorName, int32_t
 	UTF8String reasonString(reason);
 	if (errorNameString.empty())
 	{
+		mLogger->warning("Action.reportError: errorName must not be null or empty");
 		return shared_from_this();
 	}
 
@@ -128,7 +133,7 @@ std::shared_ptr<api::IWebRequestTracer> Action::traceWebRequest(const char* url)
 	core::UTF8String urlString(url);
 	if (urlString.empty())
 	{
-		mLogger->warning("Action.traceWebRequest (URLConnection): connection must not be null");
+		mLogger->warning("Action.traceWebRequest (string): url must not be null");
 		return NULL_WEB_REQUEST_TRACER;
 	}
 	if (!isActionLeft())

@@ -43,13 +43,12 @@ std::shared_ptr<api::IRootAction> Session::enterAction(const char* actionName)
 	UTF8String actionNameString(actionName);
 	if (actionNameString.empty())
 	{
-		//TODO: add logger
+		mLogger->warning("Session.enterAction: actionName must not be null or empty");
 		return NULL_ROOT_ACTION;
 	}
 
 	if (isSessionEnded())
 	{
-		//TODO: add logger
 		return NULL_ROOT_ACTION;
 	}
 	std::shared_ptr<api::IRootAction> pointer = std::make_shared<RootAction>(mLogger, mBeacon, actionNameString, shared_from_this());
@@ -63,7 +62,7 @@ void Session::identifyUser(const char* userTag)
 
 	if (userTag == nullptr || userTagString.empty())
 	{
-		//TODO: add logger
+		mLogger->warning("Session.identifyUser: userTag must not be null or empty");
 		return;
 	}
 
@@ -79,7 +78,7 @@ void Session::reportCrash(const char* errorName, const char* reason, const char*
 
 	if (errorName == nullptr || errorNameString.empty())
 	{
-		//TODO: add logger
+		mLogger->warning("Session.reportCrash: errorName must not be null or empty");
 		return;
 	}
 

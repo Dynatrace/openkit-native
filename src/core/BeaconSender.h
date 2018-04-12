@@ -37,11 +37,12 @@ namespace core
 	public:
 		///
 		/// Default constructor
+		/// @param[in] logger to write traces to
 		/// @param[in] configuration general configuration options
 		/// @param[in] httpClientProvider the provider for HTTPClient instances
 		/// @param[in] timingProvider utility requried for timing related stuff
 		///
-		BeaconSender(std::shared_ptr<configuration::Configuration> configuration,
+		BeaconSender(std::shared_ptr<api::ILogger> logger, std::shared_ptr<configuration::Configuration> configuration,
 			std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
 			std::shared_ptr<providers::ITimingProvider> timingProvider);
 
@@ -81,7 +82,6 @@ namespace core
 		virtual void finishSession(std::shared_ptr<Session> session);
 
 	private:
-
 		/// Beacon sending context managing the state transitions and shutdown
 		std::shared_ptr<communication::BeaconSendingContext> mBeaconSendingContext;
 
