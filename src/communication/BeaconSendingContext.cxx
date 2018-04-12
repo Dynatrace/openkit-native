@@ -31,6 +31,7 @@ BeaconSendingContext::BeaconSendingContext(std::shared_ptr<providers::IHTTPClien
 										   std::shared_ptr<providers::ITimingProvider> timingProvider,
 										   std::shared_ptr<configuration::Configuration> configuration)
 	: mCurrentState(std::unique_ptr<AbstractBeaconSendingState>(new BeaconSendingInitialState()))
+	, mNextState(nullptr)
 	, mIsInTerminalState(false)
 	, mShutdown(false)
 	, mInitSucceeded(false)
@@ -49,7 +50,7 @@ BeaconSendingContext::BeaconSendingContext(std::shared_ptr<providers::IHTTPClien
 
 void BeaconSendingContext::setNextState(std::shared_ptr<AbstractBeaconSendingState> nextState)
 {
-	mCurrentState = nextState;
+	mNextState = nextState;
 }
 
 bool BeaconSendingContext::isInTerminalState() const
@@ -59,7 +60,13 @@ bool BeaconSendingContext::isInTerminalState() const
 
 void BeaconSendingContext::executeCurrentState()
 {
+	mNextState = nullptr;
 	mCurrentState->execute(*this);
+	if (mNextState != nullptr)
+	{
+		mCurrentState = mNextState;
+		//mLogger->info("Transition to next state: %s", mNextState->getStateName());
+	}
 }
 
 void BeaconSendingContext::requestShutdown()
