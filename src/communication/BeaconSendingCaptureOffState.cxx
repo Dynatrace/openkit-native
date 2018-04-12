@@ -67,6 +67,11 @@ std::shared_ptr<AbstractBeaconSendingState> BeaconSendingCaptureOffState::getShu
 	return std::shared_ptr<AbstractBeaconSendingState>(new BeaconSendingFlushSessionsState());
 }
 
+const char* BeaconSendingCaptureOffState::getStateName() const
+{
+	return "CaptureOff state";
+}
+
 void BeaconSendingCaptureOffState::handleStatusResponse(BeaconSendingContext& context, std::unique_ptr<protocol::StatusResponse> statusResponse)
 {
 	bool statusReponseIsNull = statusResponse == nullptr;

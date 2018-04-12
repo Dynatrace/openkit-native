@@ -27,7 +27,6 @@ AbstractBeaconSendingState::AbstractBeaconSendingState(StateType type)
 
 AbstractBeaconSendingState::~AbstractBeaconSendingState()
 {
-
 }
 
 void AbstractBeaconSendingState::execute(BeaconSendingContext& context)

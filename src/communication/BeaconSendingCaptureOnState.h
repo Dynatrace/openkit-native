@@ -51,6 +51,8 @@ namespace communication
 
 		virtual std::shared_ptr<AbstractBeaconSendingState> getShutdownState() override;
 
+		virtual const char* getStateName() const override;
+
 	private:
 		///
 		/// Send all sessions which have been finished previously.

@@ -43,6 +43,12 @@ namespace test
 			return std::shared_ptr<AbstractBeaconSendingState>(nonCopyableReturnProxy());
 		}
 
+		virtual const char* getStateName() const override
+		{
+			return "MockState";
+		}
+
+
 		MOCK_METHOD0(nonCopyableReturnProxy, AbstractBeaconSendingState*());
 		MOCK_CONST_METHOD0(isTerminalState, bool());
 		MOCK_METHOD1(doExecute, void(BeaconSendingContext&));

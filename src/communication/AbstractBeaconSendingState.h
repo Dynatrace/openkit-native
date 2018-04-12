@@ -19,6 +19,8 @@
 
 #include <memory>
 
+#include "core/UTF8String.h"
+
 namespace communication
 {
 	/// forward declaration of class BeaconSendingContext
@@ -79,6 +81,12 @@ namespace communication
 		///
 		StateType getStateType() const;
 
+		///
+		/// Returns the name of the state
+		/// @returns the name of the state
+		///
+		virtual const char* getStateName() const = 0;
+
 	protected:
 		///
 		/// Execute the state - real state execution - has to overriden by subclas
@@ -87,6 +95,7 @@ namespace communication
 		virtual void doExecute(BeaconSendingContext& context) = 0;
 
 	private:
+		/// state type
 		StateType mStateType;
 	};
 }

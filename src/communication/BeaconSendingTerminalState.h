@@ -41,6 +41,8 @@ namespace communication
 
 		virtual std::shared_ptr<AbstractBeaconSendingState> getShutdownState() override;
 
+		virtual const char* getStateName() const override;
+
 	};
 }
 #endif

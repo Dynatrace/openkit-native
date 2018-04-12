@@ -41,11 +41,14 @@ namespace communication
 		///
 		/// Destructor
 		///
+
 		virtual ~BeaconSendingFlushSessionsState() {}
 
 		virtual void doExecute(BeaconSendingContext& context) override;
 
 		virtual std::shared_ptr<AbstractBeaconSendingState> getShutdownState() override;
+
+		virtual const char* getStateName() const override;
 
 	private:
 
