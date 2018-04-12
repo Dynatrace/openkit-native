@@ -26,10 +26,12 @@
 #include "core/util/DefaultLogger.h"
 
 #include "../protocol/MockHTTPClient.h"
+#include "../protocol/MockStatusResponse.h"
 #include "../communication/MockAbstractBeaconSendingState.h"
 #include "../providers/MockTimingProvider.h"
 #include "../providers/MockHTTPClientProvider.h"
 #include "../communication/CustomMatchers.h"
+#include "../core/MockSession.h"
 
 class BeaconSendingContextTest : public testing::Test
 {
@@ -446,43 +448,212 @@ TEST_F(BeaconSendingContextTest, aDefaultConstructedContextDoesNotStoreAnySessio
 
 TEST_F(BeaconSendingContextTest, startingASessionAddsTheSessionToOpenSessions)
 {
-	// TODO: Add, once Session is implemented
+	// given
+	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
+	auto mockSessionOne = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>());
+	auto mockSessionTwo = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>());
+
+	// when starting first session
+	target->startSession(mockSessionOne);
+
+	// then
+	ASSERT_EQ(target->getAllOpenSessions().size(), 1);
+	ASSERT_EQ(target->getAllOpenSessions()[0], mockSessionOne);
+	ASSERT_TRUE(target->getAllFinishedSessions().empty());
+
+	// when starting second sessions
+	target->startSession(mockSessionTwo);
+
+	// then
+	ASSERT_EQ(target->getAllOpenSessions().size(), 2);
+	ASSERT_EQ(target->getAllOpenSessions()[0], mockSessionOne);
+	ASSERT_EQ(target->getAllOpenSessions()[1], mockSessionTwo);
+	ASSERT_TRUE(target->getAllFinishedSessions().empty());
 }
 
 
 TEST_F(BeaconSendingContextTest, finishingASessionMovesSessionToFinishedSessions)
 {
-	// TODO: Add, once Session is implemented
+	// given
+	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
+	auto mockSessionOne = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>());
+	auto mockSessionTwo = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>());
+
+	target->startSession(mockSessionOne);
+	target->startSession(mockSessionTwo);
+
+	// when finishing the first session
+	target->finishSession(mockSessionOne);
+
+	// then
+	ASSERT_EQ(target->getAllOpenSessions().size(), 1);
+	ASSERT_EQ(target->getAllOpenSessions()[0], mockSessionTwo);
+	ASSERT_EQ(target->getAllFinishedSessions().size(), 1);
+	ASSERT_EQ(target->getAllFinishedSessions()[0], mockSessionOne);
+	
+	// and when finishing the second session
+	target->finishSession(mockSessionTwo);
+
+	// then
+	ASSERT_TRUE(target->getAllOpenSessions().empty());
+	ASSERT_EQ(target->getAllFinishedSessions().size(), 2);
+	ASSERT_EQ(target->getAllFinishedSessions()[0], mockSessionOne);
+	ASSERT_EQ(target->getAllFinishedSessions()[1], mockSessionTwo);
 }
 
 TEST_F(BeaconSendingContextTest, finishingASessionThatHasNotBeenStartedBeforeIsNotAddedToFinishedSessions)
 {
-	// TODO: Add, once Session is implemented
+	// given
+	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
+	auto mockSession = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>());
+	
+	// when the session is not started, but immediately finished
+	target->finishSession(mockSession);
+
+	// then
+	ASSERT_TRUE(target->getAllOpenSessions().empty());
+	ASSERT_TRUE(target->getAllFinishedSessions().empty());
 }
 
 TEST_F(BeaconSendingContextTest, getNextFinishedSessionGetsAndRemovesSession)
 {
-	// TODO: Add, once Session is implemented
+	// given
+	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
+	auto mockSessionOne = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>());
+	auto mockSessionTwo = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>());
+
+	target->startSession(mockSessionOne);
+	target->finishSession(mockSessionOne);
+	target->startSession(mockSessionTwo);
+	target->finishSession(mockSessionTwo);
+
+	// when retrieving the next finished session
+	auto obtained = target->getNextFinishedSession();
+
+	// then
+	ASSERT_EQ(obtained, mockSessionOne);
+	ASSERT_EQ(target->getAllFinishedSessions().size(), 1);
+	ASSERT_EQ(target->getAllFinishedSessions()[0], mockSessionTwo);
+
+	// and when retrieving the next finished Session
+	obtained = target->getNextFinishedSession();
+
+	// then
+	ASSERT_EQ(obtained, mockSessionTwo);
+	ASSERT_TRUE(target->getAllFinishedSessions().empty());
 }
 
 TEST_F(BeaconSendingContextTest, getNextFinishedSessionReturnsNullIfThereAreNoFinishedSessions)
 {
-	// TODO: Add, once Session is implemented
+	// given
+	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
+
+	// when, then
+	ASSERT_EQ(target->getNextFinishedSession(), nullptr);
 }
 
 TEST_F(BeaconSendingContextTest, disableCapture)
 {
-	// TODO: Add, once Session is implemented
+	// given
+	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
+	auto mockSessionOne = std::shared_ptr<testing::StrictMock<test::MockSession>>(new testing::StrictMock<test::MockSession>());
+	auto mockSessionTwo = std::shared_ptr<testing::StrictMock<test::MockSession>>(new testing::StrictMock<test::MockSession>());
+	auto mockSessionThree = std::shared_ptr<testing::StrictMock<test::MockSession>>(new testing::StrictMock<test::MockSession>());
+	auto mockSessionFour = std::shared_ptr<testing::StrictMock<test::MockSession>>(new testing::StrictMock<test::MockSession>());
+
+	target->startSession(mockSessionOne);
+	target->finishSession(mockSessionOne);
+	target->startSession(mockSessionTwo);
+	target->startSession(mockSessionThree);
+	target->startSession(mockSessionFour);
+	target->finishSession(mockSessionFour);
+
+	// verify
+	EXPECT_CALL(*mockSessionOne, clearCapturedData())
+		.Times(testing::Exactly(1));
+	EXPECT_CALL(*mockSessionTwo, clearCapturedData())
+		.Times(testing::Exactly(1));
+	EXPECT_CALL(*mockSessionThree, clearCapturedData())
+		.Times(testing::Exactly(1));
+	EXPECT_CALL(*mockSessionFour, clearCapturedData())
+		.Times(testing::Exactly(1));
+
+	// when
+	target->disableCapture();
+
+	// then
+	ASSERT_EQ(target->getAllOpenSessions().size(), 2);
+	ASSERT_EQ(target->getAllOpenSessions()[0], mockSessionTwo);
+	ASSERT_EQ(target->getAllOpenSessions()[1], mockSessionThree);
+	ASSERT_TRUE(target->getAllFinishedSessions().empty());
 }
 
 TEST_F(BeaconSendingContextTest, handleStatusResponseWhenCapturingIsEnabled)
 {
-	// TODO: Add, once Session is implemented
+	// given
+	mConfiguration->enableCapture();
+	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
+	auto mockSessionOne = std::shared_ptr<testing::StrictMock<test::MockSession>>(new testing::StrictMock<test::MockSession>());
+	auto mockSessionTwo = std::shared_ptr<testing::StrictMock<test::MockSession>>(new testing::StrictMock<test::MockSession>());
+	
+	target->startSession(mockSessionOne);
+	target->finishSession(mockSessionOne);
+	target->startSession(mockSessionTwo);
+
+	auto mockStatusResponse = std::unique_ptr<testing::NiceMock<test::MockStatusResponse>>(new testing::NiceMock<test::MockStatusResponse>());
+	ON_CALL(*mockStatusResponse, getResponseCode())
+		.WillByDefault(testing::Return(200));
+	ON_CALL(*mockStatusResponse, isCapture())
+		.WillByDefault(testing::Return(true));
+
+	// when
+	target->handleStatusResponse(std::move(mockStatusResponse));
+
+	// then
+	ASSERT_EQ(target->getAllOpenSessions().size(), 1);
+	ASSERT_EQ(target->getAllOpenSessions()[0], mockSessionTwo);
+	ASSERT_EQ(target->getAllFinishedSessions().size(), 1);
+	ASSERT_EQ(target->getAllFinishedSessions()[0], mockSessionOne);
 }
 
 TEST_F(BeaconSendingContextTest, handleStatusResponseWhenCapturingIsDisabled)
 {
-	// TODO: Add, once Session is implemented
+	// given
+	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
+	auto mockSessionOne = std::shared_ptr<testing::StrictMock<test::MockSession>>(new testing::StrictMock<test::MockSession>());
+	auto mockSessionTwo = std::shared_ptr<testing::StrictMock<test::MockSession>>(new testing::StrictMock<test::MockSession>());
+	auto mockSessionThree = std::shared_ptr<testing::StrictMock<test::MockSession>>(new testing::StrictMock<test::MockSession>());
+	auto mockSessionFour = std::shared_ptr<testing::StrictMock<test::MockSession>>(new testing::StrictMock<test::MockSession>());
+
+	target->startSession(mockSessionOne);
+	target->finishSession(mockSessionOne);
+	target->startSession(mockSessionTwo);
+	target->startSession(mockSessionThree);
+	target->startSession(mockSessionFour);
+	target->finishSession(mockSessionFour);
+
+	auto mockStatusResponse = std::unique_ptr<protocol::StatusResponse>();
+
+	mConfiguration->disableCapture();
+
+	// verify
+	EXPECT_CALL(*mockSessionOne, clearCapturedData())
+		.Times(testing::Exactly(1));
+	EXPECT_CALL(*mockSessionTwo, clearCapturedData())
+		.Times(testing::Exactly(1));
+	EXPECT_CALL(*mockSessionThree, clearCapturedData())
+		.Times(testing::Exactly(1));
+	EXPECT_CALL(*mockSessionFour, clearCapturedData())
+		.Times(testing::Exactly(1));
+
+	// when
+	target->handleStatusResponse(std::move(mockStatusResponse));
+
+	// then
+	ASSERT_EQ(target->getAllOpenSessions().size(), 2);
+	ASSERT_EQ(target->getAllOpenSessions()[0], mockSessionTwo);
+	ASSERT_EQ(target->getAllOpenSessions()[1], mockSessionThree);
+	ASSERT_TRUE(target->getAllFinishedSessions().empty());
 }
 
 TEST_F(BeaconSendingContextTest, isTimeSyncedReturnsTrueIfSyncWasNeverPerformed)
