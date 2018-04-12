@@ -29,11 +29,7 @@ namespace providers
 	class DefaultHTTPClientProvider : public IHTTPClientProvider
 	{
 	public:
-		///
-		/// Returns an HTTPClient based on the provided configuration.
-		/// @param[in] configuration configuration parameters for the HTTP connection
-		///
-		virtual std::shared_ptr<protocol::IHTTPClient> createClient(std::shared_ptr<configuration::HTTPClientConfiguration> configuration) override;
+		virtual std::shared_ptr<protocol::IHTTPClient> createClient(std::shared_ptr<api::ILogger> logger, std::shared_ptr<configuration::HTTPClientConfiguration> configuration) override;
 
 	};
 }

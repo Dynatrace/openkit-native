@@ -45,7 +45,8 @@ class SpaceEvictionStrategyTest : public testing::Test
 {
 public:
 	SpaceEvictionStrategyTest()
-		: mMockBeaconCache()
+		: mLogger(nullptr)
+		, mMockBeaconCache()
 	{
 	}
 
@@ -155,12 +156,47 @@ TEST_F(SpaceEvictionStrategyTest, shouldRunGivesFalseIfNumBytesInCacheIsLessThan
 
 TEST_F(SpaceEvictionStrategyTest, executeEvictionLogsAMessageOnceAndReturnsIfStrategyIsDisabled)
 {
-	// TODO: Test logger interactions once the logger is implemented
+	// given
+	std::ostringstream oss;
+	auto logger = std::shared_ptr<api::ILogger>(new core::util::DefaultLogger(oss, true));
+	auto configuration = std::make_shared<BeaconCacheConfiguration>(1000L, 1000L, -1L);
+	SpaceEvictionStrategy target(logger, mMockBeaconCache, configuration, std::bind(&SpaceEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this));
+
+	// when executing the first time
+	target.execute();
+
+	// then
+	auto found = oss.str().find("[INFO ] SpaceEvictionStrategy is disabled\n");
+	ASSERT_TRUE(found != std::string::npos) << "Unexpected log statement: " << oss.str() << std::endl;
+	oss.str("");
+	oss.clear();
+
+	// and when executing a second time
+	target.execute();
+
+	// then
+	ASSERT_TRUE(oss.str().empty());
 }
 
 TEST_F(SpaceEvictionStrategyTest, executeEvictionDoesNotLogIfStrategyIsDisabledAndInfoIsDisabledInLogger)
 {
-	// TODO: Test logger interactions once the logger is implemented
+	// given
+	std::ostringstream oss;
+	auto logger = std::shared_ptr<api::ILogger>(new core::util::DefaultLogger(oss, false));
+	auto configuration = std::make_shared<BeaconCacheConfiguration>(1000L, 1000L, -1L);
+	SpaceEvictionStrategy target(logger, mMockBeaconCache, configuration, std::bind(&SpaceEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this));
+
+	// when executing the first time
+	target.execute();
+
+	// then
+	ASSERT_TRUE(oss.str().empty());
+
+	// and when executing a second time
+	target.execute();
+
+	// then
+	ASSERT_TRUE(oss.str().empty());
 }
 
 TEST_F(SpaceEvictionStrategyTest, executeEvictionCallsCacheMethodForEachBeacon)
@@ -189,12 +225,61 @@ TEST_F(SpaceEvictionStrategyTest, executeEvictionCallsCacheMethodForEachBeacon)
 
 TEST_F(SpaceEvictionStrategyTest, executeEvictionLogsEvictionResultIfDebugIsEnabled)
 {
-	// TODO: Test logger interactions once the logger is implemented
+	// given
+	std::ostringstream oss;
+	auto logger = std::shared_ptr<api::ILogger>(new core::util::DefaultLogger(oss, true));
+	auto configuration = std::make_shared<BeaconCacheConfiguration>(1000L, 1000L, 2000L);
+	SpaceEvictionStrategy target(logger, mMockBeaconCache, configuration, std::bind(&SpaceEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this));
+
+	EXPECT_CALL(*mMockBeaconCache, getNumBytesInCache())
+		.WillOnce(testing::Return(2001L))		// 2001 for SpaceEvictionStrategy::shouldRun()
+		.WillOnce(testing::Return(2001L))		// 2001 for outer while loop in SpaceEvictionStrategy::doExecute()
+		.WillOnce(testing::Return(2001L))		// 2001 for inner while loop in SpaceEvictionStrategy::doExecute() which evicts beaconID 1
+		.WillOnce(testing::Return(2001L))		// 2001 for inner while loop in SpaceEvictionStrategy::doExecute() which evicts beaconID 42
+		.WillOnce(testing::Return(0L));			// 0 for outer while loop in SpaceEvictionStrategy::doExecute() (to exit the while loop)
+	ON_CALL(*mMockBeaconCache, getBeaconIDs())
+		.WillByDefault(testing::Return(std::unordered_set<int32_t>({ 1, 42 })));
+	ON_CALL(*mMockBeaconCache, evictRecordsByNumber(1, testing::_))
+		.WillByDefault(testing::Return(5));
+	ON_CALL(*mMockBeaconCache, evictRecordsByNumber(42, testing::_))
+		.WillByDefault(testing::Return(1));
+
+	// when executing
+	target.execute();
+
+	// then
+	auto found = oss.str().find("[DEBUG] SpaceEvictionStrategy: Removed 5 records from Beacon with ID 1\n");
+	ASSERT_TRUE(found != std::string::npos) << "Unexpected log statement: " << oss.str() << std::endl;
+	found = oss.str().find("[DEBUG] SpaceEvictionStrategy: Removed 1 records from Beacon with ID 42\n");
+	ASSERT_TRUE(found != std::string::npos) << "Unexpected log statement: " << oss.str() << std::endl;
 }
 
 TEST_F(SpaceEvictionStrategyTest, executeEvictionDoesNotLogEvictionResultIfDebugIsDisabled)
 {
-	// TODO: Test logger interactions once the logger is implemented
+	// given
+	std::ostringstream oss;
+	auto logger = std::shared_ptr<api::ILogger>(new core::util::DefaultLogger(oss, false));
+	auto configuration = std::make_shared<BeaconCacheConfiguration>(1000L, 1000L, 2000L);
+	SpaceEvictionStrategy target(logger, mMockBeaconCache, configuration, std::bind(&SpaceEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this));
+
+	EXPECT_CALL(*mMockBeaconCache, getNumBytesInCache())
+		.WillOnce(testing::Return(2001L))		// 2001 for SpaceEvictionStrategy::shouldRun()
+		.WillOnce(testing::Return(2001L))		// 2001 for outer while loop in SpaceEvictionStrategy::doExecute()
+		.WillOnce(testing::Return(2001L))		// 2001 for inner while loop in SpaceEvictionStrategy::doExecute() which evicts beaconID 1
+		.WillOnce(testing::Return(2001L))		// 2001 for inner while loop in SpaceEvictionStrategy::doExecute() which evicts beaconID 42
+		.WillOnce(testing::Return(0L));			// 0 for outer while loop in SpaceEvictionStrategy::doExecute() (to exit the while loop)
+	ON_CALL(*mMockBeaconCache, getBeaconIDs())
+		.WillByDefault(testing::Return(std::unordered_set<int32_t>({ 1, 42 })));
+	ON_CALL(*mMockBeaconCache, evictRecordsByNumber(1, testing::_))
+		.WillByDefault(testing::Return(5));
+	ON_CALL(*mMockBeaconCache, evictRecordsByNumber(42, testing::_))
+		.WillByDefault(testing::Return(1));
+
+	// when executing
+	target.execute();
+
+	// then
+	ASSERT_TRUE(oss.str().empty());
 }
 
 TEST_F(SpaceEvictionStrategyTest, executeEvictionRunsUntilTheCacheSizeIsLessThanOrEqualToLowerBound)

@@ -23,6 +23,7 @@
 #include "providers/DefaultHTTPClientProvider.h"
 #include "providers/DefaultSessionIDProvider.h"
 #include "protocol/ssl/SSLStrictTrustManager.h"
+#include "core/util/DefaultLogger.h"
 
 #include "../protocol/MockHTTPClient.h"
 #include "../communication/MockAbstractBeaconSendingState.h"
@@ -35,7 +36,8 @@ class BeaconSendingContextTest : public testing::Test
 public:
 
 	BeaconSendingContextTest()
-		: mConfiguration(nullptr)
+		: mLogger(nullptr)
+		, mConfiguration(nullptr)
 		, mMockHttpClientProvider(nullptr)
 		, mMockTimingProvider(nullptr)
 		, mMockState(nullptr)
@@ -44,6 +46,7 @@ public:
 
 	void SetUp()
 	{
+		mLogger = std::shared_ptr<api::ILogger>(new core::util::DefaultLogger(devNull, true));
 		mConfiguration = std::shared_ptr<configuration::Configuration>(new configuration::Configuration(std::shared_ptr<configuration::Device>(new configuration::Device("", "", "")),
 			configuration::OpenKitType::DYNATRACE, core::UTF8String(""), core::UTF8String(""), core::UTF8String(""), 1, core::UTF8String(""),
 			std::make_shared<providers::DefaultSessionIDProvider>(),
@@ -55,12 +58,15 @@ public:
 
 	void TearDown()
 	{
+		mLogger = nullptr;
 		mConfiguration = nullptr;
 		mMockHttpClientProvider = nullptr;
 		mMockTimingProvider = nullptr;
 		mMockState = nullptr;
 	}
 
+	std::ostringstream devNull;
+	std::shared_ptr<api::ILogger> mLogger;
 	std::shared_ptr<configuration::Configuration> mConfiguration;
 	std::shared_ptr<testing::NiceMock<test::MockHTTPClientProvider>> mMockHttpClientProvider;
 	std::shared_ptr<testing::NiceMock<test::MockTimingProvider>> mMockTimingProvider;
@@ -70,7 +76,7 @@ public:
 TEST_F(BeaconSendingContextTest, currentStateIsInitializedAccordingly)
 {
 	// given
-	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
+	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
 
 	// then
 	ASSERT_NE(target->getCurrentState(), nullptr);
@@ -80,7 +86,7 @@ TEST_F(BeaconSendingContextTest, currentStateIsInitializedAccordingly)
 TEST_F(BeaconSendingContextTest, setCurrentStateChangesState)
 {
 	// given
-	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
+	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
 
 	// when
 	target->setNextState(mMockState);
@@ -93,7 +99,7 @@ TEST_F(BeaconSendingContextTest, setCurrentStateChangesState)
 TEST_F(BeaconSendingContextTest, executeCurrentStateCallsExecuteOnCurrentState)
 {
 	// given
-	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
+	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
 	target->setNextState(mMockState);
 
 	// then
@@ -107,7 +113,7 @@ TEST_F(BeaconSendingContextTest, executeCurrentStateCallsExecuteOnCurrentState)
 TEST_F(BeaconSendingContextTest, initCompleteSuccessAndWait)
 {
 	// given
-	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
+	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
 	target->setInitCompleted(true);
 
 	// when
@@ -120,7 +126,7 @@ TEST_F(BeaconSendingContextTest, initCompleteSuccessAndWait)
 TEST_F(BeaconSendingContextTest, requestShutdown)
 {
 	// given
-	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
+	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
 
 	bool obtained = target->isShutdownRequested();
 	ASSERT_FALSE(obtained);
@@ -136,7 +142,7 @@ TEST_F(BeaconSendingContextTest, requestShutdown)
 TEST_F(BeaconSendingContextTest, initCompleteFailureAndWait)
 {
 	// given
-	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
+	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
 	target->setInitCompleted(false);
 
 	// when
@@ -150,7 +156,7 @@ TEST_F(BeaconSendingContextTest, initCompleteFailureAndWait)
 TEST_F(BeaconSendingContextTest, waitForInitCompleteTimeout)
 {
 	// given
-	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
+	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
 	
 	// when init complete was never set and timeout will be reached
 	bool obtained = target->waitForInit(1);
@@ -162,7 +168,7 @@ TEST_F(BeaconSendingContextTest, waitForInitCompleteTimeout)
 TEST_F(BeaconSendingContextTest, waitForInitCompleteWhenInitCompletedSuccessfully)
 {
 	// given
-	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
+	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
 	target->setInitCompleted(true);
 
 	// when init complete was never set and timeout will be reached
@@ -175,7 +181,7 @@ TEST_F(BeaconSendingContextTest, waitForInitCompleteWhenInitCompletedSuccessfull
 TEST_F(BeaconSendingContextTest, waitForInitCompleteWhenInitCompletedNotSuccessfully)
 {
 	// given
-	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mMockHttpClientProvider, mMockTimingProvider, mMomConfigurationckConfiguration));
+	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mMomConfigurationckConfiguration));
 	target->setInitCompleted(false);
 
 	// when init complete was never set and timeout will be reached
@@ -189,7 +195,7 @@ TEST_F(BeaconSendingContextTest, waitForInitCompleteWhenInitCompletedNotSuccessf
 TEST_F(BeaconSendingContextTest, aDefaultConstructedContextIsNotInitialized)
 {
 	// given
-	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
+	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
 
 	// that
 	ASSERT_FALSE(target->isInitialized());
@@ -198,7 +204,7 @@ TEST_F(BeaconSendingContextTest, aDefaultConstructedContextIsNotInitialized)
 TEST_F(BeaconSendingContextTest, successfullyInitializedContextIsInitialized)
 {
 	// given
-	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
+	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
 
 	// when initialized
 	target->setInitCompleted(true);
@@ -210,7 +216,7 @@ TEST_F(BeaconSendingContextTest, successfullyInitializedContextIsInitialized)
 TEST_F(BeaconSendingContextTest, isInTerminalStateChecksCurrentState)
 {
 	// given
-	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
+	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
 	auto nonTerminalState = std::shared_ptr<testing::StrictMock<test::MockAbstractBeaconSendingState>>(new testing::StrictMock<test::MockAbstractBeaconSendingState>());
 	ON_CALL(*nonTerminalState, isTerminalState())
 		.WillByDefault(testing::Return(false));
@@ -244,7 +250,7 @@ TEST_F(BeaconSendingContextTest, isInTerminalStateChecksCurrentState)
 TEST_F(BeaconSendingContextTest, isCaptureOnReturnsValueFromConfiguration)
 {
 	// given
-	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
+	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
 
 	// when capturing is enabled
 	mConfiguration->enableCapture();
@@ -262,7 +268,7 @@ TEST_F(BeaconSendingContextTest, isCaptureOnReturnsValueFromConfiguration)
 TEST_F(BeaconSendingContextTest, timeSyncIsNotSupportedIfDisabled)
 {
 	// given
-	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
+	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
 
 	// when
 	target->disableTimeSyncSupport();
@@ -274,7 +280,7 @@ TEST_F(BeaconSendingContextTest, timeSyncIsNotSupportedIfDisabled)
 TEST_F(BeaconSendingContextTest, setAndGetLastOpenSessionBeaconSendTime)
 {
 	// given
-	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
+	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
 
 	// when
 	target->setLastOpenSessionBeaconSendTime(1234L);
@@ -292,7 +298,7 @@ TEST_F(BeaconSendingContextTest, setAndGetLastOpenSessionBeaconSendTime)
 TEST_F(BeaconSendingContextTest, setAndGetLastStatusCheckTime)
 {
 	// given
-	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
+	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
 
 	// when
 	target->setLastStatusCheckTime(1234L);
@@ -310,7 +316,7 @@ TEST_F(BeaconSendingContextTest, setAndGetLastStatusCheckTime)
 TEST_F(BeaconSendingContextTest, getSendIntervalRetrievesItFromConfiguration)
 {
 	// given
-	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
+	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
 	mConfiguration->setSendInterval(1234L);
 
 	// when
@@ -323,7 +329,7 @@ TEST_F(BeaconSendingContextTest, getSendIntervalRetrievesItFromConfiguration)
 TEST_F(BeaconSendingContextTest, testGetHTTPClient)
 {
 	// given
-	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
+	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
 	
 	// when
 	auto obtained = target->getHTTPClientProvider();
@@ -337,9 +343,9 @@ TEST_F(BeaconSendingContextTest, getHTTPClientProvider)
 	// given
 	auto mockClient = std::shared_ptr<testing::StrictMock<test::MockHTTPClient>>(new testing::StrictMock<test::MockHTTPClient>(mConfiguration->getHTTPClientConfiguration()));
 	auto httpClientProvider = std::shared_ptr<testing::StrictMock<test::MockHTTPClientProvider>>(new testing::StrictMock<test::MockHTTPClientProvider>());
-	ON_CALL(*mMockHttpClientProvider, createClient(testing::_))
+	ON_CALL(*mMockHttpClientProvider, createClient(testing::_, testing::_))
 		.WillByDefault(testing::Return(mockClient));
-	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
+	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
 
 	// when
 	auto obtained = target->getHTTPClient();
@@ -356,7 +362,7 @@ TEST_F(BeaconSendingContextTest, getCurrentTimestamp)
 	auto timingProvider = std::shared_ptr<testing::StrictMock<test::MockTimingProvider>>(new testing::StrictMock<test::MockTimingProvider>());
 	ON_CALL(*timingProvider, provideTimestampInMilliseconds())
 		.WillByDefault(testing::Return(1234567890L));
-	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mMockHttpClientProvider, timingProvider, mConfiguration));
+	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, timingProvider, mConfiguration));
 
 	// then
 	EXPECT_CALL(*timingProvider, provideTimestampInMilliseconds())
@@ -375,7 +381,7 @@ TEST_F(BeaconSendingContextTest, sleepDefaultTime)
 	auto timingProvider = std::shared_ptr<testing::StrictMock<test::MockTimingProvider>>(new testing::StrictMock<test::MockTimingProvider>());
 	ON_CALL(*timingProvider, provideTimestampInMilliseconds())
 		.WillByDefault(testing::Return(1234567890L));
-	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mMockHttpClientProvider, timingProvider, mConfiguration));
+	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, timingProvider, mConfiguration));
 
 	// then
 	EXPECT_CALL(*timingProvider, sleep(BeaconSendingContext::DEFAULT_SLEEP_TIME_MILLISECONDS.count()))
@@ -391,7 +397,7 @@ TEST_F(BeaconSendingContextTest, sleepWithGivenTime)
 	auto timingProvider = std::shared_ptr<testing::StrictMock<test::MockTimingProvider>>(new testing::StrictMock<test::MockTimingProvider>());
 	ON_CALL(*timingProvider, provideTimestampInMilliseconds())
 		.WillByDefault(testing::Return(1234567890L));
-	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mMockHttpClientProvider, timingProvider, mConfiguration));
+	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, timingProvider, mConfiguration));
 
 	// then
 	EXPECT_CALL(*timingProvider, sleep(1234L))
@@ -404,7 +410,7 @@ TEST_F(BeaconSendingContextTest, sleepWithGivenTime)
 TEST_F(BeaconSendingContextTest, defaultLastTimeSyncTimeIsMinusOne)
 {
 	// given
-	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
+	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
 
 	// then
 	ASSERT_EQ(target->getLastTimeSyncTime(), -1L);
@@ -413,7 +419,7 @@ TEST_F(BeaconSendingContextTest, defaultLastTimeSyncTimeIsMinusOne)
 TEST_F(BeaconSendingContextTest, getAndSetLastTimeSyncTime)
 {
 	// given
-	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
+	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
 
 	// when setting first value
 	target->setLastTimeSyncTime(1234L);
@@ -431,7 +437,7 @@ TEST_F(BeaconSendingContextTest, getAndSetLastTimeSyncTime)
 TEST_F(BeaconSendingContextTest, aDefaultConstructedContextDoesNotStoreAnySessions)
 {
 	// given
-	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
+	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
 
 	// then
 	ASSERT_TRUE(target->getAllOpenSessions().empty());
@@ -482,7 +488,7 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseWhenCapturingIsDisabled)
 TEST_F(BeaconSendingContextTest, isTimeSyncedReturnsTrueIfSyncWasNeverPerformed)
 {
 	// given
-	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
+	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
 
 	// when
 	ON_CALL(*mMockTimingProvider, isTimeSyncSupported())
@@ -495,7 +501,7 @@ TEST_F(BeaconSendingContextTest, isTimeSyncedReturnsTrueIfSyncWasNeverPerformed)
 TEST_F(BeaconSendingContextTest, isTimeSyncedReturnsTrueIfSyncIsNotSupported)
 {
 	// given
-	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
+	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
 
 	// when
 	target->disableTimeSyncSupport();
@@ -507,7 +513,7 @@ TEST_F(BeaconSendingContextTest, isTimeSyncedReturnsTrueIfSyncIsNotSupported)
 TEST_F(BeaconSendingContextTest, timingProviderIsCalledOnTimeSyncInit)
 {
 	// given
-	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
+	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
 
 	// then
 	EXPECT_CALL(*mMockTimingProvider, initialize(1234L, true));

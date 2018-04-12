@@ -22,8 +22,9 @@
 
 using namespace protocol;
 
-Beacon::Beacon(std::shared_ptr<caching::BeaconCache> beaconCache, std::shared_ptr<configuration::Configuration> configuration, const core::UTF8String clientIPAddress, std::shared_ptr<providers::IThreadIDProvider> threadIDProvider, std::shared_ptr<providers::ITimingProvider> timingProvider)
-	: mConfiguration(configuration)
+Beacon::Beacon(std::shared_ptr<api::ILogger> logger, std::shared_ptr<caching::BeaconCache> beaconCache, std::shared_ptr<configuration::Configuration> configuration, const core::UTF8String clientIPAddress, std::shared_ptr<providers::IThreadIDProvider> threadIDProvider, std::shared_ptr<providers::ITimingProvider> timingProvider)
+	: mLogger(logger)
+	, mConfiguration(configuration)
 	, mClientIPAddress(core::UTF8String(""))
 	, mTimingProvider(timingProvider)
 	, mThreadIDProvider(threadIDProvider)
@@ -424,7 +425,7 @@ void Beacon::identifyUser(const core::UTF8String& userTag)
 
 std::unique_ptr<protocol::StatusResponse> Beacon::send(std::shared_ptr<providers::IHTTPClientProvider> clientProvider)
 {
-	std::shared_ptr<protocol::IHTTPClient> httpClient = clientProvider->createClient(mHTTPClientConfiguration);
+	std::shared_ptr<protocol::IHTTPClient> httpClient = clientProvider->createClient(mLogger, mHTTPClientConfiguration);
 
 	std::unique_ptr<protocol::StatusResponse> response = nullptr;
 

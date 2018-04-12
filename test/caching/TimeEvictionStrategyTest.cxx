@@ -46,7 +46,9 @@ class TimeEvictionStrategyTest : public testing::Test
 {
 public:
 	TimeEvictionStrategyTest()
-		: mMockBeaconCache()
+		: mLogger(nullptr)
+		, mMockBeaconCache()
+		, mMockTimingProvider()
 	{
 	}
 
@@ -168,12 +170,47 @@ TEST_F(TimeEvictionStrategyTest, shouldRunGivesTrueIfLastRunIsMoreThanMaxAgeMill
 
 TEST_F(TimeEvictionStrategyTest, executeEvictionLogsAMessageOnceAndReturnsIfStrategyIsDisabled)
 {
-	// TODO: Test logger interactions once the logger is implemented
+	// given
+	std::ostringstream oss;
+	auto logger = std::shared_ptr<api::ILogger>(new core::util::DefaultLogger(oss, true));
+	auto configuration = std::make_shared<BeaconCacheConfiguration>(0L, 1000L, 2000L);
+	TimeEvictionStrategy target(logger, mMockBeaconCache, configuration, mMockTimingProvider, std::bind(&TimeEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this));
+
+	// when executing the first time
+	target.execute();
+
+	// then
+	auto found = oss.str().find("[INFO ] TimeEvictionStrategy is disabled\n");
+	ASSERT_TRUE(found != std::string::npos) << "Unexpected log statement: " << oss.str() << std::endl;
+	oss.str("");
+	oss.clear();
+
+	// and when executing a second time
+	target.execute();
+
+	// then
+	ASSERT_TRUE(oss.str().empty());
 }
 
 TEST_F(TimeEvictionStrategyTest, executeEvictionDoesNotLogIfStrategyIsDisabledAndInfoIsDisabledInLogger)
 {
-	// TODO: Test logger interactions once the logger is implemented
+	// given
+	std::ostringstream oss;
+	auto logger = std::shared_ptr<api::ILogger>(new core::util::DefaultLogger(oss, false));
+	auto configuration = std::make_shared<BeaconCacheConfiguration>(0L, 1000L, 2000L);
+	TimeEvictionStrategy target(logger, mMockBeaconCache, configuration, mMockTimingProvider, std::bind(&TimeEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this));
+
+	// when executing the first time
+	target.execute();
+
+	// then
+	ASSERT_TRUE(oss.str().empty());
+
+	// and when executing a second time
+	target.execute();
+
+	// then
+	ASSERT_TRUE(oss.str().empty());
 }
 
 TEST_F(TimeEvictionStrategyTest, lastRuntimeStampIsAdjustedDuringFirstExecution)
@@ -254,7 +291,33 @@ TEST_F(TimeEvictionStrategyTest, executeEvictionCallsEvictionForEachBeaconSepara
 
 TEST_F(TimeEvictionStrategyTest, executeEvictionLogsTheNumberOfRecordsRemoved)
 {
-	// TODO: Test logger interactions once the logger is implemented
+	// given
+	std::ostringstream oss;
+	auto logger = std::shared_ptr<api::ILogger>(new core::util::DefaultLogger(oss, true));
+	auto mockBeaconCache = std::shared_ptr<testing::NiceMock<test::MockBeaconCache>>(new testing::NiceMock<test::MockBeaconCache>());
+	auto mockTimingProvider = std::shared_ptr<testing::NiceMock<test::MockTimingProvider>>(new testing::NiceMock<test::MockTimingProvider>());
+	auto configuration = std::make_shared<BeaconCacheConfiguration>(1000L, 1000L, 2000L);
+	TimeEvictionStrategy target(logger, mockBeaconCache, configuration, mockTimingProvider, std::bind(&TimeEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this));
+
+	EXPECT_CALL(*mockTimingProvider, provideTimestampInMilliseconds())
+		.WillOnce(testing::Return(1000L))		// 1000 for TimeEvictionStrategy::execute() (first time execution)
+		.WillOnce(testing::Return(2099L))		// 2099 for TimeEvictionStrategy::shouldRun()
+		.WillOnce(testing::Return(2099L));		// 2099 for TimeEvictionStrategy::doExecute() with no beacons
+	ON_CALL(*mockBeaconCache, getBeaconIDs())
+		.WillByDefault(testing::Return(std::unordered_set<int32_t>({ 1, 42 })));
+	ON_CALL(*mockBeaconCache, evictRecordsByAge(1, testing::_))
+		.WillByDefault(testing::Return(2));
+	ON_CALL(*mockBeaconCache, evictRecordsByAge(42, testing::_))
+		.WillByDefault(testing::Return(5));
+
+	// when executing
+	target.execute();
+
+	// then
+	auto found = oss.str().find("[DEBUG] TimeEvictionStrategy: Removed 2 records from Beacon with ID 1\n");
+	ASSERT_TRUE(found != std::string::npos) << "Unexpected log statement: " << oss.str() << std::endl;
+	found = oss.str().find("[DEBUG] TimeEvictionStrategy: Removed 5 records from Beacon with ID 42\n");
+	ASSERT_TRUE(found != std::string::npos) << "Unexpected log statement: " << oss.str() << std::endl;
 }
 
 TEST_F(TimeEvictionStrategyTest, executeEvictionIsStoppedIfThreadGetsInterrupted)

@@ -17,6 +17,7 @@
 #ifndef _PROTOCOL_BEACON_H
 #define _PROTOCOL_BEACON_H
 
+#include "api/ILogger.h"
 #include "core/UTF8String.h"
 #include "providers/ITimingProvider.h"
 #include "providers/IThreadIDProvider.h"
@@ -42,12 +43,13 @@ namespace protocol
 	public:
 		///
 		/// Constructor for Beacon
+		/// @param[in] logger to write traces to
 		/// @param[in] beaconCache Cache storing beacon related data.
 		/// @param[in] configuration Configuration object
 		/// @param[in] clientIPAddress IP Address of the client
 		/// @param[in] timingProvider timing provider used to retrieve timestamps
 		///
-		Beacon(std::shared_ptr<caching::BeaconCache> beaconCache, std::shared_ptr<configuration::Configuration> configuration, const core::UTF8String clientIPAddress, std::shared_ptr<providers::IThreadIDProvider> threadIDProvider , std::shared_ptr<providers::ITimingProvider> timingProvider);
+		Beacon(std::shared_ptr<api::ILogger> logger, std::shared_ptr<caching::BeaconCache> beaconCache, std::shared_ptr<configuration::Configuration> configuration, const core::UTF8String clientIPAddress, std::shared_ptr<providers::IThreadIDProvider> threadIDProvider , std::shared_ptr<providers::ITimingProvider> timingProvider);
 
 		///
 		/// Destructor 
@@ -362,6 +364,9 @@ namespace protocol
 		void addEventData(int64_t timestamp, const core::UTF8String& eventData);
 
 	private:
+		/// Logger to write traces to
+		std::shared_ptr<api::ILogger> mLogger;
+
 		/// configuration
 		std::shared_ptr<configuration::Configuration> mConfiguration;
 

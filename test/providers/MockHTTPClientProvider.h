@@ -33,7 +33,10 @@ namespace test {
 
 		virtual ~MockHTTPClientProvider() {}
 
-		MOCK_METHOD1(createClient, std::shared_ptr<protocol::IHTTPClient>(std::shared_ptr<configuration::HTTPClientConfiguration>));
+		MOCK_METHOD2(createClient, std::shared_ptr<protocol::IHTTPClient>(std::shared_ptr<api::ILogger>, std::shared_ptr<configuration::HTTPClientConfiguration>));
+
+	private:
+		std::ostringstream devNull;
 	};
 }
 

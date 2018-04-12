@@ -27,10 +27,12 @@ using namespace communication;
 
 const std::chrono::milliseconds BeaconSendingContext::DEFAULT_SLEEP_TIME_MILLISECONDS(std::chrono::seconds(1));
 
-BeaconSendingContext::BeaconSendingContext(std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
+BeaconSendingContext::BeaconSendingContext(std::shared_ptr<api::ILogger> logger,
+										   std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
 										   std::shared_ptr<providers::ITimingProvider> timingProvider,
 										   std::shared_ptr<configuration::Configuration> configuration)
-	: mCurrentState(std::unique_ptr<AbstractBeaconSendingState>(new BeaconSendingInitialState()))
+	: mLogger(logger)
+	, mCurrentState(std::unique_ptr<AbstractBeaconSendingState>(new BeaconSendingInitialState()))
 	, mIsInTerminalState(false)
 	, mShutdown(false)
 	, mInitSucceeded(false)
@@ -85,7 +87,7 @@ std::shared_ptr<providers::IHTTPClientProvider> BeaconSendingContext::getHTTPCli
 std::shared_ptr<protocol::IHTTPClient> BeaconSendingContext::getHTTPClient()
 {
 	std::shared_ptr<configuration::HTTPClientConfiguration> httpClientConfig = mConfiguration->getHTTPClientConfiguration();
-	return mHTTPClientProvider->createClient(httpClientConfig);
+	return mHTTPClientProvider->createClient(mLogger, httpClientConfig);
 }
 
 int64_t BeaconSendingContext::getSendInterval() const
