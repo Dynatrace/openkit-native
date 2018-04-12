@@ -17,6 +17,7 @@
 #ifndef _COMMUNICATION_BEACONSENDINGCONTEXT_H
 #define _COMMUNICATION_BEACONSENDINGCONTEXT_H
 
+#include "api/ILogger.h"
 #include "core/util/CountDownLatch.h"
 #include "core/util/SynchronizedQueue.h"
 #include "providers/IHTTPClientProvider.h"
@@ -40,11 +41,13 @@ namespace communication
 	public:
 		///
 		/// Constructor
+		/// @param[in] logger to write traces to
 		/// @param[in] httpClientProvider provider for HTTPClient objects
 		/// @param[in] timingProvider utility class for timing related stuff
 		/// @param[in] configuration general configuration options
 		///
-		BeaconSendingContext(std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
+		BeaconSendingContext(std::shared_ptr<api::ILogger> logger,
+			std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
 			std::shared_ptr<providers::ITimingProvider> timingProvider,
 			std::shared_ptr<configuration::Configuration> configuration);
 
@@ -295,6 +298,9 @@ namespace communication
 		static const std::chrono::milliseconds DEFAULT_SLEEP_TIME_MILLISECONDS;
 
 	private:
+		/// Logger to write traces to
+		std::shared_ptr<api::ILogger> mLogger;
+
 		/// instance of AbstractBeaconSendingState with the current state
 		std::shared_ptr<AbstractBeaconSendingState> mCurrentState;
 

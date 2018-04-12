@@ -21,6 +21,7 @@
 
 #include <memory>
 
+#include "api/ILogger.h"
 #include "configuration/HTTPClientConfiguration.h"
 
 namespace providers
@@ -39,9 +40,10 @@ namespace providers
 
 		///
 		/// Returns an HTTPClient based on the provided configuration.
+		/// @param[in] logger to write traces to
 		/// @param[in] configuration configuration parameters for the HTTP connection
 		///
-		virtual std::shared_ptr<protocol::IHTTPClient> createClient(std::shared_ptr<configuration::HTTPClientConfiguration> configuration) = 0;
+		virtual std::shared_ptr<protocol::IHTTPClient> createClient(std::shared_ptr<api::ILogger> logger, std::shared_ptr<configuration::HTTPClientConfiguration> configuration) = 0;
 	};
 }
 

@@ -22,6 +22,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
+#include "core/util/DefaultLogger.h"
 #include "communication/AbstractBeaconSendingState.h"
 #include "communication/BeaconSendingContext.h"
 #include "configuration/HTTPClientConfiguration.h"
@@ -44,7 +45,8 @@ namespace test
 	{
 	public:
 		MockBeaconSendingContext()
-			: BeaconSendingContext(std::make_shared<providers::DefaultHTTPClientProvider>(),
+			: BeaconSendingContext(std::shared_ptr<api::ILogger>(new core::util::DefaultLogger(devNull, true)), 
+				std::make_shared<providers::DefaultHTTPClientProvider>(),
 				std::make_shared<test::MockTimingProvider>(),
 				std::make_shared<configuration::Configuration>( std::shared_ptr<configuration::Device>(new configuration::Device("", "", "")), configuration::OpenKitType::DYNATRACE, core::UTF8String(""), core::UTF8String(""), core::UTF8String(""), 1,  core::UTF8String(""),
 																std::make_shared<providers::DefaultSessionIDProvider>(),
@@ -93,6 +95,9 @@ namespace test
 		}	
 
 		virtual ~MockBeaconSendingContext() {}
+
+	private:
+		std::ostringstream devNull;
 	};
 }
 #endif

@@ -34,8 +34,9 @@ constexpr uint64_t READ_TIMEOUT = 30;		// Time-out the read operation after this
 using namespace protocol;
 using namespace base::util;
 
-HTTPClient::HTTPClient(const std::shared_ptr<configuration::HTTPClientConfiguration> configuration)
-	: mCurl(nullptr)
+HTTPClient::HTTPClient(std::shared_ptr<api::ILogger> logger, const std::shared_ptr<configuration::HTTPClientConfiguration> configuration)
+	: mLogger(logger)
+	, mCurl(nullptr)
 	, mServerID(configuration->getServerID())
 	, mMonitorURL()
 	, mTimeSyncURL()
@@ -139,15 +140,32 @@ static size_t writeFunction(void *ptr, size_t elementSize, size_t numberOfElemen
 }
 
 //TODO: stefan.eberl - use the request type or rethink design
-std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::RequestType /*requestType*/, const core::UTF8String& url, const core::UTF8String& clientIPAddress, const core::UTF8String& beaconData, const HTTPClient::HttpMethod method)
+std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::RequestType requestType, const core::UTF8String& url, const core::UTF8String& clientIPAddress, const core::UTF8String& beaconData, const HTTPClient::HttpMethod method)
 {
+	if (mLogger->isDebugEnabled()) {
+		switch(requestType)
+		{
+		case HTTPClient::RequestType::STATUS:
+			mLogger->debug("HTTP status request: %s", url.getStringData().c_str());
+			break;
+		case HTTPClient::RequestType::BEACON:
+			mLogger->debug("HTTP beacon request: %s", url.getStringData().c_str());
+			break;
+		case HTTPClient::RequestType::TIMESYNC:
+			mLogger->debug("HTTP timesync request: %s", url.getStringData().c_str());
+			break;
+		};
+	}
+
 	// init the curl session - get the curl handle
 	mCurl = curl_easy_init();
 
 	if (!mCurl)
 	{
 		// Abort and cleanup if CURL cannot be initialized
-		fprintf(stderr, "curl_easy_init() failed\n"); // TODO: Add support for a proper logger
+		if (mLogger->isErrorEnabled()) {
+			mLogger->error("curl_easy_init() failed");
+		}
 		return nullptr;
 	}
 
@@ -185,6 +203,10 @@ std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::Requ
 
 			if (!beaconData.empty())
 			{
+				if (mLogger->isDebugEnabled()) {
+					mLogger->debug("Beacon Payload: %s", beaconData.getStringData().c_str());
+				}
+
 				// Data to send is compressed => Compress the data
 				Compressor::compressMemory(beaconData.getStringData().c_str(), beaconData.getStringLength(), mReadBuffer);
 				mReadBufferPos = 0;
@@ -210,8 +232,9 @@ std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::Requ
 		else
 		{
 			// See https://curl.haxx.se/libcurl/c/libcurl-errors.html for a list of CURL error codes.
-			// TODO: Add support for a proper logger
-			fprintf(stderr, "curl_easy_perform() failed on '%s': ErrorCode '%u', [%s]\n", url.getStringData().c_str(), response, curl_easy_strerror(response));
+			if (mLogger->isErrorEnabled()) {
+				mLogger->error("curl_easy_perform() failed on '%s': ErrorCode '%u', [%s]", url.getStringData().c_str(), response, curl_easy_strerror(response));
+			}
 		}
 
 		// Cleanup
@@ -251,13 +274,18 @@ std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::Requ
 
 std::unique_ptr<Response> HTTPClient::handleResponse(uint64_t httpCode, const std::string& response)
 {
+	if (mLogger->isDebugEnabled())
+	{
+		mLogger->debug("HTTP Response: %s", response.c_str());
+		mLogger->debug("HTTP Response Code: %u", (uint32_t)httpCode);
+	}
+
 	// check response code
 	if (httpCode >= 400)
 	{
-		// process error
-		// TODO: See java version of using the logger
-
-		// read error response
+		// errors are logged only
+		
+		// return nullptr if error occurred
 		return nullptr;
 	}
 	else
@@ -273,6 +301,7 @@ std::unique_ptr<Response> HTTPClient::handleResponse(uint64_t httpCode, const st
 		}
 		else
 		{
+			mLogger->warning("Ignoring response - unknown request type in response [%s]", response.c_str());
 			return nullptr;
 		}
 	}

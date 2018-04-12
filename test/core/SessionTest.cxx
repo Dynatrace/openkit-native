@@ -407,7 +407,7 @@ TEST_F(SessionTest, endSessionWithOpenRootActions)
 	// set mock behavior of HTTPClient and HTTPClientProvider
 	protocol::StatusResponse* response = new protocol::StatusResponse(core::UTF8String(""), 200);
 
-	ON_CALL(*mockHTTPClientProvider, createClient(testing::_))
+	ON_CALL(*mockHTTPClientProvider, createClient(testing::_, testing::_))
 		.WillByDefault(testing::Return(mockHTTPClient));
 	// mock a valid status response via the HTTPClient to be sure the beacon cache is empty
 	ON_CALL(*mockHTTPClient, sendBeaconRequestRawPtrProxy(testing::_, testing::_))

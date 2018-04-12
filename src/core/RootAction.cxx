@@ -45,6 +45,7 @@ std::shared_ptr<api::IAction> RootAction::enterAction(const char* actionName)
 	UTF8String actionNameString(actionName);
 	if (actionNameString.empty())
 	{
+		mLogger->warning("RootAction.enterAction: actionName must not be null or empty");
 		return NULL_ACTION;
 	}
 

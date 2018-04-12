@@ -67,7 +67,7 @@ public:
 
 		beaconCache = std::make_shared<caching::BeaconCache>();
 
-		beaconSender = std::make_shared<core::BeaconSender>(configuration, mockHTTPClientProvider, timingProvider);
+		beaconSender = std::make_shared<core::BeaconSender>(logger, configuration, mockHTTPClientProvider, timingProvider);
 		mockBeacon = std::make_shared<testing::NiceMock<test::MockBeacon>>(beaconCache, configuration, core::UTF8String(""), threadIDProvider, timingProvider);	
 
 		session = std::make_shared<core::Session>(logger, beaconSender, mockBeacon);
