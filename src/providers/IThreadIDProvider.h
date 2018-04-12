@@ -36,7 +36,7 @@ namespace providers
 		/// Provide the current thread ID
 		/// @returns the current thread ID
 		///
-		virtual int64_t getThreadID() = 0;
+		virtual int32_t getThreadID() = 0;
 
 	};
 }

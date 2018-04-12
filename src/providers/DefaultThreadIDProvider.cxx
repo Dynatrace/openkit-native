@@ -20,7 +20,11 @@
 
 using namespace providers;
 
-int64_t DefaultThreadIDProvider::getThreadID()
+int32_t DefaultThreadIDProvider::getThreadID()
 {
-	return std::hash<std::thread::id>()(std::this_thread::get_id());
+	int64_t hash = std::hash<std::thread::id>()(std::this_thread::get_id());
+	uint32_t lowerBits = (uint32_t)hash;//cut the higher 32 bits away
+	uint32_t higherBits = (uint32_t)(hash >> 32);//shift the higher 32 bits to the right
+	int32_t threadID = (higherBits ^ lowerBits) & 0x7fffffff; // always positive integer
+	return threadID;
 }

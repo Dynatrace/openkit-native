@@ -30,9 +30,13 @@ public:
 TEST_F(DefaultThreadIDProviderTest, currentThreadIDIsReturned)
 {
 	//when
-	int64_t threadID = provider.getThreadID();
+	int32_t threadID = provider.getThreadID();
 
-	// then
 	int64_t expectedThreadID = std::hash<std::thread::id>()(std::this_thread::get_id());
-	ASSERT_EQ(threadID, expectedThreadID);
+	uint32_t lowerBits = (uint32_t)expectedThreadID;//cut the higher 32 bits away
+	uint32_t higherBits = (uint32_t)(expectedThreadID >> 32);//shift the higher 32 bits to the right
+	int32_t threadIDCalculated = (higherBits ^ lowerBits) & 0x7fffffff;
+
+
+	ASSERT_EQ(threadID, threadIDCalculated);
 }
