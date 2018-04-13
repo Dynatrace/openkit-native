@@ -53,6 +53,7 @@ namespace communication
 
 		///
 		/// Constructor
+		/// @param[in] logger to write traces to
 		/// @param[in] httpClientProvider provider for HTTPClient objects
 		/// @param[in] timingProvider utility class for timing related stuff
 		/// @param[in] configuration general configuration options
