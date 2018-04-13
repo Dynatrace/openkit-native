@@ -39,3 +39,8 @@ std::shared_ptr<AbstractBeaconSendingState> BeaconSendingTerminalState::getShutd
 {
 	return std::shared_ptr<AbstractBeaconSendingState>(new BeaconSendingTerminalState());
 }
+
+const char* BeaconSendingTerminalState::getStateName() const
+{
+	return "Terminal";
+}

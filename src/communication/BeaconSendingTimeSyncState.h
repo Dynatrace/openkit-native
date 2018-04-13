@@ -56,6 +56,8 @@ namespace communication {
 
 		virtual std::shared_ptr<AbstractBeaconSendingState> getShutdownState() override;
 
+		virtual const char* getStateName() const override;
+
 		///
 		/// Uses the @ref BeaconSendingContext to determine if a time sync is required
 		/// @param[in] context @ref BeaconSendingContext used for the check

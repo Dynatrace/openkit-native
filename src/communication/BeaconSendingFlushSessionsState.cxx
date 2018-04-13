@@ -60,3 +60,8 @@ std::shared_ptr<AbstractBeaconSendingState> BeaconSendingFlushSessionsState::get
 	return std::shared_ptr<AbstractBeaconSendingState>(new BeaconSendingTerminalState());
 }
 
+const char* BeaconSendingFlushSessionsState::getStateName() const
+{
+	return "FlushSessions";
+}
+

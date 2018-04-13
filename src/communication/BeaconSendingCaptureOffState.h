@@ -52,6 +52,8 @@ namespace communication
 
 		virtual std::shared_ptr<AbstractBeaconSendingState> getShutdownState() override;
 
+		virtual const char* getStateName() const override;
+
 		/// The initial delay which is later on doubled between one unsuccessful attempt and the next retry
 		static const std::chrono::milliseconds INITIAL_RETRY_SLEEP_TIME_MILLISECONDS;
 		

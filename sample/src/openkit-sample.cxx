@@ -89,7 +89,9 @@ int32_t main(int32_t argc, char** argv)
 	
 	std::shared_ptr<core::BeaconSender> sender = std::make_shared<core::BeaconSender>(logger, configuration, httpClientProvider, timingProvider);
 	sender->initialize();
-		
+
+	timingProvider->sleep(5000);
+
 	std::shared_ptr<Session> sampleSession(new Session(logger, sender, beacon));
 	sampleSession->identifyUser("test user");
 	sampleSession->startSession();
@@ -97,10 +99,23 @@ int32_t main(int32_t argc, char** argv)
 	auto rootAction1 = sampleSession->enterAction("root action");
 	auto childAction1 = rootAction1->enterAction("child action");
 
+	rootAction1->reportValue("the answer", 42);
+
+	childAction1->reportValue("some string", "1337.3.1415");
+
+	auto webRequest = childAction1->traceWebRequest("http://www.stackoverflow.com/");
+	webRequest->start();
+	webRequest->setResponseCode(200);
+	webRequest->setBytesSent(123);
+	webRequest->setBytesReceived(45);
+	webRequest->stop();
+
 	childAction1->leaveAction();
 	rootAction1->leaveAction();
 
-	
+	sampleSession->end();
+
+	sender->shutdown();
 
 	return 0;
 }

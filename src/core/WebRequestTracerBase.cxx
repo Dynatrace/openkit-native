@@ -26,7 +26,7 @@ namespace core
 		, mResponseCode(-1)
 		, mBytesSent(-1)
 		, mBytesReceived(-1)
-		, mStartTime(-1)
+		, mStartTime(beacon->getCurrentTimestamp())//if start is not called by the user a meaningful default close to the actual timing is possible
 		, mEndTime(-1)
 		, mStartSequenceNo(beacon->createSequenceNumber())
 		, mEndSequenceNo(-1)

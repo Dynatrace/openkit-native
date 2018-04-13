@@ -30,9 +30,11 @@ const std::chrono::milliseconds BeaconSendingContext::DEFAULT_SLEEP_TIME_MILLISE
 BeaconSendingContext::BeaconSendingContext(std::shared_ptr<api::ILogger> logger,
 										   std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
 										   std::shared_ptr<providers::ITimingProvider> timingProvider,
-										   std::shared_ptr<configuration::Configuration> configuration)
+										   std::shared_ptr<configuration::Configuration> configuration,
+										   std::unique_ptr<communication::AbstractBeaconSendingState> initialState)
 	: mLogger(logger)
-	, mCurrentState(std::unique_ptr<AbstractBeaconSendingState>(new BeaconSendingInitialState()))
+	, mCurrentState(std::move(initialState))
+	, mNextState(nullptr)
 	, mIsInTerminalState(false)
 	, mShutdown(false)
 	, mInitSucceeded(false)
@@ -46,12 +48,20 @@ BeaconSendingContext::BeaconSendingContext(std::shared_ptr<api::ILogger> logger,
 	, mLastTimeSyncTime(-1)
 	, mOpenSessions()
 	, mFinishedSessions()
+{
+}
+
+BeaconSendingContext::BeaconSendingContext(std::shared_ptr<api::ILogger> logger,
+										   std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
+										   std::shared_ptr<providers::ITimingProvider> timingProvider,
+										   std::shared_ptr<configuration::Configuration> configuration)
+	: BeaconSendingContext(logger, httpClientProvider, timingProvider, configuration, std::unique_ptr<AbstractBeaconSendingState>(new BeaconSendingInitialState()))
 {	
 }
 
 void BeaconSendingContext::setNextState(std::shared_ptr<AbstractBeaconSendingState> nextState)
 {
-	mCurrentState = nextState;
+	mNextState = nextState;
 }
 
 bool BeaconSendingContext::isInTerminalState() const
@@ -61,7 +71,13 @@ bool BeaconSendingContext::isInTerminalState() const
 
 void BeaconSendingContext::executeCurrentState()
 {
+	mNextState = nullptr;
 	mCurrentState->execute(*this);
+	if (mNextState != nullptr)// mCcurrentState->execute(...) can trigger state changes
+	{
+		mLogger->debug("Transition from %s state to %s state", mCurrentState->getStateName(), mNextState->getStateName());
+		mCurrentState = mNextState;
+	}
 }
 
 void BeaconSendingContext::requestShutdown()
@@ -262,4 +278,9 @@ std::vector<std::shared_ptr<core::Session>> BeaconSendingContext::getAllFinished
 {
 	auto result = mFinishedSessions.toStdVector();
 	return result;
+}
+
+std::shared_ptr<AbstractBeaconSendingState> BeaconSendingContext::getNextState()
+{
+	return mNextState;
 }
