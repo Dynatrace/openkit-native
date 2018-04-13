@@ -25,7 +25,7 @@ target_link_libraries(openkit-sample ${CURLIMPLIB} ${ZLIB_LIBRARIES})
 target_compile_definitions(openkit-sample PRIVATE -DOPENKIT_STATIC_DEFINE)
 
 if(NOT WIN32)
-	target_link_libraries(openkit-sample pthread)	# TODO Johannes Baeuerle. Check if pthread is necessary
+	target_link_libraries(openkit-sample pthread)
 endif()
 
 string(REPLACE "bin/libcurl.dll" "lib/libcurl_imp.lib" HAXX ${CURL_LIBRARIES})
