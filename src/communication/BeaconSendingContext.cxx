@@ -73,10 +73,10 @@ void BeaconSendingContext::executeCurrentState()
 {
 	mNextState = nullptr;
 	mCurrentState->execute(*this);
-	if (mNextState != nullptr)
+	if (mNextState != nullptr)// mCcurrentState->execute(...) can trigger state changes
 	{
+		mLogger->debug("Transition from %s state to %s state", mCurrentState->getStateName(), mNextState->getStateName());
 		mCurrentState = mNextState;
-		//mLogger->info("Transition to next state: %s", mNextState->getStateName());
 	}
 }
 
