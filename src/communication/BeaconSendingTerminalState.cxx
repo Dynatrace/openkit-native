@@ -42,5 +42,5 @@ std::shared_ptr<AbstractBeaconSendingState> BeaconSendingTerminalState::getShutd
 
 const char* BeaconSendingTerminalState::getStateName() const
 {
-	return "CaptureOff state";
+	return "Terminal";
 }

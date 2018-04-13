@@ -68,7 +68,7 @@ std::shared_ptr<AbstractBeaconSendingState> BeaconSendingCaptureOnState::getShut
 
 const char* BeaconSendingCaptureOnState::getStateName() const
 {
-	return "CaptureOn state";
+	return "CaptureOn";
 }
 
 void BeaconSendingCaptureOnState::sendFinishedSessions(BeaconSendingContext& context)

@@ -62,6 +62,6 @@ std::shared_ptr<AbstractBeaconSendingState> BeaconSendingFlushSessionsState::get
 
 const char* BeaconSendingFlushSessionsState::getStateName() const
 {
-	return "CaptureOff state";
+	return "FlushSessions";
 }
 

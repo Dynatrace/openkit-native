@@ -78,7 +78,7 @@ std::shared_ptr<AbstractBeaconSendingState> BeaconSendingTimeSyncState::getShutd
 
 const char* BeaconSendingTimeSyncState::getStateName() const
 {
-	return "CaptureOff state";
+	return "TimeSync";
 }
 
 bool BeaconSendingTimeSyncState::isTimeSyncRequired(BeaconSendingContext& context) {

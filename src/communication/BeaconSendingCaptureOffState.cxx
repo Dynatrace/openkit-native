@@ -69,7 +69,7 @@ std::shared_ptr<AbstractBeaconSendingState> BeaconSendingCaptureOffState::getShu
 
 const char* BeaconSendingCaptureOffState::getStateName() const
 {
-	return "CaptureOff state";
+	return "CaptureOff";
 }
 
 void BeaconSendingCaptureOffState::handleStatusResponse(BeaconSendingContext& context, std::unique_ptr<protocol::StatusResponse> statusResponse)
