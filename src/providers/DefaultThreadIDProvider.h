@@ -33,6 +33,13 @@ namespace providers
 		/// @returns the current thread ID
 		///
 		virtual int32_t getThreadID() override;
+
+		///
+		/// Convert a native thread id to a positive integer required for the Beacon protocol
+		/// @param[in] nativeThreadID the native thread ID returned by std::this_thread::get_id
+		/// @returns a positive integer calculated from the native ID
+		///
+		static int32_t convertNativeThreadIDToPositiveInteger(int64_t nativeThreadID);
 	};
 }
 

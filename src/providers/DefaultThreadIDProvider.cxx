@@ -20,11 +20,24 @@
 
 using namespace providers;
 
+/*
+ * std::this_thread::get_id returns a long value which is a hash from the std::thread::id class.
+ * The Beacon protocol requires the thread id to be a positive integer value. By using the xor operation
+ * between higher and lower 32 bits of the long value we get an integer value. The returned integer
+ * can be negative though.
+ * Therefore  the most significant bit is forced to '0' by a bitwise-and operation with an integer 
+ * where all bits except for the most significant bit are set to '1'.
+ */
 int32_t DefaultThreadIDProvider::getThreadID()
 {
 	int64_t hash = std::hash<std::thread::id>()(std::this_thread::get_id());
-	uint32_t lowerBits = (uint32_t)hash;//cut the higher 32 bits away
-	uint32_t higherBits = (uint32_t)(hash >> 32);//shift the higher 32 bits to the right
-	int32_t threadID = (higherBits ^ lowerBits) & 0x7fffffff; // always positive integer
+	return convertNativeThreadIDToPositiveInteger(hash);
+}
+
+int32_t DefaultThreadIDProvider::convertNativeThreadIDToPositiveInteger(int64_t nativeThreadID)
+{
+	uint32_t lowerBits = (uint32_t)nativeThreadID;//cut the higher 32 bits away
+	uint32_t higherBits = (uint32_t)(nativeThreadID >> 32);//shift the higher 32 bits to the right
+	int32_t threadID = (higherBits ^ lowerBits) & 0x7fffffff; // clear most significant bit
 	return threadID;
 }
