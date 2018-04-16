@@ -78,10 +78,15 @@ int32_t main(int32_t argc, char** argv)
 	std::shared_ptr<IThreadIDProvider> threadIDProvider = std::shared_ptr<IThreadIDProvider>(new DefaultThreadIDProvider());
 
 	std::shared_ptr<configuration::Device> device = std::shared_ptr<configuration::Device>(new configuration::Device(core::UTF8String("ACME OS"), core::UTF8String("Dynatrace"), core::UTF8String("Model E")));
+	std::shared_ptr<configuration::BeaconCacheConfiguration> beaconCacheConfiguration = std::make_shared<configuration::BeaconCacheConfiguration>(
+		configuration::BeaconCacheConfiguration::DEFAULT_MAX_RECORD_AGE_IN_MILLIS.count(),
+		configuration::BeaconCacheConfiguration::DEFAULT_UPPER_MEMORY_BOUNDARY_IN_BYTES,
+		configuration::BeaconCacheConfiguration::DEFAULT_LOWER_MEMORY_BOUNDARY_IN_BYTES
+		);
 
 	std::shared_ptr<Configuration> configuration = std::shared_ptr<Configuration>(new Configuration(device, configuration::OpenKitType::DYNATRACE,
 																									core::UTF8String("openkit-sample"), APPLICATION_VERSION, applicationID, serverID, beaconURL,
-																									sessionIDProvider, trustManager ));
+																									sessionIDProvider, trustManager, beaconCacheConfiguration ));
 
 	std::shared_ptr<caching::BeaconCache> beaconCache = std::make_shared<caching::BeaconCache>();
 

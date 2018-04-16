@@ -28,6 +28,7 @@
 
 #include "api/IRootAction.h"
 #include "configuration/Configuration.h"
+#include "configuration/BeaconCacheConfiguration.h"
 
 #include "../protocol/MockHTTPClient.h"
 #include "../protocol/MockBeacon.h"
@@ -58,9 +59,10 @@ public:
 
 		std::shared_ptr<configuration::Device> device = std::shared_ptr<configuration::Device>(new configuration::Device(core::UTF8String(""), core::UTF8String(""), core::UTF8String("")));
 
+		beaconCacheConfiguration = std::make_shared<configuration::BeaconCacheConfiguration>(-1, -1, -1);
 		configuration = std::shared_ptr<configuration::Configuration>(new configuration::Configuration(device, configuration::OpenKitType::DYNATRACE,
 			core::UTF8String(APP_NAME), "", APP_ID, 0, "",
-			sessionIDProvider, trustManager));
+			sessionIDProvider, trustManager, beaconCacheConfiguration));
 		configuration->enableCapture();
 
 		beaconCache = std::make_shared<caching::BeaconCache>();
@@ -84,6 +86,7 @@ public:
 	std::shared_ptr<testing::NiceMock<test::MockHTTPClient>> mockHTTPClient;
 	std::shared_ptr<protocol::ISSLTrustManager> trustManager;
 
+	std::shared_ptr<configuration::BeaconCacheConfiguration> beaconCacheConfiguration;
 	std::shared_ptr<configuration::Configuration> configuration;
 	std::shared_ptr<caching::BeaconCache> beaconCache;
 

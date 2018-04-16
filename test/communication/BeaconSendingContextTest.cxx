@@ -49,10 +49,14 @@ public:
 	void SetUp()
 	{
 		mLogger = std::shared_ptr<api::ILogger>(new core::util::DefaultLogger(devNull, true));
+
+
+		beaconCacheConfiguration = std::make_shared<configuration::BeaconCacheConfiguration>(-1, -1, -1);
 		mConfiguration = std::shared_ptr<configuration::Configuration>(new configuration::Configuration(std::shared_ptr<configuration::Device>(new configuration::Device("", "", "")),
 			configuration::OpenKitType::DYNATRACE, core::UTF8String(""), core::UTF8String(""), core::UTF8String(""), 1, core::UTF8String(""),
 			std::make_shared<providers::DefaultSessionIDProvider>(),
-			std::make_shared<protocol::SSLStrictTrustManager>()));
+			std::make_shared<protocol::SSLStrictTrustManager>(),
+			beaconCacheConfiguration));
 		mMockHttpClientProvider = std::shared_ptr<testing::NiceMock<test::MockHTTPClientProvider>>(new testing::NiceMock<test::MockHTTPClientProvider>());
 		mMockTimingProvider = std::shared_ptr<testing::NiceMock<test::MockTimingProvider>>(new testing::NiceMock<test::MockTimingProvider>());
 		mMockState = std::shared_ptr<testing::StrictMock<test::MockAbstractBeaconSendingState>>(new testing::StrictMock<test::MockAbstractBeaconSendingState>());
@@ -69,6 +73,7 @@ public:
 
 	std::ostringstream devNull;
 	std::shared_ptr<api::ILogger> mLogger;
+	std::shared_ptr<configuration::BeaconCacheConfiguration> beaconCacheConfiguration;
 	std::shared_ptr<configuration::Configuration> mConfiguration;
 	std::shared_ptr<testing::NiceMock<test::MockHTTPClientProvider>> mMockHttpClientProvider;
 	std::shared_ptr<testing::NiceMock<test::MockTimingProvider>> mMockTimingProvider;
