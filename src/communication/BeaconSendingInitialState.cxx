@@ -92,5 +92,5 @@ std::shared_ptr<AbstractBeaconSendingState> BeaconSendingInitialState::getShutdo
 
 const char* BeaconSendingInitialState::getStateName() const
 {
-	return "CaptureOff state";
+	return "Initial";
 }
