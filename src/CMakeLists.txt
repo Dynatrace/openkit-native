@@ -5,6 +5,7 @@ set(PUBLIC_HEADERS
 set(SOURCES_API
 	api/AbstractOpenKitBuilder.cxx
 	api/DynatraceOpenKitBuilder.cxx
+	api/AppMonOpenKitBuilder.cxx
 )
 
 set(SOURCES_CACHING
@@ -32,6 +33,7 @@ set(SOURCES_CORE
 	core/RootAction.cxx
 	core/WebRequestTracerBase.cxx
 	core/WebRequestTracerStringURL.cxx
+	core/OpenKit.cxx
 )
 
 set(SOURCES_COMMUNICATION
