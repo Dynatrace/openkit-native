@@ -27,8 +27,6 @@ namespace api {
 
 	class OPENKIT_EXPORT IOpenKit
 	{
-		friend class AbstractOpenKitBuilder;
-
 	public:
 		///
 		/// Destructor
