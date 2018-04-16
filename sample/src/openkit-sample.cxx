@@ -105,6 +105,9 @@ int32_t main(int32_t argc, char** argv)
 
 	auto webRequest = childAction1->traceWebRequest("http://www.stackoverflow.com/");
 	webRequest->start();
+
+	timingProvider->sleep(144);
+
 	webRequest->setResponseCode(200);
 	webRequest->setBytesSent(123);
 	webRequest->setBytesReceived(45);
