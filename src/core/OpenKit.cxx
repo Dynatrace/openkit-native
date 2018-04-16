@@ -14,20 +14,65 @@
 * limitations under the License.
 */
 
-#include "api/OpenKit.h"
+#include "OpenKit.h"
+#include "providers/DefaultHTTPClientProvider.h"
+#include "providers/DefaultTimingProvider.h"
+#include "providers/DefaultThreadIDProvider.h"
+#include "caching/BeaconCache.h"
 
-#include <stdexcept>
+using namespace core;
 
-using namespace api;
-
-OpenKit::OpenKit(std::shared_ptr<ILogger> logger)
-	: mLogger(logger)
+OpenKit::OpenKit(std::shared_ptr<api::ILogger> logger, std::shared_ptr<configuration::Configuration> configuration)
+	: OpenKit(logger, configuration,
+		std::make_shared<providers::DefaultHTTPClientProvider>(),
+		std::make_shared<providers::DefaultTimingProvider>(),
+		std::make_shared<providers::DefaultThreadIDProvider>()
+	)
 {
-	logger->error("Function not yet implemented");
-	throw std::runtime_error("function not implemented yet");
+
+}
+
+OpenKit::OpenKit(std::shared_ptr<api::ILogger> logger, std::shared_ptr<configuration::Configuration> configuration,
+	std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
+	std::shared_ptr<providers::ITimingProvider> timingProvider,
+	std::shared_ptr<providers::IThreadIDProvider> threadIDProvider)
+	: mLogger(logger)
+	, mConfiguration(configuration)
+	, mTimingProvider(timingProvider)
+	, mThreadIDProvider(threadIDProvider)
+	, mBeaconCache(nullptr)
+	, mBeaconSender(nullptr)
+	, mBeaconCacheEvictor(nullptr)
+{
+
+}
+
+void OpenKit::initialize()
+{
+
+}
+
+bool OpenKit::waitForInitCompletion()
+{
+	return false;
+}
+
+bool OpenKit::waitForInitCompletion(int64_t timeoutMillis)
+{
+	return false;
+}
+
+bool OpenKit::isInitialized() const
+{
+	return true;
+}
+
+std::shared_ptr<api::ISession> OpenKit::createSession(const char* clientIPAddress)
+{
+	return nullptr;
 }
 
 void OpenKit::shutdown()
 {
-	throw std::runtime_error("function not implemented yet");
+
 }
