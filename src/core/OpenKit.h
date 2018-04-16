@@ -53,14 +53,14 @@ namespace core {
 				std::shared_ptr<providers::ITimingProvider> timingProvider,
 				std::shared_ptr<providers::IThreadIDProvider> threadIDProvider);
 
+		virtual ~OpenKit() {}
+
 		///
 		/// Initialize this OpenKit instance.
 		/// This method starts the @ref BeaconSender and is called directly after
 		/// the instance has been created in @ref AbstractOpenKitBuilder.
 		///
 		void initialize();
-
-		virtual ~OpenKit() {}
 
 		virtual bool waitForInitCompletion() override;
 
