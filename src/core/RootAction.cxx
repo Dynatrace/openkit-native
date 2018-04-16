@@ -180,11 +180,6 @@ void RootAction::leaveAction()
 	doLeaveAction();
 }
 
-bool RootAction::isNullObject()
-{
-	return false;
-}
-
 void RootAction::childActionEnded(std::shared_ptr<Action> childAction)
 {
 	mOpenChildActions.remove(childAction);

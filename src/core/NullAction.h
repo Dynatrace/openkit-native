@@ -75,11 +75,6 @@ namespace core
 			return mParentAction;
 		}
 
-		virtual bool isNullObject() const override
-		{
-			return  true;
-		}
-
 		std::shared_ptr<api::IRootAction> mParentAction;
 	};
 }

@@ -385,8 +385,9 @@ TEST_F(ActionTest, tracingANullStringWebRequestIsNotAllowed)
 	auto webRequestTracer = testAction->traceWebRequest(nullptr);
 
 	// verify the returned request
-	EXPECT_TRUE(webRequestTracer != nullptr);
-	EXPECT_TRUE(webRequestTracer->isNullObject());
+	ASSERT_TRUE(webRequestTracer != nullptr);
+	std::shared_ptr<core::NullWebRequestTracer> typeCast = std::dynamic_pointer_cast<core::NullWebRequestTracer>(webRequestTracer);
+	ASSERT_TRUE(typeCast != nullptr);
 }
 
 TEST_F(ActionTest, tracingAnEmptyStringWebRequestIsNotAllowed)
@@ -399,8 +400,9 @@ TEST_F(ActionTest, tracingAnEmptyStringWebRequestIsNotAllowed)
 	auto webRequestTracer = testAction->traceWebRequest("");
 
 	// verify the returned request
-	EXPECT_TRUE(webRequestTracer != nullptr);
-	EXPECT_TRUE(webRequestTracer->isNullObject());
+	ASSERT_TRUE(webRequestTracer != nullptr);
+	std::shared_ptr<core::NullWebRequestTracer> typeCast = std::dynamic_pointer_cast<core::NullWebRequestTracer>(webRequestTracer);
+	ASSERT_TRUE(typeCast != nullptr);
 }
 
 TEST_F(ActionTest, actionsEnteredAndLeft)

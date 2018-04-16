@@ -52,11 +52,6 @@ namespace core
 		{
 			// intentionally left empty, due to NullObject pattern
 		}
-
-		virtual bool isNullObject() override
-		{
-			return  true;
-		}
 	private:
 		static const std::shared_ptr<IRootAction> NULL_ROOT_ACTION = std::make_shared<NullRootAction>();
 

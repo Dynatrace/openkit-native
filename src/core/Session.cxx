@@ -109,11 +109,6 @@ void Session::end()
 	mBeaconSender->finishSession(shared_from_this());
 }
 
-bool Session::isNullObject()
-{
-	return false;
-}
-
 bool Session::isSessionEnded() const
 {
 	return mEndTime != -1L;

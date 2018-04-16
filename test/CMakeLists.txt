@@ -2,6 +2,8 @@ remove_strict_warnings_for_testcode()
 
 include_directories(SYSTEM ${GTEST_INCLUDE_DIRS})
 
+#set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} " -rtti")
+
 ################
 # CURL showcase
 ################

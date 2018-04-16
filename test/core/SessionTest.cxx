@@ -113,7 +113,9 @@ TEST_F(SessionTest, enterActionWithNullActionName)
     std::shared_ptr<api::IRootAction> rootAction = testSession->enterAction(nullptr);
 
     // we definitely got a NullRootAction instance
-    ASSERT_TRUE(rootAction->isNullObject());
+	ASSERT_TRUE(rootAction != nullptr);
+	std::shared_ptr<core::NullRootAction> typeCast = std::dynamic_pointer_cast<core::NullRootAction>(rootAction);
+    ASSERT_TRUE(typeCast != nullptr);
 }
 
 TEST_F(SessionTest, enterActionWithEmptyActionName)
@@ -125,7 +127,9 @@ TEST_F(SessionTest, enterActionWithEmptyActionName)
 	std::shared_ptr<api::IRootAction> rootAction = testSession->enterAction("");
 
 	// we definitely got a NullRootAction instance
-	ASSERT_TRUE(rootAction->isNullObject());
+	ASSERT_TRUE(rootAction != nullptr);
+	std::shared_ptr<core::NullRootAction> typeCast = std::dynamic_pointer_cast<core::NullRootAction>(rootAction);
+	ASSERT_TRUE(typeCast != nullptr);
 }
 
 TEST_F(SessionTest, enterNotClosedAction)
@@ -536,7 +540,9 @@ TEST_F(SessionTest, enterActionGivesNullRootActionIfSessionIsAlreadyEnded)
 
     // then
 	ASSERT_TRUE(obtained != nullptr);
-	ASSERT_TRUE(obtained->isNullObject());
+
+	std::shared_ptr<core::NullRootAction> typeCast = std::dynamic_pointer_cast<core::NullRootAction>(obtained);
+	ASSERT_TRUE(typeCast != nullptr);
 }
 
 TEST_F(SessionTest, identifyUserDoesNothingIfSessionIsEnded)

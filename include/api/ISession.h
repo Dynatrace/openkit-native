@@ -62,13 +62,6 @@ namespace api
 		/// @remarks All previously added action are implicitly closed
 		///
 		virtual void end() = 0;
-
-		///
-		/// Returns true if this instance of ISession is an object using 
-		/// the NullObject pattern
-		/// @returns @c true if the current ISesion is a NullObject, @c false in all other cases
-		///
-		virtual bool isNullObject() = 0;
 	};
 }
 #endif
