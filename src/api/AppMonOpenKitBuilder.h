@@ -14,41 +14,29 @@
 * limitations under the License.
 */
 
-#ifndef _API_OPENKIT_H
-#define _API_OPENKIT_H
+#ifndef _API_APPMONMOPENKITBUILDER_H
+#define _API_APPMONMOPENKITBUILDER_H
 
-#include "OpenKit_export.h"
-#include "api/ILogger.h"
+#include "AbstractOpenKitBuilder.h"
 
-#include <memory>
-
-namespace api {
-
-	class OPENKIT_EXPORT OpenKit
+namespace api
+{
+	class OPENKIT_EXPORT AppMonOpenKitBuilder : public AbstractOpenKitBuilder
 	{
-		friend class AbstractOpenKitBuilder;
-
-	private:
-		///
-		/// Private constructor. OpenKit is instantiated via the Builder
-		/// @param[in] logger to write traces to
-		///
-		OpenKit(std::shared_ptr<ILogger> logger);
-
 	public:
+		///
+		/// Constructor
+		/// @param[in] endPointURL endpoint OpenKit connects to
+		/// @param[in] applicationID unique application id
+		/// @param[in] deviceID unique device id
+		///
+		AppMonOpenKitBuilder(const char* endpointURL, const char* applicationID, uint64_t deviceID);
+
 		///
 		/// Destructor
 		///
-		~OpenKit() {}
+		virtual ~AppMonOpenKitBuilder() {}
 
-		///
-		/// Shuts down OpenKit, ending all open Sessions and waiting for them to be sent.
-		///
-		void shutdown();
-
-	private:
-		/// Logger to write traces to
-		std::shared_ptr<api::ILogger> mLogger;
 	};
 }
 

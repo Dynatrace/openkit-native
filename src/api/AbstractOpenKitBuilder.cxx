@@ -16,6 +16,7 @@
 
 #include "api/AbstractOpenKitBuilder.h"
 #include "core/util/DefaultLogger.h"
+#include "core/OpenKit.h"
 
 using namespace api;
 
@@ -38,12 +39,12 @@ AbstractOpenKitBuilder& AbstractOpenKitBuilder::withLogger(std::shared_ptr<ILogg
 	return *this;
 }
 
-std::shared_ptr<OpenKit> AbstractOpenKitBuilder::build()
+std::shared_ptr<api::IOpenKit> AbstractOpenKitBuilder::build()
 {
-	return std::shared_ptr<OpenKit>(new OpenKit(getLogger()));
+	return std::make_shared<core::OpenKit>(getLogger(), buildConfiguration());
 }
 
-std::shared_ptr<ILogger> AbstractOpenKitBuilder::getLogger()
+std::shared_ptr<api::ILogger> AbstractOpenKitBuilder::getLogger()
 {
 	if (mLogger != nullptr)
 	{

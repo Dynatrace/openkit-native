@@ -17,11 +17,12 @@
 #ifndef _API_ABSTRACTOPENKITBUILDER_H
 #define _API_ABSTRACTOPENKITBUILDER_H
 
-#include "api/OpenKit.h"
+#include "api/IOpenKit.h"
 #include "api/ILogger.h"
 
+#include "configuration/Configuration.h"
+
 #include <memory>
-#include <stdexcept>
 
 namespace api
 {
@@ -60,7 +61,13 @@ namespace api
 			/// Builds an @ref OpenKit instance
 			/// @return an @ref OpenKit instance
 			///
-			virtual std::shared_ptr<OpenKit> build() = 0;
+			virtual std::shared_ptr<api::IOpenKit> build() = 0;
+
+			///
+			/// Builds the configuration for the OpenKit instance
+			/// @returns the configuration build using the parameters in this class
+			///
+			virtual std::shared_ptr<configuration::Configuration> buildConfiguration() = 0;
 
 		private:
 			///
@@ -68,7 +75,7 @@ namespace api
 			/// the default logger is returned.
 			/// @return a logger
 			///
-			std::shared_ptr<ILogger> getLogger();
+			std::shared_ptr<api::ILogger> getLogger();
 
 		private:
 			/// Flag to enable INFO and DEBUG logs
