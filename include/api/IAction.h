@@ -17,13 +17,14 @@
 #ifndef _API_IACTION_H
 #define _API_IACTION_H
 
-#include "api/IRootAction.h"
 #include "api/IWebRequestTracer.h"
 #include <stdint.h>
 #include <memory>
 
 namespace api
 {
+	class IRootAction;
+
 	///
 	/// This interface provides functionality to report events/values/errors and traces web requests.
 	///

@@ -18,7 +18,7 @@
 #define _API_IROOTACTION_H
 
 #include "api/IWebRequestTracer.h"
-
+#include "api/IAction.h"
 #include <stdint.h>
 #include <memory>
 

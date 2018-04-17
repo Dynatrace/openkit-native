@@ -16,35 +16,17 @@
 
 #include <stdint.h>
 #include <iostream>
+#include <thread>
 
-#include "core/OpenKit.h"
-#include "api/ISession.h"
+#include "api/DynatraceOpenKitBuilder.h"
+#include "CommandLineArguments.h"
 
-#include "core/BeaconSender.h"
-#include "core/util/CommandLineArguments.h"
-#include "core/util/DefaultLogger.h"
-
-#include "providers/DefaultSessionIDProvider.h"
-
-#include "configuration/HTTPClientConfiguration.h"
-#include "configuration/OpenKitType.h"
-#include "configuration/Device.h"
-#include "protocol/ssl/SSLStrictTrustManager.h"
-#include "protocol/Beacon.h"
-#include "core/Session.h"
-#include "core/RootAction.h"
-#include "caching/BeaconCache.h"
-
-using namespace core;
-using namespace communication;
-using namespace providers;
-using namespace configuration;
 
 constexpr char APPLICATION_VERSION[] = "1.2.3";
 
-void parseCommandLine(uint32_t argc, char** argv, UTF8String& beaconURL, uint32_t& serverID, UTF8String& applicationID)
+void parseCommandLine(uint32_t argc, char** argv, std::string& beaconURL, uint32_t& serverID, std::string& applicationID)
 {
-	core::util::CommandLineArguments commandLine;
+	sample::CommandLineArguments commandLine;
 	commandLine.parse(argc, argv);
 
 	if (commandLine.isValidConfiguration())
@@ -65,36 +47,26 @@ void parseCommandLine(uint32_t argc, char** argv, UTF8String& beaconURL, uint32_
 
 int32_t main(int32_t argc, char** argv)
 {
-	UTF8String beaconURL;
+	std::string beaconURL;
 	uint32_t serverID = 0;
-	UTF8String applicationID;
+	std::string applicationID;
 
 	parseCommandLine(argc, argv, beaconURL, serverID, applicationID);
 
-	auto logger = std::shared_ptr<api::ILogger>(new core::util::DefaultLogger(true));
-	std::shared_ptr<protocol::ISSLTrustManager> trustManager = std::make_shared<protocol::SSLStrictTrustManager>();
+	api::DynatraceOpenKitBuilder builder(beaconURL.c_str(), applicationID.c_str(), serverID);
+	builder.withApplicationName("openkit-sample-c++")
+		.withApplicationVersion(APPLICATION_VERSION)
+		.withManufacturer("Dynatrace")
+		.withOperatingSystem("ACME OS")
+		.withModelID("Model E")
+		.enableVerbose();
 
-	std::shared_ptr<ISessionIDProvider> sessionIDProvider = std::shared_ptr<ISessionIDProvider>(new DefaultSessionIDProvider());
+	auto openKit = builder.build();
+	openKit->waitForInitCompletion(20000);
 
-
-	std::shared_ptr<configuration::Device> device = std::shared_ptr<configuration::Device>(new configuration::Device(core::UTF8String("ACME OS"), core::UTF8String("Dynatrace"), core::UTF8String("Model E")));
-	std::shared_ptr<configuration::BeaconCacheConfiguration> beaconCacheConfiguration = std::make_shared<configuration::BeaconCacheConfiguration>(
-		configuration::BeaconCacheConfiguration::DEFAULT_MAX_RECORD_AGE_IN_MILLIS.count(),
-		configuration::BeaconCacheConfiguration::DEFAULT_UPPER_MEMORY_BOUNDARY_IN_BYTES,
-		configuration::BeaconCacheConfiguration::DEFAULT_LOWER_MEMORY_BOUNDARY_IN_BYTES
-		);
-
-	std::shared_ptr<Configuration> configuration = std::shared_ptr<Configuration>(new Configuration(device, configuration::OpenKitType::DYNATRACE,
-																									core::UTF8String("openkit-sample"), APPLICATION_VERSION, applicationID, serverID, beaconURL,
-																									sessionIDProvider, trustManager, beaconCacheConfiguration ));
-
-	OpenKit openKit(logger, configuration);
-	openKit.initialize();
-	openKit.waitForInitCompletion(20000);
-
-	if (openKit.isInitialized())
+	if (openKit->isInitialized())
 	{
-		std::shared_ptr<api::ISession> sampleSession = openKit.createSession("172.16.23.30");
+		std::shared_ptr<api::ISession> sampleSession = openKit->createSession("172.16.23.30");
 		sampleSession->identifyUser("test user");
 
 		auto rootAction1 = sampleSession->enterAction("root action");
@@ -120,7 +92,7 @@ int32_t main(int32_t argc, char** argv)
 		sampleSession->end();
 	}
 
-	openKit.shutdown();
+	openKit->shutdown();
 
 	return 0;
 }
