@@ -62,6 +62,19 @@ namespace core
 		bool waitForInit() const;
 
 		///
+		/// Wait until initialization was completed.
+		/// NOTE: this is a blocking operation
+		/// @param[in] timeoutMillis The maximum number of milliseconds to wait for initialization being completed.
+		/// @return @c true if initialization succeeded, @c false if initialization failed
+		///
+		bool waitForInit(int64_t timeoutMillis) const;
+
+		///
+		/// Get a bool indicating whether OpenKit has been initialized or not.
+		/// @returns @c true if @ref OpenKit has been initialized, @c false otherwise. 
+		bool isInitialized() const;
+
+		///
 		/// Shutdown this instance of the BeaconSender
 		///
 		void shutdown();

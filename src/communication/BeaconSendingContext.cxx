@@ -167,6 +167,12 @@ bool BeaconSendingContext::waitForInit()
 	return mInitSucceeded;
 }
 
+bool BeaconSendingContext::waitForInit(int64_t timeoutMillis)
+{
+	mInitCountdownLatch.await(timeoutMillis);
+	return mInitSucceeded;
+}
+
 void BeaconSendingContext::sleep()
 {
 	mTimingProvider->sleep(DEFAULT_SLEEP_TIME_MILLISECONDS.count());
