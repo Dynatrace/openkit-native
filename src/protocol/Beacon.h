@@ -49,7 +49,7 @@ namespace protocol
 		/// @param[in] clientIPAddress IP Address of the client
 		/// @param[in] timingProvider timing provider used to retrieve timestamps
 		///
-		Beacon(std::shared_ptr<api::ILogger> logger, std::shared_ptr<caching::BeaconCache> beaconCache, std::shared_ptr<configuration::Configuration> configuration, const core::UTF8String clientIPAddress, std::shared_ptr<providers::IThreadIDProvider> threadIDProvider , std::shared_ptr<providers::ITimingProvider> timingProvider);
+		Beacon(std::shared_ptr<api::ILogger> logger, std::shared_ptr<caching::IBeaconCache> beaconCache, std::shared_ptr<configuration::Configuration> configuration, const core::UTF8String clientIPAddress, std::shared_ptr<providers::IThreadIDProvider> threadIDProvider , std::shared_ptr<providers::ITimingProvider> timingProvider);
 
 		///
 		/// Destructor 
@@ -395,7 +395,7 @@ namespace protocol
 		core::UTF8String mBasicBeaconData;
 
 		///cache for beacons
-		std::shared_ptr<caching::BeaconCache> mBeaconCache;
+		std::shared_ptr<caching::IBeaconCache> mBeaconCache;
 
 		/// HTTP client configuration
 		std::shared_ptr<configuration::HTTPClientConfiguration> mHTTPClientConfiguration;
