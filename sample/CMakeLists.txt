@@ -13,7 +13,7 @@ SET(SOURCES_SAMPLE
 add_executable(openkit-sample ${SOURCES_SAMPLE})
 
 # Link the CURL and ZLIB libraries
-target_link_libraries(openkit-sample ${CURLIMPLIB} ${ZLIB_LIBRARIES} OpenKit) 
+target_link_libraries(openkit-sample OpenKit ${CURLIMPLIB} ${ZLIB_LIBRARIES} ) 
 
 # OpenKit sample currently uses the internal functions and therefore builds the sources directly.
 # We therefore set the compiler flag OPENKIT_STATIC_DEFINE, which leaves any export definitions empty.
