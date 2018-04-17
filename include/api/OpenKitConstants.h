@@ -20,6 +20,10 @@
 namespace api
 {
 	constexpr char WEBREQUEST_TAG_HEADER[] = "X-dynaTrace";
+	constexpr char DEFAULT_APPLICATION_VERSION[] = "1.0.1";
+	constexpr char DEFAULT_OPERATING_SYSTEM[] = "OpenKit 1.0.1";
+	constexpr char DEFAULT_MANUFACTURER[] = "Dynatrace";
+	constexpr char DEFAULT_MODEL_ID[] = "OpenKitDevice";
 }
 
 #endif

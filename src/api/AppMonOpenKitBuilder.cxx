@@ -15,11 +15,47 @@
 */
 
 #include "AppMonOpenKitBuilder.h"
+#include "providers/DefaultSessionIDProvider.h"
 
 using namespace api;
 
 AppMonOpenKitBuilder::AppMonOpenKitBuilder(const char* endpointURL, const char* applicationID, uint64_t deviceID)
 	: AbstractOpenKitBuilder(endpointURL, deviceID)
+	, mApplicationID(core::UTF8String(applicationID))
+	, mApplicationName()
 {
-	throw std::runtime_error("function not implemented yet");
+
+}
+
+std::shared_ptr<configuration::Configuration> AppMonOpenKitBuilder::buildConfiguration()
+{
+	std::shared_ptr<configuration::Device> device = std::make_shared<configuration::Device>(getOperatingSystem(), getManufacturer(), getModelID());
+
+	std::shared_ptr<configuration::BeaconCacheConfiguration> beaconCacheConfiguration = std::make_shared<configuration::BeaconCacheConfiguration>(
+		getBeaconCacheMaxRecordAge(),
+		getBeaconCacheLowerMemoryBoundary(),
+		getBeaconCacheUpperMemoryBoundary()
+		);
+
+	return std::make_shared<configuration::Configuration>(
+		device,
+		configuration::OpenKitType::APPMON,
+		mApplicationName,
+		getApplicationVersion(),
+		mApplicationID,
+		getDeviceID(),
+		getEndpointURL(),
+		std::make_shared<providers::DefaultSessionIDProvider>(),
+		getTrustManager(),
+		beaconCacheConfiguration
+		);
+}
+
+AppMonOpenKitBuilder& AppMonOpenKitBuilder::withApplicationName(const char* applicationName)
+{
+	if (applicationName != nullptr)
+	{
+		mApplicationName = core::UTF8String(applicationName);
+	}
+	return *this;
 }

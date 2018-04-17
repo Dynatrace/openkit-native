@@ -37,6 +37,21 @@ namespace api
 		///
 		virtual ~AppMonOpenKitBuilder() {}
 
+		virtual std::shared_ptr<configuration::Configuration> buildConfiguration() override;
+
+		///
+		/// Sets the application name. The value is only set if it is not null.
+		/// @param[in] applicationName name of the application
+		/// @returns @c this instance
+		///
+		AppMonOpenKitBuilder& withApplicationName(const char* applicationName);
+
+	private:
+		/// application id
+		core::UTF8String mApplicationID;
+
+		/// application name
+		core::UTF8String mApplicationName;
 	};
 }
 

@@ -37,10 +37,10 @@ OpenKit::OpenKit(std::shared_ptr<api::ILogger> logger, std::shared_ptr<configura
 	std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
 	std::shared_ptr<providers::ITimingProvider> timingProvider,
 	std::shared_ptr<providers::IThreadIDProvider> threadIDProvider)
-	: mLogger(logger)
-	, mConfiguration(configuration)
-	, mTimingProvider(timingProvider)
+	: mConfiguration(configuration)
+	, mLogger(logger)
 	, mThreadIDProvider(threadIDProvider)
+	, mTimingProvider(timingProvider)
 	, mBeaconCache(std::make_shared<caching::BeaconCache>())
 	, mBeaconSender(std::make_shared<core::BeaconSender>(logger, configuration, httpClientProvider, timingProvider))
 	, mBeaconCacheEvictor(std::make_shared<caching::BeaconCacheEvictor>(logger, mBeaconCache, configuration->getBeaconCacheConfiguration(), timingProvider))
