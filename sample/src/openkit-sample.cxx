@@ -17,13 +17,15 @@
 #include <stdint.h>
 #include <iostream>
 
+#include "core/OpenKit.h"
+#include "api/ISession.h"
+
 #include "core/BeaconSender.h"
 #include "core/util/CommandLineArguments.h"
 #include "core/util/DefaultLogger.h"
-#include "providers/DefaultHTTPClientProvider.h"
+
 #include "providers/DefaultSessionIDProvider.h"
-#include "providers/DefaultTimingProvider.h"
-#include "providers/DefaultThreadIDProvider.h"
+
 #include "configuration/HTTPClientConfiguration.h"
 #include "configuration/OpenKitType.h"
 #include "configuration/Device.h"
@@ -72,10 +74,8 @@ int32_t main(int32_t argc, char** argv)
 	auto logger = std::shared_ptr<api::ILogger>(new core::util::DefaultLogger(true));
 	std::shared_ptr<protocol::ISSLTrustManager> trustManager = std::make_shared<protocol::SSLStrictTrustManager>();
 
-	std::shared_ptr<IHTTPClientProvider> httpClientProvider = std::shared_ptr<IHTTPClientProvider>(new DefaultHTTPClientProvider());
-	std::shared_ptr<ITimingProvider> timingProvider = std::shared_ptr<ITimingProvider>(new DefaultTimingProvider());
 	std::shared_ptr<ISessionIDProvider> sessionIDProvider = std::shared_ptr<ISessionIDProvider>(new DefaultSessionIDProvider());
-	std::shared_ptr<IThreadIDProvider> threadIDProvider = std::shared_ptr<IThreadIDProvider>(new DefaultThreadIDProvider());
+
 
 	std::shared_ptr<configuration::Device> device = std::shared_ptr<configuration::Device>(new configuration::Device(core::UTF8String("ACME OS"), core::UTF8String("Dynatrace"), core::UTF8String("Model E")));
 	std::shared_ptr<configuration::BeaconCacheConfiguration> beaconCacheConfiguration = std::make_shared<configuration::BeaconCacheConfiguration>(
@@ -88,42 +88,39 @@ int32_t main(int32_t argc, char** argv)
 																									core::UTF8String("openkit-sample"), APPLICATION_VERSION, applicationID, serverID, beaconURL,
 																									sessionIDProvider, trustManager, beaconCacheConfiguration ));
 
-	std::shared_ptr<caching::BeaconCache> beaconCache = std::make_shared<caching::BeaconCache>();
+	OpenKit openKit(logger, configuration);
+	openKit.initialize();
+	openKit.waitForInitCompletion(20000);
 
-	std::shared_ptr<protocol::Beacon> beacon = std::make_shared<protocol::Beacon>(logger, beaconCache, configuration, UTF8String(""), threadIDProvider, timingProvider);
-	
-	std::shared_ptr<core::BeaconSender> sender = std::make_shared<core::BeaconSender>(logger, configuration, httpClientProvider, timingProvider);
-	sender->initialize();
+	if (openKit.isInitialized())
+	{
+		std::shared_ptr<api::ISession> sampleSession = openKit.createSession("172.16.23.30");
+		sampleSession->identifyUser("test user");
 
-	timingProvider->sleep(5000);
+		auto rootAction1 = sampleSession->enterAction("root action");
+		auto childAction1 = rootAction1->enterAction("child action");
 
-	std::shared_ptr<Session> sampleSession(new Session(logger, sender, beacon));
-	sampleSession->identifyUser("test user");
-	sampleSession->startSession();
+		rootAction1->reportValue("the answer", 42);
 
-	auto rootAction1 = sampleSession->enterAction("root action");
-	auto childAction1 = rootAction1->enterAction("child action");
+		childAction1->reportValue("some string", "1337.3.1415");
 
-	rootAction1->reportValue("the answer", 42);
+		auto webRequest = childAction1->traceWebRequest("http://www.stackoverflow.com/");
+		webRequest->start();
 
-	childAction1->reportValue("some string", "1337.3.1415");
+		std::this_thread::sleep_for(std::chrono::milliseconds(144));
 
-	auto webRequest = childAction1->traceWebRequest("http://www.stackoverflow.com/");
-	webRequest->start();
+		webRequest->setResponseCode(200);
+		webRequest->setBytesSent(123);
+		webRequest->setBytesReceived(45);
+		webRequest->stop();
 
-	timingProvider->sleep(144);
+		childAction1->leaveAction();
+		rootAction1->leaveAction();
 
-	webRequest->setResponseCode(200);
-	webRequest->setBytesSent(123);
-	webRequest->setBytesReceived(45);
-	webRequest->stop();
+		sampleSession->end();
+	}
 
-	childAction1->leaveAction();
-	rootAction1->leaveAction();
-
-	sampleSession->end();
-
-	sender->shutdown();
+	openKit.shutdown();
 
 	return 0;
 }
