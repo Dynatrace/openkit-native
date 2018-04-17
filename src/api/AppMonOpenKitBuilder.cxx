@@ -23,3 +23,8 @@ AppMonOpenKitBuilder::AppMonOpenKitBuilder(const char* endpointURL, const char* 
 {
 	throw std::runtime_error("function not implemented yet");
 }
+
+std::shared_ptr<configuration::Configuration> AppMonOpenKitBuilder::buildConfiguration()
+{
+	throw std::runtime_error("function not implemented yet");
+}

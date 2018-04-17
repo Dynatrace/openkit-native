@@ -23,3 +23,8 @@ DynatraceOpenKitBuilder::DynatraceOpenKitBuilder(const char* endpointURL, const 
 {
 	throw std::runtime_error("function not implemented yet");
 }
+
+std::shared_ptr<configuration::Configuration> DynatraceOpenKitBuilder::buildConfiguration()
+{
+	throw std::runtime_error("function not implemented yet");
+}

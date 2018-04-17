@@ -37,6 +37,7 @@ namespace api
 		///
 		virtual ~AppMonOpenKitBuilder() {}
 
+		virtual std::shared_ptr<configuration::Configuration> buildConfiguration() override;
 	};
 }
 

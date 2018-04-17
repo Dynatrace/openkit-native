@@ -35,7 +35,7 @@ namespace api
 		virtual ~IRootAction() {}
 
 		///
-		/// Enters an Action with a specified name in this Session.
+		/// Enters an Action with a specified name in this root action.
 		/// @param[in] actionName name of the Action
 		/// @returns Action instance to work with
 		///

@@ -55,13 +55,13 @@ namespace api
 			/// @param[in] logger the logger
 			/// @return @c this for fluent usage
 			///
-			AbstractOpenKitBuilder& withLogger(std::shared_ptr<ILogger> logger);
+			AbstractOpenKitBuilder& withLogger(std::shared_ptr<api::ILogger> logger);
 
 			///
 			/// Builds an @ref OpenKit instance
 			/// @return an @ref OpenKit instance
 			///
-			virtual std::shared_ptr<api::IOpenKit> build() = 0;
+			virtual std::shared_ptr<api::IOpenKit> build();
 
 			///
 			/// Builds the configuration for the OpenKit instance

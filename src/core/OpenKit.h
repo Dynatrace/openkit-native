@@ -74,17 +74,17 @@ namespace core {
 
 	private:
 
-		/// the configuration used the build the OpenKit instance
-		std::shared_ptr<configuration::Configuration> mConfiguration;
-
 		/// logging context
 		std::shared_ptr<api::ILogger> mLogger;
 
-		/// thread id provider
-		std::shared_ptr<providers::IThreadIDProvider> mThreadIDProvider;
+		/// the configuration used the build the OpenKit instance
+		std::shared_ptr<configuration::Configuration> mConfiguration;
 
 		/// timing provider
 		std::shared_ptr<providers::ITimingProvider> mTimingProvider;
+
+		/// thread id provider
+		std::shared_ptr<providers::IThreadIDProvider> mThreadIDProvider;
 
 		/// the beacon cache
 		std::shared_ptr<caching::IBeaconCache> mBeaconCache;

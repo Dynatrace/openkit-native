@@ -37,6 +37,7 @@ namespace api
 		///
 		virtual ~DynatraceOpenKitBuilder() {}
 
+		virtual std::shared_ptr<configuration::Configuration> buildConfiguration() override;
 	};
 }
 

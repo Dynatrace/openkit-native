@@ -14,8 +14,8 @@
 * limitations under the License.
 */
 
-#ifndef _API_OPENKIT_H
-#define _API_OPENKIT_H
+#ifndef _API_IOPENKIT_H
+#define _API_IOPENKIT_H
 
 #include "OpenKit_export.h"
 #include "api/ILogger.h"
