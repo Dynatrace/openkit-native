@@ -27,9 +27,9 @@
 #include "api-c/CustomLogger.h"
 
 #include <list>
+#include <assert.h> 
 
 extern "C" {
-
 
 	//--------------
 	//  Logger
@@ -42,10 +42,19 @@ extern "C" {
 
 	LoggerHandle* createLogger(levelEnabledFunc levelEnabledFunc, logFunc logFunc)
 	{
-		auto logger = std::shared_ptr<api::ILogger>(new apic::CustomLogger(levelEnabledFunc, logFunc));
-		// storing the returned shared pointer in the handle prevents it from going out of scope
-		LoggerHandle* handle = new LoggerHandle();
-		handle->sharedPointer = logger;
+		LoggerHandle* handle = nullptr;
+		try
+		{
+			auto logger = std::shared_ptr<api::ILogger>(new apic::CustomLogger(levelEnabledFunc, logFunc));
+			// storing the returned shared pointer in the handle prevents it from going out of scope
+			handle = new LoggerHandle();
+			handle->sharedPointer = logger;
+		}
+		catch (...)
+		{
+			/* Ignore exception, as we don't have a logger yet */
+		}
+
 		return handle;
 	}
 
@@ -57,11 +66,8 @@ extern "C" {
 			return;
 		}
 
-		if (loggerHandle->sharedPointer)
-		{
-			// release shared pointer
-			loggerHandle->sharedPointer = nullptr;
-		}
+		// release shared pointer
+		loggerHandle->sharedPointer = nullptr;
 		delete loggerHandle;
 	}
 
@@ -76,35 +82,74 @@ extern "C" {
 
 	OpenKitHandle* createDynatraceOpenKit(const char* endpointURL, const char* applicationID, int64_t deviceID, LoggerHandle* loggerHandle)
 	{
-		char test[] = "The answer to life";
-		loggerHandle->sharedPointer->error("This is a test '%s' is %d", test, 42);
-		api::DynatraceOpenKitBuilder builder(endpointURL, applicationID, deviceID);
-		if (loggerHandle)
+		OpenKitHandle* handle = nullptr;
+		try
 		{
-			// Instantiate the CustomLogger mapping the log statements to the FunctionPointers
-			builder.withLogger(loggerHandle->sharedPointer);
-		}
-		std::shared_ptr<api::IOpenKit> openKit = builder.build();
+			api::DynatraceOpenKitBuilder builder(endpointURL, applicationID, deviceID);
+			if (loggerHandle)
+			{
+				// Instantiate the CustomLogger mapping the log statements to the FunctionPointers
+				builder.withLogger(loggerHandle->sharedPointer);
+			}
+			std::shared_ptr<api::IOpenKit> openKit = builder.build();
 		
-		// storing the returned shared pointer in the handle prevents it from going out of scope
-		OpenKitHandle* handle = new OpenKitHandle();
-		handle->sharedPointer = openKit;
+			// storing the returned shared pointer in the handle prevents it from going out of scope
+			handle = new OpenKitHandle();
+			handle->sharedPointer = openKit;
+		}
+		catch (const std::exception& ex)
+		{
+			if (loggerHandle)
+			{
+				assert(loggerHandle->sharedPointer != nullptr);
+				loggerHandle->sharedPointer->error("Exception occurred in %s #%d: %s", __FILE__, __LINE__, ex.what());
+			}
+		}
+		catch (...)
+		{ 
+			if (loggerHandle)
+			{
+				assert(loggerHandle->sharedPointer != nullptr);
+				loggerHandle->sharedPointer->error("Unknown exception occurred in %s #%d", __FILE__, __LINE__);
+			}
+		}
+
 		return handle;
 	}
 
 	OpenKitHandle* createAppMonOpenKit(const char* endpointURL, const char* applicationID, int64_t deviceID, LoggerHandle* loggerHandle)
 	{
-		api::AppMonOpenKitBuilder builder(endpointURL, applicationID, deviceID);
-		if (loggerHandle)
+		OpenKitHandle* handle = nullptr;
+		try
 		{
-			// Instantiate the CustomLogger mapping the log statements to the FunctionPointers
-			builder.withLogger(loggerHandle->sharedPointer);
-		}
-		std::shared_ptr<api::IOpenKit> openKit = builder.build();
+			api::AppMonOpenKitBuilder builder(endpointURL, applicationID, deviceID);
+			if (loggerHandle)
+			{
+				// Instantiate the CustomLogger mapping the log statements to the FunctionPointers
+				builder.withLogger(loggerHandle->sharedPointer);
+			}
+			std::shared_ptr<api::IOpenKit> openKit = builder.build();
 
-		// storing the returned shared pointer in the handle prevents it from going out of scope
-		OpenKitHandle* handle = new OpenKitHandle();
-		handle->sharedPointer = openKit;
+			// storing the returned shared pointer in the handle prevents it from going out of scope
+			handle = new OpenKitHandle();
+			handle->sharedPointer = openKit;
+		}
+		catch (const std::exception& ex)
+		{
+			if (loggerHandle)
+			{
+				assert(loggerHandle->sharedPointer != nullptr);
+				loggerHandle->sharedPointer->error("Exception occurred in %s #%d: %s", __FILE__, __LINE__, ex.what());
+			}
+		}
+		catch (...)
+		{
+			if (loggerHandle)
+			{
+				assert(loggerHandle->sharedPointer != nullptr);
+				loggerHandle->sharedPointer->error("Unknown exception occurred in %s #%d", __FILE__, __LINE__);
+			}
+		}
 		return handle;
 	}
 
@@ -116,15 +161,19 @@ extern "C" {
 			return;
 		}
 
-		if (openKitHandle->sharedPointer)
+		try
 		{
-			std::shared_ptr<api::IOpenKit> openKit = openKitHandle->sharedPointer;
-			openKit->shutdown();
+			// retrieve the OpenKit instance from the handle and call the respective method
+			assert(openKitHandle->sharedPointer != nullptr);
+			openKitHandle->sharedPointer->shutdown();
 
 			// release shared pointer
 			openKitHandle->sharedPointer = nullptr;
+			delete openKitHandle;
 		}
-		delete openKitHandle;
+		catch (...)
+		{
+		}
 	}
 
 
@@ -145,12 +194,20 @@ extern "C" {
 			return nullptr;
 		}
 
-		// retrieve the OpenKit instance from the handle and call the respective method
-		std::shared_ptr<api::ISession> session = openKitHandle->sharedPointer->createSession(clientIPAddress);
+		SessionHandle* handle = nullptr;
+		try
+		{
+			// retrieve the OpenKit instance from the handle and call the respective method
+			assert(openKitHandle->sharedPointer != nullptr);
+			std::shared_ptr<api::ISession> session = openKitHandle->sharedPointer->createSession(clientIPAddress);
 
-		// storing the returned shared pointer in the handle prevents it from going out of scope
-		SessionHandle* handle = new SessionHandle();
-		handle->sharedPointer = session;
+			// storing the returned shared pointer in the handle prevents it from going out of scope
+			handle = new SessionHandle();
+			handle->sharedPointer = session;
+		}
+		catch (...)
+		{
+		}
 		return handle;
 	}
 
@@ -162,29 +219,50 @@ extern "C" {
 			return;
 		}
 
-		if (sessionHandle->sharedPointer)
+		try
 		{
+			// retrieve the Session instance from the handle and call the respective method
+			assert(sessionHandle->sharedPointer != nullptr);
 			sessionHandle->sharedPointer->end();
 
 			// release shared pointer
 			sessionHandle->sharedPointer = nullptr;
+			delete sessionHandle;
 		}
-		delete sessionHandle;
+		catch (...)
+		{
+		}
 	}
 
 	void identifyUser(SessionHandle* sessionHandle, const char* userTag)
 	{
-		if (sessionHandle && sessionHandle->sharedPointer)
+		try
 		{
-			sessionHandle->sharedPointer->identifyUser(userTag);
+			if (sessionHandle)
+			{
+				// retrieve the Session instance from the handle and call the respective method
+				assert(sessionHandle->sharedPointer != nullptr);
+				sessionHandle->sharedPointer->identifyUser(userTag);
+			}
+		}
+		catch (...)
+		{
 		}
 	}
 
 	void reportCrash(SessionHandle* sessionHandle, const char* errorName, const char* reason, const char* stacktrace)
 	{
-		if (sessionHandle && sessionHandle->sharedPointer)
+		try
 		{
-			sessionHandle->sharedPointer->reportCrash(errorName, reason, stacktrace);
+			if (sessionHandle)
+			{
+				// retrieve the Session instance from the handle and call the respective method
+				assert(sessionHandle->sharedPointer != nullptr);
+				sessionHandle->sharedPointer->reportCrash(errorName, reason, stacktrace);
+			}
+		}
+		catch (...)
+		{
 		}
 	}
 
@@ -205,12 +283,20 @@ extern "C" {
 			return nullptr;
 		}
 
-		// retrieve the OpenKit instance from the handle and call the respective method
-		std::shared_ptr<api::IRootAction> rootAction = sessionHandle->sharedPointer->enterAction(rootActionName);
+		RootActionHandle* handle = nullptr;
+		try
+		{
+			// retrieve the Session instance from the handle and call the respective method
+			assert(sessionHandle->sharedPointer != nullptr);
+			std::shared_ptr<api::IRootAction> rootAction = sessionHandle->sharedPointer->enterAction(rootActionName);
 
-		// storing the returned shared pointer in the handle prevents it from going out of scope
-		RootActionHandle* handle = new RootActionHandle();
-		handle->sharedPointer = rootAction;
+			// storing the returned shared pointer in the handle prevents it from going out of scope
+			handle = new RootActionHandle();
+			handle->sharedPointer = rootAction;
+		}
+		catch (...)
+		{
+		}
 		return handle;
 	}
 
@@ -222,53 +308,98 @@ extern "C" {
 			return;
 		}
 
-		if (rootActionHandle->sharedPointer)
+		try
 		{
+			// retrieve the RootAction instance from the handle and call the respective method
+			assert(rootActionHandle->sharedPointer != nullptr);
 			rootActionHandle->sharedPointer->leaveAction();
 
 			// release shared pointer
 			rootActionHandle->sharedPointer = nullptr;
+			delete rootActionHandle;
 		}
-		delete rootActionHandle;
+		catch (...)
+		{
+		}
 	}
 
 	void reportEventOnRootAction(RootActionHandle* rootActionHandle, const char* eventName)
 	{
-		if (rootActionHandle && rootActionHandle->sharedPointer)
+		try
 		{
-			rootActionHandle->sharedPointer->reportEvent(eventName);
+			if (rootActionHandle)
+			{
+				// retrieve the RootAction instance from the handle and call the respective method
+				assert(rootActionHandle->sharedPointer != nullptr);
+				rootActionHandle->sharedPointer->reportEvent(eventName);
+			}
+		}
+		catch (...)
+		{
 		}
 	}
 
 	void reportIntValueOnRootAction(RootActionHandle* rootActionHandle, const char* valueName, int32_t value)
 	{
-		if (rootActionHandle && rootActionHandle->sharedPointer)
+		try
 		{
-			rootActionHandle->sharedPointer->reportValue(valueName, value);
+			if (rootActionHandle)
+			{
+				// retrieve the RootAction instance from the handle and call the respective method
+				assert(rootActionHandle->sharedPointer != nullptr);
+				rootActionHandle->sharedPointer->reportValue(valueName, value);
+			}
+		}
+		catch (...)
+		{
 		}
 	}
 
 	void reportDoubleValueOnRootAction(RootActionHandle* rootActionHandle, const char* valueName, double value)
 	{
-		if (rootActionHandle && rootActionHandle->sharedPointer)
+		try
 		{
-			rootActionHandle->sharedPointer->reportValue(valueName, value);
+			if (rootActionHandle)
+			{
+				// retrieve the RootAction instance from the handle and call the respective method
+				assert(rootActionHandle->sharedPointer != nullptr);
+				rootActionHandle->sharedPointer->reportValue(valueName, value);
+			}
+		}
+		catch (...)
+		{
 		}
 	}
 
 	void reportStringValueOnRootAction(RootActionHandle* rootActionHandle, const char* valueName, const char* value)
 	{
-		if (rootActionHandle && rootActionHandle->sharedPointer)
+		try
 		{
-			rootActionHandle->sharedPointer->reportValue(valueName, value);
+			if (rootActionHandle)
+			{
+				// retrieve the RootAction instance from the handle and call the respective method
+				assert(rootActionHandle->sharedPointer != nullptr);
+				rootActionHandle->sharedPointer->reportValue(valueName, value);
+			}
+		}
+		catch (...)
+		{
 		}
 	}
 
 	void reportErrorOnRootAction(RootActionHandle* rootActionHandle, const char* errorName, int32_t errorCode, const char* reason)
 	{
-		if (rootActionHandle && rootActionHandle->sharedPointer)
+		try
 		{
-			rootActionHandle->sharedPointer->reportError(errorName, errorCode, reason);
+			if (rootActionHandle)
+			{
+				// retrieve the RootAction instance from the handle and call the respective method
+				assert(rootActionHandle->sharedPointer != nullptr);
+				rootActionHandle->sharedPointer->reportError(errorName, errorCode, reason);
+			}
+		}
+		catch (...)
+		{
 		}
 	}
 
@@ -290,12 +421,20 @@ extern "C" {
 			return nullptr;
 		}
 
-		// retrieve the OpenKit instance from the handle and call the respective method
-		std::shared_ptr<api::IAction> action = rootActionHandle->sharedPointer->enterAction(actionName);
+		ActionHandle* handle = nullptr;
+		try
+		{
+			// retrieve the RootAction instance from the handle and call the respective method
+			assert(rootActionHandle->sharedPointer != nullptr);
+			std::shared_ptr<api::IAction> action = rootActionHandle->sharedPointer->enterAction(actionName);
 		
-		// storing the returned shared pointer in the handle prevents it from going out of scope
-		ActionHandle* handle = new ActionHandle();
-		handle->sharedPointer = action;
+			// storing the returned shared pointer in the handle prevents it from going out of scope
+			handle = new ActionHandle();
+			handle->sharedPointer = action;
+		}
+		catch (...)
+		{
+		}
 		return handle;
 	}
 
@@ -307,53 +446,98 @@ extern "C" {
 			return;
 		}
 
-		if (actionHandle->sharedPointer)
+		try
 		{
+			// retrieve the Action instance from the handle and call the respective method
+			assert(actionHandle->sharedPointer != nullptr);
 			actionHandle->sharedPointer->leaveAction();
 
 			// release shared pointer
 			actionHandle->sharedPointer = nullptr;
+			delete actionHandle;
 		}
-		delete actionHandle;
+		catch (...)
+		{
+		}
 	}
 
 	void reportEventOnAction(ActionHandle* actionHandle, const char* eventName)
 	{
-		if (actionHandle && actionHandle->sharedPointer)
+		try
 		{
-			actionHandle->sharedPointer->reportEvent(eventName);
+			if (actionHandle)
+			{
+				// retrieve the Action instance from the handle and call the respective method
+				assert(actionHandle->sharedPointer != nullptr);
+				actionHandle->sharedPointer->reportEvent(eventName);
+			}
+		}
+		catch (...)
+		{
 		}
 	}
 
 	void reportIntValueOnAction(ActionHandle* actionHandle, const char* valueName, int32_t value)
 	{
-		if (actionHandle && actionHandle->sharedPointer)
+		try
 		{
-			actionHandle->sharedPointer->reportValue(valueName, value);
+			if (actionHandle)
+			{
+				// retrieve the Action instance from the handle and call the respective method
+				assert(actionHandle->sharedPointer != nullptr);
+				actionHandle->sharedPointer->reportValue(valueName, value);
+			}
+		}
+		catch (...)
+		{
 		}
 	}
 
 	void reportDoubleValueOnAction(ActionHandle* actionHandle, const char* valueName, double value)
 	{
-		if (actionHandle && actionHandle->sharedPointer)
+		try
 		{
-			actionHandle->sharedPointer->reportValue(valueName, value);
+			if (actionHandle)
+			{
+				// retrieve the Action instance from the handle and call the respective method
+				assert(actionHandle->sharedPointer != nullptr);
+				actionHandle->sharedPointer->reportValue(valueName, value);
+			}
+		}
+		catch (...)
+		{
 		}
 	}
 	
 	void reportStringValueOnAction(ActionHandle* actionHandle, const char* valueName, const char* value)
 	{
-		if (actionHandle && actionHandle->sharedPointer)
+		try
 		{
-			actionHandle->sharedPointer->reportValue(valueName, value);
+			if (actionHandle)
+			{
+				// retrieve the Action instance from the handle and call the respective method
+				assert(actionHandle->sharedPointer != nullptr);
+				actionHandle->sharedPointer->reportValue(valueName, value);
+			}
+		}
+		catch (...)
+		{
 		}
 	}
 
 	void reportErrorOnAction(ActionHandle* actionHandle, const char* errorName, int32_t errorCode, const char* reason)
 	{
-		if (actionHandle && actionHandle->sharedPointer)
+		try
 		{
-			actionHandle->sharedPointer->reportError(errorName, errorCode, reason);
+			if (actionHandle)
+			{
+				// retrieve the Action instance from the handle and call the respective method
+				assert(actionHandle->sharedPointer != nullptr);
+				actionHandle->sharedPointer->reportError(errorName, errorCode, reason);
+			}
+		}
+		catch (...)
+		{
 		}
 	}
 
@@ -369,57 +553,91 @@ extern "C" {
 
 	WebRequestTracerHandle* traceWebRequestOnRootAction(RootActionHandle* rootActionHandle, const char* url)
 	{
-		if (rootActionHandle && rootActionHandle->sharedPointer)
+		// Sanity
+		if (rootActionHandle == nullptr)
 		{
-			auto traceWebRequest = rootActionHandle->sharedPointer->traceWebRequest(url);
-			
-			// storing the returned shared pointer in the handle prevents it from going out of scope
-			WebRequestTracerHandle* handle = new WebRequestTracerHandle();
-			handle->sharedPointer = traceWebRequest;
-			return handle;
+			return nullptr;
 		}
 
-		return nullptr;
+		WebRequestTracerHandle* handle = nullptr;
+		try
+		{
+			// retrieve the RootAction instance from the handle and call the respective method
+			assert(rootActionHandle->sharedPointer != nullptr);
+			auto traceWebRequest = rootActionHandle->sharedPointer->traceWebRequest(url);
+
+			// storing the returned shared pointer in the handle prevents it from going out of scope
+			handle = new WebRequestTracerHandle();
+			handle->sharedPointer = traceWebRequest;
+		}
+		catch (...)
+		{
+		}
+		return handle;
 	}
 
 	WebRequestTracerHandle* traceWebRequestOnAction(ActionHandle* actionHandle, const char* url)
 	{
-		if (actionHandle && actionHandle->sharedPointer)
+		// Sanity
+		if (actionHandle == nullptr)
 		{
+			return nullptr;
+		}
+
+		WebRequestTracerHandle* handle = nullptr;
+		try
+		{
+			// retrieve the Action instance from the handle and call the respective method
+			assert(actionHandle->sharedPointer != nullptr);
 			auto traceWebRequest = actionHandle->sharedPointer->traceWebRequest(url);
 			
 			// storing the returned shared pointer in the handle prevents it from going out of scope
-			WebRequestTracerHandle* handle = new WebRequestTracerHandle();
+			handle = new WebRequestTracerHandle();
 			handle->sharedPointer = traceWebRequest;
-			return handle;
 		}
-
-		return nullptr;
+		catch (...)
+		{
+		}
+		return handle;
 	}
 
 	void stop(WebRequestTracerHandle* webRequestTracerHandle)
 	{
+		
 		// Sanity
 		if (webRequestTracerHandle == nullptr)
 		{
 			return;
 		}
 
-		if (webRequestTracerHandle->sharedPointer)
+		try
 		{
+			// retrieve the WebRequestTracer instance from the handle and call the respective method
+			assert(webRequestTracerHandle->sharedPointer != nullptr);
 			webRequestTracerHandle->sharedPointer->stop();
 
 			// release shared pointer
 			webRequestTracerHandle->sharedPointer = nullptr;
+			delete webRequestTracerHandle;
 		}
-		delete webRequestTracerHandle;
+		catch (...)
+		{
+		}
 	}
 
 	const char* getTag(WebRequestTracerHandle* webRequestTracerHandle)
 	{
-		if (webRequestTracerHandle && webRequestTracerHandle->sharedPointer)
+		try
 		{
-			return webRequestTracerHandle->sharedPointer->getTag();
+			if (webRequestTracerHandle)
+			{
+				// retrieve the WebRequestTracer instance from the handle and call the respective method
+				assert(webRequestTracerHandle->sharedPointer != nullptr);
+				return webRequestTracerHandle->sharedPointer->getTag();
+			}
+		}
+		catch (...)
+		{
 		}
 
 		return nullptr;
@@ -427,25 +645,49 @@ extern "C" {
 
 	void setResponseCode(WebRequestTracerHandle* webRequestTracerHandle, int32_t responseCode)
 	{
-		if (webRequestTracerHandle && webRequestTracerHandle->sharedPointer)
+		try
 		{
-			webRequestTracerHandle->sharedPointer->setResponseCode(responseCode);
+			if (webRequestTracerHandle)
+			{
+				// retrieve the WebRequestTracer instance from the handle and call the respective method
+				assert(webRequestTracerHandle->sharedPointer != nullptr);
+				webRequestTracerHandle->sharedPointer->setResponseCode(responseCode);
+			}
+		}
+		catch (...)
+		{
 		}
 	}
 
 	void setBytesSent(WebRequestTracerHandle* webRequestTracerHandle, int32_t bytesSent)
 	{
-		if (webRequestTracerHandle && webRequestTracerHandle->sharedPointer)
+		try
 		{
-			webRequestTracerHandle->sharedPointer->setBytesSent(bytesSent);
+			if (webRequestTracerHandle)
+			{
+				// retrieve the WebRequestTracer instance from the handle and call the respective method
+				assert(webRequestTracerHandle->sharedPointer != nullptr);
+				webRequestTracerHandle->sharedPointer->setBytesSent(bytesSent);
+			}
+		}
+		catch (...)
+		{
 		}
 	}
 
 	void setBytesReceived(WebRequestTracerHandle* webRequestTracerHandle, int32_t bytesReceived)
 	{
-		if (webRequestTracerHandle && webRequestTracerHandle->sharedPointer)
+		try
 		{
-			webRequestTracerHandle->sharedPointer->setBytesReceived(bytesReceived);
+			if (webRequestTracerHandle)
+			{
+				// retrieve the WebRequestTracer instance from the handle and call the respective method
+				assert(webRequestTracerHandle->sharedPointer != nullptr);
+				webRequestTracerHandle->sharedPointer->setBytesReceived(bytesReceived);
+			}
+		}
+		catch (...)
+		{
 		}
 	}
 
