@@ -142,31 +142,31 @@ namespace api
 			/// Returns the application version
 			/// @returns the application version
 			///
-			const char* getApplicationVersion() const;
+			std::string getApplicationVersion() const;
 
 			///
 			/// Returns the operating system 
 			/// @returns the operating system
 			///
-			const char* getOperatingSystem() const;
+			std::string getOperatingSystem() const;
 
 			///
 			/// Returns the manufacturer
 			/// @returns the manufacturer
 			///
-			const char* getManufacturer() const;
+			std::string getManufacturer() const;
 
 			///
 			/// Returns the model ID
 			/// @returns the model ID
 			///
-			const char* getModelID() const;
+			std::string getModelID() const;
 
 			///
 			/// Returns the endpoint URL
 			/// @returns the endpoint URL
 			///
-			const char* getEndpointURL()const;
+			std::string getEndpointURL()const;
 
 			///
 			/// Returns the device ID
@@ -214,19 +214,19 @@ namespace api
 			std::shared_ptr<ILogger> mLogger;
 
 			/// application version
-			const char* mApplicationVersion;
+			std::string mApplicationVersion;
 
 			/// operating system
-			const char* mOperatingSystem;
+			std::string mOperatingSystem;
 
 			/// manufacturer
-			const char* mManufacturer;
+			std::string mManufacturer;
 
 			/// model ID
-			const char* mModelID;
+			std::string mModelID;
 
 			/// endpoint URL
-			const char* mEndpointURL;
+			std::string mEndpointURL;
 
 			/// device ID
 			int64_t mDeviceID;

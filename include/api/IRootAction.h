@@ -17,17 +17,20 @@
 #ifndef _API_IROOTACTION_H
 #define _API_IROOTACTION_H
 
-#include "api/IWebRequestTracer.h"
-#include "api/IAction.h"
+#include "OpenKit_export.h"
+
 #include <stdint.h>
 #include <memory>
 
 namespace api
 {
+	class IWebRequestTracer;
+	class IAction;
+
 	///
 	/// This interface provides the same functionality as IAction, additionally it allows to create child actions
 	///
-	class IRootAction
+	class OPENKIT_EXPORT IRootAction
 	{
 	public:
 

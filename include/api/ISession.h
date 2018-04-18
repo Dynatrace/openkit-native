@@ -17,17 +17,19 @@
 #ifndef _API_ISESSION_H
 #define _API_ISESSION_H
 
-#include "IRootAction.h"
+#include "OpenKit_export.h"
 
 #include <stdint.h>
 #include <memory>
 
 namespace api
 {
+	class IRootAction;
+
 	///
 	/// This interface provides functionality to create Actions in a Session.
 	///
-	class ISession
+	class OPENKIT_EXPORT ISession
 	{
 	public:
 		///

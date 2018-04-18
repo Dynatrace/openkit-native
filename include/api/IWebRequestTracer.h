@@ -17,6 +17,8 @@
 #ifndef _API_WEBREQUESTTRACER_H
 #define _API_WEBREQUESTTRACER_H
 
+#include "OpenKit_export.h"
+
 #include <stdint.h>
 #include <memory>
 
@@ -25,7 +27,7 @@ namespace api
 	///
 	/// This interface allows tracing and timing of a web request.
 	///
-	class IWebRequestTracer
+	class OPENKIT_EXPORT IWebRequestTracer
 	{
 	public:
 

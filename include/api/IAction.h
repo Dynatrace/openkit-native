@@ -17,18 +17,20 @@
 #ifndef _API_IACTION_H
 #define _API_IACTION_H
 
-#include "api/IWebRequestTracer.h"
+#include "OpenKit_export.h"
+
 #include <stdint.h>
 #include <memory>
 
 namespace api
 {
 	class IRootAction;
+	class IWebRequestTracer;
 
 	///
 	/// This interface provides functionality to report events/values/errors and traces web requests.
 	///
-	class IAction
+	class OPENKIT_EXPORT IAction
 	{
 	public:
 		///
