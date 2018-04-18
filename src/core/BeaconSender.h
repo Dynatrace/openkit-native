@@ -62,10 +62,12 @@ namespace core
 		bool waitForInit() const;
 
 		///
-		/// Wait until initialization was completed.
+		/// Wait until initialization was completed.  This function may return with @c false after the
+		/// timeout occured when initialization is still in progress. The initialization may then finish after this call returned.
+		/// This can be verified by checking @ref isInitialized() after some additional wait statement.
 		/// NOTE: this is a blocking operation
 		/// @param[in] timeoutMillis The maximum number of milliseconds to wait for initialization being completed.
-		/// @return @c true if initialization succeeded, @c false if initialization failed
+		/// @return @c true if initialization succeeded, @c false if initialization failed or timeout occured
 		///
 		bool waitForInit(int64_t timeoutMillis) const;
 

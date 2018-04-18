@@ -14,6 +14,10 @@
 * limitations under the License.
 */
 
+/// this basic sample creates a Session, a RootAction and an Action
+/// to report some values and a web request
+/// it shows the intended usage of the OpenKit API
+
 #include <stdint.h>
 #include <iostream>
 #include <thread>

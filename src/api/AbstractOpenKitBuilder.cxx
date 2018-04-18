@@ -53,7 +53,7 @@ AbstractOpenKitBuilder& AbstractOpenKitBuilder::withLogger(std::shared_ptr<ILogg
 
 AbstractOpenKitBuilder& AbstractOpenKitBuilder::withApplicationVersion(const char* applicationVersion)
 {
-	if (applicationVersion != nullptr && !mApplicationVersion.empty())
+	if (applicationVersion != nullptr && mApplicationVersion != nullptr)
 	{
 		mApplicationVersion = applicationVersion;
 	}
@@ -68,7 +68,7 @@ AbstractOpenKitBuilder& AbstractOpenKitBuilder::withTrustManager(std::shared_ptr
 
 AbstractOpenKitBuilder& AbstractOpenKitBuilder::withOperatingSystem(const char* operatingSystem)
 {
-	if (operatingSystem != nullptr && !mOperatingSystem.empty())
+	if (operatingSystem != nullptr && mOperatingSystem != nullptr)
 	{
 		mOperatingSystem = operatingSystem;
 	}
@@ -77,7 +77,7 @@ AbstractOpenKitBuilder& AbstractOpenKitBuilder::withOperatingSystem(const char* 
 
 AbstractOpenKitBuilder& AbstractOpenKitBuilder::withManufacturer(const char* manufacturer)
 {
-	if (manufacturer != nullptr && !mManufacturer.empty())
+	if (manufacturer != nullptr && mManufacturer != nullptr)
 	{
 		mManufacturer = manufacturer;
 	}
@@ -86,7 +86,7 @@ AbstractOpenKitBuilder& AbstractOpenKitBuilder::withManufacturer(const char* man
 
 AbstractOpenKitBuilder& AbstractOpenKitBuilder::withModelID(const char* modelID)
 {
-	if (modelID != nullptr && !mModelID.empty())
+	if (modelID != nullptr && mModelID != nullptr)
 	{
 		mModelID = modelID;
 	}
@@ -127,27 +127,27 @@ std::shared_ptr<api::ILogger> AbstractOpenKitBuilder::getLogger()
 	return std::shared_ptr<ILogger>(new core::util::DefaultLogger(mVerbose));
 }
 
-const core::UTF8String& AbstractOpenKitBuilder::getApplicationVersion() const
+const char* AbstractOpenKitBuilder::getApplicationVersion() const
 {
 	return mApplicationVersion;
 }
 
-const core::UTF8String& AbstractOpenKitBuilder::getOperatingSystem() const
+const char* AbstractOpenKitBuilder::getOperatingSystem() const
 {
 	return mOperatingSystem;
 }
 
-const core::UTF8String& AbstractOpenKitBuilder::getManufacturer() const
+const char* AbstractOpenKitBuilder::getManufacturer() const
 {
 	return mManufacturer;
 }
 
-const core::UTF8String& AbstractOpenKitBuilder::getModelID() const
+const char* AbstractOpenKitBuilder::getModelID() const
 {
 	return mModelID;
 }
 
-const core::UTF8String& AbstractOpenKitBuilder::getEndpointURL() const
+const char* AbstractOpenKitBuilder::getEndpointURL() const
 {
 	return mEndpointURL;
 }

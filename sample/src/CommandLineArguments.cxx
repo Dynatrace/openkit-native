@@ -35,17 +35,17 @@ void CommandLineArguments::parse(uint32_t argc, char* *argv)
 			std::string previous = std::string(argv[index - 1]);
 			std::string current = std::string(argv[index]);
 
-			if (previous.compare("-a") == 0)
+			if (previous == "-a")
 			{
 				mApplicationID = current;
 			}
 
-			if (previous.compare("-u") == 0)
+			if (previous == "-u")
 			{
 				mBeaconURL = current;
 			}
 
-			if (previous.compare("-s") == 0)
+			if (previous == "-s")
 			{
 				try
 				{
@@ -61,12 +61,12 @@ void CommandLineArguments::parse(uint32_t argc, char* *argv)
 	}
 }
 
-const std::string CommandLineArguments::getApplicationID() const
+const std::string& CommandLineArguments::getApplicationID() const
 {
 	return mApplicationID;
 }
 
-const std::string CommandLineArguments::getBeaconURL() const
+const std::string& CommandLineArguments::getBeaconURL() const
 {
 	return mBeaconURL;
 }
@@ -78,7 +78,7 @@ int32_t CommandLineArguments::getServerID() const
 
 bool CommandLineArguments::isValidConfiguration() const
 {
-	return (mServerID > 0) && (mBeaconURL.length() > 0) && (mApplicationID.length() > 0);
+	return (mServerID > 0) && !mBeaconURL.empty() && !mApplicationID.empty();
 }
 
 void CommandLineArguments::printHelp()

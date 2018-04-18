@@ -34,7 +34,7 @@ namespace configuration
 		/// @param[in] cacheSizeLowerBound lower memory limit for cache
 		/// @param[in] cacheSizeUpperBound upper memory limit for cache
 		///
-		BeaconCacheConfiguration(int64_t maxRecordAge, int64_t cacheSBeaconizeLowerBound, int64_t cacheSizeUpperBound);
+		BeaconCacheConfiguration(int64_t maxRecordAge, int64_t cacheSizeLowerBound, int64_t cacheSizeUpperBound);
 
 		///
 		/// Get maximum record age.

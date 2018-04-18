@@ -2,8 +2,6 @@
 # OpenKit sample
 #################
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
-
 SET(SOURCES_SAMPLE 
 	src/openkit-sample.cxx
 	src/CommandLineArguments.cxx
@@ -14,10 +12,6 @@ add_executable(openkit-sample ${SOURCES_SAMPLE})
 
 # Link the CURL and ZLIB libraries
 target_link_libraries(openkit-sample OpenKit ${CURLIMPLIB} ${ZLIB_LIBRARIES} ) 
-
-# OpenKit sample currently uses the internal functions and therefore builds the sources directly.
-# We therefore set the compiler flag OPENKIT_STATIC_DEFINE, which leaves any export definitions empty.
-target_compile_definitions(openkit-sample PRIVATE -DOPENKIT_STATIC_DEFINE)
 
 if(NOT WIN32)
 	target_link_libraries(openkit-sample pthread)

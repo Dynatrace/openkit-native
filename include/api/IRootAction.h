@@ -24,7 +24,6 @@
 
 namespace api
 {
-	class IAction;
 	///
 	/// This interface provides the same functionality as IAction, additionally it allows to create child actions
 	///

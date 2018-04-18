@@ -20,8 +20,6 @@
 #include "api/IOpenKit.h"
 #include "api/ILogger.h"
 
-#include "core/UTF8String.h"
-
 #include "configuration/Configuration.h"
 
 #include <memory>
@@ -122,7 +120,7 @@ namespace api
 			///
 			/// When this is set to a positive value the memory based eviction strategy starts to clear
 			/// data from the beacon cache when the cache size exceeds this setting.
-			/// @param[in] upperMemoryBoundaryInBytes The lower boundary of the beacon cache or negative if unlimited.
+			/// @param[in] upperMemoryBoundaryInBytes The upper boundary of the beacon cache or negative if unlimited.
 			/// @returns @c this
 			///
 			AbstractOpenKitBuilder& withBeaconCacheUpperMemoryBoundary(int64_t upperMemoryBoundaryInBytes);
@@ -144,31 +142,31 @@ namespace api
 			/// Returns the application version
 			/// @returns the application version
 			///
-			const core::UTF8String& getApplicationVersion() const;
+			const char* getApplicationVersion() const;
 
 			///
 			/// Returns the operating system 
 			/// @returns the operating system
 			///
-			const core::UTF8String& getOperatingSystem() const;
+			const char* getOperatingSystem() const;
 
 			///
 			/// Returns the manufacturer
 			/// @returns the manufacturer
 			///
-			const core::UTF8String& getManufacturer() const;
+			const char* getManufacturer() const;
 
 			///
 			/// Returns the model ID
 			/// @returns the model ID
 			///
-			const core::UTF8String& getModelID() const;
+			const char* getModelID() const;
 
 			///
 			/// Returns the endpoint URL
 			/// @returns the endpoint URL
 			///
-			const core::UTF8String& getEndpointURL()const;
+			const char* getEndpointURL()const;
 
 			///
 			/// Returns the device ID
@@ -216,19 +214,19 @@ namespace api
 			std::shared_ptr<ILogger> mLogger;
 
 			/// application version
-			core::UTF8String mApplicationVersion;
+			const char* mApplicationVersion;
 
 			/// operating system
-			core::UTF8String mOperatingSystem;
+			const char* mOperatingSystem;
 
 			/// manufacturer
-			core::UTF8String mManufacturer;
+			const char* mManufacturer;
 
 			/// model ID
-			core::UTF8String mModelID;
+			const char* mModelID;
 
 			/// endpoint URL
-			core::UTF8String mEndpointURL;
+			const char* mEndpointURL;
 
 			/// device ID
 			int64_t mDeviceID;

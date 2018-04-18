@@ -20,6 +20,7 @@
 namespace api
 {
 	constexpr char WEBREQUEST_TAG_HEADER[] = "X-dynaTrace";
+	//TODO: stefan.eberl: generate the version using cmake
 	constexpr char DEFAULT_APPLICATION_VERSION[] = "1.0.1";
 	constexpr char DEFAULT_OPERATING_SYSTEM[] = "OpenKit 1.0.1";
 	constexpr char DEFAULT_MANUFACTURER[] = "Dynatrace";
