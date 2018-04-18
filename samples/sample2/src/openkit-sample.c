@@ -21,6 +21,13 @@
 #include <string.h>
 #include <time.h>
 
+// platform dependent includes for sleep
+#ifdef _WIN32
+#include <Windows.h>
+#else
+#include <unistd.h>
+#endif
+
 const char APPLICATION_VERSION[] = "1.2.3";
 
 ///
@@ -132,6 +139,18 @@ int32_t main(int32_t argc, char** argv)
 	reportStringValueOnAction(actionHandle, "StringValue", "some string");
 	reportErrorOnAction(actionHandle, "Some error name", 0x80070001, "Some more detailed error reason");
 	leaveAction(actionHandle);
+
+	struct WebRequestTracerHandle* webRequest = traceWebRequestOnAction(actionHandle, "http://www.stackoverflow.com/");
+	startWebRequest(webRequest);
+#ifdef _WIN32
+	Sleep(144);// 144 ms
+#else
+	usleep(144 * 1000);
+#endif
+	setResponseCode(webRequest, 200);
+	setBytesSent(webRequest, 123);
+	setBytesReceived(webRequest, 45);
+	stopWebRequest(webRequest);
 
 	leaveRootAction(rootActionHandle);
 

@@ -571,7 +571,21 @@ extern "C" {
 		return handle;
 	}
 
-	void stop(WebRequestTracerHandle* webRequestTracerHandle)
+	void startWebRequest(WebRequestTracerHandle* webRequestTracerHandle)
+	{
+		TRY
+		{
+			if (webRequestTracerHandle)
+			{
+				// retrieve the WebRequestTracer instance from the handle and call the respective method
+				assert(webRequestTracerHandle->sharedPointer != nullptr);
+				webRequestTracerHandle->sharedPointer->start();
+			}
+		}
+		CATCH_AND_LOG(webRequestTracerHandle)
+	}
+
+	void stopWebRequest(WebRequestTracerHandle* webRequestTracerHandle)
 	{
 		// Sanity
 		if (webRequestTracerHandle == nullptr)

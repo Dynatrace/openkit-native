@@ -319,11 +319,17 @@ extern "C" {
 	OPENKIT_EXPORT struct WebRequestTracerHandle* traceWebRequestOnAction(struct ActionHandle* actionHandle, const char* url);
 
 	///
+	/// Starts the web request timing. Should be called when the web request is initiated.
+	/// @param[in] webRequestTracerHandle the handle returned by @ref traceWebRequestOnRootAction or @ref traceWebRequestOnAction
+	///
+	OPENKIT_EXPORT void startWebRequest(struct WebRequestTracerHandle*);
+
+	///
 	/// Stops the web request timing. Should be called when the web request is finished.
 	/// After calling @c stop the webRequestTracerHandle is released and must not be used any more.
 	/// @param[in] webRequestTracerHandle the handle returned by @ref traceWebRequestOnRootAction or @ref traceWebRequestOnAction
 	///
-	OPENKIT_EXPORT void stop(struct WebRequestTracerHandle* webRequestTracerHandle);
+	OPENKIT_EXPORT void stopWebRequest(struct WebRequestTracerHandle* webRequestTracerHandle);
 
 	///
 	/// Returns the Dynatrace tag which has to be set manually as Dynatrace HTTP header
