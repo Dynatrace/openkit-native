@@ -42,6 +42,12 @@ extern "C" {
 
 	LoggerHandle* createLogger(levelEnabledFunc levelEnabledFunc, logFunc logFunc)
 	{
+		// Sanity
+		if (levelEnabledFunc == nullptr || logFunc == nullptr)
+		{
+			return nullptr;
+		}
+
 		LoggerHandle* handle = nullptr;
 		try
 		{

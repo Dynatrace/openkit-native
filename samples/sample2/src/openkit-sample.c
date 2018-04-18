@@ -23,6 +23,15 @@
 
 const char APPLICATION_VERSION[] = "1.2.3";
 
+///
+/// Parses the command line arguments, thereby reading in the "beaconURL" (=endpoint URL),
+/// the "serverID" and the "applicationID".
+/// @param[in] argc the command line argument count
+/// @param[in] argv the command line arguments
+/// @param[out] beaconURL the beaconURL is the endpoint URL, e.g. "https://bf1234567xyz.com/mbeacon"
+/// @param[out] serverID the ID of the server within the cluster
+/// @param[out] applicationID the ID of the application
+///
 void parseCommandLine(int32_t argc, char** argv, char** beaconURL, uint32_t* serverID, char** applicationID)
 {
 	int32_t index = 2;
@@ -51,6 +60,11 @@ void parseCommandLine(int32_t argc, char** argv, char** beaconURL, uint32_t* ser
 
 #define UNUSED_ARG(x) ((x)=(x))
 
+///
+/// Check function if the provided log level is enabled in the logger or not.
+/// @param[in] level the log level, either DEBUG or INFO (WARN and ERROR traces are currently always logged)
+/// @return @c true for all cases in this sample
+///
 bool levelEnabledFunction(LOG_LEVEL level) {
 	UNUSED_ARG(level);
 	return true;
@@ -58,6 +72,13 @@ bool levelEnabledFunction(LOG_LEVEL level) {
 
 #define MAX_TIME_LEN 24 // e.g. 2063-04-05 21:48:12.123
 
+///
+/// Log function to write the trace statements to stdout. The function prepends a human-readable time stamp
+/// and the log level.
+/// 
+/// @param[in] level the log level, either DEBUG or INFO (WARN and ERROR traces are currently always logged)
+/// @param[in] traceStatement the already formatted trace statement string
+///
 void logFunction(LOG_LEVEL level, const char* traceStatement)
 {
 	time_t in_time_t;
@@ -74,6 +95,12 @@ void logFunction(LOG_LEVEL level, const char* traceStatement)
 	printf("%s [%s] %s", buffer, toString(level), traceStatement);
 }
 
+///
+/// This sample demonstrate the usage of the C binding API of OpenKit C++.
+/// It basically calls each function on the C API with demo parameters.
+/// @param[in] argc number of arguments
+/// @param[in] argv the arguments, provide (at least) -u beaconURL -s serverID -a applicationID
+///
 int32_t main(int32_t argc, char** argv)
 {
 	char* beaconURL = NULL;
@@ -90,14 +117,26 @@ int32_t main(int32_t argc, char** argv)
 	struct OpenKitHandle* openKitHandle = createDynatraceOpenKit(beaconURL, applicationID, serverID, loggerHandle);
 	struct SessionHandle* sessionHandle = createSession(openKitHandle, "1.2.3.4");
 	identifyUser(sessionHandle, "test user");
-	struct RootActionHandle* rootActionHandle = enterRootAction(sessionHandle, "some root action");
+	struct RootActionHandle* rootActionHandle = enterRootAction(sessionHandle, "My root action");
 	
 	reportEventOnRootAction(rootActionHandle, "An event occurred");
 	reportIntValueOnRootAction(rootActionHandle, "IntValue", 1234);
 	reportDoubleValueOnRootAction(rootActionHandle, "DblValue", 3.1415);
 	reportStringValueOnRootAction(rootActionHandle, "StringValue", "some string");
+	reportErrorOnRootAction(rootActionHandle, "Some error name", 0x80050023, "Some more detailed error reason");
+
+	struct ActionHandle* actionHandle = enterAction(rootActionHandle, "My sub action");
+	reportEventOnAction(actionHandle, "An event occurred on the subaction");
+	reportIntValueOnAction(actionHandle, "IntValue", 4567);
+	reportDoubleValueOnAction(actionHandle, "DblValue", 47.11);
+	reportStringValueOnAction(actionHandle, "StringValue", "some string");
+	reportErrorOnAction(actionHandle, "Some error name", 0x80070001, "Some more detailed error reason");
+	leaveAction(actionHandle);
 
 	leaveRootAction(rootActionHandle);
+
+	reportCrash(sessionHandle, "Session crashes", "For no reason", "Stacktrace is missing");
+
 	endSession(sessionHandle);
 	shutdownOpenKit(openKitHandle);
 
