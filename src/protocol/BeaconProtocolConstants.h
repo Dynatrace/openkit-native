@@ -20,7 +20,7 @@
 namespace protocol
 {
 	//delimiter
-	constexpr char BEACON_DATA_DELIMITER = '&';
+	constexpr char BEACON_DATA_DELIMITER[] = "&";
 
 	//web request tag prefix constant
 	constexpr char TAG_PREFIX[] = "MT";
