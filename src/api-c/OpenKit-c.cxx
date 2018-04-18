@@ -84,6 +84,7 @@ extern "C" {
 	typedef struct OpenKitHandle
 	{
 		std::shared_ptr<api::IOpenKit> sharedPointer = nullptr;
+		std::shared_ptr<api::ILogger> logger = nullptr;
 	} OpenKitHandle;
 
 	OpenKitHandle* createDynatraceOpenKit(const char* endpointURL, const char* applicationID, int64_t deviceID, LoggerHandle* loggerHandle)
@@ -102,6 +103,7 @@ extern "C" {
 			// storing the returned shared pointer in the handle prevents it from going out of scope
 			handle = new OpenKitHandle();
 			handle->sharedPointer = openKit;
+			handle->logger = loggerHandle->sharedPointer;
 		}
 		catch (const std::exception& ex)
 		{
@@ -139,6 +141,7 @@ extern "C" {
 			// storing the returned shared pointer in the handle prevents it from going out of scope
 			handle = new OpenKitHandle();
 			handle->sharedPointer = openKit;
+			handle->logger = loggerHandle->sharedPointer;
 		}
 		catch (const std::exception& ex)
 		{
@@ -175,10 +178,22 @@ extern "C" {
 
 			// release shared pointer
 			openKitHandle->sharedPointer = nullptr;
+			openKitHandle->logger = nullptr;
 			delete openKitHandle;
+		}
+		catch (const std::exception& ex)
+		{
+			if (openKitHandle->logger)
+			{
+				openKitHandle->logger->error("Exception occurred in %s #%d: %s", __FILE__, __LINE__, ex.what());
+			}
 		}
 		catch (...)
 		{
+			if (openKitHandle->logger)
+			{
+				openKitHandle->logger->error("Unknown exception occurred in %s #%d", __FILE__, __LINE__);
+			}
 		}
 	}
 
@@ -190,6 +205,7 @@ extern "C" {
 	typedef struct SessionHandle
 	{
 		std::shared_ptr<api::ISession> sharedPointer = nullptr;
+		std::shared_ptr<api::ILogger> logger = nullptr;
 	} SessionHandle;
 
 	SessionHandle* createSession(OpenKitHandle* openKitHandle, const char* clientIPAddress)
@@ -210,9 +226,21 @@ extern "C" {
 			// storing the returned shared pointer in the handle prevents it from going out of scope
 			handle = new SessionHandle();
 			handle->sharedPointer = session;
+			handle->logger = openKitHandle->logger;
+		}
+		catch (const std::exception& ex)
+		{
+			if (openKitHandle->logger)
+			{
+				openKitHandle->logger->error("Exception occurred in %s #%d: %s", __FILE__, __LINE__, ex.what());
+			}
 		}
 		catch (...)
 		{
+			if (openKitHandle->logger)
+			{
+				openKitHandle->logger->error("Unknown exception occurred in %s #%d", __FILE__, __LINE__);
+			}
 		}
 		return handle;
 	}
@@ -233,10 +261,22 @@ extern "C" {
 
 			// release shared pointer
 			sessionHandle->sharedPointer = nullptr;
+			sessionHandle->logger = nullptr;
 			delete sessionHandle;
+		}
+		catch (const std::exception& ex)
+		{
+			if (sessionHandle->logger)
+			{
+				sessionHandle->logger->error("Exception occurred in %s #%d: %s", __FILE__, __LINE__, ex.what());
+			}
 		}
 		catch (...)
 		{
+			if (sessionHandle->logger)
+			{
+				sessionHandle->logger->error("Unknown exception occurred in %s #%d", __FILE__, __LINE__);
+			}
 		}
 	}
 
@@ -251,8 +291,19 @@ extern "C" {
 				sessionHandle->sharedPointer->identifyUser(userTag);
 			}
 		}
+		catch (const std::exception& ex)
+		{
+			if (sessionHandle->logger)
+			{
+				sessionHandle->logger->error("Exception occurred in %s #%d: %s", __FILE__, __LINE__, ex.what());
+			}
+		}
 		catch (...)
 		{
+			if (sessionHandle->logger)
+			{
+				sessionHandle->logger->error("Unknown exception occurred in %s #%d", __FILE__, __LINE__);
+			}
 		}
 	}
 
@@ -267,8 +318,19 @@ extern "C" {
 				sessionHandle->sharedPointer->reportCrash(errorName, reason, stacktrace);
 			}
 		}
+		catch (const std::exception& ex)
+		{
+			if (sessionHandle->logger)
+			{
+				sessionHandle->logger->error("Exception occurred in %s #%d: %s", __FILE__, __LINE__, ex.what());
+			}
+		}
 		catch (...)
 		{
+			if (sessionHandle->logger)
+			{
+				sessionHandle->logger->error("Unknown exception occurred in %s #%d", __FILE__, __LINE__);
+			}
 		}
 	}
 
@@ -279,6 +341,7 @@ extern "C" {
 	typedef struct RootActionHandle
 	{
 		std::shared_ptr<api::IRootAction> sharedPointer = nullptr;
+		std::shared_ptr<api::ILogger> logger = nullptr;
 	} RootActionHandle;
 
 	RootActionHandle* enterRootAction(SessionHandle* sessionHandle, const char* rootActionName)
@@ -299,9 +362,21 @@ extern "C" {
 			// storing the returned shared pointer in the handle prevents it from going out of scope
 			handle = new RootActionHandle();
 			handle->sharedPointer = rootAction;
+			handle->logger = sessionHandle->logger;
+		}
+		catch (const std::exception& ex)
+		{
+			if (sessionHandle->logger)
+			{
+				sessionHandle->logger->error("Exception occurred in %s #%d: %s", __FILE__, __LINE__, ex.what());
+			}
 		}
 		catch (...)
 		{
+			if (sessionHandle->logger)
+			{
+				sessionHandle->logger->error("Unknown exception occurred in %s #%d", __FILE__, __LINE__);
+			}
 		}
 		return handle;
 	}
@@ -322,10 +397,22 @@ extern "C" {
 
 			// release shared pointer
 			rootActionHandle->sharedPointer = nullptr;
+			rootActionHandle->logger = nullptr;
 			delete rootActionHandle;
+		}
+		catch (const std::exception& ex)
+		{
+			if (rootActionHandle->logger)
+			{
+				rootActionHandle->logger->error("Exception occurred in %s #%d: %s", __FILE__, __LINE__, ex.what());
+			}
 		}
 		catch (...)
 		{
+			if (rootActionHandle->logger)
+			{
+				rootActionHandle->logger->error("Unknown exception occurred in %s #%d", __FILE__, __LINE__);
+			}
 		}
 	}
 
@@ -340,8 +427,19 @@ extern "C" {
 				rootActionHandle->sharedPointer->reportEvent(eventName);
 			}
 		}
+		catch (const std::exception& ex)
+		{
+			if (rootActionHandle->logger)
+			{
+				rootActionHandle->logger->error("Exception occurred in %s #%d: %s", __FILE__, __LINE__, ex.what());
+			}
+		}
 		catch (...)
 		{
+			if (rootActionHandle->logger)
+			{
+				rootActionHandle->logger->error("Unknown exception occurred in %s #%d", __FILE__, __LINE__);
+			}
 		}
 	}
 
@@ -356,8 +454,19 @@ extern "C" {
 				rootActionHandle->sharedPointer->reportValue(valueName, value);
 			}
 		}
+		catch (const std::exception& ex)
+		{
+			if (rootActionHandle->logger)
+			{
+				rootActionHandle->logger->error("Exception occurred in %s #%d: %s", __FILE__, __LINE__, ex.what());
+			}
+		}
 		catch (...)
 		{
+			if (rootActionHandle->logger)
+			{
+				rootActionHandle->logger->error("Unknown exception occurred in %s #%d", __FILE__, __LINE__);
+			}
 		}
 	}
 
@@ -372,8 +481,19 @@ extern "C" {
 				rootActionHandle->sharedPointer->reportValue(valueName, value);
 			}
 		}
+		catch (const std::exception& ex)
+		{
+			if (rootActionHandle->logger)
+			{
+				rootActionHandle->logger->error("Exception occurred in %s #%d: %s", __FILE__, __LINE__, ex.what());
+			}
+		}
 		catch (...)
 		{
+			if (rootActionHandle->logger)
+			{
+				rootActionHandle->logger->error("Unknown exception occurred in %s #%d", __FILE__, __LINE__);
+			}
 		}
 	}
 
@@ -388,8 +508,19 @@ extern "C" {
 				rootActionHandle->sharedPointer->reportValue(valueName, value);
 			}
 		}
+		catch (const std::exception& ex)
+		{
+			if (rootActionHandle->logger)
+			{
+				rootActionHandle->logger->error("Exception occurred in %s #%d: %s", __FILE__, __LINE__, ex.what());
+			}
+		}
 		catch (...)
 		{
+			if (rootActionHandle->logger)
+			{
+				rootActionHandle->logger->error("Unknown exception occurred in %s #%d", __FILE__, __LINE__);
+			}
 		}
 	}
 
@@ -404,8 +535,19 @@ extern "C" {
 				rootActionHandle->sharedPointer->reportError(errorName, errorCode, reason);
 			}
 		}
+		catch (const std::exception& ex)
+		{
+			if (rootActionHandle->logger)
+			{
+				rootActionHandle->logger->error("Exception occurred in %s #%d: %s", __FILE__, __LINE__, ex.what());
+			}
+		}
 		catch (...)
 		{
+			if (rootActionHandle->logger)
+			{
+				rootActionHandle->logger->error("Unknown exception occurred in %s #%d", __FILE__, __LINE__);
+			}
 		}
 	}
 
@@ -417,6 +559,7 @@ extern "C" {
 	typedef struct ActionHandle
 	{
 		std::shared_ptr<api::IAction> sharedPointer = nullptr;
+		std::shared_ptr<api::ILogger> logger = nullptr;
 	} ActionHandle;
 
 	ActionHandle* enterAction(RootActionHandle* rootActionHandle, const char* actionName)
@@ -437,9 +580,21 @@ extern "C" {
 			// storing the returned shared pointer in the handle prevents it from going out of scope
 			handle = new ActionHandle();
 			handle->sharedPointer = action;
+			handle->logger = rootActionHandle->logger;
+		}
+		catch (const std::exception& ex)
+		{
+			if (rootActionHandle->logger)
+			{
+				rootActionHandle->logger->error("Exception occurred in %s #%d: %s", __FILE__, __LINE__, ex.what());
+			}
 		}
 		catch (...)
 		{
+			if (rootActionHandle->logger)
+			{
+				rootActionHandle->logger->error("Unknown exception occurred in %s #%d", __FILE__, __LINE__);
+			}
 		}
 		return handle;
 	}
@@ -460,10 +615,22 @@ extern "C" {
 
 			// release shared pointer
 			actionHandle->sharedPointer = nullptr;
+			actionHandle->logger = nullptr;
 			delete actionHandle;
+		}
+		catch (const std::exception& ex)
+		{
+			if (actionHandle->logger)
+			{
+				actionHandle->logger->error("Exception occurred in %s #%d: %s", __FILE__, __LINE__, ex.what());
+			}
 		}
 		catch (...)
 		{
+			if (actionHandle->logger)
+			{
+				actionHandle->logger->error("Unknown exception occurred in %s #%d", __FILE__, __LINE__);
+			}
 		}
 	}
 
@@ -478,8 +645,19 @@ extern "C" {
 				actionHandle->sharedPointer->reportEvent(eventName);
 			}
 		}
+		catch (const std::exception& ex)
+		{
+			if (actionHandle->logger)
+			{
+				actionHandle->logger->error("Exception occurred in %s #%d: %s", __FILE__, __LINE__, ex.what());
+			}
+		}
 		catch (...)
 		{
+			if (actionHandle->logger)
+			{
+				actionHandle->logger->error("Unknown exception occurred in %s #%d", __FILE__, __LINE__);
+			}
 		}
 	}
 
@@ -494,8 +672,19 @@ extern "C" {
 				actionHandle->sharedPointer->reportValue(valueName, value);
 			}
 		}
+		catch (const std::exception& ex)
+		{
+			if (actionHandle->logger)
+			{
+				actionHandle->logger->error("Exception occurred in %s #%d: %s", __FILE__, __LINE__, ex.what());
+			}
+		}
 		catch (...)
 		{
+			if (actionHandle->logger)
+			{
+				actionHandle->logger->error("Unknown exception occurred in %s #%d", __FILE__, __LINE__);
+			}
 		}
 	}
 
@@ -510,8 +699,19 @@ extern "C" {
 				actionHandle->sharedPointer->reportValue(valueName, value);
 			}
 		}
+		catch (const std::exception& ex)
+		{
+			if (actionHandle->logger)
+			{
+				actionHandle->logger->error("Exception occurred in %s #%d: %s", __FILE__, __LINE__, ex.what());
+			}
+		}
 		catch (...)
 		{
+			if (actionHandle->logger)
+			{
+				actionHandle->logger->error("Unknown exception occurred in %s #%d", __FILE__, __LINE__);
+			}
 		}
 	}
 	
@@ -526,8 +726,19 @@ extern "C" {
 				actionHandle->sharedPointer->reportValue(valueName, value);
 			}
 		}
+		catch (const std::exception& ex)
+		{
+			if (actionHandle->logger)
+			{
+				actionHandle->logger->error("Exception occurred in %s #%d: %s", __FILE__, __LINE__, ex.what());
+			}
+		}
 		catch (...)
 		{
+			if (actionHandle->logger)
+			{
+				actionHandle->logger->error("Unknown exception occurred in %s #%d", __FILE__, __LINE__);
+			}
 		}
 	}
 
@@ -542,8 +753,19 @@ extern "C" {
 				actionHandle->sharedPointer->reportError(errorName, errorCode, reason);
 			}
 		}
+		catch (const std::exception& ex)
+		{
+			if (actionHandle->logger)
+			{
+				actionHandle->logger->error("Exception occurred in %s #%d: %s", __FILE__, __LINE__, ex.what());
+			}
+		}
 		catch (...)
 		{
+			if (actionHandle->logger)
+			{
+				actionHandle->logger->error("Unknown exception occurred in %s #%d", __FILE__, __LINE__);
+			}
 		}
 	}
 
@@ -555,6 +777,7 @@ extern "C" {
 	typedef struct WebRequestTracerHandle
 	{
 		std::shared_ptr<api::IWebRequestTracer> sharedPointer = nullptr;
+		std::shared_ptr<api::ILogger> logger = nullptr;
 	} WebRequestTracerHandle;
 
 	WebRequestTracerHandle* traceWebRequestOnRootAction(RootActionHandle* rootActionHandle, const char* url)
@@ -575,9 +798,21 @@ extern "C" {
 			// storing the returned shared pointer in the handle prevents it from going out of scope
 			handle = new WebRequestTracerHandle();
 			handle->sharedPointer = traceWebRequest;
+			handle->logger = rootActionHandle->logger;
+		}
+		catch (const std::exception& ex)
+		{
+			if (rootActionHandle->logger)
+			{
+				rootActionHandle->logger->error("Exception occurred in %s #%d: %s", __FILE__, __LINE__, ex.what());
+			}
 		}
 		catch (...)
 		{
+			if (rootActionHandle->logger)
+			{
+				rootActionHandle->logger->error("Unknown exception occurred in %s #%d", __FILE__, __LINE__);
+			}
 		}
 		return handle;
 	}
@@ -600,16 +835,27 @@ extern "C" {
 			// storing the returned shared pointer in the handle prevents it from going out of scope
 			handle = new WebRequestTracerHandle();
 			handle->sharedPointer = traceWebRequest;
+			handle->logger = actionHandle->logger;
+		}
+		catch (const std::exception& ex)
+		{
+			if (actionHandle->logger)
+			{
+				actionHandle->logger->error("Exception occurred in %s #%d: %s", __FILE__, __LINE__, ex.what());
+			}
 		}
 		catch (...)
 		{
+			if (actionHandle->logger)
+			{
+				actionHandle->logger->error("Unknown exception occurred in %s #%d", __FILE__, __LINE__);
+			}
 		}
 		return handle;
 	}
 
 	void stop(WebRequestTracerHandle* webRequestTracerHandle)
 	{
-		
 		// Sanity
 		if (webRequestTracerHandle == nullptr)
 		{
@@ -624,10 +870,22 @@ extern "C" {
 
 			// release shared pointer
 			webRequestTracerHandle->sharedPointer = nullptr;
+			webRequestTracerHandle->logger = nullptr;
 			delete webRequestTracerHandle;
+		}
+		catch (const std::exception& ex)
+		{
+			if (webRequestTracerHandle->logger)
+			{
+				webRequestTracerHandle->logger->error("Exception occurred in %s #%d: %s", __FILE__, __LINE__, ex.what());
+			}
 		}
 		catch (...)
 		{
+			if (webRequestTracerHandle->logger)
+			{
+				webRequestTracerHandle->logger->error("Unknown exception occurred in %s #%d", __FILE__, __LINE__);
+			}
 		}
 	}
 
@@ -642,8 +900,19 @@ extern "C" {
 				return webRequestTracerHandle->sharedPointer->getTag();
 			}
 		}
+		catch (const std::exception& ex)
+		{
+			if (webRequestTracerHandle->logger)
+			{
+				webRequestTracerHandle->logger->error("Exception occurred in %s #%d: %s", __FILE__, __LINE__, ex.what());
+			}
+		}
 		catch (...)
 		{
+			if (webRequestTracerHandle->logger)
+			{
+				webRequestTracerHandle->logger->error("Unknown exception occurred in %s #%d", __FILE__, __LINE__);
+			}
 		}
 
 		return nullptr;
@@ -660,8 +929,19 @@ extern "C" {
 				webRequestTracerHandle->sharedPointer->setResponseCode(responseCode);
 			}
 		}
+		catch (const std::exception& ex)
+		{
+			if (webRequestTracerHandle->logger)
+			{
+				webRequestTracerHandle->logger->error("Exception occurred in %s #%d: %s", __FILE__, __LINE__, ex.what());
+			}
+		}
 		catch (...)
 		{
+			if (webRequestTracerHandle->logger)
+			{
+				webRequestTracerHandle->logger->error("Unknown exception occurred in %s #%d", __FILE__, __LINE__);
+			}
 		}
 	}
 
@@ -676,8 +956,19 @@ extern "C" {
 				webRequestTracerHandle->sharedPointer->setBytesSent(bytesSent);
 			}
 		}
+		catch (const std::exception& ex)
+		{
+			if (webRequestTracerHandle->logger)
+			{
+				webRequestTracerHandle->logger->error("Exception occurred in %s #%d: %s", __FILE__, __LINE__, ex.what());
+			}
+		}
 		catch (...)
 		{
+			if (webRequestTracerHandle->logger)
+			{
+				webRequestTracerHandle->logger->error("Unknown exception occurred in %s #%d", __FILE__, __LINE__);
+			}
 		}
 	}
 
@@ -692,8 +983,19 @@ extern "C" {
 				webRequestTracerHandle->sharedPointer->setBytesReceived(bytesReceived);
 			}
 		}
+		catch (const std::exception& ex)
+		{
+			if (webRequestTracerHandle->logger)
+			{
+				webRequestTracerHandle->logger->error("Exception occurred in %s #%d: %s", __FILE__, __LINE__, ex.what());
+			}
+		}
 		catch (...)
 		{
+			if (webRequestTracerHandle->logger)
+			{
+				webRequestTracerHandle->logger->error("Unknown exception occurred in %s #%d", __FILE__, __LINE__);
+			}
 		}
 	}
 
