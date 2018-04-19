@@ -16,7 +16,7 @@
 #ifndef _API_C_EXTERNALLOGGER_H
 #define _API_C_EXTERNALLOGGER_H
 
-#include "api/ILogger.h"
+#include "OpenKit/ILogger.h"
 #include "api-c/OpenKit-c.h"
 
 #include <cstdarg>
@@ -28,7 +28,7 @@ namespace apic
 	/// the @c CustomLogger acts as the glue:
 	/// On the one hand it implements the ILogger (C++) interface on the other hand it calls the
 	/// user provided function pointers to check if to log and to perform the log.
-	class CustomLogger : public api::ILogger
+	class CustomLogger : public openkit::ILogger
 	{
 	public:
 		///
