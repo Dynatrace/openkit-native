@@ -55,7 +55,7 @@ namespace api
 			/// @param[in] logger the logger
 			/// @return @c this for fluent usage
 			///
-			AbstractOpenKitBuilder& withLogger(std::shared_ptr<ILogger> logger);
+			AbstractOpenKitBuilder& withLogger(std::shared_ptr<api::ILogger> logger);
 
 			///
 			/// Defines the version of the application. The value is only set if it is neither null nor empty.

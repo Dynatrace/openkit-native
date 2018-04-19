@@ -6,6 +6,8 @@ set(SOURCES_API
 	api/AbstractOpenKitBuilder.cxx
 	api/DynatraceOpenKitBuilder.cxx
 	api/AppMonOpenKitBuilder.cxx
+	api-c/OpenKit-c.cxx
+	api-c/CustomLogger.cxx
 )
 
 set(SOURCES_CACHING
