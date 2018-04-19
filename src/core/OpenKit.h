@@ -27,6 +27,7 @@
 #include "caching/IBeaconCache.h"
 #include "caching/BeaconCacheEvictor.h"
 #include "core/BeaconSender.h"
+#include "core/NullSession.h"
 
 namespace core {
 	class OpenKit : public api::IOpenKit
@@ -94,6 +95,12 @@ namespace core {
 
 		/// beacon cache evictor
 		std::shared_ptr<caching::BeaconCacheEvictor> mBeaconCacheEvictor;
+
+		/// atomic flag for shutdown state
+		std::atomic<int32_t> mIsShutdown;
+
+		/// instance of NullSession
+		std::shared_ptr<core::NullSession> NULL_SESSION;
 	};
 }
 

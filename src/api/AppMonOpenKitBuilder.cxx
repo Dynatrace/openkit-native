@@ -15,11 +15,37 @@
 */
 
 #include "AppMonOpenKitBuilder.h"
+#include "providers/DefaultSessionIDProvider.h"
 
 using namespace api;
 
-AppMonOpenKitBuilder::AppMonOpenKitBuilder(const char* endpointURL, const char* applicationID, uint64_t deviceID)
+AppMonOpenKitBuilder::AppMonOpenKitBuilder(const char* endpointURL, const char* applicationName, uint64_t deviceID)
 	: AbstractOpenKitBuilder(endpointURL, deviceID)
+	, mApplicationName(applicationName)
 {
-	throw std::runtime_error("function not implemented yet");
+
+}
+
+std::shared_ptr<configuration::Configuration> AppMonOpenKitBuilder::buildConfiguration()
+{
+	std::shared_ptr<configuration::Device> device = std::make_shared<configuration::Device>(getOperatingSystem(), getManufacturer(), getModelID());
+
+	std::shared_ptr<configuration::BeaconCacheConfiguration> beaconCacheConfiguration = std::make_shared<configuration::BeaconCacheConfiguration>(
+		getBeaconCacheMaxRecordAge(),
+		getBeaconCacheLowerMemoryBoundary(),
+		getBeaconCacheUpperMemoryBoundary()
+		);
+
+	return std::make_shared<configuration::Configuration>(
+		device,
+		configuration::OpenKitType::APPMON,
+		mApplicationName,
+		getApplicationVersion(),
+		mApplicationName,
+		getDeviceID(),
+		getEndpointURL(),
+		std::make_shared<providers::DefaultSessionIDProvider>(),
+		getTrustManager(),
+		beaconCacheConfiguration
+		);
 }

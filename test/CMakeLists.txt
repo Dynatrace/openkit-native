@@ -2,6 +2,8 @@ remove_strict_warnings_for_testcode()
 
 include_directories(SYSTEM ${GTEST_INCLUDE_DIRS})
 
+#set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} " -rtti")
+
 ################
 # CURL showcase
 ################
@@ -42,6 +44,7 @@ set(SOURCES_UNITTEST
 	${SOURCES_TO_TEST} 
 
 	# Test files
+	api/OpenKitBuilderTest.cxx
 	core/UTF8StringTest.cxx
 	core/SessionTest.cxx
 	core/ActionTest.cxx

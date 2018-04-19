@@ -27,7 +27,8 @@ constexpr bool DEFAULT_CAPTURE_ERRORS = true;                     // default: ca
 constexpr bool DEFAULT_CAPTURE_CRASHES = true;                    // default: capture crashes on
 
 Configuration::Configuration(std::shared_ptr<configuration::Device> device, OpenKitType openKitType, const core::UTF8String& applicationName, const core::UTF8String& applicationVersion, const core::UTF8String& applicationID, uint64_t deviceID, const core::UTF8String& endpointURL,
-	std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider, std::shared_ptr<protocol::ISSLTrustManager> sslTrustManager)
+	std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider, std::shared_ptr<protocol::ISSLTrustManager> sslTrustManager,
+	std::shared_ptr<configuration::BeaconCacheConfiguration> beaconCacheConfiguration)
 	: mHTTPClientConfiguration(std::make_shared<configuration::HTTPClientConfiguration>(endpointURL, openKitType.getDefaultServerID(), applicationID, sslTrustManager))
 	, mSessionIDProvider(sessionIDProvider)
 	, mIsCapture(false)
@@ -42,6 +43,7 @@ Configuration::Configuration(std::shared_ptr<configuration::Device> device, Open
 	, mEndpointURL(endpointURL)
 	, mDeviceID(deviceID)
 	, mDevice(device)
+	, mBeaconCacheConfiguration(beaconCacheConfiguration)
 {
 }
 
@@ -186,3 +188,7 @@ std::shared_ptr<configuration::Device> Configuration::getDevice() const
 	return mDevice;
 }
 
+std::shared_ptr<configuration::BeaconCacheConfiguration> Configuration::getBeaconCacheConfiguration() const
+{
+	return mBeaconCacheConfiguration;
+}

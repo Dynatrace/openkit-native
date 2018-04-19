@@ -91,11 +91,6 @@ namespace core
 		mBeacon->addWebRequest(mParentActionID, shared_from_this());
 	}
 
-	bool WebRequestTracerBase::isNullObject() const
-	{
-		return false;
-	}
-
 	const core::UTF8String WebRequestTracerBase::getURL() const
 	{
 		return mURL;

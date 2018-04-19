@@ -28,6 +28,7 @@
 
 #include "api/IRootAction.h"
 #include "configuration/Configuration.h"
+#include "configuration/BeaconCacheConfiguration.h"
 
 #include "../protocol/MockHTTPClient.h"
 #include "../protocol/MockBeacon.h"
@@ -58,9 +59,10 @@ public:
 
 		std::shared_ptr<configuration::Device> device = std::shared_ptr<configuration::Device>(new configuration::Device(core::UTF8String(""), core::UTF8String(""), core::UTF8String("")));
 
+		beaconCacheConfiguration = std::make_shared<configuration::BeaconCacheConfiguration>(-1, -1, -1);
 		configuration = std::shared_ptr<configuration::Configuration>(new configuration::Configuration(device, configuration::OpenKitType::DYNATRACE,
 			core::UTF8String(APP_NAME), "", APP_ID, 0, "",
-			sessionIDProvider, trustManager));
+			sessionIDProvider, trustManager, beaconCacheConfiguration));
 		configuration->enableCapture();
 
 		beaconCache = std::make_shared<caching::BeaconCache>();
@@ -84,6 +86,7 @@ public:
 	std::shared_ptr<testing::NiceMock<test::MockHTTPClient>> mockHTTPClient;
 	std::shared_ptr<protocol::ISSLTrustManager> trustManager;
 
+	std::shared_ptr<configuration::BeaconCacheConfiguration> beaconCacheConfiguration;
 	std::shared_ptr<configuration::Configuration> configuration;
 	std::shared_ptr<caching::BeaconCache> beaconCache;
 
@@ -113,7 +116,9 @@ TEST_F(SessionTest, enterActionWithNullActionName)
     std::shared_ptr<api::IRootAction> rootAction = testSession->enterAction(nullptr);
 
     // we definitely got a NullRootAction instance
-    ASSERT_TRUE(rootAction->isNullObject());
+	ASSERT_TRUE(rootAction != nullptr);
+	std::shared_ptr<core::NullRootAction> typeCast = std::dynamic_pointer_cast<core::NullRootAction>(rootAction);
+    ASSERT_TRUE(typeCast != nullptr);
 }
 
 TEST_F(SessionTest, enterActionWithEmptyActionName)
@@ -125,7 +130,9 @@ TEST_F(SessionTest, enterActionWithEmptyActionName)
 	std::shared_ptr<api::IRootAction> rootAction = testSession->enterAction("");
 
 	// we definitely got a NullRootAction instance
-	ASSERT_TRUE(rootAction->isNullObject());
+	ASSERT_TRUE(rootAction != nullptr);
+	std::shared_ptr<core::NullRootAction> typeCast = std::dynamic_pointer_cast<core::NullRootAction>(rootAction);
+	ASSERT_TRUE(typeCast != nullptr);
 }
 
 TEST_F(SessionTest, enterNotClosedAction)
@@ -536,7 +543,9 @@ TEST_F(SessionTest, enterActionGivesNullRootActionIfSessionIsAlreadyEnded)
 
     // then
 	ASSERT_TRUE(obtained != nullptr);
-	ASSERT_TRUE(obtained->isNullObject());
+
+	std::shared_ptr<core::NullRootAction> typeCast = std::dynamic_pointer_cast<core::NullRootAction>(obtained);
+	ASSERT_TRUE(typeCast != nullptr);
 }
 
 TEST_F(SessionTest, identifyUserDoesNothingIfSessionIsEnded)

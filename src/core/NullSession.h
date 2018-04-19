@@ -14,8 +14,12 @@
 * limitations under the License.
 */
 
-#ifndef _CORE_SESSION_H
-#define _CORE_SESSION_H
+#ifndef _CORE_NULLSESSION_H
+#define _CORE_NULLSESSION_H
+
+#include "api/ISession.h"
+#include "core/NullRootAction.h"
+#include <memory>
 
 namespace core
 {
@@ -31,19 +35,22 @@ namespace core
 		///
 		/// Constructor
 		///
-		NullSession();
-
-		virtual std::shared_ptr<api::IRootAction> enterAction(const char* actionName) override
+		NullSession()
 		{
-			return NULL_ROOT_ACTION;
+
 		}
 
-		virtual void identifyUser(const char* userTag) override
+		virtual std::shared_ptr<api::IRootAction> enterAction(const char* /*actionName*/) override
+		{
+			return std::make_shared<NullRootAction>();
+		}
+
+		virtual void identifyUser(const char* /*userTag*/) override
 		{
 			// intentionally left empty, due to NullObject pattern
 		}
 
-		virtual void reportCrash(const char* errorName, const char* reason, const char* stacktrace) override
+		virtual void reportCrash(const char* /*errorName*/, const char* /*reason*/, const char* /*stacktrace*/) override
 		{
 			// intentionally left empty, due to NullObject pattern
 		}
@@ -52,14 +59,6 @@ namespace core
 		{
 			// intentionally left empty, due to NullObject pattern
 		}
-
-		virtual bool isNullObject() override
-		{
-			return  true;
-		}
-	private:
-		static const std::shared_ptr<IRootAction> NULL_ROOT_ACTION = std::make_shared<NullRootAction>();
-
 	};
 }
 

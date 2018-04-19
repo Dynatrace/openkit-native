@@ -46,3 +46,16 @@ void CountDownLatch::await()
 		mConditionVariable.wait(lock);
 	}
 }
+
+void CountDownLatch::await(int64_t milliseconds)
+{
+	std::unique_lock<std::mutex> lock(mMutex);
+	auto start = std::chrono::system_clock::now();
+
+	auto current = std::chrono::system_clock::now();
+	while (mCount > 0 && (current - start).count() < milliseconds)
+	{
+		mConditionVariable.wait_for(lock, std::chrono::milliseconds(milliseconds));
+		current = std::chrono::system_clock::now();
+	}
+}

@@ -17,17 +17,19 @@
 #ifndef _API_ISESSION_H
 #define _API_ISESSION_H
 
-#include "IRootAction.h"
+#include "OpenKit_export.h"
 
 #include <stdint.h>
 #include <memory>
 
 namespace api
 {
+	class IRootAction;
+
 	///
 	/// This interface provides functionality to create Actions in a Session.
 	///
-	class ISession
+	class OPENKIT_EXPORT ISession
 	{
 	public:
 		///
@@ -62,13 +64,6 @@ namespace api
 		/// @remarks All previously added action are implicitly closed
 		///
 		virtual void end() = 0;
-
-		///
-		/// Returns true if this instance of ISession is an object using 
-		/// the NullObject pattern
-		/// @returns @c true if the current ISesion is a NullObject, @c false in all other cases
-		///
-		virtual bool isNullObject() = 0;
 	};
 }
 #endif

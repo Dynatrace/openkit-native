@@ -176,11 +176,6 @@ std::shared_ptr<api::IRootAction> Action::doLeaveAction()
 
 }
 
-bool Action::isNullObject() const
-{
-	return false;
-}
-
 int32_t Action::getID() const
 {
 	return mID;

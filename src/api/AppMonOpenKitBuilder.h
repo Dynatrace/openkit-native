@@ -27,16 +27,22 @@ namespace api
 		///
 		/// Constructor
 		/// @param[in] endPointURL endpoint OpenKit connects to
-		/// @param[in] applicationID unique application id
+		/// @param[in] applicationName unique application id
 		/// @param[in] deviceID unique device id
 		///
-		AppMonOpenKitBuilder(const char* endpointURL, const char* applicationID, uint64_t deviceID);
+		AppMonOpenKitBuilder(const char* endpointURL, const char* applicationName, uint64_t deviceID);
 
 		///
 		/// Destructor
 		///
 		virtual ~AppMonOpenKitBuilder() {}
 
+		virtual std::shared_ptr<configuration::Configuration> buildConfiguration() override;
+
+	private:
+
+		/// application name
+		std::string mApplicationName;
 	};
 }
 
