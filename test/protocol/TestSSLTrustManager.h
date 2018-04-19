@@ -14,17 +14,21 @@
 * limitations under the License.
 */
 
-#ifndef _API_OPENKITCONSTANTS_H
-#define _API_OPENKITCONSTANTS_H
+#ifndef _TEST_PROTOCOL_TESTSSLTRUSTMANAGER_H
+#define _TEST_PROTOCOL_TESTSSLTRUSTMANAGER_H
 
-namespace api
+namespace test
 {
-	constexpr char WEBREQUEST_TAG_HEADER[] = "X-dynaTrace";
-	//TODO: stefan.eberl: generate the version using cmake
-	constexpr char DEFAULT_APPLICATION_VERSION[] = "0.x";
-	constexpr char DEFAULT_OPERATING_SYSTEM[] = "OpenKit 0.x";
-	constexpr char DEFAULT_MANUFACTURER[] = "Dynatrace";
-	constexpr char DEFAULT_MODEL_ID[] = "OpenKitDevice";
-}
+	class TestSSLTrustManager : public protocol::ISSLTrustManager
+	{
+	public:
+		virtual ~TestSSLTrustManager() {}
+
+		virtual void applyTrustManager(CURL* /*curl*/) override
+		{
+			//do nothing
+		}
+	};
+ }
 
 #endif

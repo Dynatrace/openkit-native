@@ -21,7 +21,7 @@ using namespace api;
 
 DynatraceOpenKitBuilder::DynatraceOpenKitBuilder(const char* endpointURL, const char* applicationID, uint64_t deviceID)
 	: AbstractOpenKitBuilder(endpointURL, deviceID)
-	, mApplicationID(core::UTF8String(applicationID))
+	, mApplicationID(applicationID)
 	, mApplicationName()
 {
 
@@ -55,7 +55,7 @@ DynatraceOpenKitBuilder& DynatraceOpenKitBuilder::withApplicationName(const char
 {
 	if (applicationName != nullptr)
 	{
-		mApplicationName = core::UTF8String(applicationName);
+		mApplicationName = std::string(applicationName);
 	}
 	return *this;
 }

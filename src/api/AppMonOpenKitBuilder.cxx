@@ -19,10 +19,9 @@
 
 using namespace api;
 
-AppMonOpenKitBuilder::AppMonOpenKitBuilder(const char* endpointURL, const char* applicationID, uint64_t deviceID)
+AppMonOpenKitBuilder::AppMonOpenKitBuilder(const char* endpointURL, const char* applicationName, uint64_t deviceID)
 	: AbstractOpenKitBuilder(endpointURL, deviceID)
-	, mApplicationID(core::UTF8String(applicationID))
-	, mApplicationName()
+	, mApplicationName(applicationName)
 {
 
 }
@@ -42,20 +41,11 @@ std::shared_ptr<configuration::Configuration> AppMonOpenKitBuilder::buildConfigu
 		configuration::OpenKitType::APPMON,
 		mApplicationName,
 		getApplicationVersion(),
-		mApplicationID,
+		mApplicationName,
 		getDeviceID(),
 		getEndpointURL(),
 		std::make_shared<providers::DefaultSessionIDProvider>(),
 		getTrustManager(),
 		beaconCacheConfiguration
 		);
-}
-
-AppMonOpenKitBuilder& AppMonOpenKitBuilder::withApplicationName(const char* applicationName)
-{
-	if (applicationName != nullptr)
-	{
-		mApplicationName = core::UTF8String(applicationName);
-	}
-	return *this;
 }

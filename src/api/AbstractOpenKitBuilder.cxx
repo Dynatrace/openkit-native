@@ -53,7 +53,7 @@ AbstractOpenKitBuilder& AbstractOpenKitBuilder::withLogger(std::shared_ptr<ILogg
 
 AbstractOpenKitBuilder& AbstractOpenKitBuilder::withApplicationVersion(const char* applicationVersion)
 {
-	if (applicationVersion != nullptr && !mApplicationVersion.empty())
+	if (applicationVersion != nullptr && strlen(applicationVersion) > 0)
 	{
 		mApplicationVersion = applicationVersion;
 	}
@@ -68,7 +68,7 @@ AbstractOpenKitBuilder& AbstractOpenKitBuilder::withTrustManager(std::shared_ptr
 
 AbstractOpenKitBuilder& AbstractOpenKitBuilder::withOperatingSystem(const char* operatingSystem)
 {
-	if (operatingSystem != nullptr && !mOperatingSystem.empty())
+	if (operatingSystem != nullptr && strlen(operatingSystem) > 0)
 	{
 		mOperatingSystem = operatingSystem;
 	}
@@ -77,7 +77,8 @@ AbstractOpenKitBuilder& AbstractOpenKitBuilder::withOperatingSystem(const char* 
 
 AbstractOpenKitBuilder& AbstractOpenKitBuilder::withManufacturer(const char* manufacturer)
 {
-	if (manufacturer != nullptr && !mManufacturer.empty())
+	
+	if (manufacturer != nullptr && strlen(manufacturer) > 0)
 	{
 		mManufacturer = manufacturer;
 	}
@@ -86,7 +87,7 @@ AbstractOpenKitBuilder& AbstractOpenKitBuilder::withManufacturer(const char* man
 
 AbstractOpenKitBuilder& AbstractOpenKitBuilder::withModelID(const char* modelID)
 {
-	if (modelID != nullptr && !mModelID.empty())
+	if (modelID != nullptr && strlen(modelID) > 0)
 	{
 		mModelID = modelID;
 	}

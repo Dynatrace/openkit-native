@@ -44,6 +44,7 @@ set(SOURCES_UNITTEST
 	${SOURCES_TO_TEST} 
 
 	# Test files
+	api/OpenKitBuilderTest.cxx
 	core/UTF8StringTest.cxx
 	core/SessionTest.cxx
 	core/ActionTest.cxx

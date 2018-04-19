@@ -48,10 +48,10 @@ namespace api
 
 	private:
 		/// application id
-		core::UTF8String mApplicationID;
+		std::string mApplicationID;
 
 		/// application name
-		core::UTF8String mApplicationName;
+		std::string mApplicationName;
 	};
 }
 

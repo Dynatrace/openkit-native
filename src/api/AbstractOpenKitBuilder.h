@@ -198,7 +198,7 @@ namespace api
 			///
 			int64_t getBeaconCacheUpperMemoryBoundary() const;
 
-		private:
+		public:
 			///
 			/// Returns a logger. If no logger is set, when building the OpenKit with @ref build(),
 			/// the default logger is returned.

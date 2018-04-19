@@ -27,10 +27,10 @@ namespace api
 		///
 		/// Constructor
 		/// @param[in] endPointURL endpoint OpenKit connects to
-		/// @param[in] applicationID unique application id
+		/// @param[in] applicationName unique application id
 		/// @param[in] deviceID unique device id
 		///
-		AppMonOpenKitBuilder(const char* endpointURL, const char* applicationID, uint64_t deviceID);
+		AppMonOpenKitBuilder(const char* endpointURL, const char* applicationName, uint64_t deviceID);
 
 		///
 		/// Destructor
@@ -39,19 +39,10 @@ namespace api
 
 		virtual std::shared_ptr<configuration::Configuration> buildConfiguration() override;
 
-		///
-		/// Sets the application name. The value is only set if it is not @c nullptr.
-		/// @param[in] applicationName name of the application
-		/// @returns @c this instance
-		///
-		AppMonOpenKitBuilder& withApplicationName(const char* applicationName);
-
 	private:
-		/// application id
-		core::UTF8String mApplicationID;
 
 		/// application name
-		core::UTF8String mApplicationName;
+		std::string mApplicationName;
 	};
 }
 
