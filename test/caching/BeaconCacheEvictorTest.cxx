@@ -34,7 +34,7 @@ class BeaconCacheEvictorTest : public testing::Test
 public:
 	void SetUp()
 	{
-		mLogger = std::shared_ptr<api::ILogger>(new core::util::DefaultLogger(devNull, true));
+		mLogger = std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(devNull, true));
 		mMockBeaconCache = std::shared_ptr<testing::NiceMock<test::MockBeaconCache>>(new testing::NiceMock<test::MockBeaconCache>());
 		mMockStrategyOne = std::shared_ptr<testing::NiceMock<test::MockBeaconCacheEvictionStrategy>>(new testing::NiceMock<test::MockBeaconCacheEvictionStrategy>());
 		mMockStrategyTwo = std::shared_ptr<testing::NiceMock<test::MockBeaconCacheEvictionStrategy>>(new testing::NiceMock<test::MockBeaconCacheEvictionStrategy>());
@@ -49,7 +49,7 @@ public:
 	}
 
 	std::ostringstream devNull;
-	std::shared_ptr<api::ILogger> mLogger;
+	std::shared_ptr<openkit::ILogger> mLogger;
 	std::shared_ptr<testing::NiceMock<test::MockBeaconCacheEvictionStrategy>> mMockStrategyOne;
 	std::shared_ptr<testing::NiceMock<test::MockBeaconCacheEvictionStrategy>> mMockStrategyTwo;
 	std::shared_ptr<testing::NiceMock<test::MockBeaconCache>> mMockBeaconCache;

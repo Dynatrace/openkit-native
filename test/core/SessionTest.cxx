@@ -26,7 +26,7 @@
 #include "providers/DefaultSessionIDProvider.h"
 #include "providers/DefaultHTTPClientProvider.h"
 
-#include "api/IRootAction.h"
+#include "OpenKit/IRootAction.h"
 #include "configuration/Configuration.h"
 #include "configuration/BeaconCacheConfiguration.h"
 
@@ -46,7 +46,7 @@ class SessionTest : public testing::Test
 public:
 	void SetUp()
 	{
-		logger = std::shared_ptr<api::ILogger>(new core::util::DefaultLogger(true));
+		logger = std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(true));
 		threadIDProvider = std::make_shared<providers::DefaultThreadIDProvider>();
 		timingProvider = std::make_shared<providers::DefaultTimingProvider>();
 		sessionIDProvider = std::make_shared<providers::DefaultSessionIDProvider>();
@@ -78,7 +78,7 @@ public:
 	}
 public:
 	std::ostringstream devNull;
-	std::shared_ptr<api::ILogger> logger;
+	std::shared_ptr<openkit::ILogger> logger;
 	std::shared_ptr<providers::IThreadIDProvider> threadIDProvider;
 	std::shared_ptr<providers::ITimingProvider> timingProvider;
 	std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider;
@@ -113,7 +113,7 @@ TEST_F(SessionTest, enterActionWithNullActionName)
 	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(logger, mockBeaconSender, mockBeaconNice);
 
     // add/enter "null-action"
-    std::shared_ptr<api::IRootAction> rootAction = testSession->enterAction(nullptr);
+    std::shared_ptr<openkit::IRootAction> rootAction = testSession->enterAction(nullptr);
 
     // we definitely got a NullRootAction instance
 	ASSERT_TRUE(rootAction != nullptr);
@@ -127,7 +127,7 @@ TEST_F(SessionTest, enterActionWithEmptyActionName)
 	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(logger, mockBeaconSender, mockBeaconNice);
 
 	// add/enter "null-action"
-	std::shared_ptr<api::IRootAction> rootAction = testSession->enterAction("");
+	std::shared_ptr<openkit::IRootAction> rootAction = testSession->enterAction("");
 
 	// we definitely got a NullRootAction instance
 	ASSERT_TRUE(rootAction != nullptr);
@@ -539,7 +539,7 @@ TEST_F(SessionTest, enterActionGivesNullRootActionIfSessionIsAlreadyEnded)
 	testSession->end();
 
     // when entering an action on already ended session
-    std::shared_ptr<api::IRootAction> obtained = testSession->enterAction("Test");
+    std::shared_ptr<openkit::IRootAction> obtained = testSession->enterAction("Test");
 
     // then
 	ASSERT_TRUE(obtained != nullptr);

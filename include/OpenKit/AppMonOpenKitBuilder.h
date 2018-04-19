@@ -14,41 +14,32 @@
 * limitations under the License.
 */
 
-#ifndef _API_DYNATRACEOPENKITBUILDER_H
-#define _API_DYNATRACEOPENKITBUILDER_H
+#ifndef _OPENKIT_APPMONMOPENKITBUILDER_H
+#define _OPENKIT_APPMONMOPENKITBUILDER_H
 
-#include "api/AbstractOpenKitBuilder.h"
+#include "OpenKit/AbstractOpenKitBuilder.h"
 
-namespace api
+namespace openkit
 {
-	class OPENKIT_EXPORT DynatraceOpenKitBuilder : public AbstractOpenKitBuilder
+	class OPENKIT_EXPORT AppMonOpenKitBuilder : public AbstractOpenKitBuilder
 	{
 	public:
 		///
 		/// Constructor
 		/// @param[in] endPointURL endpoint OpenKit connects to
-		/// @param[in] applicationID unique application id
+		/// @param[in] applicationName unique application id
 		/// @param[in] deviceID unique device id
 		///
-		DynatraceOpenKitBuilder(const char* endpointURL, const char* applicationID, uint64_t deviceID);
+		AppMonOpenKitBuilder(const char* endpointURL, const char* applicationName, uint64_t deviceID);
 
 		///
 		/// Destructor
 		///
-		virtual ~DynatraceOpenKitBuilder() {}
+		virtual ~AppMonOpenKitBuilder() {}
 
 		virtual std::shared_ptr<configuration::Configuration> buildConfiguration() override;
 
-		///
-		/// Sets the application name. The value is only set if it is not @c nullptr.
-		/// @param[in] applicationName name of the application
-		/// @returns @c this instance
-		///
-		DynatraceOpenKitBuilder& withApplicationName(const char* applicationName);
-
 	private:
-		/// application id
-		std::string mApplicationID;
 
 		/// application name
 		std::string mApplicationName;

@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-#include "OpenKit.h"
+#include "core/OpenKit.h"
 #include "protocol/Beacon.h"
 #include "providers/DefaultHTTPClientProvider.h"
 #include "providers/DefaultTimingProvider.h"
@@ -23,7 +23,7 @@
 
 using namespace core;
 
-OpenKit::OpenKit(std::shared_ptr<api::ILogger> logger, std::shared_ptr<configuration::Configuration> configuration)
+OpenKit::OpenKit(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<configuration::Configuration> configuration)
 	: OpenKit(logger, configuration,
 		std::make_shared<providers::DefaultHTTPClientProvider>(),
 		std::make_shared<providers::DefaultTimingProvider>(),
@@ -33,7 +33,7 @@ OpenKit::OpenKit(std::shared_ptr<api::ILogger> logger, std::shared_ptr<configura
 
 }
 
-OpenKit::OpenKit(std::shared_ptr<api::ILogger> logger, std::shared_ptr<configuration::Configuration> configuration,
+OpenKit::OpenKit(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<configuration::Configuration> configuration,
 	std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
 	std::shared_ptr<providers::ITimingProvider> timingProvider,
 	std::shared_ptr<providers::IThreadIDProvider> threadIDProvider)
@@ -71,7 +71,7 @@ bool OpenKit::isInitialized() const
 	return mBeaconSender->isInitialized();
 }
 
-std::shared_ptr<api::ISession> OpenKit::createSession(const char* clientIPAddress)
+std::shared_ptr<openkit::ISession> OpenKit::createSession(const char* clientIPAddress)
 {
 	if (mIsShutdown == 1 || clientIPAddress == nullptr || strlen(clientIPAddress) == 0)
 	{

@@ -14,29 +14,34 @@
 * limitations under the License.
 */
 
-#ifndef _API_IACTION_H
-#define _API_IACTION_H
+#ifndef _OPENKIT_IROOTACTION_H
+#define _OPENKIT_IROOTACTION_H
 
 #include "OpenKit_export.h"
 
 #include <stdint.h>
 #include <memory>
 
-namespace api
+namespace openkit
 {
-	class IRootAction;
 	class IWebRequestTracer;
+	class IAction;
 
 	///
-	/// This interface provides functionality to report events/values/errors and traces web requests.
+	/// This interface provides the same functionality as IAction, additionally it allows to create child actions
 	///
-	class OPENKIT_EXPORT IAction
+	class OPENKIT_EXPORT IRootAction
 	{
 	public:
+
+		virtual ~IRootAction() {}
+
 		///
-		/// Destructor
+		/// Enters an Action with a specified name in this Session.
+		/// @param[in] actionName name of the Action
+		/// @returns Action instance to work with
 		///
-		virtual ~IAction() {}
+		virtual std::shared_ptr<IAction> enterAction(const char* actionName) = 0;
 
 		///
 		/// Reports an event with a specified name (but without any value).
@@ -46,7 +51,7 @@ namespace api
 		/// @param eventName name of the event
 		/// @return this Action (for usage as fluent API)
 		///
-		virtual std::shared_ptr<IAction> reportEvent(const char* eventName) = 0;
+		virtual std::shared_ptr<IRootAction> reportEvent(const char* eventName) = 0;
 
 		///
 		/// Reports an int value with a specified name.
@@ -55,7 +60,7 @@ namespace api
 		/// @param value     value itself
 		/// @return this Action (for usage as fluent API)
 		///
-		virtual std::shared_ptr<IAction> reportValue(const char* valueName, int32_t value) = 0;
+		virtual std::shared_ptr<IRootAction> reportValue(const char* valueName, int32_t value) = 0;
 
 		///
 		/// Reports a double value with a specified name.
@@ -64,7 +69,7 @@ namespace api
 		/// @param value     value itself
 		/// @return this Action (for usage as fluent API)
 		///
-		virtual std::shared_ptr<IAction> reportValue(const char* valueName, double value) = 0;
+		virtual std::shared_ptr<IRootAction> reportValue(const char* valueName, double value) = 0;
 
 		///
 		/// Reports a String value with a specified name.
@@ -73,7 +78,7 @@ namespace api
 		/// @param value     value itself
 		/// @return this Action (for usage as fluent API)
 		///
-		virtual std::shared_ptr<IAction> reportValue(const char* valueName, const char* value) = 0;
+		virtual std::shared_ptr<IRootAction> reportValue(const char* valueName, const char* value) = 0;
 
 		///
 		/// Reports an error with a specified name, error code and reason.
@@ -83,7 +88,7 @@ namespace api
 		/// @param reason    reason for this error
 		/// @return this Action (for usage as fluent API)
 		///
-		virtual std::shared_ptr<IAction> reportError(const char* errorName, int32_t errorCode, const char* reason) = 0;
+		virtual std::shared_ptr<IRootAction> reportError(const char* errorName, int32_t errorCode, const char* reason) = 0;
 
 		///
 		/// Allows tracing and timing of a web request handled by any 3rd party HTTP Client (e.g. CURL, EasyHttp, ...).
@@ -99,10 +104,8 @@ namespace api
 
 		///
 		/// Leaves this Action.
-		/// @returns the parent Action, or @c nullptr if there is no parent Action
 		///
-		virtual std::shared_ptr<IRootAction> leaveAction() = 0;
+		virtual void leaveAction() = 0;
 	};
 }
-
 #endif

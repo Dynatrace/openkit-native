@@ -16,7 +16,7 @@
 #ifndef _UTIL_DEFAULTLOGGER_H
 #define _UTIL_DEFAULTLOGGER_H
 
-#include "api/ILogger.h"
+#include "OpenKit/ILogger.h"
 
 #include <string>
 #include <sstream>
@@ -25,7 +25,7 @@ namespace core
 {
 	namespace util
 	{
-		class DefaultLogger : public api::ILogger
+		class DefaultLogger : public openkit::ILogger
 		{
 		public:
 			///

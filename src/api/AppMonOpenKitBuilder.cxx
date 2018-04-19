@@ -14,10 +14,10 @@
 * limitations under the License.
 */
 
-#include "api/AppMonOpenKitBuilder.h"
+#include "OpenKit/AppMonOpenKitBuilder.h"
 #include "providers/DefaultSessionIDProvider.h"
 
-using namespace api;
+using namespace openkit;
 
 AppMonOpenKitBuilder::AppMonOpenKitBuilder(const char* endpointURL, const char* applicationName, uint64_t deviceID)
 	: AbstractOpenKitBuilder(endpointURL, deviceID)

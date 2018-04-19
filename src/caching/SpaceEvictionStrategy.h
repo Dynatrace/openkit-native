@@ -17,7 +17,7 @@
 #ifndef _CACHING_SPACEEVICTIONSTRATEGY_H
 #define _CACHING_SPACEEVICTIONSTRATEGY_H
 
-#include "api/ILogger.h"
+#include "OpenKit/ILogger.h"
 #include "caching/IBeaconCache.h"
 #include "caching/IBeaconCacheEvictionStrategy.h"
 #include "configuration/BeaconCacheConfiguration.h"
@@ -43,7 +43,7 @@ namespace caching
 		/// @param[in] configuration The configuration providing the boundary settings for this strategy.
 		/// @param[in] isAlive function to check whether the eviction thread is running or not
 		///
-		SpaceEvictionStrategy(std::shared_ptr<api::ILogger> logger, std::shared_ptr<IBeaconCache> beaconCache, std::shared_ptr<configuration::BeaconCacheConfiguration> configuration, std::function<bool()> isAlive);
+		SpaceEvictionStrategy(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<IBeaconCache> beaconCache, std::shared_ptr<configuration::BeaconCacheConfiguration> configuration, std::function<bool()> isAlive);
 
 		///
 		/// Destructor
@@ -93,7 +93,7 @@ namespace caching
 
 	private:
 		/// Logger to write traces to
-		std::shared_ptr<api::ILogger> mLogger;
+		std::shared_ptr<openkit::ILogger> mLogger;
 
 		/// The Beacon cache to check if entries need to be evicted
 		std::shared_ptr<IBeaconCache> mBeaconCache;

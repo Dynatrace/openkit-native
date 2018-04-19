@@ -54,7 +54,7 @@ public:
 
 	void SetUp()
 	{
-		mLogger = std::shared_ptr<api::ILogger>(new core::util::DefaultLogger(devNull, true));
+		mLogger = std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(devNull, true));
 		mMockBeaconCache = std::shared_ptr<testing::NiceMock<test::MockBeaconCache>>(new testing::NiceMock<test::MockBeaconCache>());
 		mMockTimingProvider = std::shared_ptr<testing::NiceMock<test::MockTimingProvider>>(new testing::NiceMock<test::MockTimingProvider>());
 	}
@@ -67,7 +67,7 @@ public:
 	}
 
 	std::ostringstream devNull;
-	std::shared_ptr<api::ILogger> mLogger;
+	std::shared_ptr<openkit::ILogger> mLogger;
 	std::shared_ptr<testing::NiceMock<test::MockBeaconCache>> mMockBeaconCache;
 	std::shared_ptr<testing::NiceMock<test::MockTimingProvider>> mMockTimingProvider;
 
@@ -172,7 +172,7 @@ TEST_F(TimeEvictionStrategyTest, executeEvictionLogsAMessageOnceAndReturnsIfStra
 {
 	// given
 	std::ostringstream oss;
-	auto logger = std::shared_ptr<api::ILogger>(new core::util::DefaultLogger(oss, true));
+	auto logger = std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(oss, true));
 	auto configuration = std::make_shared<BeaconCacheConfiguration>(0L, 1000L, 2000L);
 	TimeEvictionStrategy target(logger, mMockBeaconCache, configuration, mMockTimingProvider, std::bind(&TimeEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this));
 
@@ -196,7 +196,7 @@ TEST_F(TimeEvictionStrategyTest, executeEvictionDoesNotLogIfStrategyIsDisabledAn
 {
 	// given
 	std::ostringstream oss;
-	auto logger = std::shared_ptr<api::ILogger>(new core::util::DefaultLogger(oss, false));
+	auto logger = std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(oss, false));
 	auto configuration = std::make_shared<BeaconCacheConfiguration>(0L, 1000L, 2000L);
 	TimeEvictionStrategy target(logger, mMockBeaconCache, configuration, mMockTimingProvider, std::bind(&TimeEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this));
 
@@ -293,7 +293,7 @@ TEST_F(TimeEvictionStrategyTest, executeEvictionLogsTheNumberOfRecordsRemoved)
 {
 	// given
 	std::ostringstream oss;
-	auto logger = std::shared_ptr<api::ILogger>(new core::util::DefaultLogger(oss, true));
+	auto logger = std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(oss, true));
 	auto mockBeaconCache = std::shared_ptr<testing::NiceMock<test::MockBeaconCache>>(new testing::NiceMock<test::MockBeaconCache>());
 	auto mockTimingProvider = std::shared_ptr<testing::NiceMock<test::MockTimingProvider>>(new testing::NiceMock<test::MockTimingProvider>());
 	auto configuration = std::make_shared<BeaconCacheConfiguration>(1000L, 1000L, 2000L);

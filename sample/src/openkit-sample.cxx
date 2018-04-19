@@ -22,7 +22,7 @@
 #include <iostream>
 #include <thread>
 
-#include "api/OpenKit.h"
+#include "OpenKit.h"
 #include "CommandLineArguments.h"
 
 constexpr char APPLICATION_VERSION[] = "1.2.3";
@@ -56,7 +56,7 @@ int32_t main(int32_t argc, char** argv)
 
 	parseCommandLine(argc, argv, beaconURL, serverID, applicationID);
 
-	api::DynatraceOpenKitBuilder builder(beaconURL.c_str(), applicationID.c_str(), serverID);
+	openkit::DynatraceOpenKitBuilder builder(beaconURL.c_str(), applicationID.c_str(), serverID);
 	builder.withApplicationName("openkit-sample-c++")
 		.withApplicationVersion(APPLICATION_VERSION)
 		.withManufacturer("Dynatrace")
@@ -69,7 +69,7 @@ int32_t main(int32_t argc, char** argv)
 
 	if (openKit->isInitialized())
 	{
-		std::shared_ptr<api::ISession> sampleSession = openKit->createSession("172.16.23.30");
+		std::shared_ptr<openkit::ISession> sampleSession = openKit->createSession("172.16.23.30");
 		sampleSession->identifyUser("test user");
 
 		auto rootAction1 = sampleSession->enterAction("root action");

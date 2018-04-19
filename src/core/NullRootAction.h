@@ -17,7 +17,7 @@
 #ifndef _CORE_NULLROOTACTION_H
 #define _CORE_NULLROOTACTION_H
 
-#include "api/IRootAction.h"
+#include "OpenKit/IRootAction.h"
 #include "NullAction.h"
 #include "NullWebRequestTracer.h"
 
@@ -30,11 +30,11 @@ namespace core
 	/// This class is returned as RootAction by @ref OpenKit#createSession(String) when the @ref OpenKit#shutdown()
 	/// has been called before.
 	///
-	class NullRootAction  : public api::IRootAction, public std::enable_shared_from_this<core::NullRootAction>
+	class NullRootAction  : public openkit::IRootAction, public std::enable_shared_from_this<core::NullRootAction>
 	{
 	public:
 
-		virtual std::shared_ptr<api::IAction> enterAction(const char* /*actionName*/) override
+		virtual std::shared_ptr<openkit::IAction> enterAction(const char* /*actionName*/) override
 		{
 			return std::shared_ptr<NullAction>(new NullAction(shared_from_this()));
 		}
@@ -64,7 +64,7 @@ namespace core
 			return shared_from_this();
 		}
 
-		virtual std::shared_ptr<api::IWebRequestTracer> traceWebRequest(const char* /*url*/) override
+		virtual std::shared_ptr<openkit::IWebRequestTracer> traceWebRequest(const char* /*url*/) override
 		{
 			return std::make_shared<NullWebRequestTracer>();
 		}

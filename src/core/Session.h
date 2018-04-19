@@ -22,9 +22,9 @@
 #pragma GCC diagnostic ignored "-Wnon-virtual-dtor" // enable_shared_from_this has a public non virtual destructor throwing a false positive in this code
 #endif
 
-#include "api/ISession.h"
-#include "api/IRootAction.h"
-#include "api/ILogger.h"
+#include "OpenKit/ISession.h"
+#include "OpenKit/IRootAction.h"
+#include "OpenKit/ILogger.h"
 #include "NullRootAction.h"
 
 #include "UTF8String.h"
@@ -50,7 +50,7 @@ namespace core
 	///
 	///  Actual implementation of the ISession interface.
 	///
-	class Session : public api::ISession, public std::enable_shared_from_this<core::Session>
+	class Session : public openkit::ISession, public std::enable_shared_from_this<core::Session>
 	{
 	public:
 
@@ -60,14 +60,14 @@ namespace core
 		/// @param[in] beaconSender beacon sender
 		/// @param]in] beacon beacon used for serialization
 		///
-		Session(std::shared_ptr<api::ILogger> logger, std::shared_ptr<BeaconSender> beaconSender, std::shared_ptr<protocol::Beacon> beacon);
+		Session(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<BeaconSender> beaconSender, std::shared_ptr<protocol::Beacon> beacon);
 			
 		///
 		/// Destructor
 		///
 		virtual ~Session() {}
 
-		virtual std::shared_ptr<api::IRootAction> enterAction(const char* actionName) override;
+		virtual std::shared_ptr<openkit::IRootAction> enterAction(const char* actionName) override;
 
 		virtual void identifyUser(const char* userTag) override;
 
@@ -124,7 +124,7 @@ namespace core
 
 	private:
 		/// Logger to write traces to
-		std::shared_ptr<api::ILogger> mLogger;
+		std::shared_ptr<openkit::ILogger> mLogger;
 
 		/// beacon sender
 		std::shared_ptr<BeaconSender> mBeaconSender;
@@ -136,7 +136,7 @@ namespace core
 		std::atomic<int64_t> mEndTime;
 
 		/// synchronized queue of root actions of this session
-		util::SynchronizedQueue<std::shared_ptr<api::IRootAction>> mOpenRootActions;
+		util::SynchronizedQueue<std::shared_ptr<openkit::IRootAction>> mOpenRootActions;
 
 		/// instance of NullRootAction
 		std::shared_ptr<NullRootAction> NULL_ROOT_ACTION;

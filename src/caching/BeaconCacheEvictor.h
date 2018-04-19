@@ -17,7 +17,7 @@
 #ifndef _CACHING_BEACONCACHEEVICTOR_H
 #define _CACHING_BEACONCACHEEVICTOR_H
 
-#include "api/ILogger.h"
+#include "OpenKit/ILogger.h"
 #include "caching/IObserver.h"
 #include "caching/IBeaconCache.h"
 #include "caching/IBeaconCacheEvictionStrategy.h"
@@ -49,7 +49,7 @@ namespace caching
 		/// @param[in] configuration  Beacon cache configuration
 		/// @param[in] timingProvider Timing provider required for time retrieval
 		///
-		BeaconCacheEvictor(std::shared_ptr<api::ILogger> logger, std::shared_ptr<IBeaconCache> beaconCache, std::shared_ptr<configuration::BeaconCacheConfiguration> configuration, std::shared_ptr<providers::ITimingProvider> timingProvider);
+		BeaconCacheEvictor(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<IBeaconCache> beaconCache, std::shared_ptr<configuration::BeaconCacheConfiguration> configuration, std::shared_ptr<providers::ITimingProvider> timingProvider);
 
 		///
 		/// Internal testing constructor.
@@ -57,7 +57,7 @@ namespace caching
 		/// @param[in] beaconCache The Beacon cache to check if entries need to be evicted
 		/// @param[in] strategies  Strategies passed to the actual Runnable.
 		///
-		BeaconCacheEvictor(std::shared_ptr<api::ILogger> logger, std::shared_ptr<IBeaconCache> beaconCache, std::vector<std::shared_ptr<IBeaconCacheEvictionStrategy>> strategies);
+		BeaconCacheEvictor(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<IBeaconCache> beaconCache, std::vector<std::shared_ptr<IBeaconCacheEvictionStrategy>> strategies);
 
 		///
 		/// Starts the eviction thread.
@@ -103,7 +103,7 @@ namespace caching
 
 	private:
 		/// Logger to write traces to
-		std::shared_ptr<api::ILogger> mLogger;
+		std::shared_ptr<openkit::ILogger> mLogger;
 
 		/// The Beacon cache to check if entries need to be evicted
 		std::shared_ptr<IBeaconCache> mBeaconCache;

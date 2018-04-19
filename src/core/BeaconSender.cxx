@@ -25,7 +25,7 @@ using namespace core;
 using namespace communication;
 using namespace providers;
 
-BeaconSender::BeaconSender(std::shared_ptr<api::ILogger> logger,
+BeaconSender::BeaconSender(std::shared_ptr<openkit::ILogger> logger,
 						   std::shared_ptr<configuration::Configuration> configuration,
 						   std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
 						   std::shared_ptr<providers::ITimingProvider> timingProvider)

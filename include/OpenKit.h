@@ -12,17 +12,16 @@
 * limitations under the License.
 */
 
-#ifndef _API_OPENKIT_H
-#define _API_OPENKIT_H
+#ifndef _OPENKIT_H
+#define _OPENKIT_H
 
-#include "api/OpenKitConstants.h"
-#include "api/IOpenKit.h"
-#include "api/ISession.h"
-#include "api/IRootAction.h"
-#include "api/IAction.h"
-#include "api/IWebRequestTracer.h"
-#include "api/ILogger.h"
-#include "api/AppMonOpenKitBuilder.h"
-#include "api/DynatraceOpenKitBuilder.h"
+#include "OpenKit/OpenKitConstants.h"
+#include "OpenKit/ILogger.h"
+#include "OpenKit/IWebRequestTracer.h"
+#include "OpenKit/IAction.h"
+#include "OpenKit/IRootAction.h"
+#include "OpenKit/ISession.h"
+#include "OpenKit/AppMonOpenKitBuilder.h"
+#include "OpenKit/DynatraceOpenKitBuilder.h"
 
 #endif

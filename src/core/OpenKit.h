@@ -18,8 +18,8 @@
 #ifndef _CORE_OPENKIT_H
 #define _CORE_OPENKIT_H
 
-#include "api/IOpenKit.h"
-#include "api/ILogger.h"
+#include "OpenKit/IOpenKit.h"
+#include "OpenKit/ILogger.h"
 #include "configuration/Configuration.h"
 #include "providers/IHTTPClientProvider.h"
 #include "providers/ITimingProvider.h"
@@ -30,7 +30,7 @@
 #include "core/NullSession.h"
 
 namespace core {
-	class OpenKit : public api::IOpenKit
+	class OpenKit : public openkit::IOpenKit
 	{
 	public:
 
@@ -39,7 +39,7 @@ namespace core {
 		/// @param[in] logger logging context
 		/// @param[in] configuration Configuration object used to build the OpenKit
 		///
-		OpenKit(std::shared_ptr<api::ILogger> logger, std::shared_ptr<configuration::Configuration> configuration);
+		OpenKit(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<configuration::Configuration> configuration);
 
 		///
 		/// Constructor not using defaults at all
@@ -49,7 +49,7 @@ namespace core {
 		/// @param[in] timingProvider timing provider
 		/// @param[in] threadIDProvider provider for thread ids
 		///
-		OpenKit(std::shared_ptr<api::ILogger> logger, std::shared_ptr<configuration::Configuration> configuration,
+		OpenKit(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<configuration::Configuration> configuration,
 				std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
 				std::shared_ptr<providers::ITimingProvider> timingProvider,
 				std::shared_ptr<providers::IThreadIDProvider> threadIDProvider);
@@ -69,7 +69,7 @@ namespace core {
 
 		virtual bool isInitialized() const override;
 
-		virtual std::shared_ptr<api::ISession> createSession(const char* clientIPAddress) override;
+		virtual std::shared_ptr<openkit::ISession> createSession(const char* clientIPAddress) override;
 
 		virtual void shutdown() override;
 
@@ -79,7 +79,7 @@ namespace core {
 		std::shared_ptr<configuration::Configuration> mConfiguration;
 
 		/// logging context
-		std::shared_ptr<api::ILogger> mLogger;
+		std::shared_ptr<openkit::ILogger> mLogger;
 
 		/// thread id provider
 		std::shared_ptr<providers::IThreadIDProvider> mThreadIDProvider;

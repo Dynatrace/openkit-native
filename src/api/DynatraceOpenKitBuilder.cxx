@@ -14,10 +14,10 @@
 * limitations under the License.
 */
 
-#include "api/DynatraceOpenKitBuilder.h"
+#include "OpenKit/DynatraceOpenKitBuilder.h"
 #include "providers/DefaultSessionIDProvider.h"
 
-using namespace api;
+using namespace openkit;
 
 DynatraceOpenKitBuilder::DynatraceOpenKitBuilder(const char* endpointURL, const char* applicationID, uint64_t deviceID)
 	: AbstractOpenKitBuilder(endpointURL, deviceID)

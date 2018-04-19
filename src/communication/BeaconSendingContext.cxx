@@ -27,7 +27,7 @@ using namespace communication;
 
 const std::chrono::milliseconds BeaconSendingContext::DEFAULT_SLEEP_TIME_MILLISECONDS(std::chrono::seconds(1));
 
-BeaconSendingContext::BeaconSendingContext(std::shared_ptr<api::ILogger> logger,
+BeaconSendingContext::BeaconSendingContext(std::shared_ptr<openkit::ILogger> logger,
 										   std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
 										   std::shared_ptr<providers::ITimingProvider> timingProvider,
 										   std::shared_ptr<configuration::Configuration> configuration,
@@ -51,7 +51,7 @@ BeaconSendingContext::BeaconSendingContext(std::shared_ptr<api::ILogger> logger,
 {
 }
 
-BeaconSendingContext::BeaconSendingContext(std::shared_ptr<api::ILogger> logger,
+BeaconSendingContext::BeaconSendingContext(std::shared_ptr<openkit::ILogger> logger,
 										   std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
 										   std::shared_ptr<providers::ITimingProvider> timingProvider,
 										   std::shared_ptr<configuration::Configuration> configuration)

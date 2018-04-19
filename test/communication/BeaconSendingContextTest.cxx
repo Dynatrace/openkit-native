@@ -48,7 +48,7 @@ public:
 
 	void SetUp()
 	{
-		mLogger = std::shared_ptr<api::ILogger>(new core::util::DefaultLogger(devNull, true));
+		mLogger = std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(devNull, true));
 
 
 		beaconCacheConfiguration = std::make_shared<configuration::BeaconCacheConfiguration>(-1, -1, -1);
@@ -72,7 +72,7 @@ public:
 	}
 
 	std::ostringstream devNull;
-	std::shared_ptr<api::ILogger> mLogger;
+	std::shared_ptr<openkit::ILogger> mLogger;
 	std::shared_ptr<configuration::BeaconCacheConfiguration> beaconCacheConfiguration;
 	std::shared_ptr<configuration::Configuration> mConfiguration;
 	std::shared_ptr<testing::NiceMock<test::MockHTTPClientProvider>> mMockHttpClientProvider;

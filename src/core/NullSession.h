@@ -17,7 +17,7 @@
 #ifndef _CORE_NULLSESSION_H
 #define _CORE_NULLSESSION_H
 
-#include "api/ISession.h"
+#include "OpenKit/ISession.h"
 #include "core/NullRootAction.h"
 #include <memory>
 
@@ -28,7 +28,7 @@ namespace core
 	/// This class is returned as Session by @ref OpenKit#createSession(String) when the @ref OpenKit#shutdown()
 	/// has been called before.
 	///
-	class NullSession : public api::ISession
+	class NullSession : public openkit::ISession
 	{
 	public:
 
@@ -40,7 +40,7 @@ namespace core
 
 		}
 
-		virtual std::shared_ptr<api::IRootAction> enterAction(const char* /*actionName*/) override
+		virtual std::shared_ptr<openkit::IRootAction> enterAction(const char* /*actionName*/) override
 		{
 			return std::make_shared<NullRootAction>();
 		}

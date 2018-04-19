@@ -17,7 +17,7 @@
 #ifndef _COMMUNICATION_BEACONSENDINGCONTEXT_H
 #define _COMMUNICATION_BEACONSENDINGCONTEXT_H
 
-#include "api/ILogger.h"
+#include "OpenKit/ILogger.h"
 #include "core/util/CountDownLatch.h"
 #include "core/util/SynchronizedQueue.h"
 #include "providers/IHTTPClientProvider.h"
@@ -46,7 +46,7 @@ namespace communication
 		/// @param[in] timingProvider utility class for timing related stuff
 		/// @param[in] configuration general configuration options
 		///
-		BeaconSendingContext(std::shared_ptr<api::ILogger> logger,
+		BeaconSendingContext(std::shared_ptr<openkit::ILogger> logger,
 			std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
 			std::shared_ptr<providers::ITimingProvider> timingProvider,
 			std::shared_ptr<configuration::Configuration> configuration);
@@ -59,7 +59,7 @@ namespace communication
 		/// @param[in] configuration general configuration options
 		/// @param[in] initialState the initial state
 		///
-		BeaconSendingContext(std::shared_ptr<api::ILogger> logger, 
+		BeaconSendingContext(std::shared_ptr<openkit::ILogger> logger, 
 			std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
 			std::shared_ptr<providers::ITimingProvider> timingProvider,
 			std::shared_ptr<configuration::Configuration> configuration,
@@ -319,7 +319,7 @@ namespace communication
 
 	private:
 		/// Logger to write traces to
-		std::shared_ptr<api::ILogger> mLogger;
+		std::shared_ptr<openkit::ILogger> mLogger;
 
 		/// instance of AbstractBeaconSendingState with the current state
 		std::shared_ptr<AbstractBeaconSendingState> mCurrentState;

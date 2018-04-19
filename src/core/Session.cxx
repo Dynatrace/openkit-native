@@ -22,7 +22,7 @@
 
 using namespace core;
 
-Session::Session(std::shared_ptr<api::ILogger> logger, std::shared_ptr<BeaconSender> beaconSender, std::shared_ptr<protocol::Beacon> beacon)
+Session::Session(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<BeaconSender> beaconSender, std::shared_ptr<protocol::Beacon> beacon)
 	: mLogger(logger)
 	, mBeaconSender(beaconSender)
 	, mBeacon(beacon)
@@ -38,7 +38,7 @@ void Session::startSession()
 	mBeaconSender->startSession(shared_from_this());
 }
 
-std::shared_ptr<api::IRootAction> Session::enterAction(const char* actionName)
+std::shared_ptr<openkit::IRootAction> Session::enterAction(const char* actionName)
 {
 	UTF8String actionNameString(actionName);
 	if (actionNameString.empty())
@@ -51,7 +51,7 @@ std::shared_ptr<api::IRootAction> Session::enterAction(const char* actionName)
 	{
 		return NULL_ROOT_ACTION;
 	}
-	std::shared_ptr<api::IRootAction> pointer = std::make_shared<RootAction>(mLogger, mBeacon, actionNameString, shared_from_this());
+	std::shared_ptr<openkit::IRootAction> pointer = std::make_shared<RootAction>(mLogger, mBeacon, actionNameString, shared_from_this());
 	mOpenRootActions.put(pointer);
 	return pointer;
 }

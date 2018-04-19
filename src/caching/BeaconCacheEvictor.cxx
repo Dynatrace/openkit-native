@@ -24,7 +24,7 @@ using namespace caching;
 
 constexpr std::chrono::milliseconds EVICTION_THREAD_JOIN_TIMEOUT = std::chrono::seconds(2);
 
-BeaconCacheEvictor::BeaconCacheEvictor(std::shared_ptr<api::ILogger> logger, std::shared_ptr<IBeaconCache> beaconCache, std::shared_ptr<configuration::BeaconCacheConfiguration> configuration, std::shared_ptr<providers::ITimingProvider> timingProvider)
+BeaconCacheEvictor::BeaconCacheEvictor(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<IBeaconCache> beaconCache, std::shared_ptr<configuration::BeaconCacheConfiguration> configuration, std::shared_ptr<providers::ITimingProvider> timingProvider)
 	: BeaconCacheEvictor(logger, beaconCache, {
 		std::make_shared<TimeEvictionStrategy>(logger, beaconCache, configuration, timingProvider, std::bind(&BeaconCacheEvictor::isAlive, this)),
 		std::make_shared<SpaceEvictionStrategy>(logger, beaconCache, configuration, std::bind(&BeaconCacheEvictor::isAlive, this))
@@ -33,7 +33,7 @@ BeaconCacheEvictor::BeaconCacheEvictor(std::shared_ptr<api::ILogger> logger, std
 
 }
 
-BeaconCacheEvictor::BeaconCacheEvictor(std::shared_ptr<api::ILogger> logger, std::shared_ptr<IBeaconCache> beaconCache, std::vector<std::shared_ptr<IBeaconCacheEvictionStrategy>> strategies)
+BeaconCacheEvictor::BeaconCacheEvictor(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<IBeaconCache> beaconCache, std::vector<std::shared_ptr<IBeaconCacheEvictionStrategy>> strategies)
 	: mLogger(logger)
 	, mBeaconCache(beaconCache)
 	, mStrategies(strategies)
