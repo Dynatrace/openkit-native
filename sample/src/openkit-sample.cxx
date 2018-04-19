@@ -22,13 +22,8 @@
 #include <iostream>
 #include <thread>
 
-#include "api/DynatraceOpenKitBuilder.h"
+#include "api/OpenKit.h"
 #include "CommandLineArguments.h"
-#include "api/ISession.h"
-#include "api/IRootAction.h"
-#include "api/IAction.h"
-#include "api/IWebRequestTracer.h"
-
 
 constexpr char APPLICATION_VERSION[] = "1.2.3";
 
