@@ -106,7 +106,44 @@ extern "C" {
 	/// @param[in] openKitHandle the handle returned by @ref createDynatraceOpenKit or @ref createAppMonOpenKit
 	///
 	OPENKIT_EXPORT void shutdownOpenKit(struct OpenKitHandle* openKitHandle);
-	
+
+	///
+	/// Waits until OpenKit is fully initialized.
+	///
+	/// The calling thread is blocked until OpenKit is fully initialized or until OpenKit is shut down using the
+	/// shutdown() method.
+	/// 
+	/// Be aware, if @ref AbstractOpenKitBuilder is wrongly configured, for example when creating an
+	/// instance with an incorrect endpoint URL, then this method might hang indefinitely, unless shutdown() is called.
+	///
+	/// @param[in] openKitHandle the handle returned by @ref createDynatraceOpenKit or @ref createAppMonOpenKit
+	/// @returns @c true when OpenKit is fully initialized, @c false when a shutdown request was made.
+	///
+	OPENKIT_EXPORT bool waitForInitCompletion(struct OpenKitHandle* openKitHandle);
+
+	///
+	/// Waits until OpenKit is fully initialized or the given timeout expired
+	///
+	/// The calling thread is blocked until OpenKit is fully initialized or until OpenKit is shut down using the
+	/// shutdown() method or the timeout expired.
+	/// 
+	/// Be aware, if @ref AbstractOpenKitBuilder is wrongly configured, for example when creating an
+	/// instance with an incorrect endpoint URL, then this method might hang indefinitely, unless shutdown() is called
+	/// or timeout expires.
+	///
+	/// @param[in] openKitHandle the handle returned by @ref createDynatraceOpenKit or @ref createAppMonOpenKit
+	/// @param[in] timeoutMillis The maximum number of milliseconds to wait for initialization being completed.
+	/// @returns @c true when OpenKit is fully initialized, @c false when a shutdown request was made or @c timeoutMillis expired.
+	///
+	OPENKIT_EXPORT bool waitForInitCompletionWithTimeout(struct OpenKitHandle* openKitHandle, int64_t timeoutMillis);
+
+	///
+	/// Returns whether OpenKit is initialized or not.
+	/// @param[in] openKitHandle the handle returned by @ref createDynatraceOpenKit or @ref createAppMonOpenKit
+	/// @returns @c true if OpenKit is fully initialized, @c false if OpenKit still performs initialization.
+	///
+	OPENKIT_EXPORT bool isInitialized(struct OpenKitHandle* openKitHandle);
+
 
 	//--------------
 	//  Session

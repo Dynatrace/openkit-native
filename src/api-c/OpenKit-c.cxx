@@ -175,6 +175,50 @@ extern "C" {
 		CATCH_AND_LOG(openKitHandle)
 	}
 
+	bool waitForInitCompletion(struct OpenKitHandle* openKitHandle)
+	{
+		TRY
+		{
+			if (openKitHandle)
+			{
+				// retrieve the OpenKit instance from the handle and call the respective method
+				assert(openKitHandle->sharedPointer != nullptr);
+				return openKitHandle->sharedPointer->waitForInitCompletion();
+			}
+		}
+		CATCH_AND_LOG(openKitHandle)
+		return false;
+	}
+
+	bool waitForInitCompletionWithTimeout(struct OpenKitHandle* openKitHandle, int64_t timeoutMillis)
+	{
+		TRY
+		{
+			if (openKitHandle)
+			{
+				// retrieve the OpenKit instance from the handle and call the respective method
+				assert(openKitHandle->sharedPointer != nullptr);
+				openKitHandle->sharedPointer->waitForInitCompletion(timeoutMillis);
+			}
+		}
+		CATCH_AND_LOG(openKitHandle)
+		return false;
+	}
+
+	bool isInitialized(struct OpenKitHandle* openKitHandle)
+	{
+		TRY
+		{
+			if (openKitHandle)
+			{
+				// retrieve the OpenKit instance from the handle and call the respective method
+				assert(openKitHandle->sharedPointer != nullptr);
+				return openKitHandle->sharedPointer->isInitialized();
+			}
+		}
+		CATCH_AND_LOG(openKitHandle)
+		return false;
+	}
 
 	//--------------
 	//  Session

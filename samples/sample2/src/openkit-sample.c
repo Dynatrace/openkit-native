@@ -98,8 +98,7 @@ void logFunction(LOG_LEVEL level, const char* traceStatement)
 	localtime_r(&in_time_t, &tmNow);
 #endif
 	strftime(buffer, MAX_TIME_LEN, "%Y-%m-%d %H:%M:%S", &tmNow);
-	puts(buffer);
-	printf("%s [%s] %s", buffer, toString(level), traceStatement);
+	printf("%s [%s] %s\n", buffer, toString(level), traceStatement);
 }
 
 ///
@@ -122,41 +121,46 @@ int32_t main(int32_t argc, char** argv)
 
 	struct LoggerHandle* loggerHandle = createLogger(&levelEnabledFunction, &logFunction);
 	struct OpenKitHandle* openKitHandle = createDynatraceOpenKit(beaconURL, applicationID, serverID, loggerHandle);
-	struct SessionHandle* sessionHandle = createSession(openKitHandle, "1.2.3.4");
-	identifyUser(sessionHandle, "test user");
-	struct RootActionHandle* rootActionHandle = enterRootAction(sessionHandle, "My root action");
-	
-	reportEventOnRootAction(rootActionHandle, "An event occurred");
-	reportIntValueOnRootAction(rootActionHandle, "IntValue", 1234);
-	reportDoubleValueOnRootAction(rootActionHandle, "DblValue", 3.1415);
-	reportStringValueOnRootAction(rootActionHandle, "StringValue", "some string");
-	reportErrorOnRootAction(rootActionHandle, "Some error name", 0x80050023, "Some more detailed error reason");
+	waitForInitCompletionWithTimeout(openKitHandle, 20000);
 
-	struct ActionHandle* actionHandle = enterAction(rootActionHandle, "My sub action");
-	reportEventOnAction(actionHandle, "An event occurred on the subaction");
-	reportIntValueOnAction(actionHandle, "IntValue", 4567);
-	reportDoubleValueOnAction(actionHandle, "DblValue", 47.11);
-	reportStringValueOnAction(actionHandle, "StringValue", "some string");
-	reportErrorOnAction(actionHandle, "Some error name", 0x80070001, "Some more detailed error reason");
-	leaveAction(actionHandle);
+	if (isInitialized(openKitHandle))
+	{
+		struct SessionHandle* sessionHandle = createSession(openKitHandle, "1.2.3.4");
+		identifyUser(sessionHandle, "test user");
+		struct RootActionHandle* rootActionHandle = enterRootAction(sessionHandle, "My root action");
 
-	struct WebRequestTracerHandle* webRequest = traceWebRequestOnAction(actionHandle, "http://www.stackoverflow.com/");
-	startWebRequest(webRequest);
+		reportEventOnRootAction(rootActionHandle, "An event occurred");
+		reportIntValueOnRootAction(rootActionHandle, "IntValue", 1234);
+		reportDoubleValueOnRootAction(rootActionHandle, "DblValue", 3.1415);
+		reportStringValueOnRootAction(rootActionHandle, "StringValue", "some string");
+		reportErrorOnRootAction(rootActionHandle, "Some error name", 0x80050023, "Some more detailed error reason");
+
+		struct ActionHandle* actionHandle = enterAction(rootActionHandle, "My sub action");
+		reportEventOnAction(actionHandle, "An event occurred on the subaction");
+		reportIntValueOnAction(actionHandle, "IntValue", 4567);
+		reportDoubleValueOnAction(actionHandle, "DblValue", 47.11);
+		reportStringValueOnAction(actionHandle, "StringValue", "some string");
+		reportErrorOnAction(actionHandle, "Some error name", 0x80070001, "Some more detailed error reason");
+
+		struct WebRequestTracerHandle* webRequest = traceWebRequestOnAction(actionHandle, "http://www.stackoverflow.com/");
+		startWebRequest(webRequest);
 #ifdef _WIN32
-	Sleep(144);// 144 ms
+		Sleep(144);// 144 ms
 #else
-	usleep(144 * 1000);
+		usleep(144 * 1000);
 #endif
-	setResponseCode(webRequest, 200);
-	setBytesSent(webRequest, 123);
-	setBytesReceived(webRequest, 45);
-	stopWebRequest(webRequest);
+		setResponseCode(webRequest, 200);
+		setBytesSent(webRequest, 123);
+		setBytesReceived(webRequest, 45);
+		stopWebRequest(webRequest);
 
-	leaveRootAction(rootActionHandle);
+		leaveAction(actionHandle);
+		leaveRootAction(rootActionHandle);
 
-	reportCrash(sessionHandle, "Session crashes", "For no reason", "Stacktrace is missing");
+		reportCrash(sessionHandle, "Session crashes", "For no reason", "Stacktrace is missing");
 
-	endSession(sessionHandle);
+		endSession(sessionHandle);
+	}
 	shutdownOpenKit(openKitHandle);
 
 	return 0;
