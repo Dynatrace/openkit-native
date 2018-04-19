@@ -20,6 +20,7 @@
 #include "api/ISession.h"
 #include "api/IRootAction.h"
 #include "api/IAction.h"
+#include "api/IWebRequestTracer.h"
 #include "api/AppMonOpenKitBuilder.h"
 #include "api/DynatraceOpenKitBuilder.h"
 

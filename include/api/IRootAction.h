@@ -17,18 +17,20 @@
 #ifndef _API_IROOTACTION_H
 #define _API_IROOTACTION_H
 
-#include "api/IWebRequestTracer.h"
+#include "OpenKit_export.h"
 
 #include <stdint.h>
 #include <memory>
 
 namespace api
 {
+	class IWebRequestTracer;
 	class IAction;
+
 	///
 	/// This interface provides the same functionality as IAction, additionally it allows to create child actions
 	///
-	class IRootAction
+	class OPENKIT_EXPORT IRootAction
 	{
 	public:
 
@@ -104,13 +106,6 @@ namespace api
 		/// Leaves this Action.
 		///
 		virtual void leaveAction() = 0;
-
-		///
-		/// Returns true if this instance of IRootAction is an object using 
-		/// the NullObject pattern
-		/// @returns @c true if the current IRootAction is a NullObject, @c false in all other cases
-		///
-		virtual bool isNullObject() = 0;
 	};
 }
 #endif

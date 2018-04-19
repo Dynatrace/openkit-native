@@ -58,9 +58,10 @@ public:
 
 		std::shared_ptr<configuration::Device> device = std::shared_ptr<configuration::Device>(new configuration::Device(core::UTF8String(""), core::UTF8String(""), core::UTF8String("")));
 
+		beaconCacheConfiguration = std::make_shared<configuration::BeaconCacheConfiguration>(-1, -1, -1);
 		configuration = std::shared_ptr<configuration::Configuration>(new configuration::Configuration(device, configuration::OpenKitType::DYNATRACE,
 			core::UTF8String(APP_NAME), "", APP_ID, 0, "",
-			sessionIDProvider, trustManager));
+			sessionIDProvider, trustManager, beaconCacheConfiguration));
 		configuration->enableCapture();
 
 		beaconCache = std::make_shared<caching::BeaconCache>();
@@ -86,6 +87,7 @@ public:
 	std::shared_ptr<testing::NiceMock<test::MockHTTPClient>> mockHTTPClient;
 	std::shared_ptr<protocol::ISSLTrustManager> trustManager;
 
+	std::shared_ptr<configuration::BeaconCacheConfiguration> beaconCacheConfiguration;
 	std::shared_ptr<configuration::Configuration> configuration;
 	std::shared_ptr<caching::BeaconCache> beaconCache;
 
@@ -105,7 +107,9 @@ TEST_F(RootActionTest, enterActionWithNullNameGivesNullAction)
 	//when
 	auto childAction = testRootAction->enterAction(nullptr);
 
-	ASSERT_TRUE(childAction->isNullObject());
+	ASSERT_TRUE(childAction != nullptr);
+	std::shared_ptr<core::NullAction> typeCast = std::dynamic_pointer_cast<core::NullAction>(childAction);
+	ASSERT_TRUE(typeCast != nullptr);
 }
 
 TEST_F(RootActionTest, enterActionWithEmptyNameGivesNullAction)
@@ -117,7 +121,9 @@ TEST_F(RootActionTest, enterActionWithEmptyNameGivesNullAction)
 	//when
 	auto childAction = testRootAction->enterAction("");
 
-	ASSERT_TRUE(childAction->isNullObject());
+	ASSERT_TRUE(childAction != nullptr);
+	std::shared_ptr<core::NullAction> typeCast = std::dynamic_pointer_cast<core::NullAction>(childAction);
+	ASSERT_TRUE(typeCast != nullptr);
 }
 
 TEST_F(RootActionTest, enterAndLeaveActions)
@@ -181,7 +187,8 @@ TEST_F(RootActionTest, enterActionGivesNullActionIfAlreadyLeft)
 	auto obtained = testRootAction->enterAction("open another action");
 
 	ASSERT_TRUE(obtained != nullptr);
-	ASSERT_TRUE(obtained->isNullObject());
+	std::shared_ptr<core::NullAction> typeCast = std::dynamic_pointer_cast<core::NullAction>(obtained);
+	ASSERT_TRUE(typeCast != nullptr);
 }
 
 TEST_F(RootActionTest, reportEvent)
@@ -471,8 +478,9 @@ TEST_F(RootActionTest, tracingANullStringWebRequestIsNotAllowed)
 	auto webRequestTracer = testAction->traceWebRequest(nullptr);
 
 	// verify the returned request
-	EXPECT_TRUE(webRequestTracer != nullptr);
-	EXPECT_TRUE(webRequestTracer->isNullObject());
+	ASSERT_TRUE(webRequestTracer != nullptr);
+	std::shared_ptr<core::NullWebRequestTracer> typeCast = std::dynamic_pointer_cast<core::NullWebRequestTracer>(webRequestTracer);
+	ASSERT_TRUE(typeCast != nullptr);
 }
 
 TEST_F(RootActionTest, tracingAnEmptyStringWebRequestIsNotAllowed)
@@ -485,8 +493,9 @@ TEST_F(RootActionTest, tracingAnEmptyStringWebRequestIsNotAllowed)
 	auto webRequestTracer = testAction->traceWebRequest("");
 
 	// verify the returned request
-	EXPECT_TRUE(webRequestTracer != nullptr);
-	EXPECT_TRUE(webRequestTracer->isNullObject());
+	ASSERT_TRUE(webRequestTracer != nullptr);
+	std::shared_ptr<core::NullWebRequestTracer> typeCast = std::dynamic_pointer_cast<core::NullWebRequestTracer>(webRequestTracer);
+	ASSERT_TRUE(typeCast != nullptr);
 }
 
 

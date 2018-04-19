@@ -54,6 +54,16 @@ bool BeaconSender::waitForInit() const
 	return mBeaconSendingContext->waitForInit();
 }
 
+bool BeaconSender::waitForInit(int64_t timeoutMillis) const
+{
+	return mBeaconSendingContext->waitForInit(timeoutMillis);
+}
+
+bool BeaconSender::isInitialized() const
+{
+	return mBeaconSendingContext->isInitialized();
+}
+
 void BeaconSender::shutdown()
 {
 	mBeaconSendingContext->requestShutdown();

@@ -22,14 +22,12 @@ set(SOURCES_CACHING
 set(SOURCES_CORE
 	core/util/Compressor.cxx
 	core/util/CountDownLatch.cxx
-	core/util/CommandLineArguments.cxx
 	core/util/URLEncoding.cxx
 	core/util/CyclicBarrier.cxx
 	core/util/InetAddressValidator.cxx
 	core/util/DefaultLogger.cxx
 	core/UTF8String.cxx
 	core/BeaconSender.cxx
-	core/OpenKit.cxx
 	core/Session.cxx
 	core/Action.cxx
 	core/RootAction.cxx

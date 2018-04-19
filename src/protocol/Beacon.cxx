@@ -22,7 +22,7 @@
 
 using namespace protocol;
 
-Beacon::Beacon(std::shared_ptr<api::ILogger> logger, std::shared_ptr<caching::BeaconCache> beaconCache, std::shared_ptr<configuration::Configuration> configuration, const core::UTF8String clientIPAddress, std::shared_ptr<providers::IThreadIDProvider> threadIDProvider, std::shared_ptr<providers::ITimingProvider> timingProvider)
+Beacon::Beacon(std::shared_ptr<api::ILogger> logger, std::shared_ptr<caching::IBeaconCache> beaconCache, std::shared_ptr<configuration::Configuration> configuration, const core::UTF8String clientIPAddress, std::shared_ptr<providers::IThreadIDProvider> threadIDProvider, std::shared_ptr<providers::ITimingProvider> timingProvider)
 	: mLogger(logger)
 	, mConfiguration(configuration)
 	, mClientIPAddress(core::UTF8String(""))
@@ -433,10 +433,11 @@ std::unique_ptr<protocol::StatusResponse> Beacon::send(std::shared_ptr<providers
 	{
 		// prefix for this chunk - must be built up newly, due to changing timestamps
 		core::UTF8String prefix = mBasicBeaconData;
-		prefix.concatenate(core::UTF8String(&BEACON_DATA_DELIMITER));
+		core::UTF8String delimiter = core::UTF8String(BEACON_DATA_DELIMITER);
+		prefix.concatenate(delimiter);
 		prefix.concatenate(createTimestampData());
 
-		core::UTF8String chunk = mBeaconCache->getNextBeaconChunk(mSessionNumber, prefix, mConfiguration->getMaxBeaconSize() - 1024, core::UTF8String(&BEACON_DATA_DELIMITER));
+		core::UTF8String chunk = mBeaconCache->getNextBeaconChunk(mSessionNumber, prefix, mConfiguration->getMaxBeaconSize() - 1024, delimiter);
 		if (chunk == nullptr || chunk.empty())
 		{
 			return response;

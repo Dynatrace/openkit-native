@@ -17,17 +17,20 @@
 #ifndef _API_IACTION_H
 #define _API_IACTION_H
 
-#include "api/IRootAction.h"
-#include "api/IWebRequestTracer.h"
+#include "OpenKit_export.h"
+
 #include <stdint.h>
 #include <memory>
 
 namespace api
 {
+	class IRootAction;
+	class IWebRequestTracer;
+
 	///
 	/// This interface provides functionality to report events/values/errors and traces web requests.
 	///
-	class IAction
+	class OPENKIT_EXPORT IAction
 	{
 	public:
 		///
@@ -99,13 +102,6 @@ namespace api
 		/// @returns the parent Action, or @c nullptr if there is no parent Action
 		///
 		virtual std::shared_ptr<IRootAction> leaveAction() = 0;
-
-		///
-		/// Returns true if this instance of IAction is an object using 
-		/// the NullObject pattern
-		/// @returns @c true if the current IAction is a NullObject, @c false in all other cases
-		///
-		virtual bool isNullObject() const = 0;
 	};
 }
 

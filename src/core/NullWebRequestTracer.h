@@ -59,12 +59,6 @@ namespace core
 		{
 			// intentionally left empty, due to NullObject pattern
 		}
-
-		virtual bool isNullObject() const override
-		{
-			return true;
-		}
-
 	private:
 		const char* emptyString = "";
 	};

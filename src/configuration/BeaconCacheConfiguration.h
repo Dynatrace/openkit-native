@@ -18,6 +18,7 @@
 #define _CONFIGURATION_BEACONCACHECONFIGURATION_H
 
 #include <cstdint>
+#include <chrono>
 
 namespace configuration
 {
@@ -60,6 +61,17 @@ namespace configuration
 
 		/// upper memory limit for the cache
 		int64_t mCacheSizeUpperBound;
+
+	public:
+	
+		//default value for maximum record age
+		static const std::chrono::milliseconds DEFAULT_MAX_RECORD_AGE_IN_MILLIS;
+
+		//default value for upper memory boundary
+		static const int64_t DEFAULT_UPPER_MEMORY_BOUNDARY_IN_BYTES;
+
+		//default value for lower memory boundary
+		static const int64_t DEFAULT_LOWER_MEMORY_BOUNDARY_IN_BYTES;
 	};
 }
 

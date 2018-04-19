@@ -50,6 +50,13 @@ namespace core
 			///
 			void await();
 
+			///
+			/// Wait until the CountDownLatch is down to 0 or timeout expired
+			/// NOTE: This is a blocking operation
+			/// @param[in] milliseconds The maximum number of milliseconds to wait for initialization being completed.
+			///
+			void await(int64_t milliseconds);
+
 		private:
 			/// the count
 			uint32_t mCount;

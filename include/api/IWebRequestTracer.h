@@ -17,6 +17,8 @@
 #ifndef _API_WEBREQUESTTRACER_H
 #define _API_WEBREQUESTTRACER_H
 
+#include "OpenKit_export.h"
+
 #include <stdint.h>
 #include <memory>
 
@@ -25,7 +27,7 @@ namespace api
 	///
 	/// This interface allows tracing and timing of a web request.
 	///
-	class IWebRequestTracer
+	class OPENKIT_EXPORT IWebRequestTracer
 	{
 	public:
 
@@ -73,13 +75,6 @@ namespace api
 		/// Stops the web request timing. Should be called when the web request is finished.
 		///
 		virtual void stop() = 0;
-
-		///
-		/// Returns true if this instance of IWebRequestTracer is an object using 
-		/// the NullObject pattern
-		/// @returns @c true if the current IWebRequestTracer is a NullObject, @c false in all other cases
-		///
-		virtual bool isNullObject() const = 0;
 	};
 }
 #endif

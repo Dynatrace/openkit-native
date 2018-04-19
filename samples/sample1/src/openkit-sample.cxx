@@ -14,35 +14,27 @@
 * limitations under the License.
 */
 
+/// this basic sample creates a Session, a RootAction and an Action
+/// to report some values and a web request
+/// it shows the intended usage of the OpenKit API
+
 #include <stdint.h>
 #include <iostream>
+#include <thread>
 
-#include "core/BeaconSender.h"
-#include "core/util/CommandLineArguments.h"
-#include "core/util/DefaultLogger.h"
-#include "providers/DefaultHTTPClientProvider.h"
-#include "providers/DefaultSessionIDProvider.h"
-#include "providers/DefaultTimingProvider.h"
-#include "providers/DefaultThreadIDProvider.h"
-#include "configuration/HTTPClientConfiguration.h"
-#include "configuration/OpenKitType.h"
-#include "configuration/Device.h"
-#include "protocol/ssl/SSLStrictTrustManager.h"
-#include "protocol/Beacon.h"
-#include "core/Session.h"
-#include "core/RootAction.h"
-#include "caching/BeaconCache.h"
+#include "api/DynatraceOpenKitBuilder.h"
+#include "CommandLineArguments.h"
+#include "api/ISession.h"
+#include "api/IRootAction.h"
+#include "api/IAction.h"
+#include "api/IWebRequestTracer.h"
 
-using namespace core;
-using namespace communication;
-using namespace providers;
-using namespace configuration;
 
 constexpr char APPLICATION_VERSION[] = "1.2.3";
 
-void parseCommandLine(uint32_t argc, char** argv, UTF8String& beaconURL, uint32_t& serverID, UTF8String& applicationID)
+void parseCommandLine(uint32_t argc, char** argv, std::string& beaconURL, uint32_t& serverID, std::string& applicationID)
 {
-	core::util::CommandLineArguments commandLine;
+	sample::CommandLineArguments commandLine;
 	commandLine.parse(argc, argv);
 
 	if (commandLine.isValidConfiguration())
@@ -63,59 +55,52 @@ void parseCommandLine(uint32_t argc, char** argv, UTF8String& beaconURL, uint32_
 
 int32_t main(int32_t argc, char** argv)
 {
-	UTF8String beaconURL;
+	std::string beaconURL;
 	uint32_t serverID = 0;
-	UTF8String applicationID;
+	std::string applicationID;
 
 	parseCommandLine(argc, argv, beaconURL, serverID, applicationID);
 
-	auto logger = std::shared_ptr<api::ILogger>(new core::util::DefaultLogger(true));
-	std::shared_ptr<protocol::ISSLTrustManager> trustManager = std::make_shared<protocol::SSLStrictTrustManager>();
+	api::DynatraceOpenKitBuilder builder(beaconURL.c_str(), applicationID.c_str(), serverID);
+	builder.withApplicationName("openkit-sample-c++")
+		.withApplicationVersion(APPLICATION_VERSION)
+		.withManufacturer("Dynatrace")
+		.withOperatingSystem("ACME OS")
+		.withModelID("Model E")
+		.enableVerbose();
 
-	std::shared_ptr<IHTTPClientProvider> httpClientProvider = std::shared_ptr<IHTTPClientProvider>(new DefaultHTTPClientProvider());
-	std::shared_ptr<ITimingProvider> timingProvider = std::shared_ptr<ITimingProvider>(new DefaultTimingProvider());
-	std::shared_ptr<ISessionIDProvider> sessionIDProvider = std::shared_ptr<ISessionIDProvider>(new DefaultSessionIDProvider());
-	std::shared_ptr<IThreadIDProvider> threadIDProvider = std::shared_ptr<IThreadIDProvider>(new DefaultThreadIDProvider());
+	auto openKit = builder.build();
+	openKit->waitForInitCompletion(20000);
 
-	std::shared_ptr<configuration::Device> device = std::shared_ptr<configuration::Device>(new configuration::Device(core::UTF8String("ACME OS"), core::UTF8String("Dynatrace"), core::UTF8String("Model E")));
+	if (openKit->isInitialized())
+	{
+		std::shared_ptr<api::ISession> sampleSession = openKit->createSession("172.16.23.30");
+		sampleSession->identifyUser("test user");
 
-	std::shared_ptr<Configuration> configuration = std::shared_ptr<Configuration>(new Configuration(device, configuration::OpenKitType::DYNATRACE,
-																									core::UTF8String("openkit-sample"), APPLICATION_VERSION, applicationID, serverID, beaconURL,
-																									sessionIDProvider, trustManager ));
+		auto rootAction1 = sampleSession->enterAction("root action");
+		auto childAction1 = rootAction1->enterAction("child action");
 
-	std::shared_ptr<caching::BeaconCache> beaconCache = std::make_shared<caching::BeaconCache>();
+		rootAction1->reportValue("the answer", 42);
 
-	std::shared_ptr<protocol::Beacon> beacon = std::make_shared<protocol::Beacon>(logger, beaconCache, configuration, UTF8String(""), threadIDProvider, timingProvider);
-	
-	std::shared_ptr<core::BeaconSender> sender = std::make_shared<core::BeaconSender>(logger, configuration, httpClientProvider, timingProvider);
-	sender->initialize();
+		childAction1->reportValue("some string", "1337.3.1415");
 
-	timingProvider->sleep(5000);
+		auto webRequest = childAction1->traceWebRequest("http://www.stackoverflow.com/");
+		webRequest->start();
 
-	std::shared_ptr<Session> sampleSession(new Session(logger, sender, beacon));
-	sampleSession->identifyUser("test user");
-	sampleSession->startSession();
+		std::this_thread::sleep_for(std::chrono::milliseconds(144));
 
-	auto rootAction1 = sampleSession->enterAction("root action");
-	auto childAction1 = rootAction1->enterAction("child action");
+		webRequest->setResponseCode(200);
+		webRequest->setBytesSent(123);
+		webRequest->setBytesReceived(45);
+		webRequest->stop();
 
-	rootAction1->reportValue("the answer", 42);
+		childAction1->leaveAction();
+		rootAction1->leaveAction();
 
-	childAction1->reportValue("some string", "1337.3.1415");
+		sampleSession->end();
+	}
 
-	auto webRequest = childAction1->traceWebRequest("http://www.stackoverflow.com/");
-	webRequest->start();
-	webRequest->setResponseCode(200);
-	webRequest->setBytesSent(123);
-	webRequest->setBytesReceived(45);
-	webRequest->stop();
-
-	childAction1->leaveAction();
-	rootAction1->leaveAction();
-
-	sampleSession->end();
-
-	sender->shutdown();
+	openKit->shutdown();
 
 	return 0;
 }

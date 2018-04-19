@@ -38,6 +38,20 @@ namespace api
 		virtual ~DynatraceOpenKitBuilder() {}
 
 		virtual std::shared_ptr<configuration::Configuration> buildConfiguration() override;
+
+		///
+		/// Sets the application name. The value is only set if it is not @c nullptr.
+		/// @param[in] applicationName name of the application
+		/// @returns @c this instance
+		///
+		DynatraceOpenKitBuilder& withApplicationName(const char* applicationName);
+
+	private:
+		/// application id
+		std::string mApplicationID;
+
+		/// application name
+		std::string mApplicationName;
 	};
 }
 

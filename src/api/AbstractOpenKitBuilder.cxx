@@ -17,14 +17,26 @@
 #include "api/AbstractOpenKitBuilder.h"
 #include "core/util/DefaultLogger.h"
 #include "core/OpenKit.h"
+#include "api/OpenKitConstants.h"
+#include "protocol/ssl/SSLStrictTrustManager.h"
 
 using namespace api;
 
 AbstractOpenKitBuilder::AbstractOpenKitBuilder(const char* endpointURL, uint64_t deviceID)
 	: mVerbose(false)
 	, mLogger(nullptr)
+	, mApplicationVersion(DEFAULT_APPLICATION_VERSION)
+	, mOperatingSystem(DEFAULT_OPERATING_SYSTEM)
+	, mManufacturer(DEFAULT_MANUFACTURER)
+	, mModelID(DEFAULT_MODEL_ID)
+	, mEndpointURL(endpointURL)
+	, mDeviceID(deviceID)
+	, mTrustManager(std::make_shared<protocol::SSLStrictTrustManager>())
+	, mBeaconCacheMaxRecordAge(configuration::BeaconCacheConfiguration::DEFAULT_MAX_RECORD_AGE_IN_MILLIS.count())
+	, mBeaconCacheLowerMemoryBoundary(configuration::BeaconCacheConfiguration::DEFAULT_LOWER_MEMORY_BOUNDARY_IN_BYTES)
+	, mBeaconCacheUpperMemoryBoundary(configuration::BeaconCacheConfiguration::DEFAULT_UPPER_MEMORY_BOUNDARY_IN_BYTES)
 {
-	throw std::runtime_error("function not implemented yet");
+
 }
 
 AbstractOpenKitBuilder& AbstractOpenKitBuilder::enableVerbose()
@@ -39,9 +51,72 @@ AbstractOpenKitBuilder& AbstractOpenKitBuilder::withLogger(std::shared_ptr<ILogg
 	return *this;
 }
 
+AbstractOpenKitBuilder& AbstractOpenKitBuilder::withApplicationVersion(const char* applicationVersion)
+{
+	if (applicationVersion != nullptr && strlen(applicationVersion) > 0)
+	{
+		mApplicationVersion = applicationVersion;
+	}
+	return *this;
+}
+
+AbstractOpenKitBuilder& AbstractOpenKitBuilder::withTrustManager(std::shared_ptr<protocol::ISSLTrustManager> trustManager)
+{
+	mTrustManager = trustManager;
+	return *this;
+}
+
+AbstractOpenKitBuilder& AbstractOpenKitBuilder::withOperatingSystem(const char* operatingSystem)
+{
+	if (operatingSystem != nullptr && strlen(operatingSystem) > 0)
+	{
+		mOperatingSystem = operatingSystem;
+	}
+	return *this;
+}
+
+AbstractOpenKitBuilder& AbstractOpenKitBuilder::withManufacturer(const char* manufacturer)
+{
+	
+	if (manufacturer != nullptr && strlen(manufacturer) > 0)
+	{
+		mManufacturer = manufacturer;
+	}
+	return *this;
+}
+
+AbstractOpenKitBuilder& AbstractOpenKitBuilder::withModelID(const char* modelID)
+{
+	if (modelID != nullptr && strlen(modelID) > 0)
+	{
+		mModelID = modelID;
+	}
+	return *this;
+}
+
+AbstractOpenKitBuilder& AbstractOpenKitBuilder::withBeaconCacheMaxRecordAge(int64_t maxRecordAgeInMilliseconds)
+{
+	mBeaconCacheMaxRecordAge = maxRecordAgeInMilliseconds;
+	return *this;
+}
+
+AbstractOpenKitBuilder& AbstractOpenKitBuilder::withBeaconCacheLowerMemoryBoundary(int64_t lowerMemoryBoundaryInBytes)
+{
+	mBeaconCacheLowerMemoryBoundary = lowerMemoryBoundaryInBytes;
+	return *this;
+}
+
+AbstractOpenKitBuilder& AbstractOpenKitBuilder::withBeaconCacheUpperMemoryBoundary(int64_t upperMemoryBoundaryInBytes)
+{
+	mBeaconCacheUpperMemoryBoundary = upperMemoryBoundaryInBytes;
+	return *this;
+}
+
 std::shared_ptr<api::IOpenKit> AbstractOpenKitBuilder::build()
 {
-	return std::make_shared<core::OpenKit>(getLogger(), buildConfiguration());
+	auto openKit = std::make_shared<core::OpenKit>(getLogger(), buildConfiguration());
+	openKit->initialize();
+	return openKit;
 }
 
 std::shared_ptr<api::ILogger> AbstractOpenKitBuilder::getLogger()
@@ -50,5 +125,55 @@ std::shared_ptr<api::ILogger> AbstractOpenKitBuilder::getLogger()
 	{
 		return mLogger;
 	}
-	return std::shared_ptr<ILogger>(new core::util::DefaultLogger());
+	return std::shared_ptr<ILogger>(new core::util::DefaultLogger(mVerbose));
+}
+
+std::string AbstractOpenKitBuilder::getApplicationVersion() const
+{
+	return mApplicationVersion;
+}
+
+std::string AbstractOpenKitBuilder::getOperatingSystem() const
+{
+	return mOperatingSystem;
+}
+
+std::string AbstractOpenKitBuilder::getManufacturer() const
+{
+	return mManufacturer;
+}
+
+std::string AbstractOpenKitBuilder::getModelID() const
+{
+	return mModelID;
+}
+
+std::string AbstractOpenKitBuilder::getEndpointURL() const
+{
+	return mEndpointURL;
+}
+
+int64_t AbstractOpenKitBuilder::getDeviceID() const
+{
+	return mDeviceID;
+}
+
+std::shared_ptr<protocol::ISSLTrustManager> AbstractOpenKitBuilder::getTrustManager() const
+{
+	return mTrustManager;
+}
+
+int64_t AbstractOpenKitBuilder::getBeaconCacheMaxRecordAge() const
+{
+	return mBeaconCacheMaxRecordAge;
+}
+
+int64_t AbstractOpenKitBuilder::getBeaconCacheLowerMemoryBoundary() const
+{
+	return mBeaconCacheLowerMemoryBoundary;
+}
+
+int64_t AbstractOpenKitBuilder::getBeaconCacheUpperMemoryBoundary() const
+{
+	return mBeaconCacheUpperMemoryBoundary;
 }

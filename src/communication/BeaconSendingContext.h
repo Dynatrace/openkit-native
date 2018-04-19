@@ -95,7 +95,7 @@ namespace communication
 		/// @param[in] timeoutMillis The maximum number of milliseconds to wait for initialization being completed.
 		/// @return @c true if OpenKit is fully initialized, @c false if OpenKit init got interrupted or time to wait expired
 		///
-		// TODO: bool waitForInit(int64_t timeoutMillis);
+		bool waitForInit(int64_t timeoutMillis);
 
 		///
 		/// Complete OpenKit initialization

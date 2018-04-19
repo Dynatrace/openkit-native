@@ -62,8 +62,6 @@ namespace core
 
 		virtual void stop() override;
 
-		virtual bool isNullObject() const override;
-
 		///
 		/// Returns the target URL of the web request
 		/// @returns target URL of the web request
