@@ -20,7 +20,7 @@
 
 using namespace caching;
 
-TimeEvictionStrategy::TimeEvictionStrategy(std::shared_ptr<api::ILogger> logger, std::shared_ptr<IBeaconCache> beaconCache, std::shared_ptr<configuration::BeaconCacheConfiguration> configuration, std::shared_ptr<providers::ITimingProvider> timingProvider, std::function<bool()> isAlive)
+TimeEvictionStrategy::TimeEvictionStrategy(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<IBeaconCache> beaconCache, std::shared_ptr<configuration::BeaconCacheConfiguration> configuration, std::shared_ptr<providers::ITimingProvider> timingProvider, std::function<bool()> isAlive)
 	: mLogger(logger)
 	, mBeaconCache(beaconCache)
 	, mConfiguration(configuration)

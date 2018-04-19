@@ -17,16 +17,16 @@
 #ifndef _CORE_NULLWEBREQUESTTRACER_H
 #define _CORE_NULLWEBREQUESTTRACER_H
 
-#include "api/IWebRequestTracer.h"
+#include "OpenKit/IWebRequestTracer.h"
 
 namespace core
 {
 
 	///
-	/// This class is returned as WebRequestTracer by @ref OpenKit::createSession(const char*) when the @ref OpenKit::shutdown()
+	/// This class is returned as WebRequestTracer by @ref openkit::createSession(const char*) when the @ref openkit::shutdown()
 	/// has been called before.
 	///
-	class NullWebRequestTracer : public api::IWebRequestTracer, public std::enable_shared_from_this<NullWebRequestTracer>
+	class NullWebRequestTracer : public openkit::IWebRequestTracer, public std::enable_shared_from_this<NullWebRequestTracer>
 	{
 	public:
 
@@ -35,22 +35,22 @@ namespace core
 			return emptyString;
 		}
 
-		virtual std::shared_ptr<api::IWebRequestTracer> setResponseCode(int32_t /*responseCode*/) override
+		virtual std::shared_ptr<openkit::IWebRequestTracer> setResponseCode(int32_t /*responseCode*/) override
 		{
 			return shared_from_this();
 		}
 
-		virtual std::shared_ptr<api::IWebRequestTracer> setBytesSent(int32_t /*bytesSent*/) override
+		virtual std::shared_ptr<openkit::IWebRequestTracer> setBytesSent(int32_t /*bytesSent*/) override
 		{
 			return shared_from_this();
 		}
 
-		virtual std::shared_ptr<api::IWebRequestTracer> setBytesReceived(int32_t /*bytesReceived*/) override
+		virtual std::shared_ptr<openkit::IWebRequestTracer> setBytesReceived(int32_t /*bytesReceived*/) override
 		{
 			return shared_from_this();
 		}
 
-		virtual std::shared_ptr<api::IWebRequestTracer> start() override
+		virtual std::shared_ptr<openkit::IWebRequestTracer> start() override
 		{
 			return shared_from_this();
 		}

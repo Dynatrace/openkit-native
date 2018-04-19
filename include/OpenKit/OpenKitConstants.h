@@ -14,10 +14,10 @@
 * limitations under the License.
 */
 
-#ifndef _API_OPENKITCONSTANTS_H
-#define _API_OPENKITCONSTANTS_H
+#ifndef _OPENKIT_OPENKITCONSTANTS_H
+#define _OPENKIT_OPENKITCONSTANTS_H
 
-namespace api
+namespace openkit
 {
 	constexpr char WEBREQUEST_TAG_HEADER[] = "X-dynaTrace";
 	//TODO: stefan.eberl: generate the version using cmake

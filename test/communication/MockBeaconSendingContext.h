@@ -45,7 +45,7 @@ namespace test
 	{
 	public:
 		MockBeaconSendingContext()
-			: BeaconSendingContext(std::shared_ptr<api::ILogger>(new core::util::DefaultLogger(devNull, true)), 
+			: BeaconSendingContext(std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(devNull, true)), 
 				std::make_shared<providers::DefaultHTTPClientProvider>(),
 				std::make_shared<test::MockTimingProvider>(),
 				std::make_shared<configuration::Configuration>( std::shared_ptr<configuration::Device>(new configuration::Device("", "", "")), configuration::OpenKitType::DYNATRACE, core::UTF8String(""), core::UTF8String(""), core::UTF8String(""), 1,  core::UTF8String(""),

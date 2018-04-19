@@ -20,7 +20,7 @@
 
 using namespace caching;
 
-SpaceEvictionStrategy::SpaceEvictionStrategy(std::shared_ptr<api::ILogger> logger, std::shared_ptr<IBeaconCache> beaconCache, std::shared_ptr<configuration::BeaconCacheConfiguration> configuration, std::function<bool()> isAlive)
+SpaceEvictionStrategy::SpaceEvictionStrategy(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<IBeaconCache> beaconCache, std::shared_ptr<configuration::BeaconCacheConfiguration> configuration, std::function<bool()> isAlive)
 	: mLogger(logger)
 	, mBeaconCache(beaconCache)
 	, mConfiguration(configuration)

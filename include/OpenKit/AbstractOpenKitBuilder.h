@@ -14,17 +14,17 @@
 * limitations under the License.
 */
 
-#ifndef _API_ABSTRACTOPENKITBUILDER_H
-#define _API_ABSTRACTOPENKITBUILDER_H
+#ifndef _OPENKIT_ABSTRACTOPENKITBUILDER_H
+#define _OPENKIT_ABSTRACTOPENKITBUILDER_H
 
-#include "api/IOpenKit.h"
-#include "api/ILogger.h"
+#include "OpenKit/IOpenKit.h"
+#include "OpenKit/ILogger.h"
 
 #include "configuration/Configuration.h"
 
 #include <memory>
 
-namespace api
+namespace openkit
 {
 	class OPENKIT_EXPORT AbstractOpenKitBuilder
 	{
@@ -55,7 +55,7 @@ namespace api
 			/// @param[in] logger the logger
 			/// @return @c this for fluent usage
 			///
-			AbstractOpenKitBuilder& withLogger(std::shared_ptr<api::ILogger> logger);
+			AbstractOpenKitBuilder& withLogger(std::shared_ptr<openkit::ILogger> logger);
 
 			///
 			/// Defines the version of the application. The value is only set if it is neither null nor empty.
@@ -129,7 +129,7 @@ namespace api
 			/// Builds an @ref OpenKit instance
 			/// @return an @ref OpenKit instance
 			///
-			virtual std::shared_ptr<api::IOpenKit> build();
+			virtual std::shared_ptr<openkit::IOpenKit> build();
 
 			///
 			/// Builds the configuration for the OpenKit instance
@@ -204,7 +204,7 @@ namespace api
 			/// the default logger is returned.
 			/// @return a logger
 			///
-			std::shared_ptr<api::ILogger> getLogger();
+			std::shared_ptr<openkit::ILogger> getLogger();
 
 		private:
 			/// Flag to enable INFO and DEBUG logs

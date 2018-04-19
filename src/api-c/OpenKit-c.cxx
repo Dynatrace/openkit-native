@@ -15,14 +15,7 @@
 */
 
 
-#include "api/IOpenKit.h"
-#include "api/ILogger.h"
-#include "api/ISession.h"
-#include "api/IRootAction.h"
-#include "api/IAction.h"
-#include "api/IWebRequestTracer.h"
-#include "api/AppMonOpenKitBuilder.h"
-#include "api/DynatraceOpenKitBuilder.h"
+#include "OpenKit.h"
 
 #include "api-c/OpenKit-c.h"
 #include "api-c/CustomLogger.h"
@@ -58,7 +51,7 @@ extern "C" {
 
 	typedef struct LoggerHandle
 	{
-		std::shared_ptr<api::ILogger> logger = nullptr;
+		std::shared_ptr<openkit::ILogger> logger = nullptr;
 	} LoggerHandle;
 
 	LoggerHandle* createLogger(levelEnabledFunc levelEnabledFunc, logFunc logFunc)
@@ -72,7 +65,7 @@ extern "C" {
 		LoggerHandle* handle = nullptr;
 		try
 		{
-			auto logger = std::shared_ptr<api::ILogger>(new apic::CustomLogger(levelEnabledFunc, logFunc));
+			auto logger = std::shared_ptr<openkit::ILogger>(new apic::CustomLogger(levelEnabledFunc, logFunc));
 			// storing the returned shared pointer in the handle prevents it from going out of scope
 			handle = new LoggerHandle();
 			handle->logger = logger;
@@ -104,8 +97,8 @@ extern "C" {
 
 	typedef struct OpenKitHandle
 	{
-		std::shared_ptr<api::IOpenKit> sharedPointer = nullptr;
-		std::shared_ptr<api::ILogger> logger = nullptr;
+		std::shared_ptr<openkit::IOpenKit> sharedPointer = nullptr;
+		std::shared_ptr<openkit::ILogger> logger = nullptr;
 	} OpenKitHandle;
 
 	OpenKitHandle* createDynatraceOpenKit(const char* endpointURL, const char* applicationID, int64_t deviceID, LoggerHandle* loggerHandle)
@@ -113,13 +106,13 @@ extern "C" {
 		OpenKitHandle* handle = nullptr;
 		TRY
 		{
-			api::DynatraceOpenKitBuilder builder(endpointURL, applicationID, deviceID);
+			openkit::DynatraceOpenKitBuilder builder(endpointURL, applicationID, deviceID);
 			if (loggerHandle)
 			{
 				// Instantiate the CustomLogger mapping the log statements to the FunctionPointers
 				builder.withLogger(loggerHandle->logger);
 			}
-			std::shared_ptr<api::IOpenKit> openKit = builder.build();
+			std::shared_ptr<openkit::IOpenKit> openKit = builder.build();
 		
 			// storing the returned shared pointer in the handle prevents it from going out of scope
 			handle = new OpenKitHandle();
@@ -136,13 +129,13 @@ extern "C" {
 		OpenKitHandle* handle = nullptr;
 		TRY
 		{
-			api::AppMonOpenKitBuilder builder(endpointURL, applicationID, deviceID);
+			openkit::AppMonOpenKitBuilder builder(endpointURL, applicationID, deviceID);
 			if (loggerHandle)
 			{
 				// Instantiate the CustomLogger mapping the log statements to the FunctionPointers
 				builder.withLogger(loggerHandle->logger);
 			}
-			std::shared_ptr<api::IOpenKit> openKit = builder.build();
+			std::shared_ptr<openkit::IOpenKit> openKit = builder.build();
 
 			// storing the returned shared pointer in the handle prevents it from going out of scope
 			handle = new OpenKitHandle();
@@ -226,8 +219,8 @@ extern "C" {
 
 	typedef struct SessionHandle
 	{
-		std::shared_ptr<api::ISession> sharedPointer = nullptr;
-		std::shared_ptr<api::ILogger> logger = nullptr;
+		std::shared_ptr<openkit::ISession> sharedPointer = nullptr;
+		std::shared_ptr<openkit::ILogger> logger = nullptr;
 	} SessionHandle;
 
 	SessionHandle* createSession(OpenKitHandle* openKitHandle, const char* clientIPAddress)
@@ -243,7 +236,7 @@ extern "C" {
 		{
 			// retrieve the OpenKit instance from the handle and call the respective method
 			assert(openKitHandle->sharedPointer != nullptr);
-			std::shared_ptr<api::ISession> session = openKitHandle->sharedPointer->createSession(clientIPAddress);
+			std::shared_ptr<openkit::ISession> session = openKitHandle->sharedPointer->createSession(clientIPAddress);
 
 			// storing the returned shared pointer in the handle prevents it from going out of scope
 			handle = new SessionHandle();
@@ -310,8 +303,8 @@ extern "C" {
 
 	typedef struct RootActionHandle
 	{
-		std::shared_ptr<api::IRootAction> sharedPointer = nullptr;
-		std::shared_ptr<api::ILogger> logger = nullptr;
+		std::shared_ptr<openkit::IRootAction> sharedPointer = nullptr;
+		std::shared_ptr<openkit::ILogger> logger = nullptr;
 	} RootActionHandle;
 
 	RootActionHandle* enterRootAction(SessionHandle* sessionHandle, const char* rootActionName)
@@ -327,7 +320,7 @@ extern "C" {
 		{
 			// retrieve the Session instance from the handle and call the respective method
 			assert(sessionHandle->sharedPointer != nullptr);
-			std::shared_ptr<api::IRootAction> rootAction = sessionHandle->sharedPointer->enterAction(rootActionName);
+			std::shared_ptr<openkit::IRootAction> rootAction = sessionHandle->sharedPointer->enterAction(rootActionName);
 
 			// storing the returned shared pointer in the handle prevents it from going out of scope
 			handle = new RootActionHandle();
@@ -437,8 +430,8 @@ extern "C" {
 
 	typedef struct ActionHandle
 	{
-		std::shared_ptr<api::IAction> sharedPointer = nullptr;
-		std::shared_ptr<api::ILogger> logger = nullptr;
+		std::shared_ptr<openkit::IAction> sharedPointer = nullptr;
+		std::shared_ptr<openkit::ILogger> logger = nullptr;
 	} ActionHandle;
 
 	ActionHandle* enterAction(RootActionHandle* rootActionHandle, const char* actionName)
@@ -454,7 +447,7 @@ extern "C" {
 		{
 			// retrieve the RootAction instance from the handle and call the respective method
 			assert(rootActionHandle->sharedPointer != nullptr);
-			std::shared_ptr<api::IAction> action = rootActionHandle->sharedPointer->enterAction(actionName);
+			std::shared_ptr<openkit::IAction> action = rootActionHandle->sharedPointer->enterAction(actionName);
 		
 			// storing the returned shared pointer in the handle prevents it from going out of scope
 			handle = new ActionHandle();
@@ -564,8 +557,8 @@ extern "C" {
 
 	typedef struct WebRequestTracerHandle
 	{
-		std::shared_ptr<api::IWebRequestTracer> sharedPointer = nullptr;
-		std::shared_ptr<api::ILogger> logger = nullptr;
+		std::shared_ptr<openkit::IWebRequestTracer> sharedPointer = nullptr;
+		std::shared_ptr<openkit::ILogger> logger = nullptr;
 	} WebRequestTracerHandle;
 
 	WebRequestTracerHandle* traceWebRequestOnRootAction(RootActionHandle* rootActionHandle, const char* url)

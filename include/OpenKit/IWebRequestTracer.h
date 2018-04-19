@@ -14,15 +14,15 @@
 * limitations under the License.
 */
 
-#ifndef _API_WEBREQUESTTRACER_H
-#define _API_WEBREQUESTTRACER_H
+#ifndef _OPENKIT_WEBREQUESTTRACER_H
+#define _OPENKIT_WEBREQUESTTRACER_H
 
 #include "OpenKit_export.h"
 
 #include <stdint.h>
 #include <memory>
 
-namespace api
+namespace openkit
 {
 	///
 	/// This interface allows tracing and timing of a web request.

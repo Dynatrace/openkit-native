@@ -14,12 +14,12 @@
 * limitations under the License.
 */
 
-#ifndef _API_DYNATRACEOPENKITBUILDER_H
-#define _API_DYNATRACEOPENKITBUILDER_H
+#ifndef _OPENKIT_DYNATRACEOPENKITBUILDER_H
+#define _OPENKIT_DYNATRACEOPENKITBUILDER_H
 
-#include "AbstractOpenKitBuilder.h"
+#include "OpenKit/AbstractOpenKitBuilder.h"
 
-namespace api
+namespace openkit
 {
 	class OPENKIT_EXPORT DynatraceOpenKitBuilder : public AbstractOpenKitBuilder
 	{

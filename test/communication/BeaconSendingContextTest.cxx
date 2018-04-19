@@ -48,7 +48,7 @@ public:
 
 	void SetUp()
 	{
-		mLogger = std::shared_ptr<api::ILogger>(new core::util::DefaultLogger(devNull, true));
+		mLogger = std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(devNull, true));
 
 
 		beaconCacheConfiguration = std::make_shared<configuration::BeaconCacheConfiguration>(-1, -1, -1);
@@ -72,7 +72,7 @@ public:
 	}
 
 	std::ostringstream devNull;
-	std::shared_ptr<api::ILogger> mLogger;
+	std::shared_ptr<openkit::ILogger> mLogger;
 	std::shared_ptr<configuration::BeaconCacheConfiguration> beaconCacheConfiguration;
 	std::shared_ptr<configuration::Configuration> mConfiguration;
 	std::shared_ptr<testing::NiceMock<test::MockHTTPClientProvider>> mMockHttpClientProvider;
@@ -159,7 +159,6 @@ TEST_F(BeaconSendingContextTest, initCompleteFailureAndWait)
 	ASSERT_FALSE(obtained);
 }
 
-#if 0 // Discuss, if waitForInit(timeout) shall be ported to C++ SDK
 TEST_F(BeaconSendingContextTest, waitForInitCompleteTimeout)
 {
 	// given
@@ -188,7 +187,7 @@ TEST_F(BeaconSendingContextTest, waitForInitCompleteWhenInitCompletedSuccessfull
 TEST_F(BeaconSendingContextTest, waitForInitCompleteWhenInitCompletedNotSuccessfully)
 {
 	// given
-	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mMomConfigurationckConfiguration));
+	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
 	target->setInitCompleted(false);
 
 	// when init complete was never set and timeout will be reached
@@ -197,7 +196,6 @@ TEST_F(BeaconSendingContextTest, waitForInitCompleteWhenInitCompletedNotSuccessf
 	// then
 	ASSERT_FALSE(obtained);
 }
-#endif
 
 TEST_F(BeaconSendingContextTest, aDefaultConstructedContextIsNotInitialized)
 {

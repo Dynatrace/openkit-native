@@ -17,8 +17,8 @@
 #ifndef _CORE_NULLACTION_H
 #define _CORE_NULLACTION_H
 
-#include "api/IAction.h"
-#include "api/IRootAction.h"
+#include "OpenKit/IAction.h"
+#include "OpenKit/IRootAction.h"
 #include "NullWebRequestTracer.h"
 
 namespace core
@@ -28,7 +28,7 @@ namespace core
 	/// This class is returned as Action by @ref OpenKit#createSession(String) when the @ref OpenKit#shutdown()
 	/// has been called before.
 	///
-	class NullAction : public api::IAction, public std::enable_shared_from_this<NullAction>
+	class NullAction : public openkit::IAction, public std::enable_shared_from_this<NullAction>
 	{
 	public:
 
@@ -36,7 +36,7 @@ namespace core
 			: NullAction(nullptr)
 		{}
 
-		NullAction(std::shared_ptr<api::IRootAction> parent)
+		NullAction(std::shared_ptr<openkit::IRootAction> parent)
 			: mParentAction(parent)
 		{}
 
@@ -65,17 +65,17 @@ namespace core
 			return shared_from_this();
 		}
 
-		virtual std::shared_ptr<api::IWebRequestTracer> traceWebRequest(const char* /*url*/) override
+		virtual std::shared_ptr<openkit::IWebRequestTracer> traceWebRequest(const char* /*url*/) override
 		{
 			return std::make_shared<NullWebRequestTracer>();
 		}
 
-		virtual std::shared_ptr<api::IRootAction> leaveAction() override
+		virtual std::shared_ptr<openkit::IRootAction> leaveAction() override
 		{
 			return mParentAction;
 		}
 
-		std::shared_ptr<api::IRootAction> mParentAction;
+		std::shared_ptr<openkit::IRootAction> mParentAction;
 	};
 }
 

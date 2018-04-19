@@ -22,7 +22,7 @@
 #pragma GCC diagnostic ignored "-Wnon-virtual-dtor" // enable_shared_from_this has a public non virtual destructor throwing a false positive in this code
 #endif
 
-#include "api/IWebRequestTracer.h"
+#include "OpenKit/IWebRequestTracer.h"
 
 #include <atomic>
 
@@ -39,7 +39,7 @@ namespace core
 	/// This class is returned as Action by @ref OpenKit#createSession(String) when the @ref OpenKit#shutdown()
 	/// has been called before.
 	///
-	class WebRequestTracerBase : public api::IWebRequestTracer, public std::enable_shared_from_this<WebRequestTracerBase>
+	class WebRequestTracerBase : public openkit::IWebRequestTracer, public std::enable_shared_from_this<WebRequestTracerBase>
 	{
 	public:
 

@@ -14,12 +14,12 @@
 * limitations under the License.
 */
 
-#ifndef _API_APPMONMOPENKITBUILDER_H
-#define _API_APPMONMOPENKITBUILDER_H
+#ifndef _OPENKIT_APPMONMOPENKITBUILDER_H
+#define _OPENKIT_APPMONMOPENKITBUILDER_H
 
-#include "AbstractOpenKitBuilder.h"
+#include "OpenKit/AbstractOpenKitBuilder.h"
 
-namespace api
+namespace openkit
 {
 	class OPENKIT_EXPORT AppMonOpenKitBuilder : public AbstractOpenKitBuilder
 	{

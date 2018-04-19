@@ -23,7 +23,7 @@
 
 using namespace core;
 
-RootAction::RootAction(std::shared_ptr<api::ILogger> logger, std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name, std::shared_ptr<Session> session)
+RootAction::RootAction(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name, std::shared_ptr<Session> session)
 	: mLogger(logger)
 	, mBeacon(beacon)
 	, mOpenChildActions()
@@ -40,7 +40,7 @@ RootAction::RootAction(std::shared_ptr<api::ILogger> logger, std::shared_ptr<pro
 
 }
 
-std::shared_ptr<api::IAction> RootAction::enterAction(const char* actionName)
+std::shared_ptr<openkit::IAction> RootAction::enterAction(const char* actionName)
 {
 	UTF8String actionNameString(actionName);
 	if (actionNameString.empty())
@@ -52,13 +52,13 @@ std::shared_ptr<api::IAction> RootAction::enterAction(const char* actionName)
 	if (!isActionLeft())
 	{
 		auto childAction = std::make_shared<Action>(mLogger, mBeacon, UTF8String(actionName), shared_from_this());
-		mOpenChildActions.put(std::static_pointer_cast<api::IAction>(childAction));
+		mOpenChildActions.put(std::static_pointer_cast<openkit::IAction>(childAction));
 		return childAction;
 	}
 	return NULL_ACTION;
 }
 
-std::shared_ptr<api::IRootAction> RootAction::reportEvent(const char* eventName)
+std::shared_ptr<openkit::IRootAction> RootAction::reportEvent(const char* eventName)
 {
 	UTF8String eventNameString(eventName);
 	if (eventNameString.empty())
@@ -73,7 +73,7 @@ std::shared_ptr<api::IRootAction> RootAction::reportEvent(const char* eventName)
 	return shared_from_this();
 }
 
-std::shared_ptr<api::IRootAction> RootAction::reportValue(const char* valueName, int32_t value)
+std::shared_ptr<openkit::IRootAction> RootAction::reportValue(const char* valueName, int32_t value)
 {
 	UTF8String valueNameString(valueName);
 	if (valueNameString.empty())
@@ -88,7 +88,7 @@ std::shared_ptr<api::IRootAction> RootAction::reportValue(const char* valueName,
 	return shared_from_this();
 }
 
-std::shared_ptr<api::IRootAction> RootAction::reportValue(const char* valueName, double value)
+std::shared_ptr<openkit::IRootAction> RootAction::reportValue(const char* valueName, double value)
 {
 	UTF8String valueNameString(valueName);
 	if (valueNameString.empty())
@@ -103,7 +103,7 @@ std::shared_ptr<api::IRootAction> RootAction::reportValue(const char* valueName,
 	return shared_from_this();
 }
 
-std::shared_ptr<api::IRootAction> RootAction::reportValue(const char* valueName, const char* value)
+std::shared_ptr<openkit::IRootAction> RootAction::reportValue(const char* valueName, const char* value)
 {
 	UTF8String valueNameString(valueName);
 	if (valueNameString.empty())
@@ -118,7 +118,7 @@ std::shared_ptr<api::IRootAction> RootAction::reportValue(const char* valueName,
 	return shared_from_this();
 }
 
-std::shared_ptr<api::IRootAction> RootAction::reportError(const char* errorName, int32_t errorCode, const char* reason)
+std::shared_ptr<openkit::IRootAction> RootAction::reportError(const char* errorName, int32_t errorCode, const char* reason)
 {
 	UTF8String errorNameString(errorName);
 	UTF8String reasonString(reason);
@@ -134,7 +134,7 @@ std::shared_ptr<api::IRootAction> RootAction::reportError(const char* errorName,
 	return shared_from_this();
 }
 
-std::shared_ptr<api::IWebRequestTracer> RootAction::traceWebRequest(const char* url)
+std::shared_ptr<openkit::IWebRequestTracer> RootAction::traceWebRequest(const char* url)
 {
 	core::UTF8String urlString(url);
 	if (urlString.empty())

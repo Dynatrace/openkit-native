@@ -22,8 +22,8 @@
 #pragma GCC diagnostic ignored "-Wnon-virtual-dtor" // enable_shared_from_this has a public non virtual destructor throwing a false positive in this code
 #endif
 
-#include "api/IAction.h"
-#include "api/ILogger.h"
+#include "OpenKit/IAction.h"
+#include "OpenKit/ILogger.h"
 #include "core/util/SynchronizedQueue.h"
 #include "core/UTF8String.h"
 #include "core/NullWebRequestTracer.h"
@@ -45,7 +45,7 @@ namespace core
 	/// problem in RootAction. This is because RootAction would inherit from Action which inherits from IAction. But RootAction iself also
 	/// inherited from IAction. The code duplication between Action and RootAction is the easiest way to avoid the diamond-inheritance.
 	///
-	class Action : public api::IAction, public std::enable_shared_from_this<core::Action>
+	class Action : public openkit::IAction, public std::enable_shared_from_this<core::Action>
 	{
 	public:
 
@@ -56,7 +56,7 @@ namespace core
 		/// @param[in] name the name of the action
 		/// @param[in] sameLevelActions actions on the same level
 		///
-		Action(std::shared_ptr<api::ILogger> logger, std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name);
+		Action(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name);
 
 		///
 		/// Create an action given a beacon and the action name
@@ -65,7 +65,7 @@ namespace core
 		/// @param[in] name the name of the action
 		/// @param[in] parentAction parent action
 		///
-		Action(std::shared_ptr<api::ILogger> logger, std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name, std::shared_ptr<RootAction> parentAction);
+		Action(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name, std::shared_ptr<RootAction> parentAction);
 
 		///
 		/// Destructor
@@ -82,9 +82,9 @@ namespace core
 
 		std::shared_ptr<IAction> reportError(const char* errorName, int32_t errorCode, const char* reason) override;
 
-		std::shared_ptr<api::IWebRequestTracer> traceWebRequest(const char* url) override;
+		std::shared_ptr<openkit::IWebRequestTracer> traceWebRequest(const char* url) override;
 
-		virtual std::shared_ptr<api::IRootAction> leaveAction() override;
+		virtual std::shared_ptr<openkit::IRootAction> leaveAction() override;
 
 		///
 		/// Returns the action ID
@@ -140,10 +140,10 @@ namespace core
 		/// Called by leaveAction only if this is the first leaveAction call on this Action
 		/// @returns the parent Action, or @c nullptr if there is no parent Action
 		///
-		virtual std::shared_ptr<api::IRootAction> doLeaveAction();
+		virtual std::shared_ptr<openkit::IRootAction> doLeaveAction();
 
 		/// Logger to write traces to
-		std::shared_ptr<api::ILogger> mLogger;
+		std::shared_ptr<openkit::ILogger> mLogger;
 
 		/// parent action
 		std::shared_ptr<RootAction> mParentAction;

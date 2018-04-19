@@ -33,7 +33,7 @@ namespace test
 	public:
 		MockSession()
 			: Session(
-				std::shared_ptr<api::ILogger>(new core::util::DefaultLogger(devNull, true)),
+				std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(devNull, true)),
 				std::shared_ptr<BeaconSender>(),
 				std::shared_ptr<protocol::Beacon>())
 		{
@@ -44,7 +44,7 @@ namespace test
 			return std::unique_ptr<protocol::StatusResponse>(sendBeaconRawPtrProxy(clientProvider));
 		}
 
-		MOCK_METHOD1(enterAction, std::shared_ptr<api::IRootAction>(const char*));
+		MOCK_METHOD1(enterAction, std::shared_ptr<openkit::IRootAction>(const char*));
 		MOCK_METHOD0(end, void());
 		MOCK_METHOD1(sendBeaconRawPtrProxy, protocol::StatusResponse*(std::shared_ptr<providers::IHTTPClientProvider>));
 		MOCK_CONST_METHOD0(isEmpty, bool());

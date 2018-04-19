@@ -23,8 +23,8 @@
 #pragma GCC diagnostic ignored "-Wnon-virtual-dtor" // enable_shared_from_this has a public non virtual destructor throwing a false positive in this code
 #endif
 
-#include "api/IRootAction.h"
-#include "api/ILogger.h"
+#include "OpenKit/IRootAction.h"
+#include "OpenKit/ILogger.h"
 #include "protocol/Beacon.h"
 #include "UTF8String.h"
 #include "NullAction.h"
@@ -42,7 +42,7 @@ namespace core
 	/// problem in RootAction. This is because RootAction would inherit from Action which inherits from IAction. But RootAction iself also
 	/// inherited from IAction. The code duplication between Action and RootAction is the easiest way to avoid the diamond-inheritance.
 	///
-	class RootAction : public api::IRootAction, public std::enable_shared_from_this<core::RootAction>
+	class RootAction : public openkit::IRootAction, public std::enable_shared_from_this<core::RootAction>
 	{
 	public:
 
@@ -53,14 +53,14 @@ namespace core
 		/// @param[in] name the name of the action
 		/// @param[in] session the session object keeping track of all root actions of this level
 		///
-		RootAction(std::shared_ptr<api::ILogger> logger, std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name, std::shared_ptr<Session> session);
+		RootAction(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name, std::shared_ptr<Session> session);
 
 		///
 		/// Destructor
 		///
 		virtual  ~RootAction() {}
 
-		virtual std::shared_ptr<api::IAction> enterAction(const char* actionName) override;
+		virtual std::shared_ptr<openkit::IAction> enterAction(const char* actionName) override;
 
 		std::shared_ptr<IRootAction> reportEvent(const char* eventName) override;
 
@@ -72,7 +72,7 @@ namespace core
 
 		std::shared_ptr<IRootAction> reportError(const char* errorName, int32_t errorCode, const char* reason) override;
 
-		std::shared_ptr<api::IWebRequestTracer> traceWebRequest(const char* url) override;
+		std::shared_ptr<openkit::IWebRequestTracer> traceWebRequest(const char* url) override;
 
 		virtual void leaveAction() override;
 
@@ -141,13 +141,13 @@ namespace core
 		virtual void doLeaveAction();
 
 		/// Logger to write traces to
-		std::shared_ptr<api::ILogger> mLogger;
+		std::shared_ptr<openkit::ILogger> mLogger;
 
 		/// beacon used for serialization
 		std::shared_ptr<protocol::Beacon> mBeacon;
 
 		/// open Actions of children
-		util::SynchronizedQueue<std::shared_ptr<api::IAction>> mOpenChildActions;
+		util::SynchronizedQueue<std::shared_ptr<openkit::IAction>> mOpenChildActions;
 
 		/// session keeping track of all root actions
 		std::shared_ptr<Session> mSession;

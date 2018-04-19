@@ -20,16 +20,16 @@
 #include <stdint.h>
 #include <memory>
 
-#include "api/DynatraceOpenKitBuilder.h"
-#include "api/AppMonOpenKitBuilder.h"
+#include "OpenKit/DynatraceOpenKitBuilder.h"
+#include "OpenKit/AppMonOpenKitBuilder.h"
 
-#include "api/OpenKitConstants.h"
+#include "OpenKit/OpenKitConstants.h"
 #include "protocol/ssl/SSLStrictTrustManager.h"
 #include "core/util/DefaultLogger.h"
 
 #include "../protocol/TestSSLTrustManager.h"
 
-using namespace api;
+using namespace openkit;
 
 class OpenKitBuilderTest : public testing::Test
 {
@@ -57,11 +57,11 @@ TEST_F(OpenKitBuilderTest, defaultsAreSetForAppMon)
 {
 	auto configuration = AppMonOpenKitBuilder(defaultEndpointURL, defaultApplicationID, defaultDeviceID).buildConfiguration();
 
-	ASSERT_TRUE(configuration->getApplicationVersion().equals(api::DEFAULT_APPLICATION_VERSION));
+	ASSERT_TRUE(configuration->getApplicationVersion().equals(openkit::DEFAULT_APPLICATION_VERSION));
 	auto device = configuration->getDevice();
-	ASSERT_TRUE(device->getManufacturer().equals(api::DEFAULT_MANUFACTURER));
-	ASSERT_TRUE(device->getOperatingSystem().equals(api::DEFAULT_OPERATING_SYSTEM));
-	ASSERT_TRUE(device->getModelID().equals(api::DEFAULT_MODEL_ID));
+	ASSERT_TRUE(device->getManufacturer().equals(openkit::DEFAULT_MANUFACTURER));
+	ASSERT_TRUE(device->getOperatingSystem().equals(openkit::DEFAULT_OPERATING_SYSTEM));
+	ASSERT_TRUE(device->getModelID().equals(openkit::DEFAULT_MODEL_ID));
 
 	auto trustManagerCast = std::dynamic_pointer_cast<protocol::SSLStrictTrustManager>(configuration->getHTTPClientConfiguration()->getSSLTrustManager());
 	ASSERT_TRUE(trustManagerCast != nullptr);
@@ -77,11 +77,11 @@ TEST_F(OpenKitBuilderTest, defaultsAreSetForDynatrace)
 {
 	auto configuration = DynatraceOpenKitBuilder(defaultEndpointURL, defaultApplicationID, defaultDeviceID).buildConfiguration();
 
-	ASSERT_TRUE(configuration->getApplicationVersion().equals(api::DEFAULT_APPLICATION_VERSION));
+	ASSERT_TRUE(configuration->getApplicationVersion().equals(openkit::DEFAULT_APPLICATION_VERSION));
 	auto device = configuration->getDevice();
-	ASSERT_TRUE(device->getManufacturer().equals(api::DEFAULT_MANUFACTURER));
-	ASSERT_TRUE(device->getOperatingSystem().equals(api::DEFAULT_OPERATING_SYSTEM));
-	ASSERT_TRUE(device->getModelID().equals(api::DEFAULT_MODEL_ID));
+	ASSERT_TRUE(device->getManufacturer().equals(openkit::DEFAULT_MANUFACTURER));
+	ASSERT_TRUE(device->getOperatingSystem().equals(openkit::DEFAULT_OPERATING_SYSTEM));
+	ASSERT_TRUE(device->getModelID().equals(openkit::DEFAULT_MODEL_ID));
 
 	auto trustManagerCast = std::dynamic_pointer_cast<protocol::SSLStrictTrustManager>(configuration->getHTTPClientConfiguration()->getSSLTrustManager());
 	ASSERT_TRUE(trustManagerCast != nullptr);

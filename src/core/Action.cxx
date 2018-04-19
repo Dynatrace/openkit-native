@@ -26,13 +26,13 @@
 
 using namespace core;
 
-Action::Action(std::shared_ptr<api::ILogger> logger, std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name)
+Action::Action(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name)
 	: Action(logger, beacon, name, nullptr)
 {
 
 }
 
-Action::Action(std::shared_ptr<api::ILogger> logger, std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name, std::shared_ptr<RootAction> parentAction)
+Action::Action(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name, std::shared_ptr<RootAction> parentAction)
 	: mLogger(logger)
 	, mParentAction(parentAction)
 	, mEndTime(-1)
@@ -47,7 +47,7 @@ Action::Action(std::shared_ptr<api::ILogger> logger, std::shared_ptr<protocol::B
 
 }
 
-std::shared_ptr<api::IAction> Action::reportEvent(const char* eventName)
+std::shared_ptr<openkit::IAction> Action::reportEvent(const char* eventName)
 {
 	UTF8String eventNameString(eventName);
 	if (eventNameString.empty())
@@ -63,7 +63,7 @@ std::shared_ptr<api::IAction> Action::reportEvent(const char* eventName)
 	return shared_from_this();
 }
 
-std::shared_ptr<api::IAction> Action::reportValue(const char* valueName, int32_t value)
+std::shared_ptr<openkit::IAction> Action::reportValue(const char* valueName, int32_t value)
 {
 	UTF8String valueNameString(valueName);
 	if (valueNameString.empty())
@@ -79,7 +79,7 @@ std::shared_ptr<api::IAction> Action::reportValue(const char* valueName, int32_t
 	return shared_from_this();
 }
 
-std::shared_ptr<api::IAction> Action::reportValue(const char* valueName, double value)
+std::shared_ptr<openkit::IAction> Action::reportValue(const char* valueName, double value)
 {
 	UTF8String valueNameString(valueName);
 	if (valueNameString.empty())
@@ -95,7 +95,7 @@ std::shared_ptr<api::IAction> Action::reportValue(const char* valueName, double 
 	return shared_from_this();
 }
 
-std::shared_ptr<api::IAction> Action::reportValue(const char* valueName, const char* value)
+std::shared_ptr<openkit::IAction> Action::reportValue(const char* valueName, const char* value)
 {
 	UTF8String valueNameString(valueName);
 	if (valueNameString.empty())
@@ -111,7 +111,7 @@ std::shared_ptr<api::IAction> Action::reportValue(const char* valueName, const c
 	return shared_from_this();
 }
 
-std::shared_ptr<api::IAction> Action::reportError(const char* errorName, int32_t errorCode, const char* reason)
+std::shared_ptr<openkit::IAction> Action::reportError(const char* errorName, int32_t errorCode, const char* reason)
 {
 	UTF8String errorNameString(errorName);
 	UTF8String reasonString(reason);
@@ -128,7 +128,7 @@ std::shared_ptr<api::IAction> Action::reportError(const char* errorName, int32_t
 	return shared_from_this();
 }
 
-std::shared_ptr<api::IWebRequestTracer> Action::traceWebRequest(const char* url)
+std::shared_ptr<openkit::IWebRequestTracer> Action::traceWebRequest(const char* url)
 {
 	core::UTF8String urlString(url);
 	if (urlString.empty())
@@ -144,7 +144,7 @@ std::shared_ptr<api::IWebRequestTracer> Action::traceWebRequest(const char* url)
 	return NULL_WEB_REQUEST_TRACER;
 }
 
-std::shared_ptr<api::IRootAction> Action::leaveAction()
+std::shared_ptr<openkit::IRootAction> Action::leaveAction()
 {
 	int64_t expected = -1L;
 	if (atomic_compare_exchange_strong(&mEndTime, &expected, mBeacon->getCurrentTimestamp()) == false)
@@ -155,7 +155,7 @@ std::shared_ptr<api::IRootAction> Action::leaveAction()
 	return doLeaveAction();
 }
 
-std::shared_ptr<api::IRootAction> Action::doLeaveAction()
+std::shared_ptr<openkit::IRootAction> Action::doLeaveAction()
 {
 	mEndTime = mBeacon->getCurrentTimestamp();
 	mEndSequenceNumber = mBeacon->createSequenceNumber();
@@ -169,7 +169,7 @@ std::shared_ptr<api::IRootAction> Action::doLeaveAction()
 		mParentAction->childActionEnded(shared_from_this());
 	}
 
-	auto returnValue = std::static_pointer_cast<api::IRootAction>(mParentAction);
+	auto returnValue = std::static_pointer_cast<openkit::IRootAction>(mParentAction);
 	mParentAction = nullptr;
 
 	return returnValue;

@@ -17,7 +17,7 @@
 #ifndef _CACHING_TIMEEVICTIONSTRATEGY_H
 #define _CACHING_TIMEEVICTIONSTRATEGY_H
 
-#include "api/ILogger.h"
+#include "OpenKit/ILogger.h"
 #include "caching/IBeaconCache.h"
 #include "caching/IBeaconCacheEvictionStrategy.h"
 #include "configuration/BeaconCacheConfiguration.h"
@@ -45,7 +45,7 @@ namespace caching
 		/// @param[in] timingProvider Timing provider required for time retrieval
 		/// @param[in] isAlive function to check whether the eviction thread is running or not
 		///
-		TimeEvictionStrategy(std::shared_ptr<api::ILogger> logger, std::shared_ptr<IBeaconCache> beaconCache, std::shared_ptr<configuration::BeaconCacheConfiguration> configuration, std::shared_ptr<providers::ITimingProvider> timingProvider, std::function<bool()> isAlive);
+		TimeEvictionStrategy(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<IBeaconCache> beaconCache, std::shared_ptr<configuration::BeaconCacheConfiguration> configuration, std::shared_ptr<providers::ITimingProvider> timingProvider, std::function<bool()> isAlive);
 
 		///
 		/// Destructor
@@ -105,7 +105,7 @@ namespace caching
 
 	private:
 		/// Logger to write traces to
-		std::shared_ptr<api::ILogger> mLogger;
+		std::shared_ptr<openkit::ILogger> mLogger;
 
 		/// The Beacon cache to check if entries need to be evicted
 		std::shared_ptr<IBeaconCache> mBeaconCache;

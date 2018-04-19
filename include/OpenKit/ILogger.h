@@ -14,8 +14,8 @@
 * limitations under the License.
 */
 
-#ifndef _API_ILOGGER_H
-#define _API_ILOGGER_H
+#ifndef _OPENKIT_ILOGGER_H
+#define _OPENKIT_ILOGGER_H
 
 #include <iostream>
 
@@ -38,7 +38,7 @@
 # define FORMAT_STRING(p) p
 #endif
 
-namespace api
+namespace openkit
 {
 	///
 	/// This interface provides logging functionality to OpenKit. By subclassing, OpenKit can make use of custom loggers.

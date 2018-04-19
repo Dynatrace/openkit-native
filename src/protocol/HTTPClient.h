@@ -20,7 +20,7 @@
 #include <vector>
 #include <string.h>
 
-#include "api/ILogger.h"
+#include "OpenKit/ILogger.h"
 #include "protocol/IHTTPClient.h"
 #include "protocol/ssl/ISSLTrustManager.h"
 #include "curl/curl.h"
@@ -61,7 +61,7 @@ namespace protocol
 		/// @param[in] logger to write traces to
 		/// @param[in] configuration configuration parameters for the HTTPClient
 		///
-		HTTPClient(std::shared_ptr<api::ILogger> logger, std::shared_ptr<configuration::HTTPClientConfiguration> configuration);
+		HTTPClient(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<configuration::HTTPClientConfiguration> configuration);
 
 		///
 		/// Destructor
@@ -123,7 +123,7 @@ namespace protocol
 
 	private:
 		/// Logger to write traces to
-		std::shared_ptr<api::ILogger> mLogger;
+		std::shared_ptr<openkit::ILogger> mLogger;
 
 		/// easy handle to the CURL session
 		CURL * mCurl;

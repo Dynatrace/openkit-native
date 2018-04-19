@@ -14,15 +14,15 @@
 * limitations under the License.
 */
 
-#ifndef _API_IACTION_H
-#define _API_IACTION_H
+#ifndef _OPENKIT_IACTION_H
+#define _OPENKIT_IACTION_H
 
 #include "OpenKit_export.h"
 
 #include <stdint.h>
 #include <memory>
 
-namespace api
+namespace openkit
 {
 	class IRootAction;
 	class IWebRequestTracer;

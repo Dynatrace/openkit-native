@@ -14,15 +14,15 @@
 * limitations under the License.
 */
 
-#ifndef _API_ISESSION_H
-#define _API_ISESSION_H
+#ifndef _OPENKIT_ISESSION_H
+#define _OPENKIT_ISESSION_H
 
 #include "OpenKit_export.h"
 
 #include <stdint.h>
 #include <memory>
 
-namespace api
+namespace openkit
 {
 	class IRootAction;
 

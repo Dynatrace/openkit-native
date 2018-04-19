@@ -26,7 +26,7 @@
 #include "providers/DefaultSessionIDProvider.h"
 #include "providers/DefaultHTTPClientProvider.h"
 
-#include "api/IRootAction.h"
+#include "OpenKit/IRootAction.h"
 #include "configuration/Configuration.h"
 #include "core/util/DefaultLogger.h"
 
@@ -48,7 +48,7 @@ public:
 	void SetUp()
 	{
 		std::ostringstream devNull;
-		logger = std::shared_ptr<api::ILogger>(new core::util::DefaultLogger(devNull, true));
+		logger = std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(devNull, true));
 
 		threadIDProvider = std::make_shared<providers::DefaultThreadIDProvider>();
 		timingProvider = std::make_shared<providers::DefaultTimingProvider>();
@@ -82,7 +82,7 @@ public:
 
 	}
 public:		
-	std::shared_ptr<api::ILogger> logger;
+	std::shared_ptr<openkit::ILogger> logger;
 	std::shared_ptr<providers::IThreadIDProvider> threadIDProvider;
 	std::shared_ptr<providers::ITimingProvider> timingProvider;
 	std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider;

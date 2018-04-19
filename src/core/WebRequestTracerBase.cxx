@@ -41,7 +41,7 @@ namespace core
 		return mWebRequestTag.getStringData().c_str();
 	}
 
-	std::shared_ptr<api::IWebRequestTracer> WebRequestTracerBase::setResponseCode(int32_t responseCode)
+	std::shared_ptr<openkit::IWebRequestTracer> WebRequestTracerBase::setResponseCode(int32_t responseCode)
 	{
 		if (!isStopped())
 		{
@@ -50,7 +50,7 @@ namespace core
 		return shared_from_this();
 	}
 
-	std::shared_ptr<api::IWebRequestTracer> WebRequestTracerBase::setBytesSent(int32_t bytesSent)
+	std::shared_ptr<openkit::IWebRequestTracer> WebRequestTracerBase::setBytesSent(int32_t bytesSent)
 	{
 		if (!isStopped())
 		{
@@ -59,7 +59,7 @@ namespace core
 		return shared_from_this();
 	}
 
-	std::shared_ptr<api::IWebRequestTracer> WebRequestTracerBase::setBytesReceived(int32_t bytesReceived)
+	std::shared_ptr<openkit::IWebRequestTracer> WebRequestTracerBase::setBytesReceived(int32_t bytesReceived)
 	{
 		if (!isStopped())
 		{
@@ -68,7 +68,7 @@ namespace core
 		return shared_from_this();
 	}
 
-	std::shared_ptr<api::IWebRequestTracer> WebRequestTracerBase::start()
+	std::shared_ptr<openkit::IWebRequestTracer> WebRequestTracerBase::start()
 	{
 		if (!isStopped())
 		{

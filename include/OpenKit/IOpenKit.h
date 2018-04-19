@@ -14,15 +14,15 @@
 * limitations under the License.
 */
 
-#ifndef _API_IOPENKIT_H
-#define _API_IOPENKIT_H
+#ifndef _OPENKIT_IOPENKIT_H
+#define _OPENKIT_IOPENKIT_H
 
 #include "OpenKit_export.h"
 
 #include <memory>
 
-namespace api {
-
+namespace openkit
+{
 	class ILogger;
 	class ISession;
 
@@ -71,7 +71,7 @@ namespace api {
 		/// @param[in] clientIPAddress client IP address where this Session is coming from
 		/// @returns @ref Session instance to work with
 		///
-		virtual std::shared_ptr<api::ISession> createSession(const char* clientIPAddress) = 0;
+		virtual std::shared_ptr<openkit::ISession> createSession(const char* clientIPAddress) = 0;
 
 		///
 		/// Shuts down OpenKit, ending all open Sessions and waiting for them to be sent.

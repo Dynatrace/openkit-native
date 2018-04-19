@@ -14,13 +14,13 @@
 * limitations under the License.
 */
 
-#include "api/AbstractOpenKitBuilder.h"
+#include "OpenKit/AbstractOpenKitBuilder.h"
 #include "core/util/DefaultLogger.h"
 #include "core/OpenKit.h"
-#include "api/OpenKitConstants.h"
+#include "OpenKit/OpenKitConstants.h"
 #include "protocol/ssl/SSLStrictTrustManager.h"
 
-using namespace api;
+using namespace openkit;
 
 AbstractOpenKitBuilder::AbstractOpenKitBuilder(const char* endpointURL, uint64_t deviceID)
 	: mVerbose(false)
@@ -112,14 +112,14 @@ AbstractOpenKitBuilder& AbstractOpenKitBuilder::withBeaconCacheUpperMemoryBounda
 	return *this;
 }
 
-std::shared_ptr<api::IOpenKit> AbstractOpenKitBuilder::build()
+std::shared_ptr<openkit::IOpenKit> AbstractOpenKitBuilder::build()
 {
 	auto openKit = std::make_shared<core::OpenKit>(getLogger(), buildConfiguration());
 	openKit->initialize();
 	return openKit;
 }
 
-std::shared_ptr<api::ILogger> AbstractOpenKitBuilder::getLogger()
+std::shared_ptr<openkit::ILogger> AbstractOpenKitBuilder::getLogger()
 {
 	if (mLogger != nullptr)
 	{
