@@ -45,10 +45,11 @@ namespace openkit
 		virtual std::shared_ptr<IRootAction> enterAction(const char* actionName) = 0;
 
 		///
-		/// Tags a session with the provided userTag.
+		/// Tags a session with the provided @c userTag.
+		/// If the given @c userTag is @c nullptr or an empty string,
+		/// no user identification will be reported to the server.
 		/// @param[in] userTag id of the user
 		///
-
 		virtual void identifyUser(const char* userTag) = 0;
 
 		///

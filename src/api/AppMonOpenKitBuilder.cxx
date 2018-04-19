@@ -26,6 +26,7 @@ AppMonOpenKitBuilder::AppMonOpenKitBuilder(const char* endpointURL, const char* 
 
 }
 
+
 std::shared_ptr<configuration::Configuration> AppMonOpenKitBuilder::buildConfiguration()
 {
 	std::shared_ptr<configuration::Device> device = std::make_shared<configuration::Device>(getOperatingSystem(), getManufacturer(), getModelID());

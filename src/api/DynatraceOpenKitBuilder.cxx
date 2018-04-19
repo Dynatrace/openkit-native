@@ -59,3 +59,4 @@ DynatraceOpenKitBuilder& DynatraceOpenKitBuilder::withApplicationName(const char
 	}
 	return *this;
 }
+
