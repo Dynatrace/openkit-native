@@ -159,7 +159,6 @@ TEST_F(BeaconSendingContextTest, initCompleteFailureAndWait)
 	ASSERT_FALSE(obtained);
 }
 
-#if 0 // Discuss, if waitForInit(timeout) shall be ported to C++ SDK
 TEST_F(BeaconSendingContextTest, waitForInitCompleteTimeout)
 {
 	// given
@@ -188,7 +187,7 @@ TEST_F(BeaconSendingContextTest, waitForInitCompleteWhenInitCompletedSuccessfull
 TEST_F(BeaconSendingContextTest, waitForInitCompleteWhenInitCompletedNotSuccessfully)
 {
 	// given
-	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mMomConfigurationckConfiguration));
+	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
 	target->setInitCompleted(false);
 
 	// when init complete was never set and timeout will be reached
@@ -197,7 +196,6 @@ TEST_F(BeaconSendingContextTest, waitForInitCompleteWhenInitCompletedNotSuccessf
 	// then
 	ASSERT_FALSE(obtained);
 }
-#endif
 
 TEST_F(BeaconSendingContextTest, aDefaultConstructedContextIsNotInitialized)
 {
