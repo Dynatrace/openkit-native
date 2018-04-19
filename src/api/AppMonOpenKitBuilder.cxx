@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-#include "AppMonOpenKitBuilder.h"
+#include "api/AppMonOpenKitBuilder.h"
 #include "providers/DefaultSessionIDProvider.h"
 
 using namespace api;

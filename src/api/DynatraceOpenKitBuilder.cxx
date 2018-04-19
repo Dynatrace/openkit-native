@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-#include "DynatraceOpenKitBuilder.h"
+#include "api/DynatraceOpenKitBuilder.h"
 #include "providers/DefaultSessionIDProvider.h"
 
 using namespace api;
