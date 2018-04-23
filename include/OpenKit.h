@@ -23,5 +23,6 @@
 #include "OpenKit/ISession.h"
 #include "OpenKit/AppMonOpenKitBuilder.h"
 #include "OpenKit/DynatraceOpenKitBuilder.h"
+#include "OpenKit/ISSLTrustManager.h"
 
 #endif

@@ -86,9 +86,19 @@ extern "C" {
 	/// @param[in] applicationID unique application id
 	/// @param[in] deviceID unique device id
 	/// @param[in] loggerHandle optional parameter to provide a logger that shall be used. If NULL is provided the DefaultLogger is used.
+	/// @param[in] applicationVersion optional paramter,  the application version
+	/// @param[in] trustManagerHandle optional parameter, custom trust manager
+	/// @param[in] operatingSystem optional parameter, name of the operating system
+	/// @param[in] manufacturer, optional parameter, manufacturer of the device
+	/// @param[in] modelID, optional parameter, model version or id of the device
+	/// @param[in] beaconCacheMaxRecordAge optional parameter, maximum age of cache records
+	/// @param[in] beaconCacheLowerMemoryBoundary optional parameter, lower memory boundary for beacon cache, valid parameters are >=1
+	/// @param[in] beaconCacheUpperMemoryBoundary optional parameter, upper memory boundary for beacon cache, valid parameters are >=1
 	/// @return OpenKit instance handle to work with
 	///
-	OPENKIT_EXPORT struct OpenKitHandle* createDynatraceOpenKit(const char* endpointURL, const char* applicationID, int64_t deviceID, struct LoggerHandle* logger);
+	OPENKIT_EXPORT struct OpenKitHandle* createDynatraceOpenKit(const char* endpointURL, const char* applicationID, int64_t deviceID, struct LoggerHandle* logger,
+		const char* applicationVersion, struct TrustManagerHandle* trustManagerHandle, const char* operatingSystem, const char* manufacturer,
+		const char* modelID, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary);
 
 	///
 	/// Creates an OpenKit instance for AppMon
@@ -96,9 +106,19 @@ extern "C" {
 	/// @param[in] applicationID unique application id
 	/// @param[in] deviceID unique device id
 	/// @param[in] loggerHandle optional parameter to provide a logger that shall be used. If NULL is provided the DefaultLogger is used.
+	/// @param[in] applicationVersion optional paramter,  the application version
+	/// @param[in] trustManagerHandle optional parameter, custom trust manager
+	/// @param[in] operatingSystem optional parameter, name of the operating system
+	/// @param[in] manufacturer, optional parameter, manufacturer of the device
+	/// @param[in] modelID, optional parameter, model version or id of the device
+	/// @param[in] beaconCacheMaxRecordAge optional parameter, maximum age of cache records
+	/// @param[in] beaconCacheLowerMemoryBoundary optional parameter, lower memory boundary for beacon cache, valid parameters are >=1
+	/// @param[in] beaconCacheUpperMemoryBoundary optional parameter, upper memory boundary for beacon cache, valid parameters are >=1
 	/// @return OpenKit instance handle to work with
 	///
-	OPENKIT_EXPORT struct OpenKitHandle* createAppMonOpenKit(const char* endpointURL, const char* applicationID, int64_t deviceID, struct LoggerHandle* loggerHandle);
+	OPENKIT_EXPORT struct OpenKitHandle* createAppMonOpenKit(const char* endpointURL, const char* applicationID, int64_t deviceID, struct LoggerHandle* loggerHandle,
+		const char* applicationVersion, struct TrustManagerHandle* trustManagerHandle, const char* operatingSystem, const char* manufacturer,
+		const char* modelID, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary);
 
 	///
 	/// Shuts down the OpenKit, ending all open Sessions and waiting for them to be sent.

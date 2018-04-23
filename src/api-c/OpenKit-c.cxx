@@ -54,6 +54,11 @@ extern "C" {
 		std::shared_ptr<openkit::ILogger> logger = nullptr;
 	} LoggerHandle;
 
+	typedef struct TrustManagerHandle
+	{
+		std::shared_ptr<openkit::ISSLTrustManager> trustManager = nullptr;
+	} TrustManagerHandle;
+
 	LoggerHandle* createLogger(levelEnabledFunc levelEnabledFunc, logFunc logFunc)
 	{
 		// Sanity
@@ -99,9 +104,12 @@ extern "C" {
 	{
 		std::shared_ptr<openkit::IOpenKit> sharedPointer = nullptr;
 		std::shared_ptr<openkit::ILogger> logger = nullptr;
+		std::shared_ptr<openkit::ISSLTrustManager> trustManager = nullptr;
 	} OpenKitHandle;
 
-	OpenKitHandle* createDynatraceOpenKit(const char* endpointURL, const char* applicationID, int64_t deviceID, LoggerHandle* loggerHandle)
+	OpenKitHandle* createDynatraceOpenKit(const char* endpointURL, const char* applicationID, int64_t deviceID, LoggerHandle* loggerHandle,
+		const char* applicationVersion, TrustManagerHandle* trustManagerHandle, const char* operatingSystem, const char* manufacturer, 
+		const char* modelID, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary)
 	{
 		OpenKitHandle* handle = nullptr;
 		TRY
@@ -112,19 +120,64 @@ extern "C" {
 				// Instantiate the CustomLogger mapping the log statements to the FunctionPointers
 				builder.withLogger(loggerHandle->logger);
 			}
+
+			if (applicationVersion != nullptr)
+			{
+				builder.withApplicationVersion(applicationVersion);
+			}
+
+			if (trustManagerHandle != nullptr)
+			{
+				//TODO: roland.ettinger
+				//builder.withTrustManager(trustManagerHandle->trustManager);
+			}
+
+			if (operatingSystem != nullptr)
+			{
+				builder.withOperatingSystem(operatingSystem);
+			}
+
+			if (manufacturer != nullptr)
+			{
+				builder.withManufacturer(manufacturer);
+			}
+
+			if (modelID != nullptr)
+			{
+				builder.withModelID(modelID);
+			}
+
+			if (beaconCacheMaxRecordAge >= 0)
+			{
+				builder.withBeaconCacheMaxRecordAge(beaconCacheMaxRecordAge);
+			}
+
+			if (beaconCacheLowerMemoryBoundary >= 0)
+			{
+				builder.withBeaconCacheLowerMemoryBoundary(beaconCacheLowerMemoryBoundary);
+			}
+
+			if (beaconCacheUpperMemoryBoundary >= 0)
+			{
+				builder.withBeaconCacheUpperMemoryBoundary(beaconCacheUpperMemoryBoundary);
+			}
+
 			std::shared_ptr<openkit::IOpenKit> openKit = builder.build();
 		
 			// storing the returned shared pointer in the handle prevents it from going out of scope
 			handle = new OpenKitHandle();
 			handle->sharedPointer = openKit;
 			handle->logger = loggerHandle->logger;
+			handle->trustManager = trustManagerHandle->trustManager;
 		}
 		CATCH_AND_LOG(loggerHandle)
 		
 		return handle;
 	}
 
-	OpenKitHandle* createAppMonOpenKit(const char* endpointURL, const char* applicationID, int64_t deviceID, LoggerHandle* loggerHandle)
+	OpenKitHandle* createAppMonOpenKit(const char* endpointURL, const char* applicationID, int64_t deviceID, LoggerHandle* loggerHandle,
+		const char* applicationVersion, TrustManagerHandle* trustManagerHandle, const char* operatingSystem, const char* manufacturer,
+		const char* modelID, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary)
 	{
 		OpenKitHandle* handle = nullptr;
 		TRY
@@ -135,6 +188,48 @@ extern "C" {
 				// Instantiate the CustomLogger mapping the log statements to the FunctionPointers
 				builder.withLogger(loggerHandle->logger);
 			}
+
+			if (applicationVersion != nullptr)
+			{
+				builder.withApplicationVersion(applicationVersion);
+			}
+
+			if (trustManagerHandle != nullptr)
+			{
+				//TODO: roland.ettinger
+				//builder.withTrustManager(trustManagerHandle->trustManager);
+			}
+
+			if (operatingSystem != nullptr)
+			{
+				builder.withOperatingSystem(operatingSystem);
+			}
+
+			if (manufacturer != nullptr)
+			{
+				builder.withManufacturer(manufacturer);
+			}
+
+			if (modelID != nullptr)
+			{
+				builder.withModelID(modelID);
+			}
+
+			if (beaconCacheMaxRecordAge >= 1)
+			{
+				builder.withBeaconCacheMaxRecordAge(beaconCacheMaxRecordAge);
+			}
+
+			if (beaconCacheLowerMemoryBoundary >= 1)
+			{
+				builder.withBeaconCacheLowerMemoryBoundary(beaconCacheLowerMemoryBoundary);
+			}
+
+			if (beaconCacheUpperMemoryBoundary >= 1)
+			{
+				builder.withBeaconCacheUpperMemoryBoundary(beaconCacheUpperMemoryBoundary);
+			}
+
 			std::shared_ptr<openkit::IOpenKit> openKit = builder.build();
 
 			// storing the returned shared pointer in the handle prevents it from going out of scope

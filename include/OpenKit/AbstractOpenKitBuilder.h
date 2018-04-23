@@ -71,7 +71,7 @@ namespace openkit
 			/// @param[in] trustManager trust manager implementation
 			/// @returns @c this for fluent usage
 			///
-			AbstractOpenKitBuilder& withTrustManager(std::shared_ptr<protocol::ISSLTrustManager> trustManager);
+			AbstractOpenKitBuilder& withTrustManager(std::shared_ptr<openkit::ISSLTrustManager> trustManager);
 
 			///
 			/// Sets the operating system information. The value is only set if it is neither null nor empty.
@@ -178,7 +178,7 @@ namespace openkit
 			/// Returns the SSL trust manager
 			/// @returns the SSL trust manager
 			///
-			std::shared_ptr<protocol::ISSLTrustManager> getTrustManager() const;
+			std::shared_ptr<openkit::ISSLTrustManager> getTrustManager() const;
 
 			///
 			/// Returns the maximum record age
@@ -232,7 +232,7 @@ namespace openkit
 			int64_t mDeviceID;
 
 			/// SSL trust manager
-			std::shared_ptr<protocol::ISSLTrustManager> mTrustManager;
+			std::shared_ptr<openkit::ISSLTrustManager> mTrustManager;
 
 			/// maximum record age inside beacon cache
 			int64_t mBeaconCacheMaxRecordAge;

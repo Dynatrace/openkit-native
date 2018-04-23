@@ -31,7 +31,7 @@ class ConfigurationTest : public testing::Test
 public:
 	void SetUp()
 	{
-		sslTrustManager = std::shared_ptr<protocol::ISSLTrustManager>(new protocol::SSLStrictTrustManager());
+		sslTrustManager = std::shared_ptr<openkit::ISSLTrustManager>(new protocol::SSLStrictTrustManager());
 		sessionIDProvider = std::shared_ptr<providers::ISessionIDProvider>(new providers::DefaultSessionIDProvider());
 		device = std::shared_ptr<Device>(new Device("", "", ""));
 		beaconCacheConfiguration = std::make_shared<configuration::BeaconCacheConfiguration>(-1, -1, -1);
@@ -50,7 +50,7 @@ private:
 	std::shared_ptr<Device> device = nullptr;
 	OpenKitType openKitType = OpenKitType::DYNATRACE;
 	std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider = nullptr;
-	std::shared_ptr<protocol::ISSLTrustManager> sslTrustManager = nullptr;
+	std::shared_ptr<openkit::ISSLTrustManager> sslTrustManager = nullptr;
 	std::shared_ptr<configuration::BeaconCacheConfiguration> beaconCacheConfiguration = nullptr;
 
 	std::shared_ptr<Configuration> testConfiguration = nullptr;

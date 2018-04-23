@@ -19,7 +19,7 @@
 
 namespace test
 {
-	class TestSSLTrustManager : public protocol::ISSLTrustManager
+	class TestSSLTrustManager : public openkit::ISSLTrustManager
 	{
 	public:
 		virtual ~TestSSLTrustManager() {}

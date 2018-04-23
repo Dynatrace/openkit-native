@@ -22,7 +22,7 @@
 
 #include "OpenKit/ILogger.h"
 #include "protocol/IHTTPClient.h"
-#include "protocol/ssl/ISSLTrustManager.h"
+#include "OpenKit/ISSLTrustManager.h"
 #include "curl/curl.h"
 
 namespace protocol
@@ -144,7 +144,7 @@ namespace protocol
 		size_t mReadBufferPos;
 
 		/// how the peer's TSL/SSL certificate and the hostname shall be trusted
-		std::shared_ptr<ISSLTrustManager> mSSLTrustManager;
+		std::shared_ptr<openkit::ISSLTrustManager> mSSLTrustManager;
 	};
 
 }
