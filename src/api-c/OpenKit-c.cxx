@@ -19,6 +19,7 @@
 
 #include "api-c/OpenKit-c.h"
 #include "api-c/CustomLogger.h"
+#include "api-c/CustomTrustManager.h"
 
 #include <list>
 #include <assert.h> 
@@ -46,6 +47,47 @@ extern "C" {
 	}
 
 	//--------------
+	// TrustManager
+	//--------------
+
+	typedef struct TrustManagerHandle
+	{
+		std::shared_ptr<openkit::ISSLTrustManager> trustManager = nullptr;
+	} TrustManagerHandle;
+
+	TrustManagerHandle* createTrustManager()
+	{
+		// Sanity
+		TrustManagerHandle* handle = nullptr;
+		try
+		{
+			auto trustManager = std::shared_ptr<openkit::ISSLTrustManager>(new apic::CustomTrustManager());
+			// storing the returned shared pointer in the handle prevents it from going out of scope
+			handle = new TrustManagerHandle();
+			handle->trustManager = trustManager;
+		}
+		catch (...)
+		{
+			/* Ignore exception, as we don't have a logger yet */
+		}
+
+		return handle;
+	}
+
+	void destroyTrustManager(TrustManagerHandle* trustManagerHandle)
+	{
+		// Sanity
+		if (trustManagerHandle == nullptr)
+		{
+			return;
+		}
+
+		// release shared pointer
+		trustManagerHandle->trustManager = nullptr;
+		delete trustManagerHandle;
+	}
+
+	//--------------
 	//  Logger
 	//--------------
 
@@ -53,11 +95,6 @@ extern "C" {
 	{
 		std::shared_ptr<openkit::ILogger> logger = nullptr;
 	} LoggerHandle;
-
-	typedef struct TrustManagerHandle
-	{
-		std::shared_ptr<openkit::ISSLTrustManager> trustManager = nullptr;
-	} TrustManagerHandle;
 
 	LoggerHandle* createLogger(levelEnabledFunc levelEnabledFunc, logFunc logFunc)
 	{

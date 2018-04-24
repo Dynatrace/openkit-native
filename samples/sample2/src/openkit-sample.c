@@ -119,9 +119,9 @@ int32_t main(int32_t argc, char** argv)
 	printf("ApplicationID = %s\n", applicationID);
 	printf("ServerID = %u\n", serverID);
 
+	struct TrustManagerHandle* trustManagerHandle = createTrustManager();
+
 	struct LoggerHandle* loggerHandle = createLogger(&levelEnabledFunction, &logFunction);
-	//		const char* applicationVersion, struct TrustManagerHandle* trustManagerHandle, const char* operatingSystem, const char* manufacturer,
-	//const char* modelID, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary);
 
 	struct OpenKitHandle* openKitHandle = createDynatraceOpenKit(beaconURL, applicationID, serverID, loggerHandle, "v0.1.x", NULL, "Test OS",
 		"Dynatrace", "Some unavailable model", -1, -1, -1);
@@ -166,6 +166,10 @@ int32_t main(int32_t argc, char** argv)
 		endSession(sessionHandle);
 	}
 	shutdownOpenKit(openKitHandle);
+
+	destroyLogger(loggerHandle);
+
+	destroyTrustManager(trustManagerHandle);
 
 	return 0;
 }
