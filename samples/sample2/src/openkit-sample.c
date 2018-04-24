@@ -119,11 +119,9 @@ int32_t main(int32_t argc, char** argv)
 	printf("ApplicationID = %s\n", applicationID);
 	printf("ServerID = %u\n", serverID);
 
-	struct TrustManagerHandle* trustManagerHandle = createTrustManager();
-
 	struct LoggerHandle* loggerHandle = createLogger(&levelEnabledFunction, &logFunction);
 
-	struct OpenKitHandle* openKitHandle = createDynatraceOpenKit(beaconURL, applicationID, serverID, loggerHandle, "v0.1.x", NULL, "Test OS",
+	struct OpenKitHandle* openKitHandle = createDynatraceOpenKit(beaconURL, applicationID, serverID, loggerHandle, "v0.1.x", 1, "Test OS",
 		"Dynatrace", "Some unavailable model", -1, -1, -1);
 	waitForInitCompletionWithTimeout(openKitHandle, 20000);
 
@@ -168,8 +166,6 @@ int32_t main(int32_t argc, char** argv)
 	shutdownOpenKit(openKitHandle);
 
 	destroyLogger(loggerHandle);
-
-	destroyTrustManager(trustManagerHandle);
 
 	return 0;
 }

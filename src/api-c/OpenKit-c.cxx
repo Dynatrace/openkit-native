@@ -21,6 +21,8 @@
 #include "api-c/CustomLogger.h"
 #include "api-c/CustomTrustManager.h"
 
+#include "protocol/ssl/SSLBlindTrustManager.h"
+
 #include <list>
 #include <assert.h> 
 
@@ -55,13 +57,32 @@ extern "C" {
 		std::shared_ptr<openkit::ISSLTrustManager> trustManager = nullptr;
 	} TrustManagerHandle;
 
-	TrustManagerHandle* createTrustManager()
+	TrustManagerHandle* createCustomTrustManager()
 	{
 		// Sanity
 		TrustManagerHandle* handle = nullptr;
 		try
 		{
 			auto trustManager = std::shared_ptr<openkit::ISSLTrustManager>(new apic::CustomTrustManager());
+			// storing the returned shared pointer in the handle prevents it from going out of scope
+			handle = new TrustManagerHandle();
+			handle->trustManager = trustManager;
+		}
+		catch (...)
+		{
+			/* Ignore exception, as we don't have a logger yet */
+		}
+
+		return handle;
+	}
+
+	TrustManagerHandle* createBlindTrustManager()
+	{
+		// Sanity
+		TrustManagerHandle* handle = nullptr;
+		try
+		{
+			auto trustManager = std::shared_ptr<openkit::ISSLTrustManager>(new protocol::SSLBlindTrustManager());
 			// storing the returned shared pointer in the handle prevents it from going out of scope
 			handle = new TrustManagerHandle();
 			handle->trustManager = trustManager;
@@ -85,6 +106,11 @@ extern "C" {
 		// release shared pointer
 		trustManagerHandle->trustManager = nullptr;
 		delete trustManagerHandle;
+	}
+
+	void disableSSLVerifiaction()
+	{
+
 	}
 
 	//--------------
@@ -145,6 +171,20 @@ extern "C" {
 	} OpenKitHandle;
 
 	OpenKitHandle* createDynatraceOpenKit(const char* endpointURL, const char* applicationID, int64_t deviceID, LoggerHandle* loggerHandle,
+		const char* applicationVersion, int32_t disableSSLVerification, const char* operatingSystem, const char* manufacturer,
+		const char* modelID, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary)
+	{
+		TrustManagerHandle* trustManagerHandle = nullptr;
+		if (disableSSLVerification != 0)
+		{
+			trustManagerHandle = createBlindTrustManager();
+		}
+
+		return createDynatraceOpenKitWithCustomTrustManager(endpointURL, applicationID, deviceID, loggerHandle, applicationVersion, trustManagerHandle, operatingSystem, manufacturer, modelID,
+			beaconCacheMaxRecordAge, beaconCacheLowerMemoryBoundary, beaconCacheUpperMemoryBoundary);
+	}
+
+	OpenKitHandle* createDynatraceOpenKitWithCustomTrustManager(const char* endpointURL, const char* applicationID, int64_t deviceID, LoggerHandle* loggerHandle,
 		const char* applicationVersion, TrustManagerHandle* trustManagerHandle, const char* operatingSystem, const char* manufacturer, 
 		const char* modelID, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary)
 	{
@@ -165,8 +205,7 @@ extern "C" {
 
 			if (trustManagerHandle != nullptr)
 			{
-				//TODO: roland.ettinger
-				//builder.withTrustManager(trustManagerHandle->trustManager);
+				builder.withTrustManager(trustManagerHandle->trustManager);
 			}
 
 			if (operatingSystem != nullptr)
@@ -213,6 +252,20 @@ extern "C" {
 	}
 
 	OpenKitHandle* createAppMonOpenKit(const char* endpointURL, const char* applicationID, int64_t deviceID, LoggerHandle* loggerHandle,
+		const char* applicationVersion, int32_t disableSSLVerification, const char* operatingSystem, const char* manufacturer,
+		const char* modelID, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary)
+	{
+		TrustManagerHandle* trustManagerHandle = nullptr;
+		if (disableSSLVerification != 0)
+		{
+			trustManagerHandle = createBlindTrustManager();
+		}
+
+		return createDynatraceOpenKitWithCustomTrustManager(endpointURL, applicationID, deviceID, loggerHandle, applicationVersion, trustManagerHandle, operatingSystem, manufacturer, modelID,
+			beaconCacheMaxRecordAge, beaconCacheLowerMemoryBoundary, beaconCacheUpperMemoryBoundary);
+	}
+
+	OpenKitHandle* createAppMonOpenKitWithCustomTrustManager(const char* endpointURL, const char* applicationID, int64_t deviceID, LoggerHandle* loggerHandle,
 		const char* applicationVersion, TrustManagerHandle* trustManagerHandle, const char* operatingSystem, const char* manufacturer,
 		const char* modelID, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary)
 	{
@@ -233,8 +286,7 @@ extern "C" {
 
 			if (trustManagerHandle != nullptr)
 			{
-				//TODO: roland.ettinger
-				//builder.withTrustManager(trustManagerHandle->trustManager);
+				builder.withTrustManager(trustManagerHandle->trustManager);
 			}
 
 			if (operatingSystem != nullptr)
@@ -295,6 +347,7 @@ extern "C" {
 			// release shared pointer
 			openKitHandle->sharedPointer = nullptr;
 			openKitHandle->logger = nullptr;
+			openKitHandle->trustManager = nullptr;
 			delete openKitHandle;
 		}
 		CATCH_AND_LOG(openKitHandle)
