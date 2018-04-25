@@ -21,6 +21,8 @@
 #include "providers/DefaultThreadIDProvider.h"
 #include "caching/BeaconCache.h"
 
+#include <inttypes.h> // for PRId64 macro
+
 using namespace core;
 
 OpenKit::OpenKit(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<configuration::Configuration> configuration)
@@ -41,13 +43,25 @@ OpenKit::OpenKit(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<confi
 	, mConfiguration(configuration)
 	, mTimingProvider(timingProvider)
 	, mThreadIDProvider(threadIDProvider)
-	, mBeaconCache(std::make_shared<caching::BeaconCache>())
+	, mBeaconCache(std::make_shared<caching::BeaconCache>(logger))
 	, mBeaconSender(std::make_shared<core::BeaconSender>(logger, configuration, httpClientProvider, timingProvider))
 	, mBeaconCacheEvictor(std::make_shared<caching::BeaconCacheEvictor>(logger, mBeaconCache, configuration->getBeaconCacheConfiguration(), timingProvider))
 	, mIsShutdown(0)
 	, NULL_SESSION(std::make_shared<core::NullSession>())
 {
-
+	if (logger->isInfoEnabled())
+	{
+		// TODO: Use proper version information (incl. the build number)
+		logger->info("%s OpenKit %s instantiated", configuration->getOpenKitType(), openkit::DEFAULT_APPLICATION_VERSION);
+	}
+	if (logger->isDebugEnabled())
+	{
+		logger->debug("applicationName=%s, applicationID=%s, deviceID=%" PRId64 ", endpointURL=%s",
+			configuration->getApplicationName() != nullptr ? configuration->getApplicationName().getStringData().c_str() : "",
+			configuration->getApplicationID() != nullptr ? configuration->getApplicationID().getStringData().c_str() : "",
+			configuration->getDeviceID(),
+			configuration->getEndpointURL() != nullptr ? configuration->getEndpointURL().getStringData().c_str() : "");
+	}
 }
 
 void OpenKit::initialize()
@@ -73,6 +87,10 @@ bool OpenKit::isInitialized() const
 
 std::shared_ptr<openkit::ISession> OpenKit::createSession(const char* clientIPAddress)
 {
+	if (mLogger->isDebugEnabled())
+	{
+		mLogger->debug("OpenKit createSession(%s)", clientIPAddress != nullptr ? clientIPAddress : "null");
+	}
 	if (mIsShutdown == 1 || clientIPAddress == nullptr || strlen(clientIPAddress) == 0)
 	{
 		return NULL_SESSION;
@@ -86,6 +104,10 @@ std::shared_ptr<openkit::ISession> OpenKit::createSession(const char* clientIPAd
 
 void OpenKit::shutdown()
 {
+	if (mLogger->isDebugEnabled())
+	{
+		mLogger->debug("OpenKit shutdown requested");
+	}
 	mIsShutdown = 1;
 	mBeaconCacheEvictor->stop();
 	mBeaconSender->shutdown();
