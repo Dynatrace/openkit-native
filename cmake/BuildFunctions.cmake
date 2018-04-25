@@ -173,7 +173,7 @@ function(open_kit_build_executable name includedirs libs)
     message(INFO " Configuring executable '${name}' (INCLUDEDIRS=${includedirs}; LIBS=${libs}")
     add_executable(${name} ${ARGN})
 
-    _open_kit_build("${name}" "${cxx_flags}" "${includedirs}" "${libs}")
+    _open_kit_build("${name}" "${includedirs}" "${libs}")
 
 endfunction()
 

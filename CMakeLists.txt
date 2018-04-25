@@ -25,7 +25,7 @@ endif()
 SET (CMAKE_CONFIGURATION_TYPES Debug Release CACHE TYPE INTERNAL FORCE)
 
 # project setup
-project(openkit-c C CXX)
+project(OpenKit C CXX)
 
 # set CMake search path
 set(CMAKE_MODULE_PATH
@@ -59,9 +59,8 @@ if (OPENKIT_BUILD_TESTS)
 endif()
 
 # build samples
-#include(${CMAKE_CURRENT_SOURCE_DIR}/samples/OpenKitSamples.cmake)
-#build_sample1()
-#build_sample2()
+include(${CMAKE_CURRENT_SOURCE_DIR}/samples/OpenKitSamples.cmake)
+build_open_kit_samples()
 
 # add doc target (Doxygen)
 if (BUILD_DOC)
