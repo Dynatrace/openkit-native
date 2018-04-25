@@ -26,6 +26,12 @@
 extern "C" {
 #endif
 
+#ifdef _MSC_VER 
+#define CALLING_CONVENTION __cdecl
+#else
+#define CALLING_CONVENTION
+#endif
+
 	//--------------
 	//  Logger
 	//--------------
@@ -61,16 +67,16 @@ extern "C" {
 	}
 
 	/// Function to check if the provided log level is enabled. Called before each trace statement
-	typedef bool (*levelEnabledFunc)(LOG_LEVEL /* logLevel */);
+	typedef bool (CALLING_CONVENTION *levelEnabledFunc)(LOG_LEVEL /* logLevel */);
 
 	/// Function to perform the log. The 
-	typedef void (*logFunc)(LOG_LEVEL /* logLevel */, const char* /* traceStatement */);
+	typedef void  (CALLING_CONVENTION *logFunc)(LOG_LEVEL /* logLevel */, const char* /* traceStatement */);
 	
 	/// An opaque type that we'll use as a handle
 	struct LoggerHandle;
 
-	OPENKIT_EXPORT struct LoggerHandle* createLogger(levelEnabledFunc levelEnabledFunc, logFunc logFunc);
-	OPENKIT_EXPORT void destroyLogger(struct LoggerHandle* loggerHandle);
+	OPENKIT_EXPORT struct LoggerHandle* CALLING_CONVENTION  createLogger(levelEnabledFunc levelEnabledFunc, logFunc logFunc);
+	OPENKIT_EXPORT void CALLING_CONVENTION  destroyLogger(struct LoggerHandle* loggerHandle);
 
 	//--------------
 	//  TrustManager
@@ -79,13 +85,13 @@ extern "C" {
 	struct TrustManagerHandle;
 
 	/// Create a custom trust manager
-	OPENKIT_EXPORT struct TrustManagerHandle* createCustomTrustManager();
+	OPENKIT_EXPORT struct TrustManagerHandle* CALLING_CONVENTION createCustomTrustManager();
 
 	/// Create a blind trust manager
-	OPENKIT_EXPORT struct TrustManagerHandle* createBlindTrustManager();
+	OPENKIT_EXPORT struct  TrustManagerHandle* CALLING_CONVENTION createBlindTrustManager();
 
 	/// destroy a trust manager
-	OPENKIT_EXPORT void destroyTrustManager(struct TrustManagerHandle* trustManagerHandle);
+	OPENKIT_EXPORT void CALLING_CONVENTION destroyTrustManager(struct TrustManagerHandle* trustManagerHandle);
 	
 	//--------------
 	//  OpenKit
@@ -96,6 +102,7 @@ extern "C" {
 
 	///
 	/// Creates an OpenKit instance for Dynatrace Saas/Managed 
+	/// Remarks: This insecure variant of the create method is not be used in production environments
 	/// @param[in] endPointURL endpoint OpenKit connects to
 	/// @param[in] applicationID unique application id
 	/// @param[in] deviceID unique device id
@@ -110,7 +117,7 @@ extern "C" {
 	/// @param[in] beaconCacheUpperMemoryBoundary optional parameter, upper memory boundary for beacon cache. A value of -1 will lead to the default value. All positive integers starting with 0 are valid.
 	/// @return OpenKit instance handle to work with
 	///
-	OPENKIT_EXPORT struct OpenKitHandle* createDynatraceOpenKit(const char* endpointURL, const char* applicationID, int64_t deviceID, struct LoggerHandle* logger,
+	OPENKIT_EXPORT struct OpenKitHandle* CALLING_CONVENTION createDynatraceOpenKitWithoutSSLVerification(const char* endpointURL, const char* applicationID, int64_t deviceID, struct LoggerHandle* logger,
 		const char* applicationVersion, int32_t disableSSLVerification, const char* operatingSystem, const char* manufacturer,
 		const char* modelID, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary);
 
@@ -130,13 +137,14 @@ extern "C" {
 	/// @param[in] beaconCacheUpperMemoryBoundary optional parameter, upper memory boundary for beacon cache. A value of -1 will lead to the default value. All positive integers starting with 0 are valid.
 	/// @return OpenKit instance handle to work with
 	///
-	OPENKIT_EXPORT struct OpenKitHandle* createDynatraceOpenKitWithCustomTrustManager(const char* endpointURL, const char* applicationID, int64_t deviceID, struct LoggerHandle* logger,
+	OPENKIT_EXPORT struct OpenKitHandle* CALLING_CONVENTION createDynatraceOpenKit(const char* endpointURL, const char* applicationID, int64_t deviceID, struct LoggerHandle* logger,
 		const char* applicationVersion, struct TrustManagerHandle* trustManagerHandle, const char* operatingSystem, const char* manufacturer,
 		const char* modelID, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary);
 
 
 	///
 	/// Creates an OpenKit instance for AppMon
+	/// Remarks: This insecure variant of the create method is not be used in production environments
 	/// @param[in] endPointURL endpoint OpenKit connects to
 	/// @param[in] applicationID unique application id
 	/// @param[in] deviceID unique device id
@@ -151,7 +159,7 @@ extern "C" {
 	/// @param[in] beaconCacheUpperMemoryBoundary optional parameter, upper memory boundary for beacon cache. A value of -1 will lead to the default value. All positive integers starting with 0 are valid.
 	/// @return OpenKit instance handle to work with
 	///
-	OPENKIT_EXPORT struct OpenKitHandle* createAppMonOpenKit(const char* endpointURL, const char* applicationID, int64_t deviceID, struct LoggerHandle* loggerHandle,
+	OPENKIT_EXPORT struct OpenKitHandle* CALLING_CONVENTION createAppMonOpenKitWithoutSSLVerification(const char* endpointURL, const char* applicationID, int64_t deviceID, struct LoggerHandle* loggerHandle,
 		const char* applicationVersion, int32_t disableSSLVerification, const char* operatingSystem, const char* manufacturer,
 		const char* modelID, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary);
 
@@ -171,7 +179,7 @@ extern "C" {
 	/// @param[in] beaconCacheUpperMemoryBoundary optional parameter, upper memory boundary for beacon cache. A value of -1 will lead to the default value. All positive integers starting with 0 are valid.
 	/// @return OpenKit instance handle to work with
 	///
-	OPENKIT_EXPORT struct OpenKitHandle* createAppMonOpenKitWithCustomTrustManager(const char* endpointURL, const char* applicationID, int64_t deviceID, struct LoggerHandle* loggerHandle,
+	OPENKIT_EXPORT struct OpenKitHandle* CALLING_CONVENTION createAppMonOpenKit(const char* endpointURL, const char* applicationID, int64_t deviceID, struct LoggerHandle* loggerHandle,
 		const char* applicationVersion, struct TrustManagerHandle* trustManagerHandle, const char* operatingSystem, const char* manufacturer,
 		const char* modelID, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary);
 
@@ -180,7 +188,7 @@ extern "C" {
 	/// After calling @c shutdown the openKitHandle is released and must not be used any more.
 	/// @param[in] openKitHandle the handle returned by @ref createDynatraceOpenKit or @ref createAppMonOpenKit
 	///
-	OPENKIT_EXPORT void shutdownOpenKit(struct OpenKitHandle* openKitHandle);
+	OPENKIT_EXPORT void CALLING_CONVENTION shutdownOpenKit(struct OpenKitHandle* openKitHandle);
 
 	///
 	/// Waits until OpenKit is fully initialized.
@@ -194,7 +202,7 @@ extern "C" {
 	/// @param[in] openKitHandle the handle returned by @ref createDynatraceOpenKit or @ref createAppMonOpenKit
 	/// @returns @c true when OpenKit is fully initialized, @c false when a shutdown request was made.
 	///
-	OPENKIT_EXPORT bool waitForInitCompletion(struct OpenKitHandle* openKitHandle);
+	OPENKIT_EXPORT bool CALLING_CONVENTION waitForInitCompletion(struct OpenKitHandle* openKitHandle);
 
 	///
 	/// Waits until OpenKit is fully initialized or the given timeout expired
@@ -210,14 +218,14 @@ extern "C" {
 	/// @param[in] timeoutMillis The maximum number of milliseconds to wait for initialization being completed.
 	/// @returns @c true when OpenKit is fully initialized, @c false when a shutdown request was made or @c timeoutMillis expired.
 	///
-	OPENKIT_EXPORT bool waitForInitCompletionWithTimeout(struct OpenKitHandle* openKitHandle, int64_t timeoutMillis);
+	OPENKIT_EXPORT bool CALLING_CONVENTION waitForInitCompletionWithTimeout(struct OpenKitHandle* openKitHandle, int64_t timeoutMillis);
 
 	///
 	/// Returns whether OpenKit is initialized or not.
 	/// @param[in] openKitHandle the handle returned by @ref createDynatraceOpenKit or @ref createAppMonOpenKit
 	/// @returns @c true if OpenKit is fully initialized, @c false if OpenKit still performs initialization.
 	///
-	OPENKIT_EXPORT bool isInitialized(struct OpenKitHandle* openKitHandle);
+	OPENKIT_EXPORT bool CALLING_CONVENTION isInitialized(struct OpenKitHandle* openKitHandle);
 
 
 	//--------------
@@ -232,14 +240,14 @@ extern "C" {
 	/// @param[in] openKitHandle   the handle returned by @ref createDynatraceOpenKit or @ref createAppMonOpenKit
 	/// @param[in] clientIPAddress client IP address where this Session is coming from
 	/// @return Session instance handle to work with
-	OPENKIT_EXPORT struct SessionHandle* createSession(struct OpenKitHandle* openKitHandle, const char* clientIPAddress);
+	OPENKIT_EXPORT struct SessionHandle* CALLING_CONVENTION createSession(struct OpenKitHandle* openKitHandle, const char* clientIPAddress);
 
 	///
 	/// Ends this session and marks it as ready for immediate sending.
 	/// After calling @c end the sessionHandle is released and must not be used any more.
 	/// @param[in] sessionHandle the handle returned by @ref createSession
 	///
-	OPENKIT_EXPORT void endSession(struct SessionHandle* sessionHandle);
+	OPENKIT_EXPORT void CALLING_CONVENTION endSession(struct SessionHandle* sessionHandle);
 
 	///
 	/// Tags a session with the provided @c userTag.
@@ -248,7 +256,7 @@ extern "C" {
 	/// @param[in] sessionHandle the handle returned by @ref createSession
 	/// @param[in] userTag       id of the user
 	///
-	OPENKIT_EXPORT void identifyUser(struct SessionHandle* sessionHandle, const char* userTag);
+	OPENKIT_EXPORT void CALLING_CONVENTION identifyUser(struct SessionHandle* sessionHandle, const char* userTag);
 
 	///
 	/// Reports a crash with a specified error name, crash reason and a stacktrace.
@@ -258,7 +266,7 @@ extern "C" {
 	/// @param[in] reason        reason or description of that error
 	/// @param[in] stacktrace    stacktrace leading to that crash
 	///
-	OPENKIT_EXPORT void reportCrash(struct SessionHandle* sessionHandle, const char* errorName, const char* reason, const char* stacktrace);
+	OPENKIT_EXPORT void CALLING_CONVENTION reportCrash(struct SessionHandle* sessionHandle, const char* errorName, const char* reason, const char* stacktrace);
 
 	//--------------
 	//  Root Action
@@ -273,13 +281,13 @@ extern "C" {
 	/// @param[in] actionName    name of the Action
 	/// @returns Root action instance to work with
 	///
-	OPENKIT_EXPORT struct RootActionHandle* enterRootAction(struct SessionHandle* sessionHandle, const char* rootActionName);
+	OPENKIT_EXPORT struct RootActionHandle* CALLING_CONVENTION enterRootAction(struct SessionHandle* sessionHandle, const char* rootActionName);
 
 	///
 	/// Leaves this root action.
 	/// @param[in] rootActionHandle the handle returned by @ref enterRootAction
 	///
-	OPENKIT_EXPORT void leaveRootAction(struct RootActionHandle* rootActionHandle);
+	OPENKIT_EXPORT void CALLING_CONVENTION leaveRootAction(struct RootActionHandle* rootActionHandle);
 
 	///
 	/// Reports an event with a specified name (but without any value).
@@ -289,7 +297,7 @@ extern "C" {
 	/// @param[in] rootActionHandle	the handle returned by @ref enterRootAction
 	/// @param[in] eventName		name of the event
 	///
-	OPENKIT_EXPORT void reportEventOnRootAction(struct RootActionHandle* rootActionHandle, const char* eventName);
+	OPENKIT_EXPORT void CALLING_CONVENTION reportEventOnRootAction(struct RootActionHandle* rootActionHandle, const char* eventName);
 
 	///
 	/// Reports an int value with a specified name.
@@ -298,7 +306,7 @@ extern "C" {
 	/// @param[in] valueName		name of this value
 	/// @param[in] value			value itself
 	///
-	OPENKIT_EXPORT void reportIntValueOnRootAction(struct RootActionHandle* rootActionHandle, const char* valueName, int32_t value);
+	OPENKIT_EXPORT void CALLING_CONVENTION reportIntValueOnRootAction(struct RootActionHandle* rootActionHandle, const char* valueName, int32_t value);
 
 	///
 	/// Reports a double value with a specified name.
@@ -307,7 +315,7 @@ extern "C" {
 	/// @param[in] valueName		name of this value
 	/// @param[in] value			value itself
 	///
-	OPENKIT_EXPORT void reportDoubleValueOnRootAction(struct RootActionHandle* rootActionHandle, const char* valueName, double value);
+	OPENKIT_EXPORT void CALLING_CONVENTION reportDoubleValueOnRootAction(struct RootActionHandle* rootActionHandle, const char* valueName, double value);
 
 	///
 	/// Reports a String value with a specified name.
@@ -316,7 +324,7 @@ extern "C" {
 	/// @param[in] valueName		name of this value
 	/// @param[in] value			value itself
 	///
-	OPENKIT_EXPORT void reportStringValueOnRootAction(struct RootActionHandle* rootActionHandle, const char* valueName, const char* value);
+	OPENKIT_EXPORT void CALLING_CONVENTION reportStringValueOnRootAction(struct RootActionHandle* rootActionHandle, const char* valueName, const char* value);
 
 	///
 	/// Reports an error with a specified name, error code and reason.
@@ -326,7 +334,7 @@ extern "C" {
 	/// @param[in] errorCode		numeric error code of this error
 	/// @param[in] reason			reason for this error
 	///
-	OPENKIT_EXPORT void reportErrorOnRootAction(struct RootActionHandle* rootActionHandle, const char* errorName, int32_t errorCode, const char* reason);
+	OPENKIT_EXPORT void CALLING_CONVENTION reportErrorOnRootAction(struct RootActionHandle* rootActionHandle, const char* errorName, int32_t errorCode, const char* reason);
 
 	//--------------
 	//  Action
@@ -341,13 +349,13 @@ extern "C" {
 	/// @param[in] actionName       name of the Action
 	/// @returns Root action instance to work with
 	///
-	OPENKIT_EXPORT struct ActionHandle* enterAction(struct RootActionHandle* rootActionHandle, const char* actionName);
+	OPENKIT_EXPORT struct ActionHandle* CALLING_CONVENTION enterAction(struct RootActionHandle* rootActionHandle, const char* actionName);
 
 	///
 	/// Leaves this action.
 	/// @param[in] actionHandle the handle returned by @ref enterAction
 	///
-	OPENKIT_EXPORT void leaveAction(struct ActionHandle* actionHandle);
+	OPENKIT_EXPORT void CALLING_CONVENTION leaveAction(struct ActionHandle* actionHandle);
 
 	///
 	/// Reports an event with a specified name (but without any value).
@@ -357,7 +365,7 @@ extern "C" {
 	/// @param[in] actionHandle	the handle returned by @ref enterAction
 	/// @param[in] eventName	name of the event
 	///
-	OPENKIT_EXPORT void reportEventOnAction(struct ActionHandle* actionHandle, const char* eventName);
+	OPENKIT_EXPORT void CALLING_CONVENTION reportEventOnAction(struct ActionHandle* actionHandle, const char* eventName);
 
 	///
 	/// Reports an int value with a specified name.
@@ -366,7 +374,7 @@ extern "C" {
 	/// @param[in] valueName	name of this value
 	/// @param[in] value		value itself
 	///
-	OPENKIT_EXPORT void reportIntValueOnAction(struct ActionHandle* actionHandle, const char* valueName, int32_t value);
+	OPENKIT_EXPORT void CALLING_CONVENTION reportIntValueOnAction(struct ActionHandle* actionHandle, const char* valueName, int32_t value);
 
 	///
 	/// Reports a double value with a specified name.
@@ -375,7 +383,7 @@ extern "C" {
 	/// @param[in] valueName	name of this value
 	/// @param[in] value		value itself
 	///
-	OPENKIT_EXPORT void reportDoubleValueOnAction(struct ActionHandle* actionHandle, const char* valueName, double value);
+	OPENKIT_EXPORT void CALLING_CONVENTION reportDoubleValueOnAction(struct ActionHandle* actionHandle, const char* valueName, double value);
 
 	///
 	/// Reports a String value with a specified name.
@@ -384,7 +392,7 @@ extern "C" {
 	/// @param[in] valueName	name of this value
 	/// @param[in] value		value itself
 	///
-	OPENKIT_EXPORT void reportStringValueOnAction(struct ActionHandle* actionHandle, const char* valueName, const char* value);
+	OPENKIT_EXPORT void CALLING_CONVENTION reportStringValueOnAction(struct ActionHandle* actionHandle, const char* valueName, const char* value);
 
 	///
 	/// Reports an error with a specified name, error code and reason.
@@ -394,7 +402,7 @@ extern "C" {
 	/// @param[in] errorCode	numeric error code of this error
 	/// @param[in] reason		reason for this error
 	///
-	OPENKIT_EXPORT void reportErrorOnAction(struct ActionHandle* actionHandle, const char* errorName, int32_t errorCode, const char* reason);
+	OPENKIT_EXPORT void CALLING_CONVENTION reportErrorOnAction(struct ActionHandle* actionHandle, const char* errorName, int32_t errorCode, const char* reason);
 
 
 	//--------------------
@@ -415,7 +423,7 @@ extern "C" {
 	/// @param[in] url				the URL of the web request to be tagged and timed
 	/// @return a WebRequestTracer which allows getting the tag value and adding timing information
 	///
-	OPENKIT_EXPORT struct WebRequestTracerHandle* traceWebRequestOnRootAction(struct RootActionHandle* rootActionHandle, const char* url);
+	OPENKIT_EXPORT struct WebRequestTracerHandle* CALLING_CONVENTION traceWebRequestOnRootAction(struct RootActionHandle* rootActionHandle, const char* url);
 
 	///
 	/// Allows tracing and timing of a web request handled by any 3rd party HTTP Client (e.g. CURL, EasyHttp, ...).
@@ -428,20 +436,20 @@ extern "C" {
 	/// @param[in] url			the URL of the web request to be tagged and timed
 	/// @return a WebRequestTracer which allows getting the tag value and adding timing information
 	///
-	OPENKIT_EXPORT struct WebRequestTracerHandle* traceWebRequestOnAction(struct ActionHandle* actionHandle, const char* url);
+	OPENKIT_EXPORT struct WebRequestTracerHandle* CALLING_CONVENTION traceWebRequestOnAction(struct ActionHandle* actionHandle, const char* url);
 
 	///
 	/// Starts the web request timing. Should be called when the web request is initiated.
 	/// @param[in] webRequestTracerHandle the handle returned by @ref traceWebRequestOnRootAction or @ref traceWebRequestOnAction
 	///
-	OPENKIT_EXPORT void startWebRequest(struct WebRequestTracerHandle*);
+	OPENKIT_EXPORT void CALLING_CONVENTION startWebRequest(struct WebRequestTracerHandle*);
 
 	///
 	/// Stops the web request timing. Should be called when the web request is finished.
 	/// After calling @c stop the webRequestTracerHandle is released and must not be used any more.
 	/// @param[in] webRequestTracerHandle the handle returned by @ref traceWebRequestOnRootAction or @ref traceWebRequestOnAction
 	///
-	OPENKIT_EXPORT void stopWebRequest(struct WebRequestTracerHandle* webRequestTracerHandle);
+	OPENKIT_EXPORT void CALLING_CONVENTION stopWebRequest(struct WebRequestTracerHandle* webRequestTracerHandle);
 
 	///
 	/// Returns the Dynatrace tag which has to be set manually as Dynatrace HTTP header
@@ -451,7 +459,7 @@ extern "C" {
 	/// @param[in] webRequestTracerHandle the handle returned by @ref traceWebRequestOnRootAction or @ref traceWebRequestOnAction
 	/// @returns the Dynatrace tag to be set as HTTP header value or an empty String if capture is off
 	///
-	OPENKIT_EXPORT const char* getTag(struct WebRequestTracerHandle* webRequestTracerHandle);
+	OPENKIT_EXPORT const char* CALLING_CONVENTION getTag(struct WebRequestTracerHandle* webRequestTracerHandle);
 
 	///
 	/// Sets the response code of this web request. Has to be called before @ref stop().
@@ -459,7 +467,7 @@ extern "C" {
 	/// @param[in] webRequestTracerHandle the handle returned by @ref traceWebRequestOnRootAction or @ref traceWebRequestOnAction
 	/// @param[in] responseCode response code of this web request
 	///
-	OPENKIT_EXPORT void setResponseCode(struct WebRequestTracerHandle* webRequestTracerHandle, int32_t responseCode);
+	OPENKIT_EXPORT void CALLING_CONVENTION setResponseCode(struct WebRequestTracerHandle* webRequestTracerHandle, int32_t responseCode);
 
 	///
 	/// Sets the amount of sent data of this web request. Has to be called before @ref stop().
@@ -467,7 +475,7 @@ extern "C" {
 	/// @param[in] webRequestTracerHandle the handle returned by @ref traceWebRequestOnRootAction or @ref traceWebRequestOnAction
 	/// @param[in] bytesSent number of bytes sent
 	///
-	OPENKIT_EXPORT void setBytesSent(struct WebRequestTracerHandle* webRequestTracerHandle, int32_t bytesSent);
+	OPENKIT_EXPORT void CALLING_CONVENTION setBytesSent(struct WebRequestTracerHandle* webRequestTracerHandle, int32_t bytesSent);
 
 	///
 	/// Sets the amount of received data of this web request. Has to be called before @ref stop().
@@ -475,7 +483,7 @@ extern "C" {
 	/// @param[in] webRequestTracerHandle the handle returned by @ref traceWebRequestOnRootAction or @ref traceWebRequestOnAction
 	/// @param[in] bytesReceived number of bytes received
 	///
-	OPENKIT_EXPORT void setBytesReceived(struct WebRequestTracerHandle* webRequestTracerHandle, int32_t bytesReceived);
+	OPENKIT_EXPORT void CALLING_CONVENTION setBytesReceived(struct WebRequestTracerHandle* webRequestTracerHandle, int32_t bytesReceived);
 
 
 #ifdef __cplusplus

@@ -121,7 +121,7 @@ int32_t main(int32_t argc, char** argv)
 
 	struct LoggerHandle* loggerHandle = createLogger(&levelEnabledFunction, &logFunction);
 
-	struct OpenKitHandle* openKitHandle = createDynatraceOpenKit(beaconURL, applicationID, serverID, loggerHandle, "v0.1.x", 1, "Test OS",
+	struct OpenKitHandle* openKitHandle = createDynatraceOpenKitWithoutSSLVerification(beaconURL, applicationID, serverID, loggerHandle, "v0.1.x", 1, "Test OS",
 		"Dynatrace", "Some unavailable model", -1, -1, -1);
 	waitForInitCompletionWithTimeout(openKitHandle, 20000);
 

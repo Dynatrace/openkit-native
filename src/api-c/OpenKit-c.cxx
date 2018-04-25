@@ -170,7 +170,7 @@ extern "C" {
 		std::shared_ptr<openkit::ISSLTrustManager> trustManager = nullptr;
 	} OpenKitHandle;
 
-	OpenKitHandle* createDynatraceOpenKit(const char* endpointURL, const char* applicationID, int64_t deviceID, LoggerHandle* loggerHandle,
+	OpenKitHandle* createDynatraceOpenKitWithoutSSLVerification(const char* endpointURL, const char* applicationID, int64_t deviceID, LoggerHandle* loggerHandle,
 		const char* applicationVersion, int32_t disableSSLVerification, const char* operatingSystem, const char* manufacturer,
 		const char* modelID, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary)
 	{
@@ -180,11 +180,11 @@ extern "C" {
 			trustManagerHandle = createBlindTrustManager();
 		}
 
-		return createDynatraceOpenKitWithCustomTrustManager(endpointURL, applicationID, deviceID, loggerHandle, applicationVersion, trustManagerHandle, operatingSystem, manufacturer, modelID,
+		return createDynatraceOpenKit(endpointURL, applicationID, deviceID, loggerHandle, applicationVersion, trustManagerHandle, operatingSystem, manufacturer, modelID,
 			beaconCacheMaxRecordAge, beaconCacheLowerMemoryBoundary, beaconCacheUpperMemoryBoundary);
 	}
 
-	OpenKitHandle* createDynatraceOpenKitWithCustomTrustManager(const char* endpointURL, const char* applicationID, int64_t deviceID, LoggerHandle* loggerHandle,
+	OpenKitHandle* createDynatraceOpenKit(const char* endpointURL, const char* applicationID, int64_t deviceID, LoggerHandle* loggerHandle,
 		const char* applicationVersion, TrustManagerHandle* trustManagerHandle, const char* operatingSystem, const char* manufacturer, 
 		const char* modelID, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary)
 	{
@@ -251,7 +251,7 @@ extern "C" {
 		return handle;
 	}
 
-	OpenKitHandle* createAppMonOpenKit(const char* endpointURL, const char* applicationID, int64_t deviceID, LoggerHandle* loggerHandle,
+	OpenKitHandle* createAppMonOpenKitWithoutSSLVerification(const char* endpointURL, const char* applicationID, int64_t deviceID, LoggerHandle* loggerHandle,
 		const char* applicationVersion, int32_t disableSSLVerification, const char* operatingSystem, const char* manufacturer,
 		const char* modelID, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary)
 	{
@@ -261,11 +261,11 @@ extern "C" {
 			trustManagerHandle = createBlindTrustManager();
 		}
 
-		return createDynatraceOpenKitWithCustomTrustManager(endpointURL, applicationID, deviceID, loggerHandle, applicationVersion, trustManagerHandle, operatingSystem, manufacturer, modelID,
+		return createAppMonOpenKit(endpointURL, applicationID, deviceID, loggerHandle, applicationVersion, trustManagerHandle, operatingSystem, manufacturer, modelID,
 			beaconCacheMaxRecordAge, beaconCacheLowerMemoryBoundary, beaconCacheUpperMemoryBoundary);
 	}
 
-	OpenKitHandle* createAppMonOpenKitWithCustomTrustManager(const char* endpointURL, const char* applicationID, int64_t deviceID, LoggerHandle* loggerHandle,
+	OpenKitHandle* createAppMonOpenKit(const char* endpointURL, const char* applicationID, int64_t deviceID, LoggerHandle* loggerHandle,
 		const char* applicationVersion, TrustManagerHandle* trustManagerHandle, const char* operatingSystem, const char* manufacturer,
 		const char* modelID, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary)
 	{
