@@ -8,6 +8,7 @@ set(SOURCES_API
 	api/AppMonOpenKitBuilder.cxx
 	api-c/OpenKit-c.cxx
 	api-c/CustomLogger.cxx
+	api-c/CustomTrustManager.cxx
 )
 
 set(SOURCES_CACHING

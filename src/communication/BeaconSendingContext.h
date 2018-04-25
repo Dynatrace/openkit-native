@@ -164,8 +164,6 @@ namespace communication
 		///
 		std::shared_ptr<AbstractBeaconSendingState> getNextState();
 
-		// TODO: void initCompleted(bool success);
-
 		///
 		/// Gets the HTTP client provider.
 		/// @return a class responsible for retrieving an instance of @ref IHTTPClient.

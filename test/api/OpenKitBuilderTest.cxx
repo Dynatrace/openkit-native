@@ -43,7 +43,7 @@ public:
 	const char* defaultEndpointURL = "https://localhost:12345";
 	const char* defaultApplicationID = "asdf123";
 	const int64_t defaultDeviceID = 123L;
-	std::shared_ptr<protocol::ISSLTrustManager> testSSLTrustManager;
+	std::shared_ptr<openkit::ISSLTrustManager> testSSLTrustManager;
 	const char* testApplicationVersion = "1.2.3.4";
 	const char* testOperatingSystem = "Some OS";
 	const char* testManufacturer = "ACME";
