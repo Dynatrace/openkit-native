@@ -28,7 +28,6 @@ function(_build_sample_internal target)
 	find_package(ZLIB)
 	find_package(CURL)
 
-	message("foo = ${OpenKit_SOURCE_DIR}")
 
 	set(SAMPLE_INCLUDE_DIRS
 		${ZLIB_INCLUDE_DIR}
