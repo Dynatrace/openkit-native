@@ -16,6 +16,7 @@
 
 #include "OpenKit/AppMonOpenKitBuilder.h"
 #include "providers/DefaultSessionIDProvider.h"
+#include "configuration/Configuration.h"
 
 using namespace openkit;
 
