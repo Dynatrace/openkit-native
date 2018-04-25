@@ -49,14 +49,12 @@ public:
 	void SetUp()
 	{
 		mLogger = std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(devNull, true));
-
-
-		beaconCacheConfiguration = std::make_shared<configuration::BeaconCacheConfiguration>(-1, -1, -1);
+		mBeaconCacheConfiguration = std::make_shared<configuration::BeaconCacheConfiguration>(-1, -1, -1);
 		mConfiguration = std::shared_ptr<configuration::Configuration>(new configuration::Configuration(std::shared_ptr<configuration::Device>(new configuration::Device("", "", "")),
-			configuration::OpenKitType::DYNATRACE, core::UTF8String(""), core::UTF8String(""), core::UTF8String(""), 1, core::UTF8String(""),
+			configuration::OpenKitType::Type::DYNATRACE, core::UTF8String(""), core::UTF8String(""), core::UTF8String(""), 1, core::UTF8String(""),
 			std::make_shared<providers::DefaultSessionIDProvider>(),
 			std::make_shared<protocol::SSLStrictTrustManager>(),
-			beaconCacheConfiguration));
+			mBeaconCacheConfiguration));
 		mMockHttpClientProvider = std::shared_ptr<testing::NiceMock<test::MockHTTPClientProvider>>(new testing::NiceMock<test::MockHTTPClientProvider>());
 		mMockTimingProvider = std::shared_ptr<testing::NiceMock<test::MockTimingProvider>>(new testing::NiceMock<test::MockTimingProvider>());
 		mMockState = std::shared_ptr<testing::StrictMock<test::MockAbstractBeaconSendingState>>(new testing::StrictMock<test::MockAbstractBeaconSendingState>());
@@ -73,7 +71,7 @@ public:
 
 	std::ostringstream devNull;
 	std::shared_ptr<openkit::ILogger> mLogger;
-	std::shared_ptr<configuration::BeaconCacheConfiguration> beaconCacheConfiguration;
+	std::shared_ptr<configuration::BeaconCacheConfiguration> mBeaconCacheConfiguration;
 	std::shared_ptr<configuration::Configuration> mConfiguration;
 	std::shared_ptr<testing::NiceMock<test::MockHTTPClientProvider>> mMockHttpClientProvider;
 	std::shared_ptr<testing::NiceMock<test::MockTimingProvider>> mMockTimingProvider;
@@ -453,8 +451,8 @@ TEST_F(BeaconSendingContextTest, startingASessionAddsTheSessionToOpenSessions)
 {
 	// given
 	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
-	auto mockSessionOne = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>());
-	auto mockSessionTwo = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>());
+	auto mockSessionOne = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>(mLogger));
+	auto mockSessionTwo = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>(mLogger));
 
 	// when starting first session
 	target->startSession(mockSessionOne);
@@ -479,8 +477,8 @@ TEST_F(BeaconSendingContextTest, finishingASessionMovesSessionToFinishedSessions
 {
 	// given
 	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
-	auto mockSessionOne = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>());
-	auto mockSessionTwo = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>());
+	auto mockSessionOne = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>(mLogger));
+	auto mockSessionTwo = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>(mLogger));
 
 	target->startSession(mockSessionOne);
 	target->startSession(mockSessionTwo);
@@ -508,7 +506,7 @@ TEST_F(BeaconSendingContextTest, finishingASessionThatHasNotBeenStartedBeforeIsN
 {
 	// given
 	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
-	auto mockSession = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>());
+	auto mockSession = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>(mLogger));
 	
 	// when the session is not started, but immediately finished
 	target->finishSession(mockSession);
@@ -522,8 +520,8 @@ TEST_F(BeaconSendingContextTest, getNextFinishedSessionGetsAndRemovesSession)
 {
 	// given
 	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
-	auto mockSessionOne = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>());
-	auto mockSessionTwo = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>());
+	auto mockSessionOne = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>(mLogger));
+	auto mockSessionTwo = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>(mLogger));
 
 	target->startSession(mockSessionOne);
 	target->finishSession(mockSessionOne);
@@ -559,10 +557,10 @@ TEST_F(BeaconSendingContextTest, disableCapture)
 {
 	// given
 	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
-	auto mockSessionOne = std::shared_ptr<testing::StrictMock<test::MockSession>>(new testing::StrictMock<test::MockSession>());
-	auto mockSessionTwo = std::shared_ptr<testing::StrictMock<test::MockSession>>(new testing::StrictMock<test::MockSession>());
-	auto mockSessionThree = std::shared_ptr<testing::StrictMock<test::MockSession>>(new testing::StrictMock<test::MockSession>());
-	auto mockSessionFour = std::shared_ptr<testing::StrictMock<test::MockSession>>(new testing::StrictMock<test::MockSession>());
+	auto mockSessionOne = std::shared_ptr<testing::StrictMock<test::MockSession>>(new testing::StrictMock<test::MockSession>(mLogger));
+	auto mockSessionTwo = std::shared_ptr<testing::StrictMock<test::MockSession>>(new testing::StrictMock<test::MockSession>(mLogger));
+	auto mockSessionThree = std::shared_ptr<testing::StrictMock<test::MockSession>>(new testing::StrictMock<test::MockSession>(mLogger));
+	auto mockSessionFour = std::shared_ptr<testing::StrictMock<test::MockSession>>(new testing::StrictMock<test::MockSession>(mLogger));
 
 	target->startSession(mockSessionOne);
 	target->finishSession(mockSessionOne);
@@ -596,8 +594,8 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseWhenCapturingIsEnabled)
 	// given
 	mConfiguration->enableCapture();
 	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
-	auto mockSessionOne = std::shared_ptr<testing::StrictMock<test::MockSession>>(new testing::StrictMock<test::MockSession>());
-	auto mockSessionTwo = std::shared_ptr<testing::StrictMock<test::MockSession>>(new testing::StrictMock<test::MockSession>());
+	auto mockSessionOne = std::shared_ptr<testing::StrictMock<test::MockSession>>(new testing::StrictMock<test::MockSession>(mLogger));
+	auto mockSessionTwo = std::shared_ptr<testing::StrictMock<test::MockSession>>(new testing::StrictMock<test::MockSession>(mLogger));
 	
 	target->startSession(mockSessionOne);
 	target->finishSession(mockSessionOne);
@@ -623,10 +621,10 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseWhenCapturingIsDisabled)
 {
 	// given
 	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
-	auto mockSessionOne = std::shared_ptr<testing::StrictMock<test::MockSession>>(new testing::StrictMock<test::MockSession>());
-	auto mockSessionTwo = std::shared_ptr<testing::StrictMock<test::MockSession>>(new testing::StrictMock<test::MockSession>());
-	auto mockSessionThree = std::shared_ptr<testing::StrictMock<test::MockSession>>(new testing::StrictMock<test::MockSession>());
-	auto mockSessionFour = std::shared_ptr<testing::StrictMock<test::MockSession>>(new testing::StrictMock<test::MockSession>());
+	auto mockSessionOne = std::shared_ptr<testing::StrictMock<test::MockSession>>(new testing::StrictMock<test::MockSession>(mLogger));
+	auto mockSessionTwo = std::shared_ptr<testing::StrictMock<test::MockSession>>(new testing::StrictMock<test::MockSession>(mLogger));
+	auto mockSessionThree = std::shared_ptr<testing::StrictMock<test::MockSession>>(new testing::StrictMock<test::MockSession>(mLogger));
+	auto mockSessionFour = std::shared_ptr<testing::StrictMock<test::MockSession>>(new testing::StrictMock<test::MockSession>(mLogger));
 
 	target->startSession(mockSessionOne);
 	target->finishSession(mockSessionOne);

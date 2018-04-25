@@ -29,15 +29,22 @@ class BeaconSendingFlushSessionsStateTest : public testing::Test
 public:
 
 	BeaconSendingFlushSessionsStateTest()
-		: mMockContext(nullptr)
+		: mLogger(nullptr)
+		, mCallCount(0)
+		, mMockContext(nullptr)
+		, mMockSession1Open(nullptr)
+		, mMockSession2Open(nullptr)
+		, mMockSession3Closed(nullptr)
+		, mMockedOpenSessions()
 	{
 	}
 
 	void SetUp()
 	{
-		mMockSession1Open = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>());
-		mMockSession2Open = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>());
-		mMockSession3Closed = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>());
+		mLogger = std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(devNull, true));
+		mMockSession1Open = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>(mLogger));
+		mMockSession2Open = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>(mLogger));
+		mMockSession3Closed = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>(mLogger));
 		mMockedOpenSessions.push_back(mMockSession1Open);
 		mMockedOpenSessions.push_back(mMockSession2Open);
 
@@ -46,7 +53,7 @@ public:
 		ON_CALL(*mMockHTTPClient, sendStatusRequestRawPtrProxy())
 			.WillByDefault(testing::Return(new protocol::StatusResponse()));
 
-		mMockContext = std::shared_ptr<testing::NiceMock<test::MockBeaconSendingContext>>(new testing::NiceMock<test::MockBeaconSendingContext>());
+		mMockContext = std::shared_ptr<testing::NiceMock<test::MockBeaconSendingContext>>(new testing::NiceMock<test::MockBeaconSendingContext>(mLogger));
 		ON_CALL(*mMockContext, getHTTPClient())
 			.WillByDefault(testing::Return(mMockHTTPClient));
 		ON_CALL(*mMockContext, getAllOpenSessions())
@@ -79,16 +86,21 @@ public:
 
 	void TearDown()
 	{
+		mLogger = nullptr;
 		mMockContext = nullptr;
+		mMockSession1Open = nullptr;
+		mMockSession2Open = nullptr;
+		mMockSession3Closed = nullptr;
 	}
 
+	std::ostringstream devNull;
+	std::shared_ptr<openkit::ILogger> mLogger;
 	uint32_t mCallCount;
 	std::shared_ptr<testing::NiceMock<test::MockBeaconSendingContext>> mMockContext;
 	std::shared_ptr<testing::NiceMock<test::MockSession>> mMockSession1Open;
 	std::shared_ptr<testing::NiceMock<test::MockSession>> mMockSession2Open;
 	std::shared_ptr<testing::NiceMock<test::MockSession>> mMockSession3Closed;
 	std::vector<std::shared_ptr<core::Session>> mMockedOpenSessions;
-
 	std::shared_ptr<testing::NiceMock<test::MockHTTPClient>> mMockHTTPClient;
 };
 

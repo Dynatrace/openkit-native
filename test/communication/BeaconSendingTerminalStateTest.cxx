@@ -27,46 +27,50 @@ class BeaconSendingTerminalStateTest : public testing::Test
 public:
 
 	BeaconSendingTerminalStateTest()
-		: target(nullptr)
-		, mockContext()
+		: mLogger(nullptr)
+		, mTarget(nullptr)
 	{
 	}
 
 	void SetUp()
 	{
-		target = std::make_shared<BeaconSendingTerminalState>();
+		mLogger = std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(devNull, true));
+		mTarget = std::make_shared<BeaconSendingTerminalState>();
 	}
 
 	void TearDown()
 	{
+		mLogger = nullptr;
+		mTarget = nullptr;
 	}
 
-	std::shared_ptr<BeaconSendingTerminalState> target;
-
-	testing::StrictMock<test::MockBeaconSendingContext> mockContext;//StrictMock ensure that  all additional calls on context result in failure
-
+	std::ostringstream devNull;
+	std::shared_ptr<openkit::ILogger> mLogger;
+	std::shared_ptr<BeaconSendingTerminalState> mTarget;
 };
 
 TEST_F(BeaconSendingTerminalStateTest, isTerminalStateIsTrueForTheTerminalState)
 {
-	EXPECT_TRUE(target->isTerminalState());
+	EXPECT_TRUE(mTarget->isTerminalState());
 }
 
 TEST_F(BeaconSendingTerminalStateTest, theShutdownStateIsNeverTheSameReference)
 {
-	std::shared_ptr<AbstractBeaconSendingState> obtained = target->getShutdownState();
+	std::shared_ptr<AbstractBeaconSendingState> obtained = mTarget->getShutdownState();
 
 	ASSERT_NE(obtained, nullptr);
-	EXPECT_NE(target.get(), obtained.get());
+	EXPECT_NE(mTarget.get(), obtained.get());
 }
 
 TEST_F(BeaconSendingTerminalStateTest, executeRequestsShutdown)
 {
+	testing::StrictMock<test::MockBeaconSendingContext> mockContext(mLogger);//StrictMock ensure that  all additional calls on context result in failure
+
 	EXPECT_CALL(mockContext, requestShutdown())
 		.Times(::testing::Exactly(1));
 
 	EXPECT_CALL(mockContext, isShutdownRequested())
 		.Times(::testing::Exactly(1));
 
-	target->execute(mockContext);
+	mTarget->execute(mockContext);
 }

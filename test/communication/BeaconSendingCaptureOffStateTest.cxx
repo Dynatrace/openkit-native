@@ -30,41 +30,46 @@ class BeaconSendingCaptureOffStateTest : public testing::Test
 public:
 
 	BeaconSendingCaptureOffStateTest()
-		: target(nullptr)
-		, mockHTTPClient(nullptr)
+		: mLogger(nullptr)
+		, mTarget(nullptr)
+		, mMockHTTPClient(nullptr)
 	{
 	}
 
 	void SetUp()
 	{
-		target = std::shared_ptr<communication::AbstractBeaconSendingState>(new communication::BeaconSendingCaptureOffState());
+		mLogger = std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(devNull, true));
+		mTarget = std::shared_ptr<communication::AbstractBeaconSendingState>(new communication::BeaconSendingCaptureOffState());
 		std::shared_ptr<configuration::HTTPClientConfiguration> httpClientConfiguration = std::make_shared<configuration::HTTPClientConfiguration>(core::UTF8String(""),0, core::UTF8String(""));
-		mockHTTPClient = std::shared_ptr<testing::NiceMock<test::MockHTTPClient>>(new testing::NiceMock<test::MockHTTPClient>(httpClientConfiguration));
+		mMockHTTPClient = std::shared_ptr<testing::NiceMock<test::MockHTTPClient>>(new testing::NiceMock<test::MockHTTPClient>(httpClientConfiguration));
 		
-		ON_CALL(*mockHTTPClient, sendStatusRequestRawPtrProxy())
+		ON_CALL(*mMockHTTPClient, sendStatusRequestRawPtrProxy())
 			.WillByDefault(testing::Return(new protocol::StatusResponse()));
 	}
 
 	void TearDown()
 	{
-		target = nullptr;
-		mockHTTPClient = nullptr;
+		mLogger = nullptr;
+		mTarget = nullptr;
+		mMockHTTPClient = nullptr;
 	}
 
-	std::shared_ptr<communication::AbstractBeaconSendingState> target;
-	std::shared_ptr<testing::NiceMock<test::MockHTTPClient>> mockHTTPClient;
+	std::ostringstream devNull;
+	std::shared_ptr<openkit::ILogger> mLogger;
+	std::shared_ptr<communication::AbstractBeaconSendingState> mTarget;
+	std::shared_ptr<testing::NiceMock<test::MockHTTPClient>> mMockHTTPClient;
 };
 
 TEST_F(BeaconSendingCaptureOffStateTest, aBeaconSendingCaptureOffStateIsNotATerminalState)
 {
 	// verify that BeaconSendingCaptureOffState is not a terminal state
-	EXPECT_FALSE(target->isTerminalState());
+	EXPECT_FALSE(mTarget->isTerminalState());
 }
 
 TEST_F(BeaconSendingCaptureOffStateTest, aBeaconSendingCaptureOffStateHasTerminalStateBeaconSendingFlushSessions)
 {
 	// when
-	std::shared_ptr<AbstractBeaconSendingState> obtained = target->getShutdownState();
+	std::shared_ptr<AbstractBeaconSendingState> obtained = mTarget->getShutdownState();
 
 	// verify that terminal state is BeaconSendingFlushSessions
 	ASSERT_TRUE(obtained != nullptr);
@@ -74,9 +79,9 @@ TEST_F(BeaconSendingCaptureOffStateTest, aBeaconSendingCaptureOffStateHasTermina
 TEST_F(BeaconSendingCaptureOffStateTest, aBeaconSendingCaptureOffStateTransitionsToTimeSyncStateWhenNotYetTimeSynched)
 {
 	// given
-	testing::NiceMock<test::MockBeaconSendingContext> mockContext;
+	testing::NiceMock<test::MockBeaconSendingContext> mockContext(mLogger);
 	ON_CALL(mockContext, getHTTPClient())
-		.WillByDefault(testing::Return(mockHTTPClient));
+		.WillByDefault(testing::Return(mMockHTTPClient));
 	ON_CALL(mockContext, isTimeSyncSupported())
 		.WillByDefault(testing::Return(true));
 	ON_CALL(mockContext, isCaptureOn())
@@ -94,15 +99,15 @@ TEST_F(BeaconSendingCaptureOffStateTest, aBeaconSendingCaptureOffStateTransition
 		.Times(testing::Exactly(1));
 
 	// when calling execute
-	target->execute(mockContext);
+	mTarget->execute(mockContext);
 }
 
 TEST_F(BeaconSendingCaptureOffStateTest, aBeaconSendingCaptureOffStateTransitionsToCaptureOnStateWhenCapturingActive)
 {
 	// given
-	testing::NiceMock<test::MockBeaconSendingContext> mockContext;
+	testing::NiceMock<test::MockBeaconSendingContext> mockContext(mLogger);
 	ON_CALL(mockContext, getHTTPClient())
-		.WillByDefault(testing::Return(mockHTTPClient));
+		.WillByDefault(testing::Return(mMockHTTPClient));
 	ON_CALL(mockContext, isTimeSyncSupported())
 		.WillByDefault(testing::Return(true));
 	ON_CALL(mockContext, isCaptureOn())
@@ -120,15 +125,15 @@ TEST_F(BeaconSendingCaptureOffStateTest, aBeaconSendingCaptureOffStateTransition
 		.Times(testing::Exactly(1));
 
 	// when calling execute
-	target->execute(mockContext);
+	mTarget->execute(mockContext);
 }
 
 TEST_F(BeaconSendingCaptureOffStateTest, aBeaconSendingCaptureOffStateWaitsForSpecifiedTimeWhenTimeSyncFails)
 {
 	// given
-	testing::NiceMock<test::MockBeaconSendingContext> mockContext;
+	testing::NiceMock<test::MockBeaconSendingContext> mockContext(mLogger);
 	ON_CALL(mockContext, getHTTPClient())
-		.WillByDefault(testing::Return(mockHTTPClient));
+		.WillByDefault(testing::Return(mMockHTTPClient));
 	ON_CALL(mockContext, isTimeSyncSupported())
 		.WillByDefault(testing::Return(true));
 	ON_CALL(mockContext, isCaptureOn())
@@ -150,5 +155,5 @@ TEST_F(BeaconSendingCaptureOffStateTest, aBeaconSendingCaptureOffStateWaitsForSp
 		.Times(testing::Exactly(1));
 
 	// when calling execute
-	target->execute(mockContext);
+	mTarget->execute(mockContext);
 }
