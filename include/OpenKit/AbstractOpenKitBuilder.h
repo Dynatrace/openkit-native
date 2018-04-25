@@ -19,10 +19,14 @@
 
 #include "OpenKit/IOpenKit.h"
 #include "OpenKit/ILogger.h"
-
-#include "configuration/Configuration.h"
+#include "OpenKit/ISSLTrustManager.h"
 
 #include <memory>
+
+namespace configuration
+{
+	class Configuration;
+}
 
 namespace openkit
 {
