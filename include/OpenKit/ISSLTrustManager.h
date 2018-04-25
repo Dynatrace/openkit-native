@@ -19,7 +19,7 @@
 
 #include "curl/curl.h"
 
-namespace protocol
+namespace openkit
 {
 	///
 	/// Interface to provide a user-defined trust manager to the configuration.

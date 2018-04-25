@@ -60,7 +60,7 @@ AbstractOpenKitBuilder& AbstractOpenKitBuilder::withApplicationVersion(const cha
 	return *this;
 }
 
-AbstractOpenKitBuilder& AbstractOpenKitBuilder::withTrustManager(std::shared_ptr<protocol::ISSLTrustManager> trustManager)
+AbstractOpenKitBuilder& AbstractOpenKitBuilder::withTrustManager(std::shared_ptr<openkit::ISSLTrustManager> trustManager)
 {
 	mTrustManager = trustManager;
 	return *this;
@@ -158,7 +158,7 @@ int64_t AbstractOpenKitBuilder::getDeviceID() const
 	return mDeviceID;
 }
 
-std::shared_ptr<protocol::ISSLTrustManager> AbstractOpenKitBuilder::getTrustManager() const
+std::shared_ptr<openkit::ISSLTrustManager> AbstractOpenKitBuilder::getTrustManager() const
 {
 	return mTrustManager;
 }

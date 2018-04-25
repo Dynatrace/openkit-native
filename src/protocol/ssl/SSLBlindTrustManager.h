@@ -17,7 +17,7 @@
 #ifndef _PROTOCOL_SSL_BLINDTRUSTMANAGER_H
 #define _PROTOCOL_SSL_BLINDTRUSTMANAGER_H
 
-#include "protocol/ssl/ISSLTrustManager.h"
+#include "OpenKit/ISSLTrustManager.h"
 
 #include "curl/curl.h"
 
@@ -32,7 +32,7 @@ namespace protocol
 	///
 	/// NOTE: DO NOT USE THIS IN PRODUCTION!!
 	///
-	class SSLBlindTrustManager : public ISSLTrustManager
+	class SSLBlindTrustManager : public openkit::ISSLTrustManager
 	{
 	public:
 

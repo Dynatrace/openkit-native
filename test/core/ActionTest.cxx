@@ -86,7 +86,7 @@ public:
 	std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider;
 	
 	std::shared_ptr<testing::NiceMock<test::MockHTTPClient>> mockHTTPClient;
-	std::shared_ptr<protocol::ISSLTrustManager> trustManager;
+	std::shared_ptr<openkit::ISSLTrustManager> trustManager;
 
 	std::shared_ptr<configuration::BeaconCacheConfiguration> beaconCacheConfiguration;
 	std::shared_ptr<configuration::Configuration> configuration;

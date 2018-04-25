@@ -14,21 +14,16 @@
 * limitations under the License.
 */
 
-#ifndef _TEST_PROTOCOL_TESTSSLTRUSTMANAGER_H
-#define _TEST_PROTOCOL_TESTSSLTRUSTMANAGER_H
+#include "CustomTrustManager.h"
 
-namespace test
+using namespace apic;
+
+CustomTrustManager::CustomTrustManager()
 {
-	class TestSSLTrustManager : public openkit::ISSLTrustManager
-	{
-	public:
-		virtual ~TestSSLTrustManager() {}
+}
 
-		virtual void applyTrustManager(CURL* /*curl*/) override
-		{
-			//do nothing
-		}
-	};
- }
+void CustomTrustManager::applyTrustManager(CURL* curl)
+{
 
-#endif
+}
+	
