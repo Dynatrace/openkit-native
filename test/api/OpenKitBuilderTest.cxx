@@ -23,6 +23,7 @@
 #include "OpenKit/DynatraceOpenKitBuilder.h"
 #include "OpenKit/AppMonOpenKitBuilder.h"
 
+#include "configuration/Configuration.h"
 #include "OpenKit/OpenKitConstants.h"
 #include "protocol/ssl/SSLStrictTrustManager.h"
 #include "core/util/DefaultLogger.h"
