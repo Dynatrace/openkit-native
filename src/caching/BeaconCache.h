@@ -120,7 +120,7 @@ namespace caching
 
 		virtual uint32_t evictRecordsByNumber(int32_t beaconID, uint32_t numRecords) override;
 
-		virtual const int64_t getNumBytesInCache() const override;
+		virtual int64_t getNumBytesInCache() const override;
 
 		virtual bool isEmpty(int32_t beaconID) override;
 

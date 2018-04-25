@@ -242,10 +242,10 @@ TEST_F(UTF8StringTest, aStringCanBeSearchedForASCIICharacters)
 {
 	UTF8String s("abc\xD7\xAA\x78\xF0\x9F\x98\x8B\x64\xEA\xA6\x85xyz");
 
-	int32_t pos_of_c = s.getIndexOf("c");
+	size_t pos_of_c = s.getIndexOf("c");
 	EXPECT_EQ(pos_of_c, 2);
 
-	int32_t pos_of_y = s.getIndexOf("y");
+	size_t pos_of_y = s.getIndexOf("y");
 	EXPECT_EQ(pos_of_y, 9);
 }
 
@@ -253,10 +253,10 @@ TEST_F(UTF8StringTest, aStringCanBeSearchedForASCIICharactersZeroOffsetProvided)
 {
 	UTF8String s("abc\xD7\xAA\x78\xF0\x9F\x98\x8B\x64\xEA\xA6\x85xyz");
 
-	int32_t pos_of_c = s.getIndexOf("c", 0);
+	size_t pos_of_c = s.getIndexOf("c", 0);
 	EXPECT_EQ(pos_of_c, 2);
 
-	int32_t pos_of_y = s.getIndexOf("y", 0);
+	size_t pos_of_y = s.getIndexOf("y", 0);
 	EXPECT_EQ(pos_of_y, 9);
 }
 
@@ -266,7 +266,7 @@ TEST_F(UTF8StringTest, aStringCanBeSearchedForUTF8Characters)
 
 	const char* utf_character = "\xEA\xA6\x85";
 
-	int32_t pos_of_utf3 = s.getIndexOf(utf_character, 0);
+	size_t pos_of_utf3 = s.getIndexOf(utf_character, 0);
 	EXPECT_EQ(pos_of_utf3, 7);
 }
 

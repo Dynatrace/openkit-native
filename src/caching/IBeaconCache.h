@@ -136,7 +136,7 @@ namespace caching
 		///
 		/// @return Number of bytes currently stored in cache.
 		///
-		virtual const int64_t getNumBytesInCache() const = 0;
+		virtual int64_t getNumBytesInCache() const = 0;
 
 		///
 		/// Tests if an cached entry for @c beaconID is empty.

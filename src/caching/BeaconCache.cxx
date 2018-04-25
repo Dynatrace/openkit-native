@@ -301,7 +301,7 @@ uint32_t BeaconCache::evictRecordsByNumber(int32_t beaconID, uint32_t numRecords
 	return numRecordsRemoved;
 }
 
-int64_t const BeaconCache::getNumBytesInCache() const
+int64_t BeaconCache::getNumBytesInCache() const
 {
 	return mCacheSizeInBytes;
 }
