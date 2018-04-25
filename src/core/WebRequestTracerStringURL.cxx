@@ -22,8 +22,8 @@
 
 namespace core
 {
-	WebRequestTracerStringURL::WebRequestTracerStringURL(std::shared_ptr<protocol::Beacon> beacon, int32_t parentActionID, const UTF8String& url)
-		: WebRequestTracerBase(beacon, parentActionID)
+	WebRequestTracerStringURL::WebRequestTracerStringURL(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<protocol::Beacon> beacon, int32_t parentActionID, const UTF8String& url)
+		: WebRequestTracerBase(logger, beacon, parentActionID)
 	{
 		uint32_t indexOfQuestionMark = url.getIndexOf("?");
 

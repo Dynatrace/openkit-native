@@ -18,10 +18,13 @@
 
 #include "protocol/Beacon.h"
 
+#include <sstream>
+
 namespace core
 {
-	WebRequestTracerBase::WebRequestTracerBase(std::shared_ptr<protocol::Beacon> beacon, int32_t parentActionID)
-		: mBeacon(beacon)
+	WebRequestTracerBase::WebRequestTracerBase(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<protocol::Beacon> beacon, int32_t parentActionID)
+		: mLogger(logger)
+		, mBeacon(beacon)
 		, mParentActionID(parentActionID)
 		, mResponseCode(-1)
 		, mBytesSent(-1)
@@ -38,7 +41,12 @@ namespace core
 
 	const char* WebRequestTracerBase::getTag() const
 	{
-		return mWebRequestTag.getStringData().c_str();
+		const char* tag = mWebRequestTag.getStringData().c_str();
+		if (mLogger->isDebugEnabled())
+		{
+			mLogger->debug("%s getTag() returning '%s'", this->toString().c_str(), tag);
+		}
+		return tag;
 	}
 
 	std::shared_ptr<openkit::IWebRequestTracer> WebRequestTracerBase::setResponseCode(int32_t responseCode)
@@ -70,6 +78,10 @@ namespace core
 
 	std::shared_ptr<openkit::IWebRequestTracer> WebRequestTracerBase::start()
 	{
+		if (mLogger->isDebugEnabled())
+		{
+			mLogger->debug("%s start()", this->toString().c_str());
+		}
 		if (!isStopped())
 		{
 			mStartTime = mBeacon->getCurrentTimestamp();
@@ -79,6 +91,10 @@ namespace core
 
 	void WebRequestTracerBase::stop()
 	{
+		if (mLogger->isDebugEnabled())
+		{
+			mLogger->debug("%s stop()", this->toString().c_str());
+		}
 		int64_t expected = -1;
 		if (atomic_compare_exchange_strong(&mEndTime, &expected, mBeacon->getCurrentTimestamp()) == false)
 		{
@@ -136,4 +152,10 @@ namespace core
 		return mEndTime != -1;
 	}
 
+	const std::string core::WebRequestTracerBase::toString() const
+	{
+		std::stringstream ss;
+		ss << "WebRequestTracerBase [sn=" << this->mBeacon->getSessionNumber() << ", id=" << mParentActionID << ", url='" << mURL.getStringData().c_str() << "']";
+		return ss.str();
+	}
 }
