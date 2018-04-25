@@ -27,32 +27,43 @@ namespace configuration
 	class OpenKitType
 	{
 	public:
+		enum class Type
+		{
+			APPMON,
+			DYNATRACE
+		};
+
+		///
+		/// Constructor
+		/// @param[in] type the OpenKit type, either AppMon or Dynatrace
+		///
+		OpenKitType(Type type)
+			: mType(type)
+			, mDefaultServerID(type == Type::APPMON ? APPMON_DEFAULT_SERVER : DYNATRACE_DEFAULT_SERVER)
+		{
+		}
+
 		///
 		/// Returns the default server ID
 		/// @returns default server id
 		///
 		int32_t getDefaultServerID() const;
 
-		/// static instance for AppMon configurations
-		static const OpenKitType APPMON;
-		static const OpenKitType DYNATRACE;
+		///
+		/// Returns the OpenKit type as string
+		/// @returns the OpenKit type as string
+		///
+		const char* getTypeString() const;
 
 	private:
+		/// The OpenKit type
+		Type mType;
 
 		/// default server ID
 		int32_t mDefaultServerID;
 
 		static const int32_t APPMON_DEFAULT_SERVER = 1;
 		static const int32_t DYNATRACE_DEFAULT_SERVER = 1;
-
-		///
-		/// Constructor
-		/// @param[in] defaultServerID default server ID
-		///
-		OpenKitType(int32_t defaultServerID)
-			: mDefaultServerID(defaultServerID)
-		{
-		}
 	};	
 }
 

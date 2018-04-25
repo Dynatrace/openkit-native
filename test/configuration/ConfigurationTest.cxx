@@ -48,7 +48,7 @@ public:
 	}
 private:
 	std::shared_ptr<Device> device = nullptr;
-	OpenKitType openKitType = OpenKitType::DYNATRACE;
+	OpenKitType openKitType = OpenKitType::Type::DYNATRACE;
 	std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider = nullptr;
 	std::shared_ptr<protocol::ISSLTrustManager> sslTrustManager = nullptr;
 	std::shared_ptr<configuration::BeaconCacheConfiguration> beaconCacheConfiguration = nullptr;

@@ -39,7 +39,7 @@ std::shared_ptr<configuration::Configuration> DynatraceOpenKitBuilder::buildConf
 
 	return std::make_shared<configuration::Configuration>(
 			device,	
-			configuration::OpenKitType::DYNATRACE,
+			configuration::OpenKitType::Type::DYNATRACE,
 			mApplicationName,
 			getApplicationVersion(),
 			mApplicationID,
