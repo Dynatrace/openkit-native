@@ -1148,9 +1148,9 @@ if(BUILD_CURL_EXE)
 endif()
 
 include(CTest)
-if(BUILD_TESTING)
-  add_subdirectory(tests)
-endif()
+#if(BUILD_TESTING)
+#  add_subdirectory(tests)
+#endif()
 
 # Helper to populate a list (_items) with a label when conditions (the remaining
 # args) are satisfied
