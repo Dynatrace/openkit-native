@@ -51,7 +51,8 @@ bool BeaconCacheEvictor::start()
 	if (isAlive())
 	{
 		// eviction thread already running
-		if (mLogger->isDebugEnabled()) {
+		if (mLogger->isDebugEnabled())
+		{
 			mLogger->debug("Not starting BeaconCacheEviction thread, since it's already running");
 		}
 		return false;
@@ -64,7 +65,8 @@ bool BeaconCacheEvictor::start()
 		mConditionVariable.wait(lock);
 	}
 
-	if (mLogger->isDebugEnabled()) {
+	if (mLogger->isDebugEnabled())
+	{
 		mLogger->debug("BeaconCacheEviction thread started.");
 	}
 	return true;
@@ -80,13 +82,15 @@ bool BeaconCacheEvictor::stop(std::chrono::milliseconds timeout)
 	if (!isAlive())
 	{
 		// eviction thread not running, nothing to stop
-		if (mLogger->isDebugEnabled()) {
+		if (mLogger->isDebugEnabled())
+		{
 			mLogger->debug("Not stopping BeaconCacheEviction thread, since it's not alive");
 		}
 		return false;
 	}
 
-	if (mLogger->isDebugEnabled()) {
+	if (mLogger->isDebugEnabled())
+	{
 		mLogger->debug("Stopping BeaconCacheEviction thread.");
 	}
 
@@ -195,7 +199,8 @@ void BeaconCacheEvictor::cacheEvictionLoopFunc()
 	std::unique_lock<std::mutex> lock(mMutex);
 	mRunning = false;
 
-	if (mLogger->isDebugEnabled()) {
+	if (mLogger->isDebugEnabled())
+	{
 		mLogger->debug("BeaconCacheEviction thread is stopped.");
 	}
 }

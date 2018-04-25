@@ -72,7 +72,8 @@ void parseCommandLine(int32_t argc, char** argv, char** beaconURL, uint32_t* ser
 /// @param[in] level the log level, either DEBUG or INFO (WARN and ERROR traces are currently always logged)
 /// @return @c true for all cases in this sample
 ///
-bool levelEnabledFunction(LOG_LEVEL level) {
+bool levelEnabledFunction(LOG_LEVEL level)
+{
 	UNUSED_ARG(level);
 	return true;
 }

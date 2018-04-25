@@ -52,7 +52,8 @@ void BeaconSendingCaptureOffState::doExecute(BeaconSendingContext& context)
 	auto currentTime = context.getCurrentTimestamp();
 
 	auto delta = STATUS_CHECK_INTERVAL - (currentTime - context.getLastStatusCheckTime());
-	if (delta > 0 && !context.isShutdownRequested()) {
+	if (delta > 0 && !context.isShutdownRequested())
+	{
 		context.sleep(delta);
 	}
 	auto statusResponse = BeaconSendingRequestUtil::sendStatusRequest(context, STATUS_REQUEST_RETRIES, INITIAL_RETRY_SLEEP_TIME_MILLISECONDS.count());
@@ -75,7 +76,8 @@ const char* BeaconSendingCaptureOffState::getStateName() const
 void BeaconSendingCaptureOffState::handleStatusResponse(BeaconSendingContext& context, std::unique_ptr<protocol::StatusResponse> statusResponse)
 {
 	bool statusReponseIsNull = statusResponse == nullptr;
-	if (!statusReponseIsNull) {
+	if (!statusReponseIsNull)
+	{
 		context.handleStatusResponse(std::move(statusResponse));
 	}
 	// if initial time sync failed before
