@@ -44,7 +44,7 @@ namespace test
 		MOCK_METHOD0(getBeaconIDs, const std::unordered_set<int32_t>());
 		MOCK_METHOD2(evictRecordsByAge, uint32_t(int32_t, int64_t));
 		MOCK_METHOD2(evictRecordsByNumber, uint32_t(int32_t, uint32_t));
-		MOCK_CONST_METHOD0(getNumBytesInCache, const int64_t());
+		MOCK_CONST_METHOD0(getNumBytesInCache, int64_t());
 		MOCK_METHOD1(isEmpty, bool(int32_t));
 	};
 }
