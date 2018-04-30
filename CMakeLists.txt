@@ -42,7 +42,6 @@ endif()
 
 # build options & settings
 include (BuildConfiguration)
-include (BuildDoxygenTarget)
 
 # build 3rd party dependencies
 add_subdirectory(3rdparty)

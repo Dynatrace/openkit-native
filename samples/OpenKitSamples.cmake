@@ -28,7 +28,6 @@ function(_build_sample_internal target)
 	find_package(ZLIB)
 	find_package(CURL)
 
-
 	set(SAMPLE_INCLUDE_DIRS
 		${ZLIB_INCLUDE_DIR}
 		${CURL_INCLUDE_DIR}
@@ -45,10 +44,11 @@ function(_build_sample_internal target)
 	include(CompilerConfiguration)
 	include(BuildFunctions)
 
-	open_kit_build_executable(${target} "${SAMPLE_INCLUDE_DIRS}" "${SAMPLE_LIBS}" ${ARGN})
-	enforce_cxx11_standard(${target})
+	open_kit_build_executable("${target}" "${SAMPLE_INCLUDE_DIRS}" "${SAMPLE_LIBS}" ${ARGN})
+	enforce_cxx11_standard("${target}")
 	if (NOT BUILD_SHARED_LIBS)
 		target_compile_definitions(${target} PRIVATE -DCURL_STATICLIB)
+		target_compile_definitions(${target} PRIVATE -DOPENKIT_STATIC_DEFINE)
 	endif()
 
 	if (WIN32)

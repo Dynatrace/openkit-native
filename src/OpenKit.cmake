@@ -22,6 +22,7 @@ set(OPENKIT_SOURCES_API
 	${CMAKE_CURRENT_LIST_DIR}/api/AppMonOpenKitBuilder.cxx
 	${CMAKE_CURRENT_LIST_DIR}/api-c/OpenKit-c.cxx
 	${CMAKE_CURRENT_LIST_DIR}/api-c/CustomLogger.cxx
+	${CMAKE_CURRENT_LIST_DIR}/api-c/CustomTrustManager.cxx
 )
 
 set(OPENKIT_SOURCES_CACHING
@@ -128,8 +129,9 @@ function(build_open_kit)
 
 	enforce_cxx11_standard(OpenKit)
 	if(NOT BUILD_SHARED_LIBS)
-	# For a STATIC library we set the compiler flag OPENKIT_STATIC_DEFINE
-		set_target_properties(OpenKit PROPERTIES COMPILE_FLAGS -DOPENKIT_STATIC_DEFINE)
+		# For a STATIC library we set the compiler flag OPENKIT_STATIC_DEFINE
+		target_compile_definitions(OpenKit PRIVATE -DCURL_STATICLIB)
+		target_compile_definitions(OpenKit PRIVATE -DOPENKIT_STATIC_DEFINE)
 	endif()
 
 	include(GenerateExportHeader)
