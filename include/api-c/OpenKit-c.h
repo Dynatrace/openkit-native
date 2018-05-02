@@ -409,6 +409,8 @@ extern "C" {
 	//  Webrequest Tracer
 	//--------------------
 
+#define WEBREQUEST_TAG_HEADER "X-dynaTrace"
+
 	/// An opaque type that we'll use as a handle
 	struct WebRequestTracerHandle;
 
