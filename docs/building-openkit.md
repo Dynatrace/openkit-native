@@ -113,7 +113,7 @@ cd build/ubuntu-debug-static
 Now `cmake` can be invoked to generate the required files.
 
 ```shell
-cmake -G "Unix Makefiles" -DCMAKE_BUILDTYPE=Release -DCMAKE_INSTALL_PREFIX=/path/where/OpenKit/files/are/installed ../..
+cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/path/where/OpenKit/files/are/installed ../..
 ```
 
 The above example uses CMake's GNU Makefiles generator to generate GNU Makefiles.
@@ -127,7 +127,7 @@ make clean all install
 If the `install` target is also invoked, the libraries, binaries and headers are copied to the
 path specified with `CMAKE_INSTALL_PREFIX` (from the example above: `-DCMAKE_INSTALL_PREFIX=/path/where/OpenKit/files/are/installed`).
 
-When changing `-DCMAKE_BUILDTYPE=Release` to `-DCMAKE_BUILDTYPE=Debug` in the example above,
+When changing `-DCMAKE_BUILD_TYPE=Release` to `-DCMAKE_BUILD_TYPE=Debug` in the example above,
 debug binaries (containing debug information) are generated.
 
 CMake also supports other generators besides GNU Make. To get a full list of possible
@@ -140,7 +140,7 @@ cd C:\path\to\OpenKit\sources\
 mkdir build & cd build
 mkdir windows-static-release & cd windows-static-release
 
-cmake -G "NMake Makefiles" -DCMAKE_BUILDTYPE=Release -DCMAKE_INSTALL_PREFIX=C:\path\where\OpenKit\files\are\installedl -DOPENKIT_FORCE_SHARED_CRT=ON ../..
+cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=C:\path\where\OpenKit\files\are\installed -DOPENKIT_FORCE_SHARED_CRT=ON ../..
 
 nmake
 ```
@@ -166,7 +166,7 @@ When invoking `cmake` pass `-DBUILD_DOC=ON` as command line argument.
 
 Example for GNU Makefiles
 ```shell
-cmake -G "Unix Makefiles" -DCMAKE_BUILDTYPE=Release -DCMAKE_INSTALL_PREFIX=/path/where/OpenKit/files/are/installed -DBUILD_DOC=ON ../..
+cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/path/where/OpenKit/files/are/installed -DBUILD_DOC=ON ../..
 ```
 
 After CMake is finished a new target named `docs` is added. Use GNU Make as follows.
