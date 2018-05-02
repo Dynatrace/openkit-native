@@ -30,7 +30,7 @@ namespace openkit
 		/// @param[in] applicationID unique application id
 		/// @param[in] deviceID unique device id
 		///
-		DynatraceOpenKitBuilder(const char* endpointURL, const char* applicationID, uint64_t deviceID);
+		DynatraceOpenKitBuilder(const char* endpointURL, const char* applicationID, int64_t deviceID);
 
 		///
 		/// Destructor
