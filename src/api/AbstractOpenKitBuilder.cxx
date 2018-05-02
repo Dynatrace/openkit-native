@@ -22,7 +22,7 @@
 
 using namespace openkit;
 
-AbstractOpenKitBuilder::AbstractOpenKitBuilder(const char* endpointURL, uint64_t deviceID)
+AbstractOpenKitBuilder::AbstractOpenKitBuilder(const char* endpointURL, int64_t deviceID)
 	: mVerbose(false)
 	, mLogger(nullptr)
 	, mApplicationVersion(DEFAULT_APPLICATION_VERSION)

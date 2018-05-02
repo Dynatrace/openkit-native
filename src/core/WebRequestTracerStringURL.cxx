@@ -25,9 +25,9 @@ namespace core
 	WebRequestTracerStringURL::WebRequestTracerStringURL(std::shared_ptr<protocol::Beacon> beacon, int32_t parentActionID, const UTF8String& url)
 		: WebRequestTracerBase(beacon, parentActionID)
 	{
-		uint32_t indexOfQuestionMark = url.getIndexOf("?");
+		auto indexOfQuestionMark = url.getIndexOf("?");
 
-		if (indexOfQuestionMark > 0 && indexOfQuestionMark != std::string::npos)
+		if (indexOfQuestionMark != std::string::npos)
 		{
 			WebRequestTracerBase::mURL = url.substring(0, indexOfQuestionMark);
 		}

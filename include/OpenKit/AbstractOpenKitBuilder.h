@@ -38,7 +38,7 @@ namespace openkit
 			/// @param[in] endpointURL endpoint OpenKit connects to
 			/// @param[in] deviceID unique device id
 			///
-			AbstractOpenKitBuilder(const char* endpointURL, uint64_t deviceID);
+			AbstractOpenKitBuilder(const char* endpointURL, int64_t deviceID);
 
 			///
 			/// Destructor

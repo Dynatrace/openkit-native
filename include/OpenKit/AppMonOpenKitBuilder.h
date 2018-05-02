@@ -30,7 +30,7 @@ namespace openkit
 		/// @param[in] applicationName unique application id
 		/// @param[in] deviceID unique device id
 		///
-		AppMonOpenKitBuilder(const char* endpointURL, const char* applicationName, uint64_t deviceID);
+		AppMonOpenKitBuilder(const char* endpointURL, const char* applicationName, int64_t deviceID);
 
 		///
 		/// Destructor

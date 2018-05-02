@@ -20,7 +20,7 @@
 
 using namespace openkit;
 
-AppMonOpenKitBuilder::AppMonOpenKitBuilder(const char* endpointURL, const char* applicationName, uint64_t deviceID)
+AppMonOpenKitBuilder::AppMonOpenKitBuilder(const char* endpointURL, const char* applicationName, int64_t deviceID)
 	: AbstractOpenKitBuilder(endpointURL, deviceID)
 	, mApplicationName(applicationName)
 {

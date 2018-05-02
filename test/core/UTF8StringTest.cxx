@@ -276,7 +276,7 @@ TEST_F(UTF8StringTest, aStringDoesNotContainAGivenCharacter)
 
 	char character_d = 'd';
 
-	int32_t pos_of_d = s.getIndexOf(&character_d, 0);
+	size_t pos_of_d = s.getIndexOf(&character_d, 0);
 	EXPECT_EQ(pos_of_d, -1);
 }
 
@@ -286,13 +286,13 @@ TEST_F(UTF8StringTest, aStringIndexOfUsingTheOffsetParameter)
 
 	char character_b = 'b';
 
-	int32_t pos_of_b_offset0 = s.getIndexOf(&character_b, 0);
+	size_t pos_of_b_offset0 = s.getIndexOf(&character_b, 0);
 	EXPECT_EQ(pos_of_b_offset0, 1);
 
-	int32_t pos_of_b_offset1 = s.getIndexOf(&character_b, 1);
+	size_t pos_of_b_offset1 = s.getIndexOf(&character_b, 1);
 	EXPECT_EQ(pos_of_b_offset1, 1);
 
-	int32_t pos_of_b_offset2 = s.getIndexOf(&character_b, 2);
+	size_t pos_of_b_offset2 = s.getIndexOf(&character_b, 2);
 	EXPECT_EQ(pos_of_b_offset2, -1);
 }
 

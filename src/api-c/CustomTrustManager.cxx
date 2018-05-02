@@ -22,7 +22,7 @@ CustomTrustManager::CustomTrustManager()
 {
 }
 
-void CustomTrustManager::applyTrustManager(CURL* curl)
+void CustomTrustManager::applyTrustManager(CURL* /*curl*/)
 {
 
 }
