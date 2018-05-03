@@ -347,7 +347,7 @@ namespace protocol
 		/// @param[in] string string to truncate
 		/// @returns the truncated string
 		///
-		core::UTF8String truncate(const core::UTF8String& string);
+		static core::UTF8String truncate(const core::UTF8String& string);
 
 		///
 		/// Get a timestamp relative to the time this session (aka. beacon) was created.
