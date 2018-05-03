@@ -57,13 +57,13 @@ extern "C" {
 		std::shared_ptr<openkit::ISSLTrustManager> trustManager = nullptr;
 	} TrustManagerHandle;
 
-	TrustManagerHandle* createCustomTrustManager()
+	TrustManagerHandle* createTrustManager(applyTrustManagerFunc applyTrustManagerFunc)
 	{
 		// Sanity
 		TrustManagerHandle* handle = nullptr;
 		try
 		{
-			auto trustManager = std::shared_ptr<openkit::ISSLTrustManager>(new apic::CustomTrustManager());
+			auto trustManager = std::shared_ptr<openkit::ISSLTrustManager>(new apic::CustomTrustManager(applyTrustManagerFunc));
 			// storing the returned shared pointer in the handle prevents it from going out of scope
 			handle = new TrustManagerHandle();
 			handle->trustManager = trustManager;
