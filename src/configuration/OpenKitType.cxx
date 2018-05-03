@@ -25,7 +25,7 @@ int32_t OpenKitType::getDefaultServerID() const
 
 const char * OpenKitType::getTypeString() const
 {
-	if ((*this).mType == Type::APPMON)
+	if (mType == Type::APPMON)
 	{
 		return "APPMON";
 	}
