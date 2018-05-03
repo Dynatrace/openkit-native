@@ -267,7 +267,7 @@ namespace protocol
 		/// Returns the session number.
 		/// @return session number
 		///
-		uint32_t getSessionNumber();
+		uint32_t getSessionNumber() const;
 
 	private:
 		///

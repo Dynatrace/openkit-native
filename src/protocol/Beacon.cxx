@@ -505,7 +505,7 @@ void Beacon::clearData()
 	mBeaconCache->deleteCacheEntry(mSessionNumber);
 }
 
-uint32_t Beacon::getSessionNumber()
+uint32_t Beacon::getSessionNumber() const
 {
 	return mSessionNumber;
 }
