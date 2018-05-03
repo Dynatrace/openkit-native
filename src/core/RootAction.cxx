@@ -46,7 +46,7 @@ std::shared_ptr<openkit::IAction> RootAction::enterAction(const char* actionName
 	UTF8String actionNameString(actionName);
 	if (actionNameString.empty())
 	{
-		mLogger->warning("%s enterAction: actionName must not be null or empty", this->toString().c_str());
+		mLogger->warning("%s enterAction: actionName must not be null or empty", toString().c_str());
 		return NULL_ACTION;
 	}
 
@@ -64,12 +64,12 @@ std::shared_ptr<openkit::IRootAction> RootAction::reportEvent(const char* eventN
 	UTF8String eventNameString(eventName);
 	if (eventNameString.empty())
 	{
-		mLogger->warning("%s reportEvent: eventName must not be null or empty", this->toString().c_str());
+		mLogger->warning("%s reportEvent: eventName must not be null or empty", toString().c_str());
 		return shared_from_this();
 	}
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("%s reportEvent(%s)", this->toString().c_str(), eventName);
+		mLogger->debug("%s reportEvent(%s)", toString().c_str(), eventName);
 	}
 
 	if (!isActionLeft())
@@ -84,12 +84,12 @@ std::shared_ptr<openkit::IRootAction> RootAction::reportValue(const char* valueN
 	UTF8String valueNameString(valueName);
 	if (valueNameString.empty())
 	{
-		mLogger->warning("%s reportValue (int): valueName must not be null or empty", this->toString().c_str());
+		mLogger->warning("%s reportValue (int): valueName must not be null or empty", toString().c_str());
 		return shared_from_this();
 	}
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("%s reportValue (int) (%s, %d))", this->toString().c_str(), valueName, value);
+		mLogger->debug("%s reportValue (int) (%s, %d))", toString().c_str(), valueName, value);
 	}
 
 	if (!isActionLeft())
@@ -104,12 +104,12 @@ std::shared_ptr<openkit::IRootAction> RootAction::reportValue(const char* valueN
 	UTF8String valueNameString(valueName);
 	if (valueNameString.empty())
 	{
-		mLogger->warning("%s reportValue (double): valueName must not be null or empty", this->toString().c_str());
+		mLogger->warning("%s reportValue (double): valueName must not be null or empty", toString().c_str());
 		return shared_from_this();
 	}
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("%s reportValue (double) (%s, %f))", this->toString().c_str(), valueName, value);
+		mLogger->debug("%s reportValue (double) (%s, %f))", toString().c_str(), valueName, value);
 	}
 
 	if (!isActionLeft())
@@ -124,12 +124,12 @@ std::shared_ptr<openkit::IRootAction> RootAction::reportValue(const char* valueN
 	UTF8String valueNameString(valueName);
 	if (valueNameString.empty())
 	{
-		mLogger->warning("%s reportValue (string): valueName must not be null or empty", this->toString().c_str());
+		mLogger->warning("%s reportValue (string): valueName must not be null or empty", toString().c_str());
 		return shared_from_this();
 	}
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("%s reportValue (string) (%s, %s))", this->toString().c_str(), valueName, (value != nullptr ? value : "null"));
+		mLogger->debug("%s reportValue (string) (%s, %s))", toString().c_str(), valueName, (value != nullptr ? value : "null"));
 	}
 
 	if (!isActionLeft())
@@ -145,12 +145,12 @@ std::shared_ptr<openkit::IRootAction> RootAction::reportError(const char* errorN
 	UTF8String reasonString(reason);
 	if (errorNameString.empty())
 	{
-		mLogger->warning("%s reportError: errorName must not be null or empty", this->toString().c_str());
+		mLogger->warning("%s reportError: errorName must not be null or empty", toString().c_str());
 		return shared_from_this();
 	}
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("%s reportError (%s, %d, %s))", this->toString().c_str(), errorName, errorCode, (reason != nullptr ? reason : "null"));
+		mLogger->debug("%s reportError (%s, %d, %s))", toString().c_str(), errorName, errorCode, (reason != nullptr ? reason : "null"));
 	}
 
 	if (!isActionLeft())
@@ -165,12 +165,12 @@ std::shared_ptr<openkit::IWebRequestTracer> RootAction::traceWebRequest(const ch
 	core::UTF8String urlString(url);
 	if (urlString.empty())
 	{
-		mLogger->warning("%s traceWebRequest (string): url must not be null or empty", this->toString().c_str());
+		mLogger->warning("%s traceWebRequest (string): url must not be null or empty", toString().c_str());
 		return NULL_WEB_REQUEST_TRACER;
 	}
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("%s traceWebRequest (string) (%s))", this->toString().c_str(), url);
+		mLogger->debug("%s traceWebRequest (string) (%s))", toString().c_str(), url);
 	}
 
 	if (!isActionLeft())
@@ -204,7 +204,7 @@ void RootAction::leaveAction()
 {
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("%s leaveAction(%s))", this->toString().c_str(), mName.getStringData().c_str());
+		mLogger->debug("%s leaveAction(%s))", toString().c_str(), mName.getStringData().c_str());
 	}
 	int64_t expected = -1L;
 	if (atomic_compare_exchange_strong(&mEndTime, &expected, mBeacon->getCurrentTimestamp()) == false)

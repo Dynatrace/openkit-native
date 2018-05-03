@@ -45,12 +45,12 @@ std::shared_ptr<openkit::IRootAction> Session::enterAction(const char* actionNam
 	UTF8String actionNameString(actionName);
 	if (actionNameString.empty())
 	{
-		mLogger->warning("%s enterAction: actionName must not be null or empty", this->toString().c_str());
+		mLogger->warning("%s enterAction: actionName must not be null or empty", toString().c_str());
 		return NULL_ROOT_ACTION;
 	}
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("%s enterAction(%s)", this->toString().c_str(), actionName);
+		mLogger->debug("%s enterAction(%s)", toString().c_str(), actionName);
 	}
 
 	if (isSessionEnded())
@@ -68,12 +68,12 @@ void Session::identifyUser(const char* userTag)
 
 	if (userTag == nullptr || userTagString.empty())
 	{
-		mLogger->warning("%s identifyUser: userTag must not be null or empty", this->toString().c_str());
+		mLogger->warning("%s identifyUser: userTag must not be null or empty", toString().c_str());
 		return;
 	}
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("%s identifyUser(%s)", this->toString().c_str(), userTag);
+		mLogger->debug("%s identifyUser(%s)", toString().c_str(), userTag);
 	}
 
 	if (!isSessionEnded())
@@ -88,12 +88,12 @@ void Session::reportCrash(const char* errorName, const char* reason, const char*
 
 	if (errorName == nullptr || errorNameString.empty())
 	{
-		mLogger->warning("%s reportCrash: errorName must not be null or empty", this->toString().c_str());
+		mLogger->warning("%s reportCrash: errorName must not be null or empty", toString().c_str());
 		return;
 	}
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("%s reportCrash(%s, %s, %s)", this->toString().c_str(), errorName, (reason != nullptr ? reason : "null"), (stacktrace != nullptr ? stacktrace : "null"));
+		mLogger->debug("%s reportCrash(%s, %s, %s)", toString().c_str(), errorName, (reason != nullptr ? reason : "null"), (stacktrace != nullptr ? stacktrace : "null"));
 	}
 
 	if (!isSessionEnded())
@@ -107,7 +107,7 @@ void Session::end()
 {
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("%s end()", this->toString().c_str());
+		mLogger->debug("%s end()", toString().c_str());
 	}
 	int64_t expected = -1L;
 	if (atomic_compare_exchange_strong(&mEndTime, &expected, mBeacon->getCurrentTimestamp()) == false)
