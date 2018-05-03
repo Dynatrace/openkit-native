@@ -56,7 +56,7 @@ HTTPClient::HTTPClient(std::shared_ptr<openkit::ILogger> logger, const std::shar
 	}
 	else
 	{
-		mSSLTrustManager = std::shared_ptr<protocol::ISSLTrustManager>(new protocol::SSLStrictTrustManager());
+		mSSLTrustManager = std::shared_ptr<openkit::ISSLTrustManager>(new protocol::SSLStrictTrustManager());
 	}
 
 	// set up the program environment that libcurl needs. In windows, this will init the winsock stuff

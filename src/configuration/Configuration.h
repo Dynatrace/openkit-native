@@ -48,7 +48,7 @@ namespace configuration
 		/// @param[in] sslTrustManager the ISSLTrustManager instance to use
 		///
 		Configuration(std::shared_ptr<configuration::Device> device, OpenKitType openKitType, const core::UTF8String& applicationName, const core::UTF8String& applicationVersion, const core::UTF8String& applicationID, uint64_t deviceID, const core::UTF8String& endpointURL,
-			std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider, std::shared_ptr<protocol::ISSLTrustManager> sslTrustManager,
+			std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider, std::shared_ptr<openkit::ISSLTrustManager> sslTrustManager,
 			std::shared_ptr<configuration::BeaconCacheConfiguration> beaconCacheConfiguration);
 
 		virtual ~Configuration() {}

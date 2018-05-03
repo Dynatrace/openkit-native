@@ -1,131 +1,67 @@
-cmake_minimum_required(VERSION 2.8.6)
+# Copyright 2018 Dynatrace LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-project(openkit-c)
+# Ensure appropriate CMake version
+cmake_minimum_required(VERSION 3.0.2)
 
-option(OPENKIT_BUILD_TESTS "Build tests" ON )
-
-# Check if Doxygen is installed. If installed, provide a documentation build as an option for the user
-find_package(Doxygen)
-option(BUILD_DOC  "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
-
-# Allow the developer to select if OpenKit is built as STATIC (=default) or SHARED library.
-include(GenerateExportHeader)
-option(BUILD_SHARED_LIBS "Build Shared Libraries" OFF)
-set(LIB_TYPE STATIC)
-if(BUILD_SHARED_LIBS)
-	set(LIB_TYPE SHARED)
+# CMake specific policies
+if(POLICY CMP0054)
+  cmake_policy(SET CMP0054 NEW)
 endif()
 
-# When other libraries are using a shared version of runtime libraries, OpenKit also has to use one.
-option(OPENKIT_FORCE_SHARED_CRT "Use shared (DLL) run-time lib even when OpenKit is built as static lib." OFF)
+# limit configurations to Debug & Release builds only
+# and enable CTest
+SET (CMAKE_CONFIGURATION_TYPES Debug Release CACHE TYPE INTERNAL FORCE)
 
-# Set the paths where the executable, libraries and header paths
-set(INSTALL_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin" CACHE PATH "Installation directory for executables")
-set(INSTALL_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib" CACHE PATH "Installation directory for libraries")
-set(INSTALL_INC_DIR "${CMAKE_INSTALL_PREFIX}/include" CACHE PATH "Installation directory for headers")
+# project setup
+project(OpenKit C CXX)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
-include(UtilMacros)
-fix_default_compiler_settings_()
-check_for_cxx_version_()
+# set CMake search path
+set(CMAKE_MODULE_PATH
+	"${CMAKE_CURRENT_SOURCE_DIR}/cmake"
+	"${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/"
+	CMAKE_MODULE_PATH)
 
-if(WIN32)
-	# curl includes windows.h which defines MIN and MAX as macros. We don't want those
-	add_definitions(-DNOMINMAX)
-else()
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wpedantic -std=c++0x -pthread")
+# ensure build is executed in separate directory
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
+    message(FATAL_ERROR
+        "In-source builds are unsupported. Use another directory, like build/, "
+        "as your CMake build directory.")
 endif()
 
-########################################
-# dependencies
-########################################
-if(WIN32)
-	find_package(CURL REQUIRED PATHS ${CMAKE_SOURCE_DIR}/3rdparty/curl-7.57.0/)
-	string(REPLACE "bin/libcurl.dll" "lib/libcurl_imp.lib" CURLIMPLIB ${CURL_LIBRARIES})##FindCURL does not offer the implib directly
-	if(NOT EXISTS ${CURLIMPLIB})
-		message(SEND_ERROR "implib of curl not found.")
-	endif()
-else()
-	find_package(CURL REQUIRED)
-	set(CURLIMPLIB ${CURL_LIBRARIES})
-endif()
- 
-message("CURL Headers: '${CURL_INCLUDE_DIRS}'")
-message("CURL LIB: '${CURL_LIBRARIES}'")
+# build options & settings
+include (BuildConfiguration)
 
-if(WIN32)
-	set(ZLIB_ROOT ${CMAKE_SOURCE_DIR}/3rdparty/zlib-1.2.11)
-	find_package(ZLIB REQUIRED)
-endif()
+# build 3rd party dependencies
+add_subdirectory(3rdparty)
 
-find_package(ZLIB REQUIRED)
-message("ZLIB Headers: '${ZLIB_INCLUDE_DIRS}'")
-message("ZLIB LIB: '${ZLIB_LIBRARIES}'")
+# build OpenKit sources
+include(${CMAKE_CURRENT_SOURCE_DIR}/src/OpenKit.cmake)
+build_open_kit()
 
-if(OPENKIT_BUILD_TESTS)
-	###googletest 1.8.0 used in Visual Studio 2017 leads to a deprecation warning
-	### in the tr1::tuple namespace
-	if(MSVC)
-		add_definitions(-D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING )
-	endif()
-
-	if(WIN32)
-		if(${CMAKE_BUILD_TYPE} STREQUAL "Release" OR ${CMAKE_BUILD_TYPE} STREQUAL "RelWithDebInfo")
-			set(GTEST_ROOT ${CMAKE_SOURCE_DIR}/3rdparty/googletest-1.8.0/win32-release/)
-		else()
-			set(GTEST_ROOT ${CMAKE_SOURCE_DIR}/3rdparty/googletest-1.8.0/win32-debug/)
-		endif()
-	else()
-		set(GTEST_ROOT ${CMAKE_SOURCE_DIR}/3rdparty/googletest-1.8.0/linux/)
-	endif()
-
-	find_package(GTest REQUIRED)
-	set(GMOCK_ROOT ${GTEST_ROOT})
-	find_package(GMock REQUIRED)
-
+# build OpenKit tests
+if (OPENKIT_BUILD_TESTS)
 	enable_testing()
-
-	message("GTEST Headers: '${GTEST_INCLUDE_DIRS}'")
-	message("GTEST LIB: '${GTEST_LIBRARIES}'")
-	message("GMOCK Headers: '${GMOCK_INCLUDE_DIRS}'")
-	message("GMOCK LIB: '${GMOCK_LIBRARIES}'")
+	include(${CMAKE_CURRENT_SOURCE_DIR}/test/OpenKitTests.cmake)
+	build_open_kit_tests()
 endif()
 
-if(BUILD_DOC)
-	if(NOT DOXYGEN_FOUND)
-		 message(WARNING "Doxygen is needed to build the documentation.")
-	endif()
+# build samples
+include(${CMAKE_CURRENT_SOURCE_DIR}/samples/OpenKitSamples.cmake)
+build_open_kit_samples()
 
-	# Copy the "Doxyfile.in" to "Doxyfile", thereby replacing the variables of the input file with their values determined by CMake
-	set(DOXYGEN_IN ${CMAKE_CURRENT_SOURCE_DIR}/docs/Doxyfile.in)
-	set(DOXYGEN_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
-	configure_file(${DOXYGEN_IN} ${DOXYGEN_OUT} @ONLY)
-
-	# Be sure doxygen output directory exists
-	file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/docs)
-
-	message("Doxygen build started.")
-
-	# Add the "docs" build target (build with "make docs")
-	add_custom_target(docs
-					  COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
-					  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-					  COMMENT "Generating API documentation with Doxygen"
-					  VERBATIM)
+# add doc target (Doxygen)
+if (BUILD_DOC)
+	include(BuildDoxygenTarget)
 endif()
-
-message("CMAKE_BINARY_DIR = '${CMAKE_BINARY_DIR}'")
-
-include_directories(SYSTEM ${CURL_INCLUDE_DIRS})
-include_directories(SYSTEM ${ZLIB_INCLUDE_DIRS})
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
-include_directories(${CMAKE_BINARY_DIR}/include)
-
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-add_subdirectory("src")
-if(OPENKIT_BUILD_TESTS)
-	add_subdirectory("test")
-endif()
-add_subdirectory("samples/sample1")
-add_subdirectory("samples/sample2")

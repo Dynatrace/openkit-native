@@ -16,10 +16,11 @@
 
 #include "OpenKit/DynatraceOpenKitBuilder.h"
 #include "providers/DefaultSessionIDProvider.h"
+#include "configuration/Configuration.h"
 
 using namespace openkit;
 
-DynatraceOpenKitBuilder::DynatraceOpenKitBuilder(const char* endpointURL, const char* applicationID, uint64_t deviceID)
+DynatraceOpenKitBuilder::DynatraceOpenKitBuilder(const char* endpointURL, const char* applicationID, int64_t deviceID)
 	: AbstractOpenKitBuilder(endpointURL, deviceID)
 	, mApplicationID(applicationID)
 	, mApplicationName()

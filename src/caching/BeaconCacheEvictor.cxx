@@ -51,7 +51,7 @@ bool BeaconCacheEvictor::start()
 	if (isAlive())
 	{
 		// eviction thread already running
-		if (mLogger->isDebugEnabled())
+		if (mLogger->isDebugEnabled()) 
 		{
 			mLogger->debug("Not starting BeaconCacheEviction thread, since it's already running");
 		}

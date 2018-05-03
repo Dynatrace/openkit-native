@@ -16,10 +16,11 @@
 
 #include "OpenKit/AppMonOpenKitBuilder.h"
 #include "providers/DefaultSessionIDProvider.h"
+#include "configuration/Configuration.h"
 
 using namespace openkit;
 
-AppMonOpenKitBuilder::AppMonOpenKitBuilder(const char* endpointURL, const char* applicationName, uint64_t deviceID)
+AppMonOpenKitBuilder::AppMonOpenKitBuilder(const char* endpointURL, const char* applicationName, int64_t deviceID)
 	: AbstractOpenKitBuilder(endpointURL, deviceID)
 	, mApplicationName(applicationName)
 {

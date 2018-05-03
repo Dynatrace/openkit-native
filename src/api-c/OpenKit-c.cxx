@@ -19,6 +19,9 @@
 
 #include "api-c/OpenKit-c.h"
 #include "api-c/CustomLogger.h"
+#include "api-c/CustomTrustManager.h"
+
+#include "protocol/ssl/SSLBlindTrustManager.h"
 
 #include <list>
 #include <assert.h> 
@@ -43,6 +46,71 @@ extern "C" {
 			assert((handle)->logger != NULL);															\
 			(handle)->logger->error("Unknown exception occurred in %s #%d", __FILE__, __LINE__);		\
 		}																								\
+	}
+
+	//--------------
+	// TrustManager
+	//--------------
+
+	typedef struct TrustManagerHandle
+	{
+		std::shared_ptr<openkit::ISSLTrustManager> trustManager = nullptr;
+	} TrustManagerHandle;
+
+	TrustManagerHandle* createCustomTrustManager()
+	{
+		// Sanity
+		TrustManagerHandle* handle = nullptr;
+		try
+		{
+			auto trustManager = std::shared_ptr<openkit::ISSLTrustManager>(new apic::CustomTrustManager());
+			// storing the returned shared pointer in the handle prevents it from going out of scope
+			handle = new TrustManagerHandle();
+			handle->trustManager = trustManager;
+		}
+		catch (...)
+		{
+			/* Ignore exception, as we don't have a logger yet */
+		}
+
+		return handle;
+	}
+
+	TrustManagerHandle* createBlindTrustManager()
+	{
+		// Sanity
+		TrustManagerHandle* handle = nullptr;
+		try
+		{
+			auto trustManager = std::shared_ptr<openkit::ISSLTrustManager>(new protocol::SSLBlindTrustManager());
+			// storing the returned shared pointer in the handle prevents it from going out of scope
+			handle = new TrustManagerHandle();
+			handle->trustManager = trustManager;
+		}
+		catch (...)
+		{
+			/* Ignore exception, as we don't have a logger yet */
+		}
+
+		return handle;
+	}
+
+	void destroyTrustManager(TrustManagerHandle* trustManagerHandle)
+	{
+		// Sanity
+		if (trustManagerHandle == nullptr)
+		{
+			return;
+		}
+
+		// release shared pointer
+		trustManagerHandle->trustManager = nullptr;
+		delete trustManagerHandle;
+	}
+
+	void disableSSLVerifiaction()
+	{
+
 	}
 
 	//--------------
@@ -99,9 +167,26 @@ extern "C" {
 	{
 		std::shared_ptr<openkit::IOpenKit> sharedPointer = nullptr;
 		std::shared_ptr<openkit::ILogger> logger = nullptr;
+		std::shared_ptr<openkit::ISSLTrustManager> trustManager = nullptr;
 	} OpenKitHandle;
 
-	OpenKitHandle* createDynatraceOpenKit(const char* endpointURL, const char* applicationID, int64_t deviceID, LoggerHandle* loggerHandle)
+	OpenKitHandle* createDynatraceOpenKitWithoutSSLVerification(const char* endpointURL, const char* applicationID, int64_t deviceID, LoggerHandle* loggerHandle,
+		const char* applicationVersion, int32_t disableSSLVerification, const char* operatingSystem, const char* manufacturer,
+		const char* modelID, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary)
+	{
+		TrustManagerHandle* trustManagerHandle = nullptr;
+		if (disableSSLVerification != 0)
+		{
+			trustManagerHandle = createBlindTrustManager();
+		}
+
+		return createDynatraceOpenKit(endpointURL, applicationID, deviceID, loggerHandle, applicationVersion, trustManagerHandle, operatingSystem, manufacturer, modelID,
+			beaconCacheMaxRecordAge, beaconCacheLowerMemoryBoundary, beaconCacheUpperMemoryBoundary);
+	}
+
+	OpenKitHandle* createDynatraceOpenKit(const char* endpointURL, const char* applicationID, int64_t deviceID, LoggerHandle* loggerHandle,
+		const char* applicationVersion, TrustManagerHandle* trustManagerHandle, const char* operatingSystem, const char* manufacturer, 
+		const char* modelID, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary)
 	{
 		OpenKitHandle* handle = nullptr;
 		TRY
@@ -112,19 +197,77 @@ extern "C" {
 				// Instantiate the CustomLogger mapping the log statements to the FunctionPointers
 				builder.withLogger(loggerHandle->logger);
 			}
+
+			if (applicationVersion != nullptr)
+			{
+				builder.withApplicationVersion(applicationVersion);
+			}
+
+			if (trustManagerHandle != nullptr)
+			{
+				builder.withTrustManager(trustManagerHandle->trustManager);
+			}
+
+			if (operatingSystem != nullptr)
+			{
+				builder.withOperatingSystem(operatingSystem);
+			}
+
+			if (manufacturer != nullptr)
+			{
+				builder.withManufacturer(manufacturer);
+			}
+
+			if (modelID != nullptr)
+			{
+				builder.withModelID(modelID);
+			}
+
+			if (beaconCacheMaxRecordAge >= 0)
+			{
+				builder.withBeaconCacheMaxRecordAge(beaconCacheMaxRecordAge);
+			}
+
+			if (beaconCacheLowerMemoryBoundary >= 0)
+			{
+				builder.withBeaconCacheLowerMemoryBoundary(beaconCacheLowerMemoryBoundary);
+			}
+
+			if (beaconCacheUpperMemoryBoundary >= 0)
+			{
+				builder.withBeaconCacheUpperMemoryBoundary(beaconCacheUpperMemoryBoundary);
+			}
+
 			std::shared_ptr<openkit::IOpenKit> openKit = builder.build();
 		
 			// storing the returned shared pointer in the handle prevents it from going out of scope
 			handle = new OpenKitHandle();
 			handle->sharedPointer = openKit;
 			handle->logger = loggerHandle->logger;
+			handle->trustManager = trustManagerHandle->trustManager;
 		}
 		CATCH_AND_LOG(loggerHandle)
 		
 		return handle;
 	}
 
-	OpenKitHandle* createAppMonOpenKit(const char* endpointURL, const char* applicationID, int64_t deviceID, LoggerHandle* loggerHandle)
+	OpenKitHandle* createAppMonOpenKitWithoutSSLVerification(const char* endpointURL, const char* applicationID, int64_t deviceID, LoggerHandle* loggerHandle,
+		const char* applicationVersion, int32_t disableSSLVerification, const char* operatingSystem, const char* manufacturer,
+		const char* modelID, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary)
+	{
+		TrustManagerHandle* trustManagerHandle = nullptr;
+		if (disableSSLVerification != 0)
+		{
+			trustManagerHandle = createBlindTrustManager();
+		}
+
+		return createAppMonOpenKit(endpointURL, applicationID, deviceID, loggerHandle, applicationVersion, trustManagerHandle, operatingSystem, manufacturer, modelID,
+			beaconCacheMaxRecordAge, beaconCacheLowerMemoryBoundary, beaconCacheUpperMemoryBoundary);
+	}
+
+	OpenKitHandle* createAppMonOpenKit(const char* endpointURL, const char* applicationID, int64_t deviceID, LoggerHandle* loggerHandle,
+		const char* applicationVersion, TrustManagerHandle* trustManagerHandle, const char* operatingSystem, const char* manufacturer,
+		const char* modelID, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary)
 	{
 		OpenKitHandle* handle = nullptr;
 		TRY
@@ -135,6 +278,47 @@ extern "C" {
 				// Instantiate the CustomLogger mapping the log statements to the FunctionPointers
 				builder.withLogger(loggerHandle->logger);
 			}
+
+			if (applicationVersion != nullptr)
+			{
+				builder.withApplicationVersion(applicationVersion);
+			}
+
+			if (trustManagerHandle != nullptr)
+			{
+				builder.withTrustManager(trustManagerHandle->trustManager);
+			}
+
+			if (operatingSystem != nullptr)
+			{
+				builder.withOperatingSystem(operatingSystem);
+			}
+
+			if (manufacturer != nullptr)
+			{
+				builder.withManufacturer(manufacturer);
+			}
+
+			if (modelID != nullptr)
+			{
+				builder.withModelID(modelID);
+			}
+
+			if (beaconCacheMaxRecordAge >= 1)
+			{
+				builder.withBeaconCacheMaxRecordAge(beaconCacheMaxRecordAge);
+			}
+
+			if (beaconCacheLowerMemoryBoundary >= 1)
+			{
+				builder.withBeaconCacheLowerMemoryBoundary(beaconCacheLowerMemoryBoundary);
+			}
+
+			if (beaconCacheUpperMemoryBoundary >= 1)
+			{
+				builder.withBeaconCacheUpperMemoryBoundary(beaconCacheUpperMemoryBoundary);
+			}
+
 			std::shared_ptr<openkit::IOpenKit> openKit = builder.build();
 
 			// storing the returned shared pointer in the handle prevents it from going out of scope
@@ -163,6 +347,7 @@ extern "C" {
 			// release shared pointer
 			openKitHandle->sharedPointer = nullptr;
 			openKitHandle->logger = nullptr;
+			openKitHandle->trustManager = nullptr;
 			delete openKitHandle;
 		}
 		CATCH_AND_LOG(openKitHandle)

@@ -22,7 +22,7 @@
 
 using namespace openkit;
 
-AbstractOpenKitBuilder::AbstractOpenKitBuilder(const char* endpointURL, uint64_t deviceID)
+AbstractOpenKitBuilder::AbstractOpenKitBuilder(const char* endpointURL, int64_t deviceID)
 	: mVerbose(false)
 	, mLogger(nullptr)
 	, mApplicationVersion(DEFAULT_APPLICATION_VERSION)
@@ -60,7 +60,7 @@ AbstractOpenKitBuilder& AbstractOpenKitBuilder::withApplicationVersion(const cha
 	return *this;
 }
 
-AbstractOpenKitBuilder& AbstractOpenKitBuilder::withTrustManager(std::shared_ptr<protocol::ISSLTrustManager> trustManager)
+AbstractOpenKitBuilder& AbstractOpenKitBuilder::withTrustManager(std::shared_ptr<openkit::ISSLTrustManager> trustManager)
 {
 	mTrustManager = trustManager;
 	return *this;
@@ -158,7 +158,7 @@ int64_t AbstractOpenKitBuilder::getDeviceID() const
 	return mDeviceID;
 }
 
-std::shared_ptr<protocol::ISSLTrustManager> AbstractOpenKitBuilder::getTrustManager() const
+std::shared_ptr<openkit::ISSLTrustManager> AbstractOpenKitBuilder::getTrustManager() const
 {
 	return mTrustManager;
 }
