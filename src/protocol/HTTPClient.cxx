@@ -164,10 +164,7 @@ std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::Requ
 	if (!mCurl)
 	{
 		// Abort and cleanup if CURL cannot be initialized
-		if (mLogger->isErrorEnabled())
-		{
-			mLogger->error("curl_easy_init() failed");
-		}
+		mLogger->error("curl_easy_init() failed");
 		return nullptr;
 	}
 
@@ -236,9 +233,7 @@ std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::Requ
 		{
 			// See https://curl.haxx.se/libcurl/c/libcurl-errors.html for a list of CURL error codes.
 			if (mLogger->isErrorEnabled())
-			{
-				mLogger->error("curl_easy_perform() failed on '%s': ErrorCode '%u', [%s]", url.getStringData().c_str(), response, curl_easy_strerror(response));
-			}
+			mLogger->error("curl_easy_perform() failed on '%s': ErrorCode '%u', [%s]", url.getStringData().c_str(), response, curl_easy_strerror(response));
 		}
 
 		// Cleanup
