@@ -27,26 +27,30 @@ class AbstractBeaconSendingStateTest : public testing::Test
 {
 public:
 	AbstractBeaconSendingStateTest()
-		: mockState()
-		, mockContext()
+		: mLogger(nullptr)
 	{
 	}
 
 	void SetUp()
 	{
+		mLogger = std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(devNull, true));
 	}
 
 	void TearDown()
 	{
+		mLogger = nullptr;
 	}
 
-
-	testing::NiceMock<test::MockAbstractBeaconSendingState> mockState;
-	testing::StrictMock<test::MockBeaconSendingContext> mockContext;//StrictMock ensure that  all additional calls on context result in failure
+	std::ostringstream devNull;
+	std::shared_ptr<openkit::ILogger> mLogger;
+	
 };
 
 TEST_F(AbstractBeaconSendingStateTest,  aTestBeaconSendingStateExecutes)
 {
+	testing::NiceMock<test::MockAbstractBeaconSendingState> mockState;
+	testing::StrictMock<test::MockBeaconSendingContext> mockContext(mLogger);//StrictMock ensure that  all additional calls on context result in failure
+
 	ON_CALL(mockState, execute(testing::_))
 		.WillByDefault(testing::WithArgs<0>(testing::Invoke(&mockState, &test::MockAbstractBeaconSendingState::RealExecute)));
 

@@ -35,8 +35,8 @@ namespace test {
 	class MockBeacon : public protocol::Beacon
 	{
 	public:
-		MockBeacon(std::shared_ptr<caching::BeaconCache> beaconCache, std::shared_ptr<configuration::Configuration> configuration, const core::UTF8String clientIPAddress, std::shared_ptr<providers::IThreadIDProvider> threadIDProvider, std::shared_ptr<providers::ITimingProvider> timingProvider)
-			: Beacon(std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(devNull, true)), beaconCache, configuration, clientIPAddress, threadIDProvider, timingProvider)
+		MockBeacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching::BeaconCache> beaconCache, std::shared_ptr<configuration::Configuration> configuration, const core::UTF8String clientIPAddress, std::shared_ptr<providers::IThreadIDProvider> threadIDProvider, std::shared_ptr<providers::ITimingProvider> timingProvider)
+			: Beacon(logger, beaconCache, configuration, clientIPAddress, threadIDProvider, timingProvider)
 		{
 
 		}
@@ -120,9 +120,6 @@ namespace test {
 		MOCK_METHOD1(send, std::unique_ptr<protocol::StatusResponse>(std::shared_ptr<providers::IHTTPClientProvider>));
 		MOCK_METHOD2(createTag, core::UTF8String(int32_t, int32_t));
 		MOCK_METHOD0(createSequenceNumber, int32_t());
-
-	private:
-		std::ostringstream devNull;
 	};
 }
 #endif

@@ -33,7 +33,8 @@ void AbstractBeaconSendingState::execute(BeaconSendingContext& context)
 {
 	doExecute(context);
 
-	if (context.isShutdownRequested()) {
+	if (context.isShutdownRequested())
+	{
 		context.setNextState(getShutdownState());
 	}
 }

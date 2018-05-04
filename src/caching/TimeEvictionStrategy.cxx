@@ -51,7 +51,8 @@ void TimeEvictionStrategy::execute()
 		mLastRunTimestamp = mTimingProvider->provideTimestampInMilliseconds();
 	}
 
-	if (shouldRun()) {
+	if (shouldRun())
+	{
 		doExecute();
 	}
 }

@@ -88,6 +88,12 @@ namespace configuration
 		int32_t createSessionNumber();
 
 		///
+		/// Return the OpenKit type as string
+		/// @returns the OpenKit type as string
+		///
+		const char* getOpenKitType() const;
+
+		///
 		/// Returns the application name
 		/// @returns the application name
 		///
@@ -104,6 +110,12 @@ namespace configuration
 		/// @returns the application version
 		///
 		const core::UTF8String& getApplicationVersion() const;
+
+		///
+		/// Returns the endpoint URL (=beacon URL)
+		/// @returns the endpoint URL (=beacon URL)
+		///
+		const core::UTF8String& getEndpointURL() const;
 
 		///
 		/// Returns the device id

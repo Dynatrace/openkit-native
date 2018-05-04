@@ -29,14 +29,20 @@ BeaconSender::BeaconSender(std::shared_ptr<openkit::ILogger> logger,
 						   std::shared_ptr<configuration::Configuration> configuration,
 						   std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
 						   std::shared_ptr<providers::ITimingProvider> timingProvider)
-	: mBeaconSendingContext(std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(logger, httpClientProvider, timingProvider, configuration)))
+	: mLogger(logger)
+	, mBeaconSendingContext(std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(logger, httpClientProvider, timingProvider, configuration)))
 	, mSendingThread(nullptr)
 {
 
 }
 
-void beaconSendingLoop(std::shared_ptr<BeaconSendingContext> context)
+void beaconSendingLoop(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<BeaconSendingContext> context)
 {
+	// run the loop as long as OpenKit does not get shutdown or ends itself.
+	if (logger->isDebugEnabled())
+	{
+		logger->debug("BeaconSender thread started");
+	}
 	while ( context != nullptr && !context->isInTerminalState())
 	{
 		context->executeCurrentState();
@@ -45,7 +51,7 @@ void beaconSendingLoop(std::shared_ptr<BeaconSendingContext> context)
 
 bool BeaconSender::initialize()
 {
-	mSendingThread = std::unique_ptr<std::thread>(new std::thread(&beaconSendingLoop, mBeaconSendingContext));
+	mSendingThread = std::unique_ptr<std::thread>(new std::thread(&beaconSendingLoop, mLogger, mBeaconSendingContext));
 	return true;
 }
 
@@ -66,16 +72,32 @@ bool BeaconSender::isInitialized() const
 
 void BeaconSender::shutdown()
 {
+	if (mLogger->isDebugEnabled())
+	{
+		mLogger->debug("BeaconSender thread request shutdown");
+	}
 	mBeaconSendingContext->requestShutdown();
 	mSendingThread->join();
+	if (mLogger->isDebugEnabled())
+	{
+		mLogger->debug("BeaconSender thread stopped");
+	}
 }
 
 void BeaconSender::startSession(std::shared_ptr<Session> session)
 {
+	if (mLogger->isDebugEnabled())
+	{
+		mLogger->debug("BeaconSender startSession");
+	}
 	mBeaconSendingContext->startSession(session);
 }
 
 void BeaconSender::finishSession(std::shared_ptr<Session> session)
 {
+	if (mLogger->isDebugEnabled())
+	{
+		mLogger->debug("BeaconSender finishSession");
+	}
 	mBeaconSendingContext->finishSession(session);
 }

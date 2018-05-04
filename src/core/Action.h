@@ -142,6 +142,13 @@ namespace core
 		///
 		virtual std::shared_ptr<openkit::IRootAction> doLeaveAction();
 
+		///
+		/// Returns a string describing the object, based on some important fields.
+		/// This function is indended for debug printouts.
+		/// @return a string describing the object
+		///
+		const std::string toString() const;
+
 		/// Logger to write traces to
 		std::shared_ptr<openkit::ILogger> mLogger;
 
@@ -154,7 +161,7 @@ namespace core
 		/// beacon used for serialization
 		std::shared_ptr<protocol::Beacon> mBeacon;
 
-		///action id
+		/// action id
 		int32_t mID;
 
 		/// action name

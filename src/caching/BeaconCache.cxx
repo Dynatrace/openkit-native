@@ -17,11 +17,13 @@
 #include "BeaconCache.h"
 
 #include <mutex> 
+#include <inttypes.h> // for PRId64 macro
 
 using namespace caching;
  
-BeaconCache::BeaconCache()
-	: observers()
+BeaconCache::BeaconCache(std::shared_ptr<openkit::ILogger> logger)
+	: mLogger(logger)
+	, observers()
 	, mGlobalCacheLock()
 	, mBeacons()
 	, mCacheSizeInBytes(0)
@@ -39,6 +41,11 @@ void BeaconCache::addObserver(IObserver* observer)
 
 void BeaconCache::addEventData(int32_t beaconID, int64_t timestamp, const core::UTF8String& data)
 {
+	if (mLogger->isDebugEnabled())
+	{
+		mLogger->debug("addEventData(sn=%d, timestamp=%" PRId64 ", data='%s')", beaconID, timestamp, data.getStringData().c_str());
+	}
+
 	// get a reference to the cache entry
 	auto entry = getCachedEntryOrInsert(beaconID);
 
@@ -57,6 +64,11 @@ void BeaconCache::addEventData(int32_t beaconID, int64_t timestamp, const core::
 
 void BeaconCache::addActionData(int32_t beaconID, int64_t timestamp, const core::UTF8String& data)
 {
+	if (mLogger->isDebugEnabled())
+	{
+		mLogger->debug("addActionData(sn=%d, timestamp=%" PRId64 ", data='%s')", beaconID, timestamp, data.getStringData().c_str());
+	}
+
 	// get a reference to the cache entry
 	auto entry = getCachedEntryOrInsert(beaconID);
 
@@ -75,6 +87,10 @@ void BeaconCache::addActionData(int32_t beaconID, int64_t timestamp, const core:
 void BeaconCache::deleteCacheEntry(int32_t beaconID)
 {
 	core::util::ScopedWriteLock lock(mGlobalCacheLock);
+	if (mLogger->isDebugEnabled())
+	{
+		mLogger->debug("deleteCacheEntry(sn=%d)", beaconID);
+	}
 	
 	auto it = mBeacons.find(beaconID);
 	if (it != mBeacons.end())
@@ -282,6 +298,11 @@ uint32_t BeaconCache::evictRecordsByAge(int32_t beaconID, int64_t minTimestamp)
 	uint32_t numRecordsRemoved = entry->removeRecordsOlderThan(minTimestamp);
 	lock.unlock();
 
+	if (mLogger->isDebugEnabled())
+	{
+		mLogger->debug("evictRecordsByAge(sn=%d, minTimestamp=%" PRId64 ") has evicted %u records", beaconID, minTimestamp, numRecordsRemoved);
+	}
+
 	return numRecordsRemoved;
 }
 
@@ -297,6 +318,11 @@ uint32_t BeaconCache::evictRecordsByNumber(int32_t beaconID, uint32_t numRecords
 	std::unique_lock<std::mutex> lock(entry->getLock());
 	uint32_t numRecordsRemoved = entry->removeOldestRecords(numRecords);
 	lock.unlock();
+
+	if (mLogger->isDebugEnabled())
+	{
+		mLogger->debug("evictRecordsByNumber(sn=%d, numRecords=%u) has evicted %u records", beaconID, numRecords, numRecordsRemoved);
+	}
 
 	return numRecordsRemoved;
 }

@@ -40,6 +40,13 @@ Beacon::Beacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching
 	{
 		mClientIPAddress = clientIPAddress;
 	}
+	else
+	{
+		if (logger->isWarningEnabled())
+		{
+			logger->warning("Client IP address validation failed: %s", clientIPAddress.getStringData().c_str());
+		}
+	}
 
 	mBasicBeaconData = createBasicBeaconData();
 }
@@ -93,7 +100,7 @@ core::UTF8String Beacon::createBasicEventData(protocol::EventType eventType, con
 
 	if (!eventName.empty())
 	{
-		addKeyValuePair(eventData, BEACON_KEY_NAME, trunctate(eventName));
+		addKeyValuePair(eventData, BEACON_KEY_NAME, truncate(eventName));
 	}
 	addKeyValuePair(eventData, BEACON_KEY_THREAD_ID, mThreadIDProvider->getThreadID());
 	return eventData;
@@ -284,7 +291,8 @@ void Beacon::reportEvent(std::shared_ptr<core::Action> parentAction, const core:
 
 void Beacon::reportError(std::shared_ptr<core::Action> parentAction, const core::UTF8String& errorName, int32_t errorCode, const core::UTF8String& reason)
 {
-	if (!mConfiguration->isCaptureErrors()) {
+	if (!mConfiguration->isCaptureErrors())
+	{
 		return;
 	}
 
@@ -342,7 +350,8 @@ void Beacon::reportEvent(std::shared_ptr<core::RootAction> parentAction, core::U
 
 void Beacon::reportError(std::shared_ptr<core::RootAction> parentAction, const core::UTF8String& errorName, int32_t errorCode, const core::UTF8String& reason)
 {
-	if (!mConfiguration->isCaptureErrors()) {
+	if (!mConfiguration->isCaptureErrors())
+	{
 		return;
 	}
 
@@ -362,7 +371,8 @@ void Beacon::reportError(std::shared_ptr<core::RootAction> parentAction, const c
 
 void Beacon::reportCrash(const core::UTF8String& errorName, const core::UTF8String& reason, const core::UTF8String& stacktrace)
 {
-	if (!mConfiguration->isCaptureCrashes()) {
+	if (!mConfiguration->isCaptureCrashes())
+	{
 		return;
 	}
 
@@ -470,7 +480,7 @@ void Beacon::addEventData(int64_t timestamp, const core::UTF8String& eventData)
 	}
 }
 
-core::UTF8String Beacon::trunctate(const core::UTF8String& string)
+core::UTF8String Beacon::truncate(const core::UTF8String& string)
 {
 	if (string.getStringLength() > protocol::MAX_NAME_LEN)
 	{
@@ -493,4 +503,9 @@ void Beacon::clearData()
 {
 	// remove all cached data for this Beacon from the cache
 	mBeaconCache->deleteCacheEntry(mSessionNumber);
+}
+
+uint32_t Beacon::getSessionNumber() const
+{
+	return mSessionNumber;
 }

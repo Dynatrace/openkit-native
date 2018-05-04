@@ -40,7 +40,7 @@ std::shared_ptr<configuration::Configuration> AppMonOpenKitBuilder::buildConfigu
 
 	return std::make_shared<configuration::Configuration>(
 		device,
-		configuration::OpenKitType::APPMON,
+		configuration::OpenKitType::Type::APPMON,
 		mApplicationName,
 		getApplicationVersion(),
 		mApplicationName,

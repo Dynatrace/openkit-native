@@ -34,11 +34,12 @@ namespace core
 
 		///
 		/// Constructor taking an Action
+		/// @param[in] logger to write traces to
 		/// @param[in] beacon @ref Beacon used to serialize the WebRequestTracer
 		/// @param[in] action parent of the WebRequestTracer
 		/// @param[in] url url of the web request
 		///
-		WebRequestTracerStringURL(std::shared_ptr<protocol::Beacon> beacon, int32_t parentActionID, const UTF8String& url);
+		WebRequestTracerStringURL(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<protocol::Beacon> beacon, int32_t parentActionID, const UTF8String& url);
 	};
 }
 

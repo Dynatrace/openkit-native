@@ -30,17 +30,20 @@ class BeaconSendingTimeSyncTest : public testing::Test
 public:
 
 	BeaconSendingTimeSyncTest()
-		: target(nullptr)
-		, mockHTTPClient(nullptr)
+		: mLogger(nullptr)
+		, mTarget(nullptr)
+		, mTargetNotInitial(nullptr)
+		, mMockHTTPClient(nullptr)
 	{
 	}
 
 	void SetUp()
 	{
-		target = std::shared_ptr<communication::AbstractBeaconSendingState>(new communication::BeaconSendingTimeSyncState(true));
-		targetNotInitial = std::shared_ptr<communication::AbstractBeaconSendingState>(new communication::BeaconSendingTimeSyncState(false));
+		mLogger = std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(devNull, true));
+		mTarget = std::shared_ptr<communication::AbstractBeaconSendingState>(new communication::BeaconSendingTimeSyncState(true));
+		mTargetNotInitial = std::shared_ptr<communication::AbstractBeaconSendingState>(new communication::BeaconSendingTimeSyncState(false));
 		std::shared_ptr<configuration::HTTPClientConfiguration> httpClientConfiguration = std::make_shared<configuration::HTTPClientConfiguration>(core::UTF8String(""),0, core::UTF8String(""));
-		mockHTTPClient = std::shared_ptr<testing::NiceMock<test::MockHTTPClient>>(new testing::NiceMock<test::MockHTTPClient>(httpClientConfiguration));
+		mMockHTTPClient = std::shared_ptr<testing::NiceMock<test::MockHTTPClient>>(new testing::NiceMock<test::MockHTTPClient>(httpClientConfiguration));
 
 		core::UTF8String response1 = core::UTF8String(protocol::RESPONSE_KEY_REQUEST_RECEIVE_TIME);
 		response1.concatenate("=6&");
@@ -106,11 +109,18 @@ public:
 		{
 			delete response;
 		}
+
+		mLogger = nullptr;
+		mTarget = nullptr;
+		mTargetNotInitial = nullptr;
+		mMockHTTPClient = nullptr;
 	}
 
-	std::shared_ptr<communication::AbstractBeaconSendingState> target;//time sync state with initialTimeSync set to true
-	std::shared_ptr<communication::AbstractBeaconSendingState> targetNotInitial;//time sync state with initialTimeSync set to false
-	std::shared_ptr<testing::NiceMock<test::MockHTTPClient>> mockHTTPClient;
+	std::ostringstream devNull;
+	std::shared_ptr<openkit::ILogger> mLogger;
+	std::shared_ptr<communication::AbstractBeaconSendingState> mTarget;//time sync state with initialTimeSync set to true
+	std::shared_ptr<communication::AbstractBeaconSendingState> mTargetNotInitial;//time sync state with initialTimeSync set to false
+	std::shared_ptr<testing::NiceMock<test::MockHTTPClient>> mMockHTTPClient;
 	std::vector<protocol::TimeSyncResponse*> reponsesForASuccessfullTimeSync;
 	std::vector<protocol::TimeSyncResponse*> reponsesForASuccessfullTimeSyncWithRetries;
 	std::vector<uint64_t> timestampsForASuccessfullTimeSync;
@@ -120,13 +130,13 @@ public:
 
 TEST_F(BeaconSendingTimeSyncTest, timeSyncStateIsNotATerminalState)
 {
-	ASSERT_FALSE(target->isTerminalState());
+	ASSERT_FALSE(mTarget->isTerminalState());
 }
 
 TEST_F(BeaconSendingTimeSyncTest, getShutdownStateGivesATerminalStateInstanceForInitialTimeSync)
 {
 	// when
-	std::shared_ptr<AbstractBeaconSendingState> obtained = target->getShutdownState();
+	std::shared_ptr<AbstractBeaconSendingState> obtained = mTarget->getShutdownState();
 
 	//then
 	ASSERT_TRUE(obtained != nullptr);
@@ -136,7 +146,7 @@ TEST_F(BeaconSendingTimeSyncTest, getShutdownStateGivesATerminalStateInstanceFor
 TEST_F(BeaconSendingTimeSyncTest, getShutdownStateGivesAFlushSessionsStateInstanceForNotInitialTimeSync)
 {
 	// when
-	std::shared_ptr<AbstractBeaconSendingState> obtained = targetNotInitial->getShutdownState();
+	std::shared_ptr<AbstractBeaconSendingState> obtained = mTargetNotInitial->getShutdownState();
 
 	//then
 	ASSERT_TRUE(obtained != nullptr);
@@ -145,7 +155,7 @@ TEST_F(BeaconSendingTimeSyncTest, getShutdownStateGivesAFlushSessionsStateInstan
 
 TEST_F(BeaconSendingTimeSyncTest, isTimeSyncRequiredReturnsFalseImmediatelyIfTimeSyncIsNotSupported)
 {
-	testing::NiceMock<test::MockBeaconSendingContext> mockContext;//NiceMock: ensure that required calls are there but do not object about other calls
+	testing::NiceMock<test::MockBeaconSendingContext> mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
 
     // given
 	ON_CALL(mockContext, isTimeSyncSupported())
@@ -154,29 +164,29 @@ TEST_F(BeaconSendingTimeSyncTest, isTimeSyncRequiredReturnsFalseImmediatelyIfTim
 		.WillByDefault(testing::Return(-1));
 
 	// when/then
-	BeaconSendingTimeSyncState* underTest = static_cast<BeaconSendingTimeSyncState*>(target.get());
+	BeaconSendingTimeSyncState* underTest = static_cast<BeaconSendingTimeSyncState*>(mTarget.get());
 	ASSERT_FALSE(underTest->isTimeSyncRequired(mockContext));
 }
 
 TEST_F(BeaconSendingTimeSyncTest, timeSyncIsRequiredWhenLastTimeSyncTimeIsNegative)
 {
 	//given
-	testing::NiceMock<test::MockBeaconSendingContext> mockContext;//NiceMock: ensure that required calls are there but do not object about other calls
+	testing::NiceMock<test::MockBeaconSendingContext> mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
 	ON_CALL(mockContext, getLastTimeSyncTime())
 		.WillByDefault(testing::Return(-1));
 	ON_CALL(mockContext, isTimeSyncSupported())
 		.WillByDefault(testing::Return(true));
 	// when/then
-	BeaconSendingTimeSyncState* underTest = static_cast<BeaconSendingTimeSyncState*>(target.get());
+	BeaconSendingTimeSyncState* underTest = static_cast<BeaconSendingTimeSyncState*>(mTarget.get());
 	ASSERT_TRUE(underTest->isTimeSyncRequired(mockContext));
 }
 
 TEST_F(BeaconSendingTimeSyncTest, isTimeSyncRequiredBoundaries)
 {
 	//given
-	BeaconSendingTimeSyncState* underTest = static_cast<BeaconSendingTimeSyncState*>(target.get());
+	BeaconSendingTimeSyncState* underTest = static_cast<BeaconSendingTimeSyncState*>(mTarget.get());
 
-	testing::NiceMock<test::MockBeaconSendingContext> mockContext;//NiceMock: ensure that required calls are there but do not object about other calls
+	testing::NiceMock<test::MockBeaconSendingContext> mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
 	ON_CALL(mockContext, isTimeSyncSupported())
 		.WillByDefault(testing::Return(true));
 	ON_CALL(mockContext, getLastTimeSyncTime())
@@ -207,7 +217,7 @@ TEST_F(BeaconSendingTimeSyncTest, isTimeSyncRequiredBoundaries)
 TEST_F(BeaconSendingTimeSyncTest, timeSyncNotRequiredAndCaptureOnTruePerformsStateTransitionToCaptureOnState)
 {
 	// given
-	testing::NiceMock<test::MockBeaconSendingContext> mockContext;//NiceMock: ensure that required calls are there but do not object about other calls
+	testing::NiceMock<test::MockBeaconSendingContext> mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
 	ON_CALL(mockContext, isTimeSyncSupported())
 		.WillByDefault(testing::Return(false));
 	ON_CALL(mockContext, isCaptureOn())
@@ -218,43 +228,43 @@ TEST_F(BeaconSendingTimeSyncTest, timeSyncNotRequiredAndCaptureOnTruePerformsSta
 		.Times(::testing::Exactly(1));
 
 	// when
-	target->execute(mockContext);
+	mTarget->execute(mockContext);
 }
 
 TEST_F(BeaconSendingTimeSyncTest, timeSyncRequestsAreInterruptedAfterUnsuccessfulRetries)
 {
 	// given
-	testing::NiceMock<test::MockBeaconSendingContext> mockContext;//NiceMock: ensure that required calls are there but do not object about other calls
+	testing::NiceMock<test::MockBeaconSendingContext> mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
 	ON_CALL(mockContext, getLastTimeSyncTime())
 		.WillByDefault(testing::Return(-1));
 	ON_CALL(mockContext, isTimeSyncSupported())
 		.WillByDefault(testing::Return(true));
 	ON_CALL(mockContext, getHTTPClient())
-		.WillByDefault(testing::Return(mockHTTPClient));
-	ON_CALL(*mockHTTPClient, sendTimeSyncRequestRawPtrProxy())
+		.WillByDefault(testing::Return(mMockHTTPClient));
+	ON_CALL(*mMockHTTPClient, sendTimeSyncRequestRawPtrProxy())
 		.WillByDefault(testing::Return(nullptr));
 
 	
 	// then
-	EXPECT_CALL(*mockHTTPClient, sendTimeSyncRequestRawPtrProxy())
+	EXPECT_CALL(*mMockHTTPClient, sendTimeSyncRequestRawPtrProxy())
 		.Times(testing::Exactly(communication::BeaconSendingTimeSyncState::REQUIRED_TIME_SYNC_REQUESTS + 1));
 
 	// when
-	target->execute(mockContext);
+	mTarget->execute(mockContext);
 
 }
 
 TEST_F(BeaconSendingTimeSyncTest, sleepTimeDoublesBetweenConsecutiveTimeSyncRequests)
 {
 	// given
-	testing::NiceMock<test::MockBeaconSendingContext> mockContext;//NiceMock: ensure that required calls are there but do not object about other calls
+	testing::NiceMock<test::MockBeaconSendingContext> mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
 	ON_CALL(mockContext, getLastTimeSyncTime())
 		.WillByDefault(testing::Return(-1));
 	ON_CALL(mockContext, isTimeSyncSupported())
 		.WillByDefault(testing::Return(true));
 	ON_CALL(mockContext, getHTTPClient())
-		.WillByDefault(testing::Return(mockHTTPClient));
-	ON_CALL(*mockHTTPClient, sendTimeSyncRequestRawPtrProxy())
+		.WillByDefault(testing::Return(mMockHTTPClient));
+	ON_CALL(*mMockHTTPClient, sendTimeSyncRequestRawPtrProxy())
 		.WillByDefault(testing::Return(nullptr));
 
 	// then
@@ -276,23 +286,23 @@ TEST_F(BeaconSendingTimeSyncTest, sleepTimeDoublesBetweenConsecutiveTimeSyncRequ
 		.Times(::testing::Exactly(1));
 
 	// when
-	target->execute(mockContext);
+	mTarget->execute(mockContext);
 }
 
 TEST_F(BeaconSendingTimeSyncTest, sleepTimeIsResetToInitialValueAfterASuccessfulTimeSyncResponse)
 {
-	testing::NiceMock<test::MockBeaconSendingContext> mockContext;//NiceMock: ensure that required calls are there but do not object about other calls
+	testing::NiceMock<test::MockBeaconSendingContext> mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
 	ON_CALL(mockContext, getLastTimeSyncTime())
 		.WillByDefault(testing::Return(-1));
 	ON_CALL(mockContext, isTimeSyncSupported())
 		.WillByDefault(testing::Return(true));
 	ON_CALL(mockContext, getHTTPClient())
-		.WillByDefault(testing::Return(mockHTTPClient));
-	ON_CALL(*mockHTTPClient, sendTimeSyncRequestRawPtrProxy())
+		.WillByDefault(testing::Return(mMockHTTPClient));
+	ON_CALL(*mMockHTTPClient, sendTimeSyncRequestRawPtrProxy())
 		.WillByDefault(testing::Return(nullptr));
 	// given
 	std::vector<protocol::TimeSyncResponse*>& responses = reponsesForASuccessfullTimeSyncWithRetries;
-	ON_CALL(*mockHTTPClient, sendTimeSyncRequestRawPtrProxy())
+	ON_CALL(*mMockHTTPClient, sendTimeSyncRequestRawPtrProxy())
 		.WillByDefault(testing::Invoke([&responses]() -> protocol::TimeSyncResponse* {
 		if (responses.size() > 0)
 		{
@@ -372,23 +382,23 @@ TEST_F(BeaconSendingTimeSyncTest, sleepTimeIsResetToInitialValueAfterASuccessful
 
 
 	// when
-	target->execute(mockContext);
+	mTarget->execute(mockContext);
 }
 
 
 TEST_F(BeaconSendingTimeSyncTest, successfulTimeSyncInitializesTimeProvider)
 {
 	// given
-	testing::NiceMock<test::MockBeaconSendingContext> mockContext;//NiceMock: ensure that required calls are there but do not object about other calls
+	testing::NiceMock<test::MockBeaconSendingContext> mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
 	ON_CALL(mockContext, getLastTimeSyncTime())
 		.WillByDefault(testing::Return(-1));
 	ON_CALL(mockContext, isTimeSyncSupported())
 		.WillByDefault(testing::Return(true));
 	ON_CALL(mockContext, getHTTPClient())
-		.WillByDefault(testing::Return(mockHTTPClient));
+		.WillByDefault(testing::Return(mMockHTTPClient));
 
 	std::vector<protocol::TimeSyncResponse*>& responses = reponsesForASuccessfullTimeSync;
-	ON_CALL(*mockHTTPClient, sendTimeSyncRequestRawPtrProxy())
+	ON_CALL(*mMockHTTPClient, sendTimeSyncRequestRawPtrProxy())
 		.WillByDefault(testing::Invoke([&responses]() -> protocol::TimeSyncResponse* {
 			if (responses.size() > 0)
 			{
@@ -428,7 +438,7 @@ TEST_F(BeaconSendingTimeSyncTest, successfulTimeSyncInitializesTimeProvider)
 	uint32_t numberOfTimeSyncRequests = communication::BeaconSendingTimeSyncState::REQUIRED_TIME_SYNC_REQUESTS;
 	EXPECT_CALL(mockContext, getHTTPClient())
 		.Times(testing::Exactly(numberOfTimeSyncRequests));
-	EXPECT_CALL(*mockHTTPClient, sendTimeSyncRequestRawPtrProxy())
+	EXPECT_CALL(*mMockHTTPClient, sendTimeSyncRequestRawPtrProxy())
 		.Times(testing::Exactly(numberOfTimeSyncRequests));
 	EXPECT_CALL(mockContext, getCurrentTimestamp())
 		.Times(testing::Exactly(numberOfTimeSyncRequests * 2 + 1));
@@ -441,24 +451,24 @@ TEST_F(BeaconSendingTimeSyncTest, successfulTimeSyncInitializesTimeProvider)
 		.Times(testing::Exactly(0));
 
 	// when
-	targetNotInitial->execute(mockContext);
+	mTargetNotInitial->execute(mockContext);
 }
 
 TEST_F(BeaconSendingTimeSyncTest, successfulTimeSyncSetSuccessfulInitCompletionInContextWhenItIsInitialTimeSync)
 {
 	// given
-	testing::NiceMock<test::MockBeaconSendingContext> mockContext;//NiceMock: ensure that required calls are there but do not object about other calls
+	testing::NiceMock<test::MockBeaconSendingContext> mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
 	ON_CALL(mockContext, getLastTimeSyncTime())
 		.WillByDefault(testing::Return(-1));
 	ON_CALL(mockContext, isTimeSyncSupported())
 		.WillByDefault(testing::Return(true));
 	ON_CALL(mockContext, getHTTPClient())
-		.WillByDefault(testing::Return(mockHTTPClient));
-	ON_CALL(*mockHTTPClient, sendTimeSyncRequestRawPtrProxy())
+		.WillByDefault(testing::Return(mMockHTTPClient));
+	ON_CALL(*mMockHTTPClient, sendTimeSyncRequestRawPtrProxy())
 		.WillByDefault(testing::Return(nullptr));
 
 	std::vector<protocol::TimeSyncResponse*>& responses = reponsesForASuccessfullTimeSync;
-	ON_CALL(*mockHTTPClient, sendTimeSyncRequestRawPtrProxy())
+	ON_CALL(*mMockHTTPClient, sendTimeSyncRequestRawPtrProxy())
 		.WillByDefault(testing::Invoke([&responses]() -> protocol::TimeSyncResponse* {
 		if (responses.size() > 0)
 		{
@@ -498,7 +508,7 @@ TEST_F(BeaconSendingTimeSyncTest, successfulTimeSyncSetSuccessfulInitCompletionI
 	uint32_t numberOfTimeSyncRequests = communication::BeaconSendingTimeSyncState::REQUIRED_TIME_SYNC_REQUESTS;
 	EXPECT_CALL(mockContext, getHTTPClient())
 		.Times(testing::Exactly(numberOfTimeSyncRequests));
-	EXPECT_CALL(*mockHTTPClient, sendTimeSyncRequestRawPtrProxy())
+	EXPECT_CALL(*mMockHTTPClient, sendTimeSyncRequestRawPtrProxy())
 		.Times(testing::Exactly(numberOfTimeSyncRequests));
 	EXPECT_CALL(mockContext, getCurrentTimestamp())
 		.Times(testing::Exactly(numberOfTimeSyncRequests * 2 + 1));
@@ -508,13 +518,13 @@ TEST_F(BeaconSendingTimeSyncTest, successfulTimeSyncSetSuccessfulInitCompletionI
 		.Times(testing::Exactly(1));
 
 	// when
-	target->execute(mockContext);
+	mTarget->execute(mockContext);
 }
 
 TEST_F(BeaconSendingTimeSyncTest, timeSyncSupportIsDisabledIfBothTimeStampsInTimeSyncResponseAreNegative)
 {
 	//given
-	testing::NiceMock<test::MockBeaconSendingContext> mockContext;//NiceMock: ensure that required calls are there but do not object about other calls
+	testing::NiceMock<test::MockBeaconSendingContext> mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
 	core::UTF8String disableString = core::UTF8String(protocol::RESPONSE_KEY_REQUEST_RECEIVE_TIME);
 	disableString.concatenate("=-1&");
 	disableString.concatenate(protocol::RESPONSE_KEY_RESPONSE_SEND_TIME);
@@ -526,8 +536,8 @@ TEST_F(BeaconSendingTimeSyncTest, timeSyncSupportIsDisabledIfBothTimeStampsInTim
 	ON_CALL(mockContext, isTimeSyncSupported())
 		.WillByDefault(testing::Return(true));
 	ON_CALL(mockContext, getHTTPClient())
-		.WillByDefault(testing::Return(mockHTTPClient));
-	ON_CALL(*mockHTTPClient, sendTimeSyncRequestRawPtrProxy())
+		.WillByDefault(testing::Return(mMockHTTPClient));
+	ON_CALL(*mMockHTTPClient, sendTimeSyncRequestRawPtrProxy())
 		.WillByDefault(testing::Return(disable));
 
 
@@ -536,13 +546,13 @@ TEST_F(BeaconSendingTimeSyncTest, timeSyncSupportIsDisabledIfBothTimeStampsInTim
 		.Times(testing::Exactly(1));
 
 	// when
-	target->execute(mockContext);
+	mTarget->execute(mockContext);
 }
 
 TEST_F(BeaconSendingTimeSyncTest, timeSyncSupportIsDisabledIfFirstTimeStampInTimeSyncResponseIsNegative)
 {
 	//given
-	testing::NiceMock<test::MockBeaconSendingContext> mockContext;//NiceMock: ensure that required calls are there but do not object about other calls
+	testing::NiceMock<test::MockBeaconSendingContext> mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
 	core::UTF8String disableString = core::UTF8String(protocol::RESPONSE_KEY_REQUEST_RECEIVE_TIME);
 	disableString.concatenate("=-1&");
 	disableString.concatenate(protocol::RESPONSE_KEY_RESPONSE_SEND_TIME);
@@ -554,8 +564,8 @@ TEST_F(BeaconSendingTimeSyncTest, timeSyncSupportIsDisabledIfFirstTimeStampInTim
 	ON_CALL(mockContext, isTimeSyncSupported())
 		.WillByDefault(testing::Return(true));
 	ON_CALL(mockContext, getHTTPClient())
-		.WillByDefault(testing::Return(mockHTTPClient));
-	ON_CALL(*mockHTTPClient, sendTimeSyncRequestRawPtrProxy())
+		.WillByDefault(testing::Return(mMockHTTPClient));
+	ON_CALL(*mMockHTTPClient, sendTimeSyncRequestRawPtrProxy())
 		.WillByDefault(testing::Return(disable));
 
 
@@ -564,13 +574,13 @@ TEST_F(BeaconSendingTimeSyncTest, timeSyncSupportIsDisabledIfFirstTimeStampInTim
 		.Times(testing::Exactly(1));
 
 	// when
-	target->execute(mockContext);
+	mTarget->execute(mockContext);
 }
 
 TEST_F(BeaconSendingTimeSyncTest, timeSyncSupportIsDisabledIfSecondTimeStampInTimeSyncResponseIsNegative)
 {
 	//given
-	testing::NiceMock<test::MockBeaconSendingContext> mockContext;//NiceMock: ensure that required calls are there but do not object about other calls
+	testing::NiceMock<test::MockBeaconSendingContext> mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
 	core::UTF8String disableString = core::UTF8String(protocol::RESPONSE_KEY_REQUEST_RECEIVE_TIME);
 	disableString.concatenate("=1&");
 	disableString.concatenate(protocol::RESPONSE_KEY_RESPONSE_SEND_TIME);
@@ -582,8 +592,8 @@ TEST_F(BeaconSendingTimeSyncTest, timeSyncSupportIsDisabledIfSecondTimeStampInTi
 	ON_CALL(mockContext, isTimeSyncSupported())
 		.WillByDefault(testing::Return(true));
 	ON_CALL(mockContext, getHTTPClient())
-		.WillByDefault(testing::Return(mockHTTPClient));
-	ON_CALL(*mockHTTPClient, sendTimeSyncRequestRawPtrProxy())
+		.WillByDefault(testing::Return(mMockHTTPClient));
+	ON_CALL(*mMockHTTPClient, sendTimeSyncRequestRawPtrProxy())
 		.WillByDefault(testing::Return(disable));
 
 
@@ -592,20 +602,20 @@ TEST_F(BeaconSendingTimeSyncTest, timeSyncSupportIsDisabledIfSecondTimeStampInTi
 		.Times(testing::Exactly(1));
 
 	// when
-	target->execute(mockContext);
+	mTarget->execute(mockContext);
 }
 
 TEST_F(BeaconSendingTimeSyncTest, timeProviderInitializeIsCalledIfItIsAnInitialTimeSyncEvenWhenResponseIsErroneous)
 {
 	// given
-	testing::NiceMock<test::MockBeaconSendingContext> mockContext;//NiceMock: ensure that required calls are there but do not object about other calls
+	testing::NiceMock<test::MockBeaconSendingContext> mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
 	ON_CALL(mockContext, getLastTimeSyncTime())
 		.WillByDefault(testing::Return(-1));
 	ON_CALL(mockContext, isTimeSyncSupported())
 		.WillByDefault(testing::Return(true));
 	ON_CALL(mockContext, getHTTPClient())
-		.WillByDefault(testing::Return(mockHTTPClient));
-	ON_CALL(*mockHTTPClient, sendTimeSyncRequestRawPtrProxy())
+		.WillByDefault(testing::Return(mMockHTTPClient));
+	ON_CALL(*mMockHTTPClient, sendTimeSyncRequestRawPtrProxy())
 		.WillByDefault(testing::Return(nullptr));
 
 
@@ -614,20 +624,20 @@ TEST_F(BeaconSendingTimeSyncTest, timeProviderInitializeIsCalledIfItIsAnInitialT
 		.Times(testing::Exactly(1));
 
 	// when
-	target->execute(mockContext);
+	mTarget->execute(mockContext);
 }
 
 TEST_F(BeaconSendingTimeSyncTest, stateTransitionToCaptureOffIsPerformedIfTimeSyncIsSupportedButFailed)
 {
 	// given
-	testing::NiceMock<test::MockBeaconSendingContext> mockContext;//NiceMock: ensure that required calls are there but do not object about other calls
+	testing::NiceMock<test::MockBeaconSendingContext> mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
 	ON_CALL(mockContext, getLastTimeSyncTime())
 		.WillByDefault(testing::Return(-1));
 	ON_CALL(mockContext, isTimeSyncSupported())
 		.WillByDefault(testing::Return(true));
 	ON_CALL(mockContext, getHTTPClient())
-		.WillByDefault(testing::Return(mockHTTPClient));
-	ON_CALL(*mockHTTPClient, sendTimeSyncRequestRawPtrProxy())
+		.WillByDefault(testing::Return(mMockHTTPClient));
+	ON_CALL(*mMockHTTPClient, sendTimeSyncRequestRawPtrProxy())
 		.WillByDefault(testing::Return(nullptr));
 
 	// then
@@ -635,13 +645,13 @@ TEST_F(BeaconSendingTimeSyncTest, stateTransitionToCaptureOffIsPerformedIfTimeSy
 		.Times(testing::Exactly(1));
 
 	// when
-	target->execute(mockContext);
+	mTarget->execute(mockContext);
 }
 
 TEST_F(BeaconSendingTimeSyncTest, stateTransitionIsPerformedToAppropriateStateIfTimeSyncIsSupportedAndCapturingIsEnabled)
 {
 	// given
-	testing::NiceMock<test::MockBeaconSendingContext> mockContext;//NiceMock: ensure that required calls are there but do not object about other calls
+	testing::NiceMock<test::MockBeaconSendingContext> mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
 	ON_CALL(mockContext, getLastTimeSyncTime())
 		.WillByDefault(testing::Return(-1));
 	ON_CALL(mockContext, isTimeSyncSupported())
@@ -649,14 +659,14 @@ TEST_F(BeaconSendingTimeSyncTest, stateTransitionIsPerformedToAppropriateStateIf
 	ON_CALL(mockContext, isShutdownRequested())
 		.WillByDefault(testing::Return(false));
 	ON_CALL(mockContext, getHTTPClient())
-		.WillByDefault(testing::Return(mockHTTPClient));
-	ON_CALL(*mockHTTPClient, sendTimeSyncRequestRawPtrProxy())
+		.WillByDefault(testing::Return(mMockHTTPClient));
+	ON_CALL(*mMockHTTPClient, sendTimeSyncRequestRawPtrProxy())
 		.WillByDefault(testing::Return(nullptr));
 	ON_CALL(mockContext, isCaptureOn())
 		.WillByDefault(testing::Return(true));
 
 	std::vector<protocol::TimeSyncResponse*>& responses = reponsesForASuccessfullTimeSync;
-	ON_CALL(*mockHTTPClient, sendTimeSyncRequestRawPtrProxy())
+	ON_CALL(*mMockHTTPClient, sendTimeSyncRequestRawPtrProxy())
 		.WillByDefault(testing::Invoke([&responses]() -> protocol::TimeSyncResponse* {
 		if (responses.size() > 0)
 		{
@@ -692,13 +702,13 @@ TEST_F(BeaconSendingTimeSyncTest, stateTransitionIsPerformedToAppropriateStateIf
 	EXPECT_CALL(mockContext, setNextState(IsABeaconSendingCaptureOnState()));
 
 	// when
-	target->execute(mockContext);
+	mTarget->execute(mockContext);
 }
 
 TEST_F(BeaconSendingTimeSyncTest, stateTransitionIsPerformedToAppropriateStateIfTimeSyncIsSupportedAndCapturingIsDisabled)
 {
 	// given
-	testing::NiceMock<test::MockBeaconSendingContext> mockContext;//NiceMock: ensure that required calls are there but do not object about other calls
+	testing::NiceMock<test::MockBeaconSendingContext> mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
 	ON_CALL(mockContext, getLastTimeSyncTime())
 		.WillByDefault(testing::Return(-1));
 	ON_CALL(mockContext, isTimeSyncSupported())
@@ -706,14 +716,14 @@ TEST_F(BeaconSendingTimeSyncTest, stateTransitionIsPerformedToAppropriateStateIf
 	ON_CALL(mockContext, isShutdownRequested())
 		.WillByDefault(testing::Return(false));
 	ON_CALL(mockContext, getHTTPClient())
-		.WillByDefault(testing::Return(mockHTTPClient));
-	ON_CALL(*mockHTTPClient, sendTimeSyncRequestRawPtrProxy())
+		.WillByDefault(testing::Return(mMockHTTPClient));
+	ON_CALL(*mMockHTTPClient, sendTimeSyncRequestRawPtrProxy())
 		.WillByDefault(testing::Return(nullptr));
 	ON_CALL(mockContext, isCaptureOn())
 		.WillByDefault(testing::Return(false));
 
 	std::vector<protocol::TimeSyncResponse*>& responses = reponsesForASuccessfullTimeSync;
-	ON_CALL(*mockHTTPClient, sendTimeSyncRequestRawPtrProxy())
+	ON_CALL(*mMockHTTPClient, sendTimeSyncRequestRawPtrProxy())
 		.WillByDefault(testing::Invoke([&responses]() -> protocol::TimeSyncResponse* {
 		if (responses.size() > 0)
 		{
@@ -749,5 +759,5 @@ TEST_F(BeaconSendingTimeSyncTest, stateTransitionIsPerformedToAppropriateStateIf
 	EXPECT_CALL(mockContext, setNextState(IsABeaconSendingCaptureOffState()));
 
 	// when
-	target->execute(mockContext);
+	mTarget->execute(mockContext);
 }

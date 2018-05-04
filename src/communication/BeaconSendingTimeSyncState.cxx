@@ -59,7 +59,8 @@ void BeaconSendingTimeSyncState::doExecute(BeaconSendingContext& context)
 	handleTimeSyncResponses(context, timeSyncOffsets);
 
 	// mark init being completed if it's the initial time sync
-	if (mInitialTimeSync) {
+	if (mInitialTimeSync)
+	{
 		context.setInitCompleted(true);
 	}
 }
@@ -81,7 +82,8 @@ const char* BeaconSendingTimeSyncState::getStateName() const
 	return "TimeSync";
 }
 
-bool BeaconSendingTimeSyncState::isTimeSyncRequired(BeaconSendingContext& context) {
+bool BeaconSendingTimeSyncState::isTimeSyncRequired(BeaconSendingContext& context)
+{
 
 	if (!context.isTimeSyncSupported())
 	{

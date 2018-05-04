@@ -142,7 +142,8 @@ static size_t writeFunction(void *ptr, size_t elementSize, size_t numberOfElemen
 //TODO: stefan.eberl - use the request type or rethink design
 std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::RequestType requestType, const core::UTF8String& url, const core::UTF8String& clientIPAddress, const core::UTF8String& beaconData, const HTTPClient::HttpMethod method)
 {
-	if (mLogger->isDebugEnabled()) {
+	if (mLogger->isDebugEnabled())
+	{
 		switch(requestType)
 		{
 		case HTTPClient::RequestType::STATUS:
@@ -163,9 +164,7 @@ std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::Requ
 	if (!mCurl)
 	{
 		// Abort and cleanup if CURL cannot be initialized
-		if (mLogger->isErrorEnabled()) {
-			mLogger->error("curl_easy_init() failed");
-		}
+		mLogger->error("curl_easy_init() failed");
 		return nullptr;
 	}
 
@@ -203,7 +202,8 @@ std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::Requ
 
 			if (!beaconData.empty())
 			{
-				if (mLogger->isDebugEnabled()) {
+				if (mLogger->isDebugEnabled())
+				{
 					mLogger->debug("Beacon Payload: %s", beaconData.getStringData().c_str());
 				}
 
@@ -232,9 +232,8 @@ std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::Requ
 		else
 		{
 			// See https://curl.haxx.se/libcurl/c/libcurl-errors.html for a list of CURL error codes.
-			if (mLogger->isErrorEnabled()) {
-				mLogger->error("curl_easy_perform() failed on '%s': ErrorCode '%u', [%s]", url.getStringData().c_str(), response, curl_easy_strerror(response));
-			}
+			if (mLogger->isErrorEnabled())
+			mLogger->error("curl_easy_perform() failed on '%s': ErrorCode '%u', [%s]", url.getStringData().c_str(), response, curl_easy_strerror(response));
 		}
 
 		// Cleanup

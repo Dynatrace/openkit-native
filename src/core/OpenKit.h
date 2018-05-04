@@ -18,6 +18,7 @@
 #ifndef _CORE_OPENKIT_H
 #define _CORE_OPENKIT_H
 
+#include "OpenKit/OpenKitConstants.h"
 #include "OpenKit/IOpenKit.h"
 #include "OpenKit/ILogger.h"
 #include "configuration/Configuration.h"

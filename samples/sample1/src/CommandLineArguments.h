@@ -41,7 +41,7 @@ namespace sample
 		/// @param[in] argc number of arguments
 		/// @param[in] argv array of strings with the arguments
 		///
-		void parse(uint32_t argc, char* *argv);
+		void parse(uint32_t argc, char** argv);
 
 		///
 		/// Get the application id

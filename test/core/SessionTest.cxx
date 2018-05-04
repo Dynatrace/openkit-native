@@ -46,7 +46,8 @@ class SessionTest : public testing::Test
 public:
 	void SetUp()
 	{
-		logger = std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(true));
+		logger = std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(devNull, true));
+
 		threadIDProvider = std::make_shared<providers::DefaultThreadIDProvider>();
 		timingProvider = std::make_shared<providers::DefaultTimingProvider>();
 		sessionIDProvider = std::make_shared<providers::DefaultSessionIDProvider>();
@@ -60,16 +61,16 @@ public:
 		std::shared_ptr<configuration::Device> device = std::shared_ptr<configuration::Device>(new configuration::Device(core::UTF8String(""), core::UTF8String(""), core::UTF8String("")));
 
 		beaconCacheConfiguration = std::make_shared<configuration::BeaconCacheConfiguration>(-1, -1, -1);
-		configuration = std::shared_ptr<configuration::Configuration>(new configuration::Configuration(device, configuration::OpenKitType::DYNATRACE,
+		configuration = std::shared_ptr<configuration::Configuration>(new configuration::Configuration(device, configuration::OpenKitType::Type::DYNATRACE,
 			core::UTF8String(APP_NAME), "", APP_ID, 0, "",
 			sessionIDProvider, trustManager, beaconCacheConfiguration));
 		configuration->enableCapture();
 
-		beaconCache = std::make_shared<caching::BeaconCache>();
+		beaconCache = std::make_shared<caching::BeaconCache>(logger);
 
-		mockBeaconSender = std::make_shared<testing::StrictMock<test::MockBeaconSender>>(configuration, mockHTTPClientProvider, timingProvider);
-		mockBeaconStrict = std::make_shared<testing::StrictMock<test::MockBeacon>>(beaconCache, configuration, core::UTF8String(""), threadIDProvider, timingProvider);	
-		mockBeaconNice = std::make_shared<testing::NiceMock<test::MockBeacon>>(beaconCache, configuration, core::UTF8String(""), threadIDProvider, timingProvider);	
+		mockBeaconSender = std::make_shared<testing::StrictMock<test::MockBeaconSender>>(logger, configuration, mockHTTPClientProvider, timingProvider);
+		mockBeaconStrict = std::make_shared<testing::StrictMock<test::MockBeacon>>(logger, beaconCache, configuration, core::UTF8String(""), threadIDProvider, timingProvider);	
+		mockBeaconNice = std::make_shared<testing::NiceMock<test::MockBeacon>>(logger, beaconCache, configuration, core::UTF8String(""), threadIDProvider, timingProvider);	
 	}
 
 	void TearDown()

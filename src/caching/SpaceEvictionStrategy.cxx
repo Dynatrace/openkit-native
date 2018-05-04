@@ -93,7 +93,8 @@ void SpaceEvictionStrategy::doExecute()
 		}
 	}
 
-	if (mLogger->isDebugEnabled()) {
+	if (mLogger->isDebugEnabled())
+	{
 		for (auto itr = removedRecordsPerBeacon.begin(); itr != removedRecordsPerBeacon.end(); itr++)
 		{
 			mLogger->debug("SpaceEvictionStrategy: Removed %u records from Beacon with ID %d", itr->second, itr->first);

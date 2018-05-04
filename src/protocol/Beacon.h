@@ -262,6 +262,13 @@ namespace protocol
 		/// This only affects the so far serialized data, which gets removed from the cache.
 		///
 		void clearData();
+
+		///
+		/// Returns the session number.
+		/// @return session number
+		///
+		uint32_t getSessionNumber() const;
+
 	private:
 		///
 		/// Serialization helper method for creating basic beacon protocol data.
@@ -337,10 +344,10 @@ namespace protocol
 		///
 		/// helper method for truncating name at max name size
 		/// see @c MAX_NAME_LEN for the actual length
-		/// @param[in] string string to trunctate
-		/// @returns the trunctated string
+		/// @param[in] string string to truncate
+		/// @returns the truncated string
 		///
-		core::UTF8String trunctate(const core::UTF8String& string);
+		static core::UTF8String truncate(const core::UTF8String& string);
 
 		///
 		/// Get a timestamp relative to the time this session (aka. beacon) was created.
