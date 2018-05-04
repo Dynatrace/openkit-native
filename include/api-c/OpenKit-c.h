@@ -78,14 +78,21 @@ extern "C" {
 	//  TrustManager
 	//--------------
 
+	typedef enum TRUST_MODE
+	{
+		STRICT_TRUST = 0,	///< Use the @ref SSLStrictTrustManager, trusting only valid certificates
+		BLIND_TRUST  = 1,	///< Use the @ref SSLBlindTrustManager, blindly trusting every certificate and every host (not recommended!)
+		CUSTOM_TRUST = 2	///< Use the @ref CustomTrustManager, which is provided via the @c trustManagerHandle returned from @ref createCustomTrustManager
+	} TRUST_MODE;
+
 	/// Function to apply the trust manager configuration on the passed CURL handle
 	typedef void(*applyTrustManagerFunc)(CURL* /* curl */);
 
 	/// An opaque type that we'll use as a handle
 	struct TrustManagerHandle;
 
-	/// Create a trust manager
-	OPENKIT_EXPORT struct TrustManagerHandle* createTrustManager(applyTrustManagerFunc applyTrustManagerFunc);
+	/// Create a custom trust manager. With this trust manager the most fine-granular trust configuration can be achieved.
+	OPENKIT_EXPORT struct TrustManagerHandle* createCustomTrustManager(applyTrustManagerFunc applyTrustManagerFunc);
 
 	/// destroy a trust manager
 	OPENKIT_EXPORT void destroyTrustManager(struct TrustManagerHandle* trustManagerHandle);
@@ -99,33 +106,13 @@ extern "C" {
 
 	///
 	/// Creates an OpenKit instance for Dynatrace Saas/Managed 
-	/// Remarks: This insecure variant of the create method is not be used in production environments
 	/// @param[in] endPointURL endpoint OpenKit connects to
 	/// @param[in] applicationID unique application id
 	/// @param[in] deviceID unique device id
 	/// @param[in] loggerHandle optional parameter to provide a logger that shall be used. If NULL is provided the DefaultLogger is used.
-	/// @param[in] applicationVersion optional paramter,  the application version. If NULL is provided the default application version is used.
-	/// @param[in] disableSSLVerification flag if to use the strict trust manager ( value : 0) or if to use the blind trust manager ( all non-zero values)
-	/// @param[in] operatingSystem optional parameter, name of the operating system. If NULL is provided the default operating system is used.
-	/// @param[in] manufacturer, optional parameter, manufacturer of the device. If NULL is provided the default manufacturer is used.
-	/// @param[in] modelID, optional parameter, model version or id of the device. If NULL the default model ID is used.
-	/// @param[in] beaconCacheMaxRecordAge optional parameter, maximum age of cache records. A value of -1 will lead to the default value. All positive integers starting with 0 are valid.
-	/// @param[in] beaconCacheLowerMemoryBoundary optional parameter, lower memory boundary for beacon cache. A value of -1 will lead to the default value. All positive integers starting with 0 are valid.
-	/// @param[in] beaconCacheUpperMemoryBoundary optional parameter, upper memory boundary for beacon cache. A value of -1 will lead to the default value. All positive integers starting with 0 are valid.
-	/// @return OpenKit instance handle to work with
-	///
-	OPENKIT_EXPORT struct OpenKitHandle* createDynatraceOpenKitWithoutSSLVerification(const char* endpointURL, const char* applicationID, int64_t deviceID, struct LoggerHandle* logger,
-		const char* applicationVersion, int32_t disableSSLVerification, const char* operatingSystem, const char* manufacturer,
-		const char* modelID, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary);
-
-	///
-	/// Creates an OpenKit instance for Dynatrace Saas/Managed 
-	/// @param[in] endPointURL endpoint OpenKit connects to
-	/// @param[in] applicationID unique application id
-	/// @param[in] deviceID unique device id
-	/// @param[in] loggerHandle optional parameter to provide a logger that shall be used. If NULL is provided the DefaultLogger is used.
-	/// @param[in] applicationVersion optional paramter,  the application version. If NULL is provided the default application version is used.
-	/// @param[in] trustManagerHandle optional parameter, custom trust manager. If NULL is provided the SSLTrictTrustManager is used.
+	/// @param[in] applicationVersion optional paramter, the application version. If NULL is provided the default application version is used.
+	/// @param[in] trustMode required parameter which trust manager shall be used. Recommended is @c STRICT_TRUST or for fine-granular @c CUSTOM_TRUST.
+	/// @param[in] trustManagerHandle required parameter if the @c trustMode @c CUSTOM_TRUST is provided. Ignored for the other trust modes.
 	/// @param[in] operatingSystem optional parameter, name of the operating system. If NULL is provided the default operating system is used.
 	/// @param[in] manufacturer, optional parameter, manufacturer of the device. If NULL is provided the default manufacturer is used.
 	/// @param[in] modelID, optional parameter, model version or id of the device. If NULL the default model ID is used.
@@ -135,29 +122,7 @@ extern "C" {
 	/// @return OpenKit instance handle to work with
 	///
 	OPENKIT_EXPORT struct OpenKitHandle* createDynatraceOpenKit(const char* endpointURL, const char* applicationID, int64_t deviceID, struct LoggerHandle* logger,
-		const char* applicationVersion, struct TrustManagerHandle* trustManagerHandle, const char* operatingSystem, const char* manufacturer,
-		const char* modelID, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary);
-
-
-	///
-	/// Creates an OpenKit instance for AppMon
-	/// Remarks: This insecure variant of the create method is not be used in production environments
-	/// @param[in] endPointURL endpoint OpenKit connects to
-	/// @param[in] applicationID unique application id
-	/// @param[in] deviceID unique device id
-	/// @param[in] loggerHandle optional parameter to provide a logger that shall be used. If NULL is provided the DefaultLogger is used.
-	/// @param[in] applicationVersion optional paramter,  the application version. If NULL is provided the default application version is used.
-	/// @param[in] disableSSLVerification flag if to use the strict trust manager ( value : 0) or if to use the blind trust manager ( all non-zero values)
-	/// @param[in] operatingSystem optional parameter, name of the operating system. If NULL is provided the default operating system is used.
-	/// @param[in] manufacturer, optional parameter, manufacturer of the device. If NULL is provided the default manufacturer is used.
-	/// @param[in] modelID, optional parameter, model version or id of the device. If NULL the default model ID is used.
-	/// @param[in] beaconCacheMaxRecordAge optional parameter, maximum age of cache records. A value of -1 will lead to the default value. All positive integers starting with 0 are valid.
-	/// @param[in] beaconCacheLowerMemoryBoundary optional parameter, lower memory boundary for beacon cache. A value of -1 will lead to the default value. All positive integers starting with 0 are valid.
-	/// @param[in] beaconCacheUpperMemoryBoundary optional parameter, upper memory boundary for beacon cache. A value of -1 will lead to the default value. All positive integers starting with 0 are valid.
-	/// @return OpenKit instance handle to work with
-	///
-	OPENKIT_EXPORT struct OpenKitHandle* createAppMonOpenKitWithoutSSLVerification(const char* endpointURL, const char* applicationID, int64_t deviceID, struct LoggerHandle* loggerHandle,
-		const char* applicationVersion, int32_t disableSSLVerification, const char* operatingSystem, const char* manufacturer,
+		const char* applicationVersion, TRUST_MODE trustMode, struct TrustManagerHandle* trustManagerHandle, const char* operatingSystem, const char* manufacturer,
 		const char* modelID, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary);
 
 	///
@@ -167,7 +132,8 @@ extern "C" {
 	/// @param[in] deviceID unique device id
 	/// @param[in] loggerHandle optional parameter to provide a logger that shall be used. If NULL is provided the DefaultLogger is used.
 	/// @param[in] applicationVersion optional paramter,  the application version. If NULL is provided the default application version is used.
-	/// @param[in] trustManagerHandle optional parameter, custom trust manager. If NULL is provided the SSLTrictTrustManager is used.
+	/// @param[in] trustMode required parameter which trust manager shall be used. Recommended is @c STRICT_TRUST or for fine-granular @c CUSTOM_TRUST.
+	/// @param[in] trustManagerHandle required parameter if the @c trustMode @c CUSTOM_TRUST is provided. Ignored for the other trust modes.
 	/// @param[in] operatingSystem optional parameter, name of the operating system. If NULL is provided the default operating system is used.
 	/// @param[in] manufacturer, optional parameter, manufacturer of the device. If NULL is provided the default manufacturer is used.
 	/// @param[in] modelID, optional parameter, model version or id of the device. If NULL the default model ID is used.
@@ -177,7 +143,7 @@ extern "C" {
 	/// @return OpenKit instance handle to work with
 	///
 	OPENKIT_EXPORT struct OpenKitHandle* createAppMonOpenKit(const char* endpointURL, const char* applicationID, int64_t deviceID, struct LoggerHandle* loggerHandle,
-		const char* applicationVersion, struct TrustManagerHandle* trustManagerHandle, const char* operatingSystem, const char* manufacturer,
+		const char* applicationVersion, TRUST_MODE trustMode, struct TrustManagerHandle* trustManagerHandle, const char* operatingSystem, const char* manufacturer,
 		const char* modelID, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary);
 
 	///

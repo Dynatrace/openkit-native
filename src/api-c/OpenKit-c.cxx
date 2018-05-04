@@ -21,6 +21,7 @@
 #include "api-c/CustomLogger.h"
 #include "api-c/CustomTrustManager.h"
 
+#include "protocol/ssl/SSLStrictTrustManager.h"
 #include "protocol/ssl/SSLBlindTrustManager.h"
 
 #include <list>
@@ -57,13 +58,32 @@ extern "C" {
 		std::shared_ptr<openkit::ISSLTrustManager> trustManager = nullptr;
 	} TrustManagerHandle;
 
-	TrustManagerHandle* createTrustManager(applyTrustManagerFunc applyTrustManagerFunc)
+	TrustManagerHandle* createCustomTrustManager(applyTrustManagerFunc applyTrustManagerFunc)
 	{
 		// Sanity
 		TrustManagerHandle* handle = nullptr;
 		try
 		{
 			auto trustManager = std::shared_ptr<openkit::ISSLTrustManager>(new apic::CustomTrustManager(applyTrustManagerFunc));
+			// storing the returned shared pointer in the handle prevents it from going out of scope
+			handle = new TrustManagerHandle();
+			handle->trustManager = trustManager;
+		}
+		catch (...)
+		{
+			/* Ignore exception, as we don't have a logger yet */
+		}
+
+		return handle;
+	}
+
+	TrustManagerHandle* createStrictTrustManager()
+	{
+		// Sanity
+		TrustManagerHandle* handle = nullptr;
+		try
+		{
+			auto trustManager = std::shared_ptr<openkit::ISSLTrustManager>(new protocol::SSLStrictTrustManager());
 			// storing the returned shared pointer in the handle prevents it from going out of scope
 			handle = new TrustManagerHandle();
 			handle->trustManager = trustManager;
@@ -170,22 +190,8 @@ extern "C" {
 		std::shared_ptr<openkit::ISSLTrustManager> trustManager = nullptr;
 	} OpenKitHandle;
 
-	OpenKitHandle* createDynatraceOpenKitWithoutSSLVerification(const char* endpointURL, const char* applicationID, int64_t deviceID, LoggerHandle* loggerHandle,
-		const char* applicationVersion, int32_t disableSSLVerification, const char* operatingSystem, const char* manufacturer,
-		const char* modelID, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary)
-	{
-		TrustManagerHandle* trustManagerHandle = nullptr;
-		if (disableSSLVerification != 0)
-		{
-			trustManagerHandle = createBlindTrustManager();
-		}
-
-		return createDynatraceOpenKit(endpointURL, applicationID, deviceID, loggerHandle, applicationVersion, trustManagerHandle, operatingSystem, manufacturer, modelID,
-			beaconCacheMaxRecordAge, beaconCacheLowerMemoryBoundary, beaconCacheUpperMemoryBoundary);
-	}
-
 	OpenKitHandle* createDynatraceOpenKit(const char* endpointURL, const char* applicationID, int64_t deviceID, LoggerHandle* loggerHandle,
-		const char* applicationVersion, TrustManagerHandle* trustManagerHandle, const char* operatingSystem, const char* manufacturer, 
+		const char* applicationVersion, TRUST_MODE trustMode, TrustManagerHandle* trustManagerHandle, const char* operatingSystem, const char* manufacturer,
 		const char* modelID, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary)
 	{
 		OpenKitHandle* handle = nullptr;
@@ -203,11 +209,26 @@ extern "C" {
 				builder.withApplicationVersion(applicationVersion);
 			}
 
-			if (trustManagerHandle != nullptr)
+			if (trustMode == TRUST_MODE::BLIND_TRUST)
+			{
+				trustManagerHandle = createBlindTrustManager();
+				builder.withTrustManager(trustManagerHandle->trustManager);
+			}
+			else if (trustMode == TRUST_MODE::CUSTOM_TRUST && trustManagerHandle != nullptr)
 			{
 				builder.withTrustManager(trustManagerHandle->trustManager);
 			}
-
+			else
+			{
+				// default is "strict"
+				if (loggerHandle && trustMode != TRUST_MODE::STRICT_TRUST)
+				{
+					loggerHandle->logger->warning("Unexpected trust mode %d. Falling back to STRICT trust mode", trustMode);
+				}
+				trustManagerHandle = createStrictTrustManager();
+				builder.withTrustManager(trustManagerHandle->trustManager);
+			}
+			
 			if (operatingSystem != nullptr)
 			{
 				builder.withOperatingSystem(operatingSystem);
@@ -251,22 +272,8 @@ extern "C" {
 		return handle;
 	}
 
-	OpenKitHandle* createAppMonOpenKitWithoutSSLVerification(const char* endpointURL, const char* applicationID, int64_t deviceID, LoggerHandle* loggerHandle,
-		const char* applicationVersion, int32_t disableSSLVerification, const char* operatingSystem, const char* manufacturer,
-		const char* modelID, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary)
-	{
-		TrustManagerHandle* trustManagerHandle = nullptr;
-		if (disableSSLVerification != 0)
-		{
-			trustManagerHandle = createBlindTrustManager();
-		}
-
-		return createAppMonOpenKit(endpointURL, applicationID, deviceID, loggerHandle, applicationVersion, trustManagerHandle, operatingSystem, manufacturer, modelID,
-			beaconCacheMaxRecordAge, beaconCacheLowerMemoryBoundary, beaconCacheUpperMemoryBoundary);
-	}
-
 	OpenKitHandle* createAppMonOpenKit(const char* endpointURL, const char* applicationID, int64_t deviceID, LoggerHandle* loggerHandle,
-		const char* applicationVersion, TrustManagerHandle* trustManagerHandle, const char* operatingSystem, const char* manufacturer,
+		const char* applicationVersion, TRUST_MODE trustMode, TrustManagerHandle* trustManagerHandle, const char* operatingSystem, const char* manufacturer,
 		const char* modelID, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary)
 	{
 		OpenKitHandle* handle = nullptr;
@@ -284,8 +291,23 @@ extern "C" {
 				builder.withApplicationVersion(applicationVersion);
 			}
 
-			if (trustManagerHandle != nullptr)
+			if (trustMode == TRUST_MODE::BLIND_TRUST)
 			{
+				trustManagerHandle = createBlindTrustManager();
+				builder.withTrustManager(trustManagerHandle->trustManager);
+			}
+			else if (trustMode == TRUST_MODE::CUSTOM_TRUST && trustManagerHandle != nullptr)
+			{
+				builder.withTrustManager(trustManagerHandle->trustManager);
+			}
+			else
+			{
+				// default is "strict"
+				if (loggerHandle && trustMode != TRUST_MODE::STRICT_TRUST)
+				{
+					loggerHandle->logger->warning("Unexpected trust mode %d. Falling back to STRICT trust mode", trustMode);
+				}
+				trustManagerHandle = createStrictTrustManager();
 				builder.withTrustManager(trustManagerHandle->trustManager);
 			}
 
