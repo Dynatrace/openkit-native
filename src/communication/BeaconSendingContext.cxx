@@ -76,7 +76,10 @@ void BeaconSendingContext::executeCurrentState()
 
 	if (mNextState != nullptr && mNextState != mCurrentState)// mCcurrentState->execute(...) can trigger state changes
 	{
-		mLogger->debug("State change from '%s' to '%s'", mCurrentState->getStateName(), mNextState->getStateName());
+		if (mLogger->isInfoEnabled())
+		{
+			mLogger->info("State change from '%s' to '%s'", mCurrentState->getStateName(), mNextState->getStateName());
+		}
 		mCurrentState = mNextState;
 	}
 }
