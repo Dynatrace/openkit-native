@@ -166,7 +166,7 @@ TEST_F(SpaceEvictionStrategyTest, executeEvictionLogsAMessageOnceAndReturnsIfStr
 	target.execute();
 
 	// then
-	auto found = oss.str().find("[INFO ] SpaceEvictionStrategy is disabled\n");
+	auto found = oss.str().find("SpaceEvictionStrategy is disabled\n");
 	ASSERT_TRUE(found != std::string::npos) << "Unexpected log statement: " << oss.str() << std::endl;
 	oss.str("");
 	oss.clear();
@@ -248,9 +248,9 @@ TEST_F(SpaceEvictionStrategyTest, executeEvictionLogsEvictionResultIfDebugIsEnab
 	target.execute();
 
 	// then
-	auto found = oss.str().find("[DEBUG] SpaceEvictionStrategy: Removed 5 records from Beacon with ID 1\n");
+	auto found = oss.str().find("SpaceEvictionStrategy: Removed 5 records from Beacon with ID 1\n");
 	ASSERT_TRUE(found != std::string::npos) << "Unexpected log statement: " << oss.str() << std::endl;
-	found = oss.str().find("[DEBUG] SpaceEvictionStrategy: Removed 1 records from Beacon with ID 42\n");
+	found = oss.str().find("SpaceEvictionStrategy: Removed 1 records from Beacon with ID 42\n");
 	ASSERT_TRUE(found != std::string::npos) << "Unexpected log statement: " << oss.str() << std::endl;
 }
 

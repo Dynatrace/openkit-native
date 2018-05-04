@@ -140,6 +140,13 @@ namespace core
 		///
 		virtual void doLeaveAction();
 
+		///
+		/// Returns a string describing the object, based on some important fields.
+		/// This function is indended for debug printouts.
+		/// @return a string describing the object
+		///
+		const std::string toString() const;
+
 		/// Logger to write traces to
 		std::shared_ptr<openkit::ILogger> mLogger;
 
@@ -152,7 +159,7 @@ namespace core
 		/// session keeping track of all root actions
 		std::shared_ptr<Session> mSession;
 
-		///action id
+		/// action id
 		int32_t mID;
 
 		/// action name
@@ -173,7 +180,7 @@ namespace core
 		/// NullAction
 		std::shared_ptr<NullAction> NULL_ACTION;
 
-		//NullWebRequestTracer
+		/// NullWebRequestTracer
 		std::shared_ptr<NullWebRequestTracer> NULL_WEB_REQUEST_TRACER;
 	};
 }

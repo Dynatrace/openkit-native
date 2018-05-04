@@ -34,10 +34,10 @@ namespace test {
 	class MockBeaconSender : public core::BeaconSender
 	{
 	public:
-		MockBeaconSender(std::shared_ptr<configuration::Configuration> configuration,
+		MockBeaconSender(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<configuration::Configuration> configuration,
 			std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
 			std::shared_ptr<providers::ITimingProvider> timingProvider)
-			: BeaconSender(std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(devNull, true)), configuration,  httpClientProvider, timingProvider)
+			: BeaconSender(logger, configuration,  httpClientProvider, timingProvider)
 		{
 
 		}
@@ -46,9 +46,6 @@ namespace test {
 
 		MOCK_METHOD1(startSession, void(std::shared_ptr<core::Session>));
 		MOCK_METHOD1(finishSession, void(std::shared_ptr<core::Session>));
-
-	private:
-		std::ostringstream devNull;
 	};
 }
 #endif

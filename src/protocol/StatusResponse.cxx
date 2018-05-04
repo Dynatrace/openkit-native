@@ -57,7 +57,8 @@ StatusResponse::StatusResponse(const core::UTF8String& response, uint32_t respon
 void StatusResponse::parseResponse(const core::UTF8String& response)
 {
 	auto parts = response.split('&');
-	for (auto const& part : parts) {
+	for (auto const& part : parts)
+	{
 		auto found = part.getIndexOf("="); 
 		if (found != std::string::npos)
 		{

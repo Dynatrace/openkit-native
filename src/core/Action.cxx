@@ -20,6 +20,7 @@
 
 #include <atomic>
 #include <memory>
+#include <sstream>
 
 #include "NullWebRequestTracer.h"
 #include "WebRequestTracerStringURL.h"
@@ -52,8 +53,12 @@ std::shared_ptr<openkit::IAction> Action::reportEvent(const char* eventName)
 	UTF8String eventNameString(eventName);
 	if (eventNameString.empty())
 	{
-		mLogger->warning("Action.reportEvent: eventName must not be null or empty");
+		mLogger->warning("%s reportEvent: eventName must not be null or empty", toString().c_str());
 		return shared_from_this();
+	}
+	if (mLogger->isDebugEnabled())
+	{
+		mLogger->debug("%s reportEvent(%s)", toString().c_str(), eventName);
 	}
 
 	if (!isActionLeft())
@@ -68,8 +73,12 @@ std::shared_ptr<openkit::IAction> Action::reportValue(const char* valueName, int
 	UTF8String valueNameString(valueName);
 	if (valueNameString.empty())
 	{
-		mLogger->warning("Action.reportValue (int): valueName must not be null or empty");
+		mLogger->warning("%s reportValue (int): valueName must not be null or empty", toString().c_str());
 		return shared_from_this();
+	}
+	if (mLogger->isDebugEnabled())
+	{
+		mLogger->debug("%s reportValue (int) (%s, %d))", toString().c_str(), valueName, value);
 	}
 
 	if (!isActionLeft())
@@ -84,8 +93,12 @@ std::shared_ptr<openkit::IAction> Action::reportValue(const char* valueName, dou
 	UTF8String valueNameString(valueName);
 	if (valueNameString.empty())
 	{
-		mLogger->warning("Action.reportValue (double): valueName must not be null or empty");
+		mLogger->warning("%s reportValue (double): valueName must not be null or empty", toString().c_str());
 		return shared_from_this();
+	}
+	if (mLogger->isDebugEnabled())
+	{
+		mLogger->debug("%s reportValue (double) (%s, %f))", toString().c_str(), valueName, value);
 	}
 
 	if (!isActionLeft())
@@ -100,8 +113,12 @@ std::shared_ptr<openkit::IAction> Action::reportValue(const char* valueName, con
 	UTF8String valueNameString(valueName);
 	if (valueNameString.empty())
 	{
-		mLogger->warning("Action.reportValue (string): valueName must not be null or empty");
+		mLogger->warning("%s reportValue (string): valueName must not be null or empty", toString().c_str());
 		return shared_from_this();
+	}
+	if (mLogger->isDebugEnabled())
+	{
+		mLogger->debug("%s reportValue (string) (%s, %s))", toString().c_str(), valueName, (value != nullptr ? value : "null"));
 	}
 
 	if (!isActionLeft())
@@ -117,8 +134,12 @@ std::shared_ptr<openkit::IAction> Action::reportError(const char* errorName, int
 	UTF8String reasonString(reason);
 	if (errorNameString.empty())
 	{
-		mLogger->warning("Action.reportError: errorName must not be null or empty");
+		mLogger->warning("%s reportError: errorName must not be null or empty", toString().c_str());
 		return shared_from_this();
+	}
+	if (mLogger->isDebugEnabled())
+	{
+		mLogger->debug("%s reportError (%s, %d, %s))", toString().c_str(), errorName, errorCode, (reason != nullptr ? reason : "null"));
 	}
 
 	if (!isActionLeft())
@@ -133,12 +154,17 @@ std::shared_ptr<openkit::IWebRequestTracer> Action::traceWebRequest(const char* 
 	core::UTF8String urlString(url);
 	if (urlString.empty())
 	{
-		mLogger->warning("Action.traceWebRequest (string): url must not be null");
+		mLogger->warning("%s traceWebRequest (string): url must not be null or empty", toString().c_str());
 		return NULL_WEB_REQUEST_TRACER;
 	}
+	if (mLogger->isDebugEnabled())
+	{
+		mLogger->debug("%s traceWebRequest (string) (%s))", toString().c_str(), url);
+	}
+
 	if (!isActionLeft())
 	{
-		return std::make_shared<core::WebRequestTracerStringURL>(mBeacon, getID(), urlString);
+		return std::make_shared<core::WebRequestTracerStringURL>(mLogger, mBeacon, getID(), urlString);
 	}
 
 	return NULL_WEB_REQUEST_TRACER;
@@ -146,6 +172,10 @@ std::shared_ptr<openkit::IWebRequestTracer> Action::traceWebRequest(const char* 
 
 std::shared_ptr<openkit::IRootAction> Action::leaveAction()
 {
+	if (mLogger->isDebugEnabled())
+	{
+		mLogger->debug("%s leaveAction(%s))", toString().c_str(), mName.getStringData().c_str());
+	}
 	int64_t expected = -1L;
 	if (atomic_compare_exchange_strong(&mEndTime, &expected, mBeacon->getCurrentTimestamp()) == false)
 	{
@@ -214,4 +244,11 @@ int32_t Action::getEndSequenceNo() const
 bool Action::isActionLeft() const
 {
 	return mEndTime != -1;
+}
+
+const std::string Action::toString() const
+{
+	std::stringstream ss;
+	ss << "Action [sn=" << mBeacon->getSessionNumber() << ", id=" << mID << ", name=" << mName.getStringData() << ", pa=" << (mParentAction != nullptr ? std::to_string(mParentAction->getID()) : "no parent") << "]";
+	return ss.str();
 }

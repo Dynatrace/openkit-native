@@ -22,6 +22,7 @@
 #pragma GCC diagnostic ignored "-Wnon-virtual-dtor" // enable_shared_from_this has a public non virtual destructor throwing a false positive in this code
 #endif
 
+#include "OpenKit/IOpenKit.h"
 #include "OpenKit/IWebRequestTracer.h"
 
 #include <atomic>
@@ -45,10 +46,11 @@ namespace core
 
 		///
 		/// Constructor taking an Action
+		/// @param[in] logger to write traces to
 		/// @param[in] beacon @ref Beacon used to serialize the WebRequestTracer
 		/// @param[in] parentActionId id of the parent of the WebRequestTracer
 		///
-		WebRequestTracerBase(std::shared_ptr<protocol::Beacon> beacon, int32_t parentActionID);
+		WebRequestTracerBase(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<protocol::Beacon> beacon, int32_t parentActionID);
 
 		const char* getTag() const override;
 
@@ -117,12 +119,20 @@ namespace core
 		bool isStopped() const;
 
 	private:
+		///
+		/// Returns a string describing the object, based on some important fields.
+		/// This function is indended for debug printouts.
+		/// @return a string describing the object
+		///
+		const std::string toString() const;
+
+		/// Logger to write traces to
+		std::shared_ptr<openkit::ILogger> mLogger;
 
 		/// @ref Beacon used to serialize the WebRequestTracer
 		std::shared_ptr<protocol::Beacon> mBeacon;
 
-		/// @ref Action which is the parent of the WebRequestTracer, can be @c nullptr if this WebRequestTracer was
-		/// initialized with a @ref RootAction
+		/// ID of the @ref Action or @ref RootAction which is the parent of the WebRequestTracer
 		int32_t mParentActionID;
 
 		/// Response code of the the web request

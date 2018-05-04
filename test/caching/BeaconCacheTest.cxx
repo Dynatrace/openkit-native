@@ -20,6 +20,7 @@
 #include "caching/BeaconCache.h"
 #include "../caching/MockObserver.h"
 #include "core/UTF8String.h"
+#include "core/util/DefaultLogger.h"
 
 #include <algorithm>
 
@@ -27,12 +28,20 @@ using namespace caching;
 
 class BeaconCacheTest : public testing::Test
 {
+public:
+	void SetUp()
+	{
+		mLogger = std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(devNull, true));
+	}
+
+	std::ostringstream devNull;
+	std::shared_ptr<openkit::ILogger> mLogger;
 };
 
 TEST_F(BeaconCacheTest, aDefaultConstructedCacheDoesNotContainBeacons)
 {
 	// given
-	BeaconCache target;
+	BeaconCache target(mLogger);
 
 	// then
 	ASSERT_TRUE(target.getBeaconIDs().empty());
@@ -42,7 +51,7 @@ TEST_F(BeaconCacheTest, aDefaultConstructedCacheDoesNotContainBeacons)
 TEST_F(BeaconCacheTest, addEventDataAddsBeaconIdToCache)
 {
 	// given
-	BeaconCache target;
+	 BeaconCache target(mLogger);
 
 	// when adding beacon with id 1
 	target.addEventData(1, 1000L, "a");
@@ -69,7 +78,7 @@ TEST_F(BeaconCacheTest, addEventDataAddsBeaconIdToCache)
 TEST_F(BeaconCacheTest, addEventDataAddsDataToAlreadyExistingBeaconId)
 {
 	// given
-	BeaconCache target;
+	 BeaconCache target(mLogger);
 
 	// when adding beacon with id 1
 	target.addEventData(1, 1000L, "a");
@@ -95,7 +104,7 @@ TEST_F(BeaconCacheTest, addEventDataAddsDataToAlreadyExistingBeaconId)
 TEST_F(BeaconCacheTest, addEventDataIncreasesCacheSize)
 {
 	// given
-	BeaconCache target;
+	 BeaconCache target(mLogger);
 
 	// when adding some data
 	target.addEventData(1, 1000L, "a");
@@ -109,7 +118,7 @@ TEST_F(BeaconCacheTest, addEventDataIncreasesCacheSize)
 TEST_F(BeaconCacheTest, addEventDataNotifiesObserver)
 {
 	// given
-	BeaconCache target;
+	 BeaconCache target(mLogger);
 	testing::NiceMock<test::MockObserver> observer;
 
 	target.addObserver(&observer);
@@ -129,7 +138,7 @@ TEST_F(BeaconCacheTest, addEventDataNotifiesObserver)
 TEST_F(BeaconCacheTest, addActionDataAddsBeaconIdToCache)
 {
 	// given
-	BeaconCache target;
+	 BeaconCache target(mLogger);
 
 	// when adding beacon with id 1
 	target.addActionData(1, 1000L, "a");
@@ -156,7 +165,7 @@ TEST_F(BeaconCacheTest, addActionDataAddsBeaconIdToCache)
 TEST_F(BeaconCacheTest, addActionDataAddsDataToAlreadyExistingBeaconId)
 {
 	// given
-	BeaconCache target;
+	 BeaconCache target(mLogger);
 
 	// when adding beacon with id 1
 	target.addActionData(1, 1000L, "a");
@@ -182,7 +191,7 @@ TEST_F(BeaconCacheTest, addActionDataAddsDataToAlreadyExistingBeaconId)
 TEST_F(BeaconCacheTest, addActionDataIncreasesCacheSize)
 {
 	// given
-	BeaconCache target;
+	 BeaconCache target(mLogger);
 
 	// when adding some data
 	target.addActionData(1, 1000L, "a");
@@ -196,7 +205,7 @@ TEST_F(BeaconCacheTest, addActionDataIncreasesCacheSize)
 TEST_F(BeaconCacheTest, addActionDataNotifiesObserver)
 {
 	// given
-	BeaconCache target;
+	 BeaconCache target(mLogger);
 	testing::NiceMock<test::MockObserver> observer;
 
 	target.addObserver(&observer);
@@ -216,7 +225,7 @@ TEST_F(BeaconCacheTest, addActionDataNotifiesObserver)
 TEST_F(BeaconCacheTest, deleteCacheEntryRemovesTheGivenBeacon)
 {
 	// given
-	BeaconCache target;
+	 BeaconCache target(mLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addActionData(42, 1000L, "z");
 	target.addEventData(1, 1000L, "iii");
@@ -238,7 +247,7 @@ TEST_F(BeaconCacheTest, deleteCacheEntryRemovesTheGivenBeacon)
 TEST_F(BeaconCacheTest, deleteCacheEntryDecrementsCacheSize)
 {
 	// given
-	BeaconCache target;
+	 BeaconCache target(mLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addActionData(42, 1000L, "z");
 	target.addEventData(1, 1000L, "iii");
@@ -253,7 +262,7 @@ TEST_F(BeaconCacheTest, deleteCacheEntryDecrementsCacheSize)
 TEST_F(BeaconCacheTest, deleteCacheEntryDoesNotNotifyObservers)
 {
 	// given
-	BeaconCache target;
+	 BeaconCache target(mLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addActionData(42, 1000L, "z");
 	target.addEventData(1, 1000L, "iii");
@@ -271,7 +280,7 @@ TEST_F(BeaconCacheTest, deleteCacheEntryDoesNotNotifyObservers)
 TEST_F(BeaconCacheTest, deleteCacheEntriesDoesNothingIfGivenBeaconIDIsNotInCache)
 {
 	// given
-	BeaconCache target;
+	 BeaconCache target(mLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addActionData(42, 1000L, "z");
 	target.addEventData(1, 1000L, "iii");
@@ -294,7 +303,7 @@ TEST_F(BeaconCacheTest, deleteCacheEntriesDoesNothingIfGivenBeaconIDIsNotInCache
 TEST_F(BeaconCacheTest, getNextBeaconChunkReturnsNullIfGivenBeaconIDDoesNotExist)
 {
 	// given
-	BeaconCache target;
+	 BeaconCache target(mLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addActionData(42, 1000L, "z");
 	target.addEventData(1, 1000L, "iii");
@@ -309,7 +318,7 @@ TEST_F(BeaconCacheTest, getNextBeaconChunkReturnsNullIfGivenBeaconIDDoesNotExist
 TEST_F(BeaconCacheTest, getNextBeaconChunkCopiesDataForSending)
 {
 	// given
-	BeaconCache target;
+	 BeaconCache target(mLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addActionData(1, 1001L, "iii");
 	target.addActionData(42, 2000L, "z");
@@ -342,7 +351,7 @@ TEST_F(BeaconCacheTest, getNextBeaconChunkCopiesDataForSending)
 TEST_F(BeaconCacheTest, getNextBeaconChunkDecreasesBeaconCacheSize)
 {
 	// given
-	BeaconCache target;
+	 BeaconCache target(mLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addActionData(1, 1001L, "iii");
 	target.addActionData(42, 2000L, "z");
@@ -359,7 +368,7 @@ TEST_F(BeaconCacheTest, getNextBeaconChunkDecreasesBeaconCacheSize)
 TEST_F(BeaconCacheTest, getNextBeaconChunkRetrievesNextChunk)
 {
 	// given
-	BeaconCache target;
+	 BeaconCache target(mLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addActionData(1, 1001L, "iii");
 	target.addActionData(42, 2000L, "z");
@@ -393,7 +402,7 @@ TEST_F(BeaconCacheTest, getNextBeaconChunkRetrievesNextChunk)
 TEST_F(BeaconCacheTest, removeChunkedDataClearsAlreadyRetrievedChunks)
 {
 	// given
-	BeaconCache target;
+	 BeaconCache target(mLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addActionData(1, 1001L, "iii");
 	target.addActionData(42, 2000L, "z");
@@ -430,7 +439,7 @@ TEST_F(BeaconCacheTest, removeChunkedDataClearsAlreadyRetrievedChunks)
 TEST_F(BeaconCacheTest, removeChunkedDataDoesNothingIfCalledWithNonExistingBeaconID)
 {
 	// given
-	BeaconCache target;
+	 BeaconCache target(mLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addActionData(1, 1001L, "iii");
 	target.addActionData(42, 2000L, "z");
@@ -462,7 +471,7 @@ TEST_F(BeaconCacheTest, removeChunkedDataDoesNothingIfCalledWithNonExistingBeaco
 TEST_F(BeaconCacheTest, resetChunkedRestoresData)
 {
 	// given
-	BeaconCache target;
+	 BeaconCache target(mLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addActionData(1, 1001L, "iii");
 	target.addEventData(1, 1000L, "b");
@@ -503,7 +512,7 @@ TEST_F(BeaconCacheTest, resetChunkedRestoresData)
 TEST_F(BeaconCacheTest, resetChunkedRestoresCacheSize)
 {
 	// given
-	BeaconCache target;
+	 BeaconCache target(mLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addActionData(1, 1001L, "iii");
 	target.addEventData(1, 1000L, "b");
@@ -526,7 +535,7 @@ TEST_F(BeaconCacheTest, resetChunkedRestoresCacheSize)
 TEST_F(BeaconCacheTest, resetChunkedNotifiesObservers)
 {
 	// given
-	BeaconCache target;
+	 BeaconCache target(mLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addActionData(1, 1001L, "iii");
 	target.addEventData(1, 1000L, "b");
@@ -551,7 +560,7 @@ TEST_F(BeaconCacheTest, resetChunkedNotifiesObservers)
 TEST_F(BeaconCacheTest, resetChunkedDoesNothingIfEntryDoesNotExist)
 {
 	// given
-	BeaconCache target;
+	 BeaconCache target(mLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addActionData(1, 1001L, "iii");
 	target.addEventData(1, 1000L, "b");
@@ -577,7 +586,7 @@ TEST_F(BeaconCacheTest, resetChunkedDoesNothingIfEntryDoesNotExist)
 TEST_F(BeaconCacheTest, evictRecordsByAgeDoesNothingAndReturnsZeroIfBeaconIDDoesNotExist)
 {
 	// given
-	BeaconCache target;
+	 BeaconCache target(mLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addActionData(1, 1001L, "iii");
 	target.addEventData(1, 1000L, "b");
@@ -593,7 +602,7 @@ TEST_F(BeaconCacheTest, evictRecordsByAgeDoesNothingAndReturnsZeroIfBeaconIDDoes
 TEST_F(BeaconCacheTest, evictRecordsByAge)
 {
 	// given
-	BeaconCache target;
+	 BeaconCache target(mLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addActionData(1, 1001L, "iii");
 	target.addEventData(1, 1000L, "b");
@@ -609,7 +618,7 @@ TEST_F(BeaconCacheTest, evictRecordsByAge)
 TEST_F(BeaconCacheTest, evictRecordsByNumberDoesNothingAndReturnsZeroIfBeaconIDDoesNotExist)
 {
 	// given
-	BeaconCache target;
+	 BeaconCache target(mLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addActionData(1, 1001L, "iii");
 	target.addEventData(1, 1000L, "b");
@@ -625,7 +634,7 @@ TEST_F(BeaconCacheTest, evictRecordsByNumberDoesNothingAndReturnsZeroIfBeaconIDD
 TEST_F(BeaconCacheTest, evictRecordsByNumber)
 {
 	// given
-	BeaconCache target;
+	 BeaconCache target(mLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addActionData(1, 1001L, "iii");
 	target.addEventData(1, 1000L, "b");
@@ -641,7 +650,7 @@ TEST_F(BeaconCacheTest, evictRecordsByNumber)
 TEST_F(BeaconCacheTest, isEmptyGivesTrueIfBeaconDoesNotExistInCache)
 {
 	// given
-	BeaconCache target;
+	 BeaconCache target(mLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addActionData(1, 1001L, "iii");
 	target.addEventData(1, 1000L, "b");
@@ -654,7 +663,7 @@ TEST_F(BeaconCacheTest, isEmptyGivesTrueIfBeaconDoesNotExistInCache)
 TEST_F(BeaconCacheTest, isEmptyGivesFalseIfBeaconDataSizeIsNotEqualToZero)
 {
 	// given
-	BeaconCache target;
+	 BeaconCache target(mLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addEventData(1, 1000L, "b");
 	
@@ -665,7 +674,7 @@ TEST_F(BeaconCacheTest, isEmptyGivesFalseIfBeaconDataSizeIsNotEqualToZero)
 TEST_F(BeaconCacheTest, isEmptyGivesTrueIfBeaconDoesNotContainActiveData)
 {
 	// given
-	BeaconCache target;
+	 BeaconCache target(mLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addEventData(1, 1000L, "b");
 

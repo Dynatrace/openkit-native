@@ -31,16 +31,24 @@ class BeaconSendingCaptureOnStateTest : public testing::Test
 public:
 
 	BeaconSendingCaptureOnStateTest()
-		: mMockContext(nullptr)
+		: mLogger(nullptr)
+		, mMockContext(nullptr)
+		, mMockSession1Open(nullptr)
+		, mMockSession2Open(nullptr)
+		, mMockSession3Finished(nullptr)
+		, mMockSession4Finished(nullptr)
+		, mMockedOpenSessions()
+		, mMockHttpClientProvider(nullptr)
 	{
 	}
 
 	void SetUp()
 	{
-		mMockSession1Open = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>());
-		mMockSession2Open = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>());
-		mMockSession3Finished = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>());
-		mMockSession4Finished = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>());
+		mLogger = std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(devNull, true));
+		mMockSession1Open = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>(mLogger));
+		mMockSession2Open = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>(mLogger));
+		mMockSession3Finished = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>(mLogger));
+		mMockSession4Finished = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>(mLogger));
 		ON_CALL(*mMockSession1Open, sendBeaconRawPtrProxy(testing::_))
 			.WillByDefault(testing::Return(new protocol::StatusResponse("", 200)));
 		ON_CALL(*mMockSession2Open, sendBeaconRawPtrProxy(testing::_))
@@ -48,7 +56,7 @@ public:
 		mMockedOpenSessions.push_back(mMockSession1Open);
 		mMockedOpenSessions.push_back(mMockSession2Open);
 
-		mMockContext = std::shared_ptr<testing::NiceMock<test::MockBeaconSendingContext>>(new testing::NiceMock<test::MockBeaconSendingContext>());
+		mMockContext = std::shared_ptr<testing::NiceMock<test::MockBeaconSendingContext>>(new testing::NiceMock<test::MockBeaconSendingContext>(mLogger));
 		ON_CALL(*mMockContext, isTimeSyncSupported())
 			.WillByDefault(testing::Return(true));
 		ON_CALL(*mMockContext, getLastTimeSyncTime())
@@ -87,9 +95,17 @@ public:
 
 	void TearDown()
 	{
+		mLogger = nullptr;
 		mMockContext = nullptr;
+		mMockSession1Open = nullptr;
+		mMockSession2Open = nullptr;
+		mMockSession3Finished = nullptr;
+		mMockSession4Finished = nullptr;
+		mMockHttpClientProvider = nullptr;
 	}
 	
+	std::ostringstream devNull;
+	std::shared_ptr<openkit::ILogger> mLogger;
 	uint32_t mCallCount;
 	std::shared_ptr<testing::NiceMock<test::MockBeaconSendingContext>> mMockContext;
 	std::shared_ptr<testing::NiceMock<test::MockSession>> mMockSession1Open;
@@ -266,7 +282,7 @@ TEST_F(BeaconSendingCaptureOnStateTest, aBeaconSendingCaptureOnStateSendsOpenSes
 TEST_F(BeaconSendingCaptureOnStateTest, aBeaconSendingCaptureOnStateTransitionsToTimeSyncStateIfSessionExpired)
 {
 	// given
-	testing::StrictMock<test::MockBeaconSendingContext> mockContext;
+	testing::StrictMock<test::MockBeaconSendingContext> mockContext(mLogger);
 	communication::BeaconSendingCaptureOnState target;
 	ON_CALL(mockContext, isTimeSyncSupported())
 		.WillByDefault(testing::Return(true));

@@ -18,10 +18,19 @@
 
 using namespace configuration;
 
-const OpenKitType OpenKitType::APPMON(OpenKitType::APPMON_DEFAULT_SERVER);
-const OpenKitType OpenKitType::DYNATRACE(OpenKitType::DYNATRACE_DEFAULT_SERVER);
-
 int32_t OpenKitType::getDefaultServerID() const
 {
 	return mDefaultServerID;
+}
+
+const char * OpenKitType::getTypeString() const
+{
+	if (mType == Type::APPMON)
+	{
+		return "APPMON";
+	}
+	else
+	{
+		return "DYNATRACE";
+	}
 }

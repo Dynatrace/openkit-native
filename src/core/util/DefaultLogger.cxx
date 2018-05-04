@@ -46,7 +46,7 @@ void DefaultLogger::error(const char *format, ...)
 {
 	va_list args;
 	va_start(args, format);
-	doLog("[ERROR]", format, args);
+	doLog("ERROR", format, args);
 	va_end(args);
 }
 
@@ -54,7 +54,7 @@ void DefaultLogger::warning(const char *format, ...)
 {
 	va_list args;
 	va_start(args, format);
-	doLog("[WARN ]", format, args);
+	doLog("WARN ", format, args);
 	va_end(args);
 }
 
@@ -64,7 +64,7 @@ void DefaultLogger::info(const char *format, ...)
 	{
 		va_list args;
 		va_start(args, format);
-		doLog("[INFO ]", format, args);
+		doLog("INFO ", format, args);
 		va_end(args);
 	}
 }
@@ -75,7 +75,7 @@ void DefaultLogger::debug(const char *format, ...)
 	{
 		va_list args;
 		va_start(args, format);
-		doLog("[DEBUG]", format, args);
+		doLog("DEBUG", format, args);
 		va_end(args);
 	}
 }
@@ -114,11 +114,11 @@ void DefaultLogger::doLog(const char * level, const char* format, va_list args)
 #endif
 	msg << std::put_time(&tmNow, "%Y-%m-%d %X") << " " ;
 	
-	// add thread id
-	msg << std::this_thread::get_id() << " ";
-
 	// add the log level
-	msg << level << " ";
+	msg << level << " [";
+
+	// add thread id
+	msg << std::this_thread::get_id() << "] ";
 
 	// add the trace statement
 	va_list argcopy;

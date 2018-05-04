@@ -123,6 +123,13 @@ namespace core
 		bool isSessionEnded() const;
 
 	private:
+		///
+		/// Returns a string describing the object, based on some important fields.
+		/// This function is indended for debug printouts.
+		/// @return a string describing the object
+		///
+		const std::string toString() const;
+
 		/// Logger to write traces to
 		std::shared_ptr<openkit::ILogger> mLogger;
 

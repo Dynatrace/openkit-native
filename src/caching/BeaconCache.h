@@ -17,6 +17,7 @@
 #ifndef _CACHING_BEACONCACHE_H
 #define _CACHING_BEACONCACHE_H
 
+#include "OpenKit/ILogger.h"
 #include "caching/IObserver.h"
 #include "caching/IBeaconCache.h"
 #include "core/util/ScopedReadLock.h"
@@ -41,9 +42,9 @@ namespace caching
 	{
 	public:
 		///
-		/// Default constructor
+		/// Constructor
 		///
-		BeaconCache();
+		BeaconCache(std::shared_ptr<openkit::ILogger> logger);
 
 		///
 		/// destructor
@@ -152,6 +153,9 @@ namespace caching
 		void onDataAdded();
 
 	private:
+		/// Logger to write traces to
+		std::shared_ptr<openkit::ILogger> mLogger;
+
 		/// Observers to be notified about data being added
 		std::vector<IObserver*> observers;
 

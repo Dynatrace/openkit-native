@@ -97,6 +97,9 @@ namespace core
 		virtual void finishSession(std::shared_ptr<Session> session);
 
 	private:
+		/// Logger to write traces to
+		std::shared_ptr<openkit::ILogger> mLogger;
+
 		/// Beacon sending context managing the state transitions and shutdown
 		std::shared_ptr<communication::BeaconSendingContext> mBeaconSendingContext;
 

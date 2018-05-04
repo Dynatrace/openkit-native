@@ -20,9 +20,9 @@
 
 using namespace configuration;
 
-constexpr bool DEFAULT_CAPTURE = true;                           // default: capture on
-constexpr int64_t DEFAULT_SEND_INTERVAL = 2 * 60 * 1000;                 // default: wait 2m (in ms) to send beacon
-constexpr int32_t DEFAULT_MAX_BEACON_SIZE = 30 * 1024;                   // default: max 30KB (in B) to send in one beacon
+constexpr bool DEFAULT_CAPTURE = true;                            // default: capture on
+constexpr int64_t DEFAULT_SEND_INTERVAL = 2 * 60 * 1000;          // default: wait 2m (in ms) to send beacon
+constexpr int32_t DEFAULT_MAX_BEACON_SIZE = 30 * 1024;            // default: max 30KB (in B) to send in one beacon
 constexpr bool DEFAULT_CAPTURE_ERRORS = true;                     // default: capture errors on
 constexpr bool DEFAULT_CAPTURE_CRASHES = true;                    // default: capture crashes on
 
@@ -138,6 +138,11 @@ int32_t Configuration::createSessionNumber()
 	}
 }
 
+const char* Configuration::getOpenKitType() const
+{
+	return mOpenKitType.getTypeString();
+}
+
 const core::UTF8String& Configuration::getApplicationName() const
 {
 	return mApplicationName;
@@ -151,6 +156,11 @@ const core::UTF8String& Configuration::getApplicationID() const
 const core::UTF8String& Configuration::getApplicationVersion() const
 {
 	return mApplicationVersion;
+}
+
+const core::UTF8String& Configuration::getEndpointURL() const
+{
+	return mEndpointURL;
 }
 
 int64_t Configuration::getDeviceID() const
