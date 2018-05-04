@@ -159,6 +159,6 @@ void Session::clearCapturedData()
 const std::string Session::toString() const
 {
 	std::stringstream ss;
-	ss << "Session [sn=" << this->mBeacon->getSessionNumber() << "]";
+	ss << "Session [sn=" << mBeacon->getSessionNumber() << "]";
 	return ss.str();
 }

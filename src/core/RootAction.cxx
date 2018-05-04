@@ -263,6 +263,6 @@ bool RootAction::hasOpenChildActions() const
 const std::string RootAction::toString() const
 {
 	std::stringstream ss;
-	ss << "RootAction [sn=" << this->mBeacon->getSessionNumber() << ", id=" << this->mID << ", name=" << this->mName.getStringData() << "]";
+	ss << "RootAction [sn=" << mBeacon->getSessionNumber() << ", id=" << mID << ", name=" << mName.getStringData() << "]";
 	return ss.str();
 }

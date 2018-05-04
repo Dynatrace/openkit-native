@@ -249,6 +249,6 @@ bool Action::isActionLeft() const
 const std::string Action::toString() const
 {
 	std::stringstream ss;
-	ss << "Action [sn=" << this->mBeacon->getSessionNumber() << ", id=" << this->mID << ", name=" << this->mName.getStringData() << ", pa=" << (this->mParentAction != nullptr ? std::to_string(this->mParentAction->getID()) : "no parent") << "]";
+	ss << "Action [sn=" << mBeacon->getSessionNumber() << ", id=" << mID << ", name=" << mName.getStringData() << ", pa=" << (mParentAction != nullptr ? std::to_string(mParentAction->getID()) : "no parent") << "]";
 	return ss.str();
 }
