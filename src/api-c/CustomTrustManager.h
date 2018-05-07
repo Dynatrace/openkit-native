@@ -25,30 +25,32 @@
 
 namespace apic
 {
-	/// The OpenKit comes with a default logger printing trace statements to stdout. 
-	/// To override the default logger with a user provided logger from the C binding wrapper,
-	/// the @c CustomLogger acts as the glue:
-	/// On the one hand it implements the ILogger (C++) interface on the other hand it calls the
-	/// user provided function pointers to check if to log and to perform the log.
+	/// The OpenKit comes with two different trust manager implementations:
+	/// A @ref SSLStrictTrustManager (trusting only valid certificates) and
+	/// a @ref SSLBlindTrustManager (blindly trusting every certificate and every host)
+	/// This @c CustomTrustManager allows the OpenKit user to override those two default implementations
+	/// and apply custom trust settings. 
+	/// The @c CustomTrustManager acts as the glue in this scenario:
+	/// On the one hand it implements the @c ISSLTrustManager (C++) interface, on the other hand it calls the
+	/// user provided function pointer to apply the trust configuration on the CURL handle.
 	class CustomTrustManager : public openkit::ISSLTrustManager
 	{
 	public:
 		///
 		/// Constructor
 		///
-		CustomTrustManager();
+		CustomTrustManager(applyTrustManagerFunc applyTrustManagerFunc);
 		
 		///
 		/// Destructor
 		///
 		virtual ~CustomTrustManager() {}
 
-	private:
-		///
-		/// Does the actual logging to the provided function pointer
-		///
-		void applyTrustManager(CURL* curl);
+		virtual void applyTrustManager(CURL* curl) override;
 
+	private:
+		/// Function pointer of the apply trust configuration function
+		applyTrustManagerFunc mApplyTrustManagerFunc;
 	};
 }
 

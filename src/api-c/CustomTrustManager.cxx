@@ -18,12 +18,13 @@
 
 using namespace apic;
 
-CustomTrustManager::CustomTrustManager()
+CustomTrustManager::CustomTrustManager(applyTrustManagerFunc applyTrustManagerFunc)
+	: mApplyTrustManagerFunc(applyTrustManagerFunc)
 {
 }
 
-void CustomTrustManager::applyTrustManager(CURL* /*curl*/)
+void CustomTrustManager::applyTrustManager(CURL* curl)
 {
-
+	mApplyTrustManagerFunc(curl);
 }
 	
