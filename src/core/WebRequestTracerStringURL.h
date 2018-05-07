@@ -40,6 +40,13 @@ namespace core
 		/// @param[in] url url of the web request
 		///
 		WebRequestTracerStringURL(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<protocol::Beacon> beacon, int32_t parentActionID, const UTF8String& url);
+
+		///
+		/// Test if given {@c url} contains a valid URL scheme according to RFC3986.
+		/// @param[in] The url to validate
+		/// @return {@code true} on success, {@code false} otherwhise.
+		///
+		static bool isValidURLScheme(const UTF8String& url);
 	};
 }
 

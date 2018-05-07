@@ -407,6 +407,21 @@ TEST_F(ActionTest, tracingAnEmptyStringWebRequestIsNotAllowed)
 	ASSERT_TRUE(typeCast != nullptr);
 }
 
+TEST_F(ActionTest, tracingAnInvalidUrlSchemeIsNotAllowed)
+{
+	// create test environment
+	// create action without parent action
+	auto testAction = std::make_shared<core::Action>(logger, mockBeacon, core::UTF8String("test action"));
+
+	// execute the test call
+	auto webRequestTracer = testAction->traceWebRequest("1337://fourtytwo.com");
+
+	// verify the returned request
+	ASSERT_TRUE(webRequestTracer != nullptr);
+	std::shared_ptr<core::NullWebRequestTracer> typeCast = std::dynamic_pointer_cast<core::NullWebRequestTracer>(webRequestTracer);
+	ASSERT_TRUE(typeCast != nullptr);
+}
+
 TEST_F(ActionTest, actionsEnteredAndLeft)
 {
 	session->startSession();
