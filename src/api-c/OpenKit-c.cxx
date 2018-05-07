@@ -187,7 +187,7 @@ extern "C" {
 	{
 		std::shared_ptr<openkit::IOpenKit> sharedPointer = nullptr;
 		std::shared_ptr<openkit::ILogger> logger = nullptr;
-		std::shared_ptr<openkit::ISSLTrustManager> trustManager = nullptr;
+		TrustManagerHandle* trustManagerHandle = nullptr;
 	} OpenKitHandle;
 
 	OpenKitHandle* createDynatraceOpenKit(const char* endpointURL, const char* applicationID, int64_t deviceID, LoggerHandle* loggerHandle,
@@ -265,7 +265,7 @@ extern "C" {
 			handle = new OpenKitHandle();
 			handle->sharedPointer = openKit;
 			handle->logger = loggerHandle->logger;
-			handle->trustManager = trustManagerHandle->trustManager;
+			handle->trustManagerHandle = trustManagerHandle;
 		}
 		CATCH_AND_LOG(loggerHandle)
 		
@@ -347,6 +347,7 @@ extern "C" {
 			handle = new OpenKitHandle();
 			handle->sharedPointer = openKit;
 			handle->logger = loggerHandle->logger;
+			handle->trustManagerHandle = trustManagerHandle;
 		}
 		CATCH_AND_LOG(loggerHandle)
 		return handle;
@@ -369,7 +370,11 @@ extern "C" {
 			// release shared pointer
 			openKitHandle->sharedPointer = nullptr;
 			openKitHandle->logger = nullptr;
-			openKitHandle->trustManager = nullptr;
+			if (openKitHandle->trustManagerHandle != nullptr)
+			{
+				destroyTrustManager(openKitHandle->trustManagerHandle);
+				openKitHandle->trustManagerHandle = nullptr;
+			}
 			delete openKitHandle;
 		}
 		CATCH_AND_LOG(openKitHandle)
