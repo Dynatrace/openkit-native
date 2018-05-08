@@ -191,7 +191,7 @@ extern "C" {
 	} OpenKitHandle;
 
 	OpenKitHandle* createDynatraceOpenKit(const char* endpointURL, const char* applicationID, int64_t deviceID, LoggerHandle* loggerHandle,
-		const char* applicationVersion, TRUST_MODE trustMode, TrustManagerHandle* trustManagerHandle, const char* operatingSystem, const char* manufacturer,
+		const char* applicationVersion, const char* applicationName, TRUST_MODE trustMode, TrustManagerHandle* trustManagerHandle, const char* operatingSystem, const char* manufacturer,
 		const char* modelID, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary)
 	{
 		OpenKitHandle* handle = nullptr;
@@ -207,6 +207,11 @@ extern "C" {
 			if (applicationVersion != nullptr)
 			{
 				builder.withApplicationVersion(applicationVersion);
+			}
+
+			if (applicationName != nullptr)
+			{
+				builder.withApplicationName(applicationName);
 			}
 
 			if (trustMode == TRUST_MODE::BLIND_TRUST)
@@ -272,14 +277,14 @@ extern "C" {
 		return handle;
 	}
 
-	OpenKitHandle* createAppMonOpenKit(const char* endpointURL, const char* applicationID, int64_t deviceID, LoggerHandle* loggerHandle,
+	OpenKitHandle* createAppMonOpenKit(const char* endpointURL, const char* applicationName, int64_t deviceID, LoggerHandle* loggerHandle,
 		const char* applicationVersion, TRUST_MODE trustMode, TrustManagerHandle* trustManagerHandle, const char* operatingSystem, const char* manufacturer,
 		const char* modelID, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary)
 	{
 		OpenKitHandle* handle = nullptr;
 		TRY
 		{
-			openkit::AppMonOpenKitBuilder builder(endpointURL, applicationID, deviceID);
+			openkit::AppMonOpenKitBuilder builder(endpointURL, applicationName, deviceID);
 			if (loggerHandle)
 			{
 				// Instantiate the CustomLogger mapping the log statements to the FunctionPointers

@@ -27,7 +27,7 @@ namespace openkit
 		///
 		/// Constructor
 		/// @param[in] endPointURL endpoint OpenKit connects to
-		/// @param[in] applicationName unique application id
+		/// @param[in] applicationName unique application name
 		/// @param[in] deviceID unique device id
 		///
 		AppMonOpenKitBuilder(const char* endpointURL, const char* applicationName, int64_t deviceID);
