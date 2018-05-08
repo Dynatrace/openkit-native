@@ -111,6 +111,7 @@ extern "C" {
 	/// @param[in] deviceID unique device id
 	/// @param[in] loggerHandle optional parameter to provide a logger that shall be used. If NULL is provided the DefaultLogger is used.
 	/// @param[in] applicationVersion optional paramter, the application version. If NULL is provided the default application version is used.
+	/// @param[in] applicationName optional name for the application. If NULL is provided the application name is an empty string.
 	/// @param[in] trustMode required parameter which trust manager shall be used. Recommended is @c STRICT_TRUST or for fine-granular @c CUSTOM_TRUST.
 	/// @param[in] trustManagerHandle required parameter if the @c trustMode @c CUSTOM_TRUST is provided. Ignored for the other trust modes.
 	/// @param[in] operatingSystem optional parameter, name of the operating system. If NULL is provided the default operating system is used.
@@ -122,13 +123,13 @@ extern "C" {
 	/// @return OpenKit instance handle to work with
 	///
 	OPENKIT_EXPORT struct OpenKitHandle* createDynatraceOpenKit(const char* endpointURL, const char* applicationID, int64_t deviceID, struct LoggerHandle* logger,
-		const char* applicationVersion, TRUST_MODE trustMode, struct TrustManagerHandle* trustManagerHandle, const char* operatingSystem, const char* manufacturer,
+		const char* applicationVersion, const char* applicationName, TRUST_MODE trustMode, struct TrustManagerHandle* trustManagerHandle, const char* operatingSystem, const char* manufacturer,
 		const char* modelID, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary);
 
 	///
 	/// Creates an OpenKit instance for AppMon
 	/// @param[in] endPointURL endpoint OpenKit connects to
-	/// @param[in] applicationID unique application id
+	/// @param[in] applicationName unique application name
 	/// @param[in] deviceID unique device id
 	/// @param[in] loggerHandle optional parameter to provide a logger that shall be used. If NULL is provided the DefaultLogger is used.
 	/// @param[in] applicationVersion optional paramter,  the application version. If NULL is provided the default application version is used.
@@ -142,7 +143,7 @@ extern "C" {
 	/// @param[in] beaconCacheUpperMemoryBoundary optional parameter, upper memory boundary for beacon cache. A value of -1 will lead to the default value. All positive integers starting with 0 are valid.
 	/// @return OpenKit instance handle to work with
 	///
-	OPENKIT_EXPORT struct OpenKitHandle* createAppMonOpenKit(const char* endpointURL, const char* applicationID, int64_t deviceID, struct LoggerHandle* loggerHandle,
+	OPENKIT_EXPORT struct OpenKitHandle* createAppMonOpenKit(const char* endpointURL, const char* applicationName, int64_t deviceID, struct LoggerHandle* loggerHandle,
 		const char* applicationVersion, TRUST_MODE trustMode, struct TrustManagerHandle* trustManagerHandle, const char* operatingSystem, const char* manufacturer,
 		const char* modelID, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary);
 
