@@ -20,21 +20,32 @@
 #include "core/RootAction.h"
 #include "core/Action.h"
 
+#include <regex>
+
 namespace core
 {
+	static const std::regex SCHEMA_VALIDATION_PATTERN("^[a-z][a-z0-9+\\-.]*://.+", std::regex::icase | std::regex::optimize);
+
 	WebRequestTracerStringURL::WebRequestTracerStringURL(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<protocol::Beacon> beacon, int32_t parentActionID, const UTF8String& url)
 		: WebRequestTracerBase(logger, beacon, parentActionID)
 	{
-		auto indexOfQuestionMark = url.getIndexOf("?");
+		if (isValidURLScheme(url))
+		{
+			auto indexOfQuestionMark = url.getIndexOf("?");
 
-		if (indexOfQuestionMark != std::string::npos)
-		{
-			WebRequestTracerBase::mURL = url.substring(0, indexOfQuestionMark);
-		}
-		else
-		{
-			WebRequestTracerBase::mURL = url;
+			if (indexOfQuestionMark != std::string::npos)
+			{
+				WebRequestTracerBase::mURL = url.substring(0, indexOfQuestionMark);
+			}
+			else
+			{
+				WebRequestTracerBase::mURL = url;
+			}
 		}
 	}
 
+	bool WebRequestTracerStringURL::isValidURLScheme(const UTF8String& url)
+	{
+		return std::regex_match(url.getStringData(), SCHEMA_VALIDATION_PATTERN);
+	}
 }

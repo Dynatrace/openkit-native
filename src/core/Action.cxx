@@ -157,6 +157,11 @@ std::shared_ptr<openkit::IWebRequestTracer> Action::traceWebRequest(const char* 
 		mLogger->warning("%s traceWebRequest (string): url must not be null or empty", toString().c_str());
 		return NULL_WEB_REQUEST_TRACER;
 	}
+	if (!WebRequestTracerStringURL::isValidURLScheme(urlString))
+	{
+		mLogger->warning("%s traceWebRequest (string): url \"%s\" does not have a valid scheme", toString().c_str(), urlString.getStringData().c_str());
+		return NULL_WEB_REQUEST_TRACER;
+	}
 	if (mLogger->isDebugEnabled())
 	{
 		mLogger->debug("%s traceWebRequest (string) (%s))", toString().c_str(), url);

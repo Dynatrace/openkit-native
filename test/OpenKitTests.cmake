@@ -38,6 +38,7 @@ set(OPENKIT_SOURCES_UNITTEST
 	${CMAKE_CURRENT_LIST_DIR}/core/ActionTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/core/RootActionTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/core/WebRequestTracerBaseTest.cxx
+	${CMAKE_CURRENT_LIST_DIR}/core/WebRequestTracerStringURLTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/core/util/CompressorTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/core/util/URLEncodingTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/core/util/SynchronizedQueueTest.cxx
