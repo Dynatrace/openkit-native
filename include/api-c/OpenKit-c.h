@@ -109,14 +109,14 @@ extern "C" {
 	/// @param[in] endPointURL endpoint OpenKit connects to
 	/// @param[in] applicationID unique application id
 	/// @param[in] deviceID unique device id
-	/// @param[in] loggerHandle optional parameter to provide a logger that shall be used. If NULL is provided the DefaultLogger is used.
-	/// @param[in] applicationVersion optional paramter, the application version. If NULL is provided the default application version is used.
-	/// @param[in] applicationName optional name for the application. If NULL is provided the application name is an empty string.
+	/// @param[in] loggerHandle optional parameter to provide a logger that shall be used. If @c NULL is provided the DefaultLogger is used.
+	/// @param[in] applicationVersion optional paramter, the application version. If @c NULL is provided the default application version is used.
+	/// @param[in] applicationName optional name for the application. If @c NULL is provided the application name is an empty string.
 	/// @param[in] trustMode required parameter which trust manager shall be used. Recommended is @c STRICT_TRUST or for fine-granular @c CUSTOM_TRUST.
 	/// @param[in] trustManagerHandle required parameter if the @c trustMode @c CUSTOM_TRUST is provided. Ignored for the other trust modes.
-	/// @param[in] operatingSystem optional parameter, name of the operating system. If NULL is provided the default operating system is used.
-	/// @param[in] manufacturer, optional parameter, manufacturer of the device. If NULL is provided the default manufacturer is used.
-	/// @param[in] modelID, optional parameter, model version or id of the device. If NULL the default model ID is used.
+	/// @param[in] operatingSystem optional parameter, name of the operating system. If @c NULL is provided the default operating system is used.
+	/// @param[in] manufacturer, optional parameter, manufacturer of the device. If @c NULL is provided the default manufacturer is used.
+	/// @param[in] modelID, optional parameter, model version or id of the device. If @c NULL the default model ID is used.
 	/// @param[in] beaconCacheMaxRecordAge optional parameter, maximum age of cache records. A value of -1 will lead to the default value. All positive integers starting with 0 are valid.
 	/// @param[in] beaconCacheLowerMemoryBoundary optional parameter, lower memory boundary for beacon cache. A value of -1 will lead to the default value. All positive integers starting with 0 are valid.
 	/// @param[in] beaconCacheUpperMemoryBoundary optional parameter, upper memory boundary for beacon cache. A value of -1 will lead to the default value. All positive integers starting with 0 are valid.
@@ -131,13 +131,13 @@ extern "C" {
 	/// @param[in] endPointURL endpoint OpenKit connects to
 	/// @param[in] applicationName unique application name
 	/// @param[in] deviceID unique device id
-	/// @param[in] loggerHandle optional parameter to provide a logger that shall be used. If NULL is provided the DefaultLogger is used.
-	/// @param[in] applicationVersion optional paramter,  the application version. If NULL is provided the default application version is used.
+	/// @param[in] loggerHandle optional parameter to provide a logger that shall be used. If @c NULL is provided the DefaultLogger is used.
+	/// @param[in] applicationVersion optional paramter,  the application version. If @c NULL is provided the default application version is used.
 	/// @param[in] trustMode required parameter which trust manager shall be used. Recommended is @c STRICT_TRUST or for fine-granular @c CUSTOM_TRUST.
 	/// @param[in] trustManagerHandle required parameter if the @c trustMode @c CUSTOM_TRUST is provided. Ignored for the other trust modes.
-	/// @param[in] operatingSystem optional parameter, name of the operating system. If NULL is provided the default operating system is used.
-	/// @param[in] manufacturer, optional parameter, manufacturer of the device. If NULL is provided the default manufacturer is used.
-	/// @param[in] modelID, optional parameter, model version or id of the device. If NULL the default model ID is used.
+	/// @param[in] operatingSystem optional parameter, name of the operating system. If @c NULL is provided the default operating system is used.
+	/// @param[in] manufacturer, optional parameter, manufacturer of the device. If @c NULL is provided the default manufacturer is used.
+	/// @param[in] modelID, optional parameter, model version or id of the device. If @c NULL the default model ID is used.
 	/// @param[in] beaconCacheMaxRecordAge optional parameter, maximum age of cache records. A value of -1 will lead to the default value. All positive integers starting with 0 are valid.
 	/// @param[in] beaconCacheLowerMemoryBoundary optional parameter, lower memory boundary for beacon cache. A value of -1 will lead to the default value. All positive integers starting with 0 are valid.
 	/// @param[in] beaconCacheUpperMemoryBoundary optional parameter, upper memory boundary for beacon cache. A value of -1 will lead to the default value. All positive integers starting with 0 are valid.
