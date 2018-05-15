@@ -24,7 +24,7 @@
 
 namespace core
 {
-	static const std::regex SCHEMA_VALIDATION_PATTERN("^[a-z][a-z0-9+\\-.]*://.+", std::regex::icase | std::regex::optimize);
+	static const std::regex SCHEMA_VALIDATION_PATTERN("^[a-zA-Z][a-zA-Z0-9+\\-.]*://.+$", std::regex::optimize | std::regex::ECMAScript);
 
 	WebRequestTracerStringURL::WebRequestTracerStringURL(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<protocol::Beacon> beacon, int32_t parentActionID, const UTF8String& url)
 		: WebRequestTracerBase(logger, beacon, parentActionID)
