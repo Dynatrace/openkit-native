@@ -127,11 +127,18 @@ function(build_open_kit)
 	
 	open_kit_build_library(OpenKit "${OPENKIT_INCLUDE_DIRS}" "${OPENKIT_LIBS}" ${OPENKIT_SOURCES})
 
+	# enforce usage of C++11 for OpenKit
 	enforce_cxx11_standard(OpenKit)
+
+	# add special processor flag when building OpenKit as static library
 	if(NOT BUILD_SHARED_LIBS)
-		# For a STATIC library we set the compiler flag OPENKIT_STATIC_DEFINE
-		target_compile_definitions(OpenKit PRIVATE -DCURL_STATICLIB)
+		# For a static library we set the compiler flag OPENKIT_STATIC_DEFINE
 		target_compile_definitions(OpenKit PRIVATE -DOPENKIT_STATIC_DEFINE)
+	endif()
+
+	# add special preprocessor flag when curl is used as static library
+	if (NOT BUILD_SHARED_LIBS OR OPENKIT_MONOLITHIC_SHARED_LIB)
+		target_compile_definitions(OpenKit PRIVATE -DCURL_STATICLIB)
 	endif()
 
 	include(GenerateExportHeader)

@@ -42,6 +42,7 @@ endif()
 
 # build options & settings
 include (BuildConfiguration)
+include (CompilerConfiguration)
 
 # build 3rd party dependencies
 add_subdirectory(3rdparty)

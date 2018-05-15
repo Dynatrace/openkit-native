@@ -53,6 +53,8 @@ The following CMake options can be changed to customize the build.
 | OPENKIT_FORCE_SHARED_CRT | Use shared (DLL) run-time lib even when OpenKit is built as static lib | OFF |
 | OPENKIT_BUILD_TESTS | Build OpenKit tests | ON |
 | BUILD_DOC | Create and install the HTML based API documentation (requires Doxygen) | OFF |
+| OPENKIT_MONOLITHIC_SHARED_LIB | Build OpenKit dependencies as static lib and link them into a single DLL/SO | ON if BUILD_SHARED_LIBS is ON |
+| OPENKIT_32_BIT | Cross compile to x86 when Compiler is 64-bit GNU/Clang | OFF |
 
 The option `OPENKIT_FORCE_SHARED_CRT` only has effect when building with
 Visual Studio and only if `BUILD_SHARED_LIBS` is set to `OFF`.
@@ -61,8 +63,10 @@ of `/MT` (or `/MTd` for Debug builds) to the compiler. Please set the flags
 accordingly when using static libraries, otherwise linker errors will occur.  
 
 Note: When OpenKit is built as shared library (DLL/SO) all direct dependencies
-(zlib, curl) will be shared libraries too. When built as static libraries, all
-direct dependencies will be built as static libraries.
+(zlib, curl) will be shared libraries too (unless `OPENKIT_MONOLITHIC_SHARED_LIB` is specified).
+When built as static libraries, all direct dependencies will be built as static libraries.
+When building a shared library and `OPENKIT_MONOLITHIC_SHARED_LIB` is set to on, all
+direct dependencies are built as static library and linked into OpenKit DLL/SO.
 
 ## Building OpenKit
 

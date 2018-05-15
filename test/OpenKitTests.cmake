@@ -97,12 +97,14 @@ function(build_open_kit_tests)
 	enforce_cxx11_standard(OpenKitTest)
 	target_compile_definitions(OpenKitTest PRIVATE -DOPENKIT_STATIC_DEFINE)
 
-	if (NOT BUILD_SHARED_LIBS)
+	if (NOT BUILD_SHARED_LIBS OR OPENKIT_MONOLITHIC_SHARED_LIB)
 		target_compile_definitions(OpenKitTest PRIVATE -DCURL_STATICLIB)
+	endif ()
+	if (NOT BUILD_SHARED_LIBS)
 		target_link_libraries(OpenKitTest PRIVATE OpenKit)
 	endif()
 
-	if (WIN32)
+	if (WIN32 AND BUILD_SHARED_LIBS AND NOT OPENKIT_MONOLITHIC_SHARED_LIB)
 	   add_custom_command ( TARGET OpenKitTest POST_BUILD 
 			COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:zlib> $<TARGET_FILE_DIR:OpenKitTest> 
 			COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:libcurl> $<TARGET_FILE_DIR:OpenKitTest>  )

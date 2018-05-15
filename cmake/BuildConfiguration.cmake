@@ -15,6 +15,7 @@
 
 # This file contains the build options which can be set via
 # CMake by the developer using OpenKit.
+include (CMakeDependentOption)
 
 
 # Option enabling or disableing building and running of unit tests
@@ -26,8 +27,22 @@ option(BUILD_DOC  "Create and install the HTML based API documentation (requires
 # build OpenKit as static or shared library
 option(BUILD_SHARED_LIBS "Build Shared Libraries" OFF)
 
+# build OpenKit with all direct dependencies included in the dll
+CMAKE_DEPENDENT_OPTION(OPENKIT_MONOLITHIC_SHARED_LIB "Build monolithic OpenKit DLL with dependencies included" ON
+                       "BUILD_SHARED_LIBS" OFF)
+
 # When other libraries are using a shared version of runtime libraries, OpenKit also has to use one.
-option(OPENKIT_FORCE_SHARED_CRT "Use shared (DLL) run-time lib even when OpenKit is built as static lib." OFF)
+CMAKE_DEPENDENT_OPTION(OPENKIT_FORCE_SHARED_CRT "Use shared (DLL) run-time lib even when OpenKit is built as static lib." OFF
+                       "NOT BUILD_SHARED_LIBS" ON)
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang"
+	OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang"
+	OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+
+	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+		option(OPENKIT_32_BIT "Cross compile OpenKit to 32-bit" OFF)
+	endif()
+endif()
 
 # Set the paths where the executable, libraries and header paths
 set(INSTALL_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin" CACHE PATH "Installation directory for executables")
