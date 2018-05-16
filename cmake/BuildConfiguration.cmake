@@ -32,8 +32,8 @@ CMAKE_DEPENDENT_OPTION(OPENKIT_MONOLITHIC_SHARED_LIB "Build monolithic OpenKit D
                        "BUILD_SHARED_LIBS" OFF)
 
 # When other libraries are using a shared version of runtime libraries, OpenKit also has to use one.
-CMAKE_DEPENDENT_OPTION(OPENKIT_FORCE_SHARED_CRT "Use shared (DLL) run-time lib even when OpenKit is built as static lib." OFF
-                       "NOT BUILD_SHARED_LIBS" ON)
+CMAKE_DEPENDENT_OPTION(OPENKIT_FORCE_SHARED_CRT "Use shared (DLL) run-time lib even when OpenKit is built as static lib." ON
+                       "NOT BUILD_SHARED_LIBS" OFF)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang"
 	OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang"

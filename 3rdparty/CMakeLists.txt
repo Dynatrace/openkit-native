@@ -31,7 +31,7 @@ else()
     # either BUILD_SHARED_LIBS is disabled or OPENKIT_MONOLITHIC_SHARED_LIB is enabled
 	set(CURL_STATICLIB ON CACHE BOOL "Set to ON to build libcurl with static linking.")
 	if(WIN32)
-		if (OPENKIT_FORCE_SHARED_CRT)
+		if (OPENKIT_FORCE_SHARED_CRT OR OPENKIT_MONOLITHIC_SHARED_LIB)
 			set(CURL_STATIC_CRT OFF CACHE BOOL "Set to ON to build libcurl with static CRT on Windows (/MT).")
 		else()
 			set(CURL_STATIC_CRT ON CACHE BOOL "Set to ON to build libcurl with static CRT on Windows (/MT).")
