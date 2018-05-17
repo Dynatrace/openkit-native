@@ -53,6 +53,30 @@ if(MSVC)
     set(OPEN_KIT_LINKER_FLAGS )
     set(OPEN_KIT_LINKER_FLAGS_DEBUG )
     set(OPEN_KIT_LINKER_FLAGS_RELEASE )
+
+	if (OPENKIT_32_BIT)
+		# override default CC and CXX flags
+		foreach (flag_var
+				 CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
+				 CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE)
+
+			if(NOT (${flag_var} MATCHES "-m32"))
+				set(${flag_var} "${${flag_var}} -m32")
+			endif()
+		endforeach()
+	endif()
+
+	if (OPENKIT_MONOLITHIC_SHARED_LIB)
+		# add -fPIC compiler option, in case we are building a monolithic library
+		foreach (flag_var
+				 CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
+				 CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE)
+
+			if(NOT (${flag_var} MATCHES "-fPIC"))
+				set(${flag_var} "${${flag_var}} -fPIC")
+			endif()
+		endforeach()
+	endif()
 endif()
 
 ########################################

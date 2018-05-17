@@ -29,33 +29,43 @@ function(_build_sample_internal target)
 	find_package(CURL)
 
 	set(SAMPLE_INCLUDE_DIRS
-		${ZLIB_INCLUDE_DIR}
-		${CURL_INCLUDE_DIR}
+		${CURL_INCLUDE_DIR} # required for ISSLTrustManager
 		${OpenKit_SOURCE_DIR}/include # TODO stefan.eberl - include from <OpenKit/OpenKit.h>
 		${OpenKit_BINARY_DIR}/include
 	)
 
 	set(SAMPLE_LIBS
-		${ZLIB_LIBRARY}
-		${CURL_LIBRARY}
 		OpenKit
 	)
+	if (NOT OPENKIT_MONOLITHIC_SHARED_LIB)
+		set(SAMPLE_LIBS
+		    ${SAMPLE_LIBS}
+		    ${ZLIB_LIBRARY}
+			${CURL_LIBRARY})
+	endif()
 
 	include(CompilerConfiguration)
 	include(BuildFunctions)
 
 	open_kit_build_executable("${target}" "${SAMPLE_INCLUDE_DIRS}" "${SAMPLE_LIBS}" ${ARGN})
 	enforce_cxx11_standard("${target}")
-	if (NOT BUILD_SHARED_LIBS)
+	if (NOT BUILD_SHARED_LIBS OR OPENKIT_MONOLITHIC_SHARED_LIB)
 		target_compile_definitions(${target} PRIVATE -DCURL_STATICLIB)
+	endif()
+	if (NOT BUILD_SHARED_LIBS)
 		target_compile_definitions(${target} PRIVATE -DOPENKIT_STATIC_DEFINE)
 	endif()
 
-	if (WIN32)
+	if (WIN32 AND BUILD_SHARED_LIBS)
 	   add_custom_command ( TARGET ${target} POST_BUILD 
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:OpenKit> $<TARGET_FILE_DIR:${target}> 
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:zlib> $<TARGET_FILE_DIR:${target}> 
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:libcurl> $<TARGET_FILE_DIR:${target}>  )
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:OpenKit> $<TARGET_FILE_DIR:${target}> )
+
+		# it not monothonic shared library
+		if (NOT OPENKIT_MONOLITHIC_SHARED_LIB) 
+			add_custom_command ( TARGET ${target} POST_BUILD 
+				COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:zlib> $<TARGET_FILE_DIR:${target}> 
+				COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:libcurl> $<TARGET_FILE_DIR:${target}>  )
+		endif()
 	endif()
 endfunction()
 
