@@ -31,6 +31,9 @@ namespace providers
 	public:
 		virtual std::shared_ptr<protocol::IHTTPClient> createClient(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<configuration::HTTPClientConfiguration> configuration) override;
 
+		virtual void globalInit() override;
+
+		virtual void globalDestroy() override;
 	};
 }
 

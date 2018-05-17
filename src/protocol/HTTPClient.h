@@ -98,6 +98,18 @@ namespace protocol
 		///
 		virtual std::unique_ptr<TimeSyncResponse> sendTimeSyncRequest() override;
 
+		///
+		/// Perform global initialization.
+		/// @remarks This method expects to be called before any other operation.
+		///
+		static void globalInit();
+
+		///
+		/// Perform global destruction.
+		/// @remarks This method expects to be called after the last operation on the @c HTTPClient.
+		///
+		static void globalDestroy();
+
 	private:
 
 		///
