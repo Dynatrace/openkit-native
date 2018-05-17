@@ -65,7 +65,7 @@ accordingly when using static libraries, otherwise linker errors will occur.
 Note: When OpenKit is built as shared library (DLL/SO) all direct dependencies
 (zlib, curl) will be shared libraries too (unless `OPENKIT_MONOLITHIC_SHARED_LIB` is specified).
 When built as static libraries, all direct dependencies will be built as static libraries.
-When building a shared library and `OPENKIT_MONOLITHIC_SHARED_LIB` is set to on, all
+When building a shared library and `OPENKIT_MONOLITHIC_SHARED_LIB` is set to `ON`, all
 direct dependencies are built as static library and linked into OpenKit DLL/SO.
 
 ## Building OpenKit
