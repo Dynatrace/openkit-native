@@ -128,11 +128,6 @@ extern "C" {
 		delete trustManagerHandle;
 	}
 
-	void disableSSLVerifiaction()
-	{
-
-	}
-
 	//--------------
 	//  Logger
 	//--------------
@@ -188,7 +183,96 @@ extern "C" {
 		std::shared_ptr<openkit::IOpenKit> sharedPointer = nullptr;
 		std::shared_ptr<openkit::ILogger> logger = nullptr;
 		TrustManagerHandle* trustManagerHandle = nullptr;
+		bool ownsTrustManagerHandle = false;
 	} OpenKitHandle;
+
+
+	static void initializeOpenKitBuilder(openkit::AbstractOpenKitBuilder& builder, LoggerHandle* loggerHandle,
+		const char* applicationVersion, TrustManagerHandle* trustManagerHandle, const char* operatingSystem, const char* manufacturer,
+		const char* modelID, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary)
+	{
+		if (loggerHandle != nullptr)
+		{
+			// Instantiate the CustomLogger mapping the log statements to the FunctionPointers
+			builder.withLogger(loggerHandle->logger);
+		}
+
+		if (trustManagerHandle != nullptr)
+		{
+			builder.withTrustManager(trustManagerHandle->trustManager);
+		}
+
+		if (applicationVersion != nullptr)
+		{
+			builder.withApplicationVersion(applicationVersion);
+		}
+
+		if (operatingSystem != nullptr)
+		{
+			builder.withOperatingSystem(operatingSystem);
+		}
+
+		if (manufacturer != nullptr)
+		{
+			builder.withManufacturer(manufacturer);
+		}
+
+		if (modelID != nullptr)
+		{
+			builder.withModelID(modelID);
+		}
+
+		if (beaconCacheMaxRecordAge >= 0)
+		{
+			builder.withBeaconCacheMaxRecordAge(beaconCacheMaxRecordAge);
+		}
+
+		if (beaconCacheLowerMemoryBoundary >= 0)
+		{
+			builder.withBeaconCacheLowerMemoryBoundary(beaconCacheLowerMemoryBoundary);
+		}
+
+		if (beaconCacheUpperMemoryBoundary >= 0)
+		{
+			builder.withBeaconCacheUpperMemoryBoundary(beaconCacheUpperMemoryBoundary);
+		}
+	}
+
+	static TrustManagerHandle* createTrustManagerHandle(LoggerHandle* loggerHandle, TRUST_MODE trustMode, TrustManagerHandle* trustManagerHandle)
+	{
+		if (trustMode == TRUST_MODE::BLIND_TRUST)
+		{
+			return createBlindTrustManager();
+		}
+		else if (trustMode == TRUST_MODE::CUSTOM_TRUST && trustManagerHandle != nullptr)
+		{
+			return trustManagerHandle;
+		}
+		else
+		{
+			// default is "strict"
+			if (loggerHandle && trustMode != TRUST_MODE::STRICT_TRUST)
+			{
+				loggerHandle->logger->warning("Unexpected trust mode %d. Falling back to STRICT trust mode", trustMode);
+			}
+			return createStrictTrustManager();
+		}
+	}
+
+	static OpenKitHandle* createOpenKitHandle(LoggerHandle* loggerHandle,
+		TrustManagerHandle* trustManagerHandle,
+		bool ownsTrustManagerHandle,
+		std::shared_ptr<openkit::IOpenKit> openKit)
+	{
+		// storing the returned shared pointer in the handle prevents it from going out of scope
+		OpenKitHandle* handle = new OpenKitHandle();
+		handle->sharedPointer = openKit;
+		handle->logger = loggerHandle->logger;
+		handle->trustManagerHandle = trustManagerHandle;
+		handle->ownsTrustManagerHandle = ownsTrustManagerHandle;
+
+		return handle;
+	}
 
 	OpenKitHandle* createDynatraceOpenKit(const char* endpointURL, const char* applicationID, int64_t deviceID, LoggerHandle* loggerHandle,
 		const char* applicationVersion, const char* applicationName, TRUST_MODE trustMode, TrustManagerHandle* trustManagerHandle, const char* operatingSystem, const char* manufacturer,
@@ -198,82 +282,28 @@ extern "C" {
 		TRY
 		{
 			openkit::DynatraceOpenKitBuilder builder(endpointURL, applicationID, deviceID);
-			if (loggerHandle)
-			{
-				// Instantiate the CustomLogger mapping the log statements to the FunctionPointers
-				builder.withLogger(loggerHandle->logger);
-			}
-
-			if (applicationVersion != nullptr)
-			{
-				builder.withApplicationVersion(applicationVersion);
-			}
-
 			if (applicationName != nullptr)
 			{
 				builder.withApplicationName(applicationName);
 			}
 
-			if (trustMode == TRUST_MODE::BLIND_TRUST)
-			{
-				trustManagerHandle = createBlindTrustManager();
-				builder.withTrustManager(trustManagerHandle->trustManager);
-			}
-			else if (trustMode == TRUST_MODE::CUSTOM_TRUST && trustManagerHandle != nullptr)
-			{
-				builder.withTrustManager(trustManagerHandle->trustManager);
-			}
-			else
-			{
-				// default is "strict"
-				if (loggerHandle && trustMode != TRUST_MODE::STRICT_TRUST)
-				{
-					loggerHandle->logger->warning("Unexpected trust mode %d. Falling back to STRICT trust mode", trustMode);
-				}
-				trustManagerHandle = createStrictTrustManager();
-				builder.withTrustManager(trustManagerHandle->trustManager);
-			}
-			
-			if (operatingSystem != nullptr)
-			{
-				builder.withOperatingSystem(operatingSystem);
-			}
+			// create trust manager handle based on given TRUST_MODE & existing TrustManagerHandle
+			// the result might either be a completly newly created TrustManagerHandle* or
+			// a pointer pointing to the same struct as given trustManagerHandle.
+			// In case the ptr is newly created the shutdownOpenKit is responsible for destroying it.
+			TrustManagerHandle* usedTrustManagerHandle = createTrustManagerHandle(loggerHandle, trustMode, trustManagerHandle);
 
-			if (manufacturer != nullptr)
-			{
-				builder.withManufacturer(manufacturer);
-			}
+			// initialize the abstract builder
+			initializeOpenKitBuilder(builder, loggerHandle,
+				applicationVersion,
+				usedTrustManagerHandle,
+				operatingSystem, manufacturer,
+				modelID, beaconCacheMaxRecordAge, beaconCacheLowerMemoryBoundary, beaconCacheUpperMemoryBoundary);
 
-			if (modelID != nullptr)
-			{
-				builder.withModelID(modelID);
-			}
-
-			if (beaconCacheMaxRecordAge >= 0)
-			{
-				builder.withBeaconCacheMaxRecordAge(beaconCacheMaxRecordAge);
-			}
-
-			if (beaconCacheLowerMemoryBoundary >= 0)
-			{
-				builder.withBeaconCacheLowerMemoryBoundary(beaconCacheLowerMemoryBoundary);
-			}
-
-			if (beaconCacheUpperMemoryBoundary >= 0)
-			{
-				builder.withBeaconCacheUpperMemoryBoundary(beaconCacheUpperMemoryBoundary);
-			}
-
-			std::shared_ptr<openkit::IOpenKit> openKit = builder.build();
-		
-			// storing the returned shared pointer in the handle prevents it from going out of scope
-			handle = new OpenKitHandle();
-			handle->sharedPointer = openKit;
-			handle->logger = loggerHandle->logger;
-			handle->trustManagerHandle = trustManagerHandle;
+			return createOpenKitHandle(loggerHandle, usedTrustManagerHandle, usedTrustManagerHandle != trustManagerHandle, builder.build());
 		}
 		CATCH_AND_LOG(loggerHandle)
-		
+
 		return handle;
 	}
 
@@ -285,76 +315,25 @@ extern "C" {
 		TRY
 		{
 			openkit::AppMonOpenKitBuilder builder(endpointURL, applicationName, deviceID);
-			if (loggerHandle)
-			{
-				// Instantiate the CustomLogger mapping the log statements to the FunctionPointers
-				builder.withLogger(loggerHandle->logger);
-			}
 
-			if (applicationVersion != nullptr)
-			{
-				builder.withApplicationVersion(applicationVersion);
-			}
+			// create trust manager handle based on given TRUST_MODE & existing TrustManagerHandle
+			// the result might either be a completly newly created TrustManagerHandle* or
+			// a pointer pointing to the same struct as given trustManagerHandle.
+			// In case the ptr is newly created the shutdownOpenKit is responsible for destroying it.
+			TrustManagerHandle* usedTrustManagerHandle = createTrustManagerHandle(loggerHandle, trustMode, trustManagerHandle);
 
-			if (trustMode == TRUST_MODE::BLIND_TRUST)
-			{
-				trustManagerHandle = createBlindTrustManager();
-				builder.withTrustManager(trustManagerHandle->trustManager);
-			}
-			else if (trustMode == TRUST_MODE::CUSTOM_TRUST && trustManagerHandle != nullptr)
-			{
-				builder.withTrustManager(trustManagerHandle->trustManager);
-			}
-			else
-			{
-				// default is "strict"
-				if (loggerHandle && trustMode != TRUST_MODE::STRICT_TRUST)
-				{
-					loggerHandle->logger->warning("Unexpected trust mode %d. Falling back to STRICT trust mode", trustMode);
-				}
-				trustManagerHandle = createStrictTrustManager();
-				builder.withTrustManager(trustManagerHandle->trustManager);
-			}
+			// initialize the abstract builder
+			initializeOpenKitBuilder(builder, loggerHandle,
+				applicationVersion,
+				usedTrustManagerHandle,
+				operatingSystem, manufacturer,
+				modelID, beaconCacheMaxRecordAge, beaconCacheLowerMemoryBoundary, beaconCacheUpperMemoryBoundary);
 
-			if (operatingSystem != nullptr)
-			{
-				builder.withOperatingSystem(operatingSystem);
-			}
 
-			if (manufacturer != nullptr)
-			{
-				builder.withManufacturer(manufacturer);
-			}
-
-			if (modelID != nullptr)
-			{
-				builder.withModelID(modelID);
-			}
-
-			if (beaconCacheMaxRecordAge >= 1)
-			{
-				builder.withBeaconCacheMaxRecordAge(beaconCacheMaxRecordAge);
-			}
-
-			if (beaconCacheLowerMemoryBoundary >= 1)
-			{
-				builder.withBeaconCacheLowerMemoryBoundary(beaconCacheLowerMemoryBoundary);
-			}
-
-			if (beaconCacheUpperMemoryBoundary >= 1)
-			{
-				builder.withBeaconCacheUpperMemoryBoundary(beaconCacheUpperMemoryBoundary);
-			}
-
-			std::shared_ptr<openkit::IOpenKit> openKit = builder.build();
-
-			// storing the returned shared pointer in the handle prevents it from going out of scope
-			handle = new OpenKitHandle();
-			handle->sharedPointer = openKit;
-			handle->logger = loggerHandle->logger;
-			handle->trustManagerHandle = trustManagerHandle;
+			return createOpenKitHandle(loggerHandle, usedTrustManagerHandle, usedTrustManagerHandle != trustManagerHandle, builder.build());
 		}
 		CATCH_AND_LOG(loggerHandle)
+
 		return handle;
 	}
 
@@ -375,7 +354,7 @@ extern "C" {
 			// release shared pointer
 			openKitHandle->sharedPointer = nullptr;
 			openKitHandle->logger = nullptr;
-			if (openKitHandle->trustManagerHandle != nullptr)
+			if (openKitHandle->ownsTrustManagerHandle &&  openKitHandle->trustManagerHandle != nullptr)
 			{
 				destroyTrustManager(openKitHandle->trustManagerHandle);
 				openKitHandle->trustManagerHandle = nullptr;
@@ -397,6 +376,7 @@ extern "C" {
 			}
 		}
 		CATCH_AND_LOG(openKitHandle)
+
 		return false;
 	}
 
@@ -412,6 +392,7 @@ extern "C" {
 			}
 		}
 		CATCH_AND_LOG(openKitHandle)
+			
 		return false;
 	}
 
@@ -427,6 +408,7 @@ extern "C" {
 			}
 		}
 		CATCH_AND_LOG(openKitHandle)
+		
 		return false;
 	}
 
@@ -461,6 +443,7 @@ extern "C" {
 			handle->logger = openKitHandle->logger;
 		}
 		CATCH_AND_LOG(openKitHandle)
+
 		return handle;
 	}
 
@@ -545,6 +528,7 @@ extern "C" {
 			handle->logger = sessionHandle->logger;
 		}
 		CATCH_AND_LOG(sessionHandle)
+		
 		return handle;
 	}
 
@@ -665,13 +649,14 @@ extern "C" {
 			// retrieve the RootAction instance from the handle and call the respective method
 			assert(rootActionHandle->sharedPointer != nullptr);
 			std::shared_ptr<openkit::IAction> action = rootActionHandle->sharedPointer->enterAction(actionName);
-		
+
 			// storing the returned shared pointer in the handle prevents it from going out of scope
 			handle = new ActionHandle();
 			handle->sharedPointer = action;
 			handle->logger = rootActionHandle->logger;
 		}
 		CATCH_AND_LOG(rootActionHandle)
+		
 		return handle;
 	}
 
@@ -738,7 +723,7 @@ extern "C" {
 		}
 		CATCH_AND_LOG(actionHandle)
 	}
-	
+
 	void reportStringValueOnAction(ActionHandle* actionHandle, const char* valueName, const char* value)
 	{
 		TRY
@@ -799,6 +784,7 @@ extern "C" {
 			handle->logger = rootActionHandle->logger;
 		}
 		CATCH_AND_LOG(rootActionHandle)
+		
 		return handle;
 	}
 
@@ -816,13 +802,14 @@ extern "C" {
 			// retrieve the Action instance from the handle and call the respective method
 			assert(actionHandle->sharedPointer != nullptr);
 			auto traceWebRequest = actionHandle->sharedPointer->traceWebRequest(url);
-			
+
 			// storing the returned shared pointer in the handle prevents it from going out of scope
 			handle = new WebRequestTracerHandle();
 			handle->sharedPointer = traceWebRequest;
 			handle->logger = actionHandle->logger;
 		}
 		CATCH_AND_LOG(actionHandle)
+		
 		return handle;
 	}
 
@@ -874,6 +861,7 @@ extern "C" {
 			}
 		}
 		CATCH_AND_LOG(webRequestTracerHandle)
+		
 		return nullptr;
 	}
 
