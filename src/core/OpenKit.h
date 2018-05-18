@@ -30,7 +30,11 @@
 #include "core/BeaconSender.h"
 #include "core/NullSession.h"
 
-namespace core {
+#include <mutex>
+
+namespace core
+{
+
 	class OpenKit : public openkit::IOpenKit
 	{
 	public:
@@ -51,11 +55,11 @@ namespace core {
 		/// @param[in] threadIDProvider provider for thread ids
 		///
 		OpenKit(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<configuration::Configuration> configuration,
-				std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
-				std::shared_ptr<providers::ITimingProvider> timingProvider,
-				std::shared_ptr<providers::IThreadIDProvider> threadIDProvider);
+			std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
+			std::shared_ptr<providers::ITimingProvider> timingProvider,
+			std::shared_ptr<providers::IThreadIDProvider> threadIDProvider);
 
-		virtual ~OpenKit() {}
+		virtual ~OpenKit();
 
 		///
 		/// Initialize this OpenKit instance.
@@ -76,8 +80,25 @@ namespace core {
 
 	private:
 
+		///
+		/// Method called by the the constructor to perform global initialization.
+		/// @remarks This method does check if global init is necessary.
+		///
+		void globalInit();
+
+		///
+		/// Method called by the destructor to perform global destruction.
+		/// @remarks This method does check if global destruction is necessary.
+		///
+		void globalShutdown();
+
+	private:
+
 		/// logging context
 		std::shared_ptr<openkit::ILogger> mLogger;
+
+		/// HTTP client provider
+		std::shared_ptr<providers::IHTTPClientProvider> mClientProvider;
 
 		/// the configuration used the build the OpenKit instance
 		std::shared_ptr<configuration::Configuration> mConfiguration;
@@ -102,6 +123,12 @@ namespace core {
 
 		/// instance of NullSession
 		std::shared_ptr<core::NullSession> NULL_SESSION;
+
+		/// global instance count
+		static int32_t gInstanceCount;
+
+		/// mutex used for global init & de-init
+		static std::mutex gInitLock;
 	};
 }
 

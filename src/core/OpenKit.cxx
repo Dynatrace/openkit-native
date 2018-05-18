@@ -25,6 +25,10 @@
 
 using namespace core;
 
+// initialize global instance count with 0.
+int32_t OpenKit::gInstanceCount = 0;
+std::mutex OpenKit::gInitLock;
+
 OpenKit::OpenKit(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<configuration::Configuration> configuration)
 	: OpenKit(logger, configuration,
 		std::make_shared<providers::DefaultHTTPClientProvider>(),
@@ -40,6 +44,7 @@ OpenKit::OpenKit(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<confi
 	std::shared_ptr<providers::ITimingProvider> timingProvider,
 	std::shared_ptr<providers::IThreadIDProvider> threadIDProvider)
 	: mLogger(logger)
+	, mClientProvider(httpClientProvider)
 	, mConfiguration(configuration)
 	, mTimingProvider(timingProvider)
 	, mThreadIDProvider(threadIDProvider)
@@ -62,6 +67,13 @@ OpenKit::OpenKit(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<confi
 			configuration->getDeviceID(),
 			configuration->getEndpointURL() != nullptr ? configuration->getEndpointURL().getStringData().c_str() : "");
 	}
+
+	globalInit();
+}
+
+OpenKit::~OpenKit()
+{
+	globalShutdown();
 }
 
 void OpenKit::initialize()
@@ -111,4 +123,34 @@ void OpenKit::shutdown()
 	mIsShutdown = 1;
 	mBeaconCacheEvictor->stop();
 	mBeaconSender->shutdown();
+}
+
+void OpenKit::globalInit()
+{
+	std::lock_guard<std::mutex> guard(gInitLock);
+
+	gInstanceCount += 1;
+
+	if (gInstanceCount > 1)
+	{
+		// not the first instance -> no global init needed.
+		return;
+	}
+
+	mClientProvider->globalInit();
+}
+
+void OpenKit::globalShutdown()
+{
+	std::lock_guard<std::mutex> guard(gInitLock);
+
+	gInstanceCount -= 1;
+
+	if (gInstanceCount > 0)
+	{
+		// still another instance exists -> no global destroy needed
+		return;
+	}
+
+	mClientProvider->globalDestroy();
 }

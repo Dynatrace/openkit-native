@@ -58,14 +58,10 @@ HTTPClient::HTTPClient(std::shared_ptr<openkit::ILogger> logger, const std::shar
 	{
 		mSSLTrustManager = std::shared_ptr<openkit::ISSLTrustManager>(new protocol::SSLStrictTrustManager());
 	}
-
-	// set up the program environment that libcurl needs. In windows, this will init the winsock stuff
-	curl_global_init(CURL_GLOBAL_ALL);
 }
 
 HTTPClient::~HTTPClient()
 {
-	curl_global_cleanup();
 }
 
 std::unique_ptr<StatusResponse> HTTPClient::sendStatusRequest()
@@ -96,6 +92,17 @@ std::unique_ptr<TimeSyncResponse> HTTPClient::sendTimeSyncRequest()
 		return std::unique_ptr<TimeSyncResponse>(reinterpret_cast<TimeSyncResponse*>(response.release()));
 	}
 	return nullptr;
+}
+
+void HTTPClient::globalInit()
+{
+	// set up the program environment that libcurl needs. In windows, this will init the winsock stuff
+	curl_global_init(CURL_GLOBAL_ALL);
+}
+
+void HTTPClient::globalDestroy()
+{
+	curl_global_cleanup();
 }
 
 ///

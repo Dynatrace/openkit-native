@@ -44,6 +44,20 @@ namespace providers
 		/// @param[in] configuration configuration parameters for the HTTP connection
 		///
 		virtual std::shared_ptr<protocol::IHTTPClient> createClient(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<configuration::HTTPClientConfiguration> configuration) = 0;
+
+		///
+		/// Global initialization method.
+		/// @remarks This method is called if the first OpenKit instance, based on an instance count, is initialized.
+		///          It can be used to perform global initialization.
+		///
+		virtual void globalInit() = 0;
+
+		///
+		/// Global destroy method.
+		/// @remarks This method is called if the last OpenKit instance, based on an instance count, is destroyed.
+		///          It can be used to perform global destruction.
+		///
+		virtual void globalDestroy() = 0;
 	};
 }
 
