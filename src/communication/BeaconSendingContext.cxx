@@ -78,7 +78,7 @@ void BeaconSendingContext::executeCurrentState()
 	{
 		if (mLogger->isInfoEnabled())
 		{
-			mLogger->info("State change from '%s' to '%s'", mCurrentState->getStateName(), mNextState->getStateName());
+			mLogger->info("BeaconSendingContext executeCurrentState() - State change from '%s' to '%s'", mCurrentState->getStateName(), mNextState->getStateName());
 		}
 		mCurrentState = mNextState;
 	}

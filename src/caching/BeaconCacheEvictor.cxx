@@ -53,7 +53,7 @@ bool BeaconCacheEvictor::start()
 		// eviction thread already running
 		if (mLogger->isDebugEnabled()) 
 		{
-			mLogger->debug("Not starting BeaconCacheEviction thread, since it's already running");
+			mLogger->debug("BeaconCacheEvictor start() - Not starting BeaconCacheEviction thread, since it's already running");
 		}
 		return false;
 	}
@@ -67,7 +67,7 @@ bool BeaconCacheEvictor::start()
 
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("BeaconCacheEviction thread started.");
+		mLogger->debug("BeaconCacheEvictior start() - BeaconCacheEviction thread started.");
 	}
 	return true;
 }
@@ -84,14 +84,14 @@ bool BeaconCacheEvictor::stop(std::chrono::milliseconds timeout)
 		// eviction thread not running, nothing to stop
 		if (mLogger->isDebugEnabled())
 		{
-			mLogger->debug("Not stopping BeaconCacheEviction thread, since it's not alive");
+			mLogger->debug("BeaconCacheEvictior stop() - Not stopping BeaconCacheEviction thread, since it's not alive");
 		}
 		return false;
 	}
 
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("Stopping BeaconCacheEviction thread.");
+		mLogger->debug("BeaconCacheEvictior stop() - Stopping BeaconCacheEviction thread.");
 	}
 
 	{
@@ -115,7 +115,7 @@ bool BeaconCacheEvictor::stop(std::chrono::milliseconds timeout)
 	if (isAlive())
 	{
 		// not stopped in time
-		mLogger->warning("BeaconCacheEviction thread was not stopped in time.");
+		mLogger->warning("BeaconCacheEvictor stop() - BeaconCacheEviction thread was not stopped in time.");
 		return false;
 	}
 	// stopped in time
@@ -201,6 +201,6 @@ void BeaconCacheEvictor::cacheEvictionLoopFunc()
 
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("BeaconCacheEviction thread is stopped.");
+		mLogger->debug("BeaconCacheEvictor cacheEvictionLoopFunc() - BeaconCacheEviction thread is stopped.");
 	}
 }

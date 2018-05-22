@@ -80,7 +80,7 @@ namespace core
 	{
 		if (mLogger->isDebugEnabled())
 		{
-			mLogger->debug("%s start()", toString().c_str());
+			mLogger->debug("%s - start()", toString().c_str());
 		}
 		if (!isStopped())
 		{
@@ -93,7 +93,7 @@ namespace core
 	{
 		if (mLogger->isDebugEnabled())
 		{
-			mLogger->debug("%s stop()", toString().c_str());
+			mLogger->debug("%s - stop()", toString().c_str());
 		}
 		int64_t expected = -1;
 		if (atomic_compare_exchange_strong(&mEndTime, &expected, mBeacon->getCurrentTimestamp()) == false)

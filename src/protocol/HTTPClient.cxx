@@ -154,13 +154,13 @@ std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::Requ
 		switch(requestType)
 		{
 		case HTTPClient::RequestType::STATUS:
-			mLogger->debug("HTTP status request: %s", url.getStringData().c_str());
+			mLogger->debug("HTTPClient sendRequestInternal() - HTTP status request: %s", url.getStringData().c_str());
 			break;
 		case HTTPClient::RequestType::BEACON:
-			mLogger->debug("HTTP beacon request: %s", url.getStringData().c_str());
+			mLogger->debug("HTTPClient sendRequestInternal() - HTTP beacon request: %s", url.getStringData().c_str());
 			break;
 		case HTTPClient::RequestType::TIMESYNC:
-			mLogger->debug("HTTP timesync request: %s", url.getStringData().c_str());
+			mLogger->debug("HTTPClient sendRequestInternal() - HTTP timesync request: %s", url.getStringData().c_str());
 			break;
 		};
 	}
@@ -171,7 +171,7 @@ std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::Requ
 	if (!mCurl)
 	{
 		// Abort and cleanup if CURL cannot be initialized
-		mLogger->error("curl_easy_init() failed");
+		mLogger->error("HTTPClient sendRequestInternal() - curl_easy_init() failed");
 		return nullptr;
 	}
 
@@ -211,7 +211,7 @@ std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::Requ
 			{
 				if (mLogger->isDebugEnabled())
 				{
-					mLogger->debug("Beacon Payload: %s", beaconData.getStringData().c_str());
+					mLogger->debug("HTTPClient sendRequestInternal() -Beacon Payload: %s", beaconData.getStringData().c_str());
 				}
 
 				// Data to send is compressed => Compress the data
@@ -240,7 +240,7 @@ std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::Requ
 		{
 			// See https://curl.haxx.se/libcurl/c/libcurl-errors.html for a list of CURL error codes.
 			if (mLogger->isErrorEnabled())
-			mLogger->error("curl_easy_perform() failed on '%s': ErrorCode '%u', [%s]", url.getStringData().c_str(), response, curl_easy_strerror(response));
+			mLogger->error("HTTPClient sendRequestInternal() - curl_easy_perform() failed on '%s': ErrorCode '%u', [%s]", url.getStringData().c_str(), response, curl_easy_strerror(response));
 		}
 
 		// Cleanup
@@ -282,8 +282,8 @@ std::unique_ptr<Response> HTTPClient::handleResponse(uint64_t httpCode, const st
 {
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("HTTP Response: %s", response.c_str());
-		mLogger->debug("HTTP Response Code: %u", (uint32_t)httpCode);
+		mLogger->debug("HTTPClient handleResponse() - HTTP Response: %s", response.c_str());
+		mLogger->debug("HTTPClient handleResponse() - HTTP Response Code: %u", (uint32_t)httpCode);
 	}
 
 	// check response code
@@ -307,7 +307,7 @@ std::unique_ptr<Response> HTTPClient::handleResponse(uint64_t httpCode, const st
 		}
 		else
 		{
-			mLogger->warning("Ignoring response - unknown request type in response [%s]", response.c_str());
+			mLogger->warning("HTTPClient handleResponse() - Ignoring response - unknown request type in response [%s]", response.c_str());
 			return nullptr;
 		}
 	}
