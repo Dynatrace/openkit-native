@@ -46,7 +46,7 @@ bool InetAddressValidator::IsIPv4Address(const core::UTF8String& ipAddress)
 	return !matches.empty();
 }
 
-static const std::regex ipv6StdRegex("^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$"
+static const std::regex ipv6StdRegex("^(?:[0-9A-Fa-f]{1,4}:){7}[0-9A-Fa-f]{1,4}$"
 	, std::regex::optimize | std::regex::ECMAScript);
 
 bool InetAddressValidator::IsIPv6StdAddress(const core::UTF8String& ipAddress)
