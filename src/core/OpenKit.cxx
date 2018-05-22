@@ -57,11 +57,11 @@ OpenKit::OpenKit(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<confi
 	if (logger->isInfoEnabled())
 	{
 		// TODO: Use proper version information (incl. the build number)
-		logger->info("%s OpenKit %s instantiated", configuration->getOpenKitType(), openkit::DEFAULT_APPLICATION_VERSION);
+		logger->info("OpenKit() - %s OpenKit %s instantiated", configuration->getOpenKitType(), openkit::DEFAULT_APPLICATION_VERSION);
 	}
 	if (logger->isDebugEnabled())
 	{
-		logger->debug("applicationName=%s, applicationID=%s, deviceID=%" PRId64 ", endpointURL=%s",
+		logger->debug("OpenKit() - applicationName=%s, applicationID=%s, deviceID=%" PRId64 ", endpointURL=%s",
 			configuration->getApplicationName() != nullptr ? configuration->getApplicationName().getStringData().c_str() : "",
 			configuration->getApplicationID() != nullptr ? configuration->getApplicationID().getStringData().c_str() : "",
 			configuration->getDeviceID(),

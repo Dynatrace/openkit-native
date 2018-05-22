@@ -44,7 +44,7 @@ Beacon::Beacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching
 	{
 		if (logger->isWarningEnabled())
 		{
-			logger->warning("Client IP address validation failed: %s", clientIPAddress.getStringData().c_str());
+			logger->warning("Beacon() - Client IP address validation failed: %s", clientIPAddress.getStringData().c_str());
 		}
 	}
 

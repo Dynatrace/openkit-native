@@ -38,7 +38,7 @@ void TimeEvictionStrategy::execute()
 		// immediately return if this strategy is disabled
 		if (!mInfoShown && mLogger->isInfoEnabled())
 		{
-			mLogger->info("TimeEvictionStrategy is disabled");
+			mLogger->info("TimeEvictionStrategy execute() - strategy is disabled");
 			// suppress any further log output
 			mInfoShown = true;
 		}
@@ -103,7 +103,7 @@ void TimeEvictionStrategy::doExecute()
 
 		if (numRecordsRemoved > 0 && mLogger->isDebugEnabled())
 		{
-			mLogger->debug("TimeEvictionStrategy: Removed %u records from Beacon with ID %d", numRecordsRemoved, beaconID);
+			mLogger->debug("TimeEvictionStrategy doExecute() - Removed %u records from Beacon with ID %d", numRecordsRemoved, beaconID);
 		}
 
 		it++;

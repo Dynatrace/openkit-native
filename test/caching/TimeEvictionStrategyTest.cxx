@@ -180,7 +180,7 @@ TEST_F(TimeEvictionStrategyTest, executeEvictionLogsAMessageOnceAndReturnsIfStra
 	target.execute();
 
 	// then
-	auto found = oss.str().find("TimeEvictionStrategy is disabled\n");
+	auto found = oss.str().find("TimeEvictionStrategy execute() - strategy is disabled\n");
 	ASSERT_TRUE(found != std::string::npos) << "Unexpected log statement: " << oss.str() << std::endl;
 	oss.str("");
 	oss.clear();
@@ -314,9 +314,9 @@ TEST_F(TimeEvictionStrategyTest, executeEvictionLogsTheNumberOfRecordsRemoved)
 	target.execute();
 
 	// then
-	auto found = oss.str().find("TimeEvictionStrategy: Removed 2 records from Beacon with ID 1\n");
+	auto found = oss.str().find("TimeEvictionStrategy doExecute() - Removed 2 records from Beacon with ID 1\n");
 	ASSERT_TRUE(found != std::string::npos) << "Unexpected log statement: " << oss.str() << std::endl;
-	found = oss.str().find("TimeEvictionStrategy: Removed 5 records from Beacon with ID 42\n");
+	found = oss.str().find("TimeEvictionStrategy doExecute() - Removed 5 records from Beacon with ID 42\n");
 	ASSERT_TRUE(found != std::string::npos) << "Unexpected log statement: " << oss.str() << std::endl;
 }
 

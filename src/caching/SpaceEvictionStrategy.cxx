@@ -36,7 +36,7 @@ void SpaceEvictionStrategy::execute()
 		// immediately return if this strategy is disabled
 		if (!mInfoShown && mLogger->isInfoEnabled())
 		{
-			mLogger->info("SpaceEvictionStrategy is disabled");
+			mLogger->info("SpaceEvictionStrategy execute() - strategy is disabled");
 			// suppress any further log output
 			mInfoShown = true;
 		}
@@ -97,7 +97,7 @@ void SpaceEvictionStrategy::doExecute()
 	{
 		for (auto itr = removedRecordsPerBeacon.begin(); itr != removedRecordsPerBeacon.end(); itr++)
 		{
-			mLogger->debug("SpaceEvictionStrategy: Removed %u records from Beacon with ID %d", itr->second, itr->first);
+			mLogger->debug("SpaceEvictionStrategy doExecute() - Removed %u records from Beacon with ID %d", itr->second, itr->first);
 		}
 	}
 }

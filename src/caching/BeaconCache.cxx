@@ -43,7 +43,7 @@ void BeaconCache::addEventData(int32_t beaconID, int64_t timestamp, const core::
 {
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("addEventData(sn=%d, timestamp=%" PRId64 ", data='%s')", beaconID, timestamp, data.getStringData().c_str());
+		mLogger->debug("BeaconCache addEventData(sn=%d, timestamp=%" PRId64 ", data='%s')", beaconID, timestamp, data.getStringData().c_str());
 	}
 
 	// get a reference to the cache entry
@@ -66,7 +66,7 @@ void BeaconCache::addActionData(int32_t beaconID, int64_t timestamp, const core:
 {
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("addActionData(sn=%d, timestamp=%" PRId64 ", data='%s')", beaconID, timestamp, data.getStringData().c_str());
+		mLogger->debug("BeaconCache addActionData(sn=%d, timestamp=%" PRId64 ", data='%s')", beaconID, timestamp, data.getStringData().c_str());
 	}
 
 	// get a reference to the cache entry
@@ -89,7 +89,7 @@ void BeaconCache::deleteCacheEntry(int32_t beaconID)
 	core::util::ScopedWriteLock lock(mGlobalCacheLock);
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("deleteCacheEntry(sn=%d)", beaconID);
+		mLogger->debug("BeaconCache deleteCacheEntry(sn=%d)", beaconID);
 	}
 	
 	auto it = mBeacons.find(beaconID);
@@ -300,7 +300,7 @@ uint32_t BeaconCache::evictRecordsByAge(int32_t beaconID, int64_t minTimestamp)
 
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("evictRecordsByAge(sn=%d, minTimestamp=%" PRId64 ") has evicted %u records", beaconID, minTimestamp, numRecordsRemoved);
+		mLogger->debug("BeaconCache evictRecordsByAge(sn=%d, minTimestamp=%" PRId64 ") has evicted %u records", beaconID, minTimestamp, numRecordsRemoved);
 	}
 
 	return numRecordsRemoved;
@@ -321,7 +321,7 @@ uint32_t BeaconCache::evictRecordsByNumber(int32_t beaconID, uint32_t numRecords
 
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("evictRecordsByNumber(sn=%d, numRecords=%u) has evicted %u records", beaconID, numRecords, numRecordsRemoved);
+		mLogger->debug("BeaconCache evictRecordsByNumber(sn=%d, numRecords=%u) has evicted %u records", beaconID, numRecords, numRecordsRemoved);
 	}
 
 	return numRecordsRemoved;
