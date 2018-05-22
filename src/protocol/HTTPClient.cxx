@@ -211,7 +211,7 @@ std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::Requ
 			{
 				if (mLogger->isDebugEnabled())
 				{
-					mLogger->debug("HTTPClient sendRequestInternal() -Beacon Payload: %s", beaconData.getStringData().c_str());
+					mLogger->debug("HTTPClient sendRequestInternal() - Beacon Payload: %s", beaconData.getStringData().c_str());
 				}
 
 				// Data to send is compressed => Compress the data
