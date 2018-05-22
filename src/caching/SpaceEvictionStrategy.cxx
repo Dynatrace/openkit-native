@@ -36,7 +36,7 @@ void SpaceEvictionStrategy::execute()
 		// immediately return if this strategy is disabled
 		if (!mInfoShown && mLogger->isInfoEnabled())
 		{
-			mLogger->info("SpaceEvictionStrategy execute()  - strategy is disabled");
+			mLogger->info("SpaceEvictionStrategy execute() - strategy is disabled");
 			// suppress any further log output
 			mInfoShown = true;
 		}
