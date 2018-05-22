@@ -36,7 +36,7 @@ bool InetAddressValidator::IsIPv6Address(const core::UTF8String& ipAddress)
 }
 
 static const std::regex ipv4Regex(R"(^(25[0-5]|2[0-4]\d|[0-1]?\d?\d)(\.(25[0-5]|2[0-4]\\d|[0-1]?\d?\d)){3}$)"
-	, std::regex::icase | std::regex::optimize | std::regex::ECMAScript);
+	, std::regex::optimize | std::regex::ECMAScript);
 
 bool InetAddressValidator::IsIPv4Address(const core::UTF8String& ipAddress)
 {
@@ -47,7 +47,7 @@ bool InetAddressValidator::IsIPv4Address(const core::UTF8String& ipAddress)
 }
 
 static const std::regex ipv6StdRegex("^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$"
-	, std::regex::icase | std::regex::optimize | std::regex::ECMAScript);
+	, std::regex::optimize | std::regex::ECMAScript);
 
 bool InetAddressValidator::IsIPv6StdAddress(const core::UTF8String& ipAddress)
 {
@@ -58,7 +58,7 @@ bool InetAddressValidator::IsIPv6StdAddress(const core::UTF8String& ipAddress)
 }
 
 static const std::regex ipv6HexCompressedRegex("^((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)::((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)$"
-	, std::regex::icase | std::regex::optimize | std::regex::ECMAScript);
+	, std::regex::optimize | std::regex::ECMAScript);
 
 bool InetAddressValidator::IsIPv6HexCompressedAddress(const core::UTF8String& ipAddress)
 {
@@ -71,17 +71,17 @@ bool InetAddressValidator::IsIPv6HexCompressedAddress(const core::UTF8String& ip
 static const std::regex ipv6MixedStdOrCompressedRegex(
 	"^"																// Anchor address
 	"(?:"
-	"(?:[A-F0-9]{1,4}:){6}"											// Non-compressed
-	"|(?=(?:[A-F0-9]{0,4}:){2,6}"									// Compressed with 2 to 6 colons
+	"(?:[A-Fa-f0-9]{1,4}:){6}"											// Non-compressed
+	"|(?=(?:[A-Fa-f0-9]{0,4}:){2,6}"									// Compressed with 2 to 6 colons
 	R"((?:[0-9]{1,3}\.){3}[0-9]{1,3})"								// and 4 bytes
 	R"((?![:.\w])))"												//  and anchored
-	"(([0-9A-F]{1,4}:){1,5}|:)((:[0-9A-F]{1,4}){1,5}:|:)"			//  and at most 1 double colon
-	"|::(?:[A-F0-9]{1,4}:){5}"										// Compressed with 7 colons and 5 numbers
+	"(([0-9A-Fa-f]{1,4}:){1,5}|:)((:[0-9A-Fa-f]{1,4}){1,5}:|:)"			//  and at most 1 double colon
+	"|::(?:[A-Fa-f0-9]{1,4}:){5}"										// Compressed with 7 colons and 5 numbers
 	")"
 	R"((?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.){3})"	// 255.255.255.
 	"(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])"				// 255
 	"$"																// Anchor address
-	, std::regex::icase | std::regex::optimize | std::regex::ECMAScript
+	, std::regex::optimize | std::regex::ECMAScript
 );											
 
 bool InetAddressValidator::IsIPv6MixedAddress(const core::UTF8String& ipAddress)
