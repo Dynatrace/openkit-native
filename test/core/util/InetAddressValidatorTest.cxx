@@ -352,3 +352,30 @@ TEST_F(InetAddressValidatorTest, ipV6AddressValid_RFCExample)
 	//then 
 	ASSERT_TRUE(InetAddressValidator::IsValidIP(ipv6TestStringLinkLocal));
 }
+
+TEST_F(InetAddressValidatorTest, ipV6AddressValid_CharactersOnlyLowerCase)
+{
+	//given
+	core::UTF8String ipV6Address("20ae:db8::1f:4edd:344f:1abc");
+
+	//then
+	ASSERT_TRUE(InetAddressValidator::IsValidIP(ipV6Address));
+}
+
+TEST_F(InetAddressValidatorTest, ipV6AddressValid_CharactersMixedCase)
+{
+	//given
+	core::UTF8String ipV6Address("20aE:Db8::1f:4EDd:344f:1aBc");
+
+	//then
+	ASSERT_TRUE(InetAddressValidator::IsValidIP(ipV6Address));
+}
+
+TEST_F(InetAddressValidatorTest, ipV6AddressValid_CharactersUpperCase)
+{
+	//given
+	core::UTF8String ipV6Address("20AE:DB8::1F:4EDD:344F:1ABC");
+
+	//then
+	ASSERT_TRUE(InetAddressValidator::IsValidIP(ipV6Address));
+}
