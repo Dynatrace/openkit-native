@@ -344,15 +344,6 @@ TEST_F(InetAddressValidatorTest, ipV6AddressValid_RFCEmptyBlockNotShortened)
 	ASSERT_TRUE(InetAddressValidator::IsValidIP(ipv6TestStringLinkLocal));
 }
 
-TEST_F(InetAddressValidatorTest, ipV6AddressValid_RFCInvalidBlockCompress)
-{
-	//given
-	core::UTF8String ipv6TestStringLinkLocal("2001:db8::1:1:1:1:1 ");
-
-	//then 
-	ASSERT_FALSE(InetAddressValidator::IsValidIP(ipv6TestStringLinkLocal));
-}
-
 TEST_F(InetAddressValidatorTest, ipV6AddressValid_RFCExample)
 {
 	//given

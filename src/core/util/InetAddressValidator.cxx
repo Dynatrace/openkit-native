@@ -34,8 +34,10 @@ bool InetAddressValidator::IsIPv6Address(const core::UTF8String& ipAddress)
 		|| IsIPv6MixedAddress(ipAddress)
 		|| IsLinkLocalIPv6WithZoneIndex(ipAddress);
 }
-
-static const std::regex ipv4Regex(R"(^(25[0-5]|2[0-4]\d|[0-1]?\d?\d)(\.(25[0-5]|2[0-4]\\d|[0-1]?\d?\d)){3}$)"
+static const std::regex ipv4Regex("^"											// start of string
+							      "(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)"			// first block - a number from 0-255
+								  "(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}"	// three more blocks - numbers from 0-255 - each prepended by a point character '.'
+								  "$"											// end of string
 	, std::regex::optimize | std::regex::ECMAScript);
 
 bool InetAddressValidator::IsIPv4Address(const core::UTF8String& ipAddress)
@@ -46,7 +48,10 @@ bool InetAddressValidator::IsIPv4Address(const core::UTF8String& ipAddress)
 	return !matches.empty();
 }
 
-static const std::regex ipv6StdRegex("^(?:[0-9A-Fa-f]{1,4}:){7}[0-9A-Fa-f]{1,4}$"
+static const std::regex ipv6StdRegex("^"										// start of string
+									 "(?:[0-9A-Fa-f]{1,4}:){7}"					// 7 blocks of a 1 to 4 digit hex number followed by double colon ':'
+									 "[0-9A-Fa-f]{1,4}"							// one more block of a 1 to 4 digit hex number
+									 "$"										// end of string
 	, std::regex::optimize | std::regex::ECMAScript);
 
 bool InetAddressValidator::IsIPv6StdAddress(const core::UTF8String& ipAddress)
@@ -57,7 +62,17 @@ bool InetAddressValidator::IsIPv6StdAddress(const core::UTF8String& ipAddress)
 	return !matches.empty();
 }
 
-static const std::regex ipv6HexCompressedRegex("^((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)::((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)$"
+static const std::regex ipv6HexCompressedRegex("^"												// start of string
+											   "("												// 1st group
+											   "(?:[0-9A-Fa-f]{1,4}"							// at least one block of a 1 to 4 digit hex number
+											   "(?::[0-9A-Fa-f]{1,4})*)?"						// optinional further blocks, any number
+											   ")"
+											   "::"												// in the middle of the expression the two occurences of ':' are neccessary
+											   "("												// 2nd group
+											   "(?:[0-9A-Fa-f]{1,4}"							// at least one block of a 1 to 4 digit hex number
+											   "(?::[0-9A-Fa-f]{1,4})*)?"						// optinional further blocks, any number
+											   ")"
+											   "$"												// end of string
 	, std::regex::optimize | std::regex::ECMAScript);
 
 bool InetAddressValidator::IsIPv6HexCompressedAddress(const core::UTF8String& ipAddress)
