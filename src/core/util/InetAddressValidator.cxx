@@ -101,33 +101,20 @@ static const std::regex IPV6_MIXED_NON_COMPRESSED_REGEX("^"                     
                                                     "$"                           // end of string
                                                     , std::regex::optimize | std::regex::ECMAScript);
 
+//  IPV6 Mixed mode consists of two parts, the first 96 bits (up to 6 blocks of 4 hex digits) are IPv6
+// the IPV6 part can be either compressed or uncompressed
+// the second block is a full IPv4 address
+// e.g. '0:0:0:0:0:0:172.12.55.18'
 bool InetAddressValidator::IsIPv6MixedAddress(const core::UTF8String& ipAddress)
 {
-    size_t splitIndex = std::string::npos;
-    const char splitCharacter = ':';
-    uint32_t runs = 0;
-
-    while (runs < 1 ||  splitIndex < ipAddress.getStringLength())
-    {
-        auto characterFoundIndex = ipAddress.getIndexOf(&splitCharacter, runs==0 ? 0 : splitIndex + 1);
-        if (characterFoundIndex != std::string::npos)
-        {
-            splitIndex = characterFoundIndex;
-        }
-        else
-        {
-            break;
-        }
-        runs++;
-    }
-
+    size_t splitIndex = ipAddress.getStringData().find_last_of(':');
     if (splitIndex == std::string::npos)
     {
         return false;
     }
 
     auto ipv4PartIsValid = IsIPv4Address(ipAddress.substring(splitIndex + 1));
-    core::UTF8String ipV6Part = ipAddress.substring(0, splitIndex + 1);
+    auto ipV6Part = ipAddress.substring(0, splitIndex + 1);
     if (ipV6Part.equals("::"))
     {
         return ipv4PartIsValid;
