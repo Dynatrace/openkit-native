@@ -83,28 +83,64 @@ bool InetAddressValidator::IsIPv6HexCompressedAddress(const core::UTF8String& ip
 	return !matches.empty();
 }
 
-static const std::regex ipv6MixedStdOrCompressedRegex(
-	"^"																// Anchor address
-	"(?:"
-	"(?:[0-9A-Fa-f]{1,4}:){6}"											// Non-compressed
-	"|(?=(?:[0-9A-Fa-f]{0,4}:){2,6}"									// Compressed with 2 to 6 colons
-	R"((?:[0-9]{1,3}\.){3}[0-9]{1,3})"								// and 4 bytes
-	R"((?![:.\w])))"												//  and anchored
-	"(([0-9A-Fa-f]{1,4}:){1,5}|:)((:[0-9A-Fa-f]{1,4}){1,5}:|:)"			//  and at most 1 double colon
-	"|::(?:[0-9A-Fa-f]{1,4}:){5}"										// Compressed with 7 colons and 5 numbers
-	")"
-	R"((?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.){3})"	// 255.255.255.
-	"(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])"				// 255
-	"$"																// Anchor address
-	, std::regex::optimize | std::regex::ECMAScript
-);											
+static const std::regex ipv6MixedCompressedRegex("^"							// start of string
+												"("                             // 1st group
+												"(?:[0-9A-Fa-f]{1,4}"           // at least one block of a 1 to 4 digit hex number
+												"(?::[0-9A-Fa-f]{1,4})*)?"      // optinional further blocks, any number
+												")"
+												"::"                            // in the middle of the expression the two occurences of ':' are neccessary
+												"("                             // 2nd group
+												"(?:[0-9A-Fa-f]{1,4}:"          // at least one block of a 1 to 4 digit hex number followed by a ':' character
+												"(?:[0-9A-Fa-f]{1,4}:)*)?"      // optinional further blocks, any number, all succeeded by ':' character
+												")"
+												"$"     						// end of string
+												, std::regex::optimize | std::regex::ECMAScript);
+
+static const std::regex ipv6MixedNonCompressedRegex("^"							  // start of string
+													"(?:[0-9a-fA-F]{1,4}:){6}"    // 6 blocks of a 1 to 4 digit hex number followed by double colon ':'
+													"$"  						  // end of string
+													, std::regex::optimize | std::regex::ECMAScript);
 
 bool InetAddressValidator::IsIPv6MixedAddress(const core::UTF8String& ipAddress)
 {
-	std::smatch matches;
-	std::regex_match(ipAddress.getStringData(), matches, ipv6MixedStdOrCompressedRegex);
+	size_t splitIndex = std::string::npos;
+	const char splitCharacter = ':';
+	uint32_t runs = 0;
 
-	return !matches.empty();
+	while (runs < 1 ||  splitIndex < ipAddress.getStringLength())
+	{
+		auto characterFoundIndex = ipAddress.getIndexOf(&splitCharacter, runs==0 ? 0 : splitIndex + 1);
+		if (characterFoundIndex != std::string::npos)
+		{
+			splitIndex = characterFoundIndex;
+		}
+		else
+		{
+			break;
+		}
+		runs++;
+	}
+
+	if (splitIndex == std::string::npos)
+	{
+		return false;
+	}
+
+	auto ipv4PartIsValid = IsIPv4Address(ipAddress.substring(splitIndex + 1));
+	core::UTF8String ipV6Part = ipAddress.substring(0, splitIndex + 1);
+	if (ipV6Part.equals("::"))
+	{
+		return ipv4PartIsValid;
+	}
+
+	
+	std::smatch matchesNonCompressedIPv6;
+	std::regex_match(ipV6Part.getStringData(), matchesNonCompressedIPv6, ipv6MixedNonCompressedRegex);
+
+	std::smatch matchesCompressedIPv6;
+	std::regex_match(ipV6Part.getStringData(), matchesCompressedIPv6, ipv6MixedCompressedRegex);
+
+	return ipv4PartIsValid && (!matchesNonCompressedIPv6.empty() || !matchesCompressedIPv6.empty());
 }
 
 bool InetAddressValidator::IsLinkLocalIPv6WithZoneIndex(const core::UTF8String& ipAddress)
