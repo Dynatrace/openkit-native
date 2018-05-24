@@ -233,38 +233,74 @@ TEST_F(InetAddressValidatorTest, ipV6AddressHexCompressedIsInvalidFirstBlockMiss
 	ASSERT_FALSE(InetAddressValidator::IsValidIP(ipv6TestString));
 }
 
-
-TEST_F(InetAddressValidatorTest, ipV6AddressMixedNotationIsValid)
+TEST_F(InetAddressValidatorTest, ipV6AddressMixedNotationIsValid_ZerosIPv6NonCompressed)
 {
 	//given
-	core::UTF8String ipv6TestString("0::FF:FF:172.12.55.18");
+	core::UTF8String ipv6TestString("0:0:0:0:0:0:172.12.55.18");
 
 	//then 
 	ASSERT_TRUE(InetAddressValidator::IsValidIP(ipv6TestString));
 }
 
-TEST_F(InetAddressValidatorTest, ipV6AddressMixedNotationIsInvalidOnly3IPv4Blocks)
+TEST_F(InetAddressValidatorTest, ipV6AddressMixedNotationIsValid_ZerosIPv6Compressed)
 {
 	//given
-	core::UTF8String ipv6TestString("0::FF:FF:172.12.55");
+	core::UTF8String ipv6TestString("::172.12.55.18");
 
 	//then 
-	ASSERT_FALSE(InetAddressValidator::IsValidIP(ipv6TestString));
+	ASSERT_TRUE(InetAddressValidator::IsValidIP(ipv6TestString));
+}
+
+TEST_F(InetAddressValidatorTest, ipV6AddressMixedNotationIsValid_NonZeroIPv6NonCompressed)
+{
+	//given
+	core::UTF8String ipv6TestString("1:2:3:4:5:6:172.12.55.18");
+
+	//then 
+	ASSERT_TRUE(InetAddressValidator::IsValidIP(ipv6TestString));
+}
+
+TEST_F(InetAddressValidatorTest, ipV6AddressMixedNotationIsValid_NonZeroIPv6Compressed)
+{
+	//given
+	core::UTF8String ipv6TestString("2018:f::172.12.55.18");
+
+	//then 
+	ASSERT_TRUE(InetAddressValidator::IsValidIP(ipv6TestString));
 }
 
 TEST_F(InetAddressValidatorTest, ipV6AddressMixedNotationIsInvalidIPV6PartInvalid)
 {
 	//given
-	core::UTF8String ipv6TestString("0::FF:FF:FF:172.12.55");
+	core::UTF8String ipv6TestString("0::FF::FF:172.12.34");
 
 	//then 
 	ASSERT_FALSE(InetAddressValidator::IsValidIP(ipv6TestString));
 }
 
-TEST_F(InetAddressValidatorTest, ipV6AddressMixedNotationIsInvalidMissingNumberFirstBlock)
+TEST_F(InetAddressValidatorTest, ipV6AddressMixedNotationIsValidIPV6)
 {
 	//given
-	core::UTF8String ipv6TestString("::FF:FF:172.12.55");
+	core::UTF8String ipv6TestString("0::FF:FF:FF:172.12.55.34");
+
+	//then 
+	ASSERT_TRUE(InetAddressValidator::IsValidIP(ipv6TestString));
+}
+
+
+TEST_F(InetAddressValidatorTest, ipV6AddressMixedNotationIsValidStartingWithDoubleColon)
+{
+	//given
+	core::UTF8String ipv6TestString("::172.12.55.43");
+
+	//then 
+	ASSERT_TRUE(InetAddressValidator::IsValidIP(ipv6TestString));
+}
+
+TEST_F(InetAddressValidatorTest, ipV6AddressMixedNotationInvalid_Compressed3Colon)
+{
+	//given
+	core::UTF8String ipv6TestString("123:::172.12.55.43");
 
 	//then 
 	ASSERT_FALSE(InetAddressValidator::IsValidIP(ipv6TestString));
@@ -344,15 +380,6 @@ TEST_F(InetAddressValidatorTest, ipV6AddressValid_RFCEmptyBlockNotShortened)
 	ASSERT_TRUE(InetAddressValidator::IsValidIP(ipv6TestStringLinkLocal));
 }
 
-TEST_F(InetAddressValidatorTest, ipV6AddressValid_RFCInvalidBlockCompress)
-{
-	//given
-	core::UTF8String ipv6TestStringLinkLocal("2001:db8::1:1:1:1:1 ");
-
-	//then 
-	ASSERT_FALSE(InetAddressValidator::IsValidIP(ipv6TestStringLinkLocal));
-}
-
 TEST_F(InetAddressValidatorTest, ipV6AddressValid_RFCExample)
 {
 	//given
@@ -360,4 +387,31 @@ TEST_F(InetAddressValidatorTest, ipV6AddressValid_RFCExample)
 
 	//then 
 	ASSERT_TRUE(InetAddressValidator::IsValidIP(ipv6TestStringLinkLocal));
+}
+
+TEST_F(InetAddressValidatorTest, ipV6AddressValid_CharactersOnlyLowerCase)
+{
+	//given
+	core::UTF8String ipV6Address("20ae:db8::1f:4edd:344f:1abc");
+
+	//then
+	ASSERT_TRUE(InetAddressValidator::IsValidIP(ipV6Address));
+}
+
+TEST_F(InetAddressValidatorTest, ipV6AddressValid_CharactersMixedCase)
+{
+	//given
+	core::UTF8String ipV6Address("20aE:Db8::1f:4EDd:344f:1aBc");
+
+	//then
+	ASSERT_TRUE(InetAddressValidator::IsValidIP(ipV6Address));
+}
+
+TEST_F(InetAddressValidatorTest, ipV6AddressValid_CharactersUpperCase)
+{
+	//given
+	core::UTF8String ipV6Address("20AE:DB8::1F:4EDD:344F:1ABC");
+
+	//then
+	ASSERT_TRUE(InetAddressValidator::IsValidIP(ipV6Address));
 }
