@@ -251,45 +251,44 @@ void Beacon::endSession(std::shared_ptr<core::Session> session)
 	addEventData(session->getEndTime(), eventData);
 }
 
-void Beacon::reportValue(std::shared_ptr<core::Action> parentAction, const core::UTF8String& valueName, int32_t value)
+void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, int32_t value)
 {
 	uint64_t eventTimestamp;
-	core::UTF8String eventData = buildEvent(EventType::VALUE_INT, valueName, parentAction->getID(), eventTimestamp);
+	core::UTF8String eventData = buildEvent(EventType::VALUE_INT, valueName, actionID, eventTimestamp);
+	addKeyValuePair(eventData, BEACON_KEY_VALUE, value);
+
+	addEventData(eventTimestamp, eventData);
+}
+
+void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, double value)
+{
+	uint64_t eventTimestamp;
+	core::UTF8String eventData = buildEvent(EventType::VALUE_DOUBLE, valueName, actionID, eventTimestamp);
 
 	addKeyValuePair(eventData, BEACON_KEY_VALUE, value);
 
 	addEventData(eventTimestamp, eventData);
 }
 
-void Beacon::reportValue(std::shared_ptr<core::Action> parentAction, const core::UTF8String& valueName, double value)
+void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, const core::UTF8String& value)
 {
 	uint64_t eventTimestamp;
-	core::UTF8String eventData = buildEvent(EventType::VALUE_DOUBLE, valueName, parentAction->getID(), eventTimestamp);
+	core::UTF8String eventData = buildEvent(EventType::VALUE_STRING, valueName, actionID, eventTimestamp);
 
 	addKeyValuePair(eventData, BEACON_KEY_VALUE, value);
 
 	addEventData(eventTimestamp, eventData);
 }
 
-void Beacon::reportValue(std::shared_ptr<core::Action> parentAction, const core::UTF8String& valueName, const core::UTF8String& value)
+void Beacon::reportEvent(int32_t actionID, const core::UTF8String& eventName)
 {
 	uint64_t eventTimestamp;
-	core::UTF8String eventData = buildEvent(EventType::VALUE_STRING, valueName, parentAction->getID(), eventTimestamp);
-
-	addKeyValuePair(eventData, BEACON_KEY_VALUE, value);
+	core::UTF8String eventData = buildEvent(EventType::NAMED_EVENT, eventName, actionID, eventTimestamp);
 
 	addEventData(eventTimestamp, eventData);
 }
 
-void Beacon::reportEvent(std::shared_ptr<core::Action> parentAction, const core::UTF8String& eventName)
-{
-	uint64_t eventTimestamp;
-	core::UTF8String eventData = buildEvent(EventType::NAMED_EVENT, eventName, parentAction->getID(), eventTimestamp);
-
-	addEventData(eventTimestamp, eventData);
-}
-
-void Beacon::reportError(std::shared_ptr<core::Action> parentAction, const core::UTF8String& errorName, int32_t errorCode, const core::UTF8String& reason)
+void Beacon::reportError(int32_t actionID, const core::UTF8String& errorName, int32_t errorCode, const core::UTF8String& reason)
 {
 	if (!mConfiguration->isCaptureErrors())
 	{
@@ -298,66 +297,7 @@ void Beacon::reportError(std::shared_ptr<core::Action> parentAction, const core:
 
 	core::UTF8String eventData = createBasicEventData(EventType::FAILURE_ERROR, errorName);
 	uint64_t timestamp = mTimingProvider->provideTimestampInMilliseconds();
-	addKeyValuePair(eventData, BEACON_KEY_PARENT_ACTION_ID, parentAction->getID());
-	addKeyValuePair(eventData, BEACON_KEY_START_SEQUENCE_NUMBER, createSequenceNumber());
-	addKeyValuePair(eventData, BEACON_KEY_TIME_0, getTimeSinceSessionStartTime(timestamp));
-	addKeyValuePair(eventData, BEACON_KEY_ERROR_CODE, errorCode);
-	if (reason != nullptr)
-	{
-		addKeyValuePair(eventData, BEACON_KEY_ERROR_REASON, reason);
-	}
-
-	addEventData(timestamp, eventData);
-}
-
-void Beacon::reportValue(std::shared_ptr<core::RootAction> parentAction, const core::UTF8String& valueName, int32_t value)
-{
-	uint64_t eventTimestamp;
-	core::UTF8String eventData = buildEvent(EventType::VALUE_INT, valueName, parentAction->getID(), eventTimestamp);
-
-	addKeyValuePair(eventData, BEACON_KEY_VALUE, value);
-
-	addEventData(eventTimestamp, eventData);
-}
-
-void Beacon::reportValue(std::shared_ptr<core::RootAction> parentAction, const core::UTF8String& valueName, double value)
-{
-	uint64_t eventTimestamp;
-	core::UTF8String eventData = buildEvent(EventType::VALUE_DOUBLE, valueName, parentAction->getID(), eventTimestamp);
-
-	addKeyValuePair(eventData, BEACON_KEY_VALUE, value);
-
-	addEventData(eventTimestamp, eventData);
-}
-
-void Beacon::reportValue(std::shared_ptr<core::RootAction> parentAction, const core::UTF8String& valueName, const core::UTF8String& value)
-{
-	uint64_t eventTimestamp;
-	core::UTF8String eventData = buildEvent(EventType::VALUE_STRING, valueName, parentAction->getID(), eventTimestamp);
-
-	addKeyValuePair(eventData, BEACON_KEY_VALUE, value);
-
-	addEventData(eventTimestamp, eventData);
-}
-
-void Beacon::reportEvent(std::shared_ptr<core::RootAction> parentAction, core::UTF8String eventName)
-{
-	uint64_t eventTimestamp;
-	core::UTF8String eventData = buildEvent(EventType::NAMED_EVENT, eventName, parentAction->getID(), eventTimestamp);
-
-	addEventData(eventTimestamp, eventData);
-}
-
-void Beacon::reportError(std::shared_ptr<core::RootAction> parentAction, const core::UTF8String& errorName, int32_t errorCode, const core::UTF8String& reason)
-{
-	if (!mConfiguration->isCaptureErrors())
-	{
-		return;
-	}
-
-	core::UTF8String eventData = createBasicEventData(EventType::FAILURE_ERROR, errorName);
-	uint64_t timestamp = mTimingProvider->provideTimestampInMilliseconds();
-	addKeyValuePair(eventData, BEACON_KEY_PARENT_ACTION_ID, parentAction->getID());
+	addKeyValuePair(eventData, BEACON_KEY_PARENT_ACTION_ID, actionID);
 	addKeyValuePair(eventData, BEACON_KEY_START_SEQUENCE_NUMBER, createSequenceNumber());
 	addKeyValuePair(eventData, BEACON_KEY_TIME_0, getTimeSinceSessionStartTime(timestamp));
 	addKeyValuePair(eventData, BEACON_KEY_ERROR_CODE, errorCode);

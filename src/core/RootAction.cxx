@@ -74,7 +74,7 @@ std::shared_ptr<openkit::IRootAction> RootAction::reportEvent(const char* eventN
 
 	if (!isActionLeft())
 	{
-		mBeacon->reportEvent(shared_from_this(), eventNameString);
+		mBeacon->reportEvent(getID(), eventNameString);
 	}
 	return shared_from_this();
 }
@@ -94,7 +94,7 @@ std::shared_ptr<openkit::IRootAction> RootAction::reportValue(const char* valueN
 
 	if (!isActionLeft())
 	{
-		mBeacon->reportValue(shared_from_this(), valueNameString, value);
+		mBeacon->reportValue(getID(), valueNameString, value);
 	}
 	return shared_from_this();
 }
@@ -114,7 +114,7 @@ std::shared_ptr<openkit::IRootAction> RootAction::reportValue(const char* valueN
 
 	if (!isActionLeft())
 	{
-		mBeacon->reportValue(shared_from_this(), valueNameString, value);
+		mBeacon->reportValue(getID(), valueNameString, value);
 	}
 	return shared_from_this();
 }
@@ -134,7 +134,7 @@ std::shared_ptr<openkit::IRootAction> RootAction::reportValue(const char* valueN
 
 	if (!isActionLeft())
 	{
-		mBeacon->reportValue(shared_from_this(), valueNameString, value);
+		mBeacon->reportValue(getID(), valueNameString, value);
 	}
 	return shared_from_this();
 }
@@ -155,7 +155,7 @@ std::shared_ptr<openkit::IRootAction> RootAction::reportError(const char* errorN
 
 	if (!isActionLeft())
 	{
-		mBeacon->reportError(shared_from_this(), errorNameString, errorCode, reasonString);
+		mBeacon->reportError(getID(), errorNameString, errorCode, reasonString);
 	}
 	return shared_from_this();
 }
