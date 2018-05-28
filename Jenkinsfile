@@ -10,7 +10,7 @@ def builds = [:]
 
 def compilers = [:]
 compilers["gcc"] = ""
-compilers["clang"] = "CXX=clang CC=clang"
+compilers["clang"] = "CXX=clang CC=clang++"
 
 buildCommands.each{
     compilers.each{compiler -> 
