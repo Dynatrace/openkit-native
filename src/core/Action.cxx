@@ -44,135 +44,69 @@ Action::Action(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<protoco
 	, mStartSequenceNumber(mBeacon->createSequenceNumber())
 	, mEndSequenceNumber(-1)
 	, NULL_WEB_REQUEST_TRACER(std::make_shared<NullWebRequestTracer>())
+	, mActionImpl(logger, beacon, mID, toString())
 {
 
 }
 
 std::shared_ptr<openkit::IAction> Action::reportEvent(const char* eventName)
 {
-	UTF8String eventNameString(eventName);
-	if (eventNameString.empty())
-	{
-		mLogger->warning("%s reportEvent: eventName must not be null or empty", toString().c_str());
-		return shared_from_this();
-	}
-	if (mLogger->isDebugEnabled())
-	{
-		mLogger->debug("%s reportEvent(%s)", toString().c_str(), eventName);
-	}
-
 	if (!isActionLeft())
 	{
-		mBeacon->reportEvent(getID(), eventNameString);
+		mActionImpl.reportEvent(eventName);
 	}
 	return shared_from_this();
 }
 
 std::shared_ptr<openkit::IAction> Action::reportValue(const char* valueName, int32_t value)
 {
-	UTF8String valueNameString(valueName);
-	if (valueNameString.empty())
-	{
-		mLogger->warning("%s reportValue (int): valueName must not be null or empty", toString().c_str());
-		return shared_from_this();
-	}
-	if (mLogger->isDebugEnabled())
-	{
-		mLogger->debug("%s reportValue (int) (%s, %d))", toString().c_str(), valueName, value);
-	}
-
 	if (!isActionLeft())
 	{
-		mBeacon->reportValue(getID(), valueNameString, value);
+		mActionImpl.reportValue(valueName, value);
 	}
 	return shared_from_this();
 }
 
 std::shared_ptr<openkit::IAction> Action::reportValue(const char* valueName, double value)
 {
-	UTF8String valueNameString(valueName);
-	if (valueNameString.empty())
-	{
-		mLogger->warning("%s reportValue (double): valueName must not be null or empty", toString().c_str());
-		return shared_from_this();
-	}
-	if (mLogger->isDebugEnabled())
-	{
-		mLogger->debug("%s reportValue (double) (%s, %f))", toString().c_str(), valueName, value);
-	}
-
 	if (!isActionLeft())
 	{
-		mBeacon->reportValue(getID(), valueNameString, value);
+		mActionImpl.reportValue(valueName, value);
 	}
 	return shared_from_this();
 }
 
 std::shared_ptr<openkit::IAction> Action::reportValue(const char* valueName, const char* value)
 {
-	UTF8String valueNameString(valueName);
-	if (valueNameString.empty())
-	{
-		mLogger->warning("%s reportValue (string): valueName must not be null or empty", toString().c_str());
-		return shared_from_this();
-	}
-	if (mLogger->isDebugEnabled())
-	{
-		mLogger->debug("%s reportValue (string) (%s, %s))", toString().c_str(), valueName, (value != nullptr ? value : "null"));
-	}
-
 	if (!isActionLeft())
 	{
-		mBeacon->reportValue(getID(), valueNameString, value);
+		mActionImpl.reportValue(valueName, value);
 	}
 	return shared_from_this();
 }
 
 std::shared_ptr<openkit::IAction> Action::reportError(const char* errorName, int32_t errorCode, const char* reason)
 {
-	UTF8String errorNameString(errorName);
-	UTF8String reasonString(reason);
-	if (errorNameString.empty())
-	{
-		mLogger->warning("%s reportError: errorName must not be null or empty", toString().c_str());
-		return shared_from_this();
-	}
-	if (mLogger->isDebugEnabled())
-	{
-		mLogger->debug("%s reportError (%s, %d, %s))", toString().c_str(), errorName, errorCode, (reason != nullptr ? reason : "null"));
-	}
-
 	if (!isActionLeft())
 	{
-		mBeacon->reportError(getID(), errorNameString, errorCode, reasonString);
+		mActionImpl.reportError(errorName, errorCode, reason);
 	}
 	return shared_from_this();
 }
 
 std::shared_ptr<openkit::IWebRequestTracer> Action::traceWebRequest(const char* url)
 {
-	core::UTF8String urlString(url);
-	if (urlString.empty())
-	{
-		mLogger->warning("%s traceWebRequest (string): url must not be null or empty", toString().c_str());
-		return NULL_WEB_REQUEST_TRACER;
-	}
-	if (!WebRequestTracerStringURL::isValidURLScheme(urlString))
-	{
-		mLogger->warning("%s traceWebRequest (string): url \"%s\" does not have a valid scheme", toString().c_str(), urlString.getStringData().c_str());
-		return NULL_WEB_REQUEST_TRACER;
-	}
-	if (mLogger->isDebugEnabled())
-	{
-		mLogger->debug("%s traceWebRequest (string) (%s))", toString().c_str(), url);
-	}
-
+	std::shared_ptr<openkit::IWebRequestTracer> webRequestTracer;
 	if (!isActionLeft())
 	{
-		return std::make_shared<core::WebRequestTracerStringURL>(mLogger, mBeacon, getID(), urlString);
+		webRequestTracer = mActionImpl.traceWebRequest(url);
 	}
 
-	return NULL_WEB_REQUEST_TRACER;
+	if (webRequestTracer == nullptr)
+	{
+		return NULL_WEB_REQUEST_TRACER;
+	}
+	return webRequestTracer;
 }
 
 std::shared_ptr<openkit::IRootAction> Action::leaveAction()

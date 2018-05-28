@@ -27,6 +27,7 @@
 #include "core/util/SynchronizedQueue.h"
 #include "core/UTF8String.h"
 #include "core/NullWebRequestTracer.h"
+#include "core/ActionCommonImpl.h"
 
 #include <memory>
 #include <atomic>
@@ -178,6 +179,9 @@ namespace core
 
 		/// Null WebRequestTracer
 		std::shared_ptr<NullWebRequestTracer> NULL_WEB_REQUEST_TRACER;
+
+		/// Impl object with the actual implementations for Action/RootAction
+		ActionCommonImpl mActionImpl;
 	};
 }
 
