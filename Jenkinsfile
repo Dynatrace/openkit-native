@@ -24,7 +24,7 @@ buildCommands.each{
             
                 dir('build') {
                     sh("${compiler.value} cmake -G${it}")
-                    sh("make clean all -j8")
+                    sh("${compiler.value} make clean all -j8")
                     try {
                         sh("./bin/OpenKitTest --gtest_output=xml:testreport.xml")
                     } finally {
