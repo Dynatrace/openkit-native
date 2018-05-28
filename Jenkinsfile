@@ -14,7 +14,7 @@ compilers["clang"] = "CXX=clang CC=clang"
 
 buildCommands.each{
     compilers.each{compiler -> 
-        builds[it] = {
+        builds[compiler.key + " " + it] = {
             node("openkit-ubuntu-native") {
                 checkout scm
             
@@ -23,7 +23,7 @@ buildCommands.each{
                 }
             
                 dir('build') {
-                    sh("${compiler} cmake -G${it}")
+                    sh("${compiler.value} cmake -G${it}")
                     sh("make clean all -j8")
                     try {
                         sh("./bin/OpenKitTest --gtest_output=xml:testreport.xml")
