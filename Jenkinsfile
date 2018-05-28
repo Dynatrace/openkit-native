@@ -8,22 +8,28 @@ def buildCommands = [
     ]
 def builds = [:]
 
+def compilers = [:]
+compilers["gcc"] = ""
+compilers["clang"] = "CXX=clang CC=clang"
+
 buildCommands.each{
-    builds[it] = {
-        node("openkit-ubuntu-native") {
-            checkout scm
+    compilers.each{compiler -> 
+        builds[it] = {
+            node("openkit-ubuntu-native") {
+                checkout scm
             
-            dir('build') {
-                deleteDir()
-            }
+                dir('build') {
+                    deleteDir()
+                }
             
-            dir('build') {
-                sh("cmake -G${it}")
-                sh("make clean all -j8")
-                try {
-                    sh("./bin/OpenKitTest --gtest_output=xml:testreport.xml")
-                } finally {
-                    junit("testreport.xml")
+                dir('build') {
+                    sh("${compiler} cmake -G${it}")
+                    sh("make clean all -j8")
+                    try {
+                        sh("./bin/OpenKitTest --gtest_output=xml:testreport.xml")
+                    } finally {
+                        junit("testreport.xml")
+                    }
                 }
             }
         }
