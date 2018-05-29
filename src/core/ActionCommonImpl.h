@@ -17,22 +17,15 @@
 #ifndef _CORE_ACTIONCOMMONIMPL_H
 #define _CORE_ACTIONCOMMONIMPL_H
 
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wnon-virtual-dtor" // enable_shared_from_this has a public non virtual destructor throwing a false positive in this code
-#endif
-
 #include "OpenKit/ILogger.h"
 #include "OpenKit/IWebRequestTracer.h"
 #include "core/NullWebRequestTracer.h"
+#include <memory>
 
 namespace protocol
 {
 	class Beacon;
 }
-
-#include <memory>
-
 
 namespace core
 {
@@ -113,9 +106,5 @@ namespace core
 
 	};
 }
-
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#endif
 
 #endif
