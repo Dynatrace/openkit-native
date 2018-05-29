@@ -24,6 +24,7 @@
 
 #include "OpenKit/ILogger.h"
 #include "OpenKit/IWebRequestTracer.h"
+#include "core/NullWebRequestTracer.h"
 
 namespace protocol
 {
@@ -104,6 +105,11 @@ namespace core
 
 		/// object information
 		const std::string mObjectID;
+
+	public:
+
+		/// Null WebRequestTracer
+		static std::shared_ptr<NullWebRequestTracer> NULL_WEB_REQUEST_TRACER;
 
 	};
 }

@@ -44,7 +44,7 @@ set(OPENKIT_SOURCES_CORE
 	${CMAKE_CURRENT_LIST_DIR}/core/UTF8String.cxx
 	${CMAKE_CURRENT_LIST_DIR}/core/BeaconSender.cxx
 	${CMAKE_CURRENT_LIST_DIR}/core/Session.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/core/ActionCommonImpl.cxx
+	${CMAKE_CURRENT_LIST_DIR}/core/ActionCommonImpl.cxx
 	${CMAKE_CURRENT_LIST_DIR}/core/Action.cxx
 	${CMAKE_CURRENT_LIST_DIR}/core/RootAction.cxx
 	${CMAKE_CURRENT_LIST_DIR}/core/WebRequestTracerBase.cxx

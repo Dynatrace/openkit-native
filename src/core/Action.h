@@ -177,9 +177,6 @@ namespace core
 		/// action end sequence number
 		int32_t mEndSequenceNumber;
 
-		/// Null WebRequestTracer
-		std::shared_ptr<NullWebRequestTracer> NULL_WEB_REQUEST_TRACER;
-
 		/// Impl object with the actual implementations for Action/RootAction
 		ActionCommonImpl mActionImpl;
 	};

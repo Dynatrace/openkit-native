@@ -43,7 +43,6 @@ Action::Action(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<protoco
 	, mStartTime(mBeacon->getCurrentTimestamp())
 	, mStartSequenceNumber(mBeacon->createSequenceNumber())
 	, mEndSequenceNumber(-1)
-	, NULL_WEB_REQUEST_TRACER(std::make_shared<NullWebRequestTracer>())
 	, mActionImpl(logger, beacon, mID, toString())
 {
 
@@ -96,17 +95,11 @@ std::shared_ptr<openkit::IAction> Action::reportError(const char* errorName, int
 
 std::shared_ptr<openkit::IWebRequestTracer> Action::traceWebRequest(const char* url)
 {
-	std::shared_ptr<openkit::IWebRequestTracer> webRequestTracer;
 	if (!isActionLeft())
 	{
-		webRequestTracer = mActionImpl.traceWebRequest(url);
+		return mActionImpl.traceWebRequest(url);
 	}
-
-	if (webRequestTracer == nullptr)
-	{
-		return NULL_WEB_REQUEST_TRACER;
-	}
-	return webRequestTracer;
+	return ActionCommonImpl::NULL_WEB_REQUEST_TRACER;
 }
 
 std::shared_ptr<openkit::IRootAction> Action::leaveAction()

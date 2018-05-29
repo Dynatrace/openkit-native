@@ -36,7 +36,6 @@ RootAction::RootAction(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr
 	, mEndSequenceNumber(-1)
 	, mEndTime(-1)
 	, NULL_ACTION(std::make_shared<NullAction>())
-	, NULL_WEB_REQUEST_TRACER(std::make_shared<NullWebRequestTracer>())
 	, mActionImpl(logger, beacon, mID, toString())
 {
 
@@ -107,23 +106,11 @@ std::shared_ptr<openkit::IRootAction> RootAction::reportError(const char* errorN
 
 std::shared_ptr<openkit::IWebRequestTracer> RootAction::traceWebRequest(const char* url)
 {
-	core::UTF8String urlString(url);
-	if (urlString.empty())
-	{
-		mLogger->warning("%s traceWebRequest (string): url must not be null or empty", toString().c_str());
-		return NULL_WEB_REQUEST_TRACER;
-	}
-	if (mLogger->isDebugEnabled())
-	{
-		mLogger->debug("%s traceWebRequest (string) (%s))", toString().c_str(), url);
-	}
-
 	if (!isActionLeft())
 	{
-		return std::make_shared<core::WebRequestTracerStringURL>(mLogger, mBeacon, getID(), urlString);
+		return mActionImpl.traceWebRequest(url);
 	}
-
-	return NULL_WEB_REQUEST_TRACER;
+	return ActionCommonImpl::NULL_WEB_REQUEST_TRACER;
 }
 
 void RootAction::doLeaveAction()

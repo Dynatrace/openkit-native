@@ -21,6 +21,8 @@
 
 using namespace core;
 
+std::shared_ptr<NullWebRequestTracer> ActionCommonImpl::NULL_WEB_REQUEST_TRACER(std::make_shared<NullWebRequestTracer>());
+
 ActionCommonImpl::ActionCommonImpl(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<protocol::Beacon> beacon, int32_t actionID, const std::string objectID)
 	: mLogger(logger)
 	, mBeacon(beacon)
@@ -118,12 +120,12 @@ std::shared_ptr<openkit::IWebRequestTracer> ActionCommonImpl::traceWebRequest(co
 	if (urlString.empty())
 	{
 		mLogger->warning("%s traceWebRequest (string): url must not be null or empty", mObjectID.c_str());
-		return nullptr;
+		return NULL_WEB_REQUEST_TRACER;
 	}
 	if (!WebRequestTracerStringURL::isValidURLScheme(urlString))
 	{
 		mLogger->warning("%s traceWebRequest (string): url \"%s\" does not have a valid scheme", mObjectID.c_str(), urlString.getStringData().c_str());
-		return nullptr;
+		return NULL_WEB_REQUEST_TRACER;
 	}
 	if (mLogger->isDebugEnabled())
 	{
