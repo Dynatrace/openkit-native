@@ -29,6 +29,7 @@
 #include "UTF8String.h"
 #include "NullAction.h"
 #include "NullWebRequestTracer.h"
+#include "core/ActionCommonImpl.h"
 
 #include <memory>
 
@@ -180,8 +181,8 @@ namespace core
 		/// NullAction
 		std::shared_ptr<NullAction> NULL_ACTION;
 
-		/// NullWebRequestTracer
-		std::shared_ptr<NullWebRequestTracer> NULL_WEB_REQUEST_TRACER;
+		/// Impl object with the actual implementations for Action/RootAction
+		ActionCommonImpl mActionImpl;
 	};
 }
 #ifdef __GNUC__

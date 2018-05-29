@@ -209,7 +209,7 @@ TEST_F(RootActionTest, reportEvent)
 TEST_F(RootActionTest, reportEventDoesNothingIfEventNameIsNull)
 {
 	//verify the following calls
-	EXPECT_CALL(*mockBeacon, reportEventGivenAction(testing::_, testing::_))
+	EXPECT_CALL(*mockBeacon, reportEvent(testing::_, testing::_))
 		.Times(testing::Exactly(0));
 
 	// create test environment
@@ -225,7 +225,7 @@ TEST_F(RootActionTest, reportEventDoesNothingIfEventNameIsNull)
 TEST_F(RootActionTest, reportEventDoesNothingIfEventNameIsEmpty)
 {
 	//verify the following calls
-	EXPECT_CALL(*mockBeacon, reportEventGivenAction(testing::_, testing::_))
+	EXPECT_CALL(*mockBeacon, reportEvent(testing::_, testing::_))
 		.Times(testing::Exactly(0));
 
 	// create test environment
@@ -241,7 +241,7 @@ TEST_F(RootActionTest, reportEventDoesNothingIfEventNameIsEmpty)
 TEST_F(RootActionTest, reportValueIntWithNullNameDoesNotReportValue)
 {
 	//verify the following calls
-	EXPECT_CALL(*mockBeacon, reportValueInt32GivenAction(testing::_, testing::_, testing::_))
+	EXPECT_CALL(*mockBeacon, reportValueInt32(testing::_, testing::_, testing::_))
 		.Times(testing::Exactly(0));
 
 	// create test environment
@@ -257,7 +257,7 @@ TEST_F(RootActionTest, reportValueIntWithNullNameDoesNotReportValue)
 TEST_F(RootActionTest, reportValueIntWithEmptyNameDoesNotReportValue)
 {
 	//verify the following calls
-	EXPECT_CALL(*mockBeacon, reportValueInt32GivenAction(testing::_, testing::_, testing::_))
+	EXPECT_CALL(*mockBeacon, reportValueInt32(testing::_, testing::_, testing::_))
 		.Times(testing::Exactly(0));
 
 	// create test environment
@@ -275,7 +275,7 @@ TEST_F(RootActionTest, reportValueIntWithValidValue)
 	const char* integerValueName = "IntegerValue";
 
 	//verify the following calls
-	EXPECT_CALL(*mockBeacon, reportValueInt32GivenRootAction(testing::_, core::UTF8String(integerValueName), 42))
+	EXPECT_CALL(*mockBeacon, reportValueInt32(testing::_, core::UTF8String(integerValueName), 42))
 		.Times(testing::Exactly(1));
 
 	// create test environment
@@ -291,7 +291,7 @@ TEST_F(RootActionTest, reportValueIntWithValidValue)
 TEST_F(RootActionTest, reportValueDoubleWithNullNameDoesNotReportValue)
 {
 	//verify the following calls
-	EXPECT_CALL(*mockBeacon, reportValueDoubleGivenRootAction(testing::_, testing::_, testing::_))
+	EXPECT_CALL(*mockBeacon, reportValueDouble(testing::_, testing::_, testing::_))
 		.Times(testing::Exactly(0));
 
 	// create test environment
@@ -307,7 +307,7 @@ TEST_F(RootActionTest, reportValueDoubleWithNullNameDoesNotReportValue)
 TEST_F(RootActionTest, reportValueDoubleWithEmptyNameDoesNotReportValue)
 {
 	//verify the following calls
-	EXPECT_CALL(*mockBeacon, reportValueDoubleGivenRootAction(testing::_, testing::_, testing::_))
+	EXPECT_CALL(*mockBeacon, reportValueDouble(testing::_, testing::_, testing::_))
 		.Times(testing::Exactly(0));
 
 	// create test environment
@@ -323,7 +323,7 @@ TEST_F(RootActionTest, reportValueDoubleWithEmptyNameDoesNotReportValue)
 TEST_F(RootActionTest, reportValueDoubleWithValidValue)
 {
 	//verify the following calls
-	EXPECT_CALL(*mockBeacon, reportValueDoubleGivenRootAction(testing::_, testing::_, 42.1337))
+	EXPECT_CALL(*mockBeacon, reportValueDouble(testing::_, testing::_, 42.1337))
 		.Times(testing::Exactly(1));
 
 	// create test environment
@@ -339,7 +339,7 @@ TEST_F(RootActionTest, reportValueDoubleWithValidValue)
 TEST_F(RootActionTest, reportValueStringWithValidValue)
 {
 	//verify the following calls
-	EXPECT_CALL(*mockBeacon, reportValueStringGivenRootAction(testing::_, testing::_, core::UTF8String("This is a string")))
+	EXPECT_CALL(*mockBeacon, reportValueString(testing::_, testing::_, core::UTF8String("This is a string")))
 		.Times(testing::Exactly(1));
 
 	// create test environment
@@ -355,7 +355,7 @@ TEST_F(RootActionTest, reportValueStringWithValidValue)
 TEST_F(RootActionTest, reportValueStringWithValueNull)
 {
 	//verify the following calls
-	EXPECT_CALL(*mockBeacon, reportValueStringGivenRootAction(testing::_, testing::_, core::UTF8String("")))
+	EXPECT_CALL(*mockBeacon, reportValueString(testing::_, testing::_, core::UTF8String("")))
 		.Times(testing::Exactly(1));
 
 	// create test environment
@@ -371,7 +371,7 @@ TEST_F(RootActionTest, reportValueStringWithValueNull)
 TEST_F(RootActionTest, reportErrorWithAllValuesSet)
 {
 	//verify the following calls
-	EXPECT_CALL(*mockBeacon, reportErrorGivenRootAction(testing::_, core::UTF8String("FATAL Error"), 0x8005037, core::UTF8String("Some reason for this fatal error")))
+	EXPECT_CALL(*mockBeacon, reportError(testing::_, core::UTF8String("FATAL Error"), 0x8005037, core::UTF8String("Some reason for this fatal error")))
 		.Times(testing::Exactly(1));
 
 	// create test environment
@@ -387,7 +387,7 @@ TEST_F(RootActionTest, reportErrorWithAllValuesSet)
 TEST_F(RootActionTest, reportErrorWithNullErrorNameDoesNotReportTheError)
 {
 	//verify the following calls
-	EXPECT_CALL(*mockBeacon, reportErrorGivenRootAction(testing::_, testing::_, testing::_, testing::_))
+	EXPECT_CALL(*mockBeacon, reportError(testing::_, testing::_, testing::_, testing::_))
 		.Times(testing::Exactly(0));
 
 	// create test environment
@@ -403,7 +403,7 @@ TEST_F(RootActionTest, reportErrorWithNullErrorNameDoesNotReportTheError)
 TEST_F(RootActionTest, reportErrorWithEmptyErrorNameDoesNotReportTheError)
 {
 	//verify the following calls
-	EXPECT_CALL(*mockBeacon, reportErrorGivenRootAction(testing::_, testing::_, testing::_, testing::_))
+	EXPECT_CALL(*mockBeacon, reportError(testing::_, testing::_, testing::_, testing::_))
 		.Times(testing::Exactly(0));
 
 	// create test environment
@@ -419,7 +419,7 @@ TEST_F(RootActionTest, reportErrorWithEmptyErrorNameDoesNotReportTheError)
 TEST_F(RootActionTest, reportErrorWithEmptyNullErrorReasonDoesReport)
 {
 	//verify the following calls
-	EXPECT_CALL(*mockBeacon, reportErrorGivenRootAction(testing::_, core::UTF8String("FATAL ERROR"), 0x8005037, core::UTF8String("")))
+	EXPECT_CALL(*mockBeacon, reportError(testing::_, core::UTF8String("FATAL ERROR"), 0x8005037, core::UTF8String("")))
 		.Times(testing::Exactly(1));
 
 	// create test environment

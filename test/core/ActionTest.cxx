@@ -117,7 +117,7 @@ TEST_F(ActionTest, reportEvent)
 TEST_F(ActionTest, reportEventDoesNothingIfEventNameIsNull)
 {
 	//verify the following calls
-	EXPECT_CALL(*mockBeacon, reportEventGivenAction(testing::_, testing::_))
+	EXPECT_CALL(*mockBeacon, reportEvent(testing::_, testing::_))
 		.Times(testing::Exactly(0));
 
 	// create test environment
@@ -133,7 +133,7 @@ TEST_F(ActionTest, reportEventDoesNothingIfEventNameIsNull)
 TEST_F(ActionTest, reportEventDoesNothingIfEventNameIsEmpty)
 {
 	//verify the following calls
-	EXPECT_CALL(*mockBeacon, reportEventGivenAction(testing::_, testing::_))
+	EXPECT_CALL(*mockBeacon, reportEvent(testing::_, testing::_))
 		.Times(testing::Exactly(0));
 
 	// create test environment
@@ -149,7 +149,7 @@ TEST_F(ActionTest, reportEventDoesNothingIfEventNameIsEmpty)
 TEST_F(ActionTest, reportValueIntWithNullNameDoesNotReportValue)
 {
 	//verify the following calls
-	EXPECT_CALL(*mockBeacon, reportValueInt32GivenAction(testing::_, testing::_, testing::_))
+	EXPECT_CALL(*mockBeacon, reportValueInt32(testing::_, testing::_, testing::_))
 		.Times(testing::Exactly(0));
 
 	// create test environment
@@ -165,7 +165,7 @@ TEST_F(ActionTest, reportValueIntWithNullNameDoesNotReportValue)
 TEST_F(ActionTest, reportValueIntWithEmptyNameDoesNotReportValue)
 {
 	//verify the following calls
-	EXPECT_CALL(*mockBeacon, reportValueInt32GivenAction(testing::_, testing::_, testing::_))
+	EXPECT_CALL(*mockBeacon, reportValueInt32(testing::_, testing::_, testing::_))
 		.Times(testing::Exactly(0));
 
 	// create test environment
@@ -183,7 +183,7 @@ TEST_F(ActionTest, reportValueIntWithValidValue)
 	const char* integerValueName = "IntegerValue";
 
 	//verify the following calls
-	EXPECT_CALL(*mockBeacon, reportValueInt32GivenAction(testing::_, core::UTF8String(integerValueName), 42))
+	EXPECT_CALL(*mockBeacon, reportValueInt32(testing::_, core::UTF8String(integerValueName), 42))
 		.Times(testing::Exactly(1));
 
 	// create test environment
@@ -199,7 +199,7 @@ TEST_F(ActionTest, reportValueIntWithValidValue)
 TEST_F(ActionTest, reportValueDoubleWithNullNameDoesNotReportValue)
 {
 	//verify the following calls
-	EXPECT_CALL(*mockBeacon, reportValueDoubleGivenAction(testing::_, testing::_, testing::_))
+	EXPECT_CALL(*mockBeacon, reportValueDouble(testing::_, testing::_, testing::_))
 		.Times(testing::Exactly(0));
 
 	// create test environment
@@ -215,7 +215,7 @@ TEST_F(ActionTest, reportValueDoubleWithNullNameDoesNotReportValue)
 TEST_F(ActionTest, reportValueDoubleWithEmptyNameDoesNotReportValue)
 {
 	//verify the following calls
-	EXPECT_CALL(*mockBeacon, reportValueDoubleGivenAction(testing::_, testing::_, testing::_))
+	EXPECT_CALL(*mockBeacon, reportValueDouble(testing::_, testing::_, testing::_))
 		.Times(testing::Exactly(0));
 
 	// create test environment
@@ -231,7 +231,7 @@ TEST_F(ActionTest, reportValueDoubleWithEmptyNameDoesNotReportValue)
 TEST_F(ActionTest, reportValueDoubleWithValidValue)
 {
 	//verify the following calls
-	EXPECT_CALL(*mockBeacon, reportValueDoubleGivenAction(testing::_, testing::_,42.1337))
+	EXPECT_CALL(*mockBeacon, reportValueDouble(testing::_, testing::_,42.1337))
 		.Times(testing::Exactly(1));
 
 	// create test environment
@@ -247,7 +247,7 @@ TEST_F(ActionTest, reportValueDoubleWithValidValue)
 TEST_F(ActionTest, reportValueStringWithValidValue)
 {
 	//verify the following calls
-	EXPECT_CALL(*mockBeacon, reportValueStringGivenAction(testing::_, testing::_, core::UTF8String("This is a string")))
+	EXPECT_CALL(*mockBeacon, reportValueString(testing::_, testing::_, core::UTF8String("This is a string")))
 		.Times(testing::Exactly(1));
 
 	// create test environment
@@ -263,7 +263,7 @@ TEST_F(ActionTest, reportValueStringWithValidValue)
 TEST_F(ActionTest, reportValueStringWithValueNull)
 {
 	//verify the following calls
-	EXPECT_CALL(*mockBeacon, reportValueStringGivenAction(testing::_, testing::_, core::UTF8String("")))
+	EXPECT_CALL(*mockBeacon, reportValueString(testing::_, testing::_, core::UTF8String("")))
 		.Times(testing::Exactly(1));
 
 	// create test environment
@@ -279,7 +279,7 @@ TEST_F(ActionTest, reportValueStringWithValueNull)
 TEST_F(ActionTest, reportErrorWithAllValuesSet)
 {
 	//verify the following calls
-	EXPECT_CALL(*mockBeacon, reportErrorGivenAction(testing::_,core::UTF8String("FATAL Error"), 0x8005037, core::UTF8String("Some reason for this fatal error")))
+	EXPECT_CALL(*mockBeacon, reportError(testing::_,core::UTF8String("FATAL Error"), 0x8005037, core::UTF8String("Some reason for this fatal error")))
 		.Times(testing::Exactly(1));
 
 	// create test environment
@@ -295,7 +295,7 @@ TEST_F(ActionTest, reportErrorWithAllValuesSet)
 TEST_F(ActionTest, reportErrorWithNullErrorNameDoesNotReportTheError)
 {
 	//verify the following calls
-	EXPECT_CALL(*mockBeacon, reportErrorGivenAction(testing::_, testing::_, testing::_, testing::_))
+	EXPECT_CALL(*mockBeacon, reportError(testing::_, testing::_, testing::_, testing::_))
 		.Times(testing::Exactly(0));
 
 	// create test environment
@@ -311,7 +311,7 @@ TEST_F(ActionTest, reportErrorWithNullErrorNameDoesNotReportTheError)
 TEST_F(ActionTest, reportErrorWithEmptyErrorNameDoesNotReportTheError)
 {
 	//verify the following calls
-	EXPECT_CALL(*mockBeacon, reportErrorGivenAction(testing::_, testing::_, testing::_, testing::_))
+	EXPECT_CALL(*mockBeacon, reportError(testing::_, testing::_, testing::_, testing::_))
 		.Times(testing::Exactly(0));
 
 	// create test environment
@@ -327,7 +327,7 @@ TEST_F(ActionTest, reportErrorWithEmptyErrorNameDoesNotReportTheError)
 TEST_F(ActionTest, reportErrorWithEmptyNullErrorReasonDoesReport)
 {
 	//verify the following calls
-	EXPECT_CALL(*mockBeacon, reportErrorGivenAction(testing::_, core::UTF8String("FATAL ERROR"), 0x8005037, core::UTF8String("")))
+	EXPECT_CALL(*mockBeacon, reportError(testing::_, core::UTF8String("FATAL ERROR"), 0x8005037, core::UTF8String("")))
 		.Times(testing::Exactly(1));
 
 	// create test environment
