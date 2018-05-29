@@ -23,7 +23,7 @@ using namespace core;
 
 std::shared_ptr<NullWebRequestTracer> ActionCommonImpl::NULL_WEB_REQUEST_TRACER(std::make_shared<NullWebRequestTracer>());
 
-ActionCommonImpl::ActionCommonImpl(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<protocol::Beacon> beacon, int32_t actionID, const std::string objectID)
+ActionCommonImpl::ActionCommonImpl(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<protocol::Beacon> beacon, int32_t actionID, const std::string& objectID)
 	: mLogger(logger)
 	, mBeacon(beacon)
 	, mActionID(actionID)

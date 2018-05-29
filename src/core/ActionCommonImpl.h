@@ -14,8 +14,8 @@
 * limitations under the License.
 */
 
-#ifndef _CORE_ACTIONIMPL_H
-#define _CORE_ACTIONIMPL_H
+#ifndef _CORE_ACTIONCOMMONIMPL_H
+#define _CORE_ACTIONCOMMONIMPL_H
 
 #ifdef __GNUC__
 #pragma GCC diagnostic push
@@ -50,7 +50,7 @@ namespace core
 		/// @param[in] actionID integer ID of the action this @ref ActionCommonImpl will create data for
 		/// @param[in] objectID instance details serialization used for logging
 		///
-		ActionCommonImpl(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<protocol::Beacon> beacon, int32_t actionID, const std::string objectID);
+		ActionCommonImpl(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<protocol::Beacon> beacon, int32_t actionID, const std::string& objectID);
 
 		///
 		/// Add event (aka. named event) to Beacon.
