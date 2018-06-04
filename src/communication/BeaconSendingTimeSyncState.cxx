@@ -121,8 +121,14 @@ void BeaconSendingTimeSyncState::handleTimeSyncResponses(BeaconSendingContext& c
 		return;
 	}
 
+	auto calculatedOffset = computeClusterTimeOffset(timeSyncOffsets);
+	if (calculatedOffset < 0)
+	{
+		return;
+	}
+
 	// initialize time provider with cluster time offset
-	context.initializeTimeSync(computeClusterTimeOffset(timeSyncOffsets), true);
+	context.initializeTimeSync(calculatedOffset, true);
 
 	// also update the time when last time sync was performed to now
 	context.setLastTimeSyncTime(context.getCurrentTimestamp());
@@ -159,6 +165,11 @@ int64_t BeaconSendingTimeSyncState::computeClusterTimeOffset(std::vector<int64_t
 			sum += timeSyncOffsets[i];
 			count++;
 		}
+	}
+
+	if (count == 0)
+	{
+		return 0;
 	}
 
 	return static_cast<int64_t>(std::round(sum / static_cast<double>(count)));
