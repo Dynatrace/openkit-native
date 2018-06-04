@@ -168,8 +168,8 @@ int64_t BeaconSendingTimeSyncState::computeClusterTimeOffset(std::vector<int64_t
 	}
 
 	if (count == 0)
-	{
-		return 0;
+	{ // shouldn't come here under normal circumstances
+		return 0; // prevents div/0
 	}
 
 	return static_cast<int64_t>(std::round(sum / static_cast<double>(count)));
