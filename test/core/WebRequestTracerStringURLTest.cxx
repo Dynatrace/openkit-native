@@ -31,7 +31,6 @@ using namespace core;
 
 static const char* APP_ID = "appID";
 static const char* APP_NAME = "appName";
-static const char* TAG = "THE_TAG";
 
 class WebRequestTracerStringURLTest : public testing::Test
 {

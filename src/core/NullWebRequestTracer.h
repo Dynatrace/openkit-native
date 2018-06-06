@@ -17,6 +17,12 @@
 #ifndef _CORE_NULLWEBREQUESTTRACER_H
 #define _CORE_NULLWEBREQUESTTRACER_H
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnon-virtual-dtor" // enable_shared_from_this has a public non virtual destructor throwing a false positive in this code
+#endif
+
+
 #include "OpenKit/IWebRequestTracer.h"
 
 namespace core
@@ -63,5 +69,9 @@ namespace core
 		const char* emptyString = "";
 	};
 }
+
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#endif
 
 #endif
