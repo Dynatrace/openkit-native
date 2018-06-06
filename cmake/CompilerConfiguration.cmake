@@ -29,9 +29,14 @@ if(MSVC)
     set(OPEN_KIT_PREPROCESSOR_DEFINITIONS_DEBUG _DEBUG)
     set(OPEN_KIT_PREPROCESSOR_DEFINITIONS_RELEASE NDEBUG)
     # setup compiler flags
-    set(OPEN_KIT_CXX_FLAGS /W4 /nologo /wd4251 )
-    set(OPEN_KIT_CXX_FLAGS_DEBUG /Zi /Od /Ob0 /Oi /GF- /Gm /Gy /RTC1)
-    set(OPEN_KIT_CXX_FLAGS_RELEASE /Zi /O2 /Ob2 /Oi /Ot /GF /Gm-)
+    #c compiler
+    set(OPEN_KIT_C_FLAGS /W4 /nologo /wd4251 )
+    set(OPEN_KIT_C_FLAGS_DEBUG /Zi /Od /Ob0 /Oi /GF- /Gm /Gy /RTC1)
+    set(OPEN_KIT_C_FLAGS_RELEASE /Zi /O2 /Ob2 /Oi /Ot /GF /Gm-)
+    #c++ compiler
+    set(OPEN_KIT_CXX_FLAGS ${OPEN_KIT_C_FLAGS} )
+    set(OPEN_KIT_CXX_FLAGS_DEBUG ${OPEN_KIT_C_FLAGS_DEBUG})
+    set(OPEN_KIT_CXX_FLAGS_RELEASE ${OPEN_KIT_C_FLAGS_RELEASE})
 
     # setup linker flags
     set(OPEN_KIT_LINKER_FLAGS /NOLOGO)
@@ -44,10 +49,16 @@ if(MSVC)
     set(OPEN_KIT_PREPROCESSOR_DEFINITIONS_RELEASE NDEBUG)
 
     # setup compiler flags
-    set(OPEN_KIT_CXX_FLAGS -Wall -Wextra -pedantic -Weffc++)
-	set(OPEN_KIT_CXX_FLAGS_TESTS  -Wall -Wextra -pedantic)
-    set(OPEN_KIT_CXX_FLAGS_DEBUG -O0 -g)
-    set(OPEN_KIT_CXX_FLAGS_RELEASE -O2 -g)
+    # c compiler
+    set(OPEN_KIT_C_FLAGS -Wall -Wextra -pedantic)
+    set(OPEN_KIT_C_FLAGS_TESTS  -Wall -Wextra -pedantic)
+    set(OPEN_KIT_C_FLAGS_DEBUG -O0 -g)
+    set(OPEN_KIT_C_FLAGS_RELEASE -O2 -g)
+    #c++ compiler
+    set(OPEN_KIT_CXX_FLAGS ${OPEN_KIT_C_FLAGS} -Weffc++)
+    set(OPEN_KIT_CXX_FLAGS_TESTS  ${OPEN_KIT_C_FLAGS_TESTS})
+    set(OPEN_KIT_CXX_FLAGS_DEBUG ${OPEN_KIT_C_FLAGS_DEBUG})
+    set(OPEN_KIT_CXX_FLAGS_RELEASE ${OPEN_KIT_C_FLAGS_RELEASE})
 
     # setup linker flags
     set(OPEN_KIT_LINKER_FLAGS )
