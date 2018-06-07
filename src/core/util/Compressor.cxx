@@ -43,9 +43,10 @@ void Compressor::compressMemory(const void* inData, size_t inDataSize, std::vect
 	// Use GZIP with default compresssion
 	deflateInit2(&strm, Z_DEFAULT_COMPRESSION, Z_DEFLATED, WINDOW_BITS | GZIP_ENCODING, 8, Z_DEFAULT_STRATEGY);
 
-	while (strm.avail_in != 0)
+	int32_t res = Z_OK;
+	while (strm.avail_in != 0 && res == Z_OK)
 	{
-		int res = deflate(&strm, Z_NO_FLUSH);
+		res = deflate(&strm, Z_NO_FLUSH);
 		assert(res == Z_OK);
 		if (strm.avail_out == 0)
 		{

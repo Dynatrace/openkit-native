@@ -14,6 +14,89 @@
 
 # file containing some nice utility functions for building targets
 
+
+##################################################################################
+# internal function to determine if C-only or C++ compiler is used
+# A c-only compiler uses the OPEN_KIT_C_FLAGS_... flags
+# A C++ compiler used the OPEN_KIT_CXX_FLAGS_... flags
+# every build unit has either C or C++ compiler(flags)
+function(_determine_compiler_language target name)
+	set(USING_C_COMPILER FALSE)
+	set(USING_CXX_COMPILER FALSE)
+
+	foreach( file ${ARGN})
+		string(REGEX MATCH "[^.]*.cxx$"  FOUND_CXX ${ARGN} )
+		if(FOUND_CXX AND NOT USING_CXX_COMPILER)
+			set(USING_CXX_COMPILER TRUE)
+		endif()
+		string(REGEX MATCH "[^.]*.c$"  FOUND_C ${ARGN} )
+		if(FOUND_C AND NOT USING_C_COMPILER)
+			set(USING_C_COMPILER TRUE)
+		endif()
+	endforeach()
+
+	set(USE_CXX_COMPILER ${USING_CXX_COMPILER} PARENT_SCOPE)
+
+	if(USING_C_COMPILER AND USING_CXX_COMPILER)
+		message(ERROR "file list of build target ${name} contains files of different language")
+	endif()
+
+endfunction()
+
+##################################################################################
+# internal function to ease distinction between CFLAGS and CXXFLAGS
+function(_set_compiler_flags target test_code cxx_compiler)
+
+    if(NOT test_code AND cxx_compiler)
+		if (NOT "${OPEN_KIT_CXX_FLAGS}")
+			target_compile_options(${target} PRIVATE ${OPEN_KIT_CXX_FLAGS})
+		endif ()
+		if (NOT "${OPEN_KIT_CXX_FLAGS_DEBUG}")
+			target_compile_options(${target} PRIVATE $<$<CONFIG:Debug>:${OPEN_KIT_CXX_FLAGS_DEBUG}>)
+		endif ()
+		if (NOT "${OPEN_KIT_CXX_FLAGS_RELEASE}")
+			target_compile_options(${target} PRIVATE $<$<CONFIG:Release>:${OPEN_KIT_CXX_FLAGS_RELEASE}>)
+		endif ()
+	endif()
+
+	if(test_code AND cxx_compiler)
+		if (NOT "${OPEN_KIT_CXX_FLAGS_TESTS}")
+			target_compile_options(${target} PRIVATE ${OPEN_KIT_CXX_FLAGS_TESTS})
+		endif ()
+		if (NOT "${OPEN_KIT_CXX_FLAGS_DEBUG}")
+			target_compile_options(${target} PRIVATE $<$<CONFIG:Debug>:${OPEN_KIT_CXX_FLAGS_DEBUG}>)
+		endif ()
+		if (NOT "${OPEN_KIT_CXX_FLAGS_RELEASE}")
+			target_compile_options(${target} PRIVATE $<$<CONFIG:Release>:${OPEN_KIT_CXX_FLAGS_RELEASE}>)
+		endif ()
+	endif()
+
+	if(NOT test_code AND NOT cxx_compiler)
+		if (NOT "${OPEN_KIT_C_FLAGS}")
+			target_compile_options(${target} PRIVATE ${OPEN_KIT_C_FLAGS})
+		endif ()
+		if (NOT "${OPEN_KIT_C_FLAGS_DEBUG}")
+			target_compile_options(${target} PRIVATE $<$<CONFIG:Debug>:${OPEN_KIT_C_FLAGS_DEBUG}>)
+		endif ()
+		if (NOT "${OPEN_KIT_C_FLAGS_RELEASE}")
+			target_compile_options(${target} PRIVATE $<$<CONFIG:Release>:${OPEN_KIT_C_FLAGS_RELEASE}>)
+		endif ()
+	endif()
+
+	if(test_code AND NOT cxx_compiler)
+		if (NOT "${OPEN_KIT_C_FLAGS_TESTS}")
+			target_compile_options(${target} PRIVATE ${OPEN_KIT_C_FLAGS_TESTS})
+		endif ()
+		if (NOT "${OPEN_KIT_C_FLAGS_DEBUG}")
+			target_compile_options(${target} PRIVATE $<$<CONFIG:Debug>:${OPEN_KIT_C_FLAGS_DEBUG}>)
+		endif ()
+		if (NOT "${OPEN_KIT_C_FLAGS_RELEASE}")
+			target_compile_options(${target} PRIVATE $<$<CONFIG:Release>:${OPEN_KIT_C_FLAGS_RELEASE}>)
+		endif ()
+	endif()
+
+endfunction()
+
 ########################################################################################################################
 # Internal utility function to set common flags on any OpenKit target
 function(_set_common_flags target)
@@ -29,16 +112,7 @@ function(_set_common_flags target)
         target_compile_definitions(${target} PRIVATE $<$<CONFIG:Release>:${OPEN_KIT_PREPROCESSOR_DEFINITIONS_RELEASE}>)
     endif ()
 
-    # add compile flags
-    if (NOT "${OPEN_KIT_CXX_FLAGS}")
-        target_compile_options(${target} PRIVATE ${OPEN_KIT_CXX_FLAGS})
-    endif ()
-    if (NOT "${OPEN_KIT_CXX_FLAGS_DEBUG}")
-        target_compile_options(${target} PRIVATE $<$<CONFIG:Debug>:${OPEN_KIT_CXX_FLAGS_DEBUG}>)
-    endif ()
-    if (NOT "${OPEN_KIT_CXX_FLAGS_RELEASE}")
-        target_compile_options(${target} PRIVATE $<$<CONFIG:Release>:${OPEN_KIT_CXX_FLAGS_RELEASE}>)
-    endif ()
+	_set_compiler_flags(${target} FALSE ${USE_CXX_COMPILER}) ## test_code=FALSE
 
     # add linker options
     if (NOT "${OPEN_KIT_LINKER_FLAGS}")
@@ -78,16 +152,7 @@ function(_set_common_flags_tests target)
         target_compile_definitions(${target} PRIVATE $<$<CONFIG:Release>:${OPEN_KIT_PREPROCESSOR_DEFINITIONS_RELEASE}>)
     endif ()
 
-    # add compile flags
-    if (NOT "${OPEN_KIT_CXX_FLAGS_TESTS}")
-        target_compile_options(${target} PRIVATE ${OPEN_KIT_CXX_FLAGS_TESTS})
-    endif ()
-    if (NOT "${OPEN_KIT_CXX_FLAGS_DEBUG}")
-        target_compile_options(${target} PRIVATE $<$<CONFIG:Debug>:${OPEN_KIT_CXX_FLAGS_DEBUG}>)
-    endif ()
-    if (NOT "${OPEN_KIT_CXX_FLAGS_RELEASE}")
-        target_compile_options(${target} PRIVATE $<$<CONFIG:Release>:${OPEN_KIT_CXX_FLAGS_RELEASE}>)
-    endif ()
+	_set_compiler_flags(${target} TRUE ${USE_CXX_COMPILER}) ## test_code=FALSE
 
     # add linker options
     if (NOT "${OPEN_KIT_LINKER_FLAGS}")
@@ -115,7 +180,7 @@ endfunction()
 ########################################################################################################################
 # Internal utility function for building an OpenKit target
 function(_open_kit_build name includedirs libs)
-    
+
     target_include_directories(${name} PRIVATE ${includedirs})
 
     # To support mixing linking in static and dynamic libraries, link each
@@ -156,6 +221,8 @@ endfunction()
 ########################################################################################################################
 # Function to build a library - if OPEN_KIT_SHARED_LIBS is on, it's built as shared library, otherwhise as static lib.
 function(open_kit_build_library name includedirs libs)
+    ## check if CFLAGS or CXXFLAGS are required
+    _determine_compiler_language(${name} ${ARGN})
 
     if (BUILD_SHARED_LIBS)
         open_kit_build_shared_library("${name}" "${includedirs}" "${libs}" ${ARGN})
@@ -171,6 +238,10 @@ endfunction()
 function(open_kit_build_executable name includedirs libs)
 
     message(INFO " Configuring executable '${name}' (INCLUDEDIRS=${includedirs}; LIBS=${libs}")
+
+    ## check if CFLAGS or CXXFLAGS are required
+    _determine_compiler_language(${name} ${ARGN})
+
     add_executable(${name} ${ARGN})
 
     _open_kit_build("${name}" "${includedirs}" "${libs}")
@@ -187,6 +258,9 @@ function(open_kit_build_test name includedirs libs)
         message(INFO " Tests are disabled for OpenKit project - skpipping ${name}")
         return()
     endif ()
+
+    ## check if CFLAGS or CXXFLAGS are required
+    _determine_compiler_language(${name} ${ARGN})
 
     message(INFO " Configuring test '${name}' (INCLUDEDIRS=${includedirs}; LIBS=${libs}")
     add_executable(${name} ${ARGN})

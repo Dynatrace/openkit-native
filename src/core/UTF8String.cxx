@@ -267,13 +267,13 @@ void UTF8String::concatenate(const char* string)
 //character can be multi-byte
 UTF8String::size_type UTF8String::getIndexOf(const char* comparisonCharacter, size_t offset) const
 {
-	if (offset < 0 && offset >= mData.size())
+	if (offset == std::string::npos && offset >= mData.size())
 	{
 		return std::string::npos;
 	}
 
 	size_t characterByteWidth = getByteWidthOfCharacter((unsigned char)(*comparisonCharacter));
-	if (characterByteWidth < 0)//error
+	if (characterByteWidth == std::string::npos)//error
 	{
 		return std::string::npos;
 	}
@@ -337,7 +337,7 @@ UTF8String UTF8String::substring(size_t start, size_t length) const
 	}
 
 	//cut the new string using the indices
-	if (byteOffsetStart >= 0 && byteOffsetStart <= byteOffsetEnd && byteOffsetEnd < mData.size())
+	if (byteOffsetStart != std::string::npos && byteOffsetStart <= byteOffsetEnd && byteOffsetEnd < mData.size())
 	{
 		UTF8String substring;
 		substring.mStringLength = characterCounter;
