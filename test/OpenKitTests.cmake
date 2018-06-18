@@ -110,4 +110,8 @@ function(build_open_kit_tests)
 			COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:libcurl> $<TARGET_FILE_DIR:OpenKitTest>  )
 	endif()
 
+    if(WIN32)
+        set_target_properties(OpenKitTest PROPERTIES FOLDER Tests)
+    endif()
+
 endfunction()

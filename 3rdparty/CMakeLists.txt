@@ -15,7 +15,6 @@
 ######
 # build all mandatory dependencies for OpenKit
 ######
-
 ######
 # zlib
 add_subdirectory(zlib-1.2.11)
@@ -81,4 +80,18 @@ if(OPENKIT_BUILD_TESTS)
 		target_compile_definitions(gmock PUBLIC ${GTEST_MSVC_PREPROCESSOR_HACKS})
 		target_compile_definitions(gmock_main PUBLIC ${GTEST_MSVC_PREPROCESSOR_HACKS})
 	endif ()
+endif()
+
+if(MSVC)
+    set_target_properties(gmock PROPERTIES FOLDER 3rdparty/googletest)
+    set_target_properties(gmock_main PROPERTIES FOLDER 3rdparty/googletest)
+    set_target_properties(gtest PROPERTIES FOLDER 3rdparty/googletest)
+    set_target_properties(gtest_main PROPERTIES FOLDER 3rdparty/googletest)
+    set_target_properties(libcurl PROPERTIES FOLDER 3rdparty/libcurl)
+    set_target_properties(example PROPERTIES FOLDER 3rdparty/libcurl)
+    set_target_properties(uninstall PROPERTIES FOLDER 3rdparty/libcurl)
+    set_target_properties(minigzip PROPERTIES FOLDER 3rdparty/zlib)
+    set_target_properties(zlib PROPERTIES FOLDER 3rdparty/zlib)
+    set_target_properties(zlibstatic PROPERTIES FOLDER 3rdparty/zlib)
+
 endif()

@@ -163,4 +163,8 @@ function(build_open_kit)
 		DESTINATION "${INSTALL_INC_DIR}"
 	)
 
+    if(WIN32)
+        set_target_properties(OpenKit PROPERTIES FOLDER Lib)
+    endif()
+
 endfunction()
