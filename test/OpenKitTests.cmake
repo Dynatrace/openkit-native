@@ -26,13 +26,12 @@ if(BUILD_SHARED_LIBS)
 	# This is done by making the list of sources available here and creating the releative path with prepend.
 	set(SOURCES_TO_TEST ${OPENKIT_SOURCES})
 endif()
- 
-set(OPENKIT_SOURCES_UNITTEST
-	# Sources to be tested
-	${SOURCES_TO_TEST} 
 
-	# Test files
+set(OPENKIT_SOURCES_TEST_API
 	${CMAKE_CURRENT_LIST_DIR}/api/OpenKitBuilderTest.cxx
+)
+
+set(OPENKIT_SOURCES_TEST_CORE
 	${CMAKE_CURRENT_LIST_DIR}/core/UTF8StringTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/core/SessionTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/core/ActionTest.cxx
@@ -44,11 +43,20 @@ set(OPENKIT_SOURCES_UNITTEST
 	${CMAKE_CURRENT_LIST_DIR}/core/util/SynchronizedQueueTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/core/util/InetAddressValidatorTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/core/util/DefaultLoggerTest.cxx
+)
+
+set(OPENKIT_SOURCES_TEST_PROTOCOL
 	${CMAKE_CURRENT_LIST_DIR}/protocol/StatusResponseTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/protocol/TimeSyncResponseTest.cxx
+)
+
+set(OPENKIT_SOURCES_TEST_PROVIDERS
 	${CMAKE_CURRENT_LIST_DIR}/providers/DefaultTimingProviderTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/providers/DefaultSessionIDProviderTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/providers/DefaultThreadIDProviderTest.cxx
+)
+
+set(OPENKIT_SOURCES_TEST_COMMUNICATION
 	${CMAKE_CURRENT_LIST_DIR}/communication/AbstractBeaconSendingStateTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingTerminalStateTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingInitialStateTest.cxx
@@ -57,14 +65,33 @@ set(OPENKIT_SOURCES_UNITTEST
 	${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingCaptureOnStateTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingFlushSessionStateTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingContextTest.cxx
+)
+
+set(OPENKIT_SOURCES_TEST_CONFIGURATION
 	${CMAKE_CURRENT_LIST_DIR}/configuration/ConfigurationTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/configuration/BeaconCacheConfigurationTest.cxx
+)
+
+set(OPENKIT_SOURCES_TEST_CACHING
 	${CMAKE_CURRENT_LIST_DIR}/caching/BeaconCacheEntryTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/caching/BeaconCacheRecordTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/caching/SpaceEvictionStrategyTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/caching/TimeEvictionStrategyTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/caching/BeaconCacheEvictorTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/caching/BeaconCacheTest.cxx
+)
+
+set(OPENKIT_DUT ${SOURCES_TO_TEST})
+
+set(OPENKIT_SOURCES_UNITTEST
+	# Test files
+    ${OPENKIT_SOURCES_TEST_API}
+    ${OPENKIT_SOURCES_TEST_CORE}
+    ${OPENKIT_SOURCES_TEST_PROTOCOL}
+    ${OPENKIT_SOURCES_TEST_PROVIDERS}
+    ${OPENKIT_SOURCES_TEST_COMMUNICATION}
+    ${OPENKIT_SOURCES_TEST_CONFIGURATION}
+    ${OPENKIT_SOURCES_TEST_CACHING}
 )
 
 include(CompilerConfiguration)
@@ -84,18 +111,31 @@ function(build_open_kit_tests)
 		${CMAKE_BINARY_DIR}/include
 	)
 
+    set(OPENKIT_TEST_LIBS_LIB_UNDER_TEST
+        ${ZLIB_LIBRARY}
+		${CURL_LIBRARY}
+    )
+
 	set(OPENKIT_TEST_LIBS
-		${ZLIB_LIBRARY}
+		OpenKit_UnderTest
+        ${ZLIB_LIBRARY}
 		${CURL_LIBRARY}
 	)
 
 	include(CompilerConfiguration)
 	include(BuildFunctions)
 
+    ## device under test: build OpenKit sources as seperate library
+    ## check if CFLAGS or CXXFLAGS are required
+    _determine_compiler_language(OpenKit_UnderTest} ${OPENKIT_DUT})
+    open_kit_build_static_library(OpenKit_UnderTest "${OPENKIT_TEST_INCLUDE_DIRS}" "${OPENKIT_TEST_LIBS_LIB_UNDER_TEST}" ${OPENKIT_DUT})
+    target_compile_definitions(OpenKit_UnderTest PRIVATE -DOPENKIT_STATIC_DEFINE -DCURL_STATICLIB)
+
+    ## OPENKIT_TEST_LIBS contains the OpenKit_UnderTest library
 	open_kit_build_test(OpenKitTest "${OPENKIT_TEST_INCLUDE_DIRS}" "${OPENKIT_TEST_LIBS}" ${OPENKIT_SOURCES_UNITTEST})
 
 	enforce_cxx11_standard(OpenKitTest)
-	target_compile_definitions(OpenKitTest PRIVATE -DOPENKIT_STATIC_DEFINE)
+	target_compile_definitions(OpenKitTest PRIVATE -DOPENKIT_STATIC_DEFINE )
 
 	if (NOT BUILD_SHARED_LIBS OR OPENKIT_MONOLITHIC_SHARED_LIB)
 		target_compile_definitions(OpenKitTest PRIVATE -DCURL_STATICLIB)
@@ -110,8 +150,16 @@ function(build_open_kit_tests)
 			COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:libcurl> $<TARGET_FILE_DIR:OpenKitTest>  )
 	endif()
 
-    if(WIN32)
-        set_target_properties(OpenKitTest PROPERTIES FOLDER Tests)
-    endif()
+    set_target_properties(OpenKitTest PROPERTIES FOLDER Tests)
+    set_target_properties(OpenKit_UnderTest PROPERTIES FOLDER Tests)
+
+    source_group("Source Files\\API" FILES ${OPENKIT_SOURCES_TEST_API})
+    source_group("Source Files\\Core" FILES ${OPENKIT_SOURCES_TEST_CORE})
+    source_group("Source Files\\Protocol" FILES ${OPENKIT_SOURCES_TEST_PROTOCOL})
+    source_group("Source Files\\Providers" FILES ${OPENKIT_SOURCES_TEST_PROVIDERS})
+    source_group("Source Files\\Communication" FILES ${OPENKIT_SOURCES_TEST_COMMUNICATION})
+    source_group("Source Files\\Configuration" FILES ${OPENKIT_SOURCES_TEST_CONFIGURATION})
+    source_group("Source Files\\Caching" FILES ${OPENKIT_SOURCES_TEST_CACHING})
+    source_group("Source Files\\Caching" FILES ${OPENKIT_SOURCES_TEST_CACHING})
 
 endfunction()

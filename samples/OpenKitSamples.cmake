@@ -13,8 +13,9 @@
 # limitations under the License.
 
 SET(OPENKIT_SAMPLE1_SOURCES
-	${CMAKE_CURRENT_LIST_DIR}/sample1/src/openkit-sample.cxx
-	${CMAKE_CURRENT_LIST_DIR}/sample1/src/CommandLineArguments.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/sample1/src/openkit-sample.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/sample1/src/CommandLineArguments.h
+    ${CMAKE_CURRENT_LIST_DIR}/sample1/src/CommandLineArguments.cxx
 )
 
 SET(OPENKIT_SAMPLE2_SOURCES
@@ -72,21 +73,20 @@ endfunction()
 function(build_sample1)
 	message("Configuring OpenKit  sample 1 ... ")
 
-	_build_sample_internal(openkit-sample ${OPENKIT_SAMPLE1_SOURCES})
-
+	_build_sample_internal(openkit-sample ${OPENKIT_SAMPLE1_SOURCES} ${OPENKIT_SAMPLE1_HEADERS})
+    source_group("Source Files" FILES ${OPENKIT_SAMPLE1_SOURCES})
 endfunction()
 
 function(build_sample2)
-	message("Configuring OpenKit  sample 1 ... ")
+	message("Configuring OpenKit  sample 2 ... ")
 
 	_build_sample_internal(openkit-sample-c ${OPENKIT_SAMPLE2_SOURCES})
+    source_group("Source Files" FILES ${OPENKIT_SAMPLE2_SOURCES})
 endfunction()
 
 function(build_open_kit_samples)
 	build_sample1()
 	build_sample2()
-    if(WIN32)
-        set_target_properties(openkit-sample PROPERTIES FOLDER Samples)
-        set_target_properties(openkit-sample-c PROPERTIES FOLDER Samples)
-    endif()
+    set_target_properties(openkit-sample PROPERTIES FOLDER Samples)
+    set_target_properties(openkit-sample-c PROPERTIES FOLDER Samples)
 endfunction()
