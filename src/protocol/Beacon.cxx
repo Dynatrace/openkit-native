@@ -14,6 +14,8 @@
 * limitations under the License.
 */
 
+#include "OpenKit/DataCollectionLevel.h"
+#include "OpenKit/CrashReportingLevel.h"
 #include "Beacon.h"
 #include "ProtocolConstants.h"
 #include "BeaconProtocolConstants.h"
@@ -21,6 +23,8 @@
 #include "core/util/InetAddressValidator.h"
 
 using namespace protocol;
+
+const std::shared_ptr<configuration::BeaconConfiguration> Beacon::DEFAULT_BEACON_CONFIG = std::make_shared<configuration::BeaconConfiguration>(openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OFF);
 
 Beacon::Beacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching::IBeaconCache> beaconCache, std::shared_ptr<configuration::Configuration> configuration, const core::UTF8String clientIPAddress, std::shared_ptr<providers::IThreadIDProvider> threadIDProvider, std::shared_ptr<providers::ITimingProvider> timingProvider)
 	: mLogger(logger)
@@ -46,6 +50,16 @@ Beacon::Beacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching
 		{
 			logger->warning("Beacon() - Client IP address validation failed: %s", clientIPAddress.getStringData().c_str());
 		}
+	}
+
+	auto beaconConfiguration = configuration->getBeaconConfiguration();
+	if (beaconConfiguration != nullptr)
+	{
+		mBeaconConfiguration = beaconConfiguration;
+	}
+	else
+	{
+		mBeaconConfiguration = DEFAULT_BEACON_CONFIG;
 	}
 
 	mBasicBeaconData = createBasicBeaconData();
