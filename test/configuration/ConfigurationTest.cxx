@@ -35,22 +35,24 @@ public:
 		sessionIDProvider = std::shared_ptr<providers::ISessionIDProvider>(new providers::DefaultSessionIDProvider());
 		device = std::shared_ptr<Device>(new Device("", "", ""));
 		beaconCacheConfiguration = std::make_shared<configuration::BeaconCacheConfiguration>(-1, -1, -1);
+		beaconConfiguration = std::make_shared<configuration::BeaconConfiguration>();
 	}
 
 	std::unique_ptr<configuration::Configuration> getDefaultConfiguration()
 	{
-		return std::unique_ptr<Configuration>(new Configuration(device, openKitType, "", "", "", 0, "", sessionIDProvider, sslTrustManager, beaconCacheConfiguration));
+		return std::unique_ptr<Configuration>(new Configuration(device, openKitType, "", "", "", 0, "", sessionIDProvider, sslTrustManager, beaconCacheConfiguration, beaconConfiguration));
 	}
 
 	std::unique_ptr<configuration::Configuration> getConfiguration(const core::UTF8String& beaconURL)
 	{
-		return std::unique_ptr<Configuration>(new Configuration(device, openKitType, "", "", "", 0, beaconURL, sessionIDProvider, sslTrustManager, beaconCacheConfiguration));
+		return std::unique_ptr<Configuration>(new Configuration(device, openKitType, "", "", "", 0, beaconURL, sessionIDProvider, sslTrustManager, beaconCacheConfiguration, beaconConfiguration));
 	}
 private:
 	std::shared_ptr<Device> device = nullptr;
 	OpenKitType openKitType = OpenKitType::Type::DYNATRACE;
 	std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider = nullptr;
 	std::shared_ptr<openkit::ISSLTrustManager> sslTrustManager = nullptr;
+	std::shared_ptr<configuration::BeaconConfiguration> beaconConfiguration = nullptr;
 	std::shared_ptr<configuration::BeaconCacheConfiguration> beaconCacheConfiguration = nullptr;
 
 	std::shared_ptr<Configuration> testConfiguration = nullptr;
@@ -140,4 +142,16 @@ TEST_F(ConfigurationTest, tenantURLisSetCorrectly)
 
 	ASSERT_TRUE(tenantURL.equals(target->getHTTPClientConfiguration()->getBaseURL()));
 
+}
+
+TEST_F(ConfigurationTest, defaultDataCollectionLevelIsOFF)
+{
+	auto target = getDefaultConfiguration();
+	ASSERT_EQ(target->getBeaconConfiguration()->getDataCollectionLevel(), openkit::DataCollectionLevel::OFF);
+}
+
+TEST_F(ConfigurationTest, defaultCrashReportingLevelIsOFF)
+{
+	auto target = getDefaultConfiguration();
+	ASSERT_EQ(target->getBeaconConfiguration()->getCrashReportingLevel(), openkit::CrashReportingLevel::OFF);
 }

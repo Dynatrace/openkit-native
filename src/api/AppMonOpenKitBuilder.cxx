@@ -38,6 +38,11 @@ std::shared_ptr<configuration::Configuration> AppMonOpenKitBuilder::buildConfigu
 		getBeaconCacheUpperMemoryBoundary()
 		);
 
+	std::shared_ptr<configuration::BeaconConfiguration> beaconConfiguration = std::make_shared<configuration::BeaconConfiguration>(
+		getDataCollectionLevel(),
+		getCrashReportingLevel()
+		);
+
 	return std::make_shared<configuration::Configuration>(
 		device,
 		configuration::OpenKitType::Type::APPMON,
@@ -48,6 +53,7 @@ std::shared_ptr<configuration::Configuration> AppMonOpenKitBuilder::buildConfigu
 		getEndpointURL(),
 		std::make_shared<providers::DefaultSessionIDProvider>(),
 		getTrustManager(),
-		beaconCacheConfiguration
+		beaconCacheConfiguration,
+		beaconConfiguration
 		);
 }

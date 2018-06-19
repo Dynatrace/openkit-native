@@ -45,11 +45,11 @@ public:
 		auto trustManager = std::make_shared<protocol::SSLStrictTrustManager>();
 
 		auto  device = std::shared_ptr<configuration::Device>(new configuration::Device(core::UTF8String(""), core::UTF8String(""), core::UTF8String("")));
-
+		auto beaconConfiguration = std::make_shared<configuration::BeaconConfiguration>();
 		auto beaconCacheConfiguration = std::make_shared<configuration::BeaconCacheConfiguration>(-1, -1, -1);
 		auto configuration = std::shared_ptr<configuration::Configuration>(new configuration::Configuration(device, configuration::OpenKitType::Type::DYNATRACE,
 			core::UTF8String(APP_NAME), "", APP_ID, 0, "",
-			sessionIDProvider, trustManager, beaconCacheConfiguration));
+			sessionIDProvider, trustManager, beaconCacheConfiguration, beaconConfiguration));
 		configuration->enableCapture();
 
 		auto beaconCache = std::make_shared<caching::BeaconCache>(logger);
