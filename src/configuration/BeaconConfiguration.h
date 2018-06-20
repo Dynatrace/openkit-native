@@ -61,9 +61,10 @@ namespace configuration
 
 	public:
 
-		//default value for data collection level
+		/// default value for data collection level
 		static const openkit::DataCollectionLevel DEFAULT_DATA_COLLECTION_LEVEL;
 
+		/// default value fr crash reporting level
 		static const openkit::CrashReportingLevel DEFAULT_CRASH_REPORTING_LEVEL;
 	};
 }
