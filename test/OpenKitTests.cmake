@@ -118,17 +118,14 @@ function(build_open_kit_tests)
 	include(BuildFunctions)
 
     if (BUILD_SHARED_LIBS)
-
         ## device under test:
         ## build OpenKit sources as seperate static library when OpenKit itself is build as a shared library
         ## check if CFLAGS or CXXFLAGS are required
-        enforce_cxx11_standard(OpenKit_UnderTest)
         _determine_compiler_language(OpenKit_UnderTest ${SOURCES_TO_TEST})
         open_kit_build_static_library(OpenKit_UnderTest "${OPENKIT_TEST_INCLUDE_DIRS}" "${OPENKIT_TEST_LIBS_LIB_UNDER_TEST}" ${SOURCES_TO_TEST})
         target_compile_definitions(OpenKit_UnderTest PRIVATE -DOPENKIT_STATIC_DEFINE -DCURL_STATICLIB)
-
+        enforce_cxx11_standard(OpenKit_UnderTest)
         set(OPENKIT_TEST_LIBS "OpenKit_UnderTest;${OPENKIT_TEST_LIBS}")
-
     endif()
 
     ## OPENKIT_TEST_LIBS contains the OpenKit_UnderTest library
