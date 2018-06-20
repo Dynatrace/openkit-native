@@ -125,6 +125,9 @@ function(build_open_kit_tests)
         _determine_compiler_language(OpenKit_UnderTest} ${SOURCES_TO_TEST})
         open_kit_build_static_library(OpenKit_UnderTest "${OPENKIT_TEST_INCLUDE_DIRS}" "${OPENKIT_TEST_LIBS_LIB_UNDER_TEST}" ${SOURCES_TO_TEST})
         target_compile_definitions(OpenKit_UnderTest PRIVATE -DOPENKIT_STATIC_DEFINE -DCURL_STATICLIB)
+
+        set(OPENKIT_TEST_LIBS "OpenKit_UnderTest;${OPENKIT_TEST_LIBS}")
+
     endif()
 
     ## OPENKIT_TEST_LIBS contains the OpenKit_UnderTest library
