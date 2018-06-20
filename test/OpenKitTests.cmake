@@ -111,13 +111,13 @@ function(build_open_kit_tests)
 
     set(OPENKIT_TEST_LIBS
         ${ZLIB_LIBRARY}
-		${CURL_LIBRARY}
+        ${CURL_LIBRARY}
     )
 
 	include(CompilerConfiguration)
 	include(BuildFunctions)
 
-	if (BUILD_SHARED_LIBS)
+    if (BUILD_SHARED_LIBS)
 
         ## device under test:
         ## build OpenKit sources as seperate static library when OpenKit itself is build as a shared library
@@ -131,7 +131,7 @@ function(build_open_kit_tests)
 	open_kit_build_test(OpenKitTest "${OPENKIT_TEST_INCLUDE_DIRS}" "${OPENKIT_TEST_LIBS}" ${OPENKIT_SOURCES_UNITTEST})
 
 	enforce_cxx11_standard(OpenKitTest)
-	target_compile_definitions(OpenKitTest PRIVATE -DOPENKIT_STATIC_DEFINE )
+	target_compile_definitions(OpenKitTest PRIVATE -DOPENKIT_STATIC_DEFINE)
 
 	if (NOT BUILD_SHARED_LIBS OR OPENKIT_MONOLITHIC_SHARED_LIB)
 		target_compile_definitions(OpenKitTest PRIVATE -DCURL_STATICLIB)

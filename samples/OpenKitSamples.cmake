@@ -73,7 +73,7 @@ endfunction()
 function(build_sample1)
 	message("Configuring OpenKit  sample 1 ... ")
 
-	_build_sample_internal(openkit-sample ${OPENKIT_SAMPLE1_SOURCES} ${OPENKIT_SAMPLE1_HEADERS})
+	_build_sample_internal(openkit-sample ${OPENKIT_SAMPLE1_SOURCES})
     source_group("Source Files" FILES ${OPENKIT_SAMPLE1_SOURCES})
 endfunction()
 
