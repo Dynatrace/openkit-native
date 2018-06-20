@@ -81,8 +81,6 @@ set(OPENKIT_SOURCES_TEST_CACHING
 	${CMAKE_CURRENT_LIST_DIR}/caching/BeaconCacheTest.cxx
 )
 
-set(OPENKIT_DUT ${SOURCES_TO_TEST})
-
 set(OPENKIT_SOURCES_UNITTEST
 	# Test files
     ${OPENKIT_SOURCES_TEST_API}
@@ -111,25 +109,23 @@ function(build_open_kit_tests)
 		${CMAKE_BINARY_DIR}/include
 	)
 
-    set(OPENKIT_TEST_LIBS_LIB_UNDER_TEST
+    set(OPENKIT_TEST_LIBS
         ${ZLIB_LIBRARY}
 		${CURL_LIBRARY}
     )
 
-	set(OPENKIT_TEST_LIBS
-		OpenKit_UnderTest
-        ${ZLIB_LIBRARY}
-		${CURL_LIBRARY}
-	)
-
 	include(CompilerConfiguration)
 	include(BuildFunctions)
 
-    ## device under test: build OpenKit sources as seperate library
-    ## check if CFLAGS or CXXFLAGS are required
-    _determine_compiler_language(OpenKit_UnderTest} ${OPENKIT_DUT})
-    open_kit_build_static_library(OpenKit_UnderTest "${OPENKIT_TEST_INCLUDE_DIRS}" "${OPENKIT_TEST_LIBS_LIB_UNDER_TEST}" ${OPENKIT_DUT})
-    target_compile_definitions(OpenKit_UnderTest PRIVATE -DOPENKIT_STATIC_DEFINE -DCURL_STATICLIB)
+	if (BUILD_SHARED_LIBS)
+
+        ## device under test:
+        ## build OpenKit sources as seperate static library when OpenKit itself is build as a shared library
+        ## check if CFLAGS or CXXFLAGS are required
+        _determine_compiler_language(OpenKit_UnderTest} ${SOURCES_TO_TEST})
+        open_kit_build_static_library(OpenKit_UnderTest "${OPENKIT_TEST_INCLUDE_DIRS}" "${OPENKIT_TEST_LIBS_LIB_UNDER_TEST}" ${SOURCES_TO_TEST})
+        target_compile_definitions(OpenKit_UnderTest PRIVATE -DOPENKIT_STATIC_DEFINE -DCURL_STATICLIB)
+    endif()
 
     ## OPENKIT_TEST_LIBS contains the OpenKit_UnderTest library
 	open_kit_build_test(OpenKitTest "${OPENKIT_TEST_INCLUDE_DIRS}" "${OPENKIT_TEST_LIBS}" ${OPENKIT_SOURCES_UNITTEST})
@@ -142,6 +138,8 @@ function(build_open_kit_tests)
 	endif ()
 	if (NOT BUILD_SHARED_LIBS)
 		target_link_libraries(OpenKitTest PRIVATE OpenKit)
+    else()
+        target_link_libraries(OpenKitTest PRIVATE OpenKit_UnderTest)
 	endif()
 
 	if (WIN32 AND BUILD_SHARED_LIBS AND NOT OPENKIT_MONOLITHIC_SHARED_LIB)
@@ -151,7 +149,9 @@ function(build_open_kit_tests)
 	endif()
 
     set_target_properties(OpenKitTest PROPERTIES FOLDER Tests)
-    set_target_properties(OpenKit_UnderTest PROPERTIES FOLDER Tests)
+    if (BUILD_SHARED_LIBS)
+        set_target_properties(OpenKit_UnderTest PROPERTIES FOLDER Tests)
+    endif()
 
     source_group("Source Files\\API" FILES ${OPENKIT_SOURCES_TEST_API})
     source_group("Source Files\\Core" FILES ${OPENKIT_SOURCES_TEST_CORE})

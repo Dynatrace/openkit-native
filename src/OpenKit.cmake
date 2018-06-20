@@ -152,10 +152,6 @@ set(OPENKIT_SOURCES_CONFIGURATION
     ${CMAKE_CURRENT_LIST_DIR}/configuration/Device.cxx
     ${CMAKE_CURRENT_LIST_DIR}/configuration/OpenKitType.h
     ${CMAKE_CURRENT_LIST_DIR}/configuration/OpenKitType.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/configuration/CrashReportingLevel.h
-    ${CMAKE_CURRENT_LIST_DIR}/configuration/DataCollectionLevel.h
-    ${CMAKE_CURRENT_LIST_DIR}/configuration/BeaconConfiguration.h
-    ${CMAKE_CURRENT_LIST_DIR}/configuration/BeaconConfiguration.cxx
 )
 
 # Create a combined list of all source files
