@@ -24,7 +24,7 @@ namespace openkit
 	///
 	/// This enum declares the data collection level to use
 	///
-	enum class DataCollectionLevel : short
+	enum class DataCollectionLevel : int32_t
 	{
 		OFF, // data collection is off
 		PERFORMANCE, // only collect performance data but omit user behavior data
