@@ -125,7 +125,6 @@ function(build_open_kit_tests)
         open_kit_build_static_library(OpenKit_UnderTest "${OPENKIT_TEST_INCLUDE_DIRS}" "${OPENKIT_TEST_LIBS_LIB_UNDER_TEST}" ${SOURCES_TO_TEST})
         target_compile_definitions(OpenKit_UnderTest PRIVATE -DOPENKIT_STATIC_DEFINE -DCURL_STATICLIB)
         enforce_cxx11_standard(OpenKit_UnderTest)
-        set(OPENKIT_TEST_LIBS "OpenKit_UnderTest;${OPENKIT_TEST_LIBS}")
     endif()
 
     ## OPENKIT_TEST_LIBS contains the OpenKit_UnderTest library
@@ -141,6 +140,7 @@ function(build_open_kit_tests)
 		target_link_libraries(OpenKitTest PRIVATE OpenKit)
     else()
         target_link_libraries(OpenKitTest PRIVATE OpenKit_UnderTest)
+        target_link_libraries(OpenKitTest PRIVATE ${CURL_LIBRARY})
 	endif()
 
 	if (WIN32 AND BUILD_SHARED_LIBS AND NOT OPENKIT_MONOLITHIC_SHARED_LIB)
