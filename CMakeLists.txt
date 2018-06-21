@@ -20,6 +20,8 @@ if(POLICY CMP0054)
   cmake_policy(SET CMP0054 NEW)
 endif()
 
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 # limit configurations to Debug & Release builds only
 # and enable CTest
 SET (CMAKE_CONFIGURATION_TYPES Debug Release CACHE TYPE INTERNAL FORCE)
