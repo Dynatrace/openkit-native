@@ -20,6 +20,8 @@
 #include "OpenKit/IOpenKit.h"
 #include "OpenKit/ILogger.h"
 #include "OpenKit/ISSLTrustManager.h"
+#include "OpenKit/DataCollectionLevel.h"
+#include "OpenKit/CrashReportingLevel.h"
 
 #include <memory>
 
@@ -130,6 +132,24 @@ namespace openkit
 			AbstractOpenKitBuilder& withBeaconCacheUpperMemoryBoundary(int64_t upperMemoryBoundaryInBytes);
 
 			///
+			/// Sets the data collection level used
+			///
+			/// Default behavior is the level @ref DataCollectionLevel::OFF
+			/// @param[in] dataCollectionLevel data collection level to use
+			/// @returns @c this
+			///
+			AbstractOpenKitBuilder& withDataCollectionLevel(openkit::DataCollectionLevel dataCollectionLevel);
+
+			///
+			/// Sets the crash reporting level used
+			///
+			/// Default behavior is the level @ref CrashReportingLevel::OFF
+			/// @param[in] crashReportingLevel crash reporting level to use
+			/// @returns @c this
+			///
+			AbstractOpenKitBuilder& withCrashReportingLevel(openkit::CrashReportingLevel crashReportingLevel);
+
+			///
 			/// Builds an @ref OpenKit instance
 			/// @return an @ref OpenKit instance
 			///
@@ -202,6 +222,18 @@ namespace openkit
 			///
 			int64_t getBeaconCacheUpperMemoryBoundary() const;
 
+			///
+			/// Returns the data collection level
+			/// @returns the data collection level
+			///
+			DataCollectionLevel getDataCollectionLevel() const;
+
+			///
+			/// Returns the crash reporting level
+			/// @returns the crash reporting level
+			///
+			CrashReportingLevel getCrashReportingLevel() const;
+
 		public:
 			///
 			/// Returns a logger. If no logger is set, when building the OpenKit with @ref build(),
@@ -246,6 +278,12 @@ namespace openkit
 
 			/// upper memory boundary of beacon cache
 			int64_t mBeaconCacheUpperMemoryBoundary;
+
+			/// data collection level
+			openkit::DataCollectionLevel mDataCollectionLevel;
+
+			/// crash reporting level
+			openkit::CrashReportingLevel mCrashReportingLevel;
 	};
 }
 

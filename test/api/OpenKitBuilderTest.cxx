@@ -72,6 +72,10 @@ TEST_F(OpenKitBuilderTest, defaultsAreSetForAppMon)
 	ASSERT_EQ(beaconCacheConfiguration->getMaxRecordAge(), configuration::BeaconCacheConfiguration::DEFAULT_MAX_RECORD_AGE_IN_MILLIS.count());
 	ASSERT_EQ(beaconCacheConfiguration->getCacheSizeUpperBound(), configuration::BeaconCacheConfiguration::DEFAULT_UPPER_MEMORY_BOUNDARY_IN_BYTES);
 	ASSERT_EQ(beaconCacheConfiguration->getCacheSizeLowerBound(), configuration::BeaconCacheConfiguration::DEFAULT_LOWER_MEMORY_BOUNDARY_IN_BYTES);
+
+	auto beaconConfiguration = configuration->getBeaconConfiguration();
+	ASSERT_EQ(beaconConfiguration->getDataCollectionLevel(), DataCollectionLevel::OFF);
+	ASSERT_EQ(beaconConfiguration->getCrashReportingLevel(), CrashReportingLevel::OFF);
 }
 
 TEST_F(OpenKitBuilderTest, defaultsAreSetForDynatrace)
@@ -268,4 +272,40 @@ TEST_F(OpenKitBuilderTest, canSetBeaconCacheUpperMemoryBoundaryForDynatrace)
 		.buildConfiguration();
 
 	ASSERT_EQ(configuration->getBeaconCacheConfiguration()->getCacheSizeUpperBound(), testCacheUpperMemoryBoundary);
+}
+
+TEST_F(OpenKitBuilderTest, canSetDataCollectionLevelForDynatrace)
+{
+	auto configuration = DynatraceOpenKitBuilder(defaultEndpointURL, defaultApplicationID, defaultDeviceID)
+		.withDataCollectionLevel(DataCollectionLevel::PERFORMANCE)
+		.buildConfiguration();
+
+	ASSERT_EQ(configuration->getBeaconConfiguration()->getDataCollectionLevel(), DataCollectionLevel::PERFORMANCE);
+}
+
+TEST_F(OpenKitBuilderTest, canSetDataCollectionLevelForAppMon)
+{
+	auto configuration = AppMonOpenKitBuilder(defaultEndpointURL, defaultApplicationID, defaultDeviceID)
+		.withDataCollectionLevel(DataCollectionLevel::PERFORMANCE)
+		.buildConfiguration();
+
+	ASSERT_EQ(configuration->getBeaconConfiguration()->getDataCollectionLevel(), DataCollectionLevel::PERFORMANCE);
+}
+
+TEST_F(OpenKitBuilderTest, canSetCrashReportingLevelForDynatrace)
+{
+	auto configuration = DynatraceOpenKitBuilder(defaultEndpointURL, defaultApplicationID, defaultDeviceID)
+		.withCrashReportingLevel(CrashReportingLevel::OPT_IN_CRASHES)
+		.buildConfiguration();
+
+	ASSERT_EQ(configuration->getBeaconConfiguration()->getCrashReportingLevel(), CrashReportingLevel::OPT_IN_CRASHES);
+}
+
+TEST_F(OpenKitBuilderTest, canSetCrashReportingLevelForAppMon)
+{
+	auto configuration = AppMonOpenKitBuilder(defaultEndpointURL, defaultApplicationID, defaultDeviceID)
+		.withCrashReportingLevel(CrashReportingLevel::OPT_IN_CRASHES)
+		.buildConfiguration();
+
+	ASSERT_EQ(configuration->getBeaconConfiguration()->getCrashReportingLevel(), CrashReportingLevel::OPT_IN_CRASHES);
 }

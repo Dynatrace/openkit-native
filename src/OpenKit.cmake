@@ -24,6 +24,8 @@ set(OPENKIT_PUBLIC_HEADERS_CXX_API
     ${CMAKE_SOURCE_DIR}/include/OpenKit/ISession.h
     ${CMAKE_SOURCE_DIR}/include/OpenKit/IWebRequestTracer.h
     ${CMAKE_SOURCE_DIR}/include/OpenKit/ISSLTrustManager.h
+    ${CMAKE_SOURCE_DIR}/include/OpenKit/DataCollectionLevel.h
+    ${CMAKE_SOURCE_DIR}/include/OpenKit/CrashReportingLevel.h
 )
 
 set(OPENKIT_PUBLIC_HEADERS_C_API
@@ -144,6 +146,8 @@ set(OPENKIT_SOURCES_PROVIDERS
 set(OPENKIT_SOURCES_CONFIGURATION
     ${CMAKE_CURRENT_LIST_DIR}/configuration/BeaconCacheConfiguration.h
     ${CMAKE_CURRENT_LIST_DIR}/configuration/BeaconCacheConfiguration.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/configuration/BeaconConfiguration.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/configuration/BeaconConfiguration.cxx
     ${CMAKE_CURRENT_LIST_DIR}/configuration/HTTPClientConfiguration.h
     ${CMAKE_CURRENT_LIST_DIR}/configuration/HTTPClientConfiguration.cxx
     ${CMAKE_CURRENT_LIST_DIR}/configuration/Configuration.h

@@ -351,6 +351,9 @@ namespace protocol
 
 		/// HTTP client configuration
 		std::shared_ptr<configuration::HTTPClientConfiguration> mHTTPClientConfiguration;
+
+		/// beacon configuration
+		std::shared_ptr<configuration::BeaconConfiguration> mBeaconConfiguration;
 	};
 }
 #endif
