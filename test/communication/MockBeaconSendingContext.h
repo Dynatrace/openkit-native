@@ -51,7 +51,8 @@ namespace test
 				std::make_shared<configuration::Configuration>( std::shared_ptr<configuration::Device>(new configuration::Device("", "", "")), configuration::OpenKitType::Type::DYNATRACE, core::UTF8String(""), core::UTF8String(""), core::UTF8String(""), 1,  core::UTF8String(""),
 																std::make_shared<providers::DefaultSessionIDProvider>(),
 																std::make_shared<protocol::SSLStrictTrustManager>(),
-																std::make_shared<configuration::BeaconCacheConfiguration>(-1, -1, -1)))
+																std::make_shared<configuration::BeaconCacheConfiguration>(-1, -1, -1),
+																std::make_shared<configuration::BeaconConfiguration>()))
 		{
 		}
 

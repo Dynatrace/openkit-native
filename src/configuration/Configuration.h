@@ -23,6 +23,7 @@
 #include "configuration/Device.h"
 #include "protocol/StatusResponse.h"
 #include "configuration/BeaconCacheConfiguration.h"
+#include "configuration/BeaconConfiguration.h"
 
 #include <memory>
 #include <atomic>
@@ -46,10 +47,12 @@ namespace configuration
 		/// @param[in] endpointURL beacon endpoint URL
 		/// @param[in] sessionIDProvider provider for session IDs
 		/// @param[in] sslTrustManager the ISSLTrustManager instance to use
+		/// @param[in] beaconCacheConfiguration beacon cache configuration
+		/// @param[in] beaconConfiguration beacon configuration
 		///
 		Configuration(std::shared_ptr<configuration::Device> device, OpenKitType openKitType, const core::UTF8String& applicationName, const core::UTF8String& applicationVersion, const core::UTF8String& applicationID, uint64_t deviceID, const core::UTF8String& endpointURL,
 			std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider, std::shared_ptr<openkit::ISSLTrustManager> sslTrustManager,
-			std::shared_ptr<configuration::BeaconCacheConfiguration> beaconCacheConfiguration);
+			std::shared_ptr<configuration::BeaconCacheConfiguration> beaconCacheConfiguration, std::shared_ptr<configuration::BeaconConfiguration> beaconConfiguration);
 
 		virtual ~Configuration() {}
 
@@ -166,6 +169,12 @@ namespace configuration
 		///
 		std::shared_ptr<configuration::BeaconCacheConfiguration> getBeaconCacheConfiguration() const;
 
+		///
+		/// Return the beacon configuration
+		/// @returns the beacon configuration
+		///
+		std::shared_ptr<configuration::BeaconConfiguration> getBeaconConfiguration() const;
+
 	private:
 		/// HTTP client configuration
 		std::shared_ptr<HTTPClientConfiguration> mHTTPClientConfiguration;
@@ -211,6 +220,9 @@ namespace configuration
 
 		/// configuration options for the beacon caching
 		std::shared_ptr<configuration::BeaconCacheConfiguration> mBeaconCacheConfiguration;
+
+		/// configuration options for @ref Beacon
+		std::shared_ptr<configuration::BeaconConfiguration> mBeaconConfiguration;
 	};
 }
 

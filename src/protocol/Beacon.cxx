@@ -14,6 +14,8 @@
 * limitations under the License.
 */
 
+#include "OpenKit/DataCollectionLevel.h"
+#include "OpenKit/CrashReportingLevel.h"
 #include "Beacon.h"
 #include "ProtocolConstants.h"
 #include "BeaconProtocolConstants.h"
@@ -47,6 +49,8 @@ Beacon::Beacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching
 			logger->warning("Beacon() - Client IP address validation failed: %s", clientIPAddress.getStringData().c_str());
 		}
 	}
+
+	mBeaconConfiguration = configuration->getBeaconConfiguration();
 
 	mBasicBeaconData = createBasicBeaconData();
 }

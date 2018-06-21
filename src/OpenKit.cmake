@@ -82,6 +82,7 @@ set(OPENKIT_SOURCES_PROVIDERS
 )
 
 set(OPENKIT_SOURCES_CONFIGURATION
+	${CMAKE_CURRENT_LIST_DIR}/configuration/BeaconConfiguration.cxx
 	${CMAKE_CURRENT_LIST_DIR}/configuration/BeaconCacheConfiguration.cxx
 	${CMAKE_CURRENT_LIST_DIR}/configuration/HTTPClientConfiguration.cxx
 	${CMAKE_CURRENT_LIST_DIR}/configuration/Configuration.cxx

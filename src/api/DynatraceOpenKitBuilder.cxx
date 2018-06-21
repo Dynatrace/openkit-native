@@ -38,6 +38,11 @@ std::shared_ptr<configuration::Configuration> DynatraceOpenKitBuilder::buildConf
 			getBeaconCacheUpperMemoryBoundary()
 		);
 
+	std::shared_ptr<configuration::BeaconConfiguration> beaconConfiguration = std::make_shared<configuration::BeaconConfiguration>(
+		getDataCollectionLevel(),
+		getCrashReportingLevel()
+		);
+
 	return std::make_shared<configuration::Configuration>(
 			device,	
 			configuration::OpenKitType::Type::DYNATRACE,
@@ -48,7 +53,8 @@ std::shared_ptr<configuration::Configuration> DynatraceOpenKitBuilder::buildConf
 			getEndpointURL(),
 			std::make_shared<providers::DefaultSessionIDProvider>(),
 			getTrustManager(),
-			beaconCacheConfiguration
+			beaconCacheConfiguration,
+			beaconConfiguration
 		);
 }
 

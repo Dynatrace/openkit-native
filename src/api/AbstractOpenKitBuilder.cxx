@@ -35,6 +35,8 @@ AbstractOpenKitBuilder::AbstractOpenKitBuilder(const char* endpointURL, int64_t 
 	, mBeaconCacheMaxRecordAge(configuration::BeaconCacheConfiguration::DEFAULT_MAX_RECORD_AGE_IN_MILLIS.count())
 	, mBeaconCacheLowerMemoryBoundary(configuration::BeaconCacheConfiguration::DEFAULT_LOWER_MEMORY_BOUNDARY_IN_BYTES)
 	, mBeaconCacheUpperMemoryBoundary(configuration::BeaconCacheConfiguration::DEFAULT_UPPER_MEMORY_BOUNDARY_IN_BYTES)
+	, mDataCollectionLevel(configuration::BeaconConfiguration::DEFAULT_DATA_COLLECTION_LEVEL)
+	, mCrashReportingLevel(configuration::BeaconConfiguration::DEFAULT_CRASH_REPORTING_LEVEL)
 {
 
 }
@@ -112,6 +114,18 @@ AbstractOpenKitBuilder& AbstractOpenKitBuilder::withBeaconCacheUpperMemoryBounda
 	return *this;
 }
 
+AbstractOpenKitBuilder& AbstractOpenKitBuilder::withDataCollectionLevel(DataCollectionLevel dataCollectionLevel)
+{
+	mDataCollectionLevel = dataCollectionLevel;
+	return *this;
+}
+
+AbstractOpenKitBuilder& AbstractOpenKitBuilder::withCrashReportingLevel(CrashReportingLevel crashReportingLevel)
+{
+	mCrashReportingLevel = crashReportingLevel;
+	return *this;
+}
+
 std::shared_ptr<openkit::IOpenKit> AbstractOpenKitBuilder::build()
 {
 	auto openKit = std::make_shared<core::OpenKit>(getLogger(), buildConfiguration());
@@ -176,4 +190,14 @@ int64_t AbstractOpenKitBuilder::getBeaconCacheLowerMemoryBoundary() const
 int64_t AbstractOpenKitBuilder::getBeaconCacheUpperMemoryBoundary() const
 {
 	return mBeaconCacheUpperMemoryBoundary;
+}
+
+openkit::DataCollectionLevel AbstractOpenKitBuilder::getDataCollectionLevel() const
+{
+	return mDataCollectionLevel;
+}
+
+openkit::CrashReportingLevel AbstractOpenKitBuilder::getCrashReportingLevel() const
+{
+	return mCrashReportingLevel;
 }
