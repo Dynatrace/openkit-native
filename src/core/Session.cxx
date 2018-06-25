@@ -37,6 +37,7 @@ Session::Session(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<Beaco
 
 void Session::startSession()
 {
+	mBeacon->startSession(shared_from_this());
 	mBeaconSender->startSession(shared_from_this());
 }
 
