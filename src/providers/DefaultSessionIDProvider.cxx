@@ -15,6 +15,7 @@
 */
 
 #include "DefaultSessionIDProvider.h"
+#include "DefaultPRNGenerator.h"
 
 #include <random>
 
@@ -24,11 +25,8 @@ DefaultSessionIDProvider::DefaultSessionIDProvider()
 	: mLastSessionNumber(0)
 	, mNextIDMutex()
 {
-	// Seed with a real random value, if available
-
-	std::default_random_engine e1((std::random_device())());
-	std::uniform_int_distribution<int32_t> uniform_dist(0, INT32_MAX);
-	mLastSessionNumber = uniform_dist(e1);
+	providers::DefaultPRNGenerator randomGenerator;
+	mLastSessionNumber = randomGenerator.nextUInt32(std::numeric_limits<int32_t>::max());
 	
 }
 
