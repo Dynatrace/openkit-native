@@ -74,8 +74,8 @@ TEST_F(OpenKitBuilderTest, defaultsAreSetForAppMon)
 	ASSERT_EQ(beaconCacheConfiguration->getCacheSizeLowerBound(), configuration::BeaconCacheConfiguration::DEFAULT_LOWER_MEMORY_BOUNDARY_IN_BYTES);
 
 	auto beaconConfiguration = configuration->getBeaconConfiguration();
-	ASSERT_EQ(beaconConfiguration->getDataCollectionLevel(), DataCollectionLevel::OFF);
-	ASSERT_EQ(beaconConfiguration->getCrashReportingLevel(), CrashReportingLevel::OFF);
+	ASSERT_EQ(beaconConfiguration->getDataCollectionLevel(), configuration::BeaconConfiguration::DEFAULT_DATA_COLLECTION_LEVEL);
+	ASSERT_EQ(beaconConfiguration->getCrashReportingLevel(), configuration::BeaconConfiguration::DEFAULT_CRASH_REPORTING_LEVEL);
 }
 
 TEST_F(OpenKitBuilderTest, defaultsAreSetForDynatrace)

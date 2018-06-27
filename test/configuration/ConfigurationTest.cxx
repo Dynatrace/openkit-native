@@ -147,11 +147,11 @@ TEST_F(ConfigurationTest, tenantURLisSetCorrectly)
 TEST_F(ConfigurationTest, defaultDataCollectionLevelIsOFF)
 {
 	auto target = getDefaultConfiguration();
-	ASSERT_EQ(target->getBeaconConfiguration()->getDataCollectionLevel(), openkit::DataCollectionLevel::OFF);
+	ASSERT_EQ(target->getBeaconConfiguration()->getDataCollectionLevel(), configuration::BeaconConfiguration::DEFAULT_DATA_COLLECTION_LEVEL);
 }
 
 TEST_F(ConfigurationTest, defaultCrashReportingLevelIsOFF)
 {
 	auto target = getDefaultConfiguration();
-	ASSERT_EQ(target->getBeaconConfiguration()->getCrashReportingLevel(), openkit::CrashReportingLevel::OFF);
+	ASSERT_EQ(target->getBeaconConfiguration()->getCrashReportingLevel(), configuration::BeaconConfiguration::DEFAULT_CRASH_REPORTING_LEVEL);
 }

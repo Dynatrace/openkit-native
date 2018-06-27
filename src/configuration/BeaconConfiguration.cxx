@@ -18,8 +18,8 @@
 
 using namespace configuration;
 
-const openkit::DataCollectionLevel BeaconConfiguration::DEFAULT_DATA_COLLECTION_LEVEL = openkit::DataCollectionLevel::OFF;
-const openkit::CrashReportingLevel BeaconConfiguration::DEFAULT_CRASH_REPORTING_LEVEL = openkit::CrashReportingLevel::OFF;
+const openkit::DataCollectionLevel BeaconConfiguration::DEFAULT_DATA_COLLECTION_LEVEL = openkit::DataCollectionLevel::USER_BEHAVIOR;
+const openkit::CrashReportingLevel BeaconConfiguration::DEFAULT_CRASH_REPORTING_LEVEL = openkit::CrashReportingLevel::OPT_IN_CRASHES;
 
 BeaconConfiguration::BeaconConfiguration()
 	: BeaconConfiguration(DEFAULT_DATA_COLLECTION_LEVEL, DEFAULT_CRASH_REPORTING_LEVEL)
