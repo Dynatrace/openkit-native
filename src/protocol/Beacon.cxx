@@ -21,10 +21,18 @@
 #include "BeaconProtocolConstants.h"
 #include "core/util/URLEncoding.h"
 #include "core/util/InetAddressValidator.h"
+#include "providers/DefaultPRNGenerator.h"
+
+#include <random>
 
 using namespace protocol;
 
 Beacon::Beacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching::IBeaconCache> beaconCache, std::shared_ptr<configuration::Configuration> configuration, const core::UTF8String clientIPAddress, std::shared_ptr<providers::IThreadIDProvider> threadIDProvider, std::shared_ptr<providers::ITimingProvider> timingProvider)
+	: Beacon(logger, beaconCache, configuration, clientIPAddress, threadIDProvider, timingProvider, std::make_shared<providers::DefaultPRNGenerator>())
+{
+}
+
+Beacon::Beacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching::IBeaconCache> beaconCache, std::shared_ptr<configuration::Configuration> configuration, const core::UTF8String clientIPAddress, std::shared_ptr<providers::IThreadIDProvider> threadIDProvider, std::shared_ptr<providers::ITimingProvider> timingProvider, std::shared_ptr<providers::IPRNGenerator> randomGenerator)
 	: mLogger(logger)
 	, mConfiguration(configuration)
 	, mClientIPAddress(core::UTF8String(""))
@@ -32,11 +40,12 @@ Beacon::Beacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching
 	, mThreadIDProvider(threadIDProvider)
 	, mSequenceNumber(0)
 	, mID(0)
-	, mSessionNumber(configuration->createSessionNumber())
+	, mSessionNumber()
 	, mSessionStartTime(timingProvider->provideTimestampInMilliseconds())
 	, mBasicBeaconData()
 	, mBeaconCache(beaconCache)
 	, mHTTPClientConfiguration(configuration->getHTTPClientConfiguration())
+	, mRandomGenerator(randomGenerator)
 {
 	if (core::util::InetAddressValidator::IsValidIP(clientIPAddress))
 	{
@@ -51,6 +60,17 @@ Beacon::Beacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching
 	}
 
 	mBeaconConfiguration = configuration->getBeaconConfiguration();
+
+	if (mBeaconConfiguration->getDataCollectionLevel() == openkit::DataCollectionLevel::USER_BEHAVIOR)
+	{
+		mDeviceID = mConfiguration->getDeviceID();
+		mSessionNumber = configuration->createSessionNumber();
+	}
+	else
+	{
+		mDeviceID = mRandomGenerator->nextUInt64(std::numeric_limits<uint64_t>::max());
+		mSessionNumber = 1;
+	}
 
 	mBasicBeaconData = createBasicBeaconData();
 }
@@ -73,8 +93,8 @@ core::UTF8String Beacon::createBasicBeaconData()
 	addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_AGENT_TECHNOLOGY_TYPE, AGENT_TECHNOLOGY_TYPE);
 
 	// device/visitor ID, session number and IP address
-	addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_VISITOR_ID, mConfiguration->getDeviceID());
-	addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_SESSION_NUMBER, static_cast<int32_t>(mSessionNumber));
+	addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_VISITOR_ID, static_cast<int32_t>(getDeviceID()));
+	addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_SESSION_NUMBER, static_cast<int32_t>(getSessionNumber()));
 	addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_CLIENT_IP_ADDRESS, mClientIPAddress);
 
 	// platform information
@@ -186,6 +206,11 @@ int32_t Beacon::createID()
 
 core::UTF8String Beacon::createTag(int32_t parentActionID, int32_t sequenceNumber)
 {
+	if (mBeaconConfiguration->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
+	{
+		return core::UTF8String("");
+	}
+
 	core::UTF8String webRequestTag(TAG_PREFIX);
 
 	webRequestTag.concatenate("_");
@@ -210,6 +235,11 @@ core::UTF8String Beacon::createTag(int32_t parentActionID, int32_t sequenceNumbe
 
 void Beacon::addAction(std::shared_ptr<core::Action> action)
 {
+	if (mBeaconConfiguration->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
+	{
+		return;
+	}
+
 	core::UTF8String actionData = createBasicEventData(EventType::ACTION, action->getName());
 
 	addKeyValuePair(actionData, BEACON_KEY_ACTION_ID, action->getID());
@@ -224,6 +254,11 @@ void Beacon::addAction(std::shared_ptr<core::Action> action)
 
 void Beacon::addAction(std::shared_ptr<core::RootAction> action)
 {
+	if (mBeaconConfiguration->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
+	{
+		return;
+	}
+
 	core::UTF8String actionData = createBasicEventData(EventType::ACTION, action->getName());
 
 	addKeyValuePair(actionData, BEACON_KEY_ACTION_ID, action->getID());
@@ -257,6 +292,11 @@ void Beacon::startSession(std::shared_ptr<core::Session> session)
 
 void Beacon::endSession(std::shared_ptr<core::Session> session)
 {
+	if (mBeaconConfiguration->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
+	{
+		return;
+	}
+
 	core::UTF8String eventData = createBasicEventData(EventType::SESSION_END, nullptr);
 
 	addKeyValuePair(eventData, BEACON_KEY_PARENT_ACTION_ID, 0);
@@ -268,6 +308,11 @@ void Beacon::endSession(std::shared_ptr<core::Session> session)
 
 void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, int32_t value)
 {
+	if (mBeaconConfiguration->getDataCollectionLevel() != openkit::DataCollectionLevel::USER_BEHAVIOR)
+	{
+		return;
+	}
+
 	uint64_t eventTimestamp;
 	core::UTF8String eventData = buildEvent(EventType::VALUE_INT, valueName, actionID, eventTimestamp);
 	addKeyValuePair(eventData, BEACON_KEY_VALUE, value);
@@ -277,6 +322,11 @@ void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, in
 
 void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, double value)
 {
+	if (mBeaconConfiguration->getDataCollectionLevel() != openkit::DataCollectionLevel::USER_BEHAVIOR)
+	{
+		return;
+	}
+
 	uint64_t eventTimestamp;
 	core::UTF8String eventData = buildEvent(EventType::VALUE_DOUBLE, valueName, actionID, eventTimestamp);
 
@@ -287,6 +337,11 @@ void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, do
 
 void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, const core::UTF8String& value)
 {
+	if (mBeaconConfiguration->getDataCollectionLevel() != openkit::DataCollectionLevel::USER_BEHAVIOR)
+	{
+		return;
+	}
+
 	uint64_t eventTimestamp;
 	core::UTF8String eventData = buildEvent(EventType::VALUE_STRING, valueName, actionID, eventTimestamp);
 
@@ -297,6 +352,11 @@ void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, co
 
 void Beacon::reportEvent(int32_t actionID, const core::UTF8String& eventName)
 {
+	if (mBeaconConfiguration->getDataCollectionLevel() != openkit::DataCollectionLevel::USER_BEHAVIOR)
+	{
+		return;
+	}
+
 	uint64_t eventTimestamp;
 	core::UTF8String eventData = buildEvent(EventType::NAMED_EVENT, eventName, actionID, eventTimestamp);
 
@@ -306,6 +366,11 @@ void Beacon::reportEvent(int32_t actionID, const core::UTF8String& eventName)
 void Beacon::reportError(int32_t actionID, const core::UTF8String& errorName, int32_t errorCode, const core::UTF8String& reason)
 {
 	if (!mConfiguration->isCaptureErrors())
+	{
+		return;
+	}
+
+	if (mBeaconConfiguration->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
 	{
 		return;
 	}
@@ -331,6 +396,11 @@ void Beacon::reportCrash(const core::UTF8String& errorName, const core::UTF8Stri
 		return;
 	}
 
+	if (mBeaconConfiguration->getCrashReportingLevel() == openkit::CrashReportingLevel::OFF)
+	{
+		return;
+	}
+
 	core::UTF8String eventData = createBasicEventData(EventType::FAILURE_CRASH, errorName);
 
 	auto timestamp = mTimingProvider->provideTimestampInMilliseconds();
@@ -346,6 +416,11 @@ void Beacon::reportCrash(const core::UTF8String& errorName, const core::UTF8Stri
 
 void Beacon::addWebRequest(int32_t parentActionID, std::shared_ptr<core::WebRequestTracerBase> webRequestTracer)
 {
+	if (mBeaconConfiguration->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
+	{
+		return;
+	}
+
 	core::UTF8String eventData = createBasicEventData(EventType::WEBREQUEST, webRequestTracer->getURL());
 
 	addKeyValuePair(eventData, BEACON_KEY_PARENT_ACTION_ID, parentActionID);
@@ -377,6 +452,11 @@ void Beacon::addWebRequest(int32_t parentActionID, std::shared_ptr<core::WebRequ
 
 void Beacon::identifyUser(const core::UTF8String& userTag)
 {
+	if (mBeaconConfiguration->getDataCollectionLevel() != openkit::DataCollectionLevel::USER_BEHAVIOR)
+	{
+		return;
+	}
+
 	core::UTF8String eventData = createBasicEventData(EventType::IDENTIFY_USER, userTag);
 
 	auto timestamp = mTimingProvider->provideTimestampInMilliseconds();
@@ -463,4 +543,9 @@ void Beacon::clearData()
 uint32_t Beacon::getSessionNumber() const
 {
 	return mSessionNumber;
+}
+
+uint64_t Beacon::getDeviceID() const
+{
+	return mDeviceID;
 }
