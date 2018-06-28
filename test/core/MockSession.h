@@ -48,6 +48,7 @@ namespace test
 		MOCK_METHOD1(sendBeaconRawPtrProxy, protocol::StatusResponse*(std::shared_ptr<providers::IHTTPClientProvider>));
 		MOCK_CONST_METHOD0(isEmpty, bool());
 		MOCK_METHOD0(clearCapturedData, void());
+		MOCK_CONST_METHOD0(getEndTime, int64_t());
 	};
 }
 

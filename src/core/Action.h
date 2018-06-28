@@ -91,7 +91,7 @@ namespace core
 		/// Returns the action ID
 		/// @returns the action ID
 		///
-		int32_t getID() const;
+		virtual int32_t getID() const;
 
 		///
 		/// Returns the action name
