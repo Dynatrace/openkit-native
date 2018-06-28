@@ -15,8 +15,8 @@
 */
 #include "protocol/Beacon.h"
 
-#include "Openkit/DataCollectionLevel.h"
-#include "Openkit/CrashReportingLevel.h"
+#include "OpenKit/DataCollectionLevel.h"
+#include "OpenKit/CrashReportingLevel.h"
 #include "caching/BeaconCache.h"
 
 #include "core/util/DefaultLogger.h"

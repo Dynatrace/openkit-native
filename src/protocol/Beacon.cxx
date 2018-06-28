@@ -45,6 +45,8 @@ Beacon::Beacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching
 	, mBasicBeaconData()
 	, mBeaconCache(beaconCache)
 	, mHTTPClientConfiguration(configuration->getHTTPClientConfiguration())
+	, mBeaconConfiguration(configuration->getBeaconConfiguration())
+	, mDeviceID(0)
 	, mRandomGenerator(randomGenerator)
 {
 	if (core::util::InetAddressValidator::IsValidIP(clientIPAddress))
@@ -58,8 +60,6 @@ Beacon::Beacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching
 			logger->warning("Beacon() - Client IP address validation failed: %s", clientIPAddress.getStringData().c_str());
 		}
 	}
-
-	mBeaconConfiguration = configuration->getBeaconConfiguration();
 
 	if (mBeaconConfiguration->getDataCollectionLevel() == openkit::DataCollectionLevel::USER_BEHAVIOR)
 	{
