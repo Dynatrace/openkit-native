@@ -22,12 +22,15 @@
 namespace providers
 {
 	///
-	/// Interface providing random numbers
+	/// Interface providing pseudo random numbers
 	///
 	class IPRNGenerator
 	{
 	public:
 
+		///
+		/// Destructor
+		///
 		virtual ~IPRNGenerator() {}
 
 		///

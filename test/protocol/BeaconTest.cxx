@@ -137,12 +137,17 @@ public:
 		return configuration;
 	}
 
+	std::shared_ptr<openkit::ILogger> getLogger()
+	{
+		return logger;
+	}
+
 	void TearDown()
 	{
 
 	}
 
-public:
+private:
 	std::ostringstream devNull;
 	std::shared_ptr<openkit::ILogger> logger;
 	std::shared_ptr<providers::IThreadIDProvider> threadIDProvider;
@@ -169,7 +174,7 @@ TEST_F(BeaconTest, noWebRequestIsReportedForDataCollectionLevel0)
 {
 	//given
 	auto target = buildBeacon(openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OFF);
-	auto mockWebRequestTracer = std::make_shared<testing::NiceMock<test::MockWebRequestTracer>>(logger, target);
+	auto mockWebRequestTracer = std::make_shared<testing::NiceMock<test::MockWebRequestTracer>>(getLogger(), target);
 
 	ON_CALL(*mockWebRequestTracer, getBytesSent())
 		.WillByDefault(testing::Return(123));
@@ -334,7 +339,7 @@ TEST_F(BeaconTest, givenVisitorIDIsUsedOnDataCollectionLevel2)
 TEST_F(BeaconTest, randomVisitorIDCannotBeNegativeOnDataCollectionLevel0)
 {
 	// given
-	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OFF);
 
 	// when
 	auto visitorID = target->getDeviceID();
@@ -347,7 +352,7 @@ TEST_F(BeaconTest, randomVisitorIDCannotBeNegativeOnDataCollectionLevel0)
 TEST_F(BeaconTest, randomVisitorIDCannotBeNegativeOnDataCollectionLevel1)
 {
 	// given
-	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(openkit::DataCollectionLevel::PERFORMANCE, openkit::CrashReportingLevel::OFF);
 
 	// when
 	auto visitorID = target->getDeviceID();
@@ -442,7 +447,7 @@ TEST_F(BeaconTest, actionNotReportedForDataCollectionLevel0_RootAction)
 TEST_F(BeaconTest, actionReportedForDataCollectionLevel1_Action)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(openkit::DataCollectionLevel::PERFORMANCE, openkit::CrashReportingLevel::OFF);
 	auto actionMock = createMockedAction(target);
 
 	//verify
@@ -560,7 +565,7 @@ TEST_F(BeaconTest, sessionReportedForDataCollectionLevel2)
 	ASSERT_FALSE(target->isEmpty());
 }
 
-TEST_F(BeaconTest, IdentifyUserDoesNotReportOnDataCollectionLevel0)
+TEST_F(BeaconTest, identifyUserNotAllowedToReportOnDataCollectionLevel0)
 {
 	//given
 	auto target = buildBeacon(openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OFF);
@@ -576,7 +581,7 @@ TEST_F(BeaconTest, IdentifyUserDoesNotReportOnDataCollectionLevel0)
 	ASSERT_TRUE(target->isEmpty());
 }
 
-TEST_F(BeaconTest, identifyUserDoesNotReportOnDataCollectionLevel1)
+TEST_F(BeaconTest, identifyUserNotAllowedToReportOnDataCollectionLevel1)
 {
 	//given
 	auto target = buildBeacon(openkit::DataCollectionLevel::PERFORMANCE, openkit::CrashReportingLevel::OFF);
@@ -592,7 +597,7 @@ TEST_F(BeaconTest, identifyUserDoesNotReportOnDataCollectionLevel1)
 	ASSERT_TRUE(target->isEmpty());
 }
 
-TEST_F(BeaconTest, identifyUserDoesReportOnDataCollectionLevel2)
+TEST_F(BeaconTest, identifyUserReportsOnDataCollectionLevel2)
 {
 	//given
 	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF);

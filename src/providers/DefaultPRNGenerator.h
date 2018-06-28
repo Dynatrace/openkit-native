@@ -41,6 +41,7 @@ namespace providers
 		virtual uint64_t nextUInt64(uint64_t upperBound) override;
 
 	private:
+		/// random engine generating the random numbers
 		std::default_random_engine mRandomEngine;
 
 	};
