@@ -102,6 +102,12 @@ namespace protocol
 		void addAction(std::shared_ptr<core::RootAction> action);
 
 		///
+		/// Add Session Start to Beacon
+		/// @param[in] session session for which a session start event is added to the Beacon
+		///
+		virtual void startSession(std::shared_ptr<core::Session> session);
+
+		///
 		/// Add Session to Beacon when session is ended.
 		/// @param[in] session ended session that is added to the Beacon
 		///

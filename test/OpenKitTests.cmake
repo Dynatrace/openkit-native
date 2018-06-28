@@ -42,18 +42,24 @@ set(OPENKIT_SOURCES_TEST_CORE
 	${CMAKE_CURRENT_LIST_DIR}/core/util/URLEncodingTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/core/util/SynchronizedQueueTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/core/util/InetAddressValidatorTest.cxx
-	${CMAKE_CURRENT_LIST_DIR}/core/util/DefaultLoggerTest.cxx
+	${CMAKE_CURRENT_LIST_DIR}/core/MockBeaconSender.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/MockSession.h
 )
 
 set(OPENKIT_SOURCES_TEST_PROTOCOL
 	${CMAKE_CURRENT_LIST_DIR}/protocol/StatusResponseTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/protocol/TimeSyncResponseTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/MockBeacon.h
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/MockHTTPClient.h
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/TestSSLTrustManager.h
 )
 
 set(OPENKIT_SOURCES_TEST_PROVIDERS
 	${CMAKE_CURRENT_LIST_DIR}/providers/DefaultTimingProviderTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/providers/DefaultSessionIDProviderTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/providers/DefaultThreadIDProviderTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/providers/MockHTTPClientProvider.h
+    ${CMAKE_CURRENT_LIST_DIR}/providers/MockTimingProvider.h
 )
 
 set(OPENKIT_SOURCES_TEST_COMMUNICATION
@@ -65,6 +71,10 @@ set(OPENKIT_SOURCES_TEST_COMMUNICATION
 	${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingCaptureOnStateTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingFlushSessionStateTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingContextTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/communication/CustomMatchers.h
+    ${CMAKE_CURRENT_LIST_DIR}/communication/MockAbstractBeaconSendingState.h
+    ${CMAKE_CURRENT_LIST_DIR}/communication/MockBeaconSendingContext.h
+    ${CMAKE_CURRENT_LIST_DIR}/communication/TestBeaconSendingState.h
 )
 
 set(OPENKIT_SOURCES_TEST_CONFIGURATION
@@ -79,6 +89,9 @@ set(OPENKIT_SOURCES_TEST_CACHING
 	${CMAKE_CURRENT_LIST_DIR}/caching/TimeEvictionStrategyTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/caching/BeaconCacheEvictorTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/caching/BeaconCacheTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/caching/MockBeaconCache.h
+    ${CMAKE_CURRENT_LIST_DIR}/caching/MockBeaconCacheEvictionStrategy.h
+    ${CMAKE_CURRENT_LIST_DIR}/caching/MockObserver.h
 )
 
 set(OPENKIT_SOURCES_UNITTEST
