@@ -231,6 +231,8 @@ TEST_F(SessionTest, identifySingleUser)
 		.Times(1);
 	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
 		.Times(testing::Exactly(1));
+	EXPECT_CALL(*mockBeaconStrict, startSession(testing::_))
+		.Times(testing::Exactly(1));
 
 	// create test environment
 	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(logger, mockBeaconSender, mockBeaconStrict);
@@ -250,6 +252,8 @@ TEST_F(SessionTest, identifyMultipleUsers)
 		.Times(1);
 	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
 		.Times(testing::Exactly(1));
+	EXPECT_CALL(*mockBeaconStrict, startSession(testing::_))
+		.Times(testing::Exactly(1));
 
 	// create test environment
 	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(logger, mockBeaconSender, mockBeaconStrict);
@@ -267,6 +271,8 @@ TEST_F(SessionTest, identifySameUser)
 	EXPECT_CALL(*mockBeaconStrict, identifyUser(core::UTF8String("Some user")))
 		.Times(2);
 	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
+		.Times(testing::Exactly(1));
+	EXPECT_CALL(*mockBeaconStrict, startSession(testing::_))
 		.Times(testing::Exactly(1));
 
 	// create test environment
@@ -324,6 +330,8 @@ TEST_F(SessionTest, reportSingleCrash)
 		.Times(1);
 	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
 		.Times(1);
+	EXPECT_CALL(*mockBeaconStrict, startSession(testing::_))
+		.Times(testing::Exactly(1));
 
 	// create test environment
 	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(logger, mockBeaconSender, mockBeaconStrict);
@@ -340,6 +348,8 @@ TEST_F(SessionTest, reportMultipleCrashes)
 		.Times(2);
 	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
 		.Times(1);
+	EXPECT_CALL(*mockBeaconStrict, startSession(testing::_))
+		.Times(testing::Exactly(1));
 
 	// create test environment
 	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(logger, mockBeaconSender, mockBeaconStrict);
@@ -357,6 +367,8 @@ TEST_F(SessionTest, reportSameCrash)
 		.Times(2);
 	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
 		.Times(1);
+	EXPECT_CALL(*mockBeaconStrict, startSession(testing::_))
+		.Times(testing::Exactly(1));
 
 	// create test environment
 	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(logger, mockBeaconSender, mockBeaconStrict);
@@ -373,6 +385,8 @@ TEST_F(SessionTest, endSession)
 	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
 		.Times(testing::Exactly(1));
 	EXPECT_CALL(*mockBeaconStrict, getCurrentTimestamp())
+		.Times(testing::Exactly(1));
+	EXPECT_CALL(*mockBeaconStrict, startSession(testing::_))
 		.Times(testing::Exactly(1));
 	EXPECT_CALL(*mockBeaconStrict, endSession(testing::_))
 		.Times(testing::Exactly(1));
@@ -395,6 +409,8 @@ TEST_F(SessionTest, endSessionTwice)
 		.Times(testing::Exactly(1));
 	EXPECT_CALL(*mockBeaconStrict, getCurrentTimestamp())
 		.Times(testing::Exactly(2));
+	EXPECT_CALL(*mockBeaconStrict, startSession(testing::_))
+		.Times(testing::Exactly(1));
 	EXPECT_CALL(*mockBeaconStrict, endSession(testing::_))
 		.Times(testing::Exactly(1));
 	EXPECT_CALL(*mockBeaconSender, finishSession(testing::_))
@@ -433,6 +449,8 @@ TEST_F(SessionTest, endSessionWithOpenRootActions)
 		.Times(testing::Exactly(1));
 	EXPECT_CALL(*mockBeaconStrict, getCurrentTimestamp())
 		.Times(testing::Exactly(7));
+	EXPECT_CALL(*mockBeaconStrict, startSession(testing::_))
+		.Times(testing::Exactly(1));
 	EXPECT_CALL(*mockBeaconStrict, endSession(testing::_))
 		.Times(testing::Exactly(1));
 	EXPECT_CALL(*mockBeaconSender, finishSession(testing::_))
@@ -574,6 +592,8 @@ TEST_F(SessionTest, reportCrashDoesNothingIfSessionIsEnded)
 	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
 		.Times(testing::Exactly(1));
 	EXPECT_CALL(*mockBeaconSender, finishSession(testing::_))
+		.Times(testing::Exactly(1));
+	EXPECT_CALL(*mockBeaconNice, startSession(testing::_))
 		.Times(testing::Exactly(1));
 
 	//given
