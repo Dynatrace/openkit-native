@@ -24,6 +24,7 @@
 #include "providers/DefaultPRNGenerator.h"
 
 #include <random>
+#include <sstream>
 
 using namespace protocol;
 
@@ -93,8 +94,8 @@ core::UTF8String Beacon::createBasicBeaconData()
 	addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_AGENT_TECHNOLOGY_TYPE, AGENT_TECHNOLOGY_TYPE);
 
 	// device/visitor ID, session number and IP address
-	addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_VISITOR_ID, static_cast<int32_t>(getDeviceID()));
-	addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_SESSION_NUMBER, static_cast<int32_t>(getSessionNumber()));
+	addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_VISITOR_ID, core::UTF8String(std::to_string(getDeviceID())));
+	addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_SESSION_NUMBER, getSessionNumber());
 	addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_CLIENT_IP_ADDRESS, mClientIPAddress);
 
 	// platform information
@@ -540,7 +541,7 @@ void Beacon::clearData()
 	mBeaconCache->deleteCacheEntry(mSessionNumber);
 }
 
-uint32_t Beacon::getSessionNumber() const
+int32_t Beacon::getSessionNumber() const
 {
 	return mSessionNumber;
 }

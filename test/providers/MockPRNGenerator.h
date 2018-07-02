@@ -32,7 +32,6 @@ namespace test {
 		///
 		MockPRNGenerator()
 		{
-
 		}
 
 		virtual ~MockPRNGenerator() {}

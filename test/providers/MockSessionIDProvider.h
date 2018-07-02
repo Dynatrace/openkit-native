@@ -32,7 +32,6 @@ namespace test {
 		///
 		MockSessionIDProvider()
 		{
-
 		}
 
 		virtual ~MockSessionIDProvider() {}

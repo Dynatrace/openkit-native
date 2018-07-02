@@ -25,7 +25,7 @@ namespace providers
 {
 	
 	///
-	/// Default implementation for random number generator
+	/// Default implementation for random number generator based on STL's random::device
 	///
 	class DefaultPRNGenerator : public IPRNGenerator
 	{

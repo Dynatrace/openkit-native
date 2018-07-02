@@ -238,7 +238,7 @@ namespace protocol
 		/// Returns the session number.
 		/// @return session number
 		///
-		uint32_t getSessionNumber() const;
+		int32_t getSessionNumber() const;
 
 		///
 		/// Returns the device id
@@ -370,7 +370,7 @@ namespace protocol
 		std::atomic<int32_t> mID;
 
 		/// session number
-		uint32_t mSessionNumber;
+		int32_t mSessionNumber;
 
 		/// session start time
 		int64_t mSessionStartTime;
