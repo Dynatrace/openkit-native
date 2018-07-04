@@ -74,7 +74,7 @@ namespace core
 		/// Returns the response code of the web request
 		/// @returns response code of the web request 
 		///
-		int32_t getResponseCode() const;
+		virtual int32_t getResponseCode() const;
 
 		///
 		/// Returns the start time of the web request
@@ -104,13 +104,13 @@ namespace core
 		/// Returns the number of bytes sent 
 		/// @returns amount of bytes sent
 		///
-		int32_t getBytesSent() const;
+		virtual int32_t getBytesSent() const;
 
 		///
 		/// Returns the number of bytes received 
 		/// @returns amount of bytes received
 		///
-		int32_t getBytesReceived() const;
+		virtual int32_t getBytesReceived() const;
 
 		///
 		/// Returns a flag if stop() has already been called

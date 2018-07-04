@@ -60,8 +60,7 @@ set(OPENKIT_SOURCES_CACHING
     ${CMAKE_CURRENT_LIST_DIR}/caching/TimeEvictionStrategy.h
     ${CMAKE_CURRENT_LIST_DIR}/caching/TimeEvictionStrategy.cxx
 )
-
-set(OPENKIT_SOURCES_CORE
+set(OPENKIT_SOURCES_CORE_UTIL
     ${CMAKE_CURRENT_LIST_DIR}/core/util/Compressor.h
     ${CMAKE_CURRENT_LIST_DIR}/core/util/Compressor.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/util/CountDownLatch.h
@@ -74,6 +73,8 @@ set(OPENKIT_SOURCES_CORE
     ${CMAKE_CURRENT_LIST_DIR}/core/util/InetAddressValidator.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/util/DefaultLogger.h
     ${CMAKE_CURRENT_LIST_DIR}/core/util/DefaultLogger.cxx
+)
+set(OPENKIT_SOURCES_CORE
     ${CMAKE_CURRENT_LIST_DIR}/core/UTF8String.h
     ${CMAKE_CURRENT_LIST_DIR}/core/UTF8String.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/BeaconSender.h
@@ -133,14 +134,21 @@ set(OPENKIT_SOURCES_PROTOCOL
 )
 
 set(OPENKIT_SOURCES_PROVIDERS
+    ${CMAKE_CURRENT_LIST_DIR}/providers/ITimingProvider.h
     ${CMAKE_CURRENT_LIST_DIR}/providers/DefaultTimingProvider.h
     ${CMAKE_CURRENT_LIST_DIR}/providers/DefaultTimingProvider.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/providers/IHTTPClientProvider.h
     ${CMAKE_CURRENT_LIST_DIR}/providers/DefaultHTTPClientProvider.h
     ${CMAKE_CURRENT_LIST_DIR}/providers/DefaultHTTPClientProvider.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/providers/ISessionIDProvider.h
     ${CMAKE_CURRENT_LIST_DIR}/providers/DefaultSessionIDProvider.h
     ${CMAKE_CURRENT_LIST_DIR}/providers/DefaultSessionIDProvider.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/providers/IThreadIDProvider.h
     ${CMAKE_CURRENT_LIST_DIR}/providers/DefaultThreadIDProvider.h
     ${CMAKE_CURRENT_LIST_DIR}/providers/DefaultThreadIDProvider.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/providers/IPRNGenerator.h
+    ${CMAKE_CURRENT_LIST_DIR}/providers/DefaultPRNGenerator.h
+    ${CMAKE_CURRENT_LIST_DIR}/providers/DefaultPRNGenerator.cxx
 )
 
 set(OPENKIT_SOURCES_CONFIGURATION
@@ -166,6 +174,7 @@ set(OPENKIT_SOURCES
     ${OPENKIT_SOURCES_CXX_API}
     ${OPENKIT_SOURCES_CACHING}
     ${OPENKIT_SOURCES_CORE}
+    ${OPENKIT_SOURCES_CORE_UTIL}
     ${OPENKIT_SOURCES_COMMUNICATION}
     ${OPENKIT_SOURCES_PROVIDERS}
     ${OPENKIT_SOURCES_PROTOCOL}
@@ -242,6 +251,7 @@ function(build_open_kit)
     source_group("Source Files\\API - C++" FILES ${OPENKIT_SOURCES_CXX_API})
     source_group("Source Files\\Caching" FILES ${OPENKIT_SOURCES_CACHING})
     source_group("Source Files\\Core" FILES ${OPENKIT_SOURCES_CORE})
+    source_group("Source Files\\Core\\Util" FILES ${OPENKIT_SOURCES_CORE_UTIL})
     source_group("Source Files\\Communication" FILES ${OPENKIT_SOURCES_COMMUNICATION})
     source_group("Source Files\\Protocol" FILES ${OPENKIT_SOURCES_PROTOCOL})
     source_group("Source Files\\Providers" FILES ${OPENKIT_SOURCES_PROVIDERS})

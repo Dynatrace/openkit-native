@@ -14,34 +14,24 @@
 * limitations under the License.
 */
 
-#include "DefaultSessionIDProvider.h"
 #include "DefaultPRNGenerator.h"
 
-#include <random>
 
 using namespace providers;
 
-DefaultSessionIDProvider::DefaultSessionIDProvider()
-	: mLastSessionNumber(0)
-	, mNextIDMutex()
-{
-	providers::DefaultPRNGenerator randomGenerator;
-	mLastSessionNumber = randomGenerator.nextUInt32(std::numeric_limits<int32_t>::max());
-	
-}
-
-DefaultSessionIDProvider::DefaultSessionIDProvider(int32_t initialOffset)
-	: mLastSessionNumber(initialOffset)
-	, mNextIDMutex()
+DefaultPRNGenerator::DefaultPRNGenerator()
+	: mRandomEngine((std::random_device())())
 {
 }
 
-int32_t DefaultSessionIDProvider::getNextSessionID()
+uint32_t DefaultPRNGenerator::nextUInt32(uint32_t upperBound)
 {
-	std::lock_guard<std::mutex> lock(mNextIDMutex);
-	if (mLastSessionNumber == INT32_MAX)
-	{
-		mLastSessionNumber = 0;
-	}
-	return ++mLastSessionNumber;
+	std::uniform_real_distribution<double> uniform_dist(0.0, 1.0);
+	return static_cast<uint32_t>(uniform_dist(mRandomEngine) * upperBound);
+}
+
+uint64_t DefaultPRNGenerator::nextUInt64(uint64_t upperBound)
+{
+	std::uniform_real_distribution<double> uniform_dist(0.0, 1.0);
+	return static_cast<uint64_t>(uniform_dist(mRandomEngine) * upperBound);
 }

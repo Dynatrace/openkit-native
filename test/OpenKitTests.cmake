@@ -44,6 +44,10 @@ set(OPENKIT_SOURCES_TEST_CORE
 	${CMAKE_CURRENT_LIST_DIR}/core/util/InetAddressValidatorTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/core/MockBeaconSender.h
     ${CMAKE_CURRENT_LIST_DIR}/core/MockSession.h
+	${CMAKE_CURRENT_LIST_DIR}/core/util/DefaultLoggerTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/MockWebRequestTracer.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/MockAction.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/MockRootAction.h
 )
 
 set(OPENKIT_SOURCES_TEST_PROTOCOL
@@ -52,13 +56,17 @@ set(OPENKIT_SOURCES_TEST_PROTOCOL
     ${CMAKE_CURRENT_LIST_DIR}/protocol/MockBeacon.h
     ${CMAKE_CURRENT_LIST_DIR}/protocol/MockHTTPClient.h
     ${CMAKE_CURRENT_LIST_DIR}/protocol/TestSSLTrustManager.h
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/BeaconTest.cxx
 )
 
 set(OPENKIT_SOURCES_TEST_PROVIDERS
 	${CMAKE_CURRENT_LIST_DIR}/providers/DefaultTimingProviderTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/providers/DefaultSessionIDProviderTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/providers/MockSessionIDProvider.h
 	${CMAKE_CURRENT_LIST_DIR}/providers/DefaultThreadIDProviderTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/providers/MockHTTPClientProvider.h
+    ${CMAKE_CURRENT_LIST_DIR}/providers/MockPRNGenerator.h
+    ${CMAKE_CURRENT_LIST_DIR}/providers/DefaultPRNGeneratorTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/providers/MockTimingProvider.h
 )
 

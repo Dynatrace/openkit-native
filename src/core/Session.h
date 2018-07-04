@@ -79,7 +79,7 @@ namespace core
 		/// Returns the end time of the session
 		/// @returns the end time of the session
 		///
-		int64_t getEndTime() const;
+		virtual int64_t getEndTime() const;
 
 
 		///

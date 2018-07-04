@@ -21,6 +21,7 @@
 #include "core/UTF8String.h"
 #include "providers/ITimingProvider.h"
 #include "providers/IThreadIDProvider.h"
+#include "providers/IPRNGenerator.h"
 #include "configuration/Configuration.h"
 #include "configuration/HTTPClientConfiguration.h"
 #include "core/Action.h"
@@ -41,6 +42,7 @@ namespace protocol
 	class Beacon
 	{
 	public:
+
 		///
 		/// Constructor for Beacon
 		/// @param[in] logger to write traces to
@@ -49,7 +51,25 @@ namespace protocol
 		/// @param[in] clientIPAddress IP Address of the client
 		/// @param[in] timingProvider timing provider used to retrieve timestamps
 		///
-		Beacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching::IBeaconCache> beaconCache, std::shared_ptr<configuration::Configuration> configuration, const core::UTF8String clientIPAddress, std::shared_ptr<providers::IThreadIDProvider> threadIDProvider , std::shared_ptr<providers::ITimingProvider> timingProvider);
+		Beacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching::IBeaconCache> beaconCache,
+			std::shared_ptr<configuration::Configuration> configuration, const core::UTF8String clientIPAddress,
+			std::shared_ptr<providers::IThreadIDProvider> threadIDProvider,
+			std::shared_ptr<providers::ITimingProvider> timingProvider);
+
+		///
+		/// Constructor for Beacon
+		/// @param[in] logger to write traces to
+		/// @param[in] beaconCache Cache storing beacon related data.
+		/// @param[in] configuration Configuration object
+		/// @param[in] clientIPAddress IP Address of the client
+		/// @param[in] timingProvider timing provider used to retrieve timestamps
+		/// @param[in] randomGenerator random number generator
+		///
+		Beacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching::IBeaconCache> beaconCache,
+			std::shared_ptr<configuration::Configuration> configuration, const core::UTF8String clientIPAddress, 
+			std::shared_ptr<providers::IThreadIDProvider> threadIDProvider , 
+			std::shared_ptr<providers::ITimingProvider> timingProvider, 
+			std::shared_ptr<providers::IPRNGenerator> randomGenerator);
 
 		///
 		/// Destructor 
@@ -218,7 +238,13 @@ namespace protocol
 		/// Returns the session number.
 		/// @return session number
 		///
-		uint32_t getSessionNumber() const;
+		int32_t getSessionNumber() const;
+
+		///
+		/// Returns the device id
+		/// @return device id
+		///
+		uint64_t getDeviceID() const;
 
 	private:
 		///
@@ -344,7 +370,7 @@ namespace protocol
 		std::atomic<int32_t> mID;
 
 		/// session number
-		uint32_t mSessionNumber;
+		int32_t mSessionNumber;
 
 		/// session start time
 		int64_t mSessionStartTime;
@@ -360,6 +386,12 @@ namespace protocol
 
 		/// beacon configuration
 		std::shared_ptr<configuration::BeaconConfiguration> mBeaconConfiguration;
+
+		/// device id
+		uint64_t mDeviceID;
+
+		///random generator
+		std::shared_ptr<providers::IPRNGenerator> mRandomGenerator;
 	};
 }
 #endif
