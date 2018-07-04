@@ -187,7 +187,7 @@ namespace openkit
 			/// Returns the model ID
 			/// @returns the model ID
 			///
-			std::string getModelID() const;std::shared_ptr<openkit::ILogger>
+			std::string getModelID() const;
 
 			///
 			/// Returns the endpoint URL
