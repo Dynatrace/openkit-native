@@ -32,6 +32,9 @@ namespace configuration
 
 namespace openkit
 {
+	///
+	/// abstract base class for OpenKitBuilders
+	//
 	class OPENKIT_EXPORT AbstractOpenKitBuilder
 	{
 		public:
@@ -49,9 +52,9 @@ namespace openkit
 
 			///
 			/// Enables verbose mode. Verbose mode is only enabled if the the default logger is used.
-			/// If a custom logger is provided (by calling @ref withLogger()) debug and info log output
-			/// depends on the values returned by @ref isDebugEnabled() and @ref isInfoEnabled().
-			///
+			/// If a custom logger is provided (by calling withLogger(std::shared_ptr<openkit::ILogger>)) debug and info log output
+			/// depends on the values returned by @ref openkit::ILogger::isDebugEnabled() and @ref openkit::ILogger::isInfoEnabled().
+ 			/// @return @c this for fluent usage
 			///
 			AbstractOpenKitBuilder& enableVerbose();
 
@@ -72,7 +75,7 @@ namespace openkit
 			AbstractOpenKitBuilder& withApplicationVersion(const char* applicationVersion);
 
 			///
-			/// Sets the trust manager. Overrides the default trust manager which is {@code SSLStrictTrustmanager} by default-
+			/// Sets the trust manager. Overrides the default trust manager which is @ref protocol::SSLStrictTrustManager by default-
 			///
 			/// @param[in] trustManager trust manager implementation
 			/// @returns @c this for fluent usage
@@ -134,7 +137,7 @@ namespace openkit
 			///
 			/// Sets the data collection level used
 			///
-			/// Default behavior is the level @ref DataCollectionLevel::OFF
+			/// Default behavior is the level @ref openkit::DataCollectionLevel::OFF
 			/// @param[in] dataCollectionLevel data collection level to use
 			/// @returns @c this
 			///
@@ -143,15 +146,15 @@ namespace openkit
 			///
 			/// Sets the crash reporting level used
 			///
-			/// Default behavior is the level @ref CrashReportingLevel::OFF
+			/// Default behavior is the level @ref openkit::CrashReportingLevel::OFF
 			/// @param[in] crashReportingLevel crash reporting level to use
 			/// @returns @c this
 			///
 			AbstractOpenKitBuilder& withCrashReportingLevel(openkit::CrashReportingLevel crashReportingLevel);
 
 			///
-			/// Builds an @ref OpenKit instance
-			/// @return an @ref OpenKit instance
+			/// Builds an @ref openkit::IOpenKit instance
+			/// @return an @ref openkit::IOpenKit instance
 			///
 			virtual std::shared_ptr<openkit::IOpenKit> build();
 
@@ -184,7 +187,7 @@ namespace openkit
 			/// Returns the model ID
 			/// @returns the model ID
 			///
-			std::string getModelID() const;
+			std::string getModelID() const;std::shared_ptr<openkit::ILogger>
 
 			///
 			/// Returns the endpoint URL
@@ -236,7 +239,7 @@ namespace openkit
 
 		public:
 			///
-			/// Returns a logger. If no logger is set, when building the OpenKit with @ref build(),
+			/// Returns a @ref openkit::ILogger. If no logger is set, when building the OpenKit with @ref build(),
 			/// the default logger is returned.
 			/// @return a logger
 			///

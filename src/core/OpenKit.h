@@ -34,7 +34,9 @@
 
 namespace core
 {
-
+	///
+	/// Implementation of IOpenKit interface
+	///
 	class OpenKit : public openkit::IOpenKit
 	{
 	public:
@@ -64,7 +66,7 @@ namespace core
 		///
 		/// Initialize this OpenKit instance.
 		/// This method starts the @ref BeaconSender and is called directly after
-		/// the instance has been created in @ref AbstractOpenKitBuilder.
+		/// the instance has been created in @ref openkit::AbstractOpenKitBuilder.
 		///
 		void initialize();
 

@@ -55,7 +55,6 @@ namespace core
 		/// @param[in] logger to write traces to
 		/// @param[in] beacon the beacon used to serialize this Action
 		/// @param[in] name the name of the action
-		/// @param[in] sameLevelActions actions on the same level
 		///
 		Action(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<protocol::Beacon> beacon, const UTF8String& name);
 
