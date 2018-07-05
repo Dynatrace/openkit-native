@@ -186,7 +186,7 @@ namespace caching
 		///
 		/// Remove all @ref BeaconCacheRecord from @c records.
 		/// @param[in] records list of cache records
-		/// @param[in] minTimestamp The minimum timestamp allowed.
+		/// @param[in,out] minTimestamp The minimum timestamp allowed.
 		/// @return The number of records removed from @c records.
 		///
 		static int32_t removeRecordsOlderThan(std::list<BeaconCacheRecord>& records, int64_t minTimestamp);

@@ -37,8 +37,7 @@ namespace protocol
 namespace core
 {
 	///
-	/// This class is returned as Action by @ref openkit::IOpenKit::createSession(const char*) when the @ref openkit::IOpenKit::shutdown()
-	/// has been called before.
+	/// Base class for WebRequest tracers.
 	///
 	class WebRequestTracerBase : public openkit::IWebRequestTracer, public std::enable_shared_from_this<WebRequestTracerBase>
 	{

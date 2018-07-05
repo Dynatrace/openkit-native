@@ -67,7 +67,7 @@ namespace caching
 
 		///
 		/// Stops the eviction thread with the default timeout of @ref EVICTION_THREAD_JOIN_TIMEOUT.
-		/// See also @ref stop(std::chrono::milliseconds
+		/// See also @ref stop(std::chrono::milliseconds)
 		///
 		bool stop();
 
