@@ -54,7 +54,7 @@ namespace openkit
 
 			///
 			/// Enables verbose mode. Verbose mode is only enabled if the the default logger is used.
-			/// If a custom logger is provided (by calling withLogger(std::shared_ptr<openkit::ILogger>)) debug and info log output
+			/// If a custom logger is provided (by calling @ref withLogger(std::shared_ptr<openkit::ILogger>)) debug and info log output
 			/// depends on the values returned by @ref openkit::ILogger::isDebugEnabled() and @ref openkit::ILogger::isInfoEnabled().
  			/// @return @c this for fluent usage
 			///
