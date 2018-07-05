@@ -25,16 +25,18 @@
 
 #include <memory>
 
+#ifndef DOXYGEN_HIDE_FROM_DOC
 namespace configuration
 {
 	class Configuration;
 }
+#endif
 
 namespace openkit
 {
 	///
 	/// abstract base class for OpenKitBuilders
-	//
+	///
 	class OPENKIT_EXPORT AbstractOpenKitBuilder
 	{
 		public:
