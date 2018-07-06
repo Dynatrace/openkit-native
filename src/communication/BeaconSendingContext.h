@@ -125,7 +125,7 @@ namespace communication
 		///
 		/// Initialize time synchronisation with cluster time
 		/// @param[in] clusterTimeOffset the cluster offset
-		/// @param[in] @c true if time sync is supported, otherwise @c false
+		/// @param[in] isTimeSyncSupported @c true if time sync is supported, otherwise @c false
 		///
 		virtual void initializeTimeSync(int64_t clusterTimeOffset, bool isTimeSyncSupported);
 
@@ -166,7 +166,7 @@ namespace communication
 
 		///
 		/// Gets the HTTP client provider.
-		/// @return a class responsible for retrieving an instance of @ref IHTTPClient.
+		/// @return a class responsible for retrieving an instance of @ref protocol::IHTTPClient.
 		///
 		virtual std::shared_ptr<providers::IHTTPClientProvider> getHTTPClientProvider();
 
@@ -184,7 +184,6 @@ namespace communication
 
 		///
 		/// Sleep some time (@ref DEFAULT_SLEEP_TIME_MILLISECONDS}
-		/// @param[in] ms number of milliseconds
 		///
 		virtual void sleep();
 

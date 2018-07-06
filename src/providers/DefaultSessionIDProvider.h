@@ -23,6 +23,9 @@
 
 namespace providers
 {
+	///
+	/// Default implementation of @ref providers::ISessionIDProvider interface
+	///
 	class DefaultSessionIDProvider : public ISessionIDProvider
 	{
 	public:

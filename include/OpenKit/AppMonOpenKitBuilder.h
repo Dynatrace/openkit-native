@@ -21,12 +21,15 @@
 
 namespace openkit
 {
+	///
+	/// Builder for OpenKit instances connected to AppMon
+	///
 	class OPENKIT_EXPORT AppMonOpenKitBuilder : public AbstractOpenKitBuilder
 	{
 	public:
 		///
 		/// Constructor
-		/// @param[in] endPointURL endpoint OpenKit connects to
+		/// @param[in] endpointURL endpoint OpenKit connects to
 		/// @param[in] applicationName unique application name
 		/// @param[in] deviceID unique device id
 		///

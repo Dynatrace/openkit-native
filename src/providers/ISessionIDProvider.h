@@ -21,6 +21,9 @@
 
 namespace providers
 {
+	///
+	/// abstract interface for all session providers
+	///
 	class ISessionIDProvider
 	{
 	public:

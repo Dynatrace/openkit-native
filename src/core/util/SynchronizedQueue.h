@@ -36,7 +36,7 @@ namespace core
 		/// - should be easy to clear
 		/// As there was no real fit in the C++11 data structures, this is a simple self-made implementation.
 		/// It's for sure not the best-performing implementation and it could make sense to introduce upper bounds, but it works well enough.
-		/// @param <T> type of items in the queue instance.
+		/// @param T type of items in the queue instance.
 		///
 		/// Note elements which are added need to overload the '==' operator
 		///
@@ -110,7 +110,7 @@ namespace core
 
 			///
 			/// Check if queue is empty
-			/// @returns @true if queue is empty @false if queue is not empty
+			/// @returns @c true if queue is empty @c false if queue is not empty
 			////
 			bool isEmpty() const
 			{

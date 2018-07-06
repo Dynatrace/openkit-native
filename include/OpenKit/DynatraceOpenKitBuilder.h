@@ -21,12 +21,15 @@
 
 namespace openkit
 {
+	///
+	/// Builder for OpenKit instances connected to Dynatrace
+	///
 	class OPENKIT_EXPORT DynatraceOpenKitBuilder : public AbstractOpenKitBuilder
 	{
 	public:
 		///
 		/// Constructor
-		/// @param[in] endPointURL endpoint OpenKit connects to
+		/// @param[in] endpointURL endpoint OpenKit connects to
 		/// @param[in] applicationID unique application id
 		/// @param[in] deviceID unique device id
 		///

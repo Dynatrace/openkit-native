@@ -58,7 +58,7 @@ namespace core
 		/// Constructor
 		/// @param[in] logger to write traces to
 		/// @param[in] beaconSender beacon sender
-		/// @param]in] beacon beacon used for serialization
+		/// @param[in] beacon beacon used for serialization
 		///
 		Session(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<BeaconSender> beaconSender, std::shared_ptr<protocol::Beacon> beacon);
 			

@@ -50,6 +50,7 @@ namespace protocol
 		/// @param[in] beaconCache Cache storing beacon related data.
 		/// @param[in] configuration Configuration object
 		/// @param[in] clientIPAddress IP Address of the client
+		/// @param[in] threadIDProvider provider for thread ids
 		/// @param[in] timingProvider timing provider used to retrieve timestamps
 		///
 		Beacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching::IBeaconCache> beaconCache,
@@ -63,6 +64,7 @@ namespace protocol
 		/// @param[in] beaconCache Cache storing beacon related data.
 		/// @param[in] configuration Configuration object
 		/// @param[in] clientIPAddress IP Address of the client
+		/// @param[in] threadIDProvider provider for thread ids
 		/// @param[in] timingProvider timing provider used to retrieve timestamps
 		/// @param[in] randomGenerator random number generator
 		///
@@ -102,34 +104,34 @@ namespace protocol
 		///
 		/// Create a web request tag
 		/// Web request tags can be attached as HTTP header for web request tracing.
-		/// @param[in] parentActionID The ID of the @ref Action for which to create a web request tag. 
-		/// @param[in] sequenceNumber Sequence number of the @ref WebRequestTracer
+		/// @param[in] parentActionID The ID of the @ref core::Action for which to create a web request tag.
+		/// @param[in] sequenceNumber Sequence number of the @ref core::WebRequestTracerBase
 		/// @returns A web request tracer tag
 		///
 		virtual core::UTF8String createTag(int32_t parentActionID, int32_t sequenceNumber);
 
 		///
-		/// Add Action to Beacon
+		/// Add @ref core::Action to Beacon
 		/// The serialized data is added to the Beacon
 		/// @param[in] action action to add to the Beacon
 		///
 		void addAction(std::shared_ptr<core::Action> action);
 
 		///
-		/// Add RootAction to Beacon
+		/// Add @ref core::RootAction to Beacon
 		/// The serialized data is added to the Beacon
 		/// @param[in] action root action to add to the Beacon
 		///
 		void addAction(std::shared_ptr<core::RootAction> action);
 
 		///
-		/// Add Session Start to Beacon
+		/// Add sessionStart to Beacon
 		/// @param[in] session session for which a session start event is added to the Beacon
 		///
 		virtual void startSession(std::shared_ptr<core::Session> session);
 
 		///
-		/// Add Session to Beacon when session is ended.
+		/// Add @ref core::Session to Beacon when session is ended.
 		/// @param[in] session ended session that is added to the Beacon
 		///
 		virtual void endSession(std::shared_ptr<core::Session> session);
@@ -137,9 +139,9 @@ namespace protocol
 		///
 		/// Add key-value-pair to Beacon.
 		///
-		/// The serialized data is added to @ref BeaconCache.
+		/// The serialized data is added to @ref caching::BeaconCache.
 		///
-		/// @param actionID The id of the @ref Action on which this value was reported.
+		/// @param actionID The id of the @ref core::Action on which this value was reported.
 		/// @param valueName Value's name.
 		/// @param value Actual value to report.
 		///
@@ -148,9 +150,9 @@ namespace protocol
 		///
 		/// Add key-value-pair to Beacon.
 		///
-		/// The serialized data is added to @ref BeaconCache.
+		/// The serialized data is added to @ref caching::BeaconCache.
 		///
-		/// @param actionID The id of the @ref Action on which this value was reported.
+		/// @param actionID The id of the @ref core::Action on which this value was reported.
 		/// @param valueName Value's name.
 		/// @param value Actual value to report.
 		///
@@ -159,9 +161,9 @@ namespace protocol
 		///
 		/// Add key-value-pair to Beacon.
 		///
-		/// The serialized data is added to @ref BeaconCache.
+		/// The serialized data is added to @ref caching::BeaconCache.
 		///
-		/// @param actionID The id of the @ref Action on which this value was reported.
+		/// @param actionID The id of the @ref core::Action on which this value was reported.
 		/// @param valueName Value's name.
 		/// @param value Actual value to report.
 		///
@@ -170,9 +172,9 @@ namespace protocol
 		///
 		/// Add event (aka. named event) to Beacon.
 		///
-		/// The serialized data is added to @ref BeaconCache.
+		/// The serialized data is added to @ref caching::BeaconCache.
 		///
-		/// @param actionID The id of the @ref Action on which this event was reported.
+		/// @param actionID The id of the @ref core::Action on which this event was reported.
 		/// @param eventName Event's name.
 		///
 		virtual void reportEvent(int32_t actionID, const core::UTF8String& eventName);
@@ -180,9 +182,9 @@ namespace protocol
 		///
 		/// Add error to Beacon.
 		///
-		/// The serialized data is added to @ref BeaconCache.
+		/// The serialized data is added to @ref caching::BeaconCache.
 		///
-		/// @param actionID The id of the @ref Action on which this error was reported.
+		/// @param actionID The id of the @ref core::Action on which this error was reported.
 		/// @param errorName Error's name.
 		/// @param errorCode Some error code.
 		/// @param reason Reason for that error.
@@ -191,7 +193,7 @@ namespace protocol
 
 		///
 		/// Add crash to Beacon
-		/// The serialized data is added to @ref BeaconCache
+		/// The serialized data is added to @ref caching::BeaconCache
 		/// @param[in] errorName Error's name.
 		/// @param[in] reason Reason for that error.
 		/// @param[in] stacktrace Crash stacktrace.
@@ -199,23 +201,23 @@ namespace protocol
 		virtual void reportCrash(const core::UTF8String& errorName, const core::UTF8String& reason, const core::UTF8String& stacktrace);
 
 		///
-		/// Add web request to Beacon
-		/// The serialized data is added to @ref BeaconCache
-		/// @param[in] The @ref Action on which the web request was reported
-		/// @param[in] @ref WebRequestTracer to serialize
+		/// Add @ref core::WebRequestTracerBase to Beacon
+		/// The serialized data is added to @ref caching::BeaconCache
+		/// @param[in] parentActionID The @ref core::Action on which the web request was reported
+		/// @param[in] webRequestTracer @ref core::WebRequestTracerBase to serialize
 		///
 		virtual void addWebRequest(int32_t parentActionID, std::shared_ptr<core::WebRequestTracerBase> webRequestTracer);
 
 		///
 		/// Add user identification to Beacon.
-		/// The serialized data is added to @ref BeaconCache
+		/// The serialized data is added to @ref caching::BeaconCache
 		/// @param[in] userTag User tag containing data to serialize.
 		///
 		virtual void identifyUser(const core::UTF8String& userTag);
 
 		/// 
 		/// Sends the current Beacon state
-		/// @param[in] clientProvider the IHTTPClientProvider to use for sending
+		/// @param[in] clientProvider the @ref providers::IHTTPClientProvider to use for sending
 		/// @returns the status response returned for the Beacon data
 		///
 		virtual std::unique_ptr<protocol::StatusResponse> send(std::shared_ptr<providers::IHTTPClientProvider> clientProvider);
@@ -280,7 +282,7 @@ namespace protocol
 
 		///
 		/// Serialization helper for event data.
-		/// @param[in] name The event's type.
+		/// @param[in] eventType The event's type.
 		/// @param[in] name Event name
 		/// @param[in] parentActionID The ID of the action on which this event was reported.
 		/// @param[inout] eventTimestamp uint64_t var that will be filled with the event timestamp
@@ -297,37 +299,37 @@ namespace protocol
 
 		///
 		/// Serialization helper method for adding key/value pairs with string values
-		/// @param[in] s reference to string containing serialized data
+		/// @param[in,out] s reference to string containing serialized data
 		/// @param[in] key key to append to string
 		/// @param[in] value the string value to add
-		/// @returs the serialization data including the new key value pair
+		/// @returns the serialization data including the new key value pair
 		///
 		void addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, const core::UTF8String& value);
 
 		///
 		/// Serialization helper method for adding key/value pairs with int32 values
-		/// @param[in] s reference to string containing serialized data
+		/// @param[in,out] s reference to string containing serialized data
 		/// @param[in] key key to append to string
 		/// @param[in] value the integer value to add
-		/// @returs the serialization data including the new key value pair
+		/// @returns the serialization data including the new key value pair
 		///
 		void addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, int32_t value);
 
 		///
 		/// Serialization helper method for adding key/value pairs with int64 values
-		/// @param[in] s reference to string containing serialized data
+		/// @param[in,out] s reference to string containing serialized data
 		/// @param[in] key key to append to string
 		/// @param[in] value the long value to add
-		/// @returs the serialization data including the new key value pair
+		/// @returns the serialization data including the new key value pair
 		///
 		void addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, int64_t value);
 
 		///
 		/// Serialization helper method for adding key/value pairs with double values
-		/// @param[in] s reference to string containing serialized data
+		/// @param[in,out] s reference to string containing serialized data
 		/// @param[in] key key to append to string
 		/// @param[in] value the double value to add
-		/// @returs the serialization data including the new key value pair
+		/// @returns the serialization data including the new key value pair
 		///
 		void addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, double value);
 
@@ -356,7 +358,7 @@ namespace protocol
 		///
 		/// Add previously serialized event data to the beacon list
 		/// @param[in] timestamp The timestamp when the event data occurred.
-		/// @param[in] actionData Contains the serialized event data.
+		/// @param[in] eventData Contains the serialized event data.
 		///
 		void addEventData(int64_t timestamp, const core::UTF8String& eventData);
 

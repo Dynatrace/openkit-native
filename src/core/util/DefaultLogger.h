@@ -25,6 +25,9 @@ namespace core
 {
 	namespace util
 	{
+		///
+		/// Default implementation of @ref openkit::ILogger which write to std::cout
+		///
 		class DefaultLogger : public openkit::ILogger
 		{
 		public:
