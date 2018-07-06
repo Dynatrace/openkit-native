@@ -33,7 +33,7 @@ namespace configuration
 		/// @param[in] dataLevel data collection level
 		/// @param[in] crashLevel crash reporting level
 		///
-		BeaconConfiguration(openkit::DataCollectionLevel dataLevel, openkit::CrashReportingLevel crashLevel);
+		BeaconConfiguration(int32_t multiplicty, openkit::DataCollectionLevel dataLevel, openkit::CrashReportingLevel crashLevel);
 
 		///
 		/// Default constructor returning the default config
@@ -52,12 +52,21 @@ namespace configuration
 		///
 		openkit::CrashReportingLevel getCrashReportingLevel() const;
 
+		///
+		/// Get the multiplicity
+		/// @return the multiplicity
+		///
+		int32_t getMultiplicity() const;
+
 	private:
 		/// data collection level
 		openkit::DataCollectionLevel mDataCollectionLevel;
 
 		/// crash reporting level
 		openkit::CrashReportingLevel mCrashReportingLevel;
+
+		/// multiplicity controlling how many sessions are actually send
+		int32_t mMulitplicity;
 
 	public:
 
@@ -66,6 +75,9 @@ namespace configuration
 
 		/// default value fr crash reporting level
 		static const openkit::CrashReportingLevel DEFAULT_CRASH_REPORTING_LEVEL;
+
+		/// default multiplicity
+		static const int32_t DEFAULT_MULTIPLICITY = 1;
 	};
 }
 
