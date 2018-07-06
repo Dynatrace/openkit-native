@@ -89,6 +89,12 @@ namespace protocol
 		///
 		bool isCaptureCrashes() const;
 
+		///
+		/// Get the multiplicity
+		/// @returns the multiplicity factor
+		///
+		int32_t getMultiplicity() const;
+
 	private:
 		///
 		/// Parse the response string for further details
@@ -117,6 +123,9 @@ namespace protocol
 
 		/// capture crashes
 		bool mCaptureCrashes;
+
+		/// multiplicity
+		int32_t mMultiplicity;
 	};
 }
 
