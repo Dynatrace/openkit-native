@@ -286,36 +286,36 @@ namespace protocol
 
 		///
 		/// Serialization helper method for adding key/value pairs with string values
-		/// @param[in] s reference to string containing serialized data
+		/// @param[in,out] s reference to string containing serialized data
 		/// @param[in] key key to append to string
-		/// @param[in,out] value the string value to add
+		/// @param[in] value the string value to add
 		/// @returns the serialization data including the new key value pair
 		///
 		void addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, const core::UTF8String& value);
 
 		///
 		/// Serialization helper method for adding key/value pairs with int32 values
-		/// @param[in] s reference to string containing serialized data
+		/// @param[in,out] s reference to string containing serialized data
 		/// @param[in] key key to append to string
-		/// @param[in,out] value the integer value to add
+		/// @param[in] value the integer value to add
 		/// @returns the serialization data including the new key value pair
 		///
 		void addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, int32_t value);
 
 		///
 		/// Serialization helper method for adding key/value pairs with int64 values
-		/// @param[in] s reference to string containing serialized data
+		/// @param[in,out] s reference to string containing serialized data
 		/// @param[in] key key to append to string
-		/// @param[in,out] value the long value to add
+		/// @param[in] value the long value to add
 		/// @returns the serialization data including the new key value pair
 		///
 		void addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, int64_t value);
 
 		///
 		/// Serialization helper method for adding key/value pairs with double values
-		/// @param[in] s reference to string containing serialized data
+		/// @param[in,out] s reference to string containing serialized data
 		/// @param[in] key key to append to string
-		/// @param[in,out] value the double value to add
+		/// @param[in] value the double value to add
 		/// @returns the serialization data including the new key value pair
 		///
 		void addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, double value);
