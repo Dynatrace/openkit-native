@@ -93,6 +93,8 @@ set(OPENKIT_SOURCES_CORE
     ${CMAKE_CURRENT_LIST_DIR}/core/WebRequestTracerStringURL.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/OpenKit.h
     ${CMAKE_CURRENT_LIST_DIR}/core/OpenKit.cxx
+	${CMAKE_CURRENT_LIST_DIR}/core/SessionWrapper.h
+	${CMAKE_CURRENT_LIST_DIR}/core/SessionWrapper.cxx
 )
 
 set(OPENKIT_SOURCES_COMMUNICATION
