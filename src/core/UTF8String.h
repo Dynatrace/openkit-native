@@ -156,7 +156,7 @@ namespace core
 
 		///
 		/// Checks if the given character belongs to a previous UTF8 multibyte character
-		/// NOTE: The bit mask @s '10xxxxxx' determines if a character belongs to a
+		/// NOTE: The bit mask @c '10xxxxxx' determines if a character belongs to a
 		///       previous character.
 		/// @param[in] character codepoint to check 
 		/// @returns flag if character belongs to a previous charater

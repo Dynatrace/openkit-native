@@ -33,7 +33,7 @@
 namespace caching
 {
 	///
-	/// Class used in OpenKit to cache serialized @ref Beacon data.
+	/// Class used in OpenKit to cache serialized @ref protocol::Beacon data.
 	///
 	/// This cache needs to deal with high concurrency, since it's possible that a lot of threads insert new data concurrently.
 	/// Furthermore two OpenKit internal threads are also accessing the cache.

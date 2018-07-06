@@ -27,6 +27,9 @@ namespace core
 {
 	namespace util
 	{
+		///
+		/// Utility providing a simple read/write lock
+		///
 		class ReadWriteLock
 		{
 #if defined(_WIN32) || defined(WIN32) 

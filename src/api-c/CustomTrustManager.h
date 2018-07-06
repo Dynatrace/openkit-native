@@ -26,8 +26,8 @@
 namespace apic
 {
 	/// The OpenKit comes with two different trust manager implementations:
-	/// A @ref SSLStrictTrustManager (trusting only valid certificates) and
-	/// a @ref SSLBlindTrustManager (blindly trusting every certificate and every host)
+	/// A @ref protocol::SSLStrictTrustManager (trusting only valid certificates) and
+	/// a @ref protocol::SSLBlindTrustManager (blindly trusting every certificate and every host)
 	/// This @c CustomTrustManager allows the OpenKit user to override those two default implementations
 	/// and apply custom trust settings. 
 	/// The @c CustomTrustManager acts as the glue in this scenario:

@@ -37,16 +37,16 @@ namespace configuration
 	{
 	public:
 		///
-		/// Construct a Configuration given a  HTTPClientConfiguration
+		/// Construct a Configuration given a @ref configuration::HTTPClientConfiguration
 		/// @param[in] device device configuration
-		/// @param[in] openKitType AppMon or dynatrace configuration @see OpenKitType
+		/// @param[in] openKitType AppMon or dynatrace configuration @ref configuration::OpenKitType
 		/// @param[in] applicationName applicationName application name
-		/// @param[in] application version version of the application
+		/// @param[in] applicationVersion version of the application
 		/// @param[in] applicationID application id
 		/// @param[in] deviceID device id
 		/// @param[in] endpointURL beacon endpoint URL
 		/// @param[in] sessionIDProvider provider for session IDs
-		/// @param[in] sslTrustManager the ISSLTrustManager instance to use
+		/// @param[in] sslTrustManager the openkit::ISSLTrustManager instance to use
 		/// @param[in] beaconCacheConfiguration beacon cache configuration
 		/// @param[in] beaconConfiguration beacon configuration
 		///
@@ -221,7 +221,7 @@ namespace configuration
 		/// configuration options for the beacon caching
 		std::shared_ptr<configuration::BeaconCacheConfiguration> mBeaconCacheConfiguration;
 
-		/// configuration options for @ref Beacon
+		/// configuration options for @ref protocol::Beacon
 		std::shared_ptr<configuration::BeaconConfiguration> mBeaconConfiguration;
 	};
 }

@@ -29,7 +29,7 @@ namespace core
 {
 
 	///
-	/// This class is returned as WebRequestTracer by @ref openkit::createSession(const char*) when the @ref openkit::shutdown()
+	/// This class is returned as WebRequestTracer by @ref openkit::IOpenKit::createSession(const char*) when the @ref openkit::IOpenKit::shutdown()
 	/// has been called before.
 	///
 	class NullWebRequestTracer : public openkit::IWebRequestTracer, public std::enable_shared_from_this<NullWebRequestTracer>
