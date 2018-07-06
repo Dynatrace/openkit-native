@@ -33,6 +33,7 @@
 
 #include <memory>
 #include <map>
+#include <atomic>
 
 namespace protocol
 {
@@ -245,6 +246,18 @@ namespace protocol
 		/// @return device id
 		///
 		uint64_t getDeviceID() const;
+
+		///
+		/// Sets the beacon configuration on the Beacon
+		/// @param[in] beaconConfiguration the beacon configuration to apply to this Beacon
+		///
+		void setBeaconConfiguration(std::shared_ptr<configuration::BeaconConfiguration> beaconConfiguration);
+
+		///
+		/// Return the beacon configuration
+		/// @returns the beacon configuration
+		///
+		std::shared_ptr<configuration::BeaconConfiguration> getBeaconConfiguration() const;
 
 	private:
 		///

@@ -207,7 +207,7 @@ int32_t Beacon::createID()
 
 core::UTF8String Beacon::createTag(int32_t parentActionID, int32_t sequenceNumber)
 {
-	if (mBeaconConfiguration->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
+	if (std::atomic_load(&mBeaconConfiguration)->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
 	{
 		return core::UTF8String("");
 	}
@@ -236,7 +236,7 @@ core::UTF8String Beacon::createTag(int32_t parentActionID, int32_t sequenceNumbe
 
 void Beacon::addAction(std::shared_ptr<core::Action> action)
 {
-	if (mBeaconConfiguration->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
+	if (std::atomic_load(&mBeaconConfiguration)->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
 	{
 		return;
 	}
@@ -255,7 +255,7 @@ void Beacon::addAction(std::shared_ptr<core::Action> action)
 
 void Beacon::addAction(std::shared_ptr<core::RootAction> action)
 {
-	if (mBeaconConfiguration->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
+	if (std::atomic_load(&mBeaconConfiguration)->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
 	{
 		return;
 	}
@@ -293,7 +293,7 @@ void Beacon::startSession(std::shared_ptr<core::Session> session)
 
 void Beacon::endSession(std::shared_ptr<core::Session> session)
 {
-	if (mBeaconConfiguration->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
+	if (std::atomic_load(&mBeaconConfiguration)->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
 	{
 		return;
 	}
@@ -309,7 +309,7 @@ void Beacon::endSession(std::shared_ptr<core::Session> session)
 
 void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, int32_t value)
 {
-	if (mBeaconConfiguration->getDataCollectionLevel() != openkit::DataCollectionLevel::USER_BEHAVIOR)
+	if (std::atomic_load(&mBeaconConfiguration)->getDataCollectionLevel() != openkit::DataCollectionLevel::USER_BEHAVIOR)
 	{
 		return;
 	}
@@ -323,7 +323,7 @@ void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, in
 
 void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, double value)
 {
-	if (mBeaconConfiguration->getDataCollectionLevel() != openkit::DataCollectionLevel::USER_BEHAVIOR)
+	if (std::atomic_load(&mBeaconConfiguration)->getDataCollectionLevel() != openkit::DataCollectionLevel::USER_BEHAVIOR)
 	{
 		return;
 	}
@@ -338,7 +338,7 @@ void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, do
 
 void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, const core::UTF8String& value)
 {
-	if (mBeaconConfiguration->getDataCollectionLevel() != openkit::DataCollectionLevel::USER_BEHAVIOR)
+	if (std::atomic_load(&mBeaconConfiguration)->getDataCollectionLevel() != openkit::DataCollectionLevel::USER_BEHAVIOR)
 	{
 		return;
 	}
@@ -353,7 +353,7 @@ void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, co
 
 void Beacon::reportEvent(int32_t actionID, const core::UTF8String& eventName)
 {
-	if (mBeaconConfiguration->getDataCollectionLevel() != openkit::DataCollectionLevel::USER_BEHAVIOR)
+	if (std::atomic_load(&mBeaconConfiguration)->getDataCollectionLevel() != openkit::DataCollectionLevel::USER_BEHAVIOR)
 	{
 		return;
 	}
@@ -371,7 +371,7 @@ void Beacon::reportError(int32_t actionID, const core::UTF8String& errorName, in
 		return;
 	}
 
-	if (mBeaconConfiguration->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
+	if (std::atomic_load(&mBeaconConfiguration)->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
 	{
 		return;
 	}
@@ -397,7 +397,7 @@ void Beacon::reportCrash(const core::UTF8String& errorName, const core::UTF8Stri
 		return;
 	}
 
-	if (mBeaconConfiguration->getCrashReportingLevel() == openkit::CrashReportingLevel::OFF)
+	if (std::atomic_load(&mBeaconConfiguration)->getCrashReportingLevel() == openkit::CrashReportingLevel::OFF)
 	{
 		return;
 	}
@@ -417,7 +417,7 @@ void Beacon::reportCrash(const core::UTF8String& errorName, const core::UTF8Stri
 
 void Beacon::addWebRequest(int32_t parentActionID, std::shared_ptr<core::WebRequestTracerBase> webRequestTracer)
 {
-	if (mBeaconConfiguration->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
+	if (std::atomic_load(&mBeaconConfiguration)->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
 	{
 		return;
 	}
@@ -453,7 +453,7 @@ void Beacon::addWebRequest(int32_t parentActionID, std::shared_ptr<core::WebRequ
 
 void Beacon::identifyUser(const core::UTF8String& userTag)
 {
-	if (mBeaconConfiguration->getDataCollectionLevel() != openkit::DataCollectionLevel::USER_BEHAVIOR)
+	if (std::atomic_load(&mBeaconConfiguration)->getDataCollectionLevel() != openkit::DataCollectionLevel::USER_BEHAVIOR)
 	{
 		return;
 	}
@@ -549,4 +549,14 @@ int32_t Beacon::getSessionNumber() const
 uint64_t Beacon::getDeviceID() const
 {
 	return mDeviceID;
+}
+
+void Beacon::setBeaconConfiguration(std::shared_ptr<configuration::BeaconConfiguration> beaconConfiguration)
+{
+	std::atomic_store(&mBeaconConfiguration, beaconConfiguration);
+}
+
+std::shared_ptr<configuration::BeaconConfiguration> Beacon::getBeaconConfiguration() const
+{
+	return std::atomic_load(&mBeaconConfiguration);
 }

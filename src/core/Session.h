@@ -30,8 +30,8 @@
 #include "UTF8String.h"
 #include "util/SynchronizedQueue.h"
 #include "providers/IHTTPClientProvider.h"
-
 #include "providers/IHTTPClientProvider.h"
+#include "configuration/BeaconConfiguration.h"
 
 #include <memory>
 #include <atomic>
@@ -121,6 +121,18 @@ namespace core
 		/// @returns @c true if session was already ended, @c false if session is still open
 		///
 		bool isSessionEnded() const;
+
+		///
+		/// Sets the beacon configuration
+		/// @param[in] beaconConfiguration the beacon configuration to apply to the Beacon
+		///
+		void setBeaconConfiguration(std::shared_ptr<configuration::BeaconConfiguration> beaconConfiguration);
+
+		///
+		/// Returns the beacon configuration
+		/// @returns the beacon configuration
+		///
+		std::shared_ptr<configuration::BeaconConfiguration> getBeaconConfiguration() const;
 
 	private:
 		///
