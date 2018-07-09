@@ -126,13 +126,13 @@ namespace core
 		/// Sets the beacon configuration
 		/// @param[in] beaconConfiguration the beacon configuration to apply to the Beacon
 		///
-		void setBeaconConfiguration(std::shared_ptr<configuration::BeaconConfiguration> beaconConfiguration);
+		virtual void setBeaconConfiguration(std::shared_ptr<configuration::BeaconConfiguration> beaconConfiguration);
 
 		///
 		/// Returns the beacon configuration
 		/// @returns the beacon configuration
 		///
-		std::shared_ptr<configuration::BeaconConfiguration> getBeaconConfiguration() const;
+		virtual std::shared_ptr<configuration::BeaconConfiguration> getBeaconConfiguration() const;
 
 	private:
 		///
