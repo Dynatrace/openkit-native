@@ -445,8 +445,9 @@ TEST_F(BeaconSendingContextTest, aDefaultConstructedContextDoesNotStoreAnySessio
 	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
 
 	// then
-	ASSERT_TRUE(target->getAllOpenSessions().empty());
-	ASSERT_TRUE(target->getAllFinishedSessions().empty());
+	ASSERT_TRUE(target->getAllNewSessions().empty());
+	ASSERT_TRUE(target->getAllOpenAndConfiguredSessions().empty());
+	ASSERT_TRUE(target->getAllFinishedAndConfiguredSessions().empty());
 }
 
 TEST_F(BeaconSendingContextTest, startingASessionAddsTheSessionToOpenSessions)
@@ -460,18 +461,20 @@ TEST_F(BeaconSendingContextTest, startingASessionAddsTheSessionToOpenSessions)
 	target->startSession(mockSessionOne);
 
 	// then
-	ASSERT_EQ(target->getAllOpenSessions().size(), 1);
-	ASSERT_EQ(target->getAllOpenSessions()[0], mockSessionOne);
-	ASSERT_TRUE(target->getAllFinishedSessions().empty());
+	ASSERT_EQ(target->getAllNewSessions().size(), 1);
+	ASSERT_EQ(target->getAllNewSessions()[0]->getWrappedSession(), mockSessionOne);
+	ASSERT_TRUE(target->getAllOpenAndConfiguredSessions().empty());
+	ASSERT_TRUE(target->getAllFinishedAndConfiguredSessions().empty());
 
 	// when starting second sessions
 	target->startSession(mockSessionTwo);
 
 	// then
-	ASSERT_EQ(target->getAllOpenSessions().size(), 2);
-	ASSERT_EQ(target->getAllOpenSessions()[0], mockSessionOne);
-	ASSERT_EQ(target->getAllOpenSessions()[1], mockSessionTwo);
-	ASSERT_TRUE(target->getAllFinishedSessions().empty());
+	ASSERT_EQ(target->getAllNewSessions().size(), 2);
+	ASSERT_EQ(target->getAllNewSessions()[0]->getWrappedSession(), mockSessionOne);
+	ASSERT_EQ(target->getAllNewSessions()[1]->getWrappedSession(), mockSessionTwo);
+	ASSERT_TRUE(target->getAllOpenAndConfiguredSessions ().empty());
+	ASSERT_TRUE(target->getAllFinishedAndConfiguredSessions().empty());
 }
 
 
@@ -489,22 +492,24 @@ TEST_F(BeaconSendingContextTest, finishingASessionMovesSessionToFinishedSessions
 	target->finishSession(mockSessionOne);
 
 	// then
-	ASSERT_EQ(target->getAllOpenSessions().size(), 1);
-	ASSERT_EQ(target->getAllOpenSessions()[0], mockSessionTwo);
-	ASSERT_EQ(target->getAllFinishedSessions().size(), 1);
-	ASSERT_EQ(target->getAllFinishedSessions()[0], mockSessionOne);
+	ASSERT_TRUE(target->getAllNewSessions().empty());
+	ASSERT_EQ(target->getAllOpenAndConfiguredSessions().size(), 1);
+	ASSERT_EQ(target->getAllOpenAndConfiguredSessions()[0]->getWrappedSession(), mockSessionTwo);
+	ASSERT_EQ(target->getAllFinishedAndConfiguredSessions().size(), 1);
+	ASSERT_EQ(target->getAllFinishedAndConfiguredSessions()[0]->getWrappedSession(), mockSessionOne);
 	
 	// and when finishing the second session
 	target->finishSession(mockSessionTwo);
 
 	// then
-	ASSERT_TRUE(target->getAllOpenSessions().empty());
-	ASSERT_EQ(target->getAllFinishedSessions().size(), 2);
-	ASSERT_EQ(target->getAllFinishedSessions()[0], mockSessionOne);
-	ASSERT_EQ(target->getAllFinishedSessions()[1], mockSessionTwo);
+	ASSERT_TRUE(target->getAllNewSessions().empty());
+	ASSERT_TRUE(target->getAllOpenAndConfiguredSessions().empty());
+	ASSERT_EQ(target->getAllFinishedAndConfiguredSessions().size(), 2);
+	ASSERT_EQ(target->getAllFinishedAndConfiguredSessions()[0]->getWrappedSession(), mockSessionOne);
+	ASSERT_EQ(target->getAllFinishedAndConfiguredSessions()[1]->getWrappedSession(), mockSessionTwo);
 }
 
-TEST_F(BeaconSendingContextTest, finishingASessionThatHasNotBeenStartedBeforeIsNotAddedToFinishedSessions)
+TEST_F(BeaconSendingContextTest, finishingASessionThatHasNotBeenStartedBeforeIsNotAddedToInternalList)
 {
 	// given
 	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
@@ -514,11 +519,12 @@ TEST_F(BeaconSendingContextTest, finishingASessionThatHasNotBeenStartedBeforeIsN
 	target->finishSession(mockSession);
 
 	// then
-	ASSERT_TRUE(target->getAllOpenSessions().empty());
-	ASSERT_TRUE(target->getAllFinishedSessions().empty());
+	ASSERT_TRUE(target->getAllNewSessions().empty());
+	ASSERT_TRUE(target->getAllOpenAndConfiguredSessions().empty());
+	ASSERT_TRUE(target->getAllFinishedAndConfiguredSessions().empty());
 }
 
-TEST_F(BeaconSendingContextTest, getNextFinishedSessionGetsAndRemovesSession)
+TEST_F(BeaconSendingContextTest, getNextFinishedSessionGetFinishedSessionAndLeavesSessionsInContext)
 {
 	// given
 	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
@@ -531,28 +537,36 @@ TEST_F(BeaconSendingContextTest, getNextFinishedSessionGetsAndRemovesSession)
 	target->finishSession(mockSessionTwo);
 
 	// when retrieving the next finished session
-	auto obtained = target->getNextFinishedSession();
+	auto obtained = target->getAllFinishedAndConfiguredSessions();
+
+	ASSERT_EQ(obtained.size(), 2);
 
 	// then
-	ASSERT_EQ(obtained, mockSessionOne);
-	ASSERT_EQ(target->getAllFinishedSessions().size(), 1);
-	ASSERT_EQ(target->getAllFinishedSessions()[0], mockSessionTwo);
+	ASSERT_EQ(obtained[0]->getWrappedSession(), mockSessionOne);
+	ASSERT_EQ(obtained[1]->getWrappedSession(), mockSessionTwo);
 
 	// and when retrieving the next finished Session
-	obtained = target->getNextFinishedSession();
-
+	
 	// then
-	ASSERT_EQ(obtained, mockSessionTwo);
-	ASSERT_TRUE(target->getAllFinishedSessions().empty());
+	ASSERT_FALSE(target->getAllFinishedAndConfiguredSessions().empty());
+
+	auto obtainedSecond = target->getAllFinishedAndConfiguredSessions();
+
+	ASSERT_EQ(obtainedSecond.size(), 2);
 }
 
-TEST_F(BeaconSendingContextTest, getNextFinishedSessionReturnsNullIfThereAreNoFinishedSessions)
+TEST_F(BeaconSendingContextTest, getNextFinishedSessionReturnsEmptyListIfThereAreNoFinishedSessions)
 {
 	// given
 	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
 
-	// when, then
-	ASSERT_EQ(target->getNextFinishedSession(), nullptr);
+	// when
+	auto finishedSessions = target->getAllFinishedAndConfiguredSessions();
+
+	// then
+	ASSERT_TRUE(&finishedSessions != nullptr);
+	ASSERT_EQ(finishedSessions.size(), 0);
+
 }
 
 TEST_F(BeaconSendingContextTest, disableCapture)
@@ -585,10 +599,13 @@ TEST_F(BeaconSendingContextTest, disableCapture)
 	target->disableCapture();
 
 	// then
-	ASSERT_EQ(target->getAllOpenSessions().size(), 2);
-	ASSERT_EQ(target->getAllOpenSessions()[0], mockSessionTwo);
-	ASSERT_EQ(target->getAllOpenSessions()[1], mockSessionThree);
-	ASSERT_TRUE(target->getAllFinishedSessions().empty());
+	auto newSessions = target->getAllNewSessions();
+	ASSERT_EQ(newSessions.size(), 2);
+	ASSERT_EQ(newSessions[0]->getWrappedSession(), mockSessionTwo);
+	ASSERT_EQ(newSessions[1]->getWrappedSession(), mockSessionThree);
+
+	auto finishedSessions = target->getAllFinishedAndConfiguredSessions();
+	ASSERT_TRUE(finishedSessions.empty());
 }
 
 TEST_F(BeaconSendingContextTest, handleStatusResponseWhenCapturingIsEnabled)
@@ -613,10 +630,18 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseWhenCapturingIsEnabled)
 	target->handleStatusResponse(std::move(mockStatusResponse));
 
 	// then
-	ASSERT_EQ(target->getAllOpenSessions().size(), 1);
-	ASSERT_EQ(target->getAllOpenSessions()[0], mockSessionTwo);
-	ASSERT_EQ(target->getAllFinishedSessions().size(), 1);
-	ASSERT_EQ(target->getAllFinishedSessions()[0], mockSessionOne);
+	auto newSessions = target->getAllNewSessions();
+	ASSERT_EQ(newSessions.size(), 2);
+	ASSERT_EQ(newSessions[0]->getWrappedSession(), mockSessionOne);
+	ASSERT_EQ(newSessions[1]->getWrappedSession(), mockSessionTwo);
+
+	auto openedSessions = target->getAllOpenAndConfiguredSessions();
+	ASSERT_EQ(openedSessions.size(), 0);
+
+	auto finishedSessions = target->getAllFinishedAndConfiguredSessions();
+	ASSERT_EQ(finishedSessions.size(), 0);
+
+	
 }
 
 TEST_F(BeaconSendingContextTest, handleStatusResponseWhenCapturingIsDisabled)
@@ -653,10 +678,16 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseWhenCapturingIsDisabled)
 	target->handleStatusResponse(std::move(mockStatusResponse));
 
 	// then
-	ASSERT_EQ(target->getAllOpenSessions().size(), 2);
-	ASSERT_EQ(target->getAllOpenSessions()[0], mockSessionTwo);
-	ASSERT_EQ(target->getAllOpenSessions()[1], mockSessionThree);
-	ASSERT_TRUE(target->getAllFinishedSessions().empty());
+	auto newSessions = target->getAllNewSessions();
+	ASSERT_EQ(newSessions.size(), 2);
+	ASSERT_EQ(newSessions[0]->getWrappedSession(), mockSessionTwo);
+	ASSERT_EQ(newSessions[1]->getWrappedSession(), mockSessionThree);
+
+	auto openSessions = target->getAllOpenAndConfiguredSessions();
+	ASSERT_TRUE(openSessions.empty());
+
+	auto finishedSessions = target->getAllFinishedAndConfiguredSessions();
+	ASSERT_TRUE(finishedSessions.empty());
 }
 
 TEST_F(BeaconSendingContextTest, isTimeSyncedReturnsTrueIfSyncWasNeverPerformed)

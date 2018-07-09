@@ -26,6 +26,7 @@
 #include "protocol/StatusResponse.h"
 #include "communication/AbstractBeaconSendingState.h"
 #include "core/Session.h"
+#include "core/SessionWrapper.h"
 
 #include <atomic>
 #include <memory>
@@ -240,28 +241,24 @@ namespace communication
 		void clearAllSessionData();
 
 		///
-		/// Gets the next finished session from the list of all finished sessions.
+		/// Get all sessions that are considered new.
 		///
-		/// This call also removes the session from the underlying data structure.
-		/// If there are no finished sessions any more, this method returns a nullptr.
-		/// @return a finished session or @c nullptr if there is no finished session
+		/// The returned list is a snapshot and might change during traversal.
+		/// @returns A list of new sessions.
 		///
-		virtual std::shared_ptr<core::Session> getNextFinishedSession();
+		virtual std::vector<std::shared_ptr<core::SessionWrapper>> getAllNewSessions();
 
 		///
-		/// Gets all open sessions.
-		/// This returns a shallow copy of all open sessions.
+		/// Gets all open and configured sessions.
 		/// @return a shallow copy of all open sessions.
 		///
-		virtual std::vector<std::shared_ptr<core::Session>> getAllOpenSessions();
+		virtual std::vector<std::shared_ptr<core::SessionWrapper>> getAllOpenAndConfiguredSessions();
 
 		///
-		/// Gets all finished sessions.
-		/// This returns a shallow copy of all finished sessions and is intended only
-		/// for testing purposes.
-		/// @return a shallow copy of all finished sessions.
+		/// Get a list of all sessions that have been configured and are currently finished
+		/// @returns a shallow copy of all finished and configured sessions.
 		///
-		std::vector<std::shared_ptr<core::Session>> getAllFinishedSessions();
+		virtual std::vector<std::shared_ptr<core::SessionWrapper>> getAllFinishedAndConfiguredSessions();
 
 		///
 		/// Returns the timestamp when time sync was executed last time.
@@ -281,13 +278,6 @@ namespace communication
 		/// @param[in] session The new session to start.
 		///
 		void startSession(std::shared_ptr<core::Session> session);
-
-		///
-		/// Push back a finished session, that was previously retrieved via @ref getNextFinishedSession().
-		/// This method will not check for duplicate entries, so be careful what's pushed back.
-		/// @param[in] session The session to push back to the list of finished ones.
-		///
-		virtual void pushBackFinishedSession(std::shared_ptr<core::Session> session);
 
 		///
 		/// Finish a session which has been started previously using startSession(SessionImpl)
@@ -313,6 +303,20 @@ namespace communication
 		/// Default sleep time in milliseconds (used by @ref sleep()).
 		///
 		static const std::chrono::milliseconds DEFAULT_SLEEP_TIME_MILLISECONDS;
+
+		///
+		/// Search for the session wrapper belonging to the given session
+		/// @param[in] session the session to look up in the session wrapper list
+		/// @returns the @ref core::SessionWrapper encapsulating the given @c session object
+		///
+		std::shared_ptr<core::SessionWrapper> findSessionWrapper(std::shared_ptr<core::Session> session);
+
+		///
+		/// Remove @ref core::SessionWrapper from the list of all wrappers
+		/// @param[in] sessionWrapper
+		/// @returns @c true if @c sessionWrapper was found in the session wrapper list and was removed successfully, @c false otherwise
+		///
+		bool removeSession(std::shared_ptr<core::SessionWrapper> sessionWrapper);
 
 	private:
 		/// Logger to write traces to
@@ -357,11 +361,8 @@ namespace communication
 		/// timestamp of the last time sync
 		int64_t mLastTimeSyncTime;
 
-		/// container storing all open sessions
-		core::util::SynchronizedQueue<std::shared_ptr<core::Session>> mOpenSessions;
-
-		/// container storing all finished sessions
-		core::util::SynchronizedQueue<std::shared_ptr<core::Session>> mFinishedSessions;
+		/// container storing all session wrappers
+		core::util::SynchronizedQueue<std::shared_ptr<core::SessionWrapper>> mSessions;
 	};
 }
 #endif

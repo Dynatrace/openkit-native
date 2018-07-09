@@ -85,3 +85,13 @@ bool SessionWrapper::isDataSendingAllowed() const
 {
 	return isBeaconConfigurationSet() && mWrappedSession->getBeaconConfiguration()->getMultiplicity() > 0;
 }
+
+void SessionWrapper::clearCapturedData()
+{
+	mWrappedSession->clearCapturedData();
+}
+
+std::unique_ptr<protocol::StatusResponse> SessionWrapper::sendBeacon(std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider)
+{
+	return mWrappedSession->sendBeacon(httpClientProvider);
+}

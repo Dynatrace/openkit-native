@@ -37,8 +37,11 @@ public:
 		, mMockSession2Open(nullptr)
 		, mMockSession3Finished(nullptr)
 		, mMockSession4Finished(nullptr)
-		, mMockedOpenSessions()
+		, mMockedNewSessions()
+		, mMockedFinishedSessions()
 		, mMockHttpClientProvider(nullptr)
+		, mMockHttpClient(nullptr)
+		, mHttpClientConfiguration(nullptr)
 	{
 	}
 
@@ -53,8 +56,12 @@ public:
 			.WillByDefault(testing::Return(new protocol::StatusResponse("", 200)));
 		ON_CALL(*mMockSession2Open, sendBeaconRawPtrProxy(testing::_))
 			.WillByDefault(testing::Return(new protocol::StatusResponse("", 404)));
-		mMockedOpenSessions.push_back(mMockSession1Open);
-		mMockedOpenSessions.push_back(mMockSession2Open);
+
+		mMockedNewSessions.push_back(std::make_shared<core::SessionWrapper>(mMockSession1Open));
+		mMockedNewSessions.push_back(std::make_shared<core::SessionWrapper>(mMockSession2Open));
+
+		mMockedFinishedSessions.push_back(std::make_shared<core::SessionWrapper>(mMockSession3Finished));
+		mMockedFinishedSessions.push_back(std::make_shared<core::SessionWrapper>(mMockSession4Finished));
 
 		mMockContext = std::shared_ptr<testing::NiceMock<test::MockBeaconSendingContext>>(new testing::NiceMock<test::MockBeaconSendingContext>(mLogger));
 		ON_CALL(*mMockContext, isTimeSyncSupported())
@@ -63,34 +70,24 @@ public:
 			.WillByDefault(testing::Return(0L));
 		ON_CALL(*mMockContext, getCurrentTimestamp())
 			.WillByDefault(testing::Return(42L));
-		ON_CALL(*mMockContext, getAllOpenSessions())
-			.WillByDefault(testing::Return(mMockedOpenSessions));
 		ON_CALL(*mMockContext, getSendInterval())
 			.WillByDefault(testing::Return(0L));
 
-		mCallCount = 0;
-		ON_CALL(*mMockContext, getNextFinishedSession())
-			.WillByDefault(testing::Invoke(
-				[this]() -> std::shared_ptr<test::MockSession> {
-			// callCount 1 => mMockSession3Finished
-			// callCount 2 => mMockSession4Finished
-			// callCount 3 => nullptr
-			mCallCount++;
-			if (mCallCount == 1)
-			{
-				return mMockSession3Finished;
-			}
-			else if (mCallCount == 2)
-			{
-				return mMockSession4Finished;
-			}
-			return nullptr;
-		}
-		));
+		ON_CALL(*mMockContext, getAllNewSessions())
+			.WillByDefault(testing::Return(mMockedNewSessions));
+		ON_CALL(*mMockContext, getAllFinishedAndConfiguredSessions())
+			.WillByDefault(testing::Return(mMockedFinishedSessions));
+
+		mHttpClientConfiguration = std::make_shared<configuration::HTTPClientConfiguration>("test url",123, "application id");
+		mMockHttpClient = std::make_shared<testing::NiceMock<test::MockHTTPClient>>(mHttpClientConfiguration);
 
 		mMockHttpClientProvider = std::shared_ptr<testing::NiceMock<test::MockHTTPClientProvider>>(new testing::NiceMock<test::MockHTTPClientProvider>());
 		ON_CALL(*mMockContext, getHTTPClientProvider())
 			.WillByDefault(testing::Return(mMockHttpClientProvider));
+		ON_CALL(*mMockContext, getHTTPClient())
+			.WillByDefault(testing::Return(mMockHttpClient));
+		ON_CALL(*mMockHttpClientProvider, createClient (testing::_,testing::_))
+			.WillByDefault(testing::Return(mMockHttpClient));
 	}
 
 	void TearDown()
@@ -112,8 +109,11 @@ public:
 	std::shared_ptr<testing::NiceMock<test::MockSession>> mMockSession2Open;
 	std::shared_ptr<testing::NiceMock<test::MockSession>> mMockSession3Finished;
 	std::shared_ptr<testing::NiceMock<test::MockSession>> mMockSession4Finished;
-	std::vector<std::shared_ptr<core::Session>> mMockedOpenSessions;
+	std::vector<std::shared_ptr<core::SessionWrapper>> mMockedNewSessions;
+	std::vector<std::shared_ptr<core::SessionWrapper>> mMockedFinishedSessions;
 	std::shared_ptr<testing::NiceMock<test::MockHTTPClientProvider>> mMockHttpClientProvider;
+	std::shared_ptr<testing::NiceMock<test::MockHTTPClient>> mMockHttpClient;
+	std::shared_ptr<configuration::HTTPClientConfiguration> mHttpClientConfiguration;
 };
 
 TEST_F(BeaconSendingCaptureOnStateTest, aBeaconSendingCaptureOnStateIsNotATerminalState)
@@ -223,7 +223,7 @@ TEST_F(BeaconSendingCaptureOnStateTest, aBeaconSendingCaptureOnStatePushesBackFi
 		.Times(testing::Exactly(1));
 	EXPECT_CALL(*mMockSession4Finished, sendBeaconRawPtrProxy(testing::_))
 		.Times(testing::Exactly(0));
-	EXPECT_CALL(*mMockContext, getNextFinishedSession())
+	EXPECT_CALL(*mMockContext, getAllFinishedAndConfiguredSessions())
 		.Times(testing::Exactly(1));
 	EXPECT_CALL(*mMockContext, pushBackFinishedSession(IsAmockedSession(mMockSession3Finished)))
 		.Times(testing::Exactly(1));
@@ -253,8 +253,8 @@ TEST_F(BeaconSendingCaptureOnStateTest, aBeaconSendingCaptureOnStateContinuesWit
 	EXPECT_CALL(*mMockSession4Finished, clearCapturedData())
 		.Times(testing::Exactly(1));
 
-	EXPECT_CALL(*mMockContext, getNextFinishedSession())
-		.Times(testing::Exactly(3));
+	EXPECT_CALL(*mMockContext, getAllFinishedAndConfiguredSessions())
+		.Times(testing::Exactly(1));
 	EXPECT_CALL(*mMockContext, pushBackFinishedSession(testing::_))
 		.Times(testing::Exactly(0));
 

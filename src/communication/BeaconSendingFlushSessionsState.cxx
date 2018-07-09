@@ -35,20 +35,34 @@ BeaconSendingFlushSessionsState::BeaconSendingFlushSessionsState()
 
 void BeaconSendingFlushSessionsState::doExecute(BeaconSendingContext& context)
 {
-	// end open sessions -> will be flushed afterwards
-	auto openSessions = context.getAllOpenSessions();
-	for (auto const& openSession : openSessions)
+	// first get all sessions that do not have any multiplicity set -> and move them to open sessions
+	auto newSessions = context.getAllNewSessions();
+	for (auto it = newSessions.begin() ; it != newSessions.end(); it++)
 	{
-		openSession->end();
+		auto beaconConfiguration = (*it)->getWrappedSession()->getBeaconConfiguration();
+		auto updatedBeaconConfiguration = std::make_shared<configuration::BeaconConfiguration>(1, beaconConfiguration->getDataCollectionLevel(), beaconConfiguration->getCrashReportingLevel());
+		(*it)->updateBeaconConfiguration(updatedBeaconConfiguration);
+
+	}
+
+	// end open sessions -> will be flushed afterwards
+	auto openSessions = context.getAllOpenAndConfiguredSessions();
+	for (auto it = openSessions.begin(); it != openSessions.end(); it++)
+	{
+		(*it)->finishSession();
 	}
 
 	// flush already finished (and previously ended) sessions
-	auto finishedSession = context.getNextFinishedSession();
-	while (finishedSession != nullptr)
+	auto finishedSession = context.getAllFinishedAndConfiguredSessions();
+	for (auto it = finishedSession.begin(); it != finishedSession.end(); it++)
 	{
-		finishedSession->sendBeacon(context.getHTTPClientProvider());
-		finishedSession->clearCapturedData();
-		finishedSession = context.getNextFinishedSession();
+		std::shared_ptr<core::SessionWrapper> sessionWrapper = (*it);
+		if (sessionWrapper->isDataSendingAllowed())
+		{
+			sessionWrapper->sendBeacon(context.getHTTPClientProvider());
+		}
+		sessionWrapper->clearCapturedData();
+		context.removeSession(sessionWrapper);
 	}
 
 	// make last state transition to terminal state

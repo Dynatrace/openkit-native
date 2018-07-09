@@ -35,7 +35,7 @@ public:
 		, mMockSession1Open(nullptr)
 		, mMockSession2Open(nullptr)
 		, mMockSession3Closed(nullptr)
-		, mMockedOpenSessions()
+		, mMockedNewSessions()
 	{
 	}
 
@@ -43,10 +43,15 @@ public:
 	{
 		mLogger = std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(devNull, true));
 		mMockSession1Open = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>(mLogger));
+		std::shared_ptr<core::SessionWrapper> sessionWrapper1 = std::make_shared<core::SessionWrapper>(mMockSession1Open);
 		mMockSession2Open = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>(mLogger));
+		std::shared_ptr<core::SessionWrapper> sessionWrapper2 = std::make_shared<core::SessionWrapper>(mMockSession2Open);
+		mMockedNewSessions.push_back(sessionWrapper1);
+		mMockedNewSessions.push_back(sessionWrapper2);
+
 		mMockSession3Closed = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>(mLogger));
-		mMockedOpenSessions.push_back(mMockSession1Open);
-		mMockedOpenSessions.push_back(mMockSession2Open);
+		std::shared_ptr<core::SessionWrapper> sessionWrapper3 = std::make_shared<core::SessionWrapper>(mMockSession3Closed);
+		mMockedFinishedSessions.push_back(sessionWrapper3);
 
 		std::shared_ptr<configuration::HTTPClientConfiguration> httpClientConfiguration = std::make_shared<configuration::HTTPClientConfiguration>(core::UTF8String(""), 0, core::UTF8String(""));
 		mMockHTTPClient = std::shared_ptr<testing::NiceMock<test::MockHTTPClient>>(new testing::NiceMock<test::MockHTTPClient>(httpClientConfiguration));
@@ -56,32 +61,17 @@ public:
 		mMockContext = std::shared_ptr<testing::NiceMock<test::MockBeaconSendingContext>>(new testing::NiceMock<test::MockBeaconSendingContext>(mLogger));
 		ON_CALL(*mMockContext, getHTTPClient())
 			.WillByDefault(testing::Return(mMockHTTPClient));
-		ON_CALL(*mMockContext, getAllOpenSessions())
-			.WillByDefault(testing::Return(mMockedOpenSessions));
+		ON_CALL(*mMockContext, getAllNewSessions())
+			.WillByDefault(testing::Return(mMockedNewSessions));
 		mCallCount = 0;
-		ON_CALL(*mMockContext, getNextFinishedSession())
-			.WillByDefault(testing::Invoke(
-				[this]() -> std::shared_ptr<test::MockSession> {
-			// callCount 1 => mockSession3Closed
-			// callCount 2 => mockSession2Open
-			// callCount 3 => mockSession1Open
-			// callCount 4 => nullptr
-			mCallCount++;
-			if (mCallCount == 1)
-			{
-				return mMockSession3Closed;
-			}
-			else if (mCallCount == 2)
-			{
-				return mMockSession2Open;
-			}
-			else if (mCallCount == 3)
-			{
-				return mMockSession1Open;
-			}
-			return nullptr;
-		}
-		));
+		ON_CALL(*mMockContext, getAllFinishedAndConfiguredSessions())
+			.WillByDefault(testing::Return(mMockedFinishedSessions));
+		ON_CALL(*mMockSession1Open, getBeaconConfiguration())
+			.WillByDefault(testing::Return(std::make_shared<configuration::BeaconConfiguration>()));
+		ON_CALL(*mMockSession2Open, getBeaconConfiguration())
+			.WillByDefault(testing::Return(std::make_shared<configuration::BeaconConfiguration>()));
+		ON_CALL(*mMockSession3Closed, getBeaconConfiguration())
+			.WillByDefault(testing::Return(std::make_shared<configuration::BeaconConfiguration>()));
 	}
 
 	void TearDown()
@@ -100,7 +90,8 @@ public:
 	std::shared_ptr<testing::NiceMock<test::MockSession>> mMockSession1Open;
 	std::shared_ptr<testing::NiceMock<test::MockSession>> mMockSession2Open;
 	std::shared_ptr<testing::NiceMock<test::MockSession>> mMockSession3Closed;
-	std::vector<std::shared_ptr<core::Session>> mMockedOpenSessions;
+	std::vector<std::shared_ptr<core::SessionWrapper>> mMockedNewSessions;
+	std::vector<std::shared_ptr<core::SessionWrapper>> mMockedFinishedSessions;
 	std::shared_ptr<testing::NiceMock<test::MockHTTPClient>> mMockHTTPClient;
 };
 

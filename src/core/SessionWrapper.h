@@ -18,6 +18,8 @@
 #define _CORE_SESSIONWRAPPER_H
 
 #include "Session.h"
+#include "protocol/StatusResponse.h"
+
 #include <memory>
 
 namespace configuration {
@@ -104,6 +106,18 @@ namespace core
 		/// @returns @c true if beacon data may be send, @c false otherwise
 		///
 		bool isDataSendingAllowed() const;
+
+		///
+		/// Clear the sessions data
+		///
+		void clearCapturedData();
+
+		///
+		/// Send beacon forward call
+		/// @param[in] httpClientProvider http client provider
+		/// @returns the status response
+		///
+		std::unique_ptr<protocol::StatusResponse> sendBeacon(std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider);
 
 	private:
 

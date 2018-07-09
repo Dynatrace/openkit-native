@@ -46,8 +46,7 @@ BeaconSendingContext::BeaconSendingContext(std::shared_ptr<openkit::ILogger> log
 	, mInitCountdownLatch(1)
 	, mIsTimeSyncSupported(true)
 	, mLastTimeSyncTime(-1)
-	, mOpenSessions()
-	, mFinishedSessions()
+	, mSessions()
 {
 }
 
@@ -129,19 +128,12 @@ void BeaconSendingContext::handleStatusResponse(std::unique_ptr<protocol::Status
 void BeaconSendingContext::clearAllSessionData()
 {
 	// clear captured data from finished sessions
-	auto finishedSessionsVec = mFinishedSessions.toStdVector();
+	auto finishedSessionsVec = mSessions.toStdVector();
 	for (auto it = finishedSessionsVec.begin(); it != finishedSessionsVec.end(); it++)
 	{
 		(*it)->clearCapturedData();
 	}
-	mFinishedSessions.clear();
-
-	// clear captured data from open sessions
-	auto openSessionsVec = mOpenSessions.toStdVector();
-	for (auto it = openSessionsVec.begin(); it != openSessionsVec.end(); it++)
-	{
-		(*it)->clearCapturedData();
-	}
+	mSessions.clear();
 }
 
 bool BeaconSendingContext::isCaptureOn() const
@@ -257,40 +249,87 @@ void BeaconSendingContext::initializeTimeSync(int64_t clusterTimeOffset, bool is
 
 void BeaconSendingContext::startSession(std::shared_ptr<core::Session> session)
 {
-	mOpenSessions.put(session);
-}
-
-void BeaconSendingContext::pushBackFinishedSession(std::shared_ptr<core::Session> session)
-{
-	mFinishedSessions.put(session);
+	auto sessionWrapper = std::make_shared<core::SessionWrapper>(session);
+	mSessions.put(sessionWrapper);
 }
 
 void BeaconSendingContext::finishSession(std::shared_ptr<core::Session> session)
 {
-	if (mOpenSessions.remove(session))
+	std::shared_ptr<core::SessionWrapper> sessionWrapper = findSessionWrapper(session);
+	if (sessionWrapper != nullptr)
 	{
-		mFinishedSessions.put(session);
+		sessionWrapper->finishSession();
 	}
 }
 
-std::shared_ptr<core::Session> BeaconSendingContext::getNextFinishedSession()
+std::vector<std::shared_ptr<core::SessionWrapper>> BeaconSendingContext::getAllNewSessions()
 {
-	return mFinishedSessions.get();
+	std::vector<std::shared_ptr<core::SessionWrapper>> newSessions;
+	auto sessionWrapperList = mSessions.toStdVector();
+	for (auto it = sessionWrapperList.begin(); it != sessionWrapperList.end(); it++)
+	{
+		auto sessionWrapper = (*it);
+		if (!sessionWrapper->isBeaconConfigurationSet())
+		{
+			newSessions.push_back(*it);
+		}
+	}
+
+	return newSessions;
 }
 
-std::vector<std::shared_ptr<core::Session>> BeaconSendingContext::getAllOpenSessions()
+std::vector<std::shared_ptr<core::SessionWrapper>> BeaconSendingContext::getAllOpenAndConfiguredSessions()
 {
-	auto result = mOpenSessions.toStdVector();
-	return result;
+	std::vector<std::shared_ptr<core::SessionWrapper>> openSessions;
+	auto sessionWrapperList = mSessions.toStdVector();
+	for (auto it = sessionWrapperList.begin(); it != sessionWrapperList.end(); it++)
+	{
+		auto sessionWrapper = (*it);
+		if (sessionWrapper->isBeaconConfigurationSet() && !sessionWrapper->isSessionFinished())
+		{
+			openSessions.push_back(sessionWrapper);
+		}
+	}
+
+	return openSessions;
 }
 
-std::vector<std::shared_ptr<core::Session>> BeaconSendingContext::getAllFinishedSessions()
+std::vector<std::shared_ptr<core::SessionWrapper>> BeaconSendingContext::getAllFinishedAndConfiguredSessions()
 {
-	auto result = mFinishedSessions.toStdVector();
-	return result;
+	std::vector<std::shared_ptr<core::SessionWrapper>> finishedSessions;
+	auto sessionWrapperList = mSessions.toStdVector();
+	for (auto it = sessionWrapperList.begin(); it != sessionWrapperList.end(); it++)
+	{
+		auto sessionWrapper = (*it);
+		if (sessionWrapper->isBeaconConfigurationSet() && sessionWrapper->isSessionFinished())
+		{
+			finishedSessions.push_back(*it);
+		}
+	}
+
+	return finishedSessions;
 }
 
 std::shared_ptr<AbstractBeaconSendingState> BeaconSendingContext::getNextState()
 {
 	return mNextState;
+}
+
+std::shared_ptr<core::SessionWrapper> BeaconSendingContext::findSessionWrapper(std::shared_ptr<core::Session> session)
+{
+	auto sessionWrapperList = mSessions.toStdVector();
+	for (auto it = sessionWrapperList.begin(); it != sessionWrapperList.end(); it++)
+	{
+		auto sessionWrapper = (*it);
+		if ( sessionWrapper->getWrappedSession() == session )
+		{
+			return *it;
+		}
+	}
+	return nullptr;
+}
+
+bool BeaconSendingContext::removeSession(std::shared_ptr<core::SessionWrapper> sessionWrapper)
+{
+	return mSessions.remove(sessionWrapper);
 }

@@ -33,6 +33,7 @@
 #include "protocol/ssl/SSLStrictTrustManager.h"
 #include "providers/DefaultHTTPClientProvider.h"
 #include "providers/DefaultSessionIDProvider.h"
+#include "core/SessionWrapper.h"
 
 #include "../providers/MockTimingProvider.h"
 #include "TestBeaconSendingState.h"
@@ -74,8 +75,9 @@ namespace test
 		MOCK_METHOD1(setLastOpenSessionBeaconSendTime, void(int64_t));
 		MOCK_METHOD1(setLastStatusCheckTime, void(int64_t));
 		MOCK_CONST_METHOD0(getSendInterval, int64_t());
-		MOCK_METHOD0(getNextFinishedSession, std::shared_ptr<core::Session>());
-		MOCK_METHOD0(getAllOpenSessions, std::vector<std::shared_ptr<core::Session>>());
+		MOCK_METHOD0(getAllNewSessions, std::vector<std::shared_ptr<core::SessionWrapper>>());
+		MOCK_METHOD0(getAllOpenAndConfiguredSessions, std::vector<std::shared_ptr<core::SessionWrapper>>());
+		MOCK_METHOD0(getAllFinishedAndConfiguredSessions, std::vector<std::shared_ptr<core::SessionWrapper>>());
 		MOCK_METHOD0(disableCapture, void());
 		MOCK_CONST_METHOD0(getLastTimeSyncTime, int64_t());
 		MOCK_METHOD1(setLastTimeSyncTime, void(int64_t));
