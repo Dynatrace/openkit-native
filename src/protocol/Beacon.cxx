@@ -397,7 +397,7 @@ void Beacon::reportCrash(const core::UTF8String& errorName, const core::UTF8Stri
 		return;
 	}
 
-	if (mBeaconConfiguration->getCrashReportingLevel() == openkit::CrashReportingLevel::OFF)
+	if (mBeaconConfiguration->getCrashReportingLevel() != openkit::CrashReportingLevel::OPT_IN_CRASHES)
 	{
 		return;
 	}
