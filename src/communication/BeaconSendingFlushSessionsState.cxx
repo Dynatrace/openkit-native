@@ -49,7 +49,7 @@ void BeaconSendingFlushSessionsState::doExecute(BeaconSendingContext& context)
 	auto openSessions = context.getAllOpenAndConfiguredSessions();
 	for (auto it = openSessions.begin(); it != openSessions.end(); it++)
 	{
-		(*it)->finishSession();
+		(*it)->end();
 	}
 
 	// flush already finished (and previously ended) sessions

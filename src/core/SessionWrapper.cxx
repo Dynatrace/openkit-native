@@ -38,7 +38,7 @@ void SessionWrapper::updateBeaconConfiguration(std::shared_ptr<configuration::Be
 
 std::shared_ptr<configuration::BeaconConfiguration> SessionWrapper::getBeaconConfiguration() const
 {
-	return mBeaconConfiguration;
+	return mWrappedSession->getBeaconConfiguration();
 }
 
 bool SessionWrapper::isBeaconConfigurationSet() const

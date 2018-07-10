@@ -277,7 +277,7 @@ namespace communication
 		/// This add the @c session to the internal container of open sessions.
 		/// @param[in] session The new session to start.
 		///
-		void startSession(std::shared_ptr<core::Session> session);
+		virtual void startSession(std::shared_ptr<core::Session> session);
 
 		///
 		/// Finish a session which has been started previously using startSession(SessionImpl)
@@ -285,7 +285,7 @@ namespace communication
 		/// otherwise it's removed from the container storing open sessions and added to the finished session container.
 		/// @param[in] session The session to finish.
 		///
-		void finishSession(std::shared_ptr<core::Session> session);
+		virtual void finishSession(std::shared_ptr<core::Session> session);
 
 		///
 		/// Return the currently used Configuration
