@@ -41,22 +41,33 @@ public:
 		testSSLTrustManager = std::make_shared<test::TestSSLTrustManager>();
 	}
 
-	const char* defaultEndpointURL = "https://localhost:12345";
-	const char* defaultApplicationID = "asdf123";
-	const int64_t defaultDeviceID = 123L;
+	static constexpr char* DEFAULT_ENDPOINT_URL = "https://localhost:12345";
+	static constexpr char* DEFAULT_APPLICATION_ID = "asdf123";
+	static constexpr int64_t DEFAULT_DEVICE_ID = 123L;
 	std::shared_ptr<openkit::ISSLTrustManager> testSSLTrustManager;
-	const char* testApplicationVersion = "1.2.3.4";
-	const char* testOperatingSystem = "Some OS";
-	const char* testManufacturer = "ACME";
-	const char* testModelID = "abc.123";
-	int64_t testCacheMaxRecordAge = 123456L;
-	int64_t testCacheLowerMemoryBoundary = 42 * 1024;
-	int64_t testCacheUpperMemoryBoundary = 144 * 1024;
+	static constexpr char* TEST_APPLICATION_VERSION = "1.2.3.4";
+	static constexpr char* TEST_OPERATING_SYSTEM = "Some OS";
+	static constexpr char* TEST_MANUFACTURER = "ACME";
+	static constexpr char* TEST_MODEL_ID = "abc.123";
+	static constexpr int64_t TEST_CACHE_MAX_RECORD_AGE = 123456L;
+	static constexpr int64_t TEST_CACHE_LOWER_MEMORY_BOUNDARY = 42 * 1024;
+	static constexpr int64_t TEST_CACHE_UPPER_MEMORY_BOUNDARY = 144 * 1024;
 };
+
+constexpr char* OpenKitBuilderTest::DEFAULT_ENDPOINT_URL;
+constexpr char* OpenKitBuilderTest::DEFAULT_APPLICATION_ID;
+constexpr int64_t OpenKitBuilderTest::DEFAULT_DEVICE_ID;
+constexpr char* OpenKitBuilderTest::TEST_APPLICATION_VERSION;
+constexpr char* OpenKitBuilderTest::TEST_OPERATING_SYSTEM;
+constexpr char* OpenKitBuilderTest::TEST_MANUFACTURER;
+constexpr char* OpenKitBuilderTest::TEST_MODEL_ID;
+constexpr int64_t OpenKitBuilderTest::TEST_CACHE_MAX_RECORD_AGE;
+constexpr int64_t OpenKitBuilderTest::TEST_CACHE_LOWER_MEMORY_BOUNDARY;
+constexpr int64_t OpenKitBuilderTest::TEST_CACHE_UPPER_MEMORY_BOUNDARY;
 
 TEST_F(OpenKitBuilderTest, defaultsAreSetForAppMon)
 {
-	auto configuration = AppMonOpenKitBuilder(defaultEndpointURL, defaultApplicationID, defaultDeviceID).buildConfiguration();
+	auto configuration = AppMonOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID).buildConfiguration();
 
 	ASSERT_TRUE(configuration->getApplicationVersion().equals(openkit::DEFAULT_APPLICATION_VERSION));
 	auto device = configuration->getDevice();
@@ -80,7 +91,7 @@ TEST_F(OpenKitBuilderTest, defaultsAreSetForAppMon)
 
 TEST_F(OpenKitBuilderTest, defaultsAreSetForDynatrace)
 {
-	auto configuration = DynatraceOpenKitBuilder(defaultEndpointURL, defaultApplicationID, defaultDeviceID).buildConfiguration();
+	auto configuration = DynatraceOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID).buildConfiguration();
 
 	ASSERT_TRUE(configuration->getApplicationVersion().equals(openkit::DEFAULT_APPLICATION_VERSION));
 	auto device = configuration->getDevice();
@@ -100,14 +111,14 @@ TEST_F(OpenKitBuilderTest, defaultsAreSetForDynatrace)
 
 TEST_F(OpenKitBuilderTest, applicationNameIsSetCorrectlyForAppMon)
 {
-	auto configuration = AppMonOpenKitBuilder(defaultEndpointURL, defaultApplicationID, defaultDeviceID).buildConfiguration();
-	ASSERT_TRUE(configuration->getApplicationName() == defaultApplicationID);
+	auto configuration = AppMonOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID).buildConfiguration();
+	ASSERT_TRUE(configuration->getApplicationName() == DEFAULT_APPLICATION_ID);
 	ASSERT_EQ(configuration->getApplicationName(), configuration->getApplicationID());
 }
 
 TEST_F(OpenKitBuilderTest, canOverrideTrustManagerForAppMon)
 {
-	auto configuration = AppMonOpenKitBuilder(defaultEndpointURL, defaultApplicationID, defaultDeviceID)
+	auto configuration = AppMonOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
 		.withTrustManager(testSSLTrustManager)
 		.buildConfiguration();
 
@@ -116,7 +127,7 @@ TEST_F(OpenKitBuilderTest, canOverrideTrustManagerForAppMon)
 
 TEST_F(OpenKitBuilderTest, canOverrideTrustManagerForDynatrace)
 {
-	auto configuration = DynatraceOpenKitBuilder(defaultEndpointURL, defaultApplicationID, defaultDeviceID)
+	auto configuration = DynatraceOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
 		.withTrustManager(testSSLTrustManager)
 		.buildConfiguration();
 
@@ -125,79 +136,79 @@ TEST_F(OpenKitBuilderTest, canOverrideTrustManagerForDynatrace)
 
 TEST_F(OpenKitBuilderTest, canSetApplicationVersionForAppMon)
 {
-	auto configuration = AppMonOpenKitBuilder(defaultEndpointURL, defaultApplicationID, defaultDeviceID)
-		.withApplicationVersion(testApplicationVersion)
+	auto configuration = AppMonOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
+		.withApplicationVersion(TEST_APPLICATION_VERSION)
 		.buildConfiguration();
 
-	ASSERT_EQ(configuration->getApplicationVersion(), testApplicationVersion);
+	ASSERT_EQ(configuration->getApplicationVersion(), TEST_APPLICATION_VERSION);
 }
 
 TEST_F(OpenKitBuilderTest, canSetApplicationVersionForDynatrace)
 {
-	auto configuration = DynatraceOpenKitBuilder(defaultEndpointURL, defaultApplicationID, defaultDeviceID)
-		.withApplicationVersion(testApplicationVersion)
+	auto configuration = DynatraceOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
+		.withApplicationVersion(TEST_APPLICATION_VERSION)
 		.buildConfiguration();
 
-	ASSERT_EQ(configuration->getApplicationVersion(), testApplicationVersion);
+	ASSERT_EQ(configuration->getApplicationVersion(), TEST_APPLICATION_VERSION);
 }
 
 TEST_F(OpenKitBuilderTest, canSetOperatingSystemForAppMon)
 {
-	auto configuration = AppMonOpenKitBuilder(defaultEndpointURL, defaultApplicationID, defaultDeviceID)
-		.withOperatingSystem(testOperatingSystem)
+	auto configuration = AppMonOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
+		.withOperatingSystem(TEST_OPERATING_SYSTEM)
 		.buildConfiguration();
 
-	ASSERT_EQ(configuration->getDevice()->getOperatingSystem(), testOperatingSystem);
+	ASSERT_EQ(configuration->getDevice()->getOperatingSystem(), TEST_OPERATING_SYSTEM);
 }
 
 TEST_F(OpenKitBuilderTest, canSetOperatingSystemForDynatrace)
 {
-	auto configuration = DynatraceOpenKitBuilder(defaultEndpointURL, defaultApplicationID, defaultDeviceID)
-		.withOperatingSystem(testOperatingSystem)
+	auto configuration = DynatraceOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
+		.withOperatingSystem(TEST_OPERATING_SYSTEM)
 		.buildConfiguration();
 
-	ASSERT_EQ(configuration->getDevice()->getOperatingSystem(), testOperatingSystem);
+	ASSERT_EQ(configuration->getDevice()->getOperatingSystem(), TEST_OPERATING_SYSTEM);
 }
 
 TEST_F(OpenKitBuilderTest, canSetManufacturerForAppMon)
 {
-	auto configuration = AppMonOpenKitBuilder(defaultEndpointURL, defaultApplicationID, defaultDeviceID)
-		.withManufacturer(testManufacturer)
+	auto configuration = AppMonOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
+		.withManufacturer(TEST_MANUFACTURER)
 		.buildConfiguration();
 
-	ASSERT_EQ(configuration->getDevice()->getManufacturer(), testManufacturer);
+	ASSERT_EQ(configuration->getDevice()->getManufacturer(), TEST_MANUFACTURER);
 }
 
 TEST_F(OpenKitBuilderTest, canSetManufactureForDynatrace)
 {
-	auto configuration = DynatraceOpenKitBuilder(defaultEndpointURL, defaultApplicationID, defaultDeviceID)
-		.withManufacturer(testManufacturer)
+	auto configuration = DynatraceOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
+		.withManufacturer(TEST_MANUFACTURER)
 		.buildConfiguration();
 
-	ASSERT_EQ(configuration->getDevice()->getManufacturer(), testManufacturer);
+	ASSERT_EQ(configuration->getDevice()->getManufacturer(), TEST_MANUFACTURER);
 }
 
 TEST_F(OpenKitBuilderTest, canSetModelIDForAppMon)
 {
-	auto configuration = AppMonOpenKitBuilder(defaultEndpointURL, defaultApplicationID, defaultDeviceID)
-		.withModelID(testModelID)
+	auto configuration = AppMonOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
+		.withModelID(TEST_MODEL_ID)
 		.buildConfiguration();
 
-	ASSERT_EQ(configuration->getDevice()->getModelID(), testModelID);
+	ASSERT_EQ(configuration->getDevice()->getModelID(), TEST_MODEL_ID);
 }
 
 TEST_F(OpenKitBuilderTest, canSetModelIDForDynatrace)
 {
-	auto configuration = DynatraceOpenKitBuilder(defaultEndpointURL, defaultApplicationID, defaultDeviceID)
-		.withModelID(testModelID)
+	auto configuration = DynatraceOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
+		.withModelID(TEST_MODEL_ID)
 		.buildConfiguration();
 
-	ASSERT_EQ(configuration->getDevice()->getModelID(), testModelID);
+	ASSERT_EQ(configuration->getDevice()->getModelID(), TEST_MODEL_ID);
 }
 
 TEST_F(OpenKitBuilderTest, defaultLoggerIsUsedByDefault)
 {
-	auto logger = DynatraceOpenKitBuilder(defaultEndpointURL, defaultApplicationID, defaultDeviceID)
+	auto logger = DynatraceOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
 		.enableVerbose()
 		.getLogger();
 
@@ -208,7 +219,7 @@ TEST_F(OpenKitBuilderTest, defaultLoggerIsUsedByDefault)
 
 TEST_F(OpenKitBuilderTest, verboseIsUsedInDefaultLogger)
 {
-	auto logger = DynatraceOpenKitBuilder(defaultEndpointURL, defaultApplicationID, defaultDeviceID)
+	auto logger = DynatraceOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
 		.enableVerbose()
 		.getLogger();
 
@@ -221,62 +232,62 @@ TEST_F(OpenKitBuilderTest, verboseIsUsedInDefaultLogger)
 
 TEST_F(OpenKitBuilderTest, canSetCustomMaxBeaconRecordAgeForAppMon)
 {
-	auto configuration = AppMonOpenKitBuilder(defaultEndpointURL, defaultApplicationID, defaultDeviceID)
-		.withBeaconCacheMaxRecordAge(testCacheMaxRecordAge)
+	auto configuration = AppMonOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
+		.withBeaconCacheMaxRecordAge(TEST_CACHE_MAX_RECORD_AGE)
 		.buildConfiguration();
 
-	ASSERT_EQ(configuration->getBeaconCacheConfiguration()->getMaxRecordAge(), testCacheMaxRecordAge);
+	ASSERT_EQ(configuration->getBeaconCacheConfiguration()->getMaxRecordAge(), TEST_CACHE_MAX_RECORD_AGE);
 }
 
 TEST_F(OpenKitBuilderTest, canSetCustomMaxBeaconRecordAgeForDynatrace)
 {
-	auto configuration = DynatraceOpenKitBuilder(defaultEndpointURL, defaultApplicationID, defaultDeviceID)
-		.withBeaconCacheMaxRecordAge(testCacheMaxRecordAge)
+	auto configuration = DynatraceOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
+		.withBeaconCacheMaxRecordAge(TEST_CACHE_MAX_RECORD_AGE)
 		.buildConfiguration();
 
-	ASSERT_EQ(configuration->getBeaconCacheConfiguration()->getMaxRecordAge(), testCacheMaxRecordAge);
+	ASSERT_EQ(configuration->getBeaconCacheConfiguration()->getMaxRecordAge(), TEST_CACHE_MAX_RECORD_AGE);
 }
 
 
 TEST_F(OpenKitBuilderTest, canSetBeaconCacheLowerMemoryBoundaryForAppMon)
 {
-	auto configuration = AppMonOpenKitBuilder(defaultEndpointURL, defaultApplicationID, defaultDeviceID)
-		.withBeaconCacheLowerMemoryBoundary(testCacheLowerMemoryBoundary)
+	auto configuration = AppMonOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
+		.withBeaconCacheLowerMemoryBoundary(TEST_CACHE_LOWER_MEMORY_BOUNDARY)
 		.buildConfiguration();
 
-	ASSERT_EQ(configuration->getBeaconCacheConfiguration()->getCacheSizeLowerBound(), testCacheLowerMemoryBoundary);
+	ASSERT_EQ(configuration->getBeaconCacheConfiguration()->getCacheSizeLowerBound(), TEST_CACHE_LOWER_MEMORY_BOUNDARY);
 }
 
 TEST_F(OpenKitBuilderTest, canSetBeaconCacheLowerMemoryBoundaryForDynatrace)
 {
-	auto configuration = DynatraceOpenKitBuilder(defaultEndpointURL, defaultApplicationID, defaultDeviceID)
-		.withBeaconCacheLowerMemoryBoundary(testCacheLowerMemoryBoundary)
+	auto configuration = DynatraceOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
+		.withBeaconCacheLowerMemoryBoundary(TEST_CACHE_LOWER_MEMORY_BOUNDARY)
 		.buildConfiguration();
 
-	ASSERT_EQ(configuration->getBeaconCacheConfiguration()->getCacheSizeLowerBound(), testCacheLowerMemoryBoundary);
+	ASSERT_EQ(configuration->getBeaconCacheConfiguration()->getCacheSizeLowerBound(), TEST_CACHE_LOWER_MEMORY_BOUNDARY);
 }
 
 TEST_F(OpenKitBuilderTest, canSetBeaconCacheUpperMemoryBoundaryForAppMon)
 {
-	auto configuration = AppMonOpenKitBuilder(defaultEndpointURL, defaultApplicationID, defaultDeviceID)
-		.withBeaconCacheUpperMemoryBoundary(testCacheUpperMemoryBoundary)
+	auto configuration = AppMonOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
+		.withBeaconCacheUpperMemoryBoundary(TEST_CACHE_UPPER_MEMORY_BOUNDARY)
 		.buildConfiguration();
 
-	ASSERT_EQ(configuration->getBeaconCacheConfiguration()->getCacheSizeUpperBound(), testCacheUpperMemoryBoundary);
+	ASSERT_EQ(configuration->getBeaconCacheConfiguration()->getCacheSizeUpperBound(), TEST_CACHE_UPPER_MEMORY_BOUNDARY);
 }
 
 TEST_F(OpenKitBuilderTest, canSetBeaconCacheUpperMemoryBoundaryForDynatrace)
 {
-	auto configuration = DynatraceOpenKitBuilder(defaultEndpointURL, defaultApplicationID, defaultDeviceID)
-		.withBeaconCacheUpperMemoryBoundary(testCacheUpperMemoryBoundary)
+	auto configuration = DynatraceOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
+		.withBeaconCacheUpperMemoryBoundary(TEST_CACHE_UPPER_MEMORY_BOUNDARY)
 		.buildConfiguration();
 
-	ASSERT_EQ(configuration->getBeaconCacheConfiguration()->getCacheSizeUpperBound(), testCacheUpperMemoryBoundary);
+	ASSERT_EQ(configuration->getBeaconCacheConfiguration()->getCacheSizeUpperBound(), TEST_CACHE_UPPER_MEMORY_BOUNDARY);
 }
 
 TEST_F(OpenKitBuilderTest, canSetDataCollectionLevelForDynatrace)
 {
-	auto configuration = DynatraceOpenKitBuilder(defaultEndpointURL, defaultApplicationID, defaultDeviceID)
+	auto configuration = DynatraceOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
 		.withDataCollectionLevel(DataCollectionLevel::PERFORMANCE)
 		.buildConfiguration();
 
@@ -285,7 +296,7 @@ TEST_F(OpenKitBuilderTest, canSetDataCollectionLevelForDynatrace)
 
 TEST_F(OpenKitBuilderTest, canSetDataCollectionLevelForAppMon)
 {
-	auto configuration = AppMonOpenKitBuilder(defaultEndpointURL, defaultApplicationID, defaultDeviceID)
+	auto configuration = AppMonOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
 		.withDataCollectionLevel(DataCollectionLevel::PERFORMANCE)
 		.buildConfiguration();
 
@@ -294,7 +305,7 @@ TEST_F(OpenKitBuilderTest, canSetDataCollectionLevelForAppMon)
 
 TEST_F(OpenKitBuilderTest, canSetCrashReportingLevelForDynatrace)
 {
-	auto configuration = DynatraceOpenKitBuilder(defaultEndpointURL, defaultApplicationID, defaultDeviceID)
+	auto configuration = DynatraceOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
 		.withCrashReportingLevel(CrashReportingLevel::OPT_IN_CRASHES)
 		.buildConfiguration();
 
@@ -303,7 +314,7 @@ TEST_F(OpenKitBuilderTest, canSetCrashReportingLevelForDynatrace)
 
 TEST_F(OpenKitBuilderTest, canSetCrashReportingLevelForAppMon)
 {
-	auto configuration = AppMonOpenKitBuilder(defaultEndpointURL, defaultApplicationID, defaultDeviceID)
+	auto configuration = AppMonOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
 		.withCrashReportingLevel(CrashReportingLevel::OPT_IN_CRASHES)
 		.buildConfiguration();
 

@@ -38,7 +38,7 @@ namespace test
 
 		}
 		virtual ~MockAbstractBeaconSendingState() {}
-		virtual std::shared_ptr<AbstractBeaconSendingState> getShutdownState()
+		virtual std::shared_ptr<AbstractBeaconSendingState> getShutdownState() override
 		{
 			return std::shared_ptr<AbstractBeaconSendingState>(nonCopyableReturnProxy());
 		}

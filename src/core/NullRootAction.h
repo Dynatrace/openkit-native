@@ -59,7 +59,7 @@ namespace core
 			return shared_from_this();
 		}
 
-		virtual std::shared_ptr<IRootAction> reportError(const char* /*errorName*/, int32_t /*errorCode*/, const char* /*reason*/)
+		virtual std::shared_ptr<IRootAction> reportError(const char* /*errorName*/, int32_t /*errorCode*/, const char* /*reason*/) override
 		{
 			return shared_from_this();
 		}
