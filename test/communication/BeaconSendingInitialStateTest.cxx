@@ -369,3 +369,15 @@ TEST_F(BeaconSendingInitialStateTest, reinitializeSleepsBeforeSendingStatusReque
 	// when executing the state multiple times (7 times)
 	mTarget->execute(mockContext);
 }
+
+TEST_F(BeaconSendingInitialStateTest, ToStringReturnsCorrectStateName)
+{
+	// given
+	communication::BeaconSendingInitialState target;
+
+	// when
+	auto stateName = target.getStateName();
+
+	// then
+	ASSERT_STREQ(stateName, "Initial");
+}

@@ -761,3 +761,15 @@ TEST_F(BeaconSendingTimeSyncTest, stateTransitionIsPerformedToAppropriateStateIf
 	// when
 	mTarget->execute(mockContext);
 }
+
+TEST_F(BeaconSendingTimeSyncTest, ToStringReturnsCorrectStateName)
+{
+	// given
+	communication::BeaconSendingTimeSyncState target;
+
+	// when
+	auto stateName = target.getStateName();
+
+	// then
+	ASSERT_STREQ(stateName, "TimeSync");
+}

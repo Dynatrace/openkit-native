@@ -204,3 +204,15 @@ TEST_F(BeaconSendingFlushSessionsStateTest, aBeaconSendingFlushSessionStateDoesN
 	// when calling execute
 	target.execute(*mMockContext);
 }
+
+TEST_F(BeaconSendingFlushSessionsStateTest, ToStringReturnsCorrectStateName)
+{
+	// given
+	communication::BeaconSendingFlushSessionsState target;
+
+	// when
+	auto stateName = target.getStateName();
+
+	// then
+	ASSERT_STREQ(stateName, "FlushSessions");
+}
