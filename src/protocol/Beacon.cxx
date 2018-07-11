@@ -43,7 +43,7 @@ Beacon::Beacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching
 	, mID(0)
 	, mSessionNumber()
 	, mSessionStartTime(timingProvider->provideTimestampInMilliseconds())
-	, mBasicBeaconData()
+	, mImmutableBasicBeaconData()
 	, mBeaconCache(beaconCache)
 	, mHTTPClientConfiguration(configuration->getHTTPClientConfiguration())
 	, mBeaconConfiguration(configuration->getBeaconConfiguration())
@@ -73,10 +73,10 @@ Beacon::Beacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching
 		mSessionNumber = 1;
 	}
 
-	mBasicBeaconData = createBasicBeaconData();
+	mImmutableBasicBeaconData = createImmutableBeaconData();
 }
 
-core::UTF8String Beacon::createBasicBeaconData()
+core::UTF8String Beacon::createImmutableBeaconData()
 {
 	core::UTF8String basicBeaconData;
 
@@ -114,6 +114,10 @@ core::UTF8String Beacon::createBasicBeaconData()
 	{
 		addKeyValuePair(basicBeaconData, BEACON_KEY_DEVICE_MODEL, deviceModel);
 	}
+
+	auto beaconConfiguration = mConfiguration->getBeaconConfiguration();
+	addKeyValuePair(basicBeaconData, BEACON_KEY_DATA_COLLECTION_LEVEL, (int32_t)beaconConfiguration->getDataCollectionLevel());
+	addKeyValuePair(basicBeaconData, BEACON_KEY_CRASH_REPORTING_LEVEL, (int32_t)beaconConfiguration->getCrashReportingLevel());
 	
 	return basicBeaconData;
 }
@@ -469,6 +473,27 @@ void Beacon::identifyUser(const core::UTF8String& userTag)
 	addEventData(timestamp, eventData);
 }
 
+core::UTF8String Beacon::createMultiplicityData()
+{
+	core::UTF8String multiplicityData;
+	addKeyValuePair(multiplicityData, BEACON_KEY_MULTIPLICITY, mBeaconConfiguration->getMultiplicity());
+	return multiplicityData;
+}
+
+core::UTF8String Beacon::getMutableBeaconData()
+{
+	core::UTF8String delimiter = core::UTF8String(BEACON_DATA_DELIMITER);
+
+	core::UTF8String mutableBeaconData;
+
+	mutableBeaconData.concatenate(delimiter);
+	mutableBeaconData.concatenate(createTimestampData());
+	mutableBeaconData.concatenate(delimiter);
+	mutableBeaconData.concatenate(createMultiplicityData());
+
+	return mutableBeaconData;
+}
+
 std::unique_ptr<protocol::StatusResponse> Beacon::send(std::shared_ptr<providers::IHTTPClientProvider> clientProvider)
 {
 	std::shared_ptr<protocol::IHTTPClient> httpClient = clientProvider->createClient(mLogger, mHTTPClientConfiguration);
@@ -478,12 +503,10 @@ std::unique_ptr<protocol::StatusResponse> Beacon::send(std::shared_ptr<providers
 	while (true)
 	{
 		// prefix for this chunk - must be built up newly, due to changing timestamps
-		core::UTF8String prefix = mBasicBeaconData;
-		core::UTF8String delimiter = core::UTF8String(BEACON_DATA_DELIMITER);
-		prefix.concatenate(delimiter);
-		prefix.concatenate(createTimestampData());
+		core::UTF8String prefix = mImmutableBasicBeaconData;
+		prefix.concatenate( getMutableBeaconData());
 
-		core::UTF8String chunk = mBeaconCache->getNextBeaconChunk(mSessionNumber, prefix, mConfiguration->getMaxBeaconSize() - 1024, delimiter);
+		core::UTF8String chunk = mBeaconCache->getNextBeaconChunk(mSessionNumber, prefix, mConfiguration->getMaxBeaconSize() - 1024, BEACON_DATA_DELIMITER);
 		if (chunk == nullptr || chunk.empty())
 		{
 			return response;

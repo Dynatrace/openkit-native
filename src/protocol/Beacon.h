@@ -266,7 +266,7 @@ namespace protocol
 		/// Serialization helper method for creating basic beacon protocol data.
 		/// @returns Serialized data
 		///
-		core::UTF8String createBasicBeaconData();
+		core::UTF8String createImmutableBeaconData();
 
 		///
 		/// Serialization helper method for creating basic event data
@@ -362,6 +362,19 @@ namespace protocol
 		///
 		void addEventData(int64_t timestamp, const core::UTF8String& eventData);
 
+		///
+		/// Generate serialization for the mutable part of the beaon
+		/// e.g. multiplicity and timestamp
+		/// @returns the mutable beacon data
+		///
+		core::UTF8String getMutableBeaconData();
+
+		///
+		/// Generate multiplicity data
+		/// @return the multiplicity data
+		///
+		core::UTF8String createMultiplicityData();
+
 	private:
 		/// Logger to write traces to
 		std::shared_ptr<openkit::ILogger> mLogger;
@@ -391,7 +404,7 @@ namespace protocol
 		int64_t mSessionStartTime;
 
 		/// basic beacon data
-		core::UTF8String mBasicBeaconData;
+		core::UTF8String mImmutableBasicBeaconData;
 
 		///cache for beacons
 		std::shared_ptr<caching::IBeaconCache> mBeaconCache;
