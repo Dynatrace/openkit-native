@@ -102,16 +102,6 @@ public:
 		ON_CALL(*mMockSession4Finished, getBeaconConfiguration())
 			.WillByDefault(testing::Return(std::make_shared<configuration::BeaconConfiguration>()));
 
-		/*
-		ON_CALL(*mMockSession1Open, setBeaconConfiguration(testing::_))
-			.WillByDefault(testing::WithArgs<0>(testing::Invoke(&*mMockSession1Open, &test::MockSession::RealSetBeaconConfiguration)));
-		ON_CALL(*mMockSession2Open, setBeaconConfiguration(testing::_))
-			.WillByDefault(testing::WithArgs<0>(testing::Invoke(&*mMockSession2Open, &test::MockSession::RealSetBeaconConfiguration)));
-		ON_CALL(*mMockSession3Finished, setBeaconConfiguration(testing::_))
-			.WillByDefault(testing::WithArgs<0>(testing::Invoke(&*mMockSession3Finished, &test::MockSession::RealSetBeaconConfiguration)));
-		ON_CALL(*mMockSession4Finished, setBeaconConfiguration(testing::_))
-			.WillByDefault(testing::WithArgs<0>(testing::Invoke(&*mMockSession4Finished, &test::MockSession::RealSetBeaconConfiguration)));
-			*/
 		mMockContext->startSession(mMockSession1Open);
 		mMockContext->startSession(mMockSession2Open);
 		mMockContext->startSession(mMockSession3Finished);
@@ -221,40 +211,6 @@ TEST_F(BeaconSendingCaptureOnStateTest, aBeaconSendingCaptureOnStateTransitionsT
 	target.execute(*mMockContext);
 }
 
-/*
-TEST_F(BeaconSendingCaptureOnStateTest, aBeaconSendingCaptureOnStateSendsFinishedSessions)
-{
-	// given
-	communication::BeaconSendingCaptureOnState target;
-	ON_CALL(*mMockSession1Open, sendBeaconRawPtrProxy(testing::_))
-		.WillByDefault(testing::Return(new testing::NiceMock<test::MockStatusResponse>()));
-	ON_CALL(*mMockSession2Open, sendBeaconRawPtrProxy(testing::_))
-		.WillByDefault(testing::Return(new testing::NiceMock<test::MockStatusResponse>()));
-	ON_CALL(*mMockSession3Finished, sendBeaconRawPtrProxy(testing::_))
-		.WillByDefault(testing::Return(new testing::NiceMock<test::MockStatusResponse>()));
-	ON_CALL(*mMockSession4Finished, sendBeaconRawPtrProxy(testing::_))
-		.WillByDefault(testing::Return(new testing::NiceMock<test::MockStatusResponse>()));
-	ON_CALL(*mMockSession1Open, getBeaconConfiguration())
-		.WillByDefault(testing::Return(std::make_shared<configuration::BeaconConfiguration>()));
-	ON_CALL(*mMockSession2Open, getBeaconConfiguration())
-		.WillByDefault(testing::Return(std::make_shared<configuration::BeaconConfiguration>()));
-	ON_CALL(*mMockSession3Finished, getBeaconConfiguration())
-		.WillByDefault(testing::Return(std::make_shared<configuration::BeaconConfiguration>()));
-	ON_CALL(*mMockSession4Finished, getBeaconConfiguration())
-		.WillByDefault(testing::Return(std::make_shared<configuration::BeaconConfiguration>()));
-	ON_CALL(*mMockHttpClient, sendNewSessionRequestRawPtrProxy())
-		.WillByDefault(testing::Return(new protocol::StatusResponse( core::UTF8String("mp=1"), 200)));
-
-	// then
-	EXPECT_CALL(*mMockSession3Finished, sendBeaconRawPtrProxy(testing::_))
-		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mMockSession4Finished, sendBeaconRawPtrProxy(testing::_))
-		.Times(testing::Exactly(1));
-
-	// when calling execute
-	target.doExecute(*mMockContext);
-}
-*/
 MATCHER_P(IsAmockedSession, mock, "")
 {
 	if (arg == mock)
@@ -266,31 +222,6 @@ MATCHER_P(IsAmockedSession, mock, "")
 	return false;
 }
 
-/*
-TEST_F(BeaconSendingCaptureOnStateTest, aBeaconSendingCaptureOnStatePushesBackFinishedSessionIfSendWasUnsuccessful)
-{
-	// given
-	communication::BeaconSendingCaptureOnState target;
-	ON_CALL(*mMockSession3Finished, sendBeaconRawPtrProxy(testing::_))
-		.WillByDefault(testing::Return(nullptr));
-	ON_CALL(*mMockSession4Finished, sendBeaconRawPtrProxy(testing::_))
-		.WillByDefault(testing::Return(new testing::NiceMock<test::MockStatusResponse>()));
-	ON_CALL(*mMockSession3Finished, isEmpty())
-		.WillByDefault(testing::Return(false));
-
-	// then
-	EXPECT_CALL(*mMockSession3Finished, sendBeaconRawPtrProxy(testing::_))
-		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mMockSession4Finished, sendBeaconRawPtrProxy(testing::_))
-		.Times(testing::Exactly(0));
-	EXPECT_CALL(*mMockContext, getAllFinishedAndConfiguredSessions())
-		.Times(testing::Exactly(1));
-
-	// when calling execute
-	target.doExecute(*mMockContext);
-}
-*/
-//TODO : replace? rewrite?
 TEST_F(BeaconSendingCaptureOnStateTest, aBeaconSendingCaptureOnStateContinuesWithNextFinishedSessionIfSendingWasUnsuccessfulButBeaoonIsEmtpy)
 {
 	// given
@@ -332,24 +263,7 @@ TEST_F(BeaconSendingCaptureOnStateTest, aBeaconSendingCaptureOnStateContinuesWit
 	// when calling execute
 	target.doExecute(*mMockContext);
 }
-/*
-TEST_F(BeaconSendingCaptureOnStateTest, aBeaconSendingCaptureOnStateSendsOpenSessionsIfNotExpired)
-{
-	// given
-	communication::BeaconSendingCaptureOnState target;
 
-	// then
-	EXPECT_CALL(*mMockSession1Open, sendBeaconRawPtrProxy(testing::_))
-		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mMockSession2Open, sendBeaconRawPtrProxy(testing::_))
-		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mMockContext, setLastOpenSessionBeaconSendTime(testing::_))
-		.Times(testing::Exactly(1));
-
-	// when calling execute
-	target.doExecute(*mMockContext);
-}
-*/
 TEST_F(BeaconSendingCaptureOnStateTest, aBeaconSendingCaptureOnStateTransitionsToTimeSyncStateIfSessionExpired)
 {
 	// given
@@ -456,7 +370,6 @@ TEST_F(BeaconSendingCaptureOnStateTest, newSessionRequestsAreMadeForAllNewSessio
 
 // Expectation: Given enough failed new session requests the beacon configuration created by the method
 // performing new session requests has a mulitplicity of '0'
-// 
 TEST_F(BeaconSendingCaptureOnStateTest, multiplicityIsSetToZeroIfNoFurtherNewSessionRequestsAreAllowed)
 {
 	// given
