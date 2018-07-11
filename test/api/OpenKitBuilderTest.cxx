@@ -41,26 +41,26 @@ public:
 		testSSLTrustManager = std::make_shared<test::TestSSLTrustManager>();
 	}
 
-	static constexpr char* DEFAULT_ENDPOINT_URL = "https://localhost:12345";
-	static constexpr char* DEFAULT_APPLICATION_ID = "asdf123";
+	static constexpr const char* DEFAULT_ENDPOINT_URL = "https://localhost:12345";
+	static constexpr const char* DEFAULT_APPLICATION_ID = "asdf123";
 	static constexpr int64_t DEFAULT_DEVICE_ID = 123L;
 	std::shared_ptr<openkit::ISSLTrustManager> testSSLTrustManager;
-	static constexpr char* TEST_APPLICATION_VERSION = "1.2.3.4";
-	static constexpr char* TEST_OPERATING_SYSTEM = "Some OS";
-	static constexpr char* TEST_MANUFACTURER = "ACME";
-	static constexpr char* TEST_MODEL_ID = "abc.123";
+	static constexpr const char* TEST_APPLICATION_VERSION = "1.2.3.4";
+	static constexpr const char* TEST_OPERATING_SYSTEM = "Some OS";
+	static constexpr const char* TEST_MANUFACTURER = "ACME";
+	static constexpr const char* TEST_MODEL_ID = "abc.123";
 	static constexpr int64_t TEST_CACHE_MAX_RECORD_AGE = 123456L;
 	static constexpr int64_t TEST_CACHE_LOWER_MEMORY_BOUNDARY = 42 * 1024;
 	static constexpr int64_t TEST_CACHE_UPPER_MEMORY_BOUNDARY = 144 * 1024;
 };
 
-constexpr char* OpenKitBuilderTest::DEFAULT_ENDPOINT_URL;
-constexpr char* OpenKitBuilderTest::DEFAULT_APPLICATION_ID;
+constexpr const char* OpenKitBuilderTest::DEFAULT_ENDPOINT_URL;
+constexpr const char* OpenKitBuilderTest::DEFAULT_APPLICATION_ID;
 constexpr int64_t OpenKitBuilderTest::DEFAULT_DEVICE_ID;
-constexpr char* OpenKitBuilderTest::TEST_APPLICATION_VERSION;
-constexpr char* OpenKitBuilderTest::TEST_OPERATING_SYSTEM;
-constexpr char* OpenKitBuilderTest::TEST_MANUFACTURER;
-constexpr char* OpenKitBuilderTest::TEST_MODEL_ID;
+constexpr const char* OpenKitBuilderTest::TEST_APPLICATION_VERSION;
+constexpr const char* OpenKitBuilderTest::TEST_OPERATING_SYSTEM;
+constexpr const char* OpenKitBuilderTest::TEST_MANUFACTURER;
+constexpr const char* OpenKitBuilderTest::TEST_MODEL_ID;
 constexpr int64_t OpenKitBuilderTest::TEST_CACHE_MAX_RECORD_AGE;
 constexpr int64_t OpenKitBuilderTest::TEST_CACHE_LOWER_MEMORY_BOUNDARY;
 constexpr int64_t OpenKitBuilderTest::TEST_CACHE_UPPER_MEMORY_BOUNDARY;
