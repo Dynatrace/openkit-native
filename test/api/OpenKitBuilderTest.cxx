@@ -54,6 +54,17 @@ public:
 	static constexpr int64_t TEST_CACHE_UPPER_MEMORY_BOUNDARY = 144 * 1024;
 };
 
+constexpr char* OpenKitBuilderTest::DEFAULT_ENDPOINT_URL;
+constexpr char* OpenKitBuilderTest::DEFAULT_APPLICATION_ID;
+constexpr int64_t OpenKitBuilderTest::DEFAULT_DEVICE_ID;
+constexpr char* OpenKitBuilderTest::TEST_APPLICATION_VERSION;
+constexpr char* OpenKitBuilderTest::TEST_OPERATING_SYSTEM;
+constexpr char* OpenKitBuilderTest::TEST_MANUFACTURER;
+constexpr char* OpenKitBuilderTest::TEST_MODEL_ID;
+constexpr int64_t OpenKitBuilderTest::TEST_CACHE_MAX_RECORD_AGE;
+constexpr int64_t OpenKitBuilderTest::TEST_CACHE_LOWER_MEMORY_BOUNDARY;
+constexpr int64_t OpenKitBuilderTest::TEST_CACHE_UPPER_MEMORY_BOUNDARY;
+
 TEST_F(OpenKitBuilderTest, defaultsAreSetForAppMon)
 {
 	auto configuration = AppMonOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID).buildConfiguration();
