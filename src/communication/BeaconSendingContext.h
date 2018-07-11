@@ -198,7 +198,7 @@ namespace communication
 		/// Get timestamp when open sessions were sent last
 		/// @returns timestamp of last sending of open session
 		///
-		int64_t getLastOpenSessionBeaconSendTime() const;
+		virtual int64_t getLastOpenSessionBeaconSendTime() const;
 
 		///
 		/// Set timestamp when open sessions were sent last
@@ -316,7 +316,7 @@ namespace communication
 		/// @param[in] sessionWrapper
 		/// @returns @c true if @c sessionWrapper was found in the session wrapper list and was removed successfully, @c false otherwise
 		///
-		bool removeSession(std::shared_ptr<core::SessionWrapper> sessionWrapper);
+		virtual bool removeSession(std::shared_ptr<core::SessionWrapper> sessionWrapper);
 
 	private:
 		/// Logger to write traces to

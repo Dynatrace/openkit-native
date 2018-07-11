@@ -74,6 +74,7 @@ namespace test
 		MOCK_METHOD0(sleep, void());
 		MOCK_METHOD1(sleep, void(int64_t));
 		MOCK_METHOD1(setLastOpenSessionBeaconSendTime, void(int64_t));
+		MOCK_CONST_METHOD0(getLastOpenSessionBeaconSendTime, int64_t());
 		MOCK_METHOD1(setLastStatusCheckTime, void(int64_t));
 		MOCK_CONST_METHOD0(getSendInterval, int64_t());
 		MOCK_METHOD0(getAllNewSessions, std::vector<std::shared_ptr<core::SessionWrapper>>());
@@ -83,6 +84,7 @@ namespace test
 		MOCK_CONST_METHOD0(getLastTimeSyncTime, int64_t());
 		MOCK_METHOD1(setLastTimeSyncTime, void(int64_t));
 		MOCK_METHOD1(finishSession, void(std::shared_ptr<core::Session>));
+		MOCK_METHOD1(removeSession, bool(std::shared_ptr<core::SessionWrapper>));
 		MOCK_METHOD1(pushBackFinishedSession, void(std::shared_ptr<core::Session>));
 
 		void RealSetNextState(std::shared_ptr<AbstractBeaconSendingState> nextState) 
