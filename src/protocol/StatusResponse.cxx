@@ -102,8 +102,7 @@ void StatusResponse::parseResponse(const core::UTF8String& response)
 				}
 				else if (key.equals(RESPONSE_KEY_MULTIPLICITY))
 				{
-					/* 1 (always on) and 2 (only on WiFi) are treated the same */
-					mMultiplicity = std::stoi(value.getStringData()) != 0;
+					mMultiplicity = std::stoi(value.getStringData());
 				}
 			}
 		}
