@@ -401,7 +401,7 @@ void Beacon::reportCrash(const core::UTF8String& errorName, const core::UTF8Stri
 		return;
 	}
 
-	if (std::atomic_load(&mBeaconConfiguration)->getCrashReportingLevel() == openkit::CrashReportingLevel::OFF)
+	if (std::atomic_load(&mBeaconConfiguration)->getCrashReportingLevel() != openkit::CrashReportingLevel::OPT_IN_CRASHES)
 	{
 		return;
 	}

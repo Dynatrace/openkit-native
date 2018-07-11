@@ -27,6 +27,7 @@ namespace openkit
 	enum class CrashReportingLevel : int32_t
 	{
 		OFF, // no crash reporting at all
+		OPT_OUT_CRASHES, // opt out crash reporting
 		OPT_IN_CRASHES // opt in crash reporting
 	};
 }
