@@ -163,5 +163,6 @@ void BeaconSendingCaptureOnState::sendNewSessionRequests(BeaconSendingContext& c
 			// did not retrieve any response from server, maybe the cluster is down?
 			sessionWrapper->decreaseNumberOfNewSessionRequests();
 		}
+		response.release();
 	}
 }
