@@ -457,7 +457,9 @@ TEST_F(BeaconSendingCaptureOnStateTest, finishedSessionsAreSent)
 	communication::BeaconSendingCaptureOnState target;
 
 	auto sessionWrapper1 = std::make_shared<core::SessionWrapper>(mMockSession3Finished);
+	sessionWrapper1->updateBeaconConfiguration(std::make_shared<configuration::BeaconConfiguration>());
 	auto sessionWrapper2 = std::make_shared<core::SessionWrapper>(mMockSession4Finished);
+	sessionWrapper2->updateBeaconConfiguration(std::make_shared<configuration::BeaconConfiguration>());
 	std::vector<std::shared_ptr<core::SessionWrapper>> finishedSessions = { sessionWrapper1, sessionWrapper2 };
 
 	//only return the two new sessions for the new session request
@@ -496,7 +498,9 @@ TEST_F(BeaconSendingCaptureOnStateTest, unsuccessfulFinishedSessionsAreNotRemove
 	communication::BeaconSendingCaptureOnState target;
 
 	auto sessionWrapper1 = std::make_shared<core::SessionWrapper>(mMockSession3Finished);
+	sessionWrapper1->updateBeaconConfiguration(std::make_shared<configuration::BeaconConfiguration>());
 	auto sessionWrapper2 = std::make_shared<core::SessionWrapper>(mMockSession4Finished);
+	sessionWrapper2->updateBeaconConfiguration(std::make_shared<configuration::BeaconConfiguration>());
 	std::vector<std::shared_ptr<core::SessionWrapper>> finishedSessions = { sessionWrapper1, sessionWrapper2 };
 
 	//only return the two new sessions for the new session request

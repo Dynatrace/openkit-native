@@ -80,20 +80,22 @@ void BeaconSendingCaptureOnState::sendFinishedSessions(BeaconSendingContext& con
 	for(auto it = finishedSessions.begin(); it != finishedSessions.end(); it++)
 	{
 		auto finishedSession = (*it);
-		statusResponse = std::move(finishedSession->sendBeacon(context.getHTTPClientProvider()));
-		if (statusResponse == nullptr)
-		{
-			// something went wrong,
-			if (!finishedSession->isEmpty())
+		if ((*it)->isDataSendingAllowed()) {
+			statusResponse = std::move(finishedSession->sendBeacon(context.getHTTPClientProvider()));
+			if (statusResponse == nullptr)
 			{
-				break; //  sending did not work, break out for now and retry it later
+				// something went wrong,
+				if (!finishedSession->isEmpty())
+				{
+					break; //  sending did not work, break out for now and retry it later
+				}
 			}
 		}
 
 		// session was sent/is not allowed to be sent - so remove it from beacon cache
 		context.removeSession(finishedSession);
 		finishedSession->clearCapturedData();
-	}
+}
 }
 
 void BeaconSendingCaptureOnState::sendOpenSessions(BeaconSendingContext& context)

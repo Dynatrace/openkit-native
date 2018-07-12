@@ -103,6 +103,7 @@ namespace core
 
 		///
 		/// Get a boolean value indicating whether data sending is allowed or not.
+		/// If the multiplicity is greater 0 sending is allowed
 		/// @returns @c true if beacon data may be send, @c false otherwise
 		///
 		bool isDataSendingAllowed() const;
