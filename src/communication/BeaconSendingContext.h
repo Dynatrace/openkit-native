@@ -244,7 +244,7 @@ namespace communication
 		/// Get all sessions that are considered new.
 		///
 		/// The returned list is a snapshot and might change during traversal.
-		/// @returns A list of new sessions.
+		/// @returns a shallow copy of all new sessions.
 		///
 		virtual std::vector<std::shared_ptr<core::SessionWrapper>> getAllNewSessions();
 
@@ -280,7 +280,7 @@ namespace communication
 		virtual void startSession(std::shared_ptr<core::Session> session);
 
 		///
-		/// Finish a session which has been started previously using startSession(SessionImpl)
+		/// Finish a session which has been started previously using startSession(std::shared_ptr<core::Session>)
 		/// If the session cannot be found in the container storing all open sessions, the parameter is ignored,
 		/// otherwise it's removed from the container storing open sessions and added to the finished session container.
 		/// @param[in] session The session to finish.

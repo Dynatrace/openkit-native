@@ -33,7 +33,6 @@
 
 #include <memory>
 #include <map>
-#include <atomic>
 
 namespace protocol
 {

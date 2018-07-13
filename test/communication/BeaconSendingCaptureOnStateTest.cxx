@@ -88,10 +88,20 @@ public:
 		ON_CALL(*mMockContext, getHTTPClient())
 			.WillByDefault(testing::Return(mMockHttpClient));
 
+		// testing::Return stores the result of the call as default value 
+		// this means that the instance of the StatusReponse* is returned as unique_ptr multiple times
+		// when deleting the instance the second time the test would crash
+		// using a lambda resolves this issue by creating new instances
 		ON_CALL(*mMockHttpClient, sendStatusRequestRawPtrProxy())
-			.WillByDefault(testing::Return(new protocol::StatusResponse()));
+			.WillByDefault(testing::Invoke([]() -> protocol::StatusResponse* 
+				{
+					return new protocol::StatusResponse();
+				}));
 		ON_CALL(*mMockHttpClient, sendNewSessionRequestRawPtrProxy())
-			.WillByDefault(testing::Return(new protocol::StatusResponse()));
+			.WillByDefault(testing::Invoke([]() -> protocol::StatusResponse*
+				{
+				return new protocol::StatusResponse();
+				}));
 
 		ON_CALL(*mMockSession1Open, getBeaconConfiguration())
 			.WillByDefault(testing::Return(std::make_shared<configuration::BeaconConfiguration>()));

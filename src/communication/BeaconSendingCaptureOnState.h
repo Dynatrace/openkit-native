@@ -74,7 +74,7 @@ namespace communication
 		static void handleStatusResponse(BeaconSendingContext& context, std::unique_ptr<protocol::StatusResponse> statusResponse);
 
 		///
-		/// Check if new sessions are allowed to report
+		/// Check if new sessions are allowed to report data
 		/// @param[in] context beacon sending context
 		///
 		void sendNewSessionRequests(BeaconSendingContext& context);

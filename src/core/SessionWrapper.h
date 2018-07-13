@@ -61,7 +61,7 @@ namespace core
 		bool isBeaconConfigurationSet() const;
 
 		///
-		/// Finished this session
+		/// Finishes this session
 		/// This only sets a finished flag to @c true since this will be called by
 		/// the session itself
 		///
@@ -69,7 +69,7 @@ namespace core
 
 		///
 		/// Get a  boolean flag indicating whether this session has been finished or not.
-		/// @return @c true of this session has been finished , @c false otherwise
+		/// @return @c true if this session has been finished , @c false otherwise
 		///
 		bool isSessionFinished() const;
 
@@ -135,7 +135,7 @@ namespace core
 		std::atomic<bool> mSessionFinished;
 
 		/// number of remaining session requests before giving up
-		uint32_t numNewSessionRequestsLeft;
+		uint32_t mNumNewSessionRequestsLeft;
 	};
 }
 

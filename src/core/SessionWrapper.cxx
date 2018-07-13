@@ -25,7 +25,7 @@ SessionWrapper::SessionWrapper(std::shared_ptr<Session> session)
 	: mWrappedSession(session)
 	, mIsBeaconConfigurationSet(false)
 	, mSessionFinished(false)
-	, numNewSessionRequestsLeft(MAX_NEW_SESSION_REQUESTS)
+	, mNumNewSessionRequestsLeft(MAX_NEW_SESSION_REQUESTS)
 {
 
 }
@@ -58,12 +58,12 @@ bool SessionWrapper::isSessionFinished() const
 
 void SessionWrapper::decreaseNumberOfNewSessionRequests()
 {
-	numNewSessionRequestsLeft--;
+	mNumNewSessionRequestsLeft--;
 }
 
 bool SessionWrapper::canSendNewSessionRequest() const
 {
-	return numNewSessionRequestsLeft > 0;
+	return mNumNewSessionRequestsLeft > 0;
 }
 
 bool SessionWrapper::isEmpty() const

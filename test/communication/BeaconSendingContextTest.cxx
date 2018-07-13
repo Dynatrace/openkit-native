@@ -655,10 +655,10 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseWhenCapturingIsDisabled)
 	ASSERT_EQ(newSessions.size(), 0);
 
 	openSessions = target->getAllOpenAndConfiguredSessions();
-	ASSERT_EQ(openSessions.size(), 0);
+	ASSERT_EQ(openSessions.size(), 2);//open sessions stay open
 
 	finishedSessions = target->getAllFinishedAndConfiguredSessions();
-	ASSERT_EQ(finishedSessions.size(), 0);
+	ASSERT_EQ(finishedSessions.size(), 0);//finished sessions are cleared
 }
 
 TEST_F(BeaconSendingContextTest, isTimeSyncedReturnsTrueIfSyncWasNeverPerformed)

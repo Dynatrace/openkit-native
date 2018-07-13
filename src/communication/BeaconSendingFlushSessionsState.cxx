@@ -36,33 +36,28 @@ BeaconSendingFlushSessionsState::BeaconSendingFlushSessionsState()
 void BeaconSendingFlushSessionsState::doExecute(BeaconSendingContext& context)
 {
 	// first get all sessions that do not have any multiplicity set -> and move them to open sessions
-	auto newSessions = context.getAllNewSessions();
-	for (auto it = newSessions.begin() ; it != newSessions.end(); it++)
+	for (auto newSession : context.getAllNewSessions())
 	{
-		auto beaconConfiguration = (*it)->getWrappedSession()->getBeaconConfiguration();
+		auto beaconConfiguration = newSession->getWrappedSession()->getBeaconConfiguration();
 		auto updatedBeaconConfiguration = std::make_shared<configuration::BeaconConfiguration>(1, beaconConfiguration->getDataCollectionLevel(), beaconConfiguration->getCrashReportingLevel());
-		(*it)->updateBeaconConfiguration(updatedBeaconConfiguration);
-
+		newSession->updateBeaconConfiguration(updatedBeaconConfiguration);
 	}
 
 	// end open sessions -> will be flushed afterwards
-	auto openSessions = context.getAllOpenAndConfiguredSessions();
-	for (auto it = openSessions.begin(); it != openSessions.end(); it++)
+	for (auto openSession : context.getAllOpenAndConfiguredSessions())
 	{
-		(*it)->end();
+		openSession->end();
 	}
 
 	// flush already finished (and previously ended) sessions
-	auto finishedSession = context.getAllFinishedAndConfiguredSessions();
-	for (auto it = finishedSession.begin(); it != finishedSession.end(); it++)
+	for (auto finishedSession : context.getAllFinishedAndConfiguredSessions())
 	{
-		std::shared_ptr<core::SessionWrapper> sessionWrapper = (*it);
-		if (sessionWrapper->isDataSendingAllowed())
+		if (finishedSession->isDataSendingAllowed())
 		{
-			sessionWrapper->sendBeacon(context.getHTTPClientProvider());
+			finishedSession->sendBeacon(context.getHTTPClientProvider());
 		}
-		sessionWrapper->clearCapturedData();
-		context.removeSession(sessionWrapper);
+		finishedSession->clearCapturedData();
+		context.removeSession(finishedSession);
 	}
 
 	// make last state transition to terminal state
