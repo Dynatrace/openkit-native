@@ -29,19 +29,33 @@ class BeaconConfigurationTest : public testing::Test
 TEST_F(BeaconConfigurationTest, getDataCollectionLevel)
 {
 	ASSERT_EQ(openkit::DataCollectionLevel::OFF,
-		BeaconConfiguration(openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OFF).getDataCollectionLevel());
+		BeaconConfiguration(1, openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OFF).getDataCollectionLevel());
 	ASSERT_EQ(openkit::DataCollectionLevel::PERFORMANCE,
-		BeaconConfiguration(openkit::DataCollectionLevel::PERFORMANCE, openkit::CrashReportingLevel::OFF).getDataCollectionLevel());
+		BeaconConfiguration(1, openkit::DataCollectionLevel::PERFORMANCE, openkit::CrashReportingLevel::OFF).getDataCollectionLevel());
 	ASSERT_EQ(openkit::DataCollectionLevel::USER_BEHAVIOR,
-		BeaconConfiguration(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF).getDataCollectionLevel());
+		BeaconConfiguration(1, openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF).getDataCollectionLevel());
 }
 
 TEST_F(BeaconConfigurationTest, getCrashReportingLevel)
 {
 	ASSERT_EQ(openkit::CrashReportingLevel::OFF,
-		BeaconConfiguration(openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OFF).getCrashReportingLevel());
+		BeaconConfiguration(1, openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OFF).getCrashReportingLevel());
 	ASSERT_EQ(openkit::CrashReportingLevel::OPT_OUT_CRASHES,
-		BeaconConfiguration(openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OPT_OUT_CRASHES).getCrashReportingLevel());
+		BeaconConfiguration(1, openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OPT_OUT_CRASHES).getCrashReportingLevel());
 	ASSERT_EQ(openkit::CrashReportingLevel::OPT_IN_CRASHES,
-		BeaconConfiguration(openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OPT_IN_CRASHES).getCrashReportingLevel());
+		BeaconConfiguration(1, openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OPT_IN_CRASHES).getCrashReportingLevel());
+}
+
+TEST_F(BeaconConfigurationTest, getMultiplicity)
+{
+	ASSERT_EQ(0,
+		BeaconConfiguration(0, openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OFF).getMultiplicity());
+	ASSERT_EQ(1,
+		BeaconConfiguration(1, openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OFF).getMultiplicity());
+	ASSERT_EQ(2,
+		BeaconConfiguration(2, openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OFF).getMultiplicity());
+	ASSERT_EQ(3,
+		BeaconConfiguration(3, openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OFF).getMultiplicity());
+	ASSERT_EQ(4,
+		BeaconConfiguration(4, openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OFF).getMultiplicity());
 }

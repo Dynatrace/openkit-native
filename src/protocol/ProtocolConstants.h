@@ -28,6 +28,7 @@ namespace protocol
 	constexpr char QUERY_KEY_VERSION[] = "va";
 	constexpr char QUERY_KEY_PLATFORM_TYPE[] = "pt";
 	constexpr char QUERY_KEY_AGENT_TECHNOLOGY_TYPE[] = "tt";
+	constexpr char QUERY_KEY_NEW_SESSION[] = "ns";
 
 	// constant query parameter values
 	constexpr char OPENKIT_VERSION[] = "7.0.0000";

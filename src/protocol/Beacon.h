@@ -248,12 +248,24 @@ namespace protocol
 		///
 		uint64_t getDeviceID() const;
 
+		///
+		/// Sets the beacon configuration on the Beacon
+		/// @param[in] beaconConfiguration the beacon configuration to apply to this Beacon
+		///
+		void setBeaconConfiguration(std::shared_ptr<configuration::BeaconConfiguration> beaconConfiguration);
+
+		///
+		/// Return the beacon configuration
+		/// @returns the beacon configuration
+		///
+		std::shared_ptr<configuration::BeaconConfiguration> getBeaconConfiguration() const;
+
 	private:
 		///
 		/// Serialization helper method for creating basic beacon protocol data.
 		/// @returns Serialized data
 		///
-		core::UTF8String createBasicBeaconData();
+		core::UTF8String createImmutableBeaconData();
 
 		///
 		/// Serialization helper method for creating basic event data
@@ -349,6 +361,19 @@ namespace protocol
 		///
 		void addEventData(int64_t timestamp, const core::UTF8String& eventData);
 
+		///
+		/// Generate serialization for the mutable part of the beaon
+		/// e.g. multiplicity and timestamp
+		/// @returns the mutable beacon data
+		///
+		core::UTF8String getMutableBeaconData();
+
+		///
+		/// Generate multiplicity data
+		/// @return the multiplicity data
+		///
+		core::UTF8String createMultiplicityData();
+
 	private:
 		/// Logger to write traces to
 		std::shared_ptr<openkit::ILogger> mLogger;
@@ -378,7 +403,7 @@ namespace protocol
 		int64_t mSessionStartTime;
 
 		/// basic beacon data
-		core::UTF8String mBasicBeaconData;
+		core::UTF8String mImmutableBasicBeaconData;
 
 		///cache for beacons
 		std::shared_ptr<caching::IBeaconCache> mBeaconCache;

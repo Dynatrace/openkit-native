@@ -21,6 +21,7 @@ constexpr char RESPONSE_KEY_SERVER_ID[] = "id";
 constexpr char RESPONSE_KEY_MAX_BEACON_SIZE[] = "bl";
 constexpr char RESPONSE_KEY_CAPTURE_ERRORS[] = "er";
 constexpr char RESPONSE_KEY_CAPTURE_CRASHES[] = "cr";
+constexpr char RESPONSE_KEY_MULTIPLICITY[] = "mp";
 
 #include "StatusResponse.h"
 
@@ -38,6 +39,7 @@ StatusResponse::StatusResponse()
 	, mMaxBeaconSize(-1)
 	, mCaptureErrors(true)
 	, mCaptureCrashes(true)
+	, mMultiplicity(1)
 {
 }
 
@@ -50,6 +52,7 @@ StatusResponse::StatusResponse(const core::UTF8String& response, uint32_t respon
 	, mMaxBeaconSize(-1)
 	, mCaptureErrors(true)
 	, mCaptureCrashes(true)
+	, mMultiplicity(1)
 {
 	parseResponse(response);
 }
@@ -97,6 +100,10 @@ void StatusResponse::parseResponse(const core::UTF8String& response)
 					/* 1 (always on) and 2 (only on WiFi) are treated the same */
 					mCaptureCrashes = std::stoi(value.getStringData()) != 0;
 				}
+				else if (key.equals(RESPONSE_KEY_MULTIPLICITY))
+				{
+					mMultiplicity = std::stoi(value.getStringData());
+				}
 			}
 		}
 	}
@@ -135,4 +142,9 @@ bool StatusResponse::isCaptureErrors() const
 bool StatusResponse::isCaptureCrashes() const
 {
 	return mCaptureCrashes;
+}
+
+int32_t StatusResponse::getMultiplicity() const
+{
+	return mMultiplicity;
 }

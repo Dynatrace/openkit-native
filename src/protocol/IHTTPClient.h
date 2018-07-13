@@ -60,6 +60,12 @@ namespace protocol
 		/// @returns a timesync response with the response data for the request or @c nullptr on error
 		///
 		virtual std::unique_ptr<TimeSyncResponse> sendTimeSyncRequest() = 0;
+
+		///
+		/// sends a new session request and returns a status response
+		/// @returns a status response with the response data for the request or @c nullptr on error
+		///
+		virtual std::unique_ptr<StatusResponse> sendNewSessionRequest() = 0;
 	};
 }
 #endif

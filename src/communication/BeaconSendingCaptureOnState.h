@@ -56,18 +56,29 @@ namespace communication
 	private:
 		///
 		/// Send all sessions which have been finished previously.
-		/// param[in] context the state context
+		/// @param[in] context the state context
 		///
 		void sendFinishedSessions(BeaconSendingContext& context);
 
 		///
 		/// Check if the send interval (configured by server) has expired and start to send open sessions if it has expired.
-		/// param[in] context the state context
+		/// @param[in] context the state context
 		///
 		void sendOpenSessions(BeaconSendingContext& context);
 
+		///
 		/// Handle the status response received from the server and transistion the states accordingly
+		/// @param[in] beacon sending context
+		/// @param[in] response to process
+		///
 		static void handleStatusResponse(BeaconSendingContext& context, std::unique_ptr<protocol::StatusResponse> statusResponse);
+
+		///
+		/// Check if new sessions are allowed to report data
+		/// @param[in] context beacon sending context
+		///
+		void sendNewSessionRequests(BeaconSendingContext& context);
+
 	private:
 		/// store last received status response
 		std::unique_ptr<protocol::StatusResponse> statusResponse;

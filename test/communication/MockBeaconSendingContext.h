@@ -33,10 +33,12 @@
 #include "protocol/ssl/SSLStrictTrustManager.h"
 #include "providers/DefaultHTTPClientProvider.h"
 #include "providers/DefaultSessionIDProvider.h"
+#include "core/SessionWrapper.h"
 
 #include "../providers/MockTimingProvider.h"
 #include "TestBeaconSendingState.h"
 #include "../protocol/MockHTTPClient.h"
+#include "../providers/MockHTTPClientProvider.h"
 
 using namespace communication;
 namespace test
@@ -46,7 +48,7 @@ namespace test
 	public:
 		MockBeaconSendingContext(std::shared_ptr<openkit::ILogger> logger)
 			: BeaconSendingContext(logger, 
-				std::make_shared<providers::DefaultHTTPClientProvider>(),
+				std::make_shared<test::MockHTTPClientProvider>(),
 				std::make_shared<test::MockTimingProvider>(),
 				std::make_shared<configuration::Configuration>( std::shared_ptr<configuration::Device>(new configuration::Device("", "", "")), configuration::OpenKitType::Type::DYNATRACE, core::UTF8String(""), core::UTF8String(""), core::UTF8String(""), 1,  core::UTF8String(""),
 																std::make_shared<providers::DefaultSessionIDProvider>(),
@@ -72,13 +74,17 @@ namespace test
 		MOCK_METHOD0(sleep, void());
 		MOCK_METHOD1(sleep, void(int64_t));
 		MOCK_METHOD1(setLastOpenSessionBeaconSendTime, void(int64_t));
+		MOCK_CONST_METHOD0(getLastOpenSessionBeaconSendTime, int64_t());
 		MOCK_METHOD1(setLastStatusCheckTime, void(int64_t));
 		MOCK_CONST_METHOD0(getSendInterval, int64_t());
-		MOCK_METHOD0(getNextFinishedSession, std::shared_ptr<core::Session>());
-		MOCK_METHOD0(getAllOpenSessions, std::vector<std::shared_ptr<core::Session>>());
+		MOCK_METHOD0(getAllNewSessions, std::vector<std::shared_ptr<core::SessionWrapper>>());
+		MOCK_METHOD0(getAllOpenAndConfiguredSessions, std::vector<std::shared_ptr<core::SessionWrapper>>());
+		MOCK_METHOD0(getAllFinishedAndConfiguredSessions, std::vector<std::shared_ptr<core::SessionWrapper>>());
 		MOCK_METHOD0(disableCapture, void());
 		MOCK_CONST_METHOD0(getLastTimeSyncTime, int64_t());
 		MOCK_METHOD1(setLastTimeSyncTime, void(int64_t));
+		MOCK_METHOD1(finishSession, void(std::shared_ptr<core::Session>));
+		MOCK_METHOD1(removeSession, bool(std::shared_ptr<core::SessionWrapper>));
 		MOCK_METHOD1(pushBackFinishedSession, void(std::shared_ptr<core::Session>));
 
 		void RealSetNextState(std::shared_ptr<AbstractBeaconSendingState> nextState) 
@@ -86,19 +92,34 @@ namespace test
 			return BeaconSendingContext::setNextState(nextState); 
 		}
 
+		void RealFinishSession(std::shared_ptr<core::Session> session)
+		{
+			return BeaconSendingContext::finishSession(session);
+		}
+
 		std::shared_ptr<AbstractBeaconSendingState> RealGetNextState()
 		{
 			return BeaconSendingContext::getNextState();
 		}
 
+		std::vector<std::shared_ptr<core::SessionWrapper>> RealGetAllNewSessions()
+		{
+			return BeaconSendingContext::getAllNewSessions();
+		}
+
+		std::vector<std::shared_ptr<core::SessionWrapper>> RealGetAllOpenAndConfiguredSessions()
+		{
+			return BeaconSendingContext::getAllOpenAndConfiguredSessions();
+		}
+
+		std::vector<std::shared_ptr<core::SessionWrapper>> RealGetAllFinishedAndConfiguredSessions()
+		{
+			return BeaconSendingContext::getAllFinishedAndConfiguredSessions();
+		}
+
 		bool RealIsInTerminalState() 
 		{
 			return BeaconSendingContext::isInTerminalState();
-		}
-
-		void RealSleep(uint64_t ms)
-		{
-			return BeaconSendingContext::sleep(ms);
 		}	
 
 		virtual ~MockBeaconSendingContext() {}

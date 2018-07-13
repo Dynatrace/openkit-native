@@ -39,6 +39,7 @@ std::shared_ptr<configuration::Configuration> AppMonOpenKitBuilder::buildConfigu
 		);
 
 	std::shared_ptr<configuration::BeaconConfiguration> beaconConfiguration = std::make_shared<configuration::BeaconConfiguration>(
+		configuration::BeaconConfiguration::DEFAULT_MULTIPLICITY, // starting with default multiplicity, value changed according to server response
 		getDataCollectionLevel(),
 		getCrashReportingLevel()
 		);

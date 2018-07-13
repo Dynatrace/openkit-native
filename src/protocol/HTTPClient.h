@@ -44,7 +44,8 @@ namespace protocol
 		{
 			STATUS, ///< status check request
 			BEACON, ///< beacon send request
-			TIMESYNC ///< time sync request
+			TIMESYNC, ///< time sync request
+			NEW_SESSION ///< new session request
 		};
 
 		///
@@ -78,25 +79,13 @@ namespace protocol
 		///
 		HTTPClient& operator = (const HTTPClient &) = delete;
 
-		///
-		/// sends a status check request and returns a status response
-		/// @returns a status response with the response data for the request or @c nullptr on error
-		///
 		virtual std::unique_ptr<StatusResponse> sendStatusRequest() override;
 
-		///
-		/// sends a beacon send request and returns a status response
-		/// @param[in] clientIPAddress the client IP address
-		/// @param[in] beaconData the beacon payload
-		/// @returns a status response with the response data for the request or @c nullptr on error
-		///
 		virtual std::unique_ptr<StatusResponse> sendBeaconRequest(const core::UTF8String& clientIPAddress, const core::UTF8String& beaconData) override;
 
-		///
-		/// sends a timesync request and returns a timesync response
-		/// @returns a timesync response with the response data for the request or @c nullptr on error
-		///
 		virtual std::unique_ptr<TimeSyncResponse> sendTimeSyncRequest() override;
+
+		virtual std::unique_ptr<StatusResponse> sendNewSessionRequest() override;
 
 		///
 		/// Perform global initialization.
@@ -126,6 +115,8 @@ namespace protocol
 		void buildMonitorURL(core::UTF8String& monitorURL, const core::UTF8String& baseURL, const core::UTF8String& applicationID, uint32_t serverID);
 
 		void buildTimeSyncURL(core::UTF8String& monitorURL, const core::UTF8String& baseURL);
+
+		void buildNewSessionURL(core::UTF8String& monitorURL, const core::UTF8String& baseURL, const core::UTF8String& applicationID, uint32_t serverID);
 
 		void appendQueryParam(core::UTF8String& url, const char* key, const char* vaalue);
 
@@ -157,6 +148,9 @@ namespace protocol
 
 		/// how the peer's TSL/SSL certificate and the hostname shall be trusted
 		std::shared_ptr<openkit::ISSLTrustManager> mSSLTrustManager;
+
+		/// URL for new session requests
+		core::UTF8String mNewSessionURL;
 	};
 
 }
