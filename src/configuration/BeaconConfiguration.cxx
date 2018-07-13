@@ -18,6 +18,7 @@
 
 using namespace configuration;
 
+const int32_t BeaconConfiguration::DEFAULT_MULTIPLICITY = 1;
 const openkit::DataCollectionLevel BeaconConfiguration::DEFAULT_DATA_COLLECTION_LEVEL = openkit::DataCollectionLevel::USER_BEHAVIOR;
 const openkit::CrashReportingLevel BeaconConfiguration::DEFAULT_CRASH_REPORTING_LEVEL = openkit::CrashReportingLevel::OPT_IN_CRASHES;
 

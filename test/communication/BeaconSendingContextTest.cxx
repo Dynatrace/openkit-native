@@ -553,7 +553,6 @@ TEST_F(BeaconSendingContextTest, getNextFinishedSessionReturnsEmptyListIfThereAr
 	auto finishedSessions = target->getAllFinishedAndConfiguredSessions();
 
 	// then
-	ASSERT_TRUE(&finishedSessions != nullptr);
 	ASSERT_EQ(finishedSessions.size(), 0);
 
 }

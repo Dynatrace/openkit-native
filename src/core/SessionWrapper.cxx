@@ -23,6 +23,7 @@ constexpr uint32_t MAX_NEW_SESSION_REQUESTS = 4;
 
 SessionWrapper::SessionWrapper(std::shared_ptr<Session> session)
 	: mWrappedSession(session)
+	, mBeaconConfiguration()
 	, mIsBeaconConfigurationSet(false)
 	, mSessionFinished(false)
 	, mNumNewSessionRequestsLeft(MAX_NEW_SESSION_REQUESTS)

@@ -59,25 +59,26 @@ namespace configuration
 		int32_t getMultiplicity() const;
 
 	private:
+		/// multiplicity controlling how many sessions are actually send
+		int32_t mMulitplicity;
+
 		/// data collection level
 		openkit::DataCollectionLevel mDataCollectionLevel;
 
 		/// crash reporting level
 		openkit::CrashReportingLevel mCrashReportingLevel;
 
-		/// multiplicity controlling how many sessions are actually send
-		int32_t mMulitplicity;
+
 
 	public:
+		/// default multiplicity
+		static const int32_t DEFAULT_MULTIPLICITY;
 
 		/// default value for data collection level
 		static const openkit::DataCollectionLevel DEFAULT_DATA_COLLECTION_LEVEL;
 
-		/// default value fr crash reporting level
+		/// default value for crash reporting level
 		static const openkit::CrashReportingLevel DEFAULT_CRASH_REPORTING_LEVEL;
-
-		/// default multiplicity
-		static const int32_t DEFAULT_MULTIPLICITY = 1;
 	};
 }
 
