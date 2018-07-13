@@ -98,6 +98,79 @@ extern "C" {
 	OPENKIT_EXPORT void destroyTrustManager(struct TrustManagerHandle* trustManagerHandle);
 	
 	//--------------
+	//  Configuration
+	//--------------
+
+	/// an opaque handle that we'll use as a handle
+	struct OpenKitConfigurationHandle;
+
+	///
+	/// Creates an OpenKit configuration object
+	/// @param[in] endpointURL endpoint OpenKit connects to
+	/// @param[in] applicationID unique application id
+	/// @param[in] deviceID unique device id
+	/// @returns a configuration object that can be used for both AppMon and Dynatrace OpenKit instances
+	///
+	OPENKIT_EXPORT struct OpenKitConfigurationHandle* createOpenKitConfiguration(const char* endpointURL, const char* applicationID, int64_t deviceID);
+
+	///
+	/// Destroys a given configuration
+	/// @param[in] configurationHandle configuration to clean up
+	///
+	OPENKIT_EXPORT void destroyOpenKitConfiguration(struct OpenKitConfigurationHandle* configurationHandle);
+
+	///
+	/// Set the logger handle in the OpenKit configuration
+	/// @param[in] loggerHandle optional parameter to provide a logger that shall be used. If @c NULL is provided the DefaultLogger is used.\
+	///
+	OPENKIT_EXPORT void useLoggerForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, struct LoggerHandle* loggerHandle);
+
+	///
+	/// Set the application version in the OpenKit configuration
+	/// @param[in] applicationVersion optional parameter, the application version. If @c NULL is provided the default application version is used.
+	///
+	OPENKIT_EXPORT void useApplicationVersionForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, const char* applicationVersion);
+
+	///
+	/// Set the application name in the OpenKit configuration
+	/// @param[in] applicationName optional name for the application. If @c NULL is provided the application name is an empty string.
+	///
+	OPENKIT_EXPORT void useApplicationNameForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, const char* applicationName);
+
+	///
+	/// Set the trust mode and trust manager handle in the OpenKit configuration
+	/// @param[in] trustMode required parameter which trust manager shall be used. Recommended is @c STRICT_TRUST or for fine-granular @c CUSTOM_TRUST.
+	/// @param[in] trustManagerHandle required parameter if the @c trustMode @c CUSTOM_TRUST is provided. Ignored for the other trust modes.
+	///
+	OPENKIT_EXPORT void useTrustModeForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, TRUST_MODE trustMode, struct TrustManagerHandle* trustManagerHandle);
+
+	///
+	/// Set the application name in the OpenKit configuration
+	/// @param[in] operatingSystem optional parameter, name of the operating system. If @c NULL is provided the default operating system is used.
+	///
+	OPENKIT_EXPORT void useOperatingSystemForConfiguration(struct OpenKitConfigurationHandle* configurationHandle,const char* operatingSystem);
+
+	///
+	/// Set the application name in the OpenKit configuration
+	/// @param[in] manufacturer optional parameter, manufacturer of the device. If @c NULL is provided the default manufacturer is used.
+	///
+	OPENKIT_EXPORT void useManufacturerForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, const char* manufacturer);
+
+	///
+	/// Set the application name in the OpenKit configuration
+	/// @param[in] modelID optional parameter, model version or id of the device. If @c NULL the default model ID is used.
+	///
+	OPENKIT_EXPORT void useModelIDForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, const char* modelID);
+
+	///
+	/// Set the behavior of the beacon cache in the OpenKit configuration
+	/// @param[in] beaconCacheMaxRecordAge optional parameter, maximum age of cache records. A value of -1 will lead to the default value. All positive integers starting with 0 are valid.
+	/// @param[in] beaconCacheLowerMemoryBoundary optional parameter, lower memory boundary for beacon cache. A value of -1 will lead to the default value. All positive integers starting with 0 are valid.
+	/// @param[in] beaconCacheUpperMemoryBoundary optional parameter, upper memory boundary for beacon cache. A value of -1 will lead to the default value. All positive integers starting with 0 are valid.
+	///
+	OPENKIT_EXPORT void useBeaconCacheBehaviorForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary);
+
+	//--------------
 	//  OpenKit
 	//--------------
 
@@ -106,46 +179,17 @@ extern "C" {
 
 	///
 	/// Creates an OpenKit instance for Dynatrace Saas/Managed 
-	/// @param[in] endpointURL endpoint OpenKit connects to
-	/// @param[in] applicationID unique application id
-	/// @param[in] deviceID unique device id
-	/// @param[in] loggerHandle optional parameter to provide a logger that shall be used. If @c NULL is provided the DefaultLogger is used.
-	/// @param[in] applicationVersion optional parameter, the application version. If @c NULL is provided the default application version is used.
-	/// @param[in] applicationName optional name for the application. If @c NULL is provided the application name is an empty string.
-	/// @param[in] trustMode required parameter which trust manager shall be used. Recommended is @c STRICT_TRUST or for fine-granular @c CUSTOM_TRUST.
-	/// @param[in] trustManagerHandle required parameter if the @c trustMode @c CUSTOM_TRUST is provided. Ignored for the other trust modes.
-	/// @param[in] operatingSystem optional parameter, name of the operating system. If @c NULL is provided the default operating system is used.
-	/// @param[in] manufacturer optional parameter, manufacturer of the device. If @c NULL is provided the default manufacturer is used.
-	/// @param[in] modelID optional parameter, model version or id of the device. If @c NULL the default model ID is used.
-	/// @param[in] beaconCacheMaxRecordAge optional parameter, maximum age of cache records. A value of -1 will lead to the default value. All positive integers starting with 0 are valid.
-	/// @param[in] beaconCacheLowerMemoryBoundary optional parameter, lower memory boundary for beacon cache. A value of -1 will lead to the default value. All positive integers starting with 0 are valid.
-	/// @param[in] beaconCacheUpperMemoryBoundary optional parameter, upper memory boundary for beacon cache. A value of -1 will lead to the default value. All positive integers starting with 0 are valid.
+	/// @param[in] configurationHandle configuration object
 	/// @return OpenKit instance handle to work with
 	///
-	OPENKIT_EXPORT struct OpenKitHandle* createDynatraceOpenKit(const char* endpointURL, const char* applicationID, int64_t deviceID, struct LoggerHandle* loggerHandle,
-		const char* applicationVersion, const char* applicationName, TRUST_MODE trustMode, struct TrustManagerHandle* trustManagerHandle, const char* operatingSystem, const char* manufacturer,
-		const char* modelID, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary);
+	OPENKIT_EXPORT struct OpenKitHandle* createDynatraceOpenKit(struct OpenKitConfigurationHandle* configurationHandle );
 
 	///
 	/// Creates an OpenKit instance for AppMon
-	/// @param[in] endpointURL endpoint OpenKit connects to
-	/// @param[in] applicationName unique application name
-	/// @param[in] deviceID unique device id
-	/// @param[in] loggerHandle optional parameter to provide a logger that shall be used. If @c NULL is provided the DefaultLogger is used.
-	/// @param[in] applicationVersion optional parameter,  the application version. If @c NULL is provided the default application version is used.
-	/// @param[in] trustMode required parameter which trust manager shall be used. Recommended is @c STRICT_TRUST or for fine-granular @c CUSTOM_TRUST.
-	/// @param[in] trustManagerHandle required parameter if the @c trustMode @c CUSTOM_TRUST is provided. Ignored for the other trust modes.
-	/// @param[in] operatingSystem optional parameter, name of the operating system. If @c NULL is provided the default operating system is used.
-	/// @param[in] manufacturer optional parameter, manufacturer of the device. If @c NULL is provided the default manufacturer is used.
-	/// @param[in] modelID optional parameter, model version or id of the device. If @c NULL the default model ID is used.
-	/// @param[in] beaconCacheMaxRecordAge optional parameter, maximum age of cache records. A value of -1 will lead to the default value. All positive integers starting with 0 are valid.
-	/// @param[in] beaconCacheLowerMemoryBoundary optional parameter, lower memory boundary for beacon cache. A value of -1 will lead to the default value. All positive integers starting with 0 are valid.
-	/// @param[in] beaconCacheUpperMemoryBoundary optional parameter, upper memory boundary for beacon cache. A value of -1 will lead to the default value. All positive integers starting with 0 are valid.
+	/// @param[in] configurationHandle configuration object
 	/// @return OpenKit instance handle to work with
 	///
-	OPENKIT_EXPORT struct OpenKitHandle* createAppMonOpenKit(const char* endpointURL, const char* applicationName, int64_t deviceID, struct LoggerHandle* loggerHandle,
-		const char* applicationVersion, TRUST_MODE trustMode, struct TrustManagerHandle* trustManagerHandle, const char* operatingSystem, const char* manufacturer,
-		const char* modelID, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary);
+	OPENKIT_EXPORT struct OpenKitHandle* createAppMonOpenKit(struct OpenKitConfigurationHandle* configurationHandle);
 
 	///
 	/// Shuts down the OpenKit, ending all open Sessions and waiting for them to be sent.
