@@ -31,14 +31,14 @@ extern "C" {
 	//  Logger
 	//--------------
 
-	/*
-	Note:
-	The OpenKit comes with a default logger printing trace statements to stdout. 
-	This default logger can be replaced with a user provided logger. To achieve this,
-	the OpenKit user must call @ref createLogger and provide two function pointers:
-	One funtion pointer to a check function if the provided log level is enabled and
-	another function pointer to the actual log function performing the log writing.
-	*/
+	//
+	// Note:
+	// The OpenKit comes with a default logger printing trace statements to stdout. 
+	// This default logger can be replaced with a user provided logger. To achieve this,
+	// the OpenKit user must call @ref createLogger and provide two function pointers:
+	// One funtion pointer to a check function if the provided log level is enabled and
+	// another function pointer to the actual log function performing the log writing.
+	//
 
 	typedef enum LOG_LEVEL
 	{
@@ -138,7 +138,7 @@ extern "C" {
 	///
 	/// Set the logger handle in the OpenKit configuration
 	/// @param[in] configurationHandle configuration storing the given parameter
-	/// @param[in] loggerHandle optional parameter to provide a logger that shall be used. If @c NULL is provided the DefaultLogger is used.\
+	/// @param[in] loggerHandle optional parameter to provide a logger that shall be used. If @c NULL is provided the DefaultLogger is used.
 	///
 	OPENKIT_EXPORT void useLoggerForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, struct LoggerHandle* loggerHandle);
 

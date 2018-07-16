@@ -68,11 +68,11 @@ extern "C" {
 			if (stringLength > 0)
 			{
 				stringCopy = (char*)malloc(stringLength + 1);
-				errno_t success = strncpy_s(stringCopy, stringLength + 1, str, stringLength + 1);
-				if (success != 0)
-				{
-					free(stringCopy);
-				}
+#if defined(_WIN32) || defined(WIN32)
+				strcpy_s(stringCopy, stringLength + 1, str);
+#else
+				strncpy(stringCopy, str, stringLength + 1);
+#endif
 			}
 		}
 
