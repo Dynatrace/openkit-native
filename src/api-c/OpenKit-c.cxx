@@ -21,8 +21,8 @@
 #include "api-c/CustomLogger.h"
 #include "api-c/CustomTrustManager.h"
 
-#include "openkit/DataCollectionLevel.h"
-#include "openkit/CrashReportingLevel.h"
+#include "OpenKit/DataCollectionLevel.h"
+#include "OpenKit/CrashReportingLevel.h"
 
 #include "core/util/DefaultLogger.h"
 #include "protocol/ssl/SSLStrictTrustManager.h"
@@ -53,6 +53,12 @@ extern "C" {
 		}																								\
 	}
 
+#define CATCH_AND_IGNORE_ALL()																			\
+	catch (...)																							\
+	{																									\
+		/*nop*/																							\
+	}
+
 	//--------------
 	// TrustManager
 	//--------------
@@ -73,10 +79,7 @@ extern "C" {
 			handle = new TrustManagerHandle();
 			handle->trustManager = trustManager;
 		}
-		catch (...)
-		{
-			/* Ignore exception, as we don't have a logger yet */
-		}
+		CATCH_AND_IGNORE_ALL()
 
 		return handle;
 	}
@@ -92,10 +95,7 @@ extern "C" {
 			handle = new TrustManagerHandle();
 			handle->trustManager = trustManager;
 		}
-		catch (...)
-		{
-			/* Ignore exception, as we don't have a logger yet */
-		}
+		CATCH_AND_IGNORE_ALL()
 
 		return handle;
 	}
@@ -111,10 +111,7 @@ extern "C" {
 			handle = new TrustManagerHandle();
 			handle->trustManager = trustManager;
 		}
-		catch (...)
-		{
-			/* Ignore exception, as we don't have a logger yet */
-		}
+		CATCH_AND_IGNORE_ALL()
 
 		return handle;
 	}
@@ -157,10 +154,7 @@ extern "C" {
 			handle = new LoggerHandle();
 			handle->logger = logger;
 		}
-		catch (...)
-		{
-			/* Ignore exception, as we don't have a logger yet */
-		}
+		CATCH_AND_IGNORE_ALL()
 
 		return handle;
 	}
@@ -175,10 +169,7 @@ extern "C" {
 			handle = new LoggerHandle();
 			handle->logger = logger;
 		}
-		catch (...)
-		{
-			/* Ignore exception, as we don't have a logger yet */
-		}
+		CATCH_AND_IGNORE_ALL()
 
 		return handle;
 	}
@@ -202,25 +193,25 @@ extern "C" {
 
 	typedef struct OpenKitConfigurationHandle
 	{
-		const char* endpointURL;
-		const char* applicationID;
-		int64_t deviceID;
-		const char* applicationName;
-		LoggerHandle* loggerHandle;
-		bool ownsLoggerHandle;
-		const char* applicationVersion;
-		TRUST_MODE trustMode;
-		TrustManagerHandle* trustManagerHandle;
-		bool ownsTrustManagerHandle;
-		const char* operatingSystem;
-		const char* manufacturer;
-		const char* modelID;
-		int64_t beaconCacheMaxRecordAge;
-		int64_t beaconCacheLowerMemoryBoundary;
-		int64_t beaconCacheUpperMemoryBoundary;
-		DataCollectionLevel dataCollectionLevel;
-		CrashReportingLevel crashReportingLevel;
-	} OpenKitConfigurationHandle ;
+		const char* endpointURL = nullptr;
+		const char* applicationID = nullptr;
+		int64_t deviceID = -1;
+		const char* applicationName = nullptr;
+		LoggerHandle* loggerHandle = nullptr;
+		bool ownsLoggerHandle = false;
+		const char* applicationVersion = nullptr;
+		TRUST_MODE trustMode = STRICT_TRUST;
+		TrustManagerHandle* trustManagerHandle = nullptr;
+		bool ownsTrustManagerHandle = false;
+		const char* operatingSystem = nullptr;
+		const char* manufacturer = nullptr;
+		const char* modelID = nullptr;
+		int64_t beaconCacheMaxRecordAge = -1;
+		int64_t beaconCacheLowerMemoryBoundary = -1;
+		int64_t beaconCacheUpperMemoryBoundary = -1;
+		DataCollectionLevel dataCollectionLevel = DATA_COLLECTION_LEVEL_USER_BEHAVIOR;
+		CrashReportingLevel crashReportingLevel = CRASH_REPORTING_LEVEL_OPT_IN_CRASHES;
+	} OpenKitConfigurationHandle;
 
 	struct OpenKitConfigurationHandle* createOpenKitConfiguration(const char* endpointURL, const char* applicationID, int64_t deviceID)
 	{
@@ -229,29 +220,14 @@ extern "C" {
 		{
 			// storing the returned shared pointer in the handle prevents it from going out of scope
 			handle = new OpenKitConfigurationHandle();
-			handle->endpointURL = endpointURL;
-			handle->applicationID = applicationID;
-			handle->applicationName = nullptr;
-			handle->deviceID = deviceID;
-			handle->loggerHandle = nullptr;
-			handle->ownsLoggerHandle = false;
-			handle->applicationVersion = nullptr;
-			handle->trustMode = STRICT_TRUST;
-			handle->trustManagerHandle = nullptr;
-			handle->ownsTrustManagerHandle = false;
-			handle->operatingSystem = nullptr;
-			handle->manufacturer = nullptr;
-			handle->modelID = nullptr;
-			handle->beaconCacheMaxRecordAge = -1;
-			handle->beaconCacheLowerMemoryBoundary = -1;
-			handle->beaconCacheUpperMemoryBoundary = -1;
-			handle->dataCollectionLevel = DATA_COLLECTION_LEVEL_USER_BEHAVIOR;
-			handle->crashReportingLevel = CRASH_REPORTING_LEVEL_OPT_IN_CRASHES;
+			if (handle != nullptr)
+			{
+				handle->endpointURL = _strdup(endpointURL);
+				handle->applicationID = _strdup(applicationID);
+				handle->deviceID = deviceID;
+			}
 		}
-		catch (...)
-		{
-			/* Ignore exception, as we don't have a logger yet */
-		}
+		CATCH_AND_IGNORE_ALL()
 
 		return handle;
 	}
@@ -262,6 +238,36 @@ extern "C" {
 		if (configurationHandle == nullptr)
 		{
 			return;
+		}
+
+		//clear string copies allocated with strdup
+		if (configurationHandle->endpointURL != nullptr)
+		{
+			delete configurationHandle->endpointURL;
+		}
+		if (configurationHandle->applicationID != nullptr)
+		{
+			delete configurationHandle->applicationID;
+		}
+		if (configurationHandle->applicationName != nullptr)
+		{
+			delete configurationHandle->applicationName;
+		}
+		if (configurationHandle->applicationVersion != nullptr)
+		{
+			delete configurationHandle->applicationVersion;
+		}
+		if (configurationHandle->operatingSystem != nullptr)
+		{
+			delete configurationHandle->operatingSystem;
+		}
+		if (configurationHandle->manufacturer != nullptr)
+		{
+			delete configurationHandle->manufacturer;
+		}
+		if (configurationHandle->modelID != nullptr)
+		{
+			delete configurationHandle->modelID;
 		}
 
 		// release shared pointer
@@ -282,7 +288,7 @@ extern "C" {
 		//sanity
 		if (configurationHandle != nullptr && applicationVersion != nullptr)
 		{
-			configurationHandle->applicationVersion = applicationVersion;
+			configurationHandle->applicationVersion = _strdup(applicationVersion);
 		}
 	}
 
@@ -291,7 +297,7 @@ extern "C" {
 		//sanity
 		if (configurationHandle != nullptr && applicationName != nullptr)
 		{
-			configurationHandle->applicationName = applicationName;
+			configurationHandle->applicationName = _strdup(applicationName);
 		}
 	}
 
@@ -310,7 +316,7 @@ extern "C" {
 		//sanity
 		if (configurationHandle != nullptr && operatingSystem != nullptr)
 		{
-			configurationHandle->operatingSystem = operatingSystem;
+			configurationHandle->operatingSystem = _strdup(operatingSystem);
 		}
 	}
 
@@ -319,7 +325,7 @@ extern "C" {
 		//sanity
 		if (configurationHandle != nullptr && manufacturer != nullptr)
 		{
-			configurationHandle->manufacturer = manufacturer;
+			configurationHandle->manufacturer = _strdup(manufacturer);
 		}
 	}
 
@@ -328,22 +334,22 @@ extern "C" {
 		//sanity
 		if (configurationHandle != nullptr && modelID != nullptr)
 		{
-			configurationHandle->modelID = modelID;
+			configurationHandle->modelID = _strdup(modelID);
 		}
 	}
 
 	void useBeaconCacheBehaviorForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary)
 	{
 		//sanity
-		if (configurationHandle != nullptr && beaconCacheMaxRecordAge != -1)
+		if (configurationHandle != nullptr && beaconCacheMaxRecordAge >= 0)
 		{
 			configurationHandle->beaconCacheMaxRecordAge = beaconCacheMaxRecordAge;
 		}
-		if (configurationHandle != nullptr && beaconCacheLowerMemoryBoundary)
+		if (configurationHandle != nullptr && beaconCacheLowerMemoryBoundary >= 0)
 		{
 			configurationHandle->beaconCacheLowerMemoryBoundary = beaconCacheLowerMemoryBoundary;
 		}
-		if (configurationHandle != nullptr && beaconCacheLowerMemoryBoundary)
+		if (configurationHandle != nullptr && beaconCacheLowerMemoryBoundary >= 0)
 		{
 			configurationHandle->beaconCacheUpperMemoryBoundary = beaconCacheUpperMemoryBoundary;
 		}
@@ -464,12 +470,12 @@ extern "C" {
 			builder.withBeaconCacheUpperMemoryBoundary(configurationHandle->beaconCacheUpperMemoryBoundary);
 		}
 
-		if (configurationHandle->dataCollectionLevel != DATA_COLLECTION_LEVEL_COUNT)
+		if (configurationHandle->dataCollectionLevel < DATA_COLLECTION_LEVEL_COUNT)
 		{
 			builder.withDataCollectionLevel((openkit::DataCollectionLevel)configurationHandle->dataCollectionLevel);
 		}
 
-		if (configurationHandle->crashReportingLevel != CRASH_REPORTING_LEVEL_COUNT)
+		if (configurationHandle->crashReportingLevel < CRASH_REPORTING_LEVEL_COUNT)
 		{
 			builder.withCrashReportingLevel((openkit::CrashReportingLevel)configurationHandle->crashReportingLevel);
 		}
