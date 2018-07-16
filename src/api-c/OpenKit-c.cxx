@@ -59,6 +59,26 @@ extern "C" {
 		/*nop*/																							\
 	}
 
+	char* duplicateString(const char* str)
+	{
+		char* stringCopy = nullptr;
+		if (str != nullptr)
+		{
+			size_t stringLength = strlen(str);
+			if (stringLength > 0)
+			{
+				stringCopy = (char*)malloc(stringLength + 1);
+				errno_t success = strncpy_s(stringCopy, stringLength + 1, str, stringLength + 1);
+				if (success != 0)
+				{
+					free(stringCopy);
+				}
+			}
+		}
+
+		return stringCopy;
+	}
+
 	//--------------
 	// TrustManager
 	//--------------
@@ -222,8 +242,8 @@ extern "C" {
 			handle = new OpenKitConfigurationHandle();
 			if (handle != nullptr)
 			{
-				handle->endpointURL = _strdup(endpointURL);
-				handle->applicationID = _strdup(applicationID);
+				handle->endpointURL = duplicateString(endpointURL);
+				handle->applicationID = duplicateString(applicationID);
 				handle->deviceID = deviceID;
 			}
 		}
@@ -288,7 +308,7 @@ extern "C" {
 		//sanity
 		if (configurationHandle != nullptr && applicationVersion != nullptr)
 		{
-			configurationHandle->applicationVersion = _strdup(applicationVersion);
+			configurationHandle->applicationVersion = duplicateString(applicationVersion);
 		}
 	}
 
@@ -297,7 +317,7 @@ extern "C" {
 		//sanity
 		if (configurationHandle != nullptr && applicationName != nullptr)
 		{
-			configurationHandle->applicationName = _strdup(applicationName);
+			configurationHandle->applicationName = duplicateString(applicationName);
 		}
 	}
 
@@ -316,7 +336,7 @@ extern "C" {
 		//sanity
 		if (configurationHandle != nullptr && operatingSystem != nullptr)
 		{
-			configurationHandle->operatingSystem = _strdup(operatingSystem);
+			configurationHandle->operatingSystem = duplicateString(operatingSystem);
 		}
 	}
 
@@ -325,7 +345,7 @@ extern "C" {
 		//sanity
 		if (configurationHandle != nullptr && manufacturer != nullptr)
 		{
-			configurationHandle->manufacturer = _strdup(manufacturer);
+			configurationHandle->manufacturer = duplicateString(manufacturer);
 		}
 	}
 
@@ -334,7 +354,7 @@ extern "C" {
 		//sanity
 		if (configurationHandle != nullptr && modelID != nullptr)
 		{
-			configurationHandle->modelID = _strdup(modelID);
+			configurationHandle->modelID = duplicateString(modelID);
 		}
 	}
 
