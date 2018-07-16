@@ -32,13 +32,13 @@ set(OPENKIT_PUBLIC_HEADERS_C_API
     ${CMAKE_SOURCE_DIR}/include/api-c/OpenKit-c.h
 )
 
-set(OPENKIT_SOURCES_C_API
+set(OPENKIT_SOURCES_CXX_API
     ${CMAKE_CURRENT_LIST_DIR}/api/AbstractOpenKitBuilder.cxx
     ${CMAKE_CURRENT_LIST_DIR}/api/DynatraceOpenKitBuilder.cxx
     ${CMAKE_CURRENT_LIST_DIR}/api/AppMonOpenKitBuilder.cxx
 )
 
-set(OPENKIT_SOURCES_CXX_API
+set(OPENKIT_SOURCES_C_API
     ${CMAKE_CURRENT_LIST_DIR}/api-c/OpenKit-c.cxx
     ${CMAKE_CURRENT_LIST_DIR}/api-c/CustomLogger.h
     ${CMAKE_CURRENT_LIST_DIR}/api-c/CustomLogger.cxx
@@ -93,6 +93,8 @@ set(OPENKIT_SOURCES_CORE
     ${CMAKE_CURRENT_LIST_DIR}/core/WebRequestTracerStringURL.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/OpenKit.h
     ${CMAKE_CURRENT_LIST_DIR}/core/OpenKit.cxx
+	${CMAKE_CURRENT_LIST_DIR}/core/SessionWrapper.h
+	${CMAKE_CURRENT_LIST_DIR}/core/SessionWrapper.cxx
 )
 
 set(OPENKIT_SOURCES_COMMUNICATION
@@ -154,7 +156,7 @@ set(OPENKIT_SOURCES_PROVIDERS
 set(OPENKIT_SOURCES_CONFIGURATION
     ${CMAKE_CURRENT_LIST_DIR}/configuration/BeaconCacheConfiguration.h
     ${CMAKE_CURRENT_LIST_DIR}/configuration/BeaconCacheConfiguration.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/configuration/BeaconConfiguration.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/configuration/BeaconConfiguration.h
     ${CMAKE_CURRENT_LIST_DIR}/configuration/BeaconConfiguration.cxx
     ${CMAKE_CURRENT_LIST_DIR}/configuration/HTTPClientConfiguration.h
     ${CMAKE_CURRENT_LIST_DIR}/configuration/HTTPClientConfiguration.cxx

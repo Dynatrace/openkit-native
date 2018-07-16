@@ -43,7 +43,7 @@ Beacon::Beacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching
 	, mID(0)
 	, mSessionNumber()
 	, mSessionStartTime(timingProvider->provideTimestampInMilliseconds())
-	, mBasicBeaconData()
+	, mImmutableBasicBeaconData()
 	, mBeaconCache(beaconCache)
 	, mHTTPClientConfiguration(configuration->getHTTPClientConfiguration())
 	, mBeaconConfiguration(configuration->getBeaconConfiguration())
@@ -73,10 +73,10 @@ Beacon::Beacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching
 		mSessionNumber = 1;
 	}
 
-	mBasicBeaconData = createBasicBeaconData();
+	mImmutableBasicBeaconData = createImmutableBeaconData();
 }
 
-core::UTF8String Beacon::createBasicBeaconData()
+core::UTF8String Beacon::createImmutableBeaconData()
 {
 	core::UTF8String basicBeaconData;
 
@@ -114,6 +114,10 @@ core::UTF8String Beacon::createBasicBeaconData()
 	{
 		addKeyValuePair(basicBeaconData, BEACON_KEY_DEVICE_MODEL, deviceModel);
 	}
+
+	auto beaconConfiguration = mConfiguration->getBeaconConfiguration();
+	addKeyValuePair(basicBeaconData, BEACON_KEY_DATA_COLLECTION_LEVEL, (int32_t)beaconConfiguration->getDataCollectionLevel());
+	addKeyValuePair(basicBeaconData, BEACON_KEY_CRASH_REPORTING_LEVEL, (int32_t)beaconConfiguration->getCrashReportingLevel());
 	
 	return basicBeaconData;
 }
@@ -207,7 +211,7 @@ int32_t Beacon::createID()
 
 core::UTF8String Beacon::createTag(int32_t parentActionID, int32_t sequenceNumber)
 {
-	if (mBeaconConfiguration->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
+	if (std::atomic_load(&mBeaconConfiguration)->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
 	{
 		return core::UTF8String("");
 	}
@@ -236,7 +240,7 @@ core::UTF8String Beacon::createTag(int32_t parentActionID, int32_t sequenceNumbe
 
 void Beacon::addAction(std::shared_ptr<core::Action> action)
 {
-	if (mBeaconConfiguration->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
+	if (std::atomic_load(&mBeaconConfiguration)->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
 	{
 		return;
 	}
@@ -255,7 +259,7 @@ void Beacon::addAction(std::shared_ptr<core::Action> action)
 
 void Beacon::addAction(std::shared_ptr<core::RootAction> action)
 {
-	if (mBeaconConfiguration->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
+	if (std::atomic_load(&mBeaconConfiguration)->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
 	{
 		return;
 	}
@@ -293,7 +297,7 @@ void Beacon::startSession(std::shared_ptr<core::Session> session)
 
 void Beacon::endSession(std::shared_ptr<core::Session> session)
 {
-	if (mBeaconConfiguration->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
+	if (std::atomic_load(&mBeaconConfiguration)->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
 	{
 		return;
 	}
@@ -309,7 +313,7 @@ void Beacon::endSession(std::shared_ptr<core::Session> session)
 
 void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, int32_t value)
 {
-	if (mBeaconConfiguration->getDataCollectionLevel() != openkit::DataCollectionLevel::USER_BEHAVIOR)
+	if (std::atomic_load(&mBeaconConfiguration)->getDataCollectionLevel() != openkit::DataCollectionLevel::USER_BEHAVIOR)
 	{
 		return;
 	}
@@ -323,7 +327,7 @@ void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, in
 
 void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, double value)
 {
-	if (mBeaconConfiguration->getDataCollectionLevel() != openkit::DataCollectionLevel::USER_BEHAVIOR)
+	if (std::atomic_load(&mBeaconConfiguration)->getDataCollectionLevel() != openkit::DataCollectionLevel::USER_BEHAVIOR)
 	{
 		return;
 	}
@@ -338,7 +342,7 @@ void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, do
 
 void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, const core::UTF8String& value)
 {
-	if (mBeaconConfiguration->getDataCollectionLevel() != openkit::DataCollectionLevel::USER_BEHAVIOR)
+	if (std::atomic_load(&mBeaconConfiguration)->getDataCollectionLevel() != openkit::DataCollectionLevel::USER_BEHAVIOR)
 	{
 		return;
 	}
@@ -353,7 +357,7 @@ void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, co
 
 void Beacon::reportEvent(int32_t actionID, const core::UTF8String& eventName)
 {
-	if (mBeaconConfiguration->getDataCollectionLevel() != openkit::DataCollectionLevel::USER_BEHAVIOR)
+	if (std::atomic_load(&mBeaconConfiguration)->getDataCollectionLevel() != openkit::DataCollectionLevel::USER_BEHAVIOR)
 	{
 		return;
 	}
@@ -371,7 +375,7 @@ void Beacon::reportError(int32_t actionID, const core::UTF8String& errorName, in
 		return;
 	}
 
-	if (mBeaconConfiguration->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
+	if (std::atomic_load(&mBeaconConfiguration)->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
 	{
 		return;
 	}
@@ -397,7 +401,7 @@ void Beacon::reportCrash(const core::UTF8String& errorName, const core::UTF8Stri
 		return;
 	}
 
-	if (mBeaconConfiguration->getCrashReportingLevel() == openkit::CrashReportingLevel::OFF)
+	if (std::atomic_load(&mBeaconConfiguration)->getCrashReportingLevel() != openkit::CrashReportingLevel::OPT_IN_CRASHES)
 	{
 		return;
 	}
@@ -417,7 +421,7 @@ void Beacon::reportCrash(const core::UTF8String& errorName, const core::UTF8Stri
 
 void Beacon::addWebRequest(int32_t parentActionID, std::shared_ptr<core::WebRequestTracerBase> webRequestTracer)
 {
-	if (mBeaconConfiguration->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
+	if (std::atomic_load(&mBeaconConfiguration)->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
 	{
 		return;
 	}
@@ -453,7 +457,7 @@ void Beacon::addWebRequest(int32_t parentActionID, std::shared_ptr<core::WebRequ
 
 void Beacon::identifyUser(const core::UTF8String& userTag)
 {
-	if (mBeaconConfiguration->getDataCollectionLevel() != openkit::DataCollectionLevel::USER_BEHAVIOR)
+	if (std::atomic_load(&mBeaconConfiguration)->getDataCollectionLevel() != openkit::DataCollectionLevel::USER_BEHAVIOR)
 	{
 		return;
 	}
@@ -469,6 +473,27 @@ void Beacon::identifyUser(const core::UTF8String& userTag)
 	addEventData(timestamp, eventData);
 }
 
+core::UTF8String Beacon::createMultiplicityData()
+{
+	core::UTF8String multiplicityData;
+	addKeyValuePair(multiplicityData, BEACON_KEY_MULTIPLICITY, mBeaconConfiguration->getMultiplicity());
+	return multiplicityData;
+}
+
+core::UTF8String Beacon::getMutableBeaconData()
+{
+	core::UTF8String delimiter = core::UTF8String(BEACON_DATA_DELIMITER);
+
+	core::UTF8String mutableBeaconData;
+
+	mutableBeaconData.concatenate(delimiter);
+	mutableBeaconData.concatenate(createTimestampData());
+	mutableBeaconData.concatenate(delimiter);
+	mutableBeaconData.concatenate(createMultiplicityData());
+
+	return mutableBeaconData;
+}
+
 std::unique_ptr<protocol::StatusResponse> Beacon::send(std::shared_ptr<providers::IHTTPClientProvider> clientProvider)
 {
 	std::shared_ptr<protocol::IHTTPClient> httpClient = clientProvider->createClient(mLogger, mHTTPClientConfiguration);
@@ -478,12 +503,10 @@ std::unique_ptr<protocol::StatusResponse> Beacon::send(std::shared_ptr<providers
 	while (true)
 	{
 		// prefix for this chunk - must be built up newly, due to changing timestamps
-		core::UTF8String prefix = mBasicBeaconData;
-		core::UTF8String delimiter = core::UTF8String(BEACON_DATA_DELIMITER);
-		prefix.concatenate(delimiter);
-		prefix.concatenate(createTimestampData());
+		core::UTF8String prefix = mImmutableBasicBeaconData;
+		prefix.concatenate( getMutableBeaconData());
 
-		core::UTF8String chunk = mBeaconCache->getNextBeaconChunk(mSessionNumber, prefix, mConfiguration->getMaxBeaconSize() - 1024, delimiter);
+		core::UTF8String chunk = mBeaconCache->getNextBeaconChunk(mSessionNumber, prefix, mConfiguration->getMaxBeaconSize() - 1024, BEACON_DATA_DELIMITER);
 		if (chunk == nullptr || chunk.empty())
 		{
 			return response;
@@ -549,4 +572,14 @@ int32_t Beacon::getSessionNumber() const
 uint64_t Beacon::getDeviceID() const
 {
 	return mDeviceID;
+}
+
+void Beacon::setBeaconConfiguration(std::shared_ptr<configuration::BeaconConfiguration> beaconConfiguration)
+{
+	std::atomic_store(&mBeaconConfiguration, beaconConfiguration);
+}
+
+std::shared_ptr<configuration::BeaconConfiguration> Beacon::getBeaconConfiguration() const
+{
+	return std::atomic_load(&mBeaconConfiguration);
 }

@@ -87,7 +87,7 @@ public:
 
 	std::shared_ptr<protocol::Beacon> buildBeacon(openkit::DataCollectionLevel dl, openkit::CrashReportingLevel cl)
 	{
-		std::shared_ptr<configuration::BeaconConfiguration> beaconConfiguration = std::make_shared<configuration::BeaconConfiguration>(dl, cl);
+		std::shared_ptr<configuration::BeaconConfiguration> beaconConfiguration = std::make_shared<configuration::BeaconConfiguration>(configuration::BeaconConfiguration::DEFAULT_MULTIPLICITY, dl, cl);
 
 		configuration = std::shared_ptr<configuration::Configuration>(new configuration::Configuration(device, configuration::OpenKitType::Type::DYNATRACE,
 			core::UTF8String(APP_NAME), "", APP_ID, 0, "",
@@ -678,7 +678,23 @@ TEST_F(BeaconTest, reportCrashDoesNotReportOnDataCollectionLevel0)
 	ASSERT_TRUE(target->isEmpty());
 }
 
-TEST_F(BeaconTest, reportCrashDoesReportOnCrashReportingLevel1)
+TEST_F(BeaconTest, reportCrashDoesNotReportOnDataCollectionLevel1)
+{
+	//given
+	auto target = buildBeacon(openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OPT_OUT_CRASHES);
+	auto timingProviderMock = getTimingProviderMock();
+
+	EXPECT_CALL(*timingProviderMock, provideTimestampInMilliseconds())
+		.Times(0);
+
+	// when
+	target->reportCrash(core::UTF8String("OutOfMemory exception"), core::UTF8String("insufficient memory"), core::UTF8String("stacktrace:123"));
+
+	//then
+	ASSERT_TRUE(target->isEmpty());
+}
+
+TEST_F(BeaconTest, reportCrashDoesReportOnCrashReportingLevel2)
 {
 	//given
 	auto target = buildBeacon(openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OPT_IN_CRASHES);

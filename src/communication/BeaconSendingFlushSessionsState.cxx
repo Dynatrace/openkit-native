@@ -35,20 +35,29 @@ BeaconSendingFlushSessionsState::BeaconSendingFlushSessionsState()
 
 void BeaconSendingFlushSessionsState::doExecute(BeaconSendingContext& context)
 {
+	// first get all sessions that do not have any multiplicity set -> and move them to open sessions
+	for (auto newSession : context.getAllNewSessions())
+	{
+		auto beaconConfiguration = newSession->getWrappedSession()->getBeaconConfiguration();
+		auto updatedBeaconConfiguration = std::make_shared<configuration::BeaconConfiguration>(1, beaconConfiguration->getDataCollectionLevel(), beaconConfiguration->getCrashReportingLevel());
+		newSession->updateBeaconConfiguration(updatedBeaconConfiguration);
+	}
+
 	// end open sessions -> will be flushed afterwards
-	auto openSessions = context.getAllOpenSessions();
-	for (auto const& openSession : openSessions)
+	for (auto openSession : context.getAllOpenAndConfiguredSessions())
 	{
 		openSession->end();
 	}
 
 	// flush already finished (and previously ended) sessions
-	auto finishedSession = context.getNextFinishedSession();
-	while (finishedSession != nullptr)
+	for (auto finishedSession : context.getAllFinishedAndConfiguredSessions())
 	{
-		finishedSession->sendBeacon(context.getHTTPClientProvider());
+		if (finishedSession->isDataSendingAllowed())
+		{
+			finishedSession->sendBeacon(context.getHTTPClientProvider());
+		}
 		finishedSession->clearCapturedData();
-		finishedSession = context.getNextFinishedSession();
+		context.removeSession(finishedSession);
 	}
 
 	// make last state transition to terminal state

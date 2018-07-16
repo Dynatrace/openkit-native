@@ -18,17 +18,19 @@
 
 using namespace configuration;
 
+const int32_t BeaconConfiguration::DEFAULT_MULTIPLICITY = 1;
 const openkit::DataCollectionLevel BeaconConfiguration::DEFAULT_DATA_COLLECTION_LEVEL = openkit::DataCollectionLevel::USER_BEHAVIOR;
 const openkit::CrashReportingLevel BeaconConfiguration::DEFAULT_CRASH_REPORTING_LEVEL = openkit::CrashReportingLevel::OPT_IN_CRASHES;
 
 BeaconConfiguration::BeaconConfiguration()
-	: BeaconConfiguration(DEFAULT_DATA_COLLECTION_LEVEL, DEFAULT_CRASH_REPORTING_LEVEL)
+	: BeaconConfiguration(DEFAULT_MULTIPLICITY, DEFAULT_DATA_COLLECTION_LEVEL, DEFAULT_CRASH_REPORTING_LEVEL)
 {
 
 }
 
-BeaconConfiguration::BeaconConfiguration(openkit::DataCollectionLevel dataLevel, openkit::CrashReportingLevel crashLevel)
-	: mDataCollectionLevel(dataLevel)
+BeaconConfiguration::BeaconConfiguration(int32_t mulitplicity, openkit::DataCollectionLevel dataLevel, openkit::CrashReportingLevel crashLevel)
+	: mMulitplicity(mulitplicity)
+	, mDataCollectionLevel(dataLevel)
 	, mCrashReportingLevel(crashLevel)
 {
 
@@ -42,4 +44,9 @@ openkit::DataCollectionLevel BeaconConfiguration::getDataCollectionLevel() const
 openkit::CrashReportingLevel BeaconConfiguration::getCrashReportingLevel() const
 {
 	return mCrashReportingLevel;
+}
+
+int32_t BeaconConfiguration::getMultiplicity() const
+{
+	return mMulitplicity;
 }

@@ -74,3 +74,15 @@ TEST_F(BeaconSendingTerminalStateTest, executeRequestsShutdown)
 
 	mTarget->execute(mockContext);
 }
+
+TEST_F(BeaconSendingTerminalStateTest, ToStringReturnsCorrectStateName)
+{
+	// given
+	communication::BeaconSendingTerminalState target;
+
+	// when
+	auto stateName = target.getStateName();
+
+	// then
+	ASSERT_STREQ(stateName, "Terminal");
+}

@@ -163,3 +163,13 @@ const std::string Session::toString() const
 	ss << "Session [sn=" << mBeacon->getSessionNumber() << "]";
 	return ss.str();
 }
+
+void Session::setBeaconConfiguration(std::shared_ptr<configuration::BeaconConfiguration> beaconConfiguration)
+{
+	mBeacon->setBeaconConfiguration(beaconConfiguration);
+}
+
+std::shared_ptr<configuration::BeaconConfiguration> Session::getBeaconConfiguration() const
+{
+	return mBeacon->getBeaconConfiguration();
+}

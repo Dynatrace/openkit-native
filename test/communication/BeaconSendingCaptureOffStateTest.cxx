@@ -157,3 +157,15 @@ TEST_F(BeaconSendingCaptureOffStateTest, aBeaconSendingCaptureOffStateWaitsForSp
 	// when calling execute
 	mTarget->execute(mockContext);
 }
+
+TEST_F(BeaconSendingCaptureOffStateTest, ToStringReturnsCorrectStateName)
+{
+	// given
+	communication::BeaconSendingCaptureOffState target;
+
+	// when
+	auto stateName = target.getStateName();
+
+	// then
+	ASSERT_STREQ(stateName, "CaptureOff");
+}

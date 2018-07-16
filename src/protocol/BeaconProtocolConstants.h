@@ -36,6 +36,9 @@ namespace protocol
 	constexpr char BEACON_KEY_VISITOR_ID[] = "vi";
 	constexpr char BEACON_KEY_SESSION_NUMBER[] = "sn";
 	constexpr char BEACON_KEY_CLIENT_IP_ADDRESS[] = "ip";
+	constexpr char BEACON_KEY_MULTIPLICITY[] = "mp";
+	constexpr char BEACON_KEY_DATA_COLLECTION_LEVEL[] = "dl";
+	constexpr char BEACON_KEY_CRASH_REPORTING_LEVEL[] = "cl";
 
 	//device data constants
 	constexpr char BEACON_KEY_DEVICE_OS[] = "os";
