@@ -29,7 +29,8 @@
 #include "protocol/ssl/SSLBlindTrustManager.h"
 
 #include <list>
-#include <assert.h> 
+#include <assert.h>
+#include <string.h>
 
 extern "C" {
 
