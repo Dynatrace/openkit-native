@@ -101,6 +101,22 @@ extern "C" {
 	//  Configuration
 	//--------------
 
+	typedef enum DataCollectionLevel
+	{
+		DATA_COLLECTION_LEVEL_OFF = 0,
+		DATA_COLLECTION_LEVEL_PERFORMANCE,
+		DATA_COLLECTION_LEVEL_USER_BEHAVIOR,
+		DATA_COLLECTION_LEVEL_COUNT = 3
+	} DataCollectionLevel;
+
+	typedef enum CrashReportingLevel
+	{
+		CRASH_REPORTING_LEVEL_OFF = 0,
+		CRASH_REPORTING_LEVEL_OPT_OUT_CRASHES,
+		CRASH_REPORTING_LEVEL_OPT_IN_CRASHES,
+		CRASH_REPORTING_LEVEL_COUNT = 3
+	} CrashReportingLevel;
+
 	/// an opaque handle that we'll use as a handle
 	struct OpenKitConfigurationHandle;
 
@@ -121,18 +137,21 @@ extern "C" {
 
 	///
 	/// Set the logger handle in the OpenKit configuration
+	/// @param[in] configurationHandle configuration to clean up
 	/// @param[in] loggerHandle optional parameter to provide a logger that shall be used. If @c NULL is provided the DefaultLogger is used.\
 	///
 	OPENKIT_EXPORT void useLoggerForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, struct LoggerHandle* loggerHandle);
 
 	///
 	/// Set the application version in the OpenKit configuration
+	/// @param[in] configurationHandle configuration to clean up
 	/// @param[in] applicationVersion optional parameter, the application version. If @c NULL is provided the default application version is used.
 	///
 	OPENKIT_EXPORT void useApplicationVersionForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, const char* applicationVersion);
 
 	///
 	/// Set the application name in the OpenKit configuration
+	/// @param[in] configurationHandle configuration to clean up
 	/// @param[in] applicationName optional name for the application. If @c NULL is provided the application name is an empty string.
 	///
 	OPENKIT_EXPORT void useApplicationNameForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, const char* applicationName);
@@ -140,6 +159,7 @@ extern "C" {
 	///
 	/// Set the trust mode and trust manager handle in the OpenKit configuration
 	/// Default mode is STRICT_TRUST which does not need a custom handle
+	/// @param[in] configurationHandle configuration to clean up
 	/// @param[in] trustMode required parameter which trust manager shall be used. Recommended is @c STRICT_TRUST or for fine-granular @c CUSTOM_TRUST.
 	/// @param[in] trustManagerHandle required parameter if the @c trustMode @c CUSTOM_TRUST is provided. Ignored for the other trust modes.
 	///
@@ -147,29 +167,47 @@ extern "C" {
 
 	///
 	/// Set the operating system name in the OpenKit configuration
+	/// @param[in] configurationHandle configuration to clean up
 	/// @param[in] operatingSystem optional parameter, name of the operating system. If @c NULL is provided the default operating system is used.
 	///
 	OPENKIT_EXPORT void useOperatingSystemForConfiguration(struct OpenKitConfigurationHandle* configurationHandle,const char* operatingSystem);
 
 	///
 	/// Set the manufacturer in the OpenKit configuration
+	/// @param[in] configurationHandle configuration to clean up
 	/// @param[in] manufacturer optional parameter, manufacturer of the device. If @c NULL is provided the default manufacturer is used.
 	///
 	OPENKIT_EXPORT void useManufacturerForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, const char* manufacturer);
 
 	///
 	/// Set the model id in the OpenKit configuration
+	/// @param[in] configurationHandle configuration to clean up
 	/// @param[in] modelID optional parameter, model version or id of the device. If @c NULL the default model ID is used.
 	///
 	OPENKIT_EXPORT void useModelIDForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, const char* modelID);
 
 	///
 	/// Set the behavior of the beacon cache in the OpenKit configuration
+	/// @param[in] configurationHandle configuration to clean up
 	/// @param[in] beaconCacheMaxRecordAge optional parameter, maximum age of cache records. A value of -1 will lead to the default value. All positive integers starting with 0 are valid.
 	/// @param[in] beaconCacheLowerMemoryBoundary optional parameter, lower memory boundary for beacon cache. A value of -1 will lead to the default value. All positive integers starting with 0 are valid.
 	/// @param[in] beaconCacheUpperMemoryBoundary optional parameter, upper memory boundary for beacon cache. A value of -1 will lead to the default value. All positive integers starting with 0 are valid.
 	///
 	OPENKIT_EXPORT void useBeaconCacheBehaviorForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary);
+
+	///
+	/// Set the data collection level in the OpenKit configuration
+	/// @param[in] configurationHandle configuration to clean up
+	/// @param[in] dataCollectionLevel optional parameter, default level if USER_BEHAVIOR
+	///
+	OPENKIT_EXPORT void useDataCollectionLevelForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, DataCollectionLevel dataCollectionLevel);
+
+	///
+	/// Set the crash reporting level in the OpenKit configuration
+	/// @param[in] configurationHandle configuration to clean up
+	/// @param[in] crashReportingLevel optional parameter, default behavior is OPT_IN_CRASHES
+	///
+	OPENKIT_EXPORT void useCrashReportingLevelForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, CrashReportingLevel crashReportingLevel);
 
 	//--------------
 	//  OpenKit

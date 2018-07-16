@@ -131,6 +131,8 @@ int32_t main(int32_t argc, char** argv)
 	useOperatingSystemForConfiguration(configurationHandle, "Test OS");
 	useManufacturerForConfiguration(configurationHandle, "Dynatrace");
 	useModelIDForConfiguration(configurationHandle, "Some unavailable model");
+	useDataCollectionLevelForConfiguration(configurationHandle, DATA_COLLECTION_LEVEL_OFF);
+	useCrashReportingLevelForConfiguration(configurationHandle, CRASH_REPORTING_LEVEL_OFF);
 
 	struct OpenKitHandle* openKitHandle = createDynatraceOpenKit(configurationHandle);
 

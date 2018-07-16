@@ -21,6 +21,9 @@
 #include "api-c/CustomLogger.h"
 #include "api-c/CustomTrustManager.h"
 
+#include "openkit/DataCollectionLevel.h"
+#include "openkit/CrashReportingLevel.h"
+
 #include "core/util/DefaultLogger.h"
 #include "protocol/ssl/SSLStrictTrustManager.h"
 #include "protocol/ssl/SSLBlindTrustManager.h"
@@ -215,6 +218,8 @@ extern "C" {
 		int64_t beaconCacheMaxRecordAge;
 		int64_t beaconCacheLowerMemoryBoundary;
 		int64_t beaconCacheUpperMemoryBoundary;
+		DataCollectionLevel dataCollectionLevel;
+		CrashReportingLevel crashReportingLevel;
 	} OpenKitConfigurationHandle ;
 
 	struct OpenKitConfigurationHandle* createOpenKitConfiguration(const char* endpointURL, const char* applicationID, int64_t deviceID)
@@ -240,6 +245,8 @@ extern "C" {
 			handle->beaconCacheMaxRecordAge = -1;
 			handle->beaconCacheLowerMemoryBoundary = -1;
 			handle->beaconCacheUpperMemoryBoundary = -1;
+			handle->dataCollectionLevel = DATA_COLLECTION_LEVEL_USER_BEHAVIOR;
+			handle->crashReportingLevel = CRASH_REPORTING_LEVEL_OPT_IN_CRASHES;
 		}
 		catch (...)
 		{
@@ -340,6 +347,16 @@ extern "C" {
 		{
 			configurationHandle->beaconCacheUpperMemoryBoundary = beaconCacheUpperMemoryBoundary;
 		}
+	}
+
+	void useDataCollectionLevelForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, DataCollectionLevel dataCollectionLevel)
+	{
+		configurationHandle->dataCollectionLevel = dataCollectionLevel;
+	}
+
+	void useCrashReportingLevelForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, CrashReportingLevel crashReportingLevel)
+	{
+		configurationHandle->crashReportingLevel = crashReportingLevel;
 	}
 
 	//--------------
@@ -445,6 +462,16 @@ extern "C" {
 		if (configurationHandle->beaconCacheUpperMemoryBoundary >= 0)
 		{
 			builder.withBeaconCacheUpperMemoryBoundary(configurationHandle->beaconCacheUpperMemoryBoundary);
+		}
+
+		if (configurationHandle->dataCollectionLevel != DATA_COLLECTION_LEVEL_COUNT)
+		{
+			builder.withDataCollectionLevel((openkit::DataCollectionLevel)configurationHandle->dataCollectionLevel);
+		}
+
+		if (configurationHandle->crashReportingLevel != CRASH_REPORTING_LEVEL_COUNT)
+		{
+			builder.withCrashReportingLevel((openkit::CrashReportingLevel)configurationHandle->crashReportingLevel);
 		}
 	}
 
