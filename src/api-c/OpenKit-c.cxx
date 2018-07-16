@@ -351,9 +351,9 @@ extern "C" {
 		std::shared_ptr<openkit::IOpenKit> sharedPointer = nullptr;
 		std::shared_ptr<openkit::ILogger> logger = nullptr;
 		LoggerHandle* loggerHandle = nullptr;
+		bool ownsLoggerHandle = false;
 		TrustManagerHandle* trustManagerHandle = nullptr;
 		bool ownsTrustManagerHandle = false;
-		bool ownsLoggerHandle = false;
 	} OpenKitHandle;
 
 	static TrustManagerHandle* createTrustManagerHandle(LoggerHandle* loggerHandle, TRUST_MODE trustMode, TrustManagerHandle* trustManagerHandle)
@@ -377,6 +377,20 @@ extern "C" {
 		}
 	}
 
+	static LoggerHandle* getLoggerHandle(OpenKitConfigurationHandle* configurationHandle)
+	{
+		if (configurationHandle->loggerHandle == nullptr)
+		{
+			// caller did not provide a logger handle -> fallback to NullLogger
+			struct LoggerHandle* defaultLogger = createDefaultLogger();
+
+			configurationHandle->loggerHandle = defaultLogger;
+			configurationHandle->ownsLoggerHandle = true;
+		}
+
+		return configurationHandle->loggerHandle;
+	}
+
 	static void initializeOpenKitBuilder(openkit::AbstractOpenKitBuilder& builder, struct OpenKitConfigurationHandle* configurationHandle)
 	{
 		// create trust manager handle based on given TRUST_MODE & existing TrustManagerHandle
@@ -387,19 +401,10 @@ extern "C" {
 		configurationHandle->ownsTrustManagerHandle = usedTrustManagerHandle != configurationHandle->trustManagerHandle;
 		configurationHandle->trustManagerHandle = usedTrustManagerHandle;
 
-		if (configurationHandle->loggerHandle != nullptr)
+		LoggerHandle* loggerHandle = getLoggerHandle(configurationHandle);
+		if (loggerHandle != nullptr)
 		{
-			// Instantiate the CustomLogger mapping the log statements to the FunctionPointers
-			builder.withLogger(configurationHandle->loggerHandle->logger);
-		}
-		else
-		{
-			// caller did not provide a logger handle -> fallback to NullLogger
-			struct LoggerHandle* defaultLogger = createDefaultLogger();
-			builder.withLogger(defaultLogger->logger);
-
-			configurationHandle->loggerHandle = defaultLogger;
-			configurationHandle->ownsLoggerHandle = true;
+			builder.withLogger(loggerHandle->logger);
 		}
 
 		if (configurationHandle->trustManagerHandle != nullptr)

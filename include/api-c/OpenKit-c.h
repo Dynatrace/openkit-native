@@ -139,25 +139,26 @@ extern "C" {
 
 	///
 	/// Set the trust mode and trust manager handle in the OpenKit configuration
+	/// Default mode is STRICT_TRUST which does not need a custom handle
 	/// @param[in] trustMode required parameter which trust manager shall be used. Recommended is @c STRICT_TRUST or for fine-granular @c CUSTOM_TRUST.
 	/// @param[in] trustManagerHandle required parameter if the @c trustMode @c CUSTOM_TRUST is provided. Ignored for the other trust modes.
 	///
 	OPENKIT_EXPORT void useTrustModeForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, TRUST_MODE trustMode, struct TrustManagerHandle* trustManagerHandle);
 
 	///
-	/// Set the application name in the OpenKit configuration
+	/// Set the operating system name in the OpenKit configuration
 	/// @param[in] operatingSystem optional parameter, name of the operating system. If @c NULL is provided the default operating system is used.
 	///
 	OPENKIT_EXPORT void useOperatingSystemForConfiguration(struct OpenKitConfigurationHandle* configurationHandle,const char* operatingSystem);
 
 	///
-	/// Set the application name in the OpenKit configuration
+	/// Set the manufacturer in the OpenKit configuration
 	/// @param[in] manufacturer optional parameter, manufacturer of the device. If @c NULL is provided the default manufacturer is used.
 	///
 	OPENKIT_EXPORT void useManufacturerForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, const char* manufacturer);
 
 	///
-	/// Set the application name in the OpenKit configuration
+	/// Set the model id in the OpenKit configuration
 	/// @param[in] modelID optional parameter, model version or id of the device. If @c NULL the default model ID is used.
 	///
 	OPENKIT_EXPORT void useModelIDForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, const char* modelID);
