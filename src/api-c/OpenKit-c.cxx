@@ -60,6 +60,12 @@ extern "C" {
 		/*nop*/																							\
 	}
 
+#define FREE_DUPLICATED_STRING(charPointer)																\
+	if (charPointer != nullptr)																			\
+	{																									\
+		free(charPointer);																				\
+	}
+
 	char* duplicateString(const char* str)
 	{
 		char* stringCopy = nullptr;
@@ -214,19 +220,19 @@ extern "C" {
 
 	typedef struct OpenKitConfigurationHandle
 	{
-		const char* endpointURL = nullptr;
-		const char* applicationID = nullptr;
+		char* endpointURL = nullptr;
+		char* applicationID = nullptr;
 		int64_t deviceID = -1;
-		const char* applicationName = nullptr;
+		char* applicationName = nullptr;
 		LoggerHandle* loggerHandle = nullptr;
 		bool ownsLoggerHandle = false;
-		const char* applicationVersion = nullptr;
+		char* applicationVersion = nullptr;
 		TRUST_MODE trustMode = STRICT_TRUST;
 		TrustManagerHandle* trustManagerHandle = nullptr;
 		bool ownsTrustManagerHandle = false;
-		const char* operatingSystem = nullptr;
-		const char* manufacturer = nullptr;
-		const char* modelID = nullptr;
+		char* operatingSystem = nullptr;
+		char* manufacturer = nullptr;
+		char* modelID = nullptr;
 		int64_t beaconCacheMaxRecordAge = -1;
 		int64_t beaconCacheLowerMemoryBoundary = -1;
 		int64_t beaconCacheUpperMemoryBoundary = -1;
@@ -253,13 +259,7 @@ extern "C" {
 		return handle;
 	}
 
-	void freeDuplicatedString(const char* duplicateString)
-	{
-		if (duplicateString != nullptr)
-		{
-			free((void*)duplicateString);
-		}
-	}
+
 
 	void destroyOpenKitConfiguration(struct OpenKitConfigurationHandle* configurationHandle)
 	{
@@ -270,17 +270,17 @@ extern "C" {
 		}
 
 		//clear string copies allocated with strdup
-		freeDuplicatedString(configurationHandle->endpointURL);
-		freeDuplicatedString(configurationHandle->applicationID);
-		freeDuplicatedString(configurationHandle->applicationName);
-		freeDuplicatedString(configurationHandle->applicationVersion);
-		freeDuplicatedString(configurationHandle->operatingSystem);
-		freeDuplicatedString(configurationHandle->manufacturer);
-		freeDuplicatedString(configurationHandle->modelID);
+		FREE_DUPLICATED_STRING(configurationHandle->endpointURL);
+		FREE_DUPLICATED_STRING(configurationHandle->applicationID);
+		FREE_DUPLICATED_STRING(configurationHandle->applicationName);
+		FREE_DUPLICATED_STRING(configurationHandle->applicationVersion);
+		FREE_DUPLICATED_STRING(configurationHandle->operatingSystem);
+		FREE_DUPLICATED_STRING(configurationHandle->manufacturer);
+		FREE_DUPLICATED_STRING(configurationHandle->modelID);
 
-		// release shared pointer
-		configurationHandle = nullptr;
+		// release configuration object
 		delete configurationHandle;
+		configurationHandle = nullptr;
 	}
 
 	void useLoggerForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, struct LoggerHandle* loggerHandle)
