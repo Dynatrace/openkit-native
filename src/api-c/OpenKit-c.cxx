@@ -21,11 +21,16 @@
 #include "api-c/CustomLogger.h"
 #include "api-c/CustomTrustManager.h"
 
+#include "OpenKit/DataCollectionLevel.h"
+#include "OpenKit/CrashReportingLevel.h"
+
+#include "core/util/DefaultLogger.h"
 #include "protocol/ssl/SSLStrictTrustManager.h"
 #include "protocol/ssl/SSLBlindTrustManager.h"
 
 #include <list>
-#include <assert.h> 
+#include <assert.h>
+#include <string.h>
 
 extern "C" {
 
@@ -49,6 +54,38 @@ extern "C" {
 		}																								\
 	}
 
+#define CATCH_AND_IGNORE_ALL()																			\
+	catch (...)																							\
+	{																									\
+		/*nop*/																							\
+	}
+
+#define FREE_DUPLICATED_STRING(charPointer)																\
+	if (charPointer != nullptr)																			\
+	{																									\
+		free(charPointer);																				\
+	}
+
+	char* duplicateString(const char* str)
+	{
+		char* stringCopy = nullptr;
+		if (str != nullptr)
+		{
+			size_t stringLength = strlen(str);
+			if (stringLength > 0)
+			{
+				stringCopy = (char*)malloc(stringLength + 1);
+#if defined(_WIN32) || defined(WIN32)
+				strcpy_s(stringCopy, stringLength + 1, str);
+#else
+				strncpy(stringCopy, str, stringLength + 1);
+#endif
+			}
+		}
+
+		return stringCopy;
+	}
+
 	//--------------
 	// TrustManager
 	//--------------
@@ -69,10 +106,7 @@ extern "C" {
 			handle = new TrustManagerHandle();
 			handle->trustManager = trustManager;
 		}
-		catch (...)
-		{
-			/* Ignore exception, as we don't have a logger yet */
-		}
+		CATCH_AND_IGNORE_ALL()
 
 		return handle;
 	}
@@ -88,10 +122,7 @@ extern "C" {
 			handle = new TrustManagerHandle();
 			handle->trustManager = trustManager;
 		}
-		catch (...)
-		{
-			/* Ignore exception, as we don't have a logger yet */
-		}
+		CATCH_AND_IGNORE_ALL()
 
 		return handle;
 	}
@@ -107,10 +138,7 @@ extern "C" {
 			handle = new TrustManagerHandle();
 			handle->trustManager = trustManager;
 		}
-		catch (...)
-		{
-			/* Ignore exception, as we don't have a logger yet */
-		}
+		CATCH_AND_IGNORE_ALL()
 
 		return handle;
 	}
@@ -153,10 +181,22 @@ extern "C" {
 			handle = new LoggerHandle();
 			handle->logger = logger;
 		}
-		catch (...)
+		CATCH_AND_IGNORE_ALL()
+
+		return handle;
+	}
+
+	LoggerHandle* createDefaultLogger()
+	{
+		LoggerHandle* handle = nullptr;
+		try
 		{
-			/* Ignore exception, as we don't have a logger yet */
+			auto logger = std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(true));
+			// storing the returned shared pointer in the handle prevents it from going out of scope
+			handle = new LoggerHandle();
+			handle->logger = logger;
 		}
+		CATCH_AND_IGNORE_ALL()
 
 		return handle;
 	}
@@ -174,6 +214,165 @@ extern "C" {
 		delete loggerHandle;
 	}
 
+	//-----------------------
+	//  OpenKit configuration
+	//-----------------------
+
+	typedef struct OpenKitConfigurationHandle
+	{
+		char* endpointURL = nullptr;
+		char* applicationID = nullptr;
+		int64_t deviceID = -1;
+		char* applicationName = nullptr;
+		LoggerHandle* loggerHandle = nullptr;
+		bool ownsLoggerHandle = false;
+		char* applicationVersion = nullptr;
+		TRUST_MODE trustMode = STRICT_TRUST;
+		TrustManagerHandle* trustManagerHandle = nullptr;
+		bool ownsTrustManagerHandle = false;
+		char* operatingSystem = nullptr;
+		char* manufacturer = nullptr;
+		char* modelID = nullptr;
+		int64_t beaconCacheMaxRecordAge = -1;
+		int64_t beaconCacheLowerMemoryBoundary = -1;
+		int64_t beaconCacheUpperMemoryBoundary = -1;
+		DataCollectionLevel dataCollectionLevel = DATA_COLLECTION_LEVEL_USER_BEHAVIOR;
+		CrashReportingLevel crashReportingLevel = CRASH_REPORTING_LEVEL_OPT_IN_CRASHES;
+	} OpenKitConfigurationHandle;
+
+	struct OpenKitConfigurationHandle* createOpenKitConfiguration(const char* endpointURL, const char* applicationID, int64_t deviceID)
+	{
+		OpenKitConfigurationHandle* handle = nullptr;
+		try
+		{
+			// storing the returned shared pointer in the handle prevents it from going out of scope
+			handle = new OpenKitConfigurationHandle();
+			if (handle != nullptr)
+			{
+				handle->endpointURL = duplicateString(endpointURL);
+				handle->applicationID = duplicateString(applicationID);
+				handle->deviceID = deviceID;
+			}
+		}
+		CATCH_AND_IGNORE_ALL()
+
+		return handle;
+	}
+
+
+
+	void destroyOpenKitConfiguration(struct OpenKitConfigurationHandle* configurationHandle)
+	{
+		// Sanity
+		if (configurationHandle == nullptr)
+		{
+			return;
+		}
+
+		//clear string copies allocated with strdup
+		FREE_DUPLICATED_STRING(configurationHandle->endpointURL);
+		FREE_DUPLICATED_STRING(configurationHandle->applicationID);
+		FREE_DUPLICATED_STRING(configurationHandle->applicationName);
+		FREE_DUPLICATED_STRING(configurationHandle->applicationVersion);
+		FREE_DUPLICATED_STRING(configurationHandle->operatingSystem);
+		FREE_DUPLICATED_STRING(configurationHandle->manufacturer);
+		FREE_DUPLICATED_STRING(configurationHandle->modelID);
+
+		// release configuration object
+		delete configurationHandle;
+		configurationHandle = nullptr;
+	}
+
+	void useLoggerForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, struct LoggerHandle* loggerHandle)
+	{
+		if (configurationHandle != nullptr)
+		{
+			configurationHandle->loggerHandle = loggerHandle;
+		}
+	}
+
+	void useApplicationVersionForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, const char* applicationVersion)
+	{
+		//sanity
+		if (configurationHandle != nullptr && applicationVersion != nullptr)
+		{
+			configurationHandle->applicationVersion = duplicateString(applicationVersion);
+		}
+	}
+
+	void useApplicationNameForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, const char* applicationName)
+	{
+		//sanity
+		if (configurationHandle != nullptr && applicationName != nullptr)
+		{
+			configurationHandle->applicationName = duplicateString(applicationName);
+		}
+	}
+
+	void useTrustModeForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, TRUST_MODE trustMode, struct TrustManagerHandle* trustManagerHandle)
+	{
+		//sanity
+		if (configurationHandle != nullptr && trustManagerHandle != nullptr)
+		{
+			configurationHandle->trustMode = trustMode;
+			configurationHandle->trustManagerHandle = trustManagerHandle;
+		}
+	}
+
+	void useOperatingSystemForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, const char* operatingSystem)
+	{
+		//sanity
+		if (configurationHandle != nullptr && operatingSystem != nullptr)
+		{
+			configurationHandle->operatingSystem = duplicateString(operatingSystem);
+		}
+	}
+
+	void useManufacturerForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, const char* manufacturer)
+	{
+		//sanity
+		if (configurationHandle != nullptr && manufacturer != nullptr)
+		{
+			configurationHandle->manufacturer = duplicateString(manufacturer);
+		}
+	}
+
+	void useModelIDForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, const char* modelID)
+	{
+		//sanity
+		if (configurationHandle != nullptr && modelID != nullptr)
+		{
+			configurationHandle->modelID = duplicateString(modelID);
+		}
+	}
+
+	void useBeaconCacheBehaviorForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary)
+	{
+		//sanity
+		if (configurationHandle != nullptr && beaconCacheMaxRecordAge >= 0)
+		{
+			configurationHandle->beaconCacheMaxRecordAge = beaconCacheMaxRecordAge;
+		}
+		if (configurationHandle != nullptr && beaconCacheLowerMemoryBoundary >= 0)
+		{
+			configurationHandle->beaconCacheLowerMemoryBoundary = beaconCacheLowerMemoryBoundary;
+		}
+		if (configurationHandle != nullptr && beaconCacheLowerMemoryBoundary >= 0)
+		{
+			configurationHandle->beaconCacheUpperMemoryBoundary = beaconCacheUpperMemoryBoundary;
+		}
+	}
+
+	void useDataCollectionLevelForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, DataCollectionLevel dataCollectionLevel)
+	{
+		configurationHandle->dataCollectionLevel = dataCollectionLevel;
+	}
+
+	void useCrashReportingLevelForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, CrashReportingLevel crashReportingLevel)
+	{
+		configurationHandle->crashReportingLevel = crashReportingLevel;
+	}
+
 	//--------------
 	//  OpenKit
 	//--------------
@@ -182,61 +381,11 @@ extern "C" {
 	{
 		std::shared_ptr<openkit::IOpenKit> sharedPointer = nullptr;
 		std::shared_ptr<openkit::ILogger> logger = nullptr;
+		LoggerHandle* loggerHandle = nullptr;
+		bool ownsLoggerHandle = false;
 		TrustManagerHandle* trustManagerHandle = nullptr;
 		bool ownsTrustManagerHandle = false;
 	} OpenKitHandle;
-
-
-	static void initializeOpenKitBuilder(openkit::AbstractOpenKitBuilder& builder, LoggerHandle* loggerHandle,
-		const char* applicationVersion, TrustManagerHandle* trustManagerHandle, const char* operatingSystem, const char* manufacturer,
-		const char* modelID, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary)
-	{
-		if (loggerHandle != nullptr)
-		{
-			// Instantiate the CustomLogger mapping the log statements to the FunctionPointers
-			builder.withLogger(loggerHandle->logger);
-		}
-
-		if (trustManagerHandle != nullptr)
-		{
-			builder.withTrustManager(trustManagerHandle->trustManager);
-		}
-
-		if (applicationVersion != nullptr)
-		{
-			builder.withApplicationVersion(applicationVersion);
-		}
-
-		if (operatingSystem != nullptr)
-		{
-			builder.withOperatingSystem(operatingSystem);
-		}
-
-		if (manufacturer != nullptr)
-		{
-			builder.withManufacturer(manufacturer);
-		}
-
-		if (modelID != nullptr)
-		{
-			builder.withModelID(modelID);
-		}
-
-		if (beaconCacheMaxRecordAge >= 0)
-		{
-			builder.withBeaconCacheMaxRecordAge(beaconCacheMaxRecordAge);
-		}
-
-		if (beaconCacheLowerMemoryBoundary >= 0)
-		{
-			builder.withBeaconCacheLowerMemoryBoundary(beaconCacheLowerMemoryBoundary);
-		}
-
-		if (beaconCacheUpperMemoryBoundary >= 0)
-		{
-			builder.withBeaconCacheUpperMemoryBoundary(beaconCacheUpperMemoryBoundary);
-		}
-	}
 
 	static TrustManagerHandle* createTrustManagerHandle(LoggerHandle* loggerHandle, TRUST_MODE trustMode, TrustManagerHandle* trustManagerHandle)
 	{
@@ -259,80 +408,135 @@ extern "C" {
 		}
 	}
 
-	static OpenKitHandle* createOpenKitHandle(LoggerHandle* loggerHandle,
-		TrustManagerHandle* trustManagerHandle,
-		bool ownsTrustManagerHandle,
-		std::shared_ptr<openkit::IOpenKit> openKit)
+	static LoggerHandle* getLoggerHandle(OpenKitConfigurationHandle* configurationHandle)
+	{
+		if (configurationHandle->loggerHandle == nullptr)
+		{
+			// caller did not provide a logger handle -> fallback to NullLogger
+			struct LoggerHandle* defaultLogger = createDefaultLogger();
+
+			configurationHandle->loggerHandle = defaultLogger;
+			configurationHandle->ownsLoggerHandle = true;
+		}
+
+		return configurationHandle->loggerHandle;
+	}
+
+	static void initializeOpenKitBuilder(openkit::AbstractOpenKitBuilder& builder, struct OpenKitConfigurationHandle* configurationHandle)
+	{
+		// create trust manager handle based on given TRUST_MODE & existing TrustManagerHandle
+		// the result might either be a completly newly created TrustManagerHandle* or
+		// a pointer pointing to the same struct as given trustManagerHandle.
+		// In case the ptr is newly created the shutdownOpenKit is responsible for destroying it.
+		TrustManagerHandle* usedTrustManagerHandle = createTrustManagerHandle(configurationHandle->loggerHandle, configurationHandle->trustMode, configurationHandle->trustManagerHandle);
+		configurationHandle->ownsTrustManagerHandle = usedTrustManagerHandle != configurationHandle->trustManagerHandle;
+		configurationHandle->trustManagerHandle = usedTrustManagerHandle;
+
+		LoggerHandle* loggerHandle = getLoggerHandle(configurationHandle);
+		if (loggerHandle != nullptr)
+		{
+			builder.withLogger(loggerHandle->logger);
+		}
+
+		if (configurationHandle->trustManagerHandle != nullptr)
+		{
+			builder.withTrustManager(usedTrustManagerHandle->trustManager);
+		}
+
+		if (configurationHandle->applicationVersion != nullptr)
+		{
+			builder.withApplicationVersion(configurationHandle->applicationVersion);
+		}
+
+		if (configurationHandle->operatingSystem != nullptr)
+		{
+			builder.withOperatingSystem(configurationHandle->operatingSystem);
+		}
+
+		if (configurationHandle->manufacturer != nullptr)
+		{
+			builder.withManufacturer(configurationHandle->manufacturer);
+		}
+
+		if (configurationHandle->modelID != nullptr)
+		{
+			builder.withModelID(configurationHandle->modelID);
+		}
+
+		if (configurationHandle->beaconCacheMaxRecordAge >= 0)
+		{
+			builder.withBeaconCacheMaxRecordAge(configurationHandle->beaconCacheMaxRecordAge);
+		}
+
+		if (configurationHandle->beaconCacheLowerMemoryBoundary >= 0)
+		{
+			builder.withBeaconCacheLowerMemoryBoundary(configurationHandle->beaconCacheLowerMemoryBoundary);
+		}
+
+		if (configurationHandle->beaconCacheUpperMemoryBoundary >= 0)
+		{
+			builder.withBeaconCacheUpperMemoryBoundary(configurationHandle->beaconCacheUpperMemoryBoundary);
+		}
+
+		if (configurationHandle->dataCollectionLevel < DATA_COLLECTION_LEVEL_COUNT)
+		{
+			builder.withDataCollectionLevel((openkit::DataCollectionLevel)configurationHandle->dataCollectionLevel);
+		}
+
+		if (configurationHandle->crashReportingLevel < CRASH_REPORTING_LEVEL_COUNT)
+		{
+			builder.withCrashReportingLevel((openkit::CrashReportingLevel)configurationHandle->crashReportingLevel);
+		}
+	}
+
+	static OpenKitHandle* createOpenKitHandle(struct OpenKitConfigurationHandle* configurationHandle, std::shared_ptr<openkit::IOpenKit> openKit)
 	{
 		// storing the returned shared pointer in the handle prevents it from going out of scope
 		OpenKitHandle* handle = new OpenKitHandle();
 		handle->sharedPointer = openKit;
-		handle->logger = loggerHandle->logger;
-		handle->trustManagerHandle = trustManagerHandle;
-		handle->ownsTrustManagerHandle = ownsTrustManagerHandle;
+		handle->logger = configurationHandle->loggerHandle->logger;
+		handle->loggerHandle = configurationHandle->loggerHandle;
+		handle->ownsLoggerHandle = configurationHandle->ownsLoggerHandle;
+		handle->trustManagerHandle = configurationHandle->trustManagerHandle;
+		handle->ownsTrustManagerHandle = configurationHandle->ownsTrustManagerHandle;
 
 		return handle;
 	}
 
-	OpenKitHandle* createDynatraceOpenKit(const char* endpointURL, const char* applicationID, int64_t deviceID, LoggerHandle* loggerHandle,
-		const char* applicationVersion, const char* applicationName, TRUST_MODE trustMode, TrustManagerHandle* trustManagerHandle, const char* operatingSystem, const char* manufacturer,
-		const char* modelID, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary)
+	OpenKitHandle* createDynatraceOpenKit(struct OpenKitConfigurationHandle* configurationHandle)
 	{
 		OpenKitHandle* handle = nullptr;
 		TRY
 		{
-			openkit::DynatraceOpenKitBuilder builder(endpointURL, applicationID, deviceID);
-			if (applicationName != nullptr)
+			openkit::DynatraceOpenKitBuilder builder(configurationHandle->endpointURL, configurationHandle->applicationID, configurationHandle->deviceID);
+			if (configurationHandle->applicationName != nullptr)
 			{
-				builder.withApplicationName(applicationName);
+				builder.withApplicationName(configurationHandle->applicationName);
 			}
 
-			// create trust manager handle based on given TRUST_MODE & existing TrustManagerHandle
-			// the result might either be a completly newly created TrustManagerHandle* or
-			// a pointer pointing to the same struct as given trustManagerHandle.
-			// In case the ptr is newly created the shutdownOpenKit is responsible for destroying it.
-			TrustManagerHandle* usedTrustManagerHandle = createTrustManagerHandle(loggerHandle, trustMode, trustManagerHandle);
-
 			// initialize the abstract builder
-			initializeOpenKitBuilder(builder, loggerHandle,
-				applicationVersion,
-				usedTrustManagerHandle,
-				operatingSystem, manufacturer,
-				modelID, beaconCacheMaxRecordAge, beaconCacheLowerMemoryBoundary, beaconCacheUpperMemoryBoundary);
+			initializeOpenKitBuilder(builder, configurationHandle);
 
-			return createOpenKitHandle(loggerHandle, usedTrustManagerHandle, usedTrustManagerHandle != trustManagerHandle, builder.build());
+			return createOpenKitHandle(configurationHandle, builder.build());
 		}
-		CATCH_AND_LOG(loggerHandle)
+		CATCH_AND_LOG(configurationHandle->loggerHandle)
 
 		return handle;
 	}
 
-	OpenKitHandle* createAppMonOpenKit(const char* endpointURL, const char* applicationName, int64_t deviceID, LoggerHandle* loggerHandle,
-		const char* applicationVersion, TRUST_MODE trustMode, TrustManagerHandle* trustManagerHandle, const char* operatingSystem, const char* manufacturer,
-		const char* modelID, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary)
+	OpenKitHandle* createAppMonOpenKit(struct OpenKitConfigurationHandle* configurationHandle)
 	{
 		OpenKitHandle* handle = nullptr;
 		TRY
 		{
-			openkit::AppMonOpenKitBuilder builder(endpointURL, applicationName, deviceID);
-
-			// create trust manager handle based on given TRUST_MODE & existing TrustManagerHandle
-			// the result might either be a completly newly created TrustManagerHandle* or
-			// a pointer pointing to the same struct as given trustManagerHandle.
-			// In case the ptr is newly created the shutdownOpenKit is responsible for destroying it.
-			TrustManagerHandle* usedTrustManagerHandle = createTrustManagerHandle(loggerHandle, trustMode, trustManagerHandle);
+			openkit::AppMonOpenKitBuilder builder(configurationHandle->endpointURL, configurationHandle->applicationName, configurationHandle->deviceID);
 
 			// initialize the abstract builder
-			initializeOpenKitBuilder(builder, loggerHandle,
-				applicationVersion,
-				usedTrustManagerHandle,
-				operatingSystem, manufacturer,
-				modelID, beaconCacheMaxRecordAge, beaconCacheLowerMemoryBoundary, beaconCacheUpperMemoryBoundary);
+			initializeOpenKitBuilder(builder, configurationHandle);
 
-
-			return createOpenKitHandle(loggerHandle, usedTrustManagerHandle, usedTrustManagerHandle != trustManagerHandle, builder.build());
+			return createOpenKitHandle(configurationHandle, builder.build());
 		}
-		CATCH_AND_LOG(loggerHandle)
+		CATCH_AND_LOG(configurationHandle->loggerHandle)
 
 		return handle;
 	}
@@ -359,6 +563,12 @@ extern "C" {
 				destroyTrustManager(openKitHandle->trustManagerHandle);
 				openKitHandle->trustManagerHandle = nullptr;
 			}
+			if (openKitHandle->ownsLoggerHandle && openKitHandle->loggerHandle != nullptr)
+			{
+				destroyLogger(openKitHandle->loggerHandle);
+				openKitHandle->loggerHandle = nullptr;
+			}
+
 			delete openKitHandle;
 		}
 		CATCH_AND_LOG(openKitHandle)

@@ -122,8 +122,21 @@ int32_t main(int32_t argc, char** argv)
 
 	struct LoggerHandle* loggerHandle = createLogger(&levelEnabledFunction, &logFunction);
 
-	struct OpenKitHandle* openKitHandle = createDynatraceOpenKit(beaconURL, applicationID, serverID, loggerHandle, "v0.1.x", "My TestApp", STRICT_TRUST, NULL, "Test OS",
-		"Dynatrace", "Some unavailable model", -1, -1, -1);
+	struct OpenKitConfigurationHandle* configurationHandle = createOpenKitConfiguration(beaconURL, applicationID, serverID);
+
+	useLoggerForConfiguration(configurationHandle, loggerHandle);
+	useApplicationVersionForConfiguration(configurationHandle, "v0.1.x");
+	useApplicationNameForConfiguration(configurationHandle, "My TestApp");
+	useTrustModeForConfiguration(configurationHandle, STRICT_TRUST, NULL);
+	useOperatingSystemForConfiguration(configurationHandle, "Test OS");
+	useManufacturerForConfiguration(configurationHandle, "Dynatrace");
+	useModelIDForConfiguration(configurationHandle, "Some unavailable model");
+	useDataCollectionLevelForConfiguration(configurationHandle, DATA_COLLECTION_LEVEL_OFF);
+	useCrashReportingLevelForConfiguration(configurationHandle, CRASH_REPORTING_LEVEL_OFF);
+
+	struct OpenKitHandle* openKitHandle = createDynatraceOpenKit(configurationHandle);
+	destroyOpenKitConfiguration(configurationHandle);
+
 	waitForInitCompletionWithTimeout(openKitHandle, 20000);
 
 	if (isInitialized(openKitHandle))
@@ -165,7 +178,6 @@ int32_t main(int32_t argc, char** argv)
 		endSession(sessionHandle);
 	}
 	shutdownOpenKit(openKitHandle);
-
 	destroyLogger(loggerHandle);
 
 	return 0;
