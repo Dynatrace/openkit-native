@@ -135,6 +135,7 @@ int32_t main(int32_t argc, char** argv)
 	useCrashReportingLevelForConfiguration(configurationHandle, CRASH_REPORTING_LEVEL_OFF);
 
 	struct OpenKitHandle* openKitHandle = createDynatraceOpenKit(configurationHandle);
+	destroyOpenKitConfiguration(configurationHandle);
 
 	waitForInitCompletionWithTimeout(openKitHandle, 20000);
 
@@ -178,7 +179,6 @@ int32_t main(int32_t argc, char** argv)
 	}
 	shutdownOpenKit(openKitHandle);
 	destroyLogger(loggerHandle);
-	destroyOpenKitConfiguration(configurationHandle);
 
 	return 0;
 }
