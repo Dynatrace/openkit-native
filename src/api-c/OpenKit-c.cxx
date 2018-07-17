@@ -253,6 +253,14 @@ extern "C" {
 		return handle;
 	}
 
+	void freeDuplicatedString(const char* duplicateString)
+	{
+		if (duplicateString != nullptr)
+		{
+			free((void*)duplicateString);
+		}
+	}
+
 	void destroyOpenKitConfiguration(struct OpenKitConfigurationHandle* configurationHandle)
 	{
 		// Sanity
@@ -262,34 +270,13 @@ extern "C" {
 		}
 
 		//clear string copies allocated with strdup
-		if (configurationHandle->endpointURL != nullptr)
-		{
-			delete configurationHandle->endpointURL;
-		}
-		if (configurationHandle->applicationID != nullptr)
-		{
-			delete configurationHandle->applicationID;
-		}
-		if (configurationHandle->applicationName != nullptr)
-		{
-			delete configurationHandle->applicationName;
-		}
-		if (configurationHandle->applicationVersion != nullptr)
-		{
-			delete configurationHandle->applicationVersion;
-		}
-		if (configurationHandle->operatingSystem != nullptr)
-		{
-			delete configurationHandle->operatingSystem;
-		}
-		if (configurationHandle->manufacturer != nullptr)
-		{
-			delete configurationHandle->manufacturer;
-		}
-		if (configurationHandle->modelID != nullptr)
-		{
-			delete configurationHandle->modelID;
-		}
+		freeDuplicatedString(configurationHandle->endpointURL);
+		freeDuplicatedString(configurationHandle->applicationID);
+		freeDuplicatedString(configurationHandle->applicationName);
+		freeDuplicatedString(configurationHandle->applicationVersion);
+		freeDuplicatedString(configurationHandle->operatingSystem);
+		freeDuplicatedString(configurationHandle->manufacturer);
+		freeDuplicatedString(configurationHandle->modelID);
 
 		// release shared pointer
 		configurationHandle = nullptr;
