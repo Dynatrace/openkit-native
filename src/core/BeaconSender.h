@@ -47,6 +47,7 @@ namespace core
 			std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
 			std::shared_ptr<providers::ITimingProvider> timingProvider);
 
+
 		virtual ~BeaconSender() {}
 
 		///
@@ -109,6 +110,9 @@ namespace core
 
 		/// flag used as trigger for shutdown of the thread
 		std::atomic<bool> mShutdownTrigger;
+
+		/// timing provider for shutdown timeout
+		std::shared_ptr<providers::ITimingProvider> mTimingProvider;
 	};
 }
 #endif

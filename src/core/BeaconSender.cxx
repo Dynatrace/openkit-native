@@ -26,7 +26,8 @@ using namespace core;
 using namespace communication;
 using namespace providers;
 
-constexpr std::chrono::seconds SHUTDOWN_TIMEOUT = std::chrono::seconds(10);
+constexpr int32_t SHUTDOWN_TIMEOUT = 10 * 1000;
+constexpr int32_t SHUTDOWN_SLICED_WAIT_TIME = 100;
 
 BeaconSender::BeaconSender(std::shared_ptr<openkit::ILogger> logger,
 						   std::shared_ptr<configuration::Configuration> configuration,
@@ -36,6 +37,7 @@ BeaconSender::BeaconSender(std::shared_ptr<openkit::ILogger> logger,
 	, mBeaconSendingContext(std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(logger, httpClientProvider, timingProvider, configuration)))
 	, mSendingThread()
 	, mShutdownTrigger(false)
+	, mTimingProvider(timingProvider)
 {
 
 }
@@ -58,8 +60,6 @@ bool BeaconSender::initialize()
 		{
 			mLogger->debug("BeaconSender thread stopped");
 		}
-
-		std::this_thread::sleep_for(std::chrono::seconds(15));
 
 		return mBeaconSendingContext->isShutdownRequested();
 	});
@@ -90,25 +90,23 @@ void BeaconSender::shutdown()
 	}
 
 	mBeaconSendingContext->requestShutdown();
+	mShutdownTrigger = true;
 
-	auto start = std::chrono::system_clock::now();
-	auto current = std::chrono::system_clock::now();
-	auto timeOutInMilliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(SHUTDOWN_TIMEOUT).count();
-	auto offsetFromStart = (current - start).count();
-	while ( offsetFromStart < timeOutInMilliseconds)
+	auto start = mTimingProvider->provideTimestampInMilliseconds();
+	int64_t timePassed = 0;
+	while (timePassed < SHUTDOWN_TIMEOUT)
 	{
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-		auto threadStatus = mSendingThread.wait_for(std::chrono::milliseconds(0));
+		//sleep in slices of 100ms
+		auto threadStatus = mSendingThread.wait_for(std::chrono::milliseconds(SHUTDOWN_SLICED_WAIT_TIME));
 		if (threadStatus == std::future_status::ready)
 		{
-			break;//thread finished
+			return;//thread finished before tinout happened
 		}
-		current = std::chrono::system_clock::now();
-		auto offsetFromStart = (current - start).count();
+		timePassed = mTimingProvider->provideTimestampInMilliseconds() - start;
 	}
 
-	mShutdownTrigger = true;
+	// if the thread is still running get rid of it
+	mSendingThread._Abandon();
 }
 
 void BeaconSender::startSession(std::shared_ptr<Session> session)
