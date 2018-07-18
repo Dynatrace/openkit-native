@@ -23,6 +23,9 @@
 
 namespace caching
 {
+	///
+	/// Class for a record in the @ref caching::BeaconCache
+	///
 	class BeaconCacheRecord
 	{
 	public:

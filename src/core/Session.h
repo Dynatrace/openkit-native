@@ -30,8 +30,8 @@
 #include "UTF8String.h"
 #include "util/SynchronizedQueue.h"
 #include "providers/IHTTPClientProvider.h"
-
 #include "providers/IHTTPClientProvider.h"
+#include "configuration/BeaconConfiguration.h"
 
 #include <memory>
 #include <atomic>
@@ -58,7 +58,7 @@ namespace core
 		/// Constructor
 		/// @param[in] logger to write traces to
 		/// @param[in] beaconSender beacon sender
-		/// @param]in] beacon beacon used for serialization
+		/// @param[in] beacon beacon used for serialization
 		///
 		Session(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<BeaconSender> beaconSender, std::shared_ptr<protocol::Beacon> beacon);
 			
@@ -121,6 +121,18 @@ namespace core
 		/// @returns @c true if session was already ended, @c false if session is still open
 		///
 		bool isSessionEnded() const;
+
+		///
+		/// Sets the beacon configuration
+		/// @param[in] beaconConfiguration the beacon configuration to apply to the Beacon
+		///
+		virtual void setBeaconConfiguration(std::shared_ptr<configuration::BeaconConfiguration> beaconConfiguration);
+
+		///
+		/// Returns the beacon configuration
+		/// @returns the beacon configuration
+		///
+		virtual std::shared_ptr<configuration::BeaconConfiguration> getBeaconConfiguration() const;
 
 	private:
 		///

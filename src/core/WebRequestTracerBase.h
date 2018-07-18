@@ -37,18 +37,17 @@ namespace protocol
 namespace core
 {
 	///
-	/// This class is returned as Action by @ref OpenKit#createSession(String) when the @ref OpenKit#shutdown()
-	/// has been called before.
+	/// Base class for WebRequest tracers.
 	///
 	class WebRequestTracerBase : public openkit::IWebRequestTracer, public std::enable_shared_from_this<WebRequestTracerBase>
 	{
 	public:
 
 		///
-		/// Constructor taking an Action
+		/// Constructor taking an @ref core::Action
 		/// @param[in] logger to write traces to
-		/// @param[in] beacon @ref Beacon used to serialize the WebRequestTracer
-		/// @param[in] parentActionId id of the parent of the WebRequestTracer
+		/// @param[in] beacon @ref protocol::Beacon used to serialize the @ref WebRequestTracerBase
+		/// @param[in] parentActionID id of the parent of the WebRequestTracer
 		///
 		WebRequestTracerBase(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<protocol::Beacon> beacon, int32_t parentActionID);
 
@@ -129,10 +128,10 @@ namespace core
 		/// Logger to write traces to
 		std::shared_ptr<openkit::ILogger> mLogger;
 
-		/// @ref Beacon used to serialize the WebRequestTracer
+		/// @ref protocol::Beacon used to serialize the WebRequestTracer
 		std::shared_ptr<protocol::Beacon> mBeacon;
 
-		/// ID of the @ref Action or @ref RootAction which is the parent of the WebRequestTracer
+		/// ID of the @ref core::Action or @ref core::RootAction which is the parent of the WebRequestTracer
 		int32_t mParentActionID;
 
 		/// Response code of the the web request

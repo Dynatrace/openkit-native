@@ -36,8 +36,10 @@ std::shared_ptr<openkit::IOpenKit> openKit = DynatraceOpenKitBuilder(endpointURL
   application's id can be found in the settings page of the custom application in Dynatrace.
 * The `deviceID` is a unique identifier, which might be used to uniquely identify a device.
 
-When using the OpenKit C API the three parameters described above are also mandatory.
-All further parameters to the function are optional and are described in the Optional Configuration.
+When using the OpenKit C API the three parameters described above are used to create an `OpenKitConfiguration` handle.
+The DynatraceOpenKit is built using this handle. All parameters described in the Optional Configuration
+can be applied to the configuration. The OpenKitConfiguration handle is owned by the caller and needs to be cleared after
+creating the DyntraceOpenKit.
 
 ```c
 // C API
@@ -45,20 +47,15 @@ const char* applicationID = "application-id";
 int64_t deviceID = 42;
 const char* endpointURL = "https://tenantid.beaconurl.com/mbeacon";
 
-struct OpenKitHandle* openKit = createDynatraceOpenKit(endpointURL, applicationID, deviceID,
-                                                       NULL, // struct LoggerHandle* logger
-                                                       NULL, // const char* applicationVersion
-                                                       NULL, // struct TrustManagerHandle* trustManagerHandle
-                                                       NULL, // const char* operatingSystem
-                                                       NULL, // const char* manufacturer
-                                                       NULL, // const char* modelID
-                                                       -1,   // int64_t beaconCacheMaxRecordAge
-                                                       -1,   // int64_t beaconCacheLowerMemoryBoundary
-                                                       -1    // int64_t beaconCacheUpperMemoryBoundary
-                                                       );
+struct OpenKitConfigurationHandle* configurationHandle = createOpenKitConfiguration(beaconURL, applicationID, serverID);
+
+struct OpenKitHandle* openKitHandle = createDynatraceOpenKit(configurationHandle);
+destroyOpenKitConfiguration(configurationHandle);
+
 ```
 
 :grey_exclamation: For Dynatrace Managed the endpoint URL looks a bit different.
+
 
 ### AppMon
 
@@ -76,8 +73,10 @@ std::shared_ptr<openkit::IOpenKit> openKit = AppMonOpenKitBuilder(endpointURL, a
 * The `applicationName` parameter is the application's name in AppMon and is also used as the application's id.
 * The `deviceID` is a unique identifier, which might be used to uniquely identify a device.
 
-When using the OpenKit C API the three parameters described above are also mandatory.
-All further parameters to the function are optional and are described in the Optional Configuration.
+When using the OpenKit C API the three parameters described above are used to create an `OpenKitConfiguration` handle.
+The AppMonOpenKit is built using this handle. All parameters described in the Optional Configuration
+can be applied to the configuration object.  The OpenKitConfiguration handle is owned by the caller and needs to be cleared after
+creating the AppMonOpenKit.
 
 ```c
 // C API
@@ -85,17 +84,11 @@ const char* applicationID = "application-id";
 int64_t deviceID = 42;
 const char* endpointURL = "https://tenantid.beaconurl.com/mbeacon";
 
-struct OpenKitHandle* openKit = createAppMonOpenKit(endpointURL, applicationID, deviceID,
-                                                    NULL, // struct LoggerHandle* logger
-                                                    NULL, // const char* applicationVersion
-                                                    NULL, // struct TrustManagerHandle* trustManagerHandle
-                                                    NULL, // const char* operatingSystem
-                                                    NULL, // const char* manufacturer
-                                                    NULL, // const char* modelID
-                                                    -1,   // int64_t beaconCacheMaxRecordAge
-                                                    -1,   // int64_t beaconCacheLowerMemoryBoundary
-                                                    -1    // int64_t beaconCacheUpperMemoryBoundary
-                                                    );
+struct OpenKitConfigurationHandle* configurationHandle = createOpenKitConfiguration(beaconURL, applicationID, serverID);
+
+struct OpenKitHandle* openKitHandle = createAppMonOpenKit(configurationHandle);
+destroyOpenKitConfiguration(configurationHandle);
+
 ```
 
 ### Optional Configuration
@@ -113,20 +106,24 @@ This includes device specific information like operating system, manufacturer, o
 | `withBeaconCacheMaxRecordAge`  | sets the maximum age of an entry in the beacon cache in milliseconds | 1 h 45 min |
 | `withBeaconCacheLowerMemoryBoundary`  | sets the lower memory boundary of the beacon cache in bytes  | 100 MB |
 | `withBeaconCacheUpperMemoryBoundary`  |  sets the upper memory boundary of the beacon cache in bytes | 80 MB |
+| `withDataCollectionLevel` | sets the data collection level (enum DataCollectionLevel) | USER_BEHAVIOR |
+| `withCrashReportingLevel` | sets the crash reporting level (enum CrashReportingLevel) | OPT_IN_CRASHES |
 | `enableVerbose`  | enables extended log output for OpenKit if the default logger is used  | `false` |
 
-When using the OpenKit C API, additional configuration can be passed as parameters to the
-`createDynatraceOpenKit` or `createAppMonOpenKit` functions.  
+When using the OpenKit C API, additional configuration can applied to the configuration created with the
+'createOpenKitConfiguration' function.
 
 | Parameter Name | Description | Default Value |
 | ------------- | ------------- | ---------- |
-| `applicationVersion`  | sets the application version  | `"1.0.0"` is used when argument is `NULL` |
-| `operatingSystem`  | sets the operating system name | `"OpenKit 1.0.0"` is used when argument is `NULL` |
-| `manufacturer`  | sets the manufacturer | `"Dynatrace"` is used when argument is `NULL` |
-| `modelID`  | sets the model id  | `"OpenKitDevice"` is used when argument is `NULL` |
-| `beaconCacheMaxRecordAge`  | sets the maximum age of an entry in the beacon cache in milliseconds | 1 h 45 min when argument is less than 0 |
-| `beaconCacheLowerMemoryBoundary`  | sets the lower memory boundary of the beacon cache in bytes  | 100 MB when argument is less than 0 |
-| `beaconCacheUpperMemoryBoundary`  |  sets the upper memory boundary of the beacon cache in bytes | 80 MB when argument is less than 0 |
+| `useApplicationVersionForConfiguration`  | sets the application version  | `"1.0.0"` is used when argument is `NULL` |
+| `useOperatingSystemForConfiguration`  | sets the operating system name | `"OpenKit 1.0.0"` is used when argument is `NULL` |
+| `useManufacturerForConfiguration`  | sets the manufacturer | `"Dynatrace"` is used when argument is `NULL` |
+| `useModelIDForConfiguration`  | sets the model id  | `"OpenKitDevice"` is used when argument is `NULL` |
+| `useBeaconCacheMaxRecordAgeForConfiguration`  | sets the maximum age of an entry in the beacon cache in milliseconds | 1 h 45 min when argument is less than 0 |
+| `useBeaconCacheLowerMemoryBoundaryForConfiguration`  | sets the lower memory boundary of the beacon cache in bytes  | 100 MB when argument is less than 0 |
+| `useBeaconCacheUpperMemoryBoundaryForConfiguration`  |  sets the upper memory boundary of the beacon cache in bytes | 80 MB when argument is less than 0 |
+| `useDataCollectionLevelForConfiguration` | sets the data collection level (enum DataCollectionLevel) | USER_BEHAVIOR |
+| `useCrashReportingLevelForConfiguration` | sets the crash reporting level (enum CrashReportingLevel) | OPT_IN_CRASHES |
 
 When passing a non-NULL `logger`, custom logging can be enabled. Further information is described in Logger.
 When passing a non-NULL `trustManagerHandle`, custom SSL/TLS certificate verification can be enabled.

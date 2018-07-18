@@ -31,14 +31,14 @@ extern "C" {
 	//  Logger
 	//--------------
 
-	/*
-	Note:
-	The OpenKit comes with a default logger printing trace statements to stdout. 
-	This default logger can be replaced with a user provided logger. To achieve this,
-	the OpenKit user must call @ref createLogger and provide two function pointers:
-	One funtion pointer to a check function if the provided log level is enabled and
-	another function pointer to the actual log function performing the log writing.
-	*/
+	//
+	// Note:
+	// The OpenKit comes with a default logger printing trace statements to stdout. 
+	// This default logger can be replaced with a user provided logger. To achieve this,
+	// the OpenKit user must call @ref createLogger and provide two function pointers:
+	// One funtion pointer to a check function if the provided log level is enabled and
+	// another function pointer to the actual log function performing the log writing.
+	//
 
 	typedef enum LOG_LEVEL
 	{
@@ -80,9 +80,9 @@ extern "C" {
 
 	typedef enum TRUST_MODE
 	{
-		STRICT_TRUST = 0,	///< Use the @ref SSLStrictTrustManager, trusting only valid certificates
-		BLIND_TRUST  = 1,	///< Use the @ref SSLBlindTrustManager, blindly trusting every certificate and every host (not recommended!)
-		CUSTOM_TRUST = 2	///< Use the @ref CustomTrustManager, which is provided via the @c trustManagerHandle returned from @ref createCustomTrustManager
+		STRICT_TRUST = 0,	///< Use the @ref protocol::SSLStrictTrustManager, trusting only valid certificates
+		BLIND_TRUST  = 1,	///< Use the @ref protocol::SSLBlindTrustManager, blindly trusting every certificate and every host (not recommended!)
+		CUSTOM_TRUST = 2	///< Use the @ref apic::CustomTrustManager, which is provided via the @c trustManagerHandle returned from @ref createCustomTrustManager
 	} TRUST_MODE;
 
 	/// Function to apply the trust manager configuration on the passed CURL handle
@@ -98,6 +98,118 @@ extern "C" {
 	OPENKIT_EXPORT void destroyTrustManager(struct TrustManagerHandle* trustManagerHandle);
 	
 	//--------------
+	//  Configuration
+	//--------------
+
+	typedef enum DataCollectionLevel
+	{
+		DATA_COLLECTION_LEVEL_OFF = 0,
+		DATA_COLLECTION_LEVEL_PERFORMANCE = 1,
+		DATA_COLLECTION_LEVEL_USER_BEHAVIOR = 2,
+		DATA_COLLECTION_LEVEL_COUNT
+	} DataCollectionLevel;
+
+	typedef enum CrashReportingLevel
+	{
+		CRASH_REPORTING_LEVEL_OFF = 0,
+		CRASH_REPORTING_LEVEL_OPT_OUT_CRASHES = 1,
+		CRASH_REPORTING_LEVEL_OPT_IN_CRASHES = 2,
+		CRASH_REPORTING_LEVEL_COUNT
+	} CrashReportingLevel;
+
+	/// an opaque type that we'll use as a handle
+	struct OpenKitConfigurationHandle;
+
+	///
+	/// Creates an OpenKit configuration object
+	/// @param[in] endpointURL endpoint OpenKit connects to
+	/// @param[in] applicationID unique application id
+	/// @param[in] deviceID unique device id
+	/// @returns a configuration object that can be used for both AppMon and Dynatrace OpenKit instances
+	///
+	OPENKIT_EXPORT struct OpenKitConfigurationHandle* createOpenKitConfiguration(const char* endpointURL, const char* applicationID, int64_t deviceID);
+
+	///
+	/// Destroys a given configuration
+	/// @param[in] configurationHandle configuration handle to clean up
+	///
+	OPENKIT_EXPORT void destroyOpenKitConfiguration(struct OpenKitConfigurationHandle* configurationHandle);
+
+	///
+	/// Set the logger handle in the OpenKit configuration
+	/// @param[in] configurationHandle configuration storing the given parameter
+	/// @param[in] loggerHandle optional parameter to provide a logger that shall be used. If @c NULL is provided the DefaultLogger is used.
+	///
+	OPENKIT_EXPORT void useLoggerForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, struct LoggerHandle* loggerHandle);
+
+	///
+	/// Set the application version in the OpenKit configuration
+	/// @param[in] configurationHandle configuration storing the given parameter
+	/// @param[in] applicationVersion optional parameter, the application version. If @c NULL is provided the default application version is used.
+	///
+	OPENKIT_EXPORT void useApplicationVersionForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, const char* applicationVersion);
+
+	///
+	/// Set the application name in the OpenKit configuration
+	/// @param[in] configurationHandle configuration storing the given parameter
+	/// @param[in] applicationName optional name for the application. If @c NULL is provided the application name is an empty string.
+	///
+	OPENKIT_EXPORT void useApplicationNameForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, const char* applicationName);
+
+	///
+	/// Set the trust mode and trust manager handle in the OpenKit configuration
+	/// Default mode is STRICT_TRUST which does not need a custom handle
+	/// @param[in] configurationHandle configuration storing the given parameter
+	/// @param[in] trustMode required parameter which trust manager shall be used. Recommended is @c STRICT_TRUST or for fine-granular @c CUSTOM_TRUST.
+	/// @param[in] trustManagerHandle required parameter if the @c trustMode @c CUSTOM_TRUST is provided. Ignored for the other trust modes.
+	///
+	OPENKIT_EXPORT void useTrustModeForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, TRUST_MODE trustMode, struct TrustManagerHandle* trustManagerHandle);
+
+	///
+	/// Set the operating system name in the OpenKit configuration
+	/// @param[in] configurationHandle configuration storing the given parameter
+	/// @param[in] operatingSystem optional parameter, name of the operating system. If @c NULL is provided the default operating system is used.
+	///
+	OPENKIT_EXPORT void useOperatingSystemForConfiguration(struct OpenKitConfigurationHandle* configurationHandle,const char* operatingSystem);
+
+	///
+	/// Set the manufacturer in the OpenKit configuration
+	/// @param[in] configurationHandle configuration storing the given parameter
+	/// @param[in] manufacturer optional parameter, manufacturer of the device. If @c NULL is provided the default manufacturer is used.
+	///
+	OPENKIT_EXPORT void useManufacturerForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, const char* manufacturer);
+
+	///
+	/// Set the model id in the OpenKit configuration
+	/// @param[in] configurationHandle configuration storing the given parameter
+	/// @param[in] modelID optional parameter, model version or id of the device. If @c NULL the default model ID is used.
+	///
+	OPENKIT_EXPORT void useModelIDForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, const char* modelID);
+
+	///
+	/// Set the behavior of the beacon cache in the OpenKit configuration
+	/// @param[in] configurationHandle configuration storing the given parameter
+	/// @param[in] beaconCacheMaxRecordAge optional parameter, maximum age of cache records. A value of -1 will lead to the default value. All positive integers starting with 0 are valid.
+	/// @param[in] beaconCacheLowerMemoryBoundary optional parameter, lower memory boundary for beacon cache. A value of -1 will lead to the default value. All positive integers starting with 0 are valid.
+	/// @param[in] beaconCacheUpperMemoryBoundary optional parameter, upper memory boundary for beacon cache. A value of -1 will lead to the default value. All positive integers starting with 0 are valid.
+	///
+	OPENKIT_EXPORT void useBeaconCacheBehaviorForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary);
+
+	///
+	/// Set the data collection level in the OpenKit configuration
+	/// @param[in] configurationHandle configuration storing the given parameter
+	/// @param[in] dataCollectionLevel optional parameter, default level if USER_BEHAVIOR
+	///
+	OPENKIT_EXPORT void useDataCollectionLevelForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, DataCollectionLevel dataCollectionLevel);
+
+	///
+	/// Set the crash reporting level in the OpenKit configuration
+	/// @param[in] configurationHandle configuration storing the given parameter
+	/// @param[in] crashReportingLevel optional parameter, default behavior is OPT_IN_CRASHES
+	///
+	OPENKIT_EXPORT void useCrashReportingLevelForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, CrashReportingLevel crashReportingLevel);
+
+	//--------------
 	//  OpenKit
 	//--------------
 
@@ -106,46 +218,17 @@ extern "C" {
 
 	///
 	/// Creates an OpenKit instance for Dynatrace Saas/Managed 
-	/// @param[in] endPointURL endpoint OpenKit connects to
-	/// @param[in] applicationID unique application id
-	/// @param[in] deviceID unique device id
-	/// @param[in] loggerHandle optional parameter to provide a logger that shall be used. If @c NULL is provided the DefaultLogger is used.
-	/// @param[in] applicationVersion optional paramter, the application version. If @c NULL is provided the default application version is used.
-	/// @param[in] applicationName optional name for the application. If @c NULL is provided the application name is an empty string.
-	/// @param[in] trustMode required parameter which trust manager shall be used. Recommended is @c STRICT_TRUST or for fine-granular @c CUSTOM_TRUST.
-	/// @param[in] trustManagerHandle required parameter if the @c trustMode @c CUSTOM_TRUST is provided. Ignored for the other trust modes.
-	/// @param[in] operatingSystem optional parameter, name of the operating system. If @c NULL is provided the default operating system is used.
-	/// @param[in] manufacturer, optional parameter, manufacturer of the device. If @c NULL is provided the default manufacturer is used.
-	/// @param[in] modelID, optional parameter, model version or id of the device. If @c NULL the default model ID is used.
-	/// @param[in] beaconCacheMaxRecordAge optional parameter, maximum age of cache records. A value of -1 will lead to the default value. All positive integers starting with 0 are valid.
-	/// @param[in] beaconCacheLowerMemoryBoundary optional parameter, lower memory boundary for beacon cache. A value of -1 will lead to the default value. All positive integers starting with 0 are valid.
-	/// @param[in] beaconCacheUpperMemoryBoundary optional parameter, upper memory boundary for beacon cache. A value of -1 will lead to the default value. All positive integers starting with 0 are valid.
+	/// @param[in] configurationHandle configuration object
 	/// @return OpenKit instance handle to work with
 	///
-	OPENKIT_EXPORT struct OpenKitHandle* createDynatraceOpenKit(const char* endpointURL, const char* applicationID, int64_t deviceID, struct LoggerHandle* logger,
-		const char* applicationVersion, const char* applicationName, TRUST_MODE trustMode, struct TrustManagerHandle* trustManagerHandle, const char* operatingSystem, const char* manufacturer,
-		const char* modelID, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary);
+	OPENKIT_EXPORT struct OpenKitHandle* createDynatraceOpenKit(struct OpenKitConfigurationHandle* configurationHandle );
 
 	///
 	/// Creates an OpenKit instance for AppMon
-	/// @param[in] endPointURL endpoint OpenKit connects to
-	/// @param[in] applicationName unique application name
-	/// @param[in] deviceID unique device id
-	/// @param[in] loggerHandle optional parameter to provide a logger that shall be used. If @c NULL is provided the DefaultLogger is used.
-	/// @param[in] applicationVersion optional paramter,  the application version. If @c NULL is provided the default application version is used.
-	/// @param[in] trustMode required parameter which trust manager shall be used. Recommended is @c STRICT_TRUST or for fine-granular @c CUSTOM_TRUST.
-	/// @param[in] trustManagerHandle required parameter if the @c trustMode @c CUSTOM_TRUST is provided. Ignored for the other trust modes.
-	/// @param[in] operatingSystem optional parameter, name of the operating system. If @c NULL is provided the default operating system is used.
-	/// @param[in] manufacturer, optional parameter, manufacturer of the device. If @c NULL is provided the default manufacturer is used.
-	/// @param[in] modelID, optional parameter, model version or id of the device. If @c NULL the default model ID is used.
-	/// @param[in] beaconCacheMaxRecordAge optional parameter, maximum age of cache records. A value of -1 will lead to the default value. All positive integers starting with 0 are valid.
-	/// @param[in] beaconCacheLowerMemoryBoundary optional parameter, lower memory boundary for beacon cache. A value of -1 will lead to the default value. All positive integers starting with 0 are valid.
-	/// @param[in] beaconCacheUpperMemoryBoundary optional parameter, upper memory boundary for beacon cache. A value of -1 will lead to the default value. All positive integers starting with 0 are valid.
+	/// @param[in] configurationHandle configuration object
 	/// @return OpenKit instance handle to work with
 	///
-	OPENKIT_EXPORT struct OpenKitHandle* createAppMonOpenKit(const char* endpointURL, const char* applicationName, int64_t deviceID, struct LoggerHandle* loggerHandle,
-		const char* applicationVersion, TRUST_MODE trustMode, struct TrustManagerHandle* trustManagerHandle, const char* operatingSystem, const char* manufacturer,
-		const char* modelID, int64_t beaconCacheMaxRecordAge, int64_t beaconCacheLowerMemoryBoundary, int64_t beaconCacheUpperMemoryBoundary);
+	OPENKIT_EXPORT struct OpenKitHandle* createAppMonOpenKit(struct OpenKitConfigurationHandle* configurationHandle);
 
 	///
 	/// Shuts down the OpenKit, ending all open Sessions and waiting for them to be sent.
@@ -160,7 +243,7 @@ extern "C" {
 	/// The calling thread is blocked until OpenKit is fully initialized or until OpenKit is shut down using the
 	/// shutdown() method.
 	/// 
-	/// Be aware, if @ref AbstractOpenKitBuilder is wrongly configured, for example when creating an
+	/// Be aware, if @ref openkit::AbstractOpenKitBuilder is wrongly configured, for example when creating an
 	/// instance with an incorrect endpoint URL, then this method might hang indefinitely, unless shutdown() is called.
 	///
 	/// @param[in] openKitHandle the handle returned by @ref createDynatraceOpenKit or @ref createAppMonOpenKit
@@ -174,7 +257,7 @@ extern "C" {
 	/// The calling thread is blocked until OpenKit is fully initialized or until OpenKit is shut down using the
 	/// shutdown() method or the timeout expired.
 	/// 
-	/// Be aware, if @ref AbstractOpenKitBuilder is wrongly configured, for example when creating an
+	/// Be aware, if @ref openkit::AbstractOpenKitBuilder is wrongly configured, for example when creating an
 	/// instance with an incorrect endpoint URL, then this method might hang indefinitely, unless shutdown() is called
 	/// or timeout expires.
 	///
@@ -242,7 +325,7 @@ extern "C" {
 	///
 	/// Enters a root action with a specified name in this session.
 	/// @param[in] sessionHandle the handle returned by @ref createSession
-	/// @param[in] actionName    name of the Action
+	/// @param[in] rootActionName    name of the Action
 	/// @returns Root action instance to work with
 	///
 	OPENKIT_EXPORT struct RootActionHandle* enterRootAction(struct SessionHandle* sessionHandle, const char* rootActionName);
@@ -408,7 +491,7 @@ extern "C" {
 	/// Starts the web request timing. Should be called when the web request is initiated.
 	/// @param[in] webRequestTracerHandle the handle returned by @ref traceWebRequestOnRootAction or @ref traceWebRequestOnAction
 	///
-	OPENKIT_EXPORT void startWebRequest(struct WebRequestTracerHandle*);
+	OPENKIT_EXPORT void startWebRequest(struct WebRequestTracerHandle* webRequestTracerHandle);
 
 	///
 	/// Stops the web request timing. Should be called when the web request is finished.
@@ -428,7 +511,7 @@ extern "C" {
 	OPENKIT_EXPORT const char* getTag(struct WebRequestTracerHandle* webRequestTracerHandle);
 
 	///
-	/// Sets the response code of this web request. Has to be called before @ref stop().
+	/// Sets the response code of this web request. Has to be called before @ref core::WebRequestTracerBase::stop().
 	///
 	/// @param[in] webRequestTracerHandle the handle returned by @ref traceWebRequestOnRootAction or @ref traceWebRequestOnAction
 	/// @param[in] responseCode response code of this web request
@@ -436,7 +519,7 @@ extern "C" {
 	OPENKIT_EXPORT void setResponseCode(struct WebRequestTracerHandle* webRequestTracerHandle, int32_t responseCode);
 
 	///
-	/// Sets the amount of sent data of this web request. Has to be called before @ref stop().
+	/// Sets the amount of sent data of this web request. Has to be called before @ref core::WebRequestTracerBase::stop().
 	///
 	/// @param[in] webRequestTracerHandle the handle returned by @ref traceWebRequestOnRootAction or @ref traceWebRequestOnAction
 	/// @param[in] bytesSent number of bytes sent
@@ -444,7 +527,7 @@ extern "C" {
 	OPENKIT_EXPORT void setBytesSent(struct WebRequestTracerHandle* webRequestTracerHandle, int32_t bytesSent);
 
 	///
-	/// Sets the amount of received data of this web request. Has to be called before @ref stop().
+	/// Sets the amount of received data of this web request. Has to be called before @ref core::WebRequestTracerBase::stop().
 	///
 	/// @param[in] webRequestTracerHandle the handle returned by @ref traceWebRequestOnRootAction or @ref traceWebRequestOnAction
 	/// @param[in] bytesReceived number of bytes received

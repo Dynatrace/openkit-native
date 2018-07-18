@@ -43,10 +43,12 @@ HTTPClient::HTTPClient(std::shared_ptr<openkit::ILogger> logger, const std::shar
 	, mReadBuffer()
 	, mReadBufferPos(0)
 	, mSSLTrustManager(nullptr)
+	, mNewSessionURL()
 {
 	// build the beacon URLs
 	buildMonitorURL(mMonitorURL, configuration->getBaseURL(), configuration->getApplicationID(), mServerID);
 	buildTimeSyncURL(mTimeSyncURL, configuration->getBaseURL());
+	buildNewSessionURL(mNewSessionURL, configuration->getBaseURL(), configuration->getApplicationID(), mServerID);
 
 	// if configuration provides a trust manager use it, else use strict trust manager
 	auto trustManagerFromConfiguration = configuration->getSSLTrustManager();
@@ -90,6 +92,16 @@ std::unique_ptr<TimeSyncResponse> HTTPClient::sendTimeSyncRequest()
 	if (response)
 	{
 		return std::unique_ptr<TimeSyncResponse>(reinterpret_cast<TimeSyncResponse*>(response.release()));
+	}
+	return nullptr;
+}
+
+std::unique_ptr<StatusResponse> HTTPClient::sendNewSessionRequest()
+{
+	auto response = sendRequestInternal(RequestType::NEW_SESSION, mNewSessionURL, core::UTF8String(""), core::UTF8String(""), HttpMethod::GET);
+	if (response)
+	{
+		return std::unique_ptr<StatusResponse>(reinterpret_cast<StatusResponse*>(response.release()));
 	}
 	return nullptr;
 }
@@ -161,6 +173,9 @@ std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::Requ
 			break;
 		case HTTPClient::RequestType::TIMESYNC:
 			mLogger->debug("HTTPClient sendRequestInternal() - HTTP timesync request: %s", url.getStringData().c_str());
+			break;
+		case HTTPClient::RequestType::NEW_SESSION:
+			mLogger->debug("HTTPClient sendRequestInternal() - HTTP new session request: %s", url.getStringData().c_str());
 			break;
 		};
 	}
@@ -339,6 +354,13 @@ void HTTPClient::buildTimeSyncURL(core::UTF8String& monitorURL, const core::UTF8
 	monitorURL.concatenate("?");
 	monitorURL.concatenate(REQUEST_TYPE_TIMESYNC);
 }
+
+void HTTPClient::buildNewSessionURL(core::UTF8String& monitorURL, const core::UTF8String& baseURL, const core::UTF8String& applicationID, uint32_t serverID)
+{
+	buildMonitorURL(monitorURL, baseURL, applicationID, serverID);
+	appendQueryParam(monitorURL, QUERY_KEY_NEW_SESSION, "1");
+}
+
 
 void HTTPClient::appendQueryParam(core::UTF8String& url, const char* key, const char* value)
 {

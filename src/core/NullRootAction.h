@@ -27,7 +27,7 @@ namespace core
 {
 
 	///
-	/// This class is returned as RootAction by @ref OpenKit#createSession(String) when the @ref OpenKit#shutdown()
+	/// This class is returned as RootAction by @ref openkit::IOpenKit::createSession(const char*) when the @ref openkit::IOpenKit::shutdown()
 	/// has been called before.
 	///
 	class NullRootAction  : public openkit::IRootAction, public std::enable_shared_from_this<core::NullRootAction>
@@ -59,7 +59,7 @@ namespace core
 			return shared_from_this();
 		}
 
-		virtual std::shared_ptr<IRootAction> reportError(const char* /*errorName*/, int32_t /*errorCode*/, const char* /*reason*/)
+		virtual std::shared_ptr<IRootAction> reportError(const char* /*errorName*/, int32_t /*errorCode*/, const char* /*reason*/) override
 		{
 			return shared_from_this();
 		}

@@ -35,7 +35,7 @@ namespace openkit
 
 		///
 		/// Returns the Dynatrace tag which has to be set manually as Dynatrace HTTP header
-		/// ( @ref OpenKitConstants::WEBREQUEST_TAG_HEADER).
+		/// ( @ref openkit::OpenKitConstants::WEBREQUEST_TAG_HEADER).
 		/// This is only necessary for tracing web requests via 3rd party HTTP clients.
 		///
 		/// @returns the Dynatrace tag to be set as HTTP header value or an empty String if capture is off
@@ -43,7 +43,7 @@ namespace openkit
 		virtual const char* getTag() const = 0;
 
 		///
-		/// Sets the response code of this web request. Has to be called before @ref IWebRequestTracer::stop().
+		/// Sets the response code of this web request. Has to be called before @ref openkit::IWebRequestTracer::stop().
 		///
 		/// @param[in] responseCode response code of this web request
 		/// @returns pointer to this WebRequestTracer instance that can be used for a fluent-API call
@@ -51,7 +51,7 @@ namespace openkit
 		virtual std::shared_ptr<IWebRequestTracer> setResponseCode(int32_t responseCode) = 0;
 
 		///
-		/// Sets the amount of sent data of this web request. Has to be called before @ref IWebRequestTracer::stop().
+		/// Sets the amount of sent data of this web request. Has to be called before @ref openkit::IWebRequestTracer::stop().
 		///
 		/// @param[in] bytesSent number of bytes sent
 		/// @returns pointer to this WebRequestTracer instance that can be used for a fluent-API call
@@ -59,7 +59,7 @@ namespace openkit
 		virtual std::shared_ptr<IWebRequestTracer> setBytesSent(int32_t bytesSent) = 0;
 
 		///
-		/// Sets the amount of received data of this web request. Has to be called before @ref IWebRequestTracer::stop().
+		/// Sets the amount of received data of this web request. Has to be called before @ref openkit::IWebRequestTracer::stop().
 		///
 		/// @param[in] bytesReceived number of bytes received
 		/// @returns pointer to this WebRequestTracer instance that can be used for a fluent-API call

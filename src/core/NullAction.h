@@ -25,7 +25,7 @@ namespace core
 {
 
 	///
-	/// This class is returned as Action by @ref OpenKit#createSession(String) when the @ref OpenKit#shutdown()
+	/// This class is returned as Action by @ref openkit::IOpenKit::createSession(const char*) when the @ref openkit::IOpenKit::shutdown()
 	/// has been called before.
 	///
 	class NullAction : public openkit::IAction, public std::enable_shared_from_this<NullAction>

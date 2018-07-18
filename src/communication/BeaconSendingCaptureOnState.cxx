@@ -49,6 +49,8 @@ void BeaconSendingCaptureOnState::doExecute(BeaconSendingContext& context)
 
 	context.sleep();
 
+	sendNewSessionRequests(context);
+
 	statusResponse = nullptr;
 	
 	// send all finished sessions (this method may set this.statusResponse)
@@ -73,26 +75,25 @@ const char* BeaconSendingCaptureOnState::getStateName() const
 
 void BeaconSendingCaptureOnState::sendFinishedSessions(BeaconSendingContext& context)
 {
-	auto finishedSession = context.getNextFinishedSession();
-	while (finishedSession != nullptr)
+	// check if there's finished Sessions to be sent -> immediately send beacon(s) of finished Sessions
+	for(auto session : context.getAllFinishedAndConfiguredSessions())
 	{
-		statusResponse = std::move(finishedSession->sendBeacon(context.getHTTPClientProvider()));
-		if (statusResponse == nullptr)
-		{
-			// something went wrong,
-			if (!finishedSession->isEmpty())
+		if (session->isDataSendingAllowed()) {
+			statusResponse = std::move(session->sendBeacon(context.getHTTPClientProvider()));
+			if (statusResponse == nullptr)
 			{
-				// well there is more data to send, and we could not do it (now)
-				// just push it back
-				context.pushBackFinishedSession(finishedSession);
-				break; //  sending did not work, break out for now and retry it later
+				// something went wrong,
+				if (!session->isEmpty())
+				{
+					break; //  sending did not work, break out for now and retry it later
+				}
 			}
 		}
 
-		// session was sent - so remove it from beacon cache
-		finishedSession->clearCapturedData();
-		finishedSession = context.getNextFinishedSession();
-	}
+		// session was sent/is not allowed to be sent - so remove it from beacon cache
+		context.removeSession(session);
+		session->clearCapturedData();
+}
 }
 
 void BeaconSendingCaptureOnState::sendOpenSessions(BeaconSendingContext& context)
@@ -103,10 +104,16 @@ void BeaconSendingCaptureOnState::sendOpenSessions(BeaconSendingContext& context
 		return; // send interval to send open sessions has not expired yet
 	}
 
-	auto openSessions = context.getAllOpenSessions();
-	for (auto it = openSessions.begin(); it != openSessions.end(); it++)
+	for (auto session : context.getAllOpenAndConfiguredSessions())
 	{
-		statusResponse = std::move((*it)->sendBeacon(context.getHTTPClientProvider()));
+		if (session->isDataSendingAllowed())
+		{
+			statusResponse = std::move(session->sendBeacon(context.getHTTPClientProvider()));
+		}
+		else
+		{
+			session->clearCapturedData();
+		}
 	}
 
 	context.setLastOpenSessionBeaconSendTime(currentTimestamp);
@@ -123,5 +130,33 @@ void BeaconSendingCaptureOnState::handleStatusResponse(BeaconSendingContext& con
 	if (!context.isCaptureOn()) {
 		// capturing is turned off -> make state transition
 		context.setNextState(std::shared_ptr<AbstractBeaconSendingState>(new BeaconSendingCaptureOffState()));
+	}
+}
+
+void BeaconSendingCaptureOnState::sendNewSessionRequests(BeaconSendingContext& context)
+{
+	for (auto session : context.getAllNewSessions() )
+	{
+		if (!session->canSendNewSessionRequest())
+		{
+			// already exceeded the maximum number of session requests, disable any further data collecting
+			auto beaconConfiguration = session->getBeaconConfiguration();
+			auto newBeaconConfiguration = std::make_shared<configuration::BeaconConfiguration>(0, beaconConfiguration->getDataCollectionLevel(), beaconConfiguration->getCrashReportingLevel());
+			session->updateBeaconConfiguration(newBeaconConfiguration);
+			continue;
+		}
+
+		std::unique_ptr<protocol::StatusResponse> response = context.getHTTPClient()->sendNewSessionRequest();
+		if (response != nullptr)
+		{
+			auto beaconConfiguration = session->getBeaconConfiguration();
+			auto newBeaconConfiguration = std::make_shared<configuration::BeaconConfiguration>(response->getMultiplicity(), beaconConfiguration->getDataCollectionLevel(), beaconConfiguration->getCrashReportingLevel());
+			session->updateBeaconConfiguration(newBeaconConfiguration);
+		}
+		else
+		{
+			// did not retrieve any response from server, maybe the cluster is down?
+			session->decreaseNumberOfNewSessionRequests();
+		}
 	}
 }

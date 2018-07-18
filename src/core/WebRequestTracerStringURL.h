@@ -23,9 +23,9 @@ namespace core
 {
 
 	///
-	/// Setting the Dynatrace tag to the @ref OpenKitConstants.WEBREQUEST_TAG_HEADER 
+	/// Setting the Dynatrace tag to the @ref openkit::OpenKitConstants::WEBREQUEST_TAG_HEADER
 	/// HTTP header has to be done manually by the user.
-	/// Inherited class of @ref WebRequestTracerBase which can be used for 
+	/// Inherited class of @ref core::WebRequestTracerBase which can be used for
 	/// tracing and timing of a web request handled by any 3rd party HTTP Client.
 	///
 	class WebRequestTracerStringURL : public WebRequestTracerBase
@@ -35,16 +35,16 @@ namespace core
 		///
 		/// Constructor taking an Action
 		/// @param[in] logger to write traces to
-		/// @param[in] beacon @ref Beacon used to serialize the WebRequestTracer
-		/// @param[in] action parent of the WebRequestTracer
-		/// @param[in] url url of the web request
+		/// @param[in] beacon @ref protocol::Beacon used to serialize the WebRequestTracer
+		/// @param[in] parentActionID parent of the WebRequestTracer
+		/// @param[in] url target url of the web request
 		///
 		WebRequestTracerStringURL(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<protocol::Beacon> beacon, int32_t parentActionID, const UTF8String& url);
 
 		///
-		/// Test if given {@c url} contains a valid URL scheme according to RFC3986.
-		/// @param[in] The url to validate
-		/// @return {@code true} on success, {@code false} otherwhise.
+		/// Test if given @c url contains a valid URL scheme according to RFC3986.
+		/// @param[in] url The url to validate
+		/// @return @c true on success, @c false otherwhise.
 		///
 		static bool isValidURLScheme(const UTF8String& url);
 	};

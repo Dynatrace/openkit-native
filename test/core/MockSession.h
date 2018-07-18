@@ -49,6 +49,8 @@ namespace test
 		MOCK_CONST_METHOD0(isEmpty, bool());
 		MOCK_METHOD0(clearCapturedData, void());
 		MOCK_CONST_METHOD0(getEndTime, int64_t());
+		MOCK_METHOD1(setBeaconConfiguration, void(std::shared_ptr<configuration::BeaconConfiguration>));
+		MOCK_CONST_METHOD0(getBeaconConfiguration, std::shared_ptr<configuration::BeaconConfiguration>());
 	};
 }
 

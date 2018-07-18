@@ -89,13 +89,13 @@ namespace communication {
 
 		///
 		/// In case of a erroneous time sync request 
-		/// @paramp[in] context @ref BeaconSendingContext keeping the state information
+		/// @param[in] context @ref BeaconSendingContext keeping the state information
 		///
 		void handleErroneousTimeSyncRequest(BeaconSendingContext& context);
 
 		///
 		/// Execute the time synchronisation requests (HTTP requests).
-		/// @param[in] context the @ref BeconSendingContext used
+		/// @param[in] context the @ref BeaconSendingContext used
 		/// @returns a vector of integers with the time sync offsets
 		///
 		std::vector<int64_t> executeTimeSyncRequests(BeaconSendingContext& context);

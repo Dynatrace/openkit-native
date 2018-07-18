@@ -76,7 +76,8 @@ namespace openkit
 		/// Log with level 'error'.
 		/// Without the additional compiler checks, the function declaration is:
 		/// void error(const char* format, ...);
-		/// @param[in] format... the message string in a printf formatted way with parameters to be passed via varargs
+		/// @param[in] format the message string in a printf formatted way with parameters to be passed via varargs
+		/// @param[in] ... variadic list of additional arguments
 		///
 		virtual void error(FORMAT_STRING(const char* format), ...) __attribute__((format(printf, 2, 3))) = 0;
 
@@ -84,7 +85,8 @@ namespace openkit
 		/// Log with level 'warning'.
 		/// Without the additional compiler checks, the function declaration is:
 		/// void warning(const char* format, ...);
-		/// @param[in] format... the message string in a printf formatted way with parameters to be passed via varargs
+		/// @param[in] format the message string in a printf formatted way with parameters to be passed via varargs
+		/// @param[in] ... variadic list of additional arguments
 		///
 		virtual void warning(FORMAT_STRING(const char* format), ...) __attribute__((format(printf, 2, 3))) = 0;
 
@@ -92,7 +94,8 @@ namespace openkit
 		/// Log with level 'info'
 		/// Without the additional compiler checks, the function declaration is:
 		/// void info(const char* format, ...);
-		/// @param[in] format... the message string in a printf formatted way with parameters to be passed via varargs
+		/// @param[in] format the message string in a printf formatted way with parameters to be passed via varargs
+		/// @param[in] ... variadic list of additional arguments
 		///
 		virtual void info(FORMAT_STRING(const char* format), ...) __attribute__((format(printf, 2, 3))) = 0;
 
@@ -100,7 +103,8 @@ namespace openkit
 		/// Log with level 'debug'.
 		/// Without the additional compiler checks, the function declaration is:
 		/// void debug(const char* format, ...);
-		/// @param[in] format... the message string in a printf formatted way with parameters to be passed via varargs
+		/// @param[in] format the message string in a printf formatted way with parameters to be passed via varargs
+		/// @param[in] ... variadic list of additional arguments
 		///
 		virtual void debug(FORMAT_STRING(const char* format), ...) __attribute__((format(printf, 2, 3))) = 0;
 

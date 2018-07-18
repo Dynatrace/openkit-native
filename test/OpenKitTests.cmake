@@ -87,6 +87,7 @@ set(OPENKIT_SOURCES_TEST_COMMUNICATION
 
 set(OPENKIT_SOURCES_TEST_CONFIGURATION
 	${CMAKE_CURRENT_LIST_DIR}/configuration/ConfigurationTest.cxx
+	${CMAKE_CURRENT_LIST_DIR}/configuration/BeaconConfigurationTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/configuration/BeaconCacheConfigurationTest.cxx
 )
 
