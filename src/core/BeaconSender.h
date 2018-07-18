@@ -47,7 +47,6 @@ namespace core
 			std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
 			std::shared_ptr<providers::ITimingProvider> timingProvider);
 
-
 		virtual ~BeaconSender() {}
 
 		///

@@ -100,7 +100,7 @@ void BeaconSender::shutdown()
 		auto threadStatus = mSendingThread.wait_for(std::chrono::milliseconds(SHUTDOWN_SLICED_WAIT_TIME));
 		if (threadStatus == std::future_status::ready)
 		{
-			return;//thread finished before tinout happened
+			return;//thread finished before timeout occurs
 		}
 		timePassed = mTimingProvider->provideTimestampInMilliseconds() - start;
 	}
