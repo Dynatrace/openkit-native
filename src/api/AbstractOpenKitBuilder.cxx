@@ -142,27 +142,27 @@ std::shared_ptr<openkit::ILogger> AbstractOpenKitBuilder::getLogger()
 	return std::shared_ptr<ILogger>(new core::util::DefaultLogger(mVerbose));
 }
 
-std::string AbstractOpenKitBuilder::getApplicationVersion() const
+const std::string& AbstractOpenKitBuilder::getApplicationVersion() const
 {
 	return mApplicationVersion;
 }
 
-std::string AbstractOpenKitBuilder::getOperatingSystem() const
+const std::string& AbstractOpenKitBuilder::getOperatingSystem() const
 {
 	return mOperatingSystem;
 }
 
-std::string AbstractOpenKitBuilder::getManufacturer() const
+const std::string& AbstractOpenKitBuilder::getManufacturer() const
 {
 	return mManufacturer;
 }
 
-std::string AbstractOpenKitBuilder::getModelID() const
+const std::string& AbstractOpenKitBuilder::getModelID() const
 {
 	return mModelID;
 }
 
-std::string AbstractOpenKitBuilder::getEndpointURL() const
+const std::string& AbstractOpenKitBuilder::getEndpointURL() const
 {
 	return mEndpointURL;
 }

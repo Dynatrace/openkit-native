@@ -39,7 +39,7 @@ TEST_F(TimeSyncResponseTest, requestReceiveTimeDefault)
 {
 	UTF8String s("");
 	uint32_t responseCode = 200;
-	TimeSyncResponse timeSyncResponse = TimeSyncResponse(s, responseCode);
+	TimeSyncResponse timeSyncResponse = TimeSyncResponse(s, responseCode, Response::ResponseHeaders());
 
 	EXPECT_EQ(-1, timeSyncResponse.getRequestReceiveTime());
 }
@@ -48,7 +48,7 @@ TEST_F(TimeSyncResponseTest, requestReceiveTimeZero)
 {
 	UTF8String s("t1=0");
 	uint32_t responseCode = 200;
-	TimeSyncResponse timeSyncResponse = TimeSyncResponse(s, responseCode);
+	TimeSyncResponse timeSyncResponse = TimeSyncResponse(s, responseCode, Response::ResponseHeaders());
 
 	EXPECT_EQ(0, timeSyncResponse.getRequestReceiveTime());
 }
@@ -57,7 +57,7 @@ TEST_F(TimeSyncResponseTest, requestReceiveTimeOne)
 {
 	UTF8String s("t1=1");
 	uint32_t responseCode = 200;
-	TimeSyncResponse timeSyncResponse = TimeSyncResponse(s, responseCode);
+	TimeSyncResponse timeSyncResponse = TimeSyncResponse(s, responseCode, Response::ResponseHeaders());
 
 	EXPECT_EQ(1, timeSyncResponse.getRequestReceiveTime());
 }
@@ -66,7 +66,7 @@ TEST_F(TimeSyncResponseTest, requestReceiveTimeMinusOne)
 {
 	UTF8String s("t1=-1");
 	uint32_t responseCode = 200;
-	TimeSyncResponse timeSyncResponse = TimeSyncResponse(s, responseCode);
+	TimeSyncResponse timeSyncResponse = TimeSyncResponse(s, responseCode, Response::ResponseHeaders());
 
 	EXPECT_EQ(-1, timeSyncResponse.getRequestReceiveTime());
 }
@@ -75,7 +75,7 @@ TEST_F(TimeSyncResponseTest, requestReceiveTimeLongMax)
 {
 	UTF8String s("t1=9223372036854775807"); // signed int64 max
 	uint32_t responseCode = 200;
-	TimeSyncResponse timeSyncResponse = TimeSyncResponse(s, responseCode);
+	TimeSyncResponse timeSyncResponse = TimeSyncResponse(s, responseCode, Response::ResponseHeaders());
 
 	EXPECT_EQ(9223372036854775807, timeSyncResponse.getRequestReceiveTime());
 }
@@ -84,7 +84,7 @@ TEST_F(TimeSyncResponseTest, DISABLED_requestReceiveTimeLongMaxPlusOne)
 {
 	UTF8String s("t1=9223372036854775808"); // signed int64 max + 1
 	uint32_t responseCode = 200;
-	TimeSyncResponse timeSyncResponse = TimeSyncResponse(s, responseCode);
+	TimeSyncResponse timeSyncResponse = TimeSyncResponse(s, responseCode, Response::ResponseHeaders());
 
 	EXPECT_EQ(9223372036854775807, timeSyncResponse.getRequestReceiveTime());
 }
@@ -95,7 +95,7 @@ TEST_F(TimeSyncResponseTest, responseSendTimeDefault)
 {
 	UTF8String s("");
 	uint32_t responseCode = 200;
-	TimeSyncResponse timeSyncResponse = TimeSyncResponse(s, responseCode);
+	TimeSyncResponse timeSyncResponse = TimeSyncResponse(s, responseCode, Response::ResponseHeaders());
 
 	EXPECT_EQ(-1, timeSyncResponse.getResponseSendTime());
 }
@@ -104,7 +104,7 @@ TEST_F(TimeSyncResponseTest, responseSendTimeZero)
 {
 	UTF8String s("t2=0");
 	uint32_t responseCode = 200;
-	TimeSyncResponse timeSyncResponse = TimeSyncResponse(s, responseCode);
+	TimeSyncResponse timeSyncResponse = TimeSyncResponse(s, responseCode, Response::ResponseHeaders());
 
 	EXPECT_EQ(0, timeSyncResponse.getResponseSendTime());
 }
@@ -113,7 +113,7 @@ TEST_F(TimeSyncResponseTest, responseSendTimeOne)
 {
 	UTF8String s("t2=1");
 	uint32_t responseCode = 200;
-	TimeSyncResponse timeSyncResponse = TimeSyncResponse(s, responseCode);
+	TimeSyncResponse timeSyncResponse = TimeSyncResponse(s, responseCode, Response::ResponseHeaders());
 
 	EXPECT_EQ(1, timeSyncResponse.getResponseSendTime());
 }
@@ -122,7 +122,7 @@ TEST_F(TimeSyncResponseTest, responseSendTimeMinusOne)
 {
 	UTF8String s("t2=-1");
 	uint32_t responseCode = 200;
-	TimeSyncResponse timeSyncResponse = TimeSyncResponse(s, responseCode);
+	TimeSyncResponse timeSyncResponse = TimeSyncResponse(s, responseCode, Response::ResponseHeaders());
 
 	EXPECT_EQ(-1, timeSyncResponse.getResponseSendTime());
 }
@@ -131,7 +131,7 @@ TEST_F(TimeSyncResponseTest, responseSendTimeLongMax)
 {
 	UTF8String s("t2=9223372036854775807"); // signed int64 max
 	uint32_t responseCode = 200;
-	TimeSyncResponse timeSyncResponse = TimeSyncResponse(s, responseCode);
+	TimeSyncResponse timeSyncResponse = TimeSyncResponse(s, responseCode, Response::ResponseHeaders());
 
 	EXPECT_EQ(9223372036854775807, timeSyncResponse.getResponseSendTime());
 }
@@ -140,7 +140,7 @@ TEST_F(TimeSyncResponseTest, DISABLED_responseSendTimeLongMaxPlusOne)
 {
 	UTF8String s("t2=9223372036854775808"); // signed int64 max + 1
 	uint32_t responseCode = 200;
-	TimeSyncResponse timeSyncResponse = TimeSyncResponse(s, responseCode);
+	TimeSyncResponse timeSyncResponse = TimeSyncResponse(s, responseCode, Response::ResponseHeaders());
 
 	EXPECT_EQ(9223372036854775807, timeSyncResponse.getResponseSendTime());
 }
@@ -151,7 +151,7 @@ TEST_F(TimeSyncResponseTest, requestReceiveTimeTogetherWithResponseSendTime)
 {
 	UTF8String s("t1=123&t2=456");
 	uint32_t responseCode = 200;
-	TimeSyncResponse timeSyncResponse = TimeSyncResponse(s, responseCode);
+	TimeSyncResponse timeSyncResponse = TimeSyncResponse(s, responseCode, Response::ResponseHeaders());
 
 	EXPECT_EQ(123, timeSyncResponse.getRequestReceiveTime());
 	EXPECT_EQ(456, timeSyncResponse.getResponseSendTime());
@@ -161,9 +161,22 @@ TEST_F(TimeSyncResponseTest, notExistingKey)
 {
 	UTF8String s("hello=world");
 	uint32_t responseCode = 200;
-	TimeSyncResponse timeSyncResponse = TimeSyncResponse(s, responseCode);
+	TimeSyncResponse timeSyncResponse = TimeSyncResponse(s, responseCode, Response::ResponseHeaders());
 
 	// verify all defaults
 	EXPECT_EQ(-1, timeSyncResponse.getRequestReceiveTime());
 	EXPECT_EQ(-1, timeSyncResponse.getResponseSendTime());
+}
+
+TEST_F(TimeSyncResponseTest, headersAreSet)
+{
+	// given
+	auto responseHeaders = Response::ResponseHeaders();
+	responseHeaders["date"] = "2018-07-18";
+	responseHeaders["content-type"] = "application/json";
+	responseHeaders["X-Foo"] = "bar";
+	auto target = TimeSyncResponse(UTF8String(), 200, responseHeaders);
+
+	// when, then
+	ASSERT_EQ(responseHeaders, target.getResponseHeaders());
 }

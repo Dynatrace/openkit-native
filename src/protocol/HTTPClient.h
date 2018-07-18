@@ -120,7 +120,7 @@ namespace protocol
 
 		void appendQueryParam(core::UTF8String& url, const char* key, const char* vaalue);
 
-		std::unique_ptr<Response> handleResponse(uint64_t httpCode, const std::string& buffer);
+		std::unique_ptr<Response> handleResponse(int32_t httpCode, const std::string& buffer, const Response::ResponseHeaders& responseHeaders);
 
 		static size_t readFunction(void *ptr, size_t elementSize, size_t numberOfElements, void* userPtr);
 

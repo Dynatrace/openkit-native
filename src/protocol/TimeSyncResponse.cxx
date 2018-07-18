@@ -23,15 +23,8 @@
 
 using namespace protocol;
 
-TimeSyncResponse::TimeSyncResponse()
-	: Response(0)
-	, mRequestReceiveTime(-1)
-	, mResponseSendTime(-1)
-{
-}
-
-TimeSyncResponse::TimeSyncResponse(const core::UTF8String& response, uint32_t responseCode)
-	: Response(responseCode)
+TimeSyncResponse::TimeSyncResponse(const core::UTF8String& response, int32_t responseCode, const Response::ResponseHeaders& responseHeaders)
+	: Response(responseCode, responseHeaders)
 	, mRequestReceiveTime(-1)
 	, mResponseSendTime(-1)
 {

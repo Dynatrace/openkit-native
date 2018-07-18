@@ -18,12 +18,18 @@
 
 using namespace protocol;
 
-Response::Response(uint32_t responseCode)
+Response::Response(int32_t responseCode, const ResponseHeaders& responseHeaders)
 	: mResponseCode(responseCode)
+	, mResponseHeaders(responseHeaders)
 {
 }
 
-uint32_t Response::getResponseCode() const
+int32_t Response::getResponseCode() const
 {
 	return mResponseCode;
+}
+
+const Response::ResponseHeaders& Response::getResponseHeaders() const
+{
+	return mResponseHeaders;
 }

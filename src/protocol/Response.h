@@ -18,6 +18,8 @@
 #define _PROTOCOL_RESPONSE_H
 
 #include <cstdint>
+#include <string>
+#include <unordered_map>
 
 namespace protocol
 {
@@ -27,25 +29,41 @@ namespace protocol
 	class Response
 	{
 	public:
+
+		/// Alias for HTTP response headers
+		using ResponseHeaders = std::unordered_map<std::string, std::string>;
+
 		///
 		/// Construct a response given a response code
 		/// @param[in] responseCode a numerical code for the status of a request
+		/// @param[in[ responseHeaders a map of key-value pairs containing the response headers and values.
 		///
-		Response(uint32_t responseCode);
+		Response(int32_t responseCode, const ResponseHeaders& responseHeaders);
 
 		///
 		/// Destructor
 		///
-		virtual ~Response() {};
+		virtual ~Response() {}
 
 		///
 		/// Return the response code
 		/// @returns the response code
 		///
-		virtual uint32_t getResponseCode() const;
+		virtual int32_t getResponseCode() const;
+
+		///
+		/// Return the HTTP response headers
+		/// @returns the response headers
+		///
+		const ResponseHeaders& getResponseHeaders() const;
+
 	private:
+		
 		/// numerical response code
-		uint32_t mResponseCode;
+		int32_t mResponseCode;
+
+		/// response headers
+		ResponseHeaders mResponseHeaders;
 	};
 }
 #endif

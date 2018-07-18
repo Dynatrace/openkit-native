@@ -18,6 +18,8 @@
 #include <chrono>
 #include <thread>
 #include <algorithm>
+#include <string>
+#include <cctype>
 #include <string.h>
 
 #include "HTTPClient.h"
@@ -152,9 +154,99 @@ size_t HTTPClient::readFunction(void *ptr, size_t elementSize, size_t numberOfEl
 /// @param[in,out] data to write the received data to
 /// @return the size of the delievered data
 ///
-static size_t writeFunction(void *ptr, size_t elementSize, size_t numberOfElements, std::string* data)
+static size_t writeFunction(void *ptr, size_t elementSize, size_t numberOfElements, void *userdata)
 {
-	data->append((char*)ptr, elementSize * numberOfElements);
+	if (userdata != nullptr)
+	{
+		std::string* data = reinterpret_cast<std::string*>(userdata);
+		data->append((char*)ptr, elementSize * numberOfElements);
+		return elementSize * numberOfElements;
+	}
+
+	return 0;
+}
+
+static constexpr char HTTP_HEADER_LINE_KEY_VALUE_SEPARATOR = ':';
+
+///
+/// Parse HTTP header key of response header.
+/// Parse everything that is before the separating colon (':').
+///
+static std::string parseHttpHeaderKey(const std::string& headerLine)
+{
+	auto separatorPosition = headerLine.find(HTTP_HEADER_LINE_KEY_VALUE_SEPARATOR);
+	if (separatorPosition != std::string::npos)
+	{
+		return headerLine.substr(0, separatorPosition);
+	}
+
+	return std::string();
+}
+
+///
+/// Gives a boolean indicating whether given character is a whitespace as defined in
+/// RFC 7230 section 3.2.2 Whitespace.
+///
+static bool isWhitespace(char c)
+{
+	return c == ' ' || c == '\t' || c == '\r' || c == '\n';
+}
+
+///
+/// Parse HTTP header values.
+/// Since the value is defined per header in ABNF, we do it quite simple and just
+/// parse a single value after the separating colong (':'). The optional whitespace characters are stripped.
+///
+static std::string parseHttpHeaderValues(const std::string& headerLine)
+{
+	auto separatorPosition = headerLine.find(HTTP_HEADER_LINE_KEY_VALUE_SEPARATOR);
+	if (separatorPosition != std::string::npos)
+	{
+		// values might have optional whitespaces, strip leading
+		auto begin = headerLine.cbegin() + separatorPosition + 1;
+		auto end = headerLine.end();
+
+		while (begin < end && isWhitespace(*begin))
+		{
+			begin++;
+		}
+		// strip trailing whitespaces
+		end -= 1;
+		while (end > begin && isWhitespace(*end))
+		{
+			end--;
+		}
+
+		end += 1;
+		return end > begin ? std::string(begin, end) : std::string();
+	}
+
+	return std::string();
+}
+
+static size_t headerFunction(char *buffer, size_t elementSize, size_t numberOfElements, void *userdata)
+{
+	if (userdata != nullptr)
+	{
+		// get the header line
+		auto headerLine = std::string(buffer, elementSize * numberOfElements);
+
+		// parse headerLine
+		auto key = parseHttpHeaderKey(headerLine);
+		if (!key.empty())
+		{
+			// if it's empty, then the header is malformed
+			// therefore it's not accepted
+
+			// since casing does not matter for HTTP response headers, transform it to lower case
+			std::transform(key.begin(), key.end(), key.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+
+			auto value = parseHttpHeaderValues(headerLine);
+			auto responseHeaders = reinterpret_cast<Response::ResponseHeaders*>(userdata);
+			(*responseHeaders)[key] = value;
+		}
+	}
+
 	return elementSize * numberOfElements;
 }
 
@@ -190,7 +282,7 @@ std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::Requ
 		return nullptr;
 	}
 
-	uint64_t httpCode = 0;
+	long httpCode = 0L;
 	uint32_t retryCount = 0;
 	do
 	{
@@ -207,6 +299,11 @@ std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::Requ
 		std::string responseBuffer;
 		curl_easy_setopt(mCurl, CURLOPT_WRITEFUNCTION, writeFunction);
 		curl_easy_setopt(mCurl, CURLOPT_WRITEDATA, &responseBuffer);
+
+		// To retrieve the response headers
+		Response::ResponseHeaders responseHeaders;
+		curl_easy_setopt(mCurl, CURLOPT_HEADERFUNCTION, headerFunction);
+		curl_easy_setopt(mCurl, CURLOPT_HEADERDATA, &responseHeaders);
 
 		// Set the custom HTTP header with the client IP address, if provided
 		struct curl_slist *list = NULL;
@@ -254,7 +351,6 @@ std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::Requ
 		else
 		{
 			// See https://curl.haxx.se/libcurl/c/libcurl-errors.html for a list of CURL error codes.
-			if (mLogger->isErrorEnabled())
 			mLogger->error("HTTPClient sendRequestInternal() - curl_easy_perform() failed on '%s': ErrorCode '%u', [%s]", url.getStringData().c_str(), response, curl_easy_strerror(response));
 		}
 
@@ -271,7 +367,7 @@ std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::Requ
 			mCurl = nullptr;
 
 			// Check for success or error
-			return handleResponse(httpCode, responseBuffer);
+			return handleResponse(httpCode, responseBuffer, responseHeaders);
 		}
 		else
 		{
@@ -293,7 +389,7 @@ std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::Requ
 	return nullptr;
 }
 
-std::unique_ptr<Response> HTTPClient::handleResponse(uint64_t httpCode, const std::string& response)
+std::unique_ptr<Response> HTTPClient::handleResponse(int32_t httpCode, const std::string& response, const Response::ResponseHeaders& responseHeaders)
 {
 	if (mLogger->isDebugEnabled())
 	{
@@ -314,11 +410,11 @@ std::unique_ptr<Response> HTTPClient::handleResponse(uint64_t httpCode, const st
 		// process status response
 		if (response.find(REQUEST_TYPE_TIMESYNC) == 0)
 		{
-			return std::unique_ptr<TimeSyncResponse>(new TimeSyncResponse(core::UTF8String(response.c_str()), (uint32_t)httpCode));
+			return std::unique_ptr<TimeSyncResponse>(new TimeSyncResponse(core::UTF8String(response.c_str()), httpCode, responseHeaders));
 		}
 		else if (response.find(REQUEST_TYPE_MOBILE) == 0)
 		{
-			return std::unique_ptr<StatusResponse>(new StatusResponse(core::UTF8String(response.c_str()), (uint32_t)httpCode));
+			return std::unique_ptr<StatusResponse>(new StatusResponse(core::UTF8String(response.c_str()), httpCode, responseHeaders));
 		}
 		else
 		{

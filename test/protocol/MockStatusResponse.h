@@ -28,11 +28,11 @@ namespace test
 	{
 	public:
 		MockStatusResponse()
-			: protocol::StatusResponse("", 200)
+			: protocol::StatusResponse("", 200, protocol::Response::ResponseHeaders())
 		{
 		}
 
-		MOCK_CONST_METHOD0(getResponseCode, uint32_t());
+		MOCK_CONST_METHOD0(getResponseCode, int32_t());
 		MOCK_CONST_METHOD0(isCapture, bool());
 	};
 }
