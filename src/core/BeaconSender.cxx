@@ -26,8 +26,8 @@ using namespace core;
 using namespace communication;
 using namespace providers;
 
-constexpr int32_t SHUTDOWN_TIMEOUT = 10 * 1000;
-constexpr int32_t SHUTDOWN_SLICED_WAIT_TIME = 100;
+constexpr int32_t SHUTDOWN_TIMEOUT_MILLISECONDS = 10 * 1000;
+constexpr int32_t SHUTDOWN_SLICED_WAIT_TIME_MILLISECONDS = 100;
 
 BeaconSender::BeaconSender(std::shared_ptr<openkit::ILogger> logger,
 						   std::shared_ptr<configuration::Configuration> configuration,
@@ -94,10 +94,10 @@ void BeaconSender::shutdown()
 
 	auto start = mTimingProvider->provideTimestampInMilliseconds();
 	int64_t timePassed = 0;
-	while (timePassed < SHUTDOWN_TIMEOUT)
+	while (timePassed < SHUTDOWN_TIMEOUT_MILLISECONDS)
 	{
 		//sleep in slices of 100ms
-		auto threadStatus = mSendingThread.wait_for(std::chrono::milliseconds(SHUTDOWN_SLICED_WAIT_TIME));
+		auto threadStatus = mSendingThread.wait_for(std::chrono::milliseconds(SHUTDOWN_SLICED_WAIT_TIME_MILLISECONDS));
 		if (threadStatus == std::future_status::ready)
 		{
 			return;//thread finished before timeout occurs
@@ -105,8 +105,7 @@ void BeaconSender::shutdown()
 		timePassed = mTimingProvider->provideTimestampInMilliseconds() - start;
 	}
 
-	// if the thread is still running get rid of it
-	mSendingThread._Abandon();
+	// if the thread is still running here it will either finish later or killed when the main process is ended
 }
 
 void BeaconSender::startSession(std::shared_ptr<Session> session)
