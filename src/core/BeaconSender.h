@@ -17,7 +17,6 @@
 #ifndef CORE_BEACONSENDER_H
 #define CORE_BEACONSENDER_H
 
-#include <thread>
 #include <memory>
 #include <future>
 
