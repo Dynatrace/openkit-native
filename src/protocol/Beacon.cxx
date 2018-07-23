@@ -284,7 +284,7 @@ void Beacon::addActionData(int64_t timestamp, const core::UTF8String& actionData
 	}
 }
 
-void Beacon::startSession(std::shared_ptr<core::Session> session)
+void Beacon::startSession()
 {
 	core::UTF8String eventData = createBasicEventData(EventType::SESSION_START, nullptr);
 

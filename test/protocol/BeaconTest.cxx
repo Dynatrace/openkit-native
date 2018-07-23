@@ -910,13 +910,9 @@ TEST_F(BeaconTest, sessionStartIsReported)
 {
 	//given
 	auto target = buildBeaconWithDefaultConfig();
-	auto sessionMock = createMockedSession();
-
-	EXPECT_CALL(*sessionMock, getEndTime())
-		.Times(2);
 
 	// when
-	target->startSession(sessionMock);
+	target->startSession();
 
 	//then
 	ASSERT_FALSE(target->isEmpty());
@@ -926,13 +922,9 @@ TEST_F(BeaconTest, sessionStartIsReportedForDataCollectionLevel0)
 {
 	//given
 	auto target = buildBeacon(openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OFF);
-	auto sessionMock = createMockedSession();
-
-	EXPECT_CALL(*sessionMock, getEndTime())
-		.Times(2);
 
 	// when
-	target->startSession(sessionMock);
+	target->startSession();
 
 	//then
 	ASSERT_FALSE(target->isEmpty());
@@ -942,13 +934,9 @@ TEST_F(BeaconTest, sessionStartIsReportedForDataCollectionLevel1)
 {
 	//given
 	auto target = buildBeacon(openkit::DataCollectionLevel::PERFORMANCE, openkit::CrashReportingLevel::OFF);
-	auto sessionMock = createMockedSession();
-
-	EXPECT_CALL(*sessionMock, getEndTime())
-		.Times(2);
 
 	// when
-	target->startSession(sessionMock);
+	target->startSession();
 
 	//then
 	ASSERT_FALSE(target->isEmpty());
@@ -958,13 +946,9 @@ TEST_F(BeaconTest, sessionStartIsReportedForDataCollectionLevel2)
 {
 	//given
 	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF);
-	auto sessionMock = createMockedSession();
-
-	EXPECT_CALL(*sessionMock, getEndTime())
-		.Times(2);
 
 	// when
-	target->startSession(sessionMock);
+	target->startSession();
 
 	//then
 	ASSERT_FALSE(target->isEmpty());
