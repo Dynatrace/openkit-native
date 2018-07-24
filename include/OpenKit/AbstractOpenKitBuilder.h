@@ -77,7 +77,8 @@ namespace openkit
 			AbstractOpenKitBuilder& withApplicationVersion(const char* applicationVersion);
 
 			///
-			/// Sets the trust manager. Overrides the default trust manager which is @ref protocol::SSLStrictTrustManager by default-
+			/// Sets the trust manager, if it's not @c nullptr.
+			/// Overrides the default trust manager which is @ref protocol::SSLStrictTrustManager by default-
 			///
 			/// @param[in] trustManager trust manager implementation
 			/// @returns @c this for fluent usage
