@@ -64,7 +64,10 @@ AbstractOpenKitBuilder& AbstractOpenKitBuilder::withApplicationVersion(const cha
 
 AbstractOpenKitBuilder& AbstractOpenKitBuilder::withTrustManager(std::shared_ptr<openkit::ISSLTrustManager> trustManager)
 {
-	mTrustManager = trustManager;
+	if (trustManager != nullptr)
+	{
+		mTrustManager = trustManager;
+	}
 	return *this;
 }
 
