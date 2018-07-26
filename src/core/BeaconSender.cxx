@@ -17,6 +17,7 @@
 #include "BeaconSender.h"
 
 #include <memory>
+#include <chrono>
 
 #include "communication/BeaconSendingInitialState.h"
 #include "communication/BeaconSendingContext.h"
@@ -25,33 +26,44 @@ using namespace core;
 using namespace communication;
 using namespace providers;
 
+constexpr int32_t SHUTDOWN_TIMEOUT_MILLISECONDS = 10 * 1000;
+constexpr int32_t SHUTDOWN_SLICED_WAIT_TIME_MILLISECONDS = 100;
+
 BeaconSender::BeaconSender(std::shared_ptr<openkit::ILogger> logger,
 						   std::shared_ptr<configuration::Configuration> configuration,
 						   std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
 						   std::shared_ptr<providers::ITimingProvider> timingProvider)
 	: mLogger(logger)
 	, mBeaconSendingContext(std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(logger, httpClientProvider, timingProvider, configuration)))
-	, mSendingThread(nullptr)
+	, mSendingThread()
+	, mShutdownTrigger(false)
+	, mTimingProvider(timingProvider)
 {
 
-}
-
-void beaconSendingLoop(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<BeaconSendingContext> context)
-{
-	// run the loop as long as OpenKit does not get shutdown or ends itself.
-	if (logger->isDebugEnabled())
-	{
-		logger->debug("BeaconSender thread started");
-	}
-	while ( context != nullptr && !context->isInTerminalState())
-	{
-		context->executeCurrentState();
-	}
 }
 
 bool BeaconSender::initialize()
 {
-	mSendingThread = std::unique_ptr<std::thread>(new std::thread(&beaconSendingLoop, mLogger, mBeaconSendingContext));
+	mSendingThread = std::async(std::launch::async, [this] {
+		// run the loop as long as OpenKit does not get shutdown or ends itself.
+		if (mLogger->isDebugEnabled())
+		{
+			mLogger->debug("BeaconSender thread started");
+		}
+
+		while (mBeaconSendingContext != nullptr && !mBeaconSendingContext->isInTerminalState() && !mShutdownTrigger)
+		{
+			mBeaconSendingContext->executeCurrentState();
+		}
+
+		if (mLogger->isDebugEnabled())
+		{
+			mLogger->debug("BeaconSender thread stopped");
+		}
+
+		return mBeaconSendingContext->isShutdownRequested();
+	});
+	
 	return true;
 }
 
@@ -76,12 +88,24 @@ void BeaconSender::shutdown()
 	{
 		mLogger->debug("BeaconSender thread request shutdown");
 	}
+
 	mBeaconSendingContext->requestShutdown();
-	mSendingThread->join();
-	if (mLogger->isDebugEnabled())
+	mShutdownTrigger = true;
+
+	auto start = mTimingProvider->provideTimestampInMilliseconds();
+	int64_t timePassed = 0;
+	while (timePassed < SHUTDOWN_TIMEOUT_MILLISECONDS)
 	{
-		mLogger->debug("BeaconSender thread stopped");
+		//sleep in slices of 100ms
+		auto threadStatus = mSendingThread.wait_for(std::chrono::milliseconds(SHUTDOWN_SLICED_WAIT_TIME_MILLISECONDS));
+		if (threadStatus == std::future_status::ready)
+		{
+			return;//thread finished before timeout occurs
+		}
+		timePassed = mTimingProvider->provideTimestampInMilliseconds() - start;
 	}
+
+	// if the thread is still running here it will either finish later or killed when the main process is ended
 }
 
 void BeaconSender::startSession(std::shared_ptr<Session> session)

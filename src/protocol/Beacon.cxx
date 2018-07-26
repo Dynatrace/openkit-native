@@ -284,15 +284,15 @@ void Beacon::addActionData(int64_t timestamp, const core::UTF8String& actionData
 	}
 }
 
-void Beacon::startSession(std::shared_ptr<core::Session> session)
+void Beacon::startSession()
 {
 	core::UTF8String eventData = createBasicEventData(EventType::SESSION_START, nullptr);
 
 	addKeyValuePair(eventData, BEACON_KEY_PARENT_ACTION_ID, 0);
 	addKeyValuePair(eventData, BEACON_KEY_START_SEQUENCE_NUMBER, createSequenceNumber());
-	addKeyValuePair(eventData, BEACON_KEY_TIME_0, getTimeSinceSessionStartTime(session->getEndTime()));
+	addKeyValuePair(eventData, BEACON_KEY_TIME_0, 0L);
 
-	addEventData(session->getEndTime(), eventData);
+	addEventData(mSessionStartTime, eventData);
 }
 
 void Beacon::endSession(std::shared_ptr<core::Session> session)

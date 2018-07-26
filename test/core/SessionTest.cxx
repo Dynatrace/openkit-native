@@ -231,7 +231,7 @@ TEST_F(SessionTest, identifySingleUser)
 		.Times(1);
 	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
 		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockBeaconStrict, startSession(testing::_))
+	EXPECT_CALL(*mockBeaconStrict, startSession())
 		.Times(testing::Exactly(1));
 
 	// create test environment
@@ -252,7 +252,7 @@ TEST_F(SessionTest, identifyMultipleUsers)
 		.Times(1);
 	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
 		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockBeaconStrict, startSession(testing::_))
+	EXPECT_CALL(*mockBeaconStrict, startSession())
 		.Times(testing::Exactly(1));
 
 	// create test environment
@@ -272,7 +272,7 @@ TEST_F(SessionTest, identifySameUser)
 		.Times(2);
 	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
 		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockBeaconStrict, startSession(testing::_))
+	EXPECT_CALL(*mockBeaconStrict, startSession())
 		.Times(testing::Exactly(1));
 
 	// create test environment
@@ -330,7 +330,7 @@ TEST_F(SessionTest, reportSingleCrash)
 		.Times(1);
 	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
 		.Times(1);
-	EXPECT_CALL(*mockBeaconStrict, startSession(testing::_))
+	EXPECT_CALL(*mockBeaconStrict, startSession())
 		.Times(testing::Exactly(1));
 
 	// create test environment
@@ -348,7 +348,7 @@ TEST_F(SessionTest, reportMultipleCrashes)
 		.Times(2);
 	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
 		.Times(1);
-	EXPECT_CALL(*mockBeaconStrict, startSession(testing::_))
+	EXPECT_CALL(*mockBeaconStrict, startSession())
 		.Times(testing::Exactly(1));
 
 	// create test environment
@@ -367,7 +367,7 @@ TEST_F(SessionTest, reportSameCrash)
 		.Times(2);
 	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
 		.Times(1);
-	EXPECT_CALL(*mockBeaconStrict, startSession(testing::_))
+	EXPECT_CALL(*mockBeaconStrict, startSession())
 		.Times(testing::Exactly(1));
 
 	// create test environment
@@ -386,7 +386,7 @@ TEST_F(SessionTest, endSession)
 		.Times(testing::Exactly(1));
 	EXPECT_CALL(*mockBeaconStrict, getCurrentTimestamp())
 		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockBeaconStrict, startSession(testing::_))
+	EXPECT_CALL(*mockBeaconStrict, startSession())
 		.Times(testing::Exactly(1));
 	EXPECT_CALL(*mockBeaconStrict, endSession(testing::_))
 		.Times(testing::Exactly(1));
@@ -409,7 +409,7 @@ TEST_F(SessionTest, endSessionTwice)
 		.Times(testing::Exactly(1));
 	EXPECT_CALL(*mockBeaconStrict, getCurrentTimestamp())
 		.Times(testing::Exactly(2));
-	EXPECT_CALL(*mockBeaconStrict, startSession(testing::_))
+	EXPECT_CALL(*mockBeaconStrict, startSession())
 		.Times(testing::Exactly(1));
 	EXPECT_CALL(*mockBeaconStrict, endSession(testing::_))
 		.Times(testing::Exactly(1));
@@ -449,7 +449,7 @@ TEST_F(SessionTest, endSessionWithOpenRootActions)
 		.Times(testing::Exactly(1));
 	EXPECT_CALL(*mockBeaconStrict, getCurrentTimestamp())
 		.Times(testing::Exactly(7));
-	EXPECT_CALL(*mockBeaconStrict, startSession(testing::_))
+	EXPECT_CALL(*mockBeaconStrict, startSession())
 		.Times(testing::Exactly(1));
 	EXPECT_CALL(*mockBeaconStrict, endSession(testing::_))
 		.Times(testing::Exactly(1));
@@ -593,7 +593,7 @@ TEST_F(SessionTest, reportCrashDoesNothingIfSessionIsEnded)
 		.Times(testing::Exactly(1));
 	EXPECT_CALL(*mockBeaconSender, finishSession(testing::_))
 		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockBeaconNice, startSession(testing::_))
+	EXPECT_CALL(*mockBeaconNice, startSession())
 		.Times(testing::Exactly(1));
 
 	//given

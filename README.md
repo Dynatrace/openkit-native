@@ -136,6 +136,13 @@ Crashes are used to report (unhandled) exceptions on a `ISession`.
 OpenKit enables you to tag sessions with unique user tags. The user tag is an UTF-8 encoded String 
 (`const char*`) that allows to uniquely identify a single user.
 
+### GDPR Compliance
+
+When creating an `OpenKit` instance, it is also possible to set the GDPR compliant mode
+where you can specify which data is collected.
+For detailed description and samples refer to [example.md](docs/example.md).
+Getting user consent must be handled within the application itself.
+
 ## Example
 
 This small example provides a rough overview how OpenKit can be used.  

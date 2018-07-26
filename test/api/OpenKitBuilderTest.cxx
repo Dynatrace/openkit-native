@@ -125,10 +125,30 @@ TEST_F(OpenKitBuilderTest, canOverrideTrustManagerForAppMon)
 	ASSERT_EQ(configuration->getHTTPClientConfiguration()->getSSLTrustManager(), testSSLTrustManager);
 }
 
+TEST_F(OpenKitBuilderTest, cannotOverrideNullTrustManagerForAppMon)
+{
+	auto configuration = AppMonOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
+		.withTrustManager(testSSLTrustManager) // first call, set a known & valid trust manager
+		.withTrustManager(nullptr)
+		.buildConfiguration();
+
+	ASSERT_EQ(configuration->getHTTPClientConfiguration()->getSSLTrustManager(), testSSLTrustManager);
+}
+
 TEST_F(OpenKitBuilderTest, canOverrideTrustManagerForDynatrace)
 {
 	auto configuration = DynatraceOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
 		.withTrustManager(testSSLTrustManager)
+		.buildConfiguration();
+
+	ASSERT_EQ(configuration->getHTTPClientConfiguration()->getSSLTrustManager(), testSSLTrustManager);
+}
+
+TEST_F(OpenKitBuilderTest, cannotOverrideNullTrustManagerForDynatrace)
+{
+	auto configuration = DynatraceOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
+		.withTrustManager(testSSLTrustManager) // first call, set a known & valid trust manager
+		.withTrustManager(nullptr)
 		.buildConfiguration();
 
 	ASSERT_EQ(configuration->getHTTPClientConfiguration()->getSSLTrustManager(), testSSLTrustManager);

@@ -71,7 +71,7 @@ namespace test {
 		MOCK_METHOD4(reportError, void(int32_t, const core::UTF8String&, int32_t, const core::UTF8String&));
 		MOCK_METHOD3(reportCrash, void(const core::UTF8String&, const core::UTF8String&, const core::UTF8String&));
 		MOCK_METHOD2(addWebRequest, void(int32_t, std::shared_ptr<core::WebRequestTracerBase>));
-		MOCK_METHOD1(startSession, void(std::shared_ptr<core::Session>));
+		MOCK_METHOD0(startSession, void(void));
 		MOCK_METHOD1(endSession, void(std::shared_ptr<core::Session>));
 		MOCK_CONST_METHOD0(getCurrentTimestamp, int64_t(void));
 		MOCK_METHOD1(send, std::unique_ptr<protocol::StatusResponse>(std::shared_ptr<providers::IHTTPClientProvider>));

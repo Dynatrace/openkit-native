@@ -17,8 +17,8 @@
 #ifndef CORE_BEACONSENDER_H
 #define CORE_BEACONSENDER_H
 
-#include <thread>
 #include <memory>
+#include <future>
 
 #include "communication/BeaconSendingContext.h"
 #include "configuration/Configuration.h"
@@ -104,7 +104,13 @@ namespace core
 		std::shared_ptr<communication::BeaconSendingContext> mBeaconSendingContext;
 
 		/// thread instance running the beacon sending state machine
-		std::unique_ptr<std::thread> mSendingThread;
+		std::future<bool> mSendingThread;
+
+		/// flag used as trigger for shutdown of the thread
+		std::atomic<bool> mShutdownTrigger;
+
+		/// timing provider for shutdown timeout
+		std::shared_ptr<providers::ITimingProvider> mTimingProvider;
 	};
 }
 #endif

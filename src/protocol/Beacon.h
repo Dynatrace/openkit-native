@@ -125,9 +125,8 @@ namespace protocol
 
 		///
 		/// Add sessionStart to Beacon
-		/// @param[in] session session for which a session start event is added to the Beacon
 		///
-		virtual void startSession(std::shared_ptr<core::Session> session);
+		virtual void startSession();
 
 		///
 		/// Add @ref core::Session to Beacon when session is ended.
