@@ -23,6 +23,7 @@
 #include <string.h>
 
 #include "HTTPClient.h"
+#include "HTTPResponseParser.h"
 #include "ProtocolConstants.h"
 #include "core/util/Compressor.h"
 #include "protocol/ssl/SSLStrictTrustManager.h"
@@ -154,97 +155,28 @@ size_t HTTPClient::readFunction(void *ptr, size_t elementSize, size_t numberOfEl
 /// @param[in,out] data to write the received data to
 /// @return the size of the delievered data
 ///
-static size_t writeFunction(void *ptr, size_t elementSize, size_t numberOfElements, void *userdata)
+static size_t writeFunction(char *ptr, size_t elementSize, size_t numberOfElements, void *userdata)
 {
 	if (userdata != nullptr)
 	{
-		std::string* data = reinterpret_cast<std::string*>(userdata);
-		data->append((char*)ptr, elementSize * numberOfElements);
-		return elementSize * numberOfElements;
+		return reinterpret_cast<HTTPResponseParser*>(userdata)->responseBodyData(ptr, elementSize, numberOfElements);
 	}
 
 	return 0;
 }
 
-static constexpr char HTTP_HEADER_LINE_KEY_VALUE_SEPARATOR = ':';
-
 ///
-/// Parse HTTP header key of response header.
-/// Parse everything that is before the separating colon (':').
-///
-static std::string parseHttpHeaderKey(const std::string& headerLine)
-{
-	auto separatorPosition = headerLine.find(HTTP_HEADER_LINE_KEY_VALUE_SEPARATOR);
-	if (separatorPosition != std::string::npos)
-	{
-		return headerLine.substr(0, separatorPosition);
-	}
-
-	return std::string();
-}
-
-///
-/// Gives a boolean indicating whether given character is a whitespace as defined in
-/// RFC 7230 section 3.2.2 Whitespace.
-///
-static bool isWhitespace(char c)
-{
-	return c == ' ' || c == '\t' || c == '\r' || c == '\n';
-}
-
-///
-/// Parse HTTP header values.
-/// Since the value is defined per header in ABNF, we do it quite simple and just
-/// parse a single value after the separating colong (':'). The optional whitespace characters are stripped.
-///
-static std::string parseHttpHeaderValues(const std::string& headerLine)
-{
-	auto separatorPosition = headerLine.find(HTTP_HEADER_LINE_KEY_VALUE_SEPARATOR);
-	if (separatorPosition != std::string::npos)
-	{
-		// values might have optional whitespaces, strip leading
-		auto begin = headerLine.cbegin() + separatorPosition + 1;
-		auto end = headerLine.end();
-
-		while (begin < end && isWhitespace(*begin))
-		{
-			begin++;
-		}
-		// strip trailing whitespaces
-		end -= 1;
-		while (end > begin && isWhitespace(*end))
-		{
-			end--;
-		}
-
-		end += 1;
-		return end > begin ? std::string(begin, end) : std::string();
-	}
-
-	return std::string();
-}
-
+/// Local callback function invoked whenever a HTTP response header line was received.
+/// @param[in] buffer to the delivered data
+/// @param[in] elementSize of the data
+/// @param[in] numberOfElements number of data (size of the delivered data = size * nmemb)
+/// @param[in,out] data to write the received data to
+/// @return the size of the delievered data
 static size_t headerFunction(char *buffer, size_t elementSize, size_t numberOfElements, void *userdata)
 {
 	if (userdata != nullptr)
 	{
-		// get the header line
-		auto headerLine = std::string(buffer, elementSize * numberOfElements);
-
-		// parse headerLine
-		auto key = parseHttpHeaderKey(headerLine);
-		if (!key.empty())
-		{
-			// if it's empty, then the header is malformed
-			// therefore it's not accepted
-
-			// since casing does not matter for HTTP response headers, transform it to lower case
-			std::transform(key.begin(), key.end(), key.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
-
-			auto value = parseHttpHeaderValues(headerLine);
-			auto responseHeaders = reinterpret_cast<Response::ResponseHeaders*>(userdata);
-			(*responseHeaders)[key] = value;
-		}
+		return reinterpret_cast<HTTPResponseParser*>(userdata)->responseHeaderData(buffer, elementSize, numberOfElements);
 	}
 
 	return elementSize * numberOfElements;
@@ -295,15 +227,14 @@ std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::Requ
 		// SSL/TSL certificate handling
 		mSSLTrustManager->applyTrustManager(mCurl);
 
-		// To retrieve the response
-		std::string responseBuffer;
-		curl_easy_setopt(mCurl, CURLOPT_WRITEFUNCTION, writeFunction);
-		curl_easy_setopt(mCurl, CURLOPT_WRITEDATA, &responseBuffer);
-
+		HTTPResponseParser responseParser;
 		// To retrieve the response headers
-		Response::ResponseHeaders responseHeaders;
 		curl_easy_setopt(mCurl, CURLOPT_HEADERFUNCTION, headerFunction);
-		curl_easy_setopt(mCurl, CURLOPT_HEADERDATA, &responseHeaders);
+		curl_easy_setopt(mCurl, CURLOPT_HEADERDATA, &responseParser);
+		// To retrieve the response
+		curl_easy_setopt(mCurl, CURLOPT_WRITEFUNCTION, writeFunction);
+		curl_easy_setopt(mCurl, CURLOPT_WRITEDATA, &responseParser);
+
 
 		// Set the custom HTTP header with the client IP address, if provided
 		struct curl_slist *list = NULL;
@@ -367,7 +298,7 @@ std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::Requ
 			mCurl = nullptr;
 
 			// Check for success or error
-			return handleResponse(httpCode, responseBuffer, responseHeaders);
+			return handleResponse(httpCode, responseParser.getResponseBody(), responseParser.getResponseHeaders());
 		}
 		else
 		{

@@ -172,9 +172,9 @@ TEST_F(TimeSyncResponseTest, headersAreSet)
 {
 	// given
 	auto responseHeaders = Response::ResponseHeaders();
-	responseHeaders["date"] = "2018-07-18";
-	responseHeaders["content-type"] = "application/json";
-	responseHeaders["X-Foo"] = "bar";
+	responseHeaders["date"] = { "2018-07-18" };
+	responseHeaders["content-type"] = { "application/json" };
+	responseHeaders["X-Foo"] = { "bar" };
 	auto target = TimeSyncResponse(UTF8String(), 200, responseHeaders);
 
 	// when, then

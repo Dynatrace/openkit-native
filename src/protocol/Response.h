@@ -20,6 +20,7 @@
 #include <cstdint>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 namespace protocol
 {
@@ -31,7 +32,7 @@ namespace protocol
 	public:
 
 		/// Alias for HTTP response headers
-		using ResponseHeaders = std::unordered_map<std::string, std::string>;
+		using ResponseHeaders = std::unordered_map<std::string, std::vector<std::string>>;
 
 		///
 		/// Construct a response given a response code

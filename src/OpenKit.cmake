@@ -127,6 +127,8 @@ set(OPENKIT_SOURCES_PROTOCOL
     ${CMAKE_CURRENT_LIST_DIR}/protocol/TimeSyncResponse.cxx
     ${CMAKE_CURRENT_LIST_DIR}/protocol/HTTPClient.h
     ${CMAKE_CURRENT_LIST_DIR}/protocol/HTTPClient.cxx
+	${CMAKE_CURRENT_LIST_DIR}/protocol/HTTPResponseParser.h
+	${CMAKE_CURRENT_LIST_DIR}/protocol/HTTPResponseParser.cxx
     ${CMAKE_CURRENT_LIST_DIR}/protocol/ssl/SSLBlindTrustManager.h
     ${CMAKE_CURRENT_LIST_DIR}/protocol/ssl/SSLBlindTrustManager.cxx
     ${CMAKE_CURRENT_LIST_DIR}/protocol/ssl/SSLStrictTrustManager.h
