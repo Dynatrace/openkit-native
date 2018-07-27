@@ -18,9 +18,12 @@
 #include <chrono>
 #include <thread>
 #include <algorithm>
+#include <string>
+#include <cctype>
 #include <string.h>
 
 #include "HTTPClient.h"
+#include "HTTPResponseParser.h"
 #include "ProtocolConstants.h"
 #include "core/util/Compressor.h"
 #include "protocol/ssl/SSLStrictTrustManager.h"
@@ -152,9 +155,30 @@ size_t HTTPClient::readFunction(void *ptr, size_t elementSize, size_t numberOfEl
 /// @param[in,out] data to write the received data to
 /// @return the size of the delievered data
 ///
-static size_t writeFunction(void *ptr, size_t elementSize, size_t numberOfElements, std::string* data)
+static size_t writeFunction(char *ptr, size_t elementSize, size_t numberOfElements, void *userdata)
 {
-	data->append((char*)ptr, elementSize * numberOfElements);
+	if (userdata != nullptr)
+	{
+		return reinterpret_cast<HTTPResponseParser*>(userdata)->responseBodyData(ptr, elementSize, numberOfElements);
+	}
+
+	return 0;
+}
+
+///
+/// Local callback function invoked whenever a HTTP response header line was received.
+/// @param[in] buffer to the delivered data
+/// @param[in] elementSize of the data
+/// @param[in] numberOfElements number of data (size of the delivered data = size * nmemb)
+/// @param[in,out] data to write the received data to
+/// @return the size of the delievered data
+static size_t headerFunction(char *buffer, size_t elementSize, size_t numberOfElements, void *userdata)
+{
+	if (userdata != nullptr)
+	{
+		return reinterpret_cast<HTTPResponseParser*>(userdata)->responseHeaderData(buffer, elementSize, numberOfElements);
+	}
+
 	return elementSize * numberOfElements;
 }
 
@@ -190,7 +214,7 @@ std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::Requ
 		return nullptr;
 	}
 
-	uint64_t httpCode = 0;
+	long httpCode = 0L;
 	uint32_t retryCount = 0;
 	do
 	{
@@ -203,10 +227,14 @@ std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::Requ
 		// SSL/TSL certificate handling
 		mSSLTrustManager->applyTrustManager(mCurl);
 
+		HTTPResponseParser responseParser;
+		// To retrieve the response headers
+		curl_easy_setopt(mCurl, CURLOPT_HEADERFUNCTION, headerFunction);
+		curl_easy_setopt(mCurl, CURLOPT_HEADERDATA, &responseParser);
 		// To retrieve the response
-		std::string responseBuffer;
 		curl_easy_setopt(mCurl, CURLOPT_WRITEFUNCTION, writeFunction);
-		curl_easy_setopt(mCurl, CURLOPT_WRITEDATA, &responseBuffer);
+		curl_easy_setopt(mCurl, CURLOPT_WRITEDATA, &responseParser);
+
 
 		// Set the custom HTTP header with the client IP address, if provided
 		struct curl_slist *list = NULL;
@@ -254,7 +282,6 @@ std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::Requ
 		else
 		{
 			// See https://curl.haxx.se/libcurl/c/libcurl-errors.html for a list of CURL error codes.
-			if (mLogger->isErrorEnabled())
 			mLogger->error("HTTPClient sendRequestInternal() - curl_easy_perform() failed on '%s': ErrorCode '%u', [%s]", url.getStringData().c_str(), response, curl_easy_strerror(response));
 		}
 
@@ -271,7 +298,7 @@ std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::Requ
 			mCurl = nullptr;
 
 			// Check for success or error
-			return handleResponse(httpCode, responseBuffer);
+			return handleResponse(httpCode, responseParser.getResponseBody(), responseParser.getResponseHeaders());
 		}
 		else
 		{
@@ -293,7 +320,7 @@ std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::Requ
 	return nullptr;
 }
 
-std::unique_ptr<Response> HTTPClient::handleResponse(uint64_t httpCode, const std::string& response)
+std::unique_ptr<Response> HTTPClient::handleResponse(int32_t httpCode, const std::string& response, const Response::ResponseHeaders& responseHeaders)
 {
 	if (mLogger->isDebugEnabled())
 	{
@@ -314,11 +341,11 @@ std::unique_ptr<Response> HTTPClient::handleResponse(uint64_t httpCode, const st
 		// process status response
 		if (response.find(REQUEST_TYPE_TIMESYNC) == 0)
 		{
-			return std::unique_ptr<TimeSyncResponse>(new TimeSyncResponse(core::UTF8String(response.c_str()), (uint32_t)httpCode));
+			return std::unique_ptr<TimeSyncResponse>(new TimeSyncResponse(core::UTF8String(response.c_str()), httpCode, responseHeaders));
 		}
 		else if (response.find(REQUEST_TYPE_MOBILE) == 0)
 		{
-			return std::unique_ptr<StatusResponse>(new StatusResponse(core::UTF8String(response.c_str()), (uint32_t)httpCode));
+			return std::unique_ptr<StatusResponse>(new StatusResponse(core::UTF8String(response.c_str()), httpCode, responseHeaders));
 		}
 		else
 		{

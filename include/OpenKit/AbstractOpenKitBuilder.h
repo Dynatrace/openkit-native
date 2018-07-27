@@ -172,31 +172,31 @@ namespace openkit
 			/// Returns the application version
 			/// @returns the application version
 			///
-			std::string getApplicationVersion() const;
+			const std::string& getApplicationVersion() const;
 
 			///
 			/// Returns the operating system 
 			/// @returns the operating system
 			///
-			std::string getOperatingSystem() const;
+			const std::string& getOperatingSystem() const;
 
 			///
 			/// Returns the manufacturer
 			/// @returns the manufacturer
 			///
-			std::string getManufacturer() const;
+			const std::string& getManufacturer() const;
 
 			///
 			/// Returns the model ID
 			/// @returns the model ID
 			///
-			std::string getModelID() const;
+			const std::string& getModelID() const;
 
 			///
 			/// Returns the endpoint URL
 			/// @returns the endpoint URL
 			///
-			std::string getEndpointURL()const;
+			const std::string& getEndpointURL()const;
 
 			///
 			/// Returns the device ID

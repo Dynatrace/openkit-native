@@ -30,21 +30,8 @@ constexpr char RESPONSE_KEY_MULTIPLICITY[] = "mp";
 
 using namespace protocol;
 
-StatusResponse::StatusResponse()
-	: Response(0)
-	, mCapture(true)
-	, mSendInterval(-1)
-	, mMonitorName()
-	, mServerID(-1)
-	, mMaxBeaconSize(-1)
-	, mCaptureErrors(true)
-	, mCaptureCrashes(true)
-	, mMultiplicity(1)
-{
-}
-
-StatusResponse::StatusResponse(const core::UTF8String& response, uint32_t responseCode)
-	: Response(responseCode)
+StatusResponse::StatusResponse(const core::UTF8String& response, int32_t responseCode, const Response::ResponseHeaders& responseHeaders)
+	: Response(responseCode, responseHeaders)
 	, mCapture(true)
 	, mSendInterval(-1)
 	, mMonitorName()
