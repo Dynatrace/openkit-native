@@ -26,7 +26,7 @@ namespace protocol
 {
 	///
 	/// Class responsible for parsing HTTP responses.
-	/// @remarks This class can handle both the response headers and the response data.
+	/// @remarks This class can handle both the response header data and the response body data.
 	///
 	class HTTPResponseParser
 	{
