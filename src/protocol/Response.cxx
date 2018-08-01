@@ -18,10 +18,17 @@
 
 using namespace protocol;
 
+static constexpr int32_t HTTP_BAD_REQUEST = 400;
+
 Response::Response(int32_t responseCode, const ResponseHeaders& responseHeaders)
 	: mResponseCode(responseCode)
 	, mResponseHeaders(responseHeaders)
 {
+}
+
+bool Response::isErroneousResponse() const
+{
+	return getResponseCode() >= HTTP_BAD_REQUEST;
 }
 
 int32_t Response::getResponseCode() const

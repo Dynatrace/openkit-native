@@ -37,7 +37,7 @@ namespace protocol
 		///
 		/// Construct a response given a response code
 		/// @param[in] responseCode a numerical code for the status of a request
-		/// @param[in[ responseHeaders a map of key-value pairs containing the response headers and values.
+		/// @param[in] responseHeaders a map of key-value pairs containing the response headers and values.
 		///
 		Response(int32_t responseCode, const ResponseHeaders& responseHeaders);
 
@@ -45,6 +45,13 @@ namespace protocol
 		/// Destructor
 		///
 		virtual ~Response() {}
+
+		///
+		/// Return a boolean indicating whether this is an erroneous response or not.
+		/// @remarks A response is considered to be erroneous, if the getResponseCode() returns >= 400.
+		/// @return @c true if this response is erroneous, @c false otherwise.
+		///
+		bool isErroneousResponse() const;
 
 		///
 		/// Return the response code

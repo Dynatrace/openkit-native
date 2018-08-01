@@ -178,20 +178,17 @@ void Beacon::addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, c
 
 void Beacon::addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, int32_t value)
 {
-	appendKey(s, key);
-	s.concatenate(std::to_string(value));
+	addKeyValuePair(s, key, std::to_string(value));
 }
 
 void Beacon::addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, int64_t value)
 {
-	appendKey(s, key);
-	s.concatenate(std::to_string(value));
+	addKeyValuePair(s, key, std::to_string(value));
 }
 
 void Beacon::addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, double value)
 {
-	appendKey(s, key);
-	s.concatenate(std::to_string(value));
+	addKeyValuePair(s, key, std::to_string(value));
 }
 
 int32_t Beacon::createSequenceNumber()

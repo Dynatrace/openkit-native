@@ -593,6 +593,42 @@ TEST_F(StatusResponseTest, notExistingKey)
 	EXPECT_TRUE(statusResponse.isCaptureCrashes());
 }
 
+TEST_F(StatusResponseTest, responseCodeIsSet)
+{
+	// given
+	auto target = StatusResponse(UTF8String(), 418, Response::ResponseHeaders());
+
+	// then
+	ASSERT_EQ(418, target.getResponseCode());
+}
+
+TEST_F(StatusResponseTest, isErroneousResponseGivesTrueForErrorCodeEqualTo400)
+{
+	// given
+	auto target = StatusResponse(UTF8String(), 400, Response::ResponseHeaders());
+
+	// then
+	ASSERT_TRUE(target.isErroneousResponse());
+}
+
+TEST_F(StatusResponseTest, isErroneousResponseGivesTrueForErrorCodeGreaterThan400)
+{
+	// given
+	auto target = StatusResponse(UTF8String(), 401, Response::ResponseHeaders());
+
+	// then
+	ASSERT_TRUE(target.isErroneousResponse());
+}
+
+TEST_F(StatusResponseTest, isErroneousResponseGivesFalseForErrorCodeLessThan400)
+{
+	// given
+	auto target = StatusResponse(UTF8String(), 399, Response::ResponseHeaders());
+
+	// then
+	ASSERT_FALSE(target.isErroneousResponse());
+}
+
 TEST_F(StatusResponseTest, headersAreSet)
 {
 	// given

@@ -168,6 +168,42 @@ TEST_F(TimeSyncResponseTest, notExistingKey)
 	EXPECT_EQ(-1, timeSyncResponse.getResponseSendTime());
 }
 
+TEST_F(TimeSyncResponseTest, responseCodeIsSet)
+{
+	// given
+	auto target = TimeSyncResponse(UTF8String(), 418, Response::ResponseHeaders());
+
+	// then
+	ASSERT_EQ(418, target.getResponseCode());
+}
+
+TEST_F(TimeSyncResponseTest, isErroneousResponseGivesTrueForErrorCodeEqualTo400)
+{
+	// given
+	auto target = TimeSyncResponse(UTF8String(), 400, Response::ResponseHeaders());
+
+	// then
+	ASSERT_TRUE(target.isErroneousResponse());
+}
+
+TEST_F(TimeSyncResponseTest, isErroneousResponseGivesTrueForErrorCodeGreaterThan400)
+{
+	// given
+	auto target = TimeSyncResponse(UTF8String(), 401, Response::ResponseHeaders());
+
+	// then
+	ASSERT_TRUE(target.isErroneousResponse());
+}
+
+TEST_F(TimeSyncResponseTest, isErroneousResponseGivesFalseForErrorCodeLessThan400)
+{
+	// given
+	auto target = TimeSyncResponse(UTF8String(), 399, Response::ResponseHeaders());
+
+	// then
+	ASSERT_FALSE(target.isErroneousResponse());
+}
+
 TEST_F(TimeSyncResponseTest, headersAreSet)
 {
 	// given
