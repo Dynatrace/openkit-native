@@ -110,21 +110,31 @@ namespace protocol
 		/// @param[in] method the HTTP method to use. Currently either POST or GET
 		/// @returns a status response with the response data for the request or @c nullptr on error
 		///
-		std::unique_ptr<Response> sendRequestInternal(const RequestType requestType, const core::UTF8String& url, const core::UTF8String& clientIPAddress, const core::UTF8String& beaconData, const HttpMethod method);
+		std::unique_ptr<Response> sendRequestInternal(RequestType requestType, const core::UTF8String& url, const core::UTF8String& clientIPAddress, const core::UTF8String& beaconData, const HttpMethod method);
 
-		void buildMonitorURL(core::UTF8String& monitorURL, const core::UTF8String& baseURL, const core::UTF8String& applicationID, uint32_t serverID);
+		///
+		/// Build URL used for status check and beacon send requests
+		/// @param[in,out] monitorURL the url to build
+		/// @param[in] baseURL the beacon base url without the query string
+		/// @param[in] applicationID
+		/// @param[in] serverID
+		///
+		static void buildMonitorURL(core::UTF8String& monitorURL, const core::UTF8String& baseURL, const core::UTF8String& applicationID, uint32_t serverID);
 
-		void buildTimeSyncURL(core::UTF8String& monitorURL, const core::UTF8String& baseURL);
+		static void buildTimeSyncURL(core::UTF8String& timeSyncURL, const core::UTF8String& baseURL);
 
-		void buildNewSessionURL(core::UTF8String& monitorURL, const core::UTF8String& baseURL, const core::UTF8String& applicationID, uint32_t serverID);
+		static void buildNewSessionURL(core::UTF8String& newSessionURL, const core::UTF8String& baseURL, const core::UTF8String& applicationID, uint32_t serverID);
 
-		void appendQueryParam(core::UTF8String& url, const char* key, const char* vaalue);
+		static void appendQueryParam(core::UTF8String& url, const char* key, const char* vaalue);
 
-		std::unique_ptr<Response> handleResponse(int32_t httpCode, const std::string& buffer, const Response::ResponseHeaders& responseHeaders);
+		std::unique_ptr<Response> handleResponse(RequestType requestType, int32_t httpCode, const std::string& buffer, const Response::ResponseHeaders& responseHeaders);
 
 		static size_t readFunction(void *ptr, size_t elementSize, size_t numberOfElements, void* userPtr);
 
+		static std::unique_ptr<Response> unknownErrorResponse(RequestType requestType);
+
 	private:
+
 		/// Logger to write traces to
 		std::shared_ptr<openkit::ILogger> mLogger;
 

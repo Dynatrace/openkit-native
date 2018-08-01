@@ -26,6 +26,7 @@
 #include "HTTPResponseParser.h"
 #include "ProtocolConstants.h"
 #include "core/util/Compressor.h"
+#include "core/util/URLEncoding.h"
 #include "protocol/ssl/SSLStrictTrustManager.h"
 
 // connection constants
@@ -76,7 +77,7 @@ std::unique_ptr<StatusResponse> HTTPClient::sendStatusRequest()
 	{
 		return std::unique_ptr<StatusResponse>(reinterpret_cast<StatusResponse*>(response.release()));
 	}
-	return nullptr;
+	return std::unique_ptr<StatusResponse>(new StatusResponse(core::UTF8String(), std::numeric_limits<int32_t>::max(), Response::ResponseHeaders()));
 }
 
 std::unique_ptr<StatusResponse> HTTPClient::sendBeaconRequest(const core::UTF8String& clientIPAddress, const core::UTF8String& beaconData)
@@ -86,7 +87,7 @@ std::unique_ptr<StatusResponse> HTTPClient::sendBeaconRequest(const core::UTF8St
 	{
 		return std::unique_ptr<StatusResponse>(reinterpret_cast<StatusResponse*>(response.release()));
 	}
-	return nullptr;
+	return std::unique_ptr<StatusResponse>(new StatusResponse(core::UTF8String(), std::numeric_limits<int32_t>::max(), Response::ResponseHeaders()));
 }
 
 std::unique_ptr<TimeSyncResponse> HTTPClient::sendTimeSyncRequest()
@@ -96,7 +97,7 @@ std::unique_ptr<TimeSyncResponse> HTTPClient::sendTimeSyncRequest()
 	{
 		return std::unique_ptr<TimeSyncResponse>(reinterpret_cast<TimeSyncResponse*>(response.release()));
 	}
-	return nullptr;
+	return std::unique_ptr<TimeSyncResponse>(new TimeSyncResponse(core::UTF8String(), std::numeric_limits<int32_t>::max(), Response::ResponseHeaders()));
 }
 
 std::unique_ptr<StatusResponse> HTTPClient::sendNewSessionRequest()
@@ -106,7 +107,7 @@ std::unique_ptr<StatusResponse> HTTPClient::sendNewSessionRequest()
 	{
 		return std::unique_ptr<StatusResponse>(reinterpret_cast<StatusResponse*>(response.release()));
 	}
-	return nullptr;
+	return std::unique_ptr<StatusResponse>(new StatusResponse(core::UTF8String(), std::numeric_limits<int32_t>::max(), Response::ResponseHeaders()));
 }
 
 void HTTPClient::globalInit()
@@ -183,7 +184,7 @@ static size_t headerFunction(char *buffer, size_t elementSize, size_t numberOfEl
 }
 
 //TODO: stefan.eberl - use the request type or rethink design
-std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::RequestType requestType, const core::UTF8String& url, const core::UTF8String& clientIPAddress, const core::UTF8String& beaconData, const HTTPClient::HttpMethod method)
+std::unique_ptr<Response> HTTPClient::sendRequestInternal(HTTPClient::RequestType requestType, const core::UTF8String& url, const core::UTF8String& clientIPAddress, const core::UTF8String& beaconData, const HTTPClient::HttpMethod method)
 {
 	if (mLogger->isDebugEnabled())
 	{
@@ -211,7 +212,7 @@ std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::Requ
 	{
 		// Abort and cleanup if CURL cannot be initialized
 		mLogger->error("HTTPClient sendRequestInternal() - curl_easy_init() failed");
-		return nullptr;
+		return HTTPClient::unknownErrorResponse(requestType);
 	}
 
 	long httpCode = 0L;
@@ -298,7 +299,7 @@ std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::Requ
 			mCurl = nullptr;
 
 			// Check for success or error
-			return handleResponse(httpCode, responseParser.getResponseBody(), responseParser.getResponseHeaders());
+			return handleResponse(requestType, httpCode, responseParser.getResponseBody(), responseParser.getResponseHeaders());
 		}
 		else
 		{
@@ -317,10 +318,10 @@ std::unique_ptr<Response> HTTPClient::sendRequestInternal(const HTTPClient::Requ
 		mCurl = nullptr;
 	}
 
-	return nullptr;
+	return HTTPClient::unknownErrorResponse(requestType);
 }
 
-std::unique_ptr<Response> HTTPClient::handleResponse(int32_t httpCode, const std::string& response, const Response::ResponseHeaders& responseHeaders)
+std::unique_ptr<Response> HTTPClient::handleResponse(RequestType requestType, int32_t httpCode, const std::string& response, const Response::ResponseHeaders& responseHeaders)
 {
 	if (mLogger->isDebugEnabled())
 	{
@@ -331,10 +332,18 @@ std::unique_ptr<Response> HTTPClient::handleResponse(int32_t httpCode, const std
 	// check response code
 	if (httpCode >= 400)
 	{
-		// errors are logged only
-		
-		// return nullptr if error occurred
-		return nullptr;
+		// erroneous response
+		switch (requestType)
+		{
+		case RequestType::TIMESYNC:
+			return std::unique_ptr<Response>(new TimeSyncResponse(core::UTF8String(), httpCode, responseHeaders));
+		case RequestType::STATUS:
+		case RequestType::NEW_SESSION: // FALLTHROUGH
+		case RequestType::BEACON:      // FALLTHROUGH
+			return std::unique_ptr<Response>(new StatusResponse(core::UTF8String(), httpCode, responseHeaders));
+		default:
+			return nullptr;
+		}
 	}
 	else
 	{
@@ -350,18 +359,11 @@ std::unique_ptr<Response> HTTPClient::handleResponse(int32_t httpCode, const std
 		else
 		{
 			mLogger->warning("HTTPClient handleResponse() - Ignoring response - unknown request type in response [%s]", response.c_str());
-			return nullptr;
+			return HTTPClient::unknownErrorResponse(requestType);
 		}
 	}
 }
-
-///
-/// Build URL used for status check and beacon send requests
-/// @param[in,out] monitorURL the url to build
-/// @param[in] baseURL the beacon base url without the query string
-/// @param[in] applicationID
-/// @param[in] serverID
-///
+ 
 void HTTPClient::buildMonitorURL(core::UTF8String& monitorURL, const core::UTF8String& baseURL, const core::UTF8String& applicationID, uint32_t serverID)
 {
 	monitorURL.concatenate(baseURL);
@@ -375,31 +377,40 @@ void HTTPClient::buildMonitorURL(core::UTF8String& monitorURL, const core::UTF8S
 	appendQueryParam(monitorURL, QUERY_KEY_AGENT_TECHNOLOGY_TYPE, AGENT_TECHNOLOGY_TYPE);
 }
 
-void HTTPClient::buildTimeSyncURL(core::UTF8String& monitorURL, const core::UTF8String& baseURL)
+void HTTPClient::buildTimeSyncURL(core::UTF8String& timeSyncURL, const core::UTF8String& baseURL)
 {
-	monitorURL.concatenate(baseURL);
-	monitorURL.concatenate("?");
-	monitorURL.concatenate(REQUEST_TYPE_TIMESYNC);
+	timeSyncURL.concatenate(baseURL);
+	timeSyncURL.concatenate("?");
+	timeSyncURL.concatenate(REQUEST_TYPE_TIMESYNC);
 }
 
-void HTTPClient::buildNewSessionURL(core::UTF8String& monitorURL, const core::UTF8String& baseURL, const core::UTF8String& applicationID, uint32_t serverID)
+void HTTPClient::buildNewSessionURL(core::UTF8String& newSessionURL, const core::UTF8String& baseURL, const core::UTF8String& applicationID, uint32_t serverID)
 {
-	buildMonitorURL(monitorURL, baseURL, applicationID, serverID);
-	appendQueryParam(monitorURL, QUERY_KEY_NEW_SESSION, "1");
+	buildMonitorURL(newSessionURL, baseURL, applicationID, serverID);
+	appendQueryParam(newSessionURL, QUERY_KEY_NEW_SESSION, "1");
 }
 
 
 void HTTPClient::appendQueryParam(core::UTF8String& url, const char* key, const char* value)
 {
 	// converts the given value string to a URL encoded string
-	char *encodedValue = curl_easy_escape(mCurl, value, 0);
-	if (encodedValue)
-	{
-		url.concatenate("&");
-		url.concatenate(key);
-		url.concatenate("=");
-		url.concatenate(encodedValue);
-		curl_free(encodedValue);
-	}
+	url.concatenate("&");
+	url.concatenate(core::util::URLEncoding::urlencode(key));
+	url.concatenate("=");
+	url.concatenate(core::util::URLEncoding::urlencode(value));
 }
 
+std::unique_ptr<Response> HTTPClient::unknownErrorResponse(RequestType requestType)
+{
+	switch (requestType) {
+	case RequestType::STATUS:
+	case RequestType::BEACON: // fallthrough
+	case RequestType::NEW_SESSION: // fallthrough
+		return std::unique_ptr<Response>(new StatusResponse(core::UTF8String(), std::numeric_limits<int32_t>::max(), Response::ResponseHeaders()));
+	case RequestType::TIMESYNC:
+		return std::unique_ptr<Response>(new TimeSyncResponse(core::UTF8String(), std::numeric_limits<int32_t>::max(), Response::ResponseHeaders()));
+	default:
+		// should not be reached
+		return nullptr;
+	}
+}
