@@ -32,11 +32,12 @@ namespace protocol
 
 		///
 		/// Construct a status response using a response code and string
+		/// @param[in] logger The logger to write traces to
 		/// @param[in] response the response string obtained from the server
 		/// @param[in] responseCode a numerical response code
 		/// @param[in] responseHeaders HTTP response headers
 		///
-		StatusResponse(const core::UTF8String& response, int32_t responseCode, const Response::ResponseHeaders& responseHeaders);
+		StatusResponse(std::shared_ptr<openkit::ILogger> logger, const core::UTF8String& response, int32_t responseCode, const Response::ResponseHeaders& responseHeaders);
 
 		///
 		/// Destructor

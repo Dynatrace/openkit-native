@@ -58,6 +58,7 @@ set(OPENKIT_SOURCES_TEST_PROTOCOL
     ${CMAKE_CURRENT_LIST_DIR}/protocol/TestSSLTrustManager.h
     ${CMAKE_CURRENT_LIST_DIR}/protocol/HTTPResponseParserTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/protocol/BeaconTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/ResponseTest.cxx
 )
 
 set(OPENKIT_SOURCES_TEST_PROVIDERS

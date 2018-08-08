@@ -431,7 +431,7 @@ TEST_F(SessionTest, endSessionTwice)
 TEST_F(SessionTest, endSessionWithOpenRootActions)
 {
 	// set mock behavior of HTTPClient and HTTPClientProvider
-	protocol::StatusResponse* response = new protocol::StatusResponse(core::UTF8String(""), 200, protocol::Response::ResponseHeaders());
+	protocol::StatusResponse* response = new protocol::StatusResponse(logger, core::UTF8String(""), 200, protocol::Response::ResponseHeaders());
 
 	ON_CALL(*mockHTTPClientProvider, createClient(testing::_, testing::_))
 		.WillByDefault(testing::Return(mockHTTPClient));

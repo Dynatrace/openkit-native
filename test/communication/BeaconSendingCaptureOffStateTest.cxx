@@ -44,7 +44,7 @@ public:
 		mMockHTTPClient = std::shared_ptr<testing::NiceMock<test::MockHTTPClient>>(new testing::NiceMock<test::MockHTTPClient>(httpClientConfiguration));
 		
 		ON_CALL(*mMockHTTPClient, sendStatusRequestRawPtrProxy())
-			.WillByDefault(testing::Return(new protocol::StatusResponse("", 200, protocol::Response::ResponseHeaders())));
+			.WillByDefault(testing::Return(new protocol::StatusResponse(mLogger, "", 200, protocol::Response::ResponseHeaders())));
 	}
 
 	void TearDown()

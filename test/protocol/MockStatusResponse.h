@@ -18,6 +18,7 @@
 #define _TEST_PROTOCOL_MOCKSTATUSRESPONSE_H
 
 #include "protocol/StatusResponse.h"
+#include "openkit/ILogger.h"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -28,9 +29,32 @@ namespace test
 	{
 	public:
 		MockStatusResponse()
-			: protocol::StatusResponse("", 200, protocol::Response::ResponseHeaders())
+			: protocol::StatusResponse(std::make_shared<NullLogger>(), "", 200, protocol::Response::ResponseHeaders())
 		{
 		}
+
+		class NullLogger : public openkit::ILogger
+		{
+		public:
+
+			virtual ~NullLogger() {}
+
+			virtual void error(const char* /*format*/, ...) override {}
+
+			virtual void warning(const char* /*format*/, ...) override {}
+
+			virtual void info(const char* /*format*/, ...) override {}
+
+			virtual void debug(const char* /*format*/, ...) override {}
+
+			virtual bool isErrorEnabled() const override { return true;  }
+
+			virtual bool isWarningEnabled() const override { return true; }
+
+			virtual bool isInfoEnabled() const override { return true; }
+
+			virtual bool isDebugEnabled() const override { return true; }
+		};
 
 		MOCK_CONST_METHOD0(getResponseCode, int32_t());
 		MOCK_CONST_METHOD0(isCapture, bool());

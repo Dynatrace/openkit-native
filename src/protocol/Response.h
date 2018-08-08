@@ -17,10 +17,13 @@
 #ifndef _PROTOCOL_RESPONSE_H
 #define _PROTOCOL_RESPONSE_H
 
+#include "OpenKit/ILogger.h"
+
 #include <cstdint>
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <memory>
 
 namespace protocol
 {
@@ -33,13 +36,6 @@ namespace protocol
 
 		/// Alias for HTTP response headers
 		using ResponseHeaders = std::unordered_map<std::string, std::vector<std::string>>;
-
-		///
-		/// Construct a response given a response code
-		/// @param[in] responseCode a numerical code for the status of a request
-		/// @param[in] responseHeaders a map of key-value pairs containing the response headers and values.
-		///
-		Response(int32_t responseCode, const ResponseHeaders& responseHeaders);
 
 		///
 		/// Destructor
@@ -65,7 +61,34 @@ namespace protocol
 		///
 		const ResponseHeaders& getResponseHeaders() const;
 
+		///
+		/// Get Retry-After response header value in milliseconds.
+		///
+		/// @remarks According to RFC 7231 Section 7.1.3 (https://tools.ietf.org/html/rfc7231#section-7.1.3)
+		/// Retry-After response header's value can either be an HTTP date, or a positive integer representing
+		/// a delay in seconds.
+		/// Currently this method only parses the delay in seconds and returns the value in milliseoncs.
+		/// If any parsing error occurs, it's logged and a default value of 10 minutes (expressed in milliseconds)
+		/// is returned.
+		///
+		/// @return Returns the parsed Retry-After response header value or the default value in case of parsing errors.
+		///
+		int64_t getRetryAfterInMilliseconds() const;
+
+	protected:
+
+		///
+		/// Construct a response given a response code
+		/// @remarks This constructor is intentionally protected, to make the class abstract.
+		/// @param[in] responseCode a numerical code for the status of a request
+		/// @param[in] responseHeaders a map of key-value pairs containing the response headers and values.
+		///
+		Response(std::shared_ptr<openkit::ILogger> logger, int32_t responseCode, const ResponseHeaders& responseHeaders);
+
 	private:
+
+		/// Logger to write traces to
+		std::shared_ptr<openkit::ILogger> mLogger;
 		
 		/// numerical response code
 		int32_t mResponseCode;

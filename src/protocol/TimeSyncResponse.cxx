@@ -23,8 +23,8 @@
 
 using namespace protocol;
 
-TimeSyncResponse::TimeSyncResponse(const core::UTF8String& response, int32_t responseCode, const Response::ResponseHeaders& responseHeaders)
-	: Response(responseCode, responseHeaders)
+TimeSyncResponse::TimeSyncResponse(std::shared_ptr<openkit::ILogger> logger, const core::UTF8String& response, int32_t responseCode, const Response::ResponseHeaders& responseHeaders)
+	: Response(logger, responseCode, responseHeaders)
 	, mRequestReceiveTime(-1)
 	, mResponseSendTime(-1)
 {

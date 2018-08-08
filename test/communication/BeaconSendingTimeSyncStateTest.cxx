@@ -49,46 +49,46 @@ public:
 		response1.concatenate("=6&");
 		response1.concatenate(protocol::RESPONSE_KEY_RESPONSE_SEND_TIME);
 		response1.concatenate("=7");
-		reponsesForASuccessfullTimeSync.push_back(new protocol::TimeSyncResponse(response1, 200, protocol::Response::ResponseHeaders()));
+		reponsesForASuccessfullTimeSync.push_back(new protocol::TimeSyncResponse(mLogger, response1, 200, protocol::Response::ResponseHeaders()));
 		reponsesForASuccessfullTimeSyncWithRetries.push_back(nullptr);
-		reponsesForASuccessfullTimeSyncWithRetries.push_back(new protocol::TimeSyncResponse(response1, 200, protocol::Response::ResponseHeaders()));
+		reponsesForASuccessfullTimeSyncWithRetries.push_back(new protocol::TimeSyncResponse(mLogger, response1, 200, protocol::Response::ResponseHeaders()));
 
 		core::UTF8String response2 = core::UTF8String(protocol::RESPONSE_KEY_REQUEST_RECEIVE_TIME);
 		response2.concatenate("=20&");
 		response2.concatenate(protocol::RESPONSE_KEY_RESPONSE_SEND_TIME);
 		response2.concatenate("=22");
-		reponsesForASuccessfullTimeSync.push_back(new protocol::TimeSyncResponse(response2, 200, protocol::Response::ResponseHeaders()));
+		reponsesForASuccessfullTimeSync.push_back(new protocol::TimeSyncResponse(mLogger, response2, 200, protocol::Response::ResponseHeaders()));
 		reponsesForASuccessfullTimeSyncWithRetries.push_back(nullptr);
 		reponsesForASuccessfullTimeSyncWithRetries.push_back(nullptr);
-		reponsesForASuccessfullTimeSyncWithRetries.push_back(new protocol::TimeSyncResponse(response2, 200, protocol::Response::ResponseHeaders()));
+		reponsesForASuccessfullTimeSyncWithRetries.push_back(new protocol::TimeSyncResponse(mLogger, response2, 200, protocol::Response::ResponseHeaders()));
 
 		core::UTF8String response3 = core::UTF8String(protocol::RESPONSE_KEY_REQUEST_RECEIVE_TIME);
 		response3.concatenate("=40&");
 		response3.concatenate(protocol::RESPONSE_KEY_RESPONSE_SEND_TIME);
 		response3.concatenate("=41");
-		reponsesForASuccessfullTimeSync.push_back(new protocol::TimeSyncResponse(response3, 200, protocol::Response::ResponseHeaders()));
+		reponsesForASuccessfullTimeSync.push_back(new protocol::TimeSyncResponse(mLogger, response3, 200, protocol::Response::ResponseHeaders()));
 		reponsesForASuccessfullTimeSyncWithRetries.push_back(nullptr);
 		reponsesForASuccessfullTimeSyncWithRetries.push_back(nullptr);
 		reponsesForASuccessfullTimeSyncWithRetries.push_back(nullptr);
-		reponsesForASuccessfullTimeSyncWithRetries.push_back(new protocol::TimeSyncResponse(response3, 200, protocol::Response::ResponseHeaders()));
+		reponsesForASuccessfullTimeSyncWithRetries.push_back(new protocol::TimeSyncResponse(mLogger, response3, 200, protocol::Response::ResponseHeaders()));
 
 		core::UTF8String response4 = core::UTF8String(protocol::RESPONSE_KEY_REQUEST_RECEIVE_TIME);
 		response4.concatenate("=48&");
 		response4.concatenate(protocol::RESPONSE_KEY_RESPONSE_SEND_TIME);
 		response4.concatenate("=50");
-		reponsesForASuccessfullTimeSync.push_back(new protocol::TimeSyncResponse(response4, 200, protocol::Response::ResponseHeaders()));
+		reponsesForASuccessfullTimeSync.push_back(new protocol::TimeSyncResponse(mLogger, response4, 200, protocol::Response::ResponseHeaders()));
 		reponsesForASuccessfullTimeSyncWithRetries.push_back(nullptr);
 		reponsesForASuccessfullTimeSyncWithRetries.push_back(nullptr);
 		reponsesForASuccessfullTimeSyncWithRetries.push_back(nullptr);
 		reponsesForASuccessfullTimeSyncWithRetries.push_back(nullptr);
-		reponsesForASuccessfullTimeSyncWithRetries.push_back(new protocol::TimeSyncResponse(response4, 200, protocol::Response::ResponseHeaders()));
+		reponsesForASuccessfullTimeSyncWithRetries.push_back(new protocol::TimeSyncResponse(mLogger, response4, 200, protocol::Response::ResponseHeaders()));
 
 		core::UTF8String response5 = core::UTF8String(protocol::RESPONSE_KEY_REQUEST_RECEIVE_TIME);
 		response5.concatenate("=60&");
 		response5.concatenate(protocol::RESPONSE_KEY_RESPONSE_SEND_TIME);
 		response5.concatenate("=61");
-		reponsesForASuccessfullTimeSync.push_back(new protocol::TimeSyncResponse(response5, 200, protocol::Response::ResponseHeaders()));
-		reponsesForASuccessfullTimeSyncWithRetries.push_back(new protocol::TimeSyncResponse(response5, 200, protocol::Response::ResponseHeaders()));
+		reponsesForASuccessfullTimeSync.push_back(new protocol::TimeSyncResponse(mLogger, response5, 200, protocol::Response::ResponseHeaders()));
+		reponsesForASuccessfullTimeSyncWithRetries.push_back(new protocol::TimeSyncResponse(mLogger, response5, 200, protocol::Response::ResponseHeaders()));
 
 		timestampsForASuccessfullTimeSync = { 2L, 8L, 10L, 23L, 32L, 42L, 44L, 52L, 54L, 62L, 66L };
 		timestampsForASuccessfullTimeSyncWithRetries = { 2L, 8L, 2L, 8L,
@@ -529,7 +529,7 @@ TEST_F(BeaconSendingTimeSyncTest, timeSyncSupportIsDisabledIfBothTimeStampsInTim
 	disableString.concatenate("=-1&");
 	disableString.concatenate(protocol::RESPONSE_KEY_RESPONSE_SEND_TIME);
 	disableString.concatenate("=-2");
-	protocol::TimeSyncResponse* disable = new protocol::TimeSyncResponse(disableString, 200, protocol::Response::ResponseHeaders());
+	protocol::TimeSyncResponse* disable = new protocol::TimeSyncResponse(mLogger, disableString, 200, protocol::Response::ResponseHeaders());
 
 	ON_CALL(mockContext, getLastTimeSyncTime())
 		.WillByDefault(testing::Return(-1));
@@ -557,7 +557,7 @@ TEST_F(BeaconSendingTimeSyncTest, timeSyncSupportIsDisabledIfFirstTimeStampInTim
 	disableString.concatenate("=-1&");
 	disableString.concatenate(protocol::RESPONSE_KEY_RESPONSE_SEND_TIME);
 	disableString.concatenate("=7");
-	protocol::TimeSyncResponse* disable = new protocol::TimeSyncResponse(disableString, 200, protocol::Response::ResponseHeaders());
+	protocol::TimeSyncResponse* disable = new protocol::TimeSyncResponse(mLogger, disableString, 200, protocol::Response::ResponseHeaders());
 
 	ON_CALL(mockContext, getLastTimeSyncTime())
 		.WillByDefault(testing::Return(-1));
@@ -585,7 +585,7 @@ TEST_F(BeaconSendingTimeSyncTest, timeSyncSupportIsDisabledIfSecondTimeStampInTi
 	disableString.concatenate("=1&");
 	disableString.concatenate(protocol::RESPONSE_KEY_RESPONSE_SEND_TIME);
 	disableString.concatenate("=-1");
-	protocol::TimeSyncResponse* disable = new protocol::TimeSyncResponse(disableString, 200, protocol::Response::ResponseHeaders());
+	protocol::TimeSyncResponse* disable = new protocol::TimeSyncResponse(mLogger, disableString, 200, protocol::Response::ResponseHeaders());
 
 	ON_CALL(mockContext, getLastTimeSyncTime())
 		.WillByDefault(testing::Return(-1));

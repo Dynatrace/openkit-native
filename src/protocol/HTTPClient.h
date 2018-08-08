@@ -131,7 +131,7 @@ namespace protocol
 
 		static size_t readFunction(void *ptr, size_t elementSize, size_t numberOfElements, void* userPtr);
 
-		static std::unique_ptr<Response> unknownErrorResponse(RequestType requestType);
+		std::unique_ptr<Response> unknownErrorResponse(RequestType requestType);
 
 	private:
 

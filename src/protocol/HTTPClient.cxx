@@ -77,7 +77,7 @@ std::unique_ptr<StatusResponse> HTTPClient::sendStatusRequest()
 	{
 		return std::unique_ptr<StatusResponse>(reinterpret_cast<StatusResponse*>(response.release()));
 	}
-	return std::unique_ptr<StatusResponse>(new StatusResponse(core::UTF8String(), std::numeric_limits<int32_t>::max(), Response::ResponseHeaders()));
+	return std::unique_ptr<StatusResponse>(new StatusResponse(mLogger, core::UTF8String(), std::numeric_limits<int32_t>::max(), Response::ResponseHeaders()));
 }
 
 std::unique_ptr<StatusResponse> HTTPClient::sendBeaconRequest(const core::UTF8String& clientIPAddress, const core::UTF8String& beaconData)
@@ -87,7 +87,7 @@ std::unique_ptr<StatusResponse> HTTPClient::sendBeaconRequest(const core::UTF8St
 	{
 		return std::unique_ptr<StatusResponse>(reinterpret_cast<StatusResponse*>(response.release()));
 	}
-	return std::unique_ptr<StatusResponse>(new StatusResponse(core::UTF8String(), std::numeric_limits<int32_t>::max(), Response::ResponseHeaders()));
+	return std::unique_ptr<StatusResponse>(new StatusResponse(mLogger, core::UTF8String(), std::numeric_limits<int32_t>::max(), Response::ResponseHeaders()));
 }
 
 std::unique_ptr<TimeSyncResponse> HTTPClient::sendTimeSyncRequest()
@@ -97,7 +97,7 @@ std::unique_ptr<TimeSyncResponse> HTTPClient::sendTimeSyncRequest()
 	{
 		return std::unique_ptr<TimeSyncResponse>(reinterpret_cast<TimeSyncResponse*>(response.release()));
 	}
-	return std::unique_ptr<TimeSyncResponse>(new TimeSyncResponse(core::UTF8String(), std::numeric_limits<int32_t>::max(), Response::ResponseHeaders()));
+	return std::unique_ptr<TimeSyncResponse>(new TimeSyncResponse(mLogger, core::UTF8String(), std::numeric_limits<int32_t>::max(), Response::ResponseHeaders()));
 }
 
 std::unique_ptr<StatusResponse> HTTPClient::sendNewSessionRequest()
@@ -107,7 +107,7 @@ std::unique_ptr<StatusResponse> HTTPClient::sendNewSessionRequest()
 	{
 		return std::unique_ptr<StatusResponse>(reinterpret_cast<StatusResponse*>(response.release()));
 	}
-	return std::unique_ptr<StatusResponse>(new StatusResponse(core::UTF8String(), std::numeric_limits<int32_t>::max(), Response::ResponseHeaders()));
+	return std::unique_ptr<StatusResponse>(new StatusResponse(mLogger, core::UTF8String(), std::numeric_limits<int32_t>::max(), Response::ResponseHeaders()));
 }
 
 void HTTPClient::globalInit()
@@ -336,11 +336,11 @@ std::unique_ptr<Response> HTTPClient::handleResponse(RequestType requestType, in
 		switch (requestType)
 		{
 		case RequestType::TIMESYNC:
-			return std::unique_ptr<Response>(new TimeSyncResponse(core::UTF8String(), httpCode, responseHeaders));
+			return std::unique_ptr<Response>(new TimeSyncResponse(mLogger, core::UTF8String(), httpCode, responseHeaders));
 		case RequestType::STATUS:
 		case RequestType::NEW_SESSION: // FALLTHROUGH
 		case RequestType::BEACON:      // FALLTHROUGH
-			return std::unique_ptr<Response>(new StatusResponse(core::UTF8String(), httpCode, responseHeaders));
+			return std::unique_ptr<Response>(new StatusResponse(mLogger, core::UTF8String(), httpCode, responseHeaders));
 		default:
 			return nullptr;
 		}
@@ -350,11 +350,11 @@ std::unique_ptr<Response> HTTPClient::handleResponse(RequestType requestType, in
 		// process status response
 		if (response.find(REQUEST_TYPE_TIMESYNC) == 0)
 		{
-			return std::unique_ptr<TimeSyncResponse>(new TimeSyncResponse(core::UTF8String(response.c_str()), httpCode, responseHeaders));
+			return std::unique_ptr<TimeSyncResponse>(new TimeSyncResponse(mLogger, core::UTF8String(response.c_str()), httpCode, responseHeaders));
 		}
 		else if (response.find(REQUEST_TYPE_MOBILE) == 0)
 		{
-			return std::unique_ptr<StatusResponse>(new StatusResponse(core::UTF8String(response.c_str()), httpCode, responseHeaders));
+			return std::unique_ptr<StatusResponse>(new StatusResponse(mLogger, core::UTF8String(response.c_str()), httpCode, responseHeaders));
 		}
 		else
 		{
@@ -406,9 +406,9 @@ std::unique_ptr<Response> HTTPClient::unknownErrorResponse(RequestType requestTy
 	case RequestType::STATUS:
 	case RequestType::BEACON: // fallthrough
 	case RequestType::NEW_SESSION: // fallthrough
-		return std::unique_ptr<Response>(new StatusResponse(core::UTF8String(), std::numeric_limits<int32_t>::max(), Response::ResponseHeaders()));
+		return std::unique_ptr<Response>(new StatusResponse(mLogger, core::UTF8String(), std::numeric_limits<int32_t>::max(), Response::ResponseHeaders()));
 	case RequestType::TIMESYNC:
-		return std::unique_ptr<Response>(new TimeSyncResponse(core::UTF8String(), std::numeric_limits<int32_t>::max(), Response::ResponseHeaders()));
+		return std::unique_ptr<Response>(new TimeSyncResponse(mLogger, core::UTF8String(), std::numeric_limits<int32_t>::max(), Response::ResponseHeaders()));
 	default:
 		// should not be reached
 		return nullptr;
