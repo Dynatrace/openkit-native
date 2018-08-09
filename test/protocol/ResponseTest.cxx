@@ -43,13 +43,12 @@ protected:
 		{
 		}
 	};
-
-	static constexpr char RESPONSE_KEY_RETRY_AFTER[] = "retry-after";
-	static constexpr int64_t DEFAULT_RETRY_AFTER_IN_MILLISECONDS = 10L * 60L * 1000L;
-
 	std::ostringstream devNull;
 	std::shared_ptr<openkit::ILogger> logger;
 };
+
+static constexpr char RESPONSE_KEY_RETRY_AFTER[] = "retry-after";
+static constexpr int64_t DEFAULT_RETRY_AFTER_IN_MILLISECONDS = 10L * 60L * 1000L;
 
 TEST_F(ResponseTest, isErroneousResponseGivesTrueForErrorCodeEqualTo400)
 {
