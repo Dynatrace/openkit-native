@@ -17,7 +17,9 @@
 #ifndef _TEST_PROTOCOL_MOCKSTATUSRESPONSE_H
 #define _TEST_PROTOCOL_MOCKSTATUSRESPONSE_H
 
+#include "NullLogger.h"
 #include "protocol/StatusResponse.h"
+#include "OpenKit/ILogger.h"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -28,7 +30,7 @@ namespace test
 	{
 	public:
 		MockStatusResponse()
-			: protocol::StatusResponse("", 200, protocol::Response::ResponseHeaders())
+			: protocol::StatusResponse(std::make_shared<NullLogger>(), "", 200, protocol::Response::ResponseHeaders())
 		{
 		}
 

@@ -91,7 +91,7 @@ TEST_F(BeaconSendingInitialStateTest, executeSetsLastOpenSessionBeaconSendTime)
 	ON_CALL(mockContext, getHTTPClient())
 		.WillByDefault(testing::Return(mMockHTTPClient));
 	ON_CALL(*mMockHTTPClient, sendStatusRequestRawPtrProxy())
-		.WillByDefault(testing::Return(new protocol::StatusResponse("", 200, protocol::Response::ResponseHeaders())));
+		.WillByDefault(testing::Return(new protocol::StatusResponse(mLogger, "", 200, protocol::Response::ResponseHeaders())));
 	ON_CALL(mockContext, getCurrentTimestamp())
 		.WillByDefault(testing::Return(123456789L));
 	ON_CALL(mockContext, isShutdownRequested())
@@ -237,7 +237,7 @@ TEST_F(BeaconSendingInitialStateTest, aSuccessfulStatusResponsePerformsStateTran
 	ON_CALL(mockContext, getHTTPClient())
 		.WillByDefault(testing::Return(mMockHTTPClient));
 	ON_CALL(*mMockHTTPClient, sendStatusRequestRawPtrProxy())
-		.WillByDefault(testing::Return(new protocol::StatusResponse("", 200, protocol::Response::ResponseHeaders())));
+		.WillByDefault(testing::Return(new protocol::StatusResponse(mLogger, "", 200, protocol::Response::ResponseHeaders())));
 
 	// verify state transition
 	EXPECT_CALL(mockContext, setNextState(IsABeaconSendingTimeSyncState()))

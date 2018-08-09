@@ -30,8 +30,8 @@ constexpr char RESPONSE_KEY_MULTIPLICITY[] = "mp";
 
 using namespace protocol;
 
-StatusResponse::StatusResponse(const core::UTF8String& response, int32_t responseCode, const Response::ResponseHeaders& responseHeaders)
-	: Response(responseCode, responseHeaders)
+StatusResponse::StatusResponse(std::shared_ptr<openkit::ILogger> logger, const core::UTF8String& response, int32_t responseCode, const Response::ResponseHeaders& responseHeaders)
+	: Response(logger, responseCode, responseHeaders)
 	, mCapture(true)
 	, mSendInterval(-1)
 	, mMonitorName()

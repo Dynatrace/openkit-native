@@ -60,7 +60,7 @@ public:
 		std::shared_ptr<configuration::HTTPClientConfiguration> httpClientConfiguration = std::make_shared<configuration::HTTPClientConfiguration>(core::UTF8String(""), 0, core::UTF8String(""));
 		mMockHTTPClient = std::shared_ptr<testing::NiceMock<test::MockHTTPClient>>(new testing::NiceMock<test::MockHTTPClient>(httpClientConfiguration));
 		ON_CALL(*mMockHTTPClient, sendStatusRequestRawPtrProxy())
-			.WillByDefault(testing::Return(new protocol::StatusResponse("", 200, protocol::Response::ResponseHeaders())));
+			.WillByDefault(testing::Return(new protocol::StatusResponse(mLogger, "", 200, protocol::Response::ResponseHeaders())));
 
 		ON_CALL(*mMockSession1Open, getBeaconConfiguration())
 			.WillByDefault(testing::Return(std::make_shared<configuration::BeaconConfiguration>()));

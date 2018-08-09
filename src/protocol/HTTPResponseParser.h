@@ -33,6 +33,11 @@ namespace protocol
 	public:
 
 		///
+		/// Construct a HTTPResponseParser instance.
+		///
+		HTTPResponseParser();
+
+		///
 		/// Method called when new header line is ready to be parsed.
 		/// @remarks The deprecated header folding (having one long header split up into multiple lines)
 		///          is not supported.

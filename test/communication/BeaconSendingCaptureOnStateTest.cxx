@@ -51,9 +51,9 @@ public:
 		mMockSession3Finished = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>(mLogger));
 		mMockSession4Finished = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>(mLogger));
 		ON_CALL(*mMockSession1Open, sendBeaconRawPtrProxy(testing::_))
-			.WillByDefault(testing::Return(new protocol::StatusResponse("", 200, protocol::Response::ResponseHeaders())));
+			.WillByDefault(testing::Return(new protocol::StatusResponse(mLogger, "", 200, protocol::Response::ResponseHeaders())));
 		ON_CALL(*mMockSession2Open, sendBeaconRawPtrProxy(testing::_))
-			.WillByDefault(testing::Return(new protocol::StatusResponse("", 404, protocol::Response::ResponseHeaders())));
+			.WillByDefault(testing::Return(new protocol::StatusResponse(mLogger, "", 404, protocol::Response::ResponseHeaders())));
 
 		mMockContext = std::shared_ptr<testing::NiceMock<test::MockBeaconSendingContext>>(new testing::NiceMock<test::MockBeaconSendingContext>(mLogger));
 		ON_CALL(*mMockContext, isTimeSyncSupported())
@@ -93,14 +93,14 @@ public:
 		// when deleting the instance the second time the test would crash
 		// using a lambda resolves this issue by creating new instances
 		ON_CALL(*mMockHttpClient, sendStatusRequestRawPtrProxy())
-			.WillByDefault(testing::Invoke([]() -> protocol::StatusResponse* 
+			.WillByDefault(testing::Invoke([this]() -> protocol::StatusResponse* 
 				{
-					return new protocol::StatusResponse("", 200, protocol::Response::ResponseHeaders());
+					return new protocol::StatusResponse(mLogger, "", 200, protocol::Response::ResponseHeaders());
 				}));
 		ON_CALL(*mMockHttpClient, sendNewSessionRequestRawPtrProxy())
-			.WillByDefault(testing::Invoke([]() -> protocol::StatusResponse*
+			.WillByDefault(testing::Invoke([this]() -> protocol::StatusResponse*
 				{
-				return new protocol::StatusResponse("", 200, protocol::Response::ResponseHeaders());
+				return new protocol::StatusResponse(mLogger, "", 200, protocol::Response::ResponseHeaders());
 				}));
 
 		ON_CALL(*mMockSession1Open, getBeaconConfiguration())
@@ -329,8 +329,8 @@ TEST_F(BeaconSendingCaptureOnStateTest, newSessionRequestsAreMadeForAllNewSessio
 	EXPECT_CALL(*mMockHttpClient, sendNewSessionRequestRawPtrProxy())
 		.Times(testing::Exactly(2));
 
-	std::vector<protocol::StatusResponse*> responses = { new protocol::StatusResponse("mp=5", 200, protocol::Response::ResponseHeaders()),
-														new protocol::StatusResponse("mp=3", 200, protocol::Response::ResponseHeaders())
+	std::vector<protocol::StatusResponse*> responses = { new protocol::StatusResponse(mLogger, "mp=5", 200, protocol::Response::ResponseHeaders()),
+														new protocol::StatusResponse(mLogger, "mp=3", 200, protocol::Response::ResponseHeaders())
 	};
 
 	auto sessionWrapper1 = std::make_shared<core::SessionWrapper>(mMockSession1Open);
@@ -385,7 +385,7 @@ TEST_F(BeaconSendingCaptureOnStateTest, multiplicityIsSetToZeroIfNoFurtherNewSes
 	// given
 	communication::BeaconSendingCaptureOnState target;
 
-	std::vector<protocol::StatusResponse*> statusResponses = { new protocol::StatusResponse("mp=5", 200, protocol::Response::ResponseHeaders()) };
+	std::vector<protocol::StatusResponse*> statusResponses = { new protocol::StatusResponse(mLogger, "mp=5", 200, protocol::Response::ResponseHeaders()) };
 
 	ON_CALL(*mMockHttpClient, sendNewSessionRequestRawPtrProxy())
 		.WillByDefault(testing::Invoke([&statusResponses]() {
@@ -483,9 +483,9 @@ TEST_F(BeaconSendingCaptureOnStateTest, finishedSessionsAreSent)
 		.WillByDefault(testing::Return(true));
 
 	ON_CALL(*mMockSession3Finished, sendBeaconRawPtrProxy(testing::_))
-		.WillByDefault(testing::Return(new protocol::StatusResponse("", 200, protocol::Response::ResponseHeaders())));
+		.WillByDefault(testing::Return(new protocol::StatusResponse(mLogger, "", 200, protocol::Response::ResponseHeaders())));
 	ON_CALL(*mMockSession4Finished, sendBeaconRawPtrProxy(testing::_))
-		.WillByDefault(testing::Return(new protocol::StatusResponse("", 200, protocol::Response::ResponseHeaders())));
+		.WillByDefault(testing::Return(new protocol::StatusResponse(mLogger, "", 200, protocol::Response::ResponseHeaders())));
 
 	EXPECT_CALL(*mMockSession3Finished, sendBeaconRawPtrProxy(testing::_))
 		.Times(testing::Exactly(1));
