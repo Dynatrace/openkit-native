@@ -59,6 +59,8 @@ set(OPENKIT_SOURCES_TEST_PROTOCOL
     ${CMAKE_CURRENT_LIST_DIR}/protocol/HTTPResponseParserTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/protocol/BeaconTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/protocol/ResponseTest.cxx
+	${CMAKE_CURRENT_LIST_DIR}/protocol/MockStatusResponse.h
+	${CMAKE_CURRENT_LIST_DIR}/protocol/NullLogger.h
 )
 
 set(OPENKIT_SOURCES_TEST_PROVIDERS

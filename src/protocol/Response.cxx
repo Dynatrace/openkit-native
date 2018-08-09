@@ -22,7 +22,7 @@ using namespace protocol;
 
 static constexpr int32_t HTTP_BAD_REQUEST = 400;
 static constexpr char RESPONSE_KEY_RETRY_AFTER[] = "retry-after";
-static constexpr int64_t DEFAULT_RETRY_AFTER_IN_MILLISECONDS = 10L * 60L * 1000L;
+static constexpr int64_t DEFAULT_RETRY_AFTER_IN_MILLISECONDS = 10L * 60L * 1000L; // 10 minutes in milliseconds
 
 Response::Response(std::shared_ptr<openkit::ILogger> logger, int32_t responseCode, const ResponseHeaders& responseHeaders)
 	: mLogger(logger)
@@ -52,7 +52,7 @@ int64_t Response::getRetryAfterInMilliseconds() const
 	if (iterator == mResponseHeaders.end())
 	{
 		// the Retry-After response header is missing
-		mLogger->warning("%s is not available - using default value " PRId64,
+		mLogger->warning("%s is not available - using default value %" PRId64,
 			RESPONSE_KEY_RETRY_AFTER, DEFAULT_RETRY_AFTER_IN_MILLISECONDS);
 		return DEFAULT_RETRY_AFTER_IN_MILLISECONDS;
 	}
@@ -60,7 +60,7 @@ int64_t Response::getRetryAfterInMilliseconds() const
 	if (iterator->second.size() != 1)
 	{
 		// the Retry-After response header has multiple values, but only one is expected
-		mLogger->warning("%s has unexpected number of values - using default value " PRId64,
+		mLogger->warning("%s has unexpected number of values - using default value %" PRId64,
 			RESPONSE_KEY_RETRY_AFTER, DEFAULT_RETRY_AFTER_IN_MILLISECONDS);
 		return DEFAULT_RETRY_AFTER_IN_MILLISECONDS;
 	}
@@ -73,14 +73,14 @@ int64_t Response::getRetryAfterInMilliseconds() const
 	}
 	catch (const std::invalid_argument& e)
 	{
-		mLogger->error("Failed to parse %s value \"%s\" (std::invalid_argument - reason: %s) - using default value " PRId64,
+		mLogger->error("Failed to parse %s value \"%s\" (std::invalid_argument - reason: %s) - using default value %" PRId64,
 			RESPONSE_KEY_RETRY_AFTER, stringValue.c_str(), e.what(), DEFAULT_RETRY_AFTER_IN_MILLISECONDS);
 		return DEFAULT_RETRY_AFTER_IN_MILLISECONDS;
 
 	}
 	catch (const std::out_of_range& e)
 	{
-		mLogger->error("Failed to parse %s value \"%s\" (std::out_of_range - reason: %s) - using default value " PRId64,
+		mLogger->error("Failed to parse %s value \"%s\" (std::out_of_range - reason: %s) - using default value %" PRId64,
 			RESPONSE_KEY_RETRY_AFTER, stringValue.c_str(), e.what(), DEFAULT_RETRY_AFTER_IN_MILLISECONDS);
 		return DEFAULT_RETRY_AFTER_IN_MILLISECONDS;
 	}

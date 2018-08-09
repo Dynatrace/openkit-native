@@ -24,6 +24,13 @@ using namespace protocol;
 static constexpr char HTTP_HEADER_LINE_KEY_VALUE_SEPARATOR = ':';
 static constexpr char HTTP_HEADER_LINE_VALUE_SEPARATOR = ',';
 
+HTTPResponseParser::HTTPResponseParser()
+	: mResponseHeaders()
+	, mResponseBody()
+{
+}
+
+
 size_t HTTPResponseParser::responseHeaderData(const char *buffer, size_t elementSize, size_t numberOfElements)
 {
 	// convert response line into STL string
