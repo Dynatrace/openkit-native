@@ -13,9 +13,9 @@
 # limitations under the License.
 
 SET(OPENKIT_SAMPLE1_SOURCES
-    ${CMAKE_CURRENT_LIST_DIR}/sample1/src/openkit-sample.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/sample1/src/CommandLineArguments.h
     ${CMAKE_CURRENT_LIST_DIR}/sample1/src/CommandLineArguments.cxx
+	${CMAKE_CURRENT_LIST_DIR}/sample1/src/CommandLineArguments.h
+	${CMAKE_CURRENT_LIST_DIR}/sample1/src/openkit-sample.cxx
 )
 
 SET(OPENKIT_SAMPLE2_SOURCES
