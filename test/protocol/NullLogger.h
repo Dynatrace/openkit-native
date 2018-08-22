@@ -17,6 +17,8 @@
 #ifndef _TEST_PROTOCOL_NULLLOGGER_H
 #define _TEST_PROTOCOL_NULLLOGGER_H
 
+#include <OpenKit/ILogger.h>
+
 class NullLogger : public openkit::ILogger
 {
 public:
