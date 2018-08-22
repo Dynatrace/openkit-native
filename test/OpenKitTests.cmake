@@ -76,13 +76,15 @@ set(OPENKIT_SOURCES_TEST_PROVIDERS
 
 set(OPENKIT_SOURCES_TEST_COMMUNICATION
 	${CMAKE_CURRENT_LIST_DIR}/communication/AbstractBeaconSendingStateTest.cxx
-	${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingTerminalStateTest.cxx
-	${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingInitialStateTest.cxx
-	${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingTimeSyncStateTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingCaptureOffStateTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingCaptureOnStateTest.cxx
-	${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingFlushSessionStateTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingContextTest.cxx
+	${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingFlushSessionStateTest.cxx
+	${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingInitialStateTest.cxx
+	${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingRequestUtilTest.cxx
+	${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingResponseUtilTest.cxx
+	${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingTerminalStateTest.cxx
+	${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingTimeSyncStateTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/communication/CustomMatchers.h
     ${CMAKE_CURRENT_LIST_DIR}/communication/MockAbstractBeaconSendingState.h
     ${CMAKE_CURRENT_LIST_DIR}/communication/MockBeaconSendingContext.h

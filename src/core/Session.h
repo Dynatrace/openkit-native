@@ -98,7 +98,7 @@ namespace core
 		/// @param[in] clientProvider the IHTTPClientProvider to use for sending
 		/// @returns the status response returned for the Beacon data
 		///
-		virtual std::unique_ptr<protocol::StatusResponse> sendBeacon(std::shared_ptr<providers::IHTTPClientProvider> clientProvider);
+		virtual std::shared_ptr<protocol::StatusResponse> sendBeacon(std::shared_ptr<providers::IHTTPClientProvider> clientProvider);
 
 		///
 		/// Test if this session is empty or not

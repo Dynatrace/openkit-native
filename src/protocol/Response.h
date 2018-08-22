@@ -43,11 +43,24 @@ namespace protocol
 		virtual ~Response() {}
 
 		///
+		/// Return a boolean indicating whether this is a successful response or not.
+		/// @remarks A response is considered to be successful, if the getResponseCode() returns < 400.
+		/// @return @c true if this response is successful, @c false otherwise.
+		///
+		bool isSuccessfulResponse() const;
+		///
 		/// Return a boolean indicating whether this is an erroneous response or not.
 		/// @remarks A response is considered to be erroneous, if the getResponseCode() returns >= 400.
 		/// @return @c true if this response is erroneous, @c false otherwise.
 		///
 		bool isErroneousResponse() const;
+
+		///
+		/// Return a boolean indicating whether this is a "too many requests" response or not.
+		/// @remarks A response is a "too many requests" response, if the getResponseCode() returns @c 429.
+		/// @return @c true if this response is a "too many requests" response, @c false otherwise.
+		///
+		bool isTooManyRequestsResponse() const;
 
 		///
 		/// Return the response code

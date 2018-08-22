@@ -71,7 +71,7 @@ namespace communication
 		/// @param[in] beacon sending context
 		/// @param[in] response to process
 		///
-		static void handleStatusResponse(BeaconSendingContext& context, std::unique_ptr<protocol::StatusResponse> statusResponse);
+		static void handleStatusResponse(BeaconSendingContext& context, std::shared_ptr<protocol::StatusResponse> statusResponse);
 
 		///
 		/// Check if new sessions are allowed to report data
@@ -81,7 +81,7 @@ namespace communication
 
 	private:
 		/// store last received status response
-		std::unique_ptr<protocol::StatusResponse> statusResponse;
+		std::shared_ptr<protocol::StatusResponse> statusResponse;
 	};
 }
 #endif

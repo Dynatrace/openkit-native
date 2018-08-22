@@ -79,6 +79,8 @@ set(OPENKIT_SOURCES_COMMUNICATION
     ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingInitialState.h
     ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingRequestUtil.cxx
     ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingRequestUtil.h
+	${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingResponseUtil.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingResponseUtil.h
     ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingTerminalState.cxx
     ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingTerminalState.h
     ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingTimeSyncState.cxx

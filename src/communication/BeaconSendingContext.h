@@ -233,7 +233,7 @@ namespace communication
 		/// Handle the status response received from the server
 		/// Update the current configuration accordingly
 		///
-		void handleStatusResponse(std::unique_ptr<protocol::StatusResponse> response);
+		void handleStatusResponse(std::shared_ptr<protocol::StatusResponse> response);
 
 		///
 		/// Clears all session data

@@ -37,7 +37,15 @@ namespace communication
 		/// @param[in] numRetries number of retries when failing
 		/// @param[in] initialRetryDelayInMillis if retries are necesarry this in the initial time to sleep between two retries, it is doubled every time
 		///
-		static std::unique_ptr<protocol::StatusResponse> sendStatusRequest(BeaconSendingContext& context, uint32_t numRetries, uint64_t initialRetryDelayInMillis);
+		static std::shared_ptr<protocol::StatusResponse> sendStatusRequest(BeaconSendingContext& context, uint32_t numRetries, uint64_t initialRetryDelayInMillis);
+
+	private:
+
+		///
+		/// Default constructor.
+		/// @remarks This constructor is removed, since this class is used as static utility class.
+		///
+		BeaconSendingRequestUtil() = delete;
 	};
 }
 

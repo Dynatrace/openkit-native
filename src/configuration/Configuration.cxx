@@ -53,7 +53,7 @@ std::shared_ptr<HTTPClientConfiguration> Configuration::getHTTPClientConfigurati
 	return mHTTPClientConfiguration;
 }
 
-void Configuration::updateSettings(std::unique_ptr<protocol::StatusResponse> statusResponse)
+void Configuration::updateSettings(std::shared_ptr<protocol::StatusResponse> statusResponse)
 {
 	if (statusResponse == nullptr || statusResponse->getResponseCode() != 200)
 	{

@@ -31,24 +31,24 @@ namespace test {
 		{
 		}
 
-		virtual std::unique_ptr<protocol::StatusResponse> sendStatusRequest()
+		virtual std::shared_ptr<protocol::StatusResponse> sendStatusRequest()
 		{
-			return std::unique_ptr<protocol::StatusResponse>(sendStatusRequestRawPtrProxy());
+			return std::shared_ptr<protocol::StatusResponse>(sendStatusRequestRawPtrProxy());
 		}
 
-		virtual std::unique_ptr<protocol::TimeSyncResponse> sendTimeSyncRequest()
+		virtual std::shared_ptr<protocol::TimeSyncResponse> sendTimeSyncRequest()
 		{
-			return std::unique_ptr<protocol::TimeSyncResponse>(sendTimeSyncRequestRawPtrProxy());
+			return std::shared_ptr<protocol::TimeSyncResponse>(sendTimeSyncRequestRawPtrProxy());
 		}
 
-		virtual std::unique_ptr<protocol::StatusResponse> sendBeaconRequest(const core::UTF8String& clientIPAddress, const core::UTF8String& beaconData)
+		virtual std::shared_ptr<protocol::StatusResponse> sendBeaconRequest(const core::UTF8String& clientIPAddress, const core::UTF8String& beaconData)
 		{
-			return std::unique_ptr<protocol::StatusResponse>(sendBeaconRequestRawPtrProxy(clientIPAddress, beaconData));
+			return std::shared_ptr<protocol::StatusResponse>(sendBeaconRequestRawPtrProxy(clientIPAddress, beaconData));
 		}
 
-		virtual std::unique_ptr<protocol::StatusResponse> sendNewSessionRequest()
+		virtual std::shared_ptr<protocol::StatusResponse> sendNewSessionRequest()
 		{
-			return std::unique_ptr<protocol::StatusResponse>(sendNewSessionRequestRawPtrProxy());
+			return std::shared_ptr<protocol::StatusResponse>(sendNewSessionRequestRawPtrProxy());
 		}
 
 		virtual ~MockHTTPClient() {}

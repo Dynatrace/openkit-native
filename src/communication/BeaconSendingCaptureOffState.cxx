@@ -57,7 +57,7 @@ void BeaconSendingCaptureOffState::doExecute(BeaconSendingContext& context)
 		context.sleep(delta);
 	}
 	auto statusResponse = BeaconSendingRequestUtil::sendStatusRequest(context, STATUS_REQUEST_RETRIES, INITIAL_RETRY_SLEEP_TIME_MILLISECONDS.count());
-	handleStatusResponse(context, std::move(statusResponse));
+	handleStatusResponse(context, statusResponse);
 
 	// update the last status check time in any case
 	context.setLastStatusCheckTime(currentTime);
@@ -73,12 +73,11 @@ const char* BeaconSendingCaptureOffState::getStateName() const
 	return "CaptureOff";
 }
 
-void BeaconSendingCaptureOffState::handleStatusResponse(BeaconSendingContext& context, std::unique_ptr<protocol::StatusResponse> statusResponse)
+void BeaconSendingCaptureOffState::handleStatusResponse(BeaconSendingContext& context, std::shared_ptr<protocol::StatusResponse> statusResponse)
 {
-	bool statusReponseIsNull = statusResponse == nullptr;
-	if (!statusReponseIsNull)
+	if (statusResponse != nullptr)
 	{
-		context.handleStatusResponse(std::move(statusResponse));
+		context.handleStatusResponse(statusResponse);
 	}
 	// if initial time sync failed before
 	if (context.isTimeSyncSupported() && !context.isTimeSynced())
@@ -86,7 +85,7 @@ void BeaconSendingCaptureOffState::handleStatusResponse(BeaconSendingContext& co
 		// then retry initial time sync
 		context.setNextState(std::shared_ptr<AbstractBeaconSendingState>(new BeaconSendingTimeSyncState(true)));
 	}
-	else if (!statusReponseIsNull && context.isCaptureOn())
+	else if (statusResponse != nullptr && context.isCaptureOn())
 	{
 		// capturing is re-enabled again, but only if we received a response from the server
 		context.setNextState(std::shared_ptr<AbstractBeaconSendingState>(new BeaconSendingCaptureOnState()));

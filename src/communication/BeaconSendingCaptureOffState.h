@@ -59,7 +59,7 @@ namespace communication
 		
 	private:
 		/// Handle the status response received from the server and transistion the states accordingly
-		static void handleStatusResponse(BeaconSendingContext& context, std::unique_ptr<protocol::StatusResponse> statusResponse);
+		static void handleStatusResponse(BeaconSendingContext& context, std::shared_ptr<protocol::StatusResponse> statusResponse);
 	};
 }
 #endif
