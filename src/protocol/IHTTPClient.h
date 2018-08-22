@@ -45,7 +45,7 @@ namespace protocol
 		/// sends a status check request and returns a status response
 		/// @returns a status response with the response data for the request or @c nullptr on error
 		///
-		virtual std::unique_ptr<StatusResponse> sendStatusRequest() = 0;
+		virtual std::shared_ptr<StatusResponse> sendStatusRequest() = 0;
 
 		///
 		/// sends a beacon send request and returns a status response
@@ -53,19 +53,19 @@ namespace protocol
 		/// @param[in] beaconData the beacon payload
 		/// @returns a status response with the response data for the request or @c nullptr on error
 		///
-		virtual std::unique_ptr<StatusResponse> sendBeaconRequest(const core::UTF8String& clientIPAddress, const core::UTF8String& beaconData) = 0;
+		virtual std::shared_ptr<StatusResponse> sendBeaconRequest(const core::UTF8String& clientIPAddress, const core::UTF8String& beaconData) = 0;
 
 		///
 		/// sends a timesync request and returns a timesync response
 		/// @returns a timesync response with the response data for the request or @c nullptr on error
 		///
-		virtual std::unique_ptr<TimeSyncResponse> sendTimeSyncRequest() = 0;
+		virtual std::shared_ptr<TimeSyncResponse> sendTimeSyncRequest() = 0;
 
 		///
 		/// sends a new session request and returns a status response
 		/// @returns a status response with the response data for the request or @c nullptr on error
 		///
-		virtual std::unique_ptr<StatusResponse> sendNewSessionRequest() = 0;
+		virtual std::shared_ptr<StatusResponse> sendNewSessionRequest() = 0;
 	};
 }
 #endif

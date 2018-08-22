@@ -114,9 +114,9 @@ int64_t BeaconSendingContext::getSendInterval() const
 	return mConfiguration->getSendInterval();
 }
 
-void BeaconSendingContext::handleStatusResponse(std::unique_ptr<protocol::StatusResponse> response)
+void BeaconSendingContext::handleStatusResponse(std::shared_ptr<protocol::StatusResponse> response)
 {
-	mConfiguration->updateSettings(std::move(response));
+	mConfiguration->updateSettings(response);
 
 	if (!isCaptureOn())
 	{

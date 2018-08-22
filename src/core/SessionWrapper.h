@@ -118,7 +118,7 @@ namespace core
 		/// @param[in] httpClientProvider http client provider
 		/// @returns the status response
 		///
-		std::unique_ptr<protocol::StatusResponse> sendBeacon(std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider);
+		std::shared_ptr<protocol::StatusResponse> sendBeacon(std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider);
 
 	private:
 

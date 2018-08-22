@@ -50,6 +50,33 @@ protected:
 static constexpr char RESPONSE_KEY_RETRY_AFTER[] = "retry-after";
 static constexpr int64_t DEFAULT_RETRY_AFTER_IN_MILLISECONDS = 10L * 60L * 1000L;
 
+TEST_F(ResponseTest, isSuccessfulResponseGivesTrueForResponseCodesLessThan400)
+{
+	// given
+	auto target = TestResponse(logger, 399, Response::ResponseHeaders());
+
+	// then
+	ASSERT_TRUE(target.isSuccessfulResponse());
+}
+
+TEST_F(ResponseTest, isSuccessfulResponseGivesFalseForResponseCodesEqualTo400)
+{
+	// given
+	auto target = TestResponse(logger, 400, Response::ResponseHeaders());
+
+	// then
+	ASSERT_FALSE(target.isSuccessfulResponse());
+}
+
+TEST_F(ResponseTest, isSuccessfulResponseGivesFalseForResponseCodesGreaterThan400)
+{
+	// given
+	auto target = TestResponse(logger, 401, Response::ResponseHeaders());
+
+	// then
+	ASSERT_FALSE(target.isSuccessfulResponse());
+}
+
 TEST_F(ResponseTest, isErroneousResponseGivesTrueForErrorCodeEqualTo400)
 {
 	// given
@@ -75,6 +102,24 @@ TEST_F(ResponseTest, isErroneousResponseGivesFalseForErrorCodeLessThan400)
 
 	// then
 	ASSERT_FALSE(target.isErroneousResponse());
+}
+
+TEST_F(ResponseTest, isTooManyRequestsResponseGivesTrueIfResponseCodeIsEqualTo429)
+{
+	// given
+	auto target = TestResponse(logger, 429, Response::ResponseHeaders());
+
+	// then
+	ASSERT_TRUE(target.isTooManyRequestsResponse());
+}
+
+TEST_F(ResponseTest, isTooManyRequestsResponseGivesFalseIfResponseCodeIsNotEqualTo429)
+{
+	// given
+	auto target = TestResponse(logger, 404, Response::ResponseHeaders());
+
+	// then
+	ASSERT_FALSE(target.isTooManyRequestsResponse());
 }
 
 TEST_F(ResponseTest, responseCodeIsSet)

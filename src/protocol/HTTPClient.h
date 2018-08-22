@@ -79,13 +79,13 @@ namespace protocol
 		///
 		HTTPClient& operator = (const HTTPClient &) = delete;
 
-		virtual std::unique_ptr<StatusResponse> sendStatusRequest() override;
+		virtual std::shared_ptr<StatusResponse> sendStatusRequest() override;
 
-		virtual std::unique_ptr<StatusResponse> sendBeaconRequest(const core::UTF8String& clientIPAddress, const core::UTF8String& beaconData) override;
+		virtual std::shared_ptr<StatusResponse> sendBeaconRequest(const core::UTF8String& clientIPAddress, const core::UTF8String& beaconData) override;
 
-		virtual std::unique_ptr<TimeSyncResponse> sendTimeSyncRequest() override;
+		virtual std::shared_ptr<TimeSyncResponse> sendTimeSyncRequest() override;
 
-		virtual std::unique_ptr<StatusResponse> sendNewSessionRequest() override;
+		virtual std::shared_ptr<StatusResponse> sendNewSessionRequest() override;
 
 		///
 		/// Perform global initialization.
@@ -110,7 +110,7 @@ namespace protocol
 		/// @param[in] method the HTTP method to use. Currently either POST or GET
 		/// @returns a status response with the response data for the request or @c nullptr on error
 		///
-		std::unique_ptr<Response> sendRequestInternal(RequestType requestType, const core::UTF8String& url, const core::UTF8String& clientIPAddress, const core::UTF8String& beaconData, const HttpMethod method);
+		std::shared_ptr<Response> sendRequestInternal(RequestType requestType, const core::UTF8String& url, const core::UTF8String& clientIPAddress, const core::UTF8String& beaconData, const HttpMethod method);
 
 		///
 		/// Build URL used for status check and beacon send requests
@@ -127,11 +127,11 @@ namespace protocol
 
 		static void appendQueryParam(core::UTF8String& url, const char* key, const char* vaalue);
 
-		std::unique_ptr<Response> handleResponse(RequestType requestType, int32_t httpCode, const std::string& buffer, const Response::ResponseHeaders& responseHeaders);
+		std::shared_ptr<Response> handleResponse(RequestType requestType, int32_t httpCode, const std::string& buffer, const Response::ResponseHeaders& responseHeaders);
 
 		static size_t readFunction(void *ptr, size_t elementSize, size_t numberOfElements, void* userPtr);
 
-		std::unique_ptr<Response> unknownErrorResponse(RequestType requestType);
+		std::shared_ptr<Response> unknownErrorResponse(RequestType requestType);
 
 	private:
 

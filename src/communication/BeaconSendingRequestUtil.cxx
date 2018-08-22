@@ -15,13 +15,14 @@
 */
 
 #include "BeaconSendingRequestUtil.h"
+#include "BeaconSendingResponseUtil.h"
 
 using namespace communication;
 using namespace protocol;
 
-std::unique_ptr<StatusResponse> BeaconSendingRequestUtil::sendStatusRequest(BeaconSendingContext& context, uint32_t numRetries, uint64_t initialRetryDelayInMillis)
+std::shared_ptr<StatusResponse> BeaconSendingRequestUtil::sendStatusRequest(BeaconSendingContext& context, uint32_t numRetries, uint64_t initialRetryDelayInMillis)
 {
-	std::unique_ptr<StatusResponse> statusResponse = nullptr;
+	std::shared_ptr<StatusResponse> statusResponse = nullptr;
 	uint64_t sleepTimeInMillis = initialRetryDelayInMillis;
 	uint32_t retry = 0;
 
@@ -33,8 +34,11 @@ std::unique_ptr<StatusResponse> BeaconSendingRequestUtil::sendStatusRequest(Beac
 			break;
 		}
 
-		statusResponse = std::move(httpClient->sendStatusRequest());
-		if (retry >= numRetries || context.isShutdownRequested() || statusResponse != nullptr ) 
+		statusResponse = httpClient->sendStatusRequest();
+		if (BeaconSendingResponseUtil::isSuccessfulResponse(statusResponse)
+			|| BeaconSendingResponseUtil::isTooManyRequestsResponse(statusResponse) // is handled by the states
+			|| retry >= numRetries
+			|| context.isShutdownRequested())
 		{
 			break;
 		}
@@ -45,5 +49,5 @@ std::unique_ptr<StatusResponse> BeaconSendingRequestUtil::sendStatusRequest(Beac
 		retry++;
 	}
 
-	return std::move(statusResponse);
+	return statusResponse;
 }

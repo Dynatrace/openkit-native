@@ -21,6 +21,8 @@
 using namespace protocol;
 
 static constexpr int32_t HTTP_BAD_REQUEST = 400;
+static constexpr int32_t HTTP_TOO_MANY_REQUESTS = 429;
+
 static constexpr char RESPONSE_KEY_RETRY_AFTER[] = "retry-after";
 static constexpr int64_t DEFAULT_RETRY_AFTER_IN_MILLISECONDS = 10L * 60L * 1000L; // 10 minutes in milliseconds
 
@@ -31,9 +33,19 @@ Response::Response(std::shared_ptr<openkit::ILogger> logger, int32_t responseCod
 {
 }
 
+bool Response::isSuccessfulResponse() const
+{
+	return !isErroneousResponse();
+}
+
 bool Response::isErroneousResponse() const
 {
 	return getResponseCode() >= HTTP_BAD_REQUEST;
+}
+
+bool Response::isTooManyRequestsResponse() const
+{
+	return getResponseCode() == HTTP_TOO_MANY_REQUESTS;
 }
 
 int32_t Response::getResponseCode() const

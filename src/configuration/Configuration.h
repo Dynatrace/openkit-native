@@ -66,7 +66,7 @@ namespace configuration
 		/// Update settings based on a status response
 		/// @param[in] statusResponse the status response received from the server
 		///
-		void updateSettings(std::unique_ptr<protocol::StatusResponse> statusResponse);
+		void updateSettings(std::shared_ptr<protocol::StatusResponse> statusResponse);
 
 		///
 		/// Enable capturing

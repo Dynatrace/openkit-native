@@ -41,7 +41,7 @@ namespace test {
 
 		}
 
-		std::unique_ptr<protocol::StatusResponse> RealSend(std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider)
+		std::shared_ptr<protocol::StatusResponse> RealSend(std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider)
 		{
 			return protocol::Beacon::send(httpClientProvider);
 		}
@@ -74,7 +74,7 @@ namespace test {
 		MOCK_METHOD0(startSession, void(void));
 		MOCK_METHOD1(endSession, void(std::shared_ptr<core::Session>));
 		MOCK_CONST_METHOD0(getCurrentTimestamp, int64_t(void));
-		MOCK_METHOD1(send, std::unique_ptr<protocol::StatusResponse>(std::shared_ptr<providers::IHTTPClientProvider>));
+		MOCK_METHOD1(send, std::shared_ptr<protocol::StatusResponse>(std::shared_ptr<providers::IHTTPClientProvider>));
 		MOCK_METHOD2(createTag, core::UTF8String(int32_t, int32_t));
 		MOCK_METHOD0(createSequenceNumber, int32_t());
 	};

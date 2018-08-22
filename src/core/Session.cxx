@@ -142,7 +142,7 @@ void Session::rootActionEnded(std::shared_ptr<RootAction> rootAction)
 	mOpenRootActions.remove(rootAction);
 }
 
-std::unique_ptr<protocol::StatusResponse> Session::sendBeacon(std::shared_ptr<providers::IHTTPClientProvider> clientProvider)
+std::shared_ptr<protocol::StatusResponse> Session::sendBeacon(std::shared_ptr<providers::IHTTPClientProvider> clientProvider)
 {
 	return mBeacon->send(clientProvider);
 }

@@ -38,9 +38,9 @@ namespace test
 		{
 		}
 
-		virtual std::unique_ptr<protocol::StatusResponse> sendBeacon(std::shared_ptr<providers::IHTTPClientProvider> clientProvider)
+		virtual std::shared_ptr<protocol::StatusResponse> sendBeacon(std::shared_ptr<providers::IHTTPClientProvider> clientProvider)
 		{
-			return std::unique_ptr<protocol::StatusResponse>(sendBeaconRawPtrProxy(clientProvider));
+			return std::shared_ptr<protocol::StatusResponse>(sendBeaconRawPtrProxy(clientProvider));
 		}
 
 		MOCK_METHOD1(enterAction, std::shared_ptr<openkit::IRootAction>(const char*));

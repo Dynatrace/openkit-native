@@ -92,7 +92,7 @@ void SessionWrapper::clearCapturedData()
 	mWrappedSession->clearCapturedData();
 }
 
-std::unique_ptr<protocol::StatusResponse> SessionWrapper::sendBeacon(std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider)
+std::shared_ptr<protocol::StatusResponse> SessionWrapper::sendBeacon(std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider)
 {
 	return mWrappedSession->sendBeacon(httpClientProvider);
 }

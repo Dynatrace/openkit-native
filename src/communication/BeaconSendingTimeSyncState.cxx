@@ -208,7 +208,7 @@ std::vector<int64_t> BeaconSendingTimeSyncState::executeTimeSyncRequests(BeaconS
 	{
 		// doExecute time-sync request and take timestamps
 		auto requestSendTime = context.getCurrentTimestamp();
-		std::unique_ptr<protocol::TimeSyncResponse> timeSyncResponse = context.getHTTPClient()->sendTimeSyncRequest();
+		auto timeSyncResponse = context.getHTTPClient()->sendTimeSyncRequest();
 		int64_t responseReceiveTime = context.getCurrentTimestamp();
 
 		if (timeSyncResponse != nullptr)

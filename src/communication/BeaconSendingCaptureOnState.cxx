@@ -119,14 +119,14 @@ void BeaconSendingCaptureOnState::sendOpenSessions(BeaconSendingContext& context
 	context.setLastOpenSessionBeaconSendTime(currentTimestamp);
 }
 
-void BeaconSendingCaptureOnState::handleStatusResponse(BeaconSendingContext& context, std::unique_ptr<protocol::StatusResponse> statusResponse)
+void BeaconSendingCaptureOnState::handleStatusResponse(BeaconSendingContext& context, std::shared_ptr<protocol::StatusResponse> statusResponse)
 {
 	if (statusResponse == nullptr)
 	{
 		return; // nothing to handle
 	}
 
-	context.handleStatusResponse(std::move(statusResponse));
+	context.handleStatusResponse(statusResponse);
 	if (!context.isCaptureOn()) {
 		// capturing is turned off -> make state transition
 		context.setNextState(std::shared_ptr<AbstractBeaconSendingState>(new BeaconSendingCaptureOffState()));
@@ -146,7 +146,7 @@ void BeaconSendingCaptureOnState::sendNewSessionRequests(BeaconSendingContext& c
 			continue;
 		}
 
-		std::unique_ptr<protocol::StatusResponse> response = context.getHTTPClient()->sendNewSessionRequest();
+		auto response = context.getHTTPClient()->sendNewSessionRequest();
 		if (response != nullptr)
 		{
 			auto beaconConfiguration = session->getBeaconConfiguration();

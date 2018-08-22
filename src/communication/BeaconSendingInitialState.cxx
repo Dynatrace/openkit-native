@@ -52,7 +52,7 @@ BeaconSendingInitialState::BeaconSendingInitialState()
 
 void BeaconSendingInitialState::doExecute(BeaconSendingContext& context)
 {
-	std::unique_ptr<protocol::StatusResponse> statusResponse;
+	std::shared_ptr<protocol::StatusResponse> statusResponse;
 	while (true)
 	{
 		auto currentTimestamp = context.getCurrentTimestamp();
