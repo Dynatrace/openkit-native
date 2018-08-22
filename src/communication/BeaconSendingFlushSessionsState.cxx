@@ -24,13 +24,13 @@
 #include "communication/AbstractBeaconSendingState.h"
 #include "communication/BeaconSendingContext.h"
 #include "communication/BeaconSendingTerminalState.h"
+#include "communication/BeaconSendingResponseUtil.h"
 
 using namespace communication;
 
 BeaconSendingFlushSessionsState::BeaconSendingFlushSessionsState()
 	: AbstractBeaconSendingState(AbstractBeaconSendingState::StateType::BEACON_SENDING_FLUSH_SESSIONS_STATE)
 {
-
 }
 
 void BeaconSendingFlushSessionsState::doExecute(BeaconSendingContext& context)
@@ -50,11 +50,16 @@ void BeaconSendingFlushSessionsState::doExecute(BeaconSendingContext& context)
 	}
 
 	// flush already finished (and previously ended) sessions
+	auto tooManyRequestsReceived = false;
 	for (auto finishedSession : context.getAllFinishedAndConfiguredSessions())
 	{
-		if (finishedSession->isDataSendingAllowed())
+		if (!tooManyRequestsReceived && finishedSession->isDataSendingAllowed())
 		{
-			finishedSession->sendBeacon(context.getHTTPClientProvider());
+			auto response = finishedSession->sendBeacon(context.getHTTPClientProvider());
+			if (BeaconSendingResponseUtil::isTooManyRequestsResponse(response))
+			{
+				tooManyRequestsReceived = true;
+			}
 		}
 		finishedSession->clearCapturedData();
 		context.removeSession(finishedSession);
@@ -73,4 +78,3 @@ const char* BeaconSendingFlushSessionsState::getStateName() const
 {
 	return "FlushSessions";
 }
-
