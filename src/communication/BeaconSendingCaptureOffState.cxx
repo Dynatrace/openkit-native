@@ -26,6 +26,7 @@
 #include "communication/AbstractBeaconSendingState.h"
 #include "communication/BeaconSendingContext.h"
 #include "communication/BeaconSendingRequestUtil.h"
+#include "communication/BeaconSendingResponseUtil.h"
 #include "protocol/StatusResponse.h"
 
 using namespace communication;
@@ -39,9 +40,14 @@ const std::chrono::milliseconds STATUS_CHECK_INTERVAL_MILLISECONDS = std::chrono
 const int64_t STATUS_CHECK_INTERVAL = STATUS_CHECK_INTERVAL_MILLISECONDS.count();
 
 BeaconSendingCaptureOffState::BeaconSendingCaptureOffState()
-	: AbstractBeaconSendingState(AbstractBeaconSendingState::StateType::BEACON_SENDING_CAPTURE_OFF_STATE)
+	: BeaconSendingCaptureOffState(int64_t(-1))
 {
+}
 
+BeaconSendingCaptureOffState::BeaconSendingCaptureOffState(int64_t sleepTimeInMilliseconds)
+	: AbstractBeaconSendingState(AbstractBeaconSendingState::StateType::BEACON_SENDING_CAPTURE_OFF_STATE)
+	, mSleepTimeInMilliseconds(sleepTimeInMilliseconds)
+{
 }
 
 void BeaconSendingCaptureOffState::doExecute(BeaconSendingContext& context)
@@ -51,7 +57,9 @@ void BeaconSendingCaptureOffState::doExecute(BeaconSendingContext& context)
 
 	auto currentTime = context.getCurrentTimestamp();
 
-	auto delta = STATUS_CHECK_INTERVAL - (currentTime - context.getLastStatusCheckTime());
+	auto delta = mSleepTimeInMilliseconds > int64_t(0)
+		? mSleepTimeInMilliseconds 
+		: STATUS_CHECK_INTERVAL - (currentTime - context.getLastStatusCheckTime());
 	if (delta > 0 && !context.isShutdownRequested())
 	{
 		context.sleep(delta);
@@ -77,17 +85,30 @@ void BeaconSendingCaptureOffState::handleStatusResponse(BeaconSendingContext& co
 {
 	if (statusResponse != nullptr)
 	{
+		// handle status response, even if it's erroneous
+		// if it's an erroneous response capturing is disabled
 		context.handleStatusResponse(statusResponse);
 	}
 	// if initial time sync failed before
-	if (context.isTimeSyncSupported() && !context.isTimeSynced())
+	if (BeaconSendingResponseUtil::isTooManyRequestsResponse(statusResponse))
 	{
-		// then retry initial time sync
+		// received "too many requests" response
+		// in this case stay in capture off state and use the retry-after delay for sleeping
+		context.setNextState(std::make_shared<BeaconSendingCaptureOffState>(statusResponse->getRetryAfterInMilliseconds()));
+	}
+	else if (context.isTimeSyncSupported() && !context.isTimeSynced())
+	{
+		// if initial time sync failed before, then retry initial time sync
 		context.setNextState(std::shared_ptr<AbstractBeaconSendingState>(new BeaconSendingTimeSyncState(true)));
 	}
-	else if (statusResponse != nullptr && context.isCaptureOn())
+	else if (BeaconSendingResponseUtil::isSuccessfulResponse(statusResponse) && context.isCaptureOn())
 	{
 		// capturing is re-enabled again, but only if we received a response from the server
 		context.setNextState(std::shared_ptr<AbstractBeaconSendingState>(new BeaconSendingCaptureOnState()));
 	}
+}
+
+int64_t BeaconSendingCaptureOffState::getSleepTimeInMilliseconds() const
+{
+	return mSleepTimeInMilliseconds;
 }

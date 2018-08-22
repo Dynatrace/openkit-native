@@ -39,9 +39,15 @@ namespace communication
 	{
 	public:
 		///
-		/// Constructor
+		/// Create CaptureOff state with default sleep behavior.
 		///
 		BeaconSendingCaptureOffState();
+
+		///
+		/// Create CaptureOff state with explicitly set sleep time.
+		/// @param sleepTimeInMilliseconds The number of milliseconds to sleep.
+		///
+		BeaconSendingCaptureOffState(int64_t sleepTimeInMilliseconds);
 
 		///
 		/// Destructor
@@ -56,10 +62,20 @@ namespace communication
 
 		/// The initial delay which is later on doubled between one unsuccessful attempt and the next retry
 		static const std::chrono::milliseconds INITIAL_RETRY_SLEEP_TIME_MILLISECONDS;
+
+		///
+		/// Gets the sleep time set in the constructor.
+		/// @remarks This returns -1, if the default sleep behavior (default constructor) is used.
+		/// @return The sleep time in milliseconds.
+		///
+		int64_t getSleepTimeInMilliseconds() const;
 		
 	private:
 		/// Handle the status response received from the server and transistion the states accordingly
 		static void handleStatusResponse(BeaconSendingContext& context, std::shared_ptr<protocol::StatusResponse> statusResponse);
+
+		/// Sleep time in milliseconds
+		int64_t mSleepTimeInMilliseconds;
 	};
 }
 #endif
