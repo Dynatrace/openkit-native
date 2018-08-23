@@ -24,6 +24,7 @@
 #include "communication/BeaconSendingTimeSyncState.h"
 #include "communication/AbstractBeaconSendingState.h"
 #include "communication/BeaconSendingRequestUtil.h"
+#include "communication/BeaconSendingResponseUtil.h"
 #include "communication/BeaconSendingContext.h"
 
 #include "protocol/StatusResponse.h"
@@ -52,25 +53,8 @@ BeaconSendingInitialState::BeaconSendingInitialState()
 
 void BeaconSendingInitialState::doExecute(BeaconSendingContext& context)
 {
-	std::shared_ptr<protocol::StatusResponse> statusResponse;
-	while (true)
-	{
-		auto currentTimestamp = context.getCurrentTimestamp();
-		context.setLastOpenSessionBeaconSendTime(currentTimestamp);
-		context.setLastStatusCheckTime(currentTimestamp);
-
-		statusResponse = BeaconSendingRequestUtil::sendStatusRequest(context, MAX_INITIAL_STATUS_REQUEST_RETRIES, INITIAL_RETRY_SLEEP_TIME_MILLISECONDS.count());
-		if (context.isShutdownRequested() || statusResponse != nullptr)
-		{
-			// shutdown was requested or a status response was received
-			break;
-		}
-
-		// status request needs to be sent again after some delay
-		context.sleep(REINIT_DELAY_MILLISECONDS[mReinitializeDelayIndex].count());
-
-		mReinitializeDelayIndex = std::min(mReinitializeDelayIndex + 1, uint32_t(REINIT_DELAY_MILLISECONDS.size() - 1)); // ensure no out of bounds
-	}
+	/// execute the status request until we get a response
+	auto statusResponse = executeStatusRequest(context);
 
 	if (context.isShutdownRequested()) 
 	{
@@ -78,7 +62,7 @@ void BeaconSendingInitialState::doExecute(BeaconSendingContext& context)
 		// transition to shutdown state is handled by base class
 		context.setInitCompleted(false);
 	}
-	else if (statusResponse != nullptr) 
+	else if (BeaconSendingResponseUtil::isSuccessfulResponse(statusResponse)) 
 	{
 		// success -> continue with time sync
 		context.handleStatusResponse(std::move(statusResponse));
@@ -94,4 +78,40 @@ std::shared_ptr<AbstractBeaconSendingState> BeaconSendingInitialState::getShutdo
 const char* BeaconSendingInitialState::getStateName() const
 {
 	return "Initial";
+}
+
+std::shared_ptr<protocol::StatusResponse> BeaconSendingInitialState::executeStatusRequest(BeaconSendingContext& context)
+{
+	std::shared_ptr<protocol::StatusResponse> statusResponse = nullptr;
+	while (true)
+	{
+		auto currentTimestamp = context.getCurrentTimestamp();
+		context.setLastOpenSessionBeaconSendTime(currentTimestamp);
+		context.setLastStatusCheckTime(currentTimestamp);
+
+		statusResponse = BeaconSendingRequestUtil::sendStatusRequest(context, MAX_INITIAL_STATUS_REQUEST_RETRIES, INITIAL_RETRY_SLEEP_TIME_MILLISECONDS.count());
+		if (context.isShutdownRequested() || BeaconSendingResponseUtil::isSuccessfulResponse(statusResponse))
+		{
+			// shutdown was requested or a successful status response was received
+			break;
+		}
+
+		
+		int64_t sleepTime = REINIT_DELAY_MILLISECONDS[mReinitializeDelayIndex].count();
+		if (BeaconSendingResponseUtil::isTooManyRequestsResponse(statusResponse))
+		{
+			// in case of too many requests the server might send us a retry-after
+			sleepTime = statusResponse->getRetryAfterInMilliseconds();
+
+			// also temporarily disable capturing to avoid further server overloading
+			context.disableCapture();
+		}
+
+		// status request needs to be sent again after some delay
+		context.sleep(sleepTime);
+
+		mReinitializeDelayIndex = std::min(mReinitializeDelayIndex + 1, uint32_t(REINIT_DELAY_MILLISECONDS.size() - 1)); // ensure no out of bounds
+	}
+
+	return statusResponse;
 }
