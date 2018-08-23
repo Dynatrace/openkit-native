@@ -25,6 +25,7 @@
 #include "communication/BeaconSendingTimeSyncState.h"
 #include "communication/AbstractBeaconSendingState.h"
 #include "communication/BeaconSendingContext.h"
+#include "communication/BeaconSendingResponseUtil.h"
 
 #include "protocol/StatusResponse.h"
 
@@ -32,7 +33,6 @@ using namespace communication;
 
 BeaconSendingCaptureOnState::BeaconSendingCaptureOnState()
 	: AbstractBeaconSendingState(AbstractBeaconSendingState::StateType::BEACON_SENDING_CAPTURE_ON_STATE)
-	, statusResponse(nullptr)
 {
 
 }
@@ -49,18 +49,44 @@ void BeaconSendingCaptureOnState::doExecute(BeaconSendingContext& context)
 
 	context.sleep();
 
-	sendNewSessionRequests(context);
-
-	statusResponse = nullptr;
+	// sned new session request for all sessions that are new
+	auto newSessionsResponse = sendNewSessionRequests(context);
+	if (BeaconSendingResponseUtil::isTooManyRequestsResponse(newSessionsResponse))
+	{
+		// server is currently overloaded, temporarily switch to capture off
+		context.setNextState(std::make_shared<BeaconSendingCaptureOffState>(newSessionsResponse->getRetryAfterInMilliseconds()));
+		return;
+	}
 	
-	// send all finished sessions (this method may set this.statusResponse)
-	sendFinishedSessions(context);
+	// send all finished sessions
+	auto finishedSessionsResponse = sendFinishedSessions(context);
+	if (BeaconSendingResponseUtil::isTooManyRequestsResponse(finishedSessionsResponse))
+	{
+		// server is currently overloaded, temporarily switch to capture off
+		context.setNextState(std::make_shared<BeaconSendingCaptureOffState>(finishedSessionsResponse->getRetryAfterInMilliseconds()));
+		return;
+	}
 
-	// check if we need to send open sessions & do it if necessary (this method may set this.statusResponse)
-	sendOpenSessions(context);
+	// check if we need to send open sessions & do it if necessary
+	auto openSessionsResponse = sendOpenSessions(context);
+	if (BeaconSendingResponseUtil::isTooManyRequestsResponse(openSessionsResponse))
+	{
+		// server is currently overloaded, temporarily switch to capture off
+		context.setNextState(std::make_shared<BeaconSendingCaptureOffState>(openSessionsResponse->getRetryAfterInMilliseconds()));
+		return;
+	}
+
+	// collect the last status response
+	auto lastStatusResponse = newSessionsResponse;
+	if (openSessionsResponse != nullptr) {
+		lastStatusResponse = openSessionsResponse;
+	}
+	else if (finishedSessionsResponse != nullptr) {
+		lastStatusResponse = finishedSessionsResponse;
+	}
 
 	// handle the last statusResponse received (or null if none was received) from the server
-	handleStatusResponse(context, std::move(statusResponse));
+	handleStatusResponse(context, lastStatusResponse);
 }
 
 std::shared_ptr<AbstractBeaconSendingState> BeaconSendingCaptureOnState::getShutdownState()
@@ -73,17 +99,18 @@ const char* BeaconSendingCaptureOnState::getStateName() const
 	return "CaptureOn";
 }
 
-void BeaconSendingCaptureOnState::sendFinishedSessions(BeaconSendingContext& context)
+std::shared_ptr<protocol::StatusResponse> BeaconSendingCaptureOnState::sendFinishedSessions(BeaconSendingContext& context)
 {
+	std::shared_ptr<protocol::StatusResponse> statusResponse = nullptr;
 	// check if there's finished Sessions to be sent -> immediately send beacon(s) of finished Sessions
-	for(auto session : context.getAllFinishedAndConfiguredSessions())
+	for (auto session : context.getAllFinishedAndConfiguredSessions())
 	{
 		if (session->isDataSendingAllowed()) {
-			statusResponse = std::move(session->sendBeacon(context.getHTTPClientProvider()));
-			if (statusResponse == nullptr)
+			statusResponse = session->sendBeacon(context.getHTTPClientProvider());
+			if (!BeaconSendingResponseUtil::isSuccessfulResponse(statusResponse))
 			{
 				// something went wrong,
-				if (!session->isEmpty())
+				if (BeaconSendingResponseUtil::isTooManyRequestsResponse(statusResponse) || !session->isEmpty())
 				{
 					break; //  sending did not work, break out for now and retry it later
 				}
@@ -93,22 +120,30 @@ void BeaconSendingCaptureOnState::sendFinishedSessions(BeaconSendingContext& con
 		// session was sent/is not allowed to be sent - so remove it from beacon cache
 		context.removeSession(session);
 		session->clearCapturedData();
-}
+	}
+
+	return statusResponse;
 }
 
-void BeaconSendingCaptureOnState::sendOpenSessions(BeaconSendingContext& context)
+std::shared_ptr<protocol::StatusResponse> BeaconSendingCaptureOnState::sendOpenSessions(BeaconSendingContext& context)
 {
+	std::shared_ptr<protocol::StatusResponse> statusResponse = nullptr;
 	int64_t currentTimestamp = context.getCurrentTimestamp();
 	if (currentTimestamp <= context.getLastOpenSessionBeaconSendTime() + context.getSendInterval())
 	{
-		return; // send interval to send open sessions has not expired yet
+		return nullptr; // send interval to send open sessions has not expired yet
 	}
 
 	for (auto session : context.getAllOpenAndConfiguredSessions())
 	{
 		if (session->isDataSendingAllowed())
 		{
-			statusResponse = std::move(session->sendBeacon(context.getHTTPClientProvider()));
+			statusResponse = session->sendBeacon(context.getHTTPClientProvider());
+			if (BeaconSendingResponseUtil::isTooManyRequestsResponse(statusResponse))
+			{
+				// server is currently overloaded, return immediately
+				break;
+			}
 		}
 		else
 		{
@@ -117,6 +152,8 @@ void BeaconSendingCaptureOnState::sendOpenSessions(BeaconSendingContext& context
 	}
 
 	context.setLastOpenSessionBeaconSendTime(currentTimestamp);
+
+	return statusResponse;
 }
 
 void BeaconSendingCaptureOnState::handleStatusResponse(BeaconSendingContext& context, std::shared_ptr<protocol::StatusResponse> statusResponse)
@@ -133,8 +170,9 @@ void BeaconSendingCaptureOnState::handleStatusResponse(BeaconSendingContext& con
 	}
 }
 
-void BeaconSendingCaptureOnState::sendNewSessionRequests(BeaconSendingContext& context)
+std::shared_ptr<protocol::StatusResponse> BeaconSendingCaptureOnState::sendNewSessionRequests(BeaconSendingContext& context)
 {
+	std::shared_ptr<protocol::StatusResponse> statusResponse = nullptr;
 	for (auto session : context.getAllNewSessions() )
 	{
 		if (!session->canSendNewSessionRequest())
@@ -146,17 +184,24 @@ void BeaconSendingCaptureOnState::sendNewSessionRequests(BeaconSendingContext& c
 			continue;
 		}
 
-		auto response = context.getHTTPClient()->sendNewSessionRequest();
-		if (response != nullptr)
+		statusResponse = context.getHTTPClient()->sendNewSessionRequest();
+		if (BeaconSendingResponseUtil::isSuccessfulResponse(statusResponse))
 		{
 			auto beaconConfiguration = session->getBeaconConfiguration();
-			auto newBeaconConfiguration = std::make_shared<configuration::BeaconConfiguration>(response->getMultiplicity(), beaconConfiguration->getDataCollectionLevel(), beaconConfiguration->getCrashReportingLevel());
+			auto newBeaconConfiguration = std::make_shared<configuration::BeaconConfiguration>(statusResponse->getMultiplicity(), beaconConfiguration->getDataCollectionLevel(), beaconConfiguration->getCrashReportingLevel());
 			session->updateBeaconConfiguration(newBeaconConfiguration);
+		}
+		else if (BeaconSendingResponseUtil::isTooManyRequestsResponse(statusResponse))
+		{
+			// server is currently overloaded, return immediately
+			break;
 		}
 		else
 		{
-			// did not retrieve any response from server, maybe the cluster is down?
+			// any other unsuccessful response
 			session->decreaseNumberOfNewSessionRequests();
 		}
 	}
+
+	return statusResponse;
 }
