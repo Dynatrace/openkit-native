@@ -561,22 +561,22 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseWhenCapturingIsEnabled)
 {
 	// given
 	mConfiguration->enableCapture();
-	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
-	auto mockSessionOne = std::shared_ptr<testing::StrictMock<test::MockSession>>(new testing::StrictMock<test::MockSession>(mLogger));
-	auto mockSessionTwo = std::shared_ptr<testing::StrictMock<test::MockSession>>(new testing::StrictMock<test::MockSession>(mLogger));
+	auto target = std::make_shared<BeaconSendingContext>(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration);
+	auto mockSessionOne = std::make_shared<testing::StrictMock<test::MockSession>>(mLogger);
+	auto mockSessionTwo = std::make_shared<testing::StrictMock<test::MockSession>>(mLogger);
 	
 	target->startSession(mockSessionOne);
 	target->finishSession(mockSessionOne);
 	target->startSession(mockSessionTwo);
 
-	auto mockStatusResponse = std::unique_ptr<testing::NiceMock<test::MockStatusResponse>>(new testing::NiceMock<test::MockStatusResponse>());
+	auto mockStatusResponse = std::make_shared<testing::NiceMock<test::MockStatusResponse>>();
 	ON_CALL(*mockStatusResponse, getResponseCode())
 		.WillByDefault(testing::Return(200));
 	ON_CALL(*mockStatusResponse, isCapture())
 		.WillByDefault(testing::Return(true));
 
 	// when
-	target->handleStatusResponse(std::move(mockStatusResponse));
+	target->handleStatusResponse(mockStatusResponse);
 
 	// then
 	auto newSessions = target->getAllNewSessions();
@@ -622,7 +622,7 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseWhenCapturingIsDisabled)
 	target->findSessionWrapper(mockSessionFour)->updateBeaconConfiguration(std::make_shared<configuration::BeaconConfiguration>());
 	target->finishSession(mockSessionFour);
 
-	auto mockStatusResponse = std::unique_ptr<protocol::StatusResponse>();
+	auto mockStatusResponse = std::make_shared<protocol::StatusResponse>();
 
 	mConfiguration->disableCapture();
 
@@ -647,7 +647,7 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseWhenCapturingIsDisabled)
 	ASSERT_EQ(finishedSessions.size(), 2);
 
 	// when
-	target->handleStatusResponse(std::move(mockStatusResponse));
+	target->handleStatusResponse(mockStatusResponse);
 
 	// then
 	newSessions = target->getAllNewSessions();

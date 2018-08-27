@@ -65,7 +65,7 @@ void BeaconSendingInitialState::doExecute(BeaconSendingContext& context)
 	else if (BeaconSendingResponseUtil::isSuccessfulResponse(statusResponse)) 
 	{
 		// success -> continue with time sync
-		context.handleStatusResponse(std::move(statusResponse));
+		context.handleStatusResponse(statusResponse);
 		context.setNextState(std::shared_ptr<AbstractBeaconSendingState>(new BeaconSendingTimeSyncState(true)));
 	}
 }

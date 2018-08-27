@@ -52,12 +52,12 @@ public:
 		mMockSession3Finished = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>(mLogger));
 		mMockSession4Finished = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>(mLogger));
 		ON_CALL(*mMockSession1Open, sendBeaconRawPtrProxy(testing::_))
-			.WillByDefault(testing::Invoke([&](std::shared_ptr<providers::IHTTPClientProvider> clientProvider) -> protocol::StatusResponse* 
+			.WillByDefault(testing::Invoke([&](std::shared_ptr<providers::IHTTPClientProvider>) -> protocol::StatusResponse* 
 			{
 				return new protocol::StatusResponse(mLogger, "", 200, protocol::Response::ResponseHeaders());
 			}));
 		ON_CALL(*mMockSession2Open, sendBeaconRawPtrProxy(testing::_))
-			.WillByDefault(testing::Invoke([&](std::shared_ptr<providers::IHTTPClientProvider> clientProvider) -> protocol::StatusResponse*
+			.WillByDefault(testing::Invoke([&](std::shared_ptr<providers::IHTTPClientProvider>) -> protocol::StatusResponse*
 			{
 				return new protocol::StatusResponse(mLogger, "", 404, protocol::Response::ResponseHeaders());
 			}));
@@ -257,12 +257,12 @@ TEST_F(BeaconSendingCaptureOnStateTest, aBeaconSendingCaptureOnStateContinuesWit
 			return new protocol::StatusResponse(mLogger, "", 200, protocol::Response::ResponseHeaders());
 		}));
 	ON_CALL(*mMockSession1Open, sendBeaconRawPtrProxy(testing::_))
-		.WillByDefault(testing::Invoke([&](std::shared_ptr<providers::IHTTPClientProvider> clientProvider) -> protocol::StatusResponse*
+		.WillByDefault(testing::Invoke([&](std::shared_ptr<providers::IHTTPClientProvider>) -> protocol::StatusResponse*
 		{
 			return new protocol::StatusResponse(mLogger, "", 200, protocol::Response::ResponseHeaders());
 		}));
 	ON_CALL(*mMockSession2Open, sendBeaconRawPtrProxy(testing::_))
-		.WillByDefault(testing::Invoke([&](std::shared_ptr<providers::IHTTPClientProvider> clientProvider) -> protocol::StatusResponse*
+		.WillByDefault(testing::Invoke([&](std::shared_ptr<providers::IHTTPClientProvider>) -> protocol::StatusResponse*
 		{
 			return new protocol::StatusResponse(mLogger, "", 200, protocol::Response::ResponseHeaders());
 		}));
@@ -562,7 +562,7 @@ TEST_F(BeaconSendingCaptureOnStateTest, newSessionRequestsAreAbortedWhenTooManyR
 
 	// verify captured state
 	ASSERT_NE(nullptr, savedNextState);
-	ASSERT_EQ(int64_t(456 * 1000), std::reinterpret_pointer_cast<BeaconSendingCaptureOffState>(savedNextState)->getSleepTimeInMilliseconds());
+	ASSERT_EQ(int64_t(678 * 1000), (std::reinterpret_pointer_cast<BeaconSendingCaptureOffState>(savedNextState))->getSleepTimeInMilliseconds());
 }
 
 TEST_F(BeaconSendingCaptureOnStateTest, finishedSessionsAreSent)
@@ -632,12 +632,12 @@ TEST_F(BeaconSendingCaptureOnStateTest, unsuccessfulFinishedSessionsAreNotRemove
 		.WillByDefault(testing::Return(true));
 
 	ON_CALL(*mMockSession3Finished, sendBeaconRawPtrProxy(testing::_))
-		.WillByDefault(testing::Invoke([&](std::shared_ptr<providers::IHTTPClientProvider> clientProvider) -> protocol::StatusResponse*
+		.WillByDefault(testing::Invoke([&](std::shared_ptr<providers::IHTTPClientProvider>) -> protocol::StatusResponse*
 		{
 			return new protocol::StatusResponse(mLogger, core::UTF8String(), 400, protocol::Response::ResponseHeaders());
 		}));
 	ON_CALL(*mMockSession4Finished, sendBeaconRawPtrProxy(testing::_))
-		.WillByDefault(testing::Invoke([&](std::shared_ptr<providers::IHTTPClientProvider> clientProvider) -> protocol::StatusResponse*
+		.WillByDefault(testing::Invoke([&](std::shared_ptr<providers::IHTTPClientProvider>) -> protocol::StatusResponse*
 		{
 			return new protocol::StatusResponse(mLogger, core::UTF8String(), 400, protocol::Response::ResponseHeaders());
 		}));
@@ -709,7 +709,7 @@ TEST_F(BeaconSendingCaptureOnStateTest, sendingFinishedSessionsIsAbortedImmediat
 
 	// verify captured state
 	ASSERT_NE(nullptr, savedNextState);
-	ASSERT_EQ(int64_t(678 * 1000), std::reinterpret_pointer_cast<BeaconSendingCaptureOffState>(savedNextState)->getSleepTimeInMilliseconds());
+	ASSERT_EQ(int64_t(678 * 1000), (std::reinterpret_pointer_cast<BeaconSendingCaptureOffState>(savedNextState))->getSleepTimeInMilliseconds());
 }
 
 TEST_F(BeaconSendingCaptureOnStateTest, openSessionsAreSentIfSendIntervalIsExceeded)
@@ -814,7 +814,7 @@ TEST_F(BeaconSendingCaptureOnStateTest, sendingOpenSessionsIsAbortedImmediatelyW
 		.WillByDefault(testing::Return(true));
 
 	ON_CALL(*mMockSession1Open, sendBeaconRawPtrProxy(testing::_))
-		.WillByDefault(testing::Invoke([&](std::shared_ptr<providers::IHTTPClientProvider> clientProvider) -> protocol::StatusResponse*
+		.WillByDefault(testing::Invoke([&](std::shared_ptr<providers::IHTTPClientProvider>) -> protocol::StatusResponse*
 	{
 		auto responseHeaders = protocol::Response::ResponseHeaders
 		{
@@ -823,7 +823,7 @@ TEST_F(BeaconSendingCaptureOnStateTest, sendingOpenSessionsIsAbortedImmediatelyW
 		return new protocol::StatusResponse(mLogger, "", 429, responseHeaders);
 	}));
 	ON_CALL(*mMockSession2Open, sendBeaconRawPtrProxy(testing::_))
-		.WillByDefault(testing::Invoke([&](std::shared_ptr<providers::IHTTPClientProvider> clientProvider) -> protocol::StatusResponse*
+		.WillByDefault(testing::Invoke([&](std::shared_ptr<providers::IHTTPClientProvider>) -> protocol::StatusResponse*
 	{
 		return new protocol::StatusResponse(mLogger, core::UTF8String(), 200, protocol::Response::ResponseHeaders());
 	}));
@@ -850,7 +850,7 @@ TEST_F(BeaconSendingCaptureOnStateTest, sendingOpenSessionsIsAbortedImmediatelyW
 
 	// verify captured state
 	ASSERT_NE(nullptr, savedNextState);
-	ASSERT_EQ(int64_t(678 * 1000), std::reinterpret_pointer_cast<BeaconSendingCaptureOffState>(savedNextState)->getSleepTimeInMilliseconds());
+	ASSERT_EQ(int64_t(678 * 1000), (std::reinterpret_pointer_cast<BeaconSendingCaptureOffState>(savedNextState))->getSleepTimeInMilliseconds());
 }
 
 TEST_F(BeaconSendingCaptureOnStateTest, getStateNameReturnsCorrectStateName)

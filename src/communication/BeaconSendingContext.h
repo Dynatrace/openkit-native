@@ -328,9 +328,6 @@ namespace communication
 		/// instance of AbstractBeaconSendingState with the following state
 		std::shared_ptr<AbstractBeaconSendingState> mNextState;
 
-		/// Flag if the current state is a terminal state
-		bool mIsInTerminalState;
-
 		/// Atomic shutdown flag
 		std::atomic<bool> mShutdown;
 
