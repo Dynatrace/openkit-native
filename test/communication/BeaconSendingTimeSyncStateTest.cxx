@@ -851,5 +851,5 @@ TEST_F(BeaconSendingTimeSyncTest, stateTransitionToCaptureOffIsMadeIfTooManyRequ
 
 	// verify captured state
 	ASSERT_NE(nullptr, savedNextState);
-	ASSERT_EQ(int64_t(456 * 1000), std::reinterpret_pointer_cast<BeaconSendingCaptureOffState>(savedNextState)->getSleepTimeInMilliseconds());
+	ASSERT_EQ(int64_t(456 * 1000), std::static_pointer_cast<BeaconSendingCaptureOffState>(savedNextState)->getSleepTimeInMilliseconds());
 }

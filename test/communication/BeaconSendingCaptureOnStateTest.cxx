@@ -562,7 +562,7 @@ TEST_F(BeaconSendingCaptureOnStateTest, newSessionRequestsAreAbortedWhenTooManyR
 
 	// verify captured state
 	ASSERT_NE(nullptr, savedNextState);
-	ASSERT_EQ(int64_t(678 * 1000), (std::reinterpret_pointer_cast<BeaconSendingCaptureOffState>(savedNextState))->getSleepTimeInMilliseconds());
+	ASSERT_EQ(int64_t(678 * 1000), std::static_pointer_cast<BeaconSendingCaptureOffState>(savedNextState)->getSleepTimeInMilliseconds());
 }
 
 TEST_F(BeaconSendingCaptureOnStateTest, finishedSessionsAreSent)
@@ -709,7 +709,7 @@ TEST_F(BeaconSendingCaptureOnStateTest, sendingFinishedSessionsIsAbortedImmediat
 
 	// verify captured state
 	ASSERT_NE(nullptr, savedNextState);
-	ASSERT_EQ(int64_t(678 * 1000), (std::reinterpret_pointer_cast<BeaconSendingCaptureOffState>(savedNextState))->getSleepTimeInMilliseconds());
+	ASSERT_EQ(int64_t(678 * 1000), std::static_pointer_cast<BeaconSendingCaptureOffState>(savedNextState)->getSleepTimeInMilliseconds());
 }
 
 TEST_F(BeaconSendingCaptureOnStateTest, openSessionsAreSentIfSendIntervalIsExceeded)
@@ -850,7 +850,7 @@ TEST_F(BeaconSendingCaptureOnStateTest, sendingOpenSessionsIsAbortedImmediatelyW
 
 	// verify captured state
 	ASSERT_NE(nullptr, savedNextState);
-	ASSERT_EQ(int64_t(678 * 1000), (std::reinterpret_pointer_cast<BeaconSendingCaptureOffState>(savedNextState))->getSleepTimeInMilliseconds());
+	ASSERT_EQ(int64_t(678 * 1000), std::static_pointer_cast<BeaconSendingCaptureOffState>(savedNextState)->getSleepTimeInMilliseconds());
 }
 
 TEST_F(BeaconSendingCaptureOnStateTest, getStateNameReturnsCorrectStateName)
