@@ -143,7 +143,6 @@ namespace communication {
 		static std::chrono::milliseconds INITIAL_RETRY_SLEEP_TIME_MILLISECONDS;
 
 	private:
-
 		///
 		/// Flag if this is the first time time sync is performed
 		///

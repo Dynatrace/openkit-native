@@ -622,7 +622,7 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseWhenCapturingIsDisabled)
 	target->findSessionWrapper(mockSessionFour)->updateBeaconConfiguration(std::make_shared<configuration::BeaconConfiguration>());
 	target->finishSession(mockSessionFour);
 
-	auto mockStatusResponse = std::make_shared<protocol::StatusResponse>();
+	auto mockStatusResponse = std::make_shared<testing::NiceMock<test::MockStatusResponse>>();
 
 	mConfiguration->disableCapture();
 
