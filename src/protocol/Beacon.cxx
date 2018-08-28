@@ -511,7 +511,7 @@ std::shared_ptr<protocol::StatusResponse> Beacon::send(std::shared_ptr<providers
 
 		// send the request
 		response = httpClient->sendBeaconRequest(mClientIPAddress, chunk);
-		if (response == nullptr)
+		if (response == nullptr || response->isErroneousResponse())
 		{
 			// error happened - but don't know what exactly
 			// reset the previously retrieved chunk (restore it in internal cache) & retry another time

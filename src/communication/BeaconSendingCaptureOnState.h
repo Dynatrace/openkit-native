@@ -58,13 +58,13 @@ namespace communication
 		/// Send all sessions which have been finished previously.
 		/// @param[in] context the state context
 		///
-		void sendFinishedSessions(BeaconSendingContext& context);
+		std::shared_ptr<protocol::StatusResponse> sendFinishedSessions(BeaconSendingContext& context);
 
 		///
 		/// Check if the send interval (configured by server) has expired and start to send open sessions if it has expired.
 		/// @param[in] context the state context
 		///
-		void sendOpenSessions(BeaconSendingContext& context);
+		std::shared_ptr<protocol::StatusResponse> sendOpenSessions(BeaconSendingContext& context);
 
 		///
 		/// Handle the status response received from the server and transistion the states accordingly
@@ -77,11 +77,7 @@ namespace communication
 		/// Check if new sessions are allowed to report data
 		/// @param[in] context beacon sending context
 		///
-		void sendNewSessionRequests(BeaconSendingContext& context);
-
-	private:
-		/// store last received status response
-		std::shared_ptr<protocol::StatusResponse> statusResponse;
+		std::shared_ptr<protocol::StatusResponse> sendNewSessionRequests(BeaconSendingContext& context);
 	};
 }
 #endif

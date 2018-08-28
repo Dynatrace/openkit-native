@@ -24,6 +24,7 @@
 #include "communication/BeaconSendingCaptureOffState.h"
 #include "communication/BeaconSendingCaptureOnState.h"
 #include "communication/BeaconSendingFlushSessionsState.h"
+#include "communication/BeaconSendingResponseUtil.h"
  
 
 using namespace communication;
@@ -54,7 +55,7 @@ void BeaconSendingTimeSyncState::doExecute(BeaconSendingContext& context)
 
 	// execute time sync requests - note during initial sync it might be possible
 	// that the time sync capability is disabled.
-	std::vector<int64_t> timeSyncOffsets = executeTimeSyncRequests(context);
+	auto timeSyncOffsets = executeTimeSyncRequests(context);
 
 	handleTimeSyncResponses(context, timeSyncOffsets);
 
@@ -107,7 +108,7 @@ void BeaconSendingTimeSyncState::setNextState(BeaconSendingContext& context)
 	}
 }
 
-void BeaconSendingTimeSyncState::handleTimeSyncResponses(BeaconSendingContext& context, std::vector<int64_t>& timeSyncOffsets)
+void BeaconSendingTimeSyncState::handleTimeSyncResponses(BeaconSendingContext& context, TimeSyncRequestsResponse& response)
 {
 	// time sync requests were *not* successful
 	// either because of networking issues
@@ -115,13 +116,13 @@ void BeaconSendingTimeSyncState::handleTimeSyncResponses(BeaconSendingContext& c
 	// the server does not support time sync at all (e.g. AppMon).
 	//
 	// -> handle this case
-	if (timeSyncOffsets.size() < REQUIRED_TIME_SYNC_REQUESTS) 
+	if (response.mTimeSyncOffsets.size() < REQUIRED_TIME_SYNC_REQUESTS) 
 	{
-		handleErroneousTimeSyncRequest(context);
+		handleErroneousTimeSyncRequest(response.mResponse, context);
 		return;
 	}
 
-	auto calculatedOffset = computeClusterTimeOffset(timeSyncOffsets);
+	auto calculatedOffset = computeClusterTimeOffset(response.mTimeSyncOffsets);
 	if (calculatedOffset < 0)
 	{
 		return;
@@ -175,7 +176,7 @@ int64_t BeaconSendingTimeSyncState::computeClusterTimeOffset(std::vector<int64_t
 	return static_cast<int64_t>(std::round(sum / static_cast<double>(count)));
 }
 
-void BeaconSendingTimeSyncState::handleErroneousTimeSyncRequest(BeaconSendingContext& context)
+void BeaconSendingTimeSyncState::handleErroneousTimeSyncRequest(std::shared_ptr<protocol::TimeSyncResponse> response,  BeaconSendingContext& context)
 {
 	// if this is the initial sync try, we have to initialize the time provider
 	// in every other case we keep the previous setting
@@ -184,10 +185,15 @@ void BeaconSendingTimeSyncState::handleErroneousTimeSyncRequest(BeaconSendingCon
 		context.initializeTimeSync(0, context.isTimeSyncSupported());
 	}
 
-	if (context.isTimeSyncSupported())
+	if (BeaconSendingResponseUtil::isTooManyRequestsResponse(response))
+	{
+		// server is currently overloaded, change to CaptureOff state temporarily
+		context.setNextState(std::make_shared<BeaconSendingCaptureOffState>(response->getRetryAfterInMilliseconds()));
+	}
+	else if (context.isTimeSyncSupported())
 	{
 		// server supports time sync
-		context.setNextState(std::shared_ptr<AbstractBeaconSendingState>(new BeaconSendingCaptureOffState()));
+		context.setNextState(std::make_shared<BeaconSendingCaptureOffState>());
 	}
 	else
 	{
@@ -196,22 +202,22 @@ void BeaconSendingTimeSyncState::handleErroneousTimeSyncRequest(BeaconSendingCon
 	}
 }
 
-std::vector<int64_t> BeaconSendingTimeSyncState::executeTimeSyncRequests(BeaconSendingContext& context)
+BeaconSendingTimeSyncState::TimeSyncRequestsResponse BeaconSendingTimeSyncState::executeTimeSyncRequests(BeaconSendingContext& context)
 {
-	std::vector<int64_t> timeSyncOffsets;
+	TimeSyncRequestsResponse response;
 
 	uint32_t retry = 0;
 	int64_t sleepTimeInMillis = INITIAL_RETRY_SLEEP_TIME_MILLISECONDS.count();
 
 	// no check for shutdown here, time sync has to be completed
-	while (timeSyncOffsets.size() < REQUIRED_TIME_SYNC_REQUESTS && !context.isShutdownRequested())
+	while (response.mTimeSyncOffsets.size() < REQUIRED_TIME_SYNC_REQUESTS && !context.isShutdownRequested())
 	{
 		// doExecute time-sync request and take timestamps
 		auto requestSendTime = context.getCurrentTimestamp();
 		auto timeSyncResponse = context.getHTTPClient()->sendTimeSyncRequest();
 		int64_t responseReceiveTime = context.getCurrentTimestamp();
 
-		if (timeSyncResponse != nullptr)
+		if (BeaconSendingResponseUtil::isSuccessfulResponse(timeSyncResponse))
 		{
 			int64_t requestReceiveTime = timeSyncResponse->getRequestReceiveTime();
 			int64_t responseSendTime = timeSyncResponse->getResponseSendTime();
@@ -221,7 +227,7 @@ std::vector<int64_t> BeaconSendingTimeSyncState::executeTimeSyncRequests(BeaconS
 			{
 				// if yes -> continue time-sync
 				auto offset = ((requestReceiveTime - requestSendTime) + (responseSendTime - responseReceiveTime)) / 2;
-				timeSyncOffsets.push_back(offset);
+				response.mTimeSyncOffsets.push_back(offset);
 				retry = 0; // on successful response reset the retry count & initial sleep time
 				sleepTimeInMillis = INITIAL_RETRY_SLEEP_TIME_MILLISECONDS.count();
 			}
@@ -237,6 +243,14 @@ std::vector<int64_t> BeaconSendingTimeSyncState::executeTimeSyncRequests(BeaconS
 			// retry limits exceeded
 			break;
 		}
+		else if (BeaconSendingResponseUtil::isTooManyRequestsResponse(timeSyncResponse))
+		{
+			// special handling for too many requests
+			// clear all time sync offsets captured so far and store the response, which is handled later
+			response.mTimeSyncOffsets.clear();
+			response.mResponse = timeSyncResponse;
+			break;
+		}
 		else
 		{
 			context.sleep(sleepTimeInMillis);
@@ -245,5 +259,12 @@ std::vector<int64_t> BeaconSendingTimeSyncState::executeTimeSyncRequests(BeaconS
 		}
 	}
 
-	return timeSyncOffsets;
+	return response;
+}
+
+BeaconSendingTimeSyncState::TimeSyncRequestsResponse::TimeSyncRequestsResponse()
+	: mTimeSyncOffsets()
+	, mResponse(nullptr)
+{
+	mTimeSyncOffsets.reserve(REQUIRED_TIME_SYNC_REQUESTS);
 }

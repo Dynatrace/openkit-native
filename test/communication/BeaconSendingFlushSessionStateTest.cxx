@@ -19,6 +19,7 @@
 
 #include "communication/BeaconSendingFlushSessionsState.h"
 
+#include "../protocol/NullLogger.h"
 #include "../communication/MockBeaconSendingContext.h"
 #include "../communication/CustomMatchers.h"
 #include "../protocol/MockStatusResponse.h"
@@ -39,12 +40,12 @@ public:
 
 	void SetUp()
 	{
-		mLogger = std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(devNull, true));
-		mMockSession1Open = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>(mLogger));
-		mMockSession2Open = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>(mLogger));
-		mMockSession3Closed = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>(mLogger));
+		mLogger = std::make_shared<NullLogger>();
+		mMockSession1Open = std::make_shared<testing::NiceMock<test::MockSession>>(mLogger);
+		mMockSession2Open = std::make_shared<testing::NiceMock<test::MockSession>>(mLogger);
+		mMockSession3Closed = std::make_shared<testing::NiceMock<test::MockSession>>(mLogger);
 
-		mMockContext = std::shared_ptr<testing::NiceMock<test::MockBeaconSendingContext>>(new testing::NiceMock<test::MockBeaconSendingContext>(mLogger));
+		mMockContext = std::make_shared<testing::NiceMock<test::MockBeaconSendingContext>>(mLogger);
 		ON_CALL(*mMockContext, getHTTPClient())
 			.WillByDefault(testing::Return(mMockHTTPClient));
 
@@ -59,9 +60,15 @@ public:
 
 		std::shared_ptr<configuration::HTTPClientConfiguration> httpClientConfiguration = std::make_shared<configuration::HTTPClientConfiguration>(core::UTF8String(""), 0, core::UTF8String(""));
 		mMockHTTPClient = std::shared_ptr<testing::NiceMock<test::MockHTTPClient>>(new testing::NiceMock<test::MockHTTPClient>(httpClientConfiguration));
-		ON_CALL(*mMockHTTPClient, sendStatusRequestRawPtrProxy())
-			.WillByDefault(testing::Return(new protocol::StatusResponse(mLogger, "", 200, protocol::Response::ResponseHeaders())));
+		ON_CALL(*mMockHTTPClient, sendNewSessionRequestRawPtrProxy())
+			.WillByDefault(testing::Invoke([&]() -> protocol::StatusResponse* { return new protocol::StatusResponse(mLogger, "", 200, protocol::Response::ResponseHeaders()); }));
 
+		ON_CALL(*mMockSession1Open, sendBeaconRawPtrProxy(testing::_))
+			.WillByDefault(testing::Invoke([&](std::shared_ptr<providers::IHTTPClientProvider>) -> protocol::StatusResponse* { return new protocol::StatusResponse(mLogger, "", 200, protocol::Response::ResponseHeaders()); }));
+		ON_CALL(*mMockSession2Open, sendBeaconRawPtrProxy(testing::_))
+			.WillByDefault(testing::Invoke([&](std::shared_ptr<providers::IHTTPClientProvider>) -> protocol::StatusResponse* { return new protocol::StatusResponse(mLogger, "", 200, protocol::Response::ResponseHeaders()); }));
+		ON_CALL(*mMockSession3Closed, sendBeaconRawPtrProxy(testing::_))
+			.WillByDefault(testing::Invoke([&](std::shared_ptr<providers::IHTTPClientProvider>) -> protocol::StatusResponse* { return new protocol::StatusResponse(mLogger, "", 200, protocol::Response::ResponseHeaders()); }));
 		ON_CALL(*mMockSession1Open, getBeaconConfiguration())
 			.WillByDefault(testing::Return(std::make_shared<configuration::BeaconConfiguration>()));
 		ON_CALL(*mMockSession2Open, getBeaconConfiguration())
@@ -97,7 +104,7 @@ public:
 TEST_F(BeaconSendingFlushSessionsStateTest, aBeaconSendingFlushSessionsStateIsNotATerminalState)
 {
 	// given
-	communication::BeaconSendingFlushSessionsState target;
+	auto target = communication::BeaconSendingFlushSessionsState();
 
 	// verify that BeaconSendingCaptureOffState is not a terminal state
 	EXPECT_FALSE(target.isTerminalState());
@@ -106,7 +113,7 @@ TEST_F(BeaconSendingFlushSessionsStateTest, aBeaconSendingFlushSessionsStateIsNo
 TEST_F(BeaconSendingFlushSessionsStateTest, aBeaconSendingFlushSessionsStateHasTerminalStateBeaconSendingTerminalState)
 {
 	// given
-	communication::BeaconSendingFlushSessionsState target;
+	auto target = communication::BeaconSendingFlushSessionsState();
 	auto terminalState = target.getShutdownState();
 
 	// verify that terminal state is BeaconSendingTerminalState
@@ -116,7 +123,7 @@ TEST_F(BeaconSendingFlushSessionsStateTest, aBeaconSendingFlushSessionsStateHasT
 TEST_F(BeaconSendingFlushSessionsStateTest, aBeaconSendingFlushSessionsStateTransitionsToTerminalStateWhenDataIsSent)
 {
 	// given
-	communication::BeaconSendingFlushSessionsState target;
+	auto target = communication::BeaconSendingFlushSessionsState();
 	
 	// verify transition to terminal state
 	EXPECT_CALL(*mMockContext, setNextState(IsABeaconSendingTerminalState()))
@@ -129,7 +136,7 @@ TEST_F(BeaconSendingFlushSessionsStateTest, aBeaconSendingFlushSessionsStateTran
 TEST_F(BeaconSendingFlushSessionsStateTest, aBeaconSendingFlushSessionsStateRequestsNewSessionAndMulitplicity)
 {
 	// given
-	communication::BeaconSendingFlushSessionsState target;
+	auto target = communication::BeaconSendingFlushSessionsState();
 
 	// verify that new sessions are handled correctly
 	EXPECT_CALL(*mMockSession1Open, setBeaconConfiguration(testing::_))
@@ -144,7 +151,7 @@ TEST_F(BeaconSendingFlushSessionsStateTest, aBeaconSendingFlushSessionsStateRequ
 TEST_F(BeaconSendingFlushSessionsStateTest, aBeaconSendingFlushSessionsStateClosesOpenSessions)
 {
 	// given
-	communication::BeaconSendingFlushSessionsState target;
+	auto target = communication::BeaconSendingFlushSessionsState();
 
 	// verify that open sessions are closed
 	EXPECT_CALL(*mMockSession1Open, end())
@@ -161,7 +168,7 @@ TEST_F(BeaconSendingFlushSessionsStateTest, aBeaconSendingFlushSessionsStateClos
 TEST_F(BeaconSendingFlushSessionsStateTest, aBeaconSendingFlushSessionStateSendsAllOpenAndClosedBeacons)
 {
 	// given
-	communication::BeaconSendingFlushSessionsState target;
+	auto target = communication::BeaconSendingFlushSessionsState();
 
 	// verify that open sessions are closed
 	EXPECT_CALL(*mMockSession1Open, sendBeaconRawPtrProxy(testing::_))
@@ -182,7 +189,7 @@ TEST_F(BeaconSendingFlushSessionsStateTest, aBeaconSendingFlushSessionStateSends
 TEST_F(BeaconSendingFlushSessionsStateTest, aBeaconSendingFlushSessionStateDoesNotSendIfSendingIsNotAllowed)
 {
 	//given
-	communication::BeaconSendingFlushSessionsState target;
+	auto target = communication::BeaconSendingFlushSessionsState();
 
 	auto beaconConfiguration = std::make_shared<configuration::BeaconConfiguration>(0, openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OFF);
 
@@ -196,16 +203,16 @@ TEST_F(BeaconSendingFlushSessionsStateTest, aBeaconSendingFlushSessionStateDoesN
 	//verify that session is closed without reporting data
 	EXPECT_CALL(*mMockSession1Open, sendBeaconRawPtrProxy(testing::_))
 		.Times(testing::Exactly(0));
-	EXPECT_CALL(*mMockSession1Open, sendBeaconRawPtrProxy(testing::_))
+	EXPECT_CALL(*mMockSession2Open, sendBeaconRawPtrProxy(testing::_))
 		.Times(testing::Exactly(0));
-	EXPECT_CALL(*mMockSession1Open, sendBeaconRawPtrProxy(testing::_))
+	EXPECT_CALL(*mMockSession3Closed, sendBeaconRawPtrProxy(testing::_))
 		.Times(testing::Exactly(0));
 
 	// when calling execute
 	target.execute(*mMockContext);
 }
 
-TEST_F(BeaconSendingFlushSessionsStateTest, ToStringReturnsCorrectStateName)
+TEST_F(BeaconSendingFlushSessionsStateTest, getStateNameReturnsCorrectStateName)
 {
 	// given
 	communication::BeaconSendingFlushSessionsState target;
@@ -215,4 +222,42 @@ TEST_F(BeaconSendingFlushSessionsStateTest, ToStringReturnsCorrectStateName)
 
 	// then
 	ASSERT_STREQ(stateName, "FlushSessions");
+}
+
+TEST_F(BeaconSendingFlushSessionsStateTest, aBeaconSendingFlushSessionStateStopsSendingIfTooManyRequestsResponseWasReceived)
+{
+	//given
+	auto target = communication::BeaconSendingFlushSessionsState();
+
+	auto responseHeaders = protocol::Response::ResponseHeaders
+	{
+		{ "retry-after",  { "123456" } }
+	};
+	ON_CALL(*mMockSession1Open, sendBeaconRawPtrProxy(testing::_))
+		.WillByDefault(testing::Invoke([&](std::shared_ptr<providers::IHTTPClientProvider>) -> protocol::StatusResponse* { return new protocol::StatusResponse(mLogger, "", 429, responseHeaders); }));
+	ON_CALL(*mMockSession2Open, sendBeaconRawPtrProxy(testing::_))
+		.WillByDefault(testing::Invoke([&](std::shared_ptr<providers::IHTTPClientProvider>) -> protocol::StatusResponse* { return new protocol::StatusResponse(mLogger, "", 429, responseHeaders); }));
+	ON_CALL(*mMockSession3Closed, sendBeaconRawPtrProxy(testing::_))
+		.WillByDefault(testing::Invoke([&](std::shared_ptr<providers::IHTTPClientProvider>) -> protocol::StatusResponse* { return new protocol::StatusResponse(mLogger, "", 429, responseHeaders); }));
+
+	// verify that open sessions are closed
+	EXPECT_CALL(*mMockSession1Open, sendBeaconRawPtrProxy(testing::_))
+		.Times(testing::Exactly(1));
+	EXPECT_CALL(*mMockSession2Open, sendBeaconRawPtrProxy(testing::_))
+		.Times(testing::Exactly(0));
+	EXPECT_CALL(*mMockSession3Closed, sendBeaconRawPtrProxy(testing::_))
+		.Times(testing::Exactly(0));
+	EXPECT_CALL(*mMockSession1Open, clearCapturedData())
+		.Times(testing::Exactly(1));
+	EXPECT_CALL(*mMockSession2Open, clearCapturedData())
+		.Times(testing::Exactly(1));
+	EXPECT_CALL(*mMockSession3Closed, clearCapturedData())
+		.Times(testing::Exactly(1));
+
+	// move open sessions to finished session by calling BeaconSendinContext::finishSessions
+	mMockContext->finishSession(mMockSession1Open);
+	mMockContext->finishSession(mMockSession2Open);
+
+	// when calling execute
+	target.execute(*mMockContext);
 }

@@ -18,9 +18,11 @@
 #define _COMMUNICATION_BEACONSENDINGINITIALSTATE_H
 
 #include "communication/AbstractBeaconSendingState.h"
+#include "protocol/StatusResponse.h"
 
 #include <vector>
 #include <chrono>
+#include <memory>
 
 namespace communication
 {
@@ -60,9 +62,17 @@ namespace communication
 	private:
 
 		///
+		/// Execute status requests, until a successful response was received or shutdown was requested.
+		/// @param context The state's context
+		/// @return The last received status response, which might be erroneous if shutdown has been requested.
+		///
+		std::shared_ptr<protocol::StatusResponse> executeStatusRequest(BeaconSendingContext& context);
+
+		///
 		/// Index to re-initialize delays
 		///
 		uint32_t mReinitializeDelayIndex;
 	};
 }
+
 #endif

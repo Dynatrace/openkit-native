@@ -18,9 +18,11 @@
 #define _COMMUNICATION_BEACONSENDINGTIMESYNCSTATE_H
 
 #include "communication/AbstractBeaconSendingState.h"
+#include "protocol/TimeSyncResponse.h"
 
 #include <chrono>
 #include <vector>
+#include <memory>
 
 namespace communication {
 
@@ -37,7 +39,7 @@ namespace communication {
 	{
 	public:
 		///
-		/// Constructor
+		/// Default Constructor
 		///
 		BeaconSendingTimeSyncState();
 
@@ -68,6 +70,30 @@ namespace communication {
 	private:
 
 		///
+		/// Container class storing data for processing requests.
+		///
+		class TimeSyncRequestsResponse
+		{
+		public:
+
+			///
+			/// Default constructor.
+			///
+			TimeSyncRequestsResponse();
+
+
+			///
+			/// List storing time sync offsets.
+			///
+			std::vector<int64_t> mTimeSyncOffsets;
+
+			///
+			/// TimeSync response which is only stored in case of "too many requests" response, otherwise it's always @c nullptr.
+			///
+			std::shared_ptr<protocol::TimeSyncResponse> mResponse;
+		};
+
+		///
 		/// Make a transition to the next state based on the capture enable flag of the @ref BeaconSendingContext
 		/// @param[in] context the BeaconSendingContext instance to perform the state transition on
 		///
@@ -76,9 +102,9 @@ namespace communication {
 		///
 		/// Handle the received timesync responses
 		/// @param[in] context the @ref BeaconSendingContext to apply the changes on
-		/// @param[in] timeSyncOffsets the received offsets
+		/// @param[in] response the received offsets or error response.
 		///
-		void handleTimeSyncResponses(BeaconSendingContext& context, std::vector<int64_t>& timeSyncOffsets);
+		void handleTimeSyncResponses(BeaconSendingContext& context, TimeSyncRequestsResponse& response);
 
 		///
 		/// Calculates the cluster time offset from the list of time sync offsets 
@@ -91,14 +117,14 @@ namespace communication {
 		/// In case of a erroneous time sync request 
 		/// @param[in] context @ref BeaconSendingContext keeping the state information
 		///
-		void handleErroneousTimeSyncRequest(BeaconSendingContext& context);
+		void handleErroneousTimeSyncRequest(std::shared_ptr<protocol::TimeSyncResponse> response, BeaconSendingContext& context);
 
 		///
 		/// Execute the time synchronisation requests (HTTP requests).
 		/// @param[in] context the @ref BeaconSendingContext used
 		/// @returns a vector of integers with the time sync offsets
 		///
-		std::vector<int64_t> executeTimeSyncRequests(BeaconSendingContext& context);
+		TimeSyncRequestsResponse executeTimeSyncRequests(BeaconSendingContext& context);
 
 	public:
 		///
@@ -121,8 +147,6 @@ namespace communication {
 		/// Flag if this is the first time time sync is performed
 		///
 		bool mInitialTimeSync;
-
-
 	};
 
 }

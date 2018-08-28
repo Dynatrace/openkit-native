@@ -35,7 +35,6 @@ BeaconSendingContext::BeaconSendingContext(std::shared_ptr<openkit::ILogger> log
 	: mLogger(logger)
 	, mCurrentState(std::move(initialState))
 	, mNextState(nullptr)
-	, mIsInTerminalState(false)
 	, mShutdown(false)
 	, mInitSucceeded(false)
 	, mConfiguration(configuration)
