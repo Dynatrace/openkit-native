@@ -24,10 +24,11 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # limit configurations to Debug & Release builds only
 # and enable CTest
-SET (CMAKE_CONFIGURATION_TYPES Debug Release CACHE TYPE INTERNAL FORCE)
+set (CMAKE_CONFIGURATION_TYPES Debug Release CACHE TYPE INTERNAL FORCE)
 
 # project setup
-project(OpenKit C CXX)
+project(OpenKit 
+		LANGUAGES C CXX)
 
 # set CMake search path
 set(CMAKE_MODULE_PATH
@@ -45,6 +46,9 @@ endif()
 # build options & settings
 include (BuildConfiguration)
 include (CompilerConfiguration)
+
+# version and other build information
+include (OpenKitVersion)
 
 # build 3rd party dependencies
 add_subdirectory(3rdparty)
