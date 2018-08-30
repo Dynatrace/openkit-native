@@ -302,6 +302,13 @@ function(build_open_kit)
         target_compile_definitions(OpenKit PRIVATE -DOPENKIT_STATIC_DEFINE)
     endif()
 
+    # add version & soversion target properties
+    if (BUILD_SHARED_LIBS AND NOT MSVC)
+        set_target_properties(OpenKit PROPERTIES
+                              VERSION "${OPENKIT_MAJOR_VERSION}.${OPENKIT_MINOR_VERSION}.${OPENKIT_BUGFIX_VERSION}.${OPENKIT_BUILD_VERSION}"
+                              SOVERSION "${OPENKIT_MAJOR_VERSION}")
+    endif ()
+
     # add special preprocessor flag when curl is used as static library
     if (NOT BUILD_SHARED_LIBS OR OPENKIT_MONOLITHIC_SHARED_LIB)
         target_compile_definitions(OpenKit PRIVATE -DCURL_STATICLIB)
