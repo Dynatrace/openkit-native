@@ -15,6 +15,7 @@
 #ifndef _OPENKIT_H
 #define _OPENKIT_H
 
+#include "OpenKitVersion.h"
 #include "OpenKit/OpenKitConstants.h"
 #include "OpenKit/ILogger.h"
 #include "OpenKit/IWebRequestTracer.h"

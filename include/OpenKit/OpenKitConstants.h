@@ -17,13 +17,15 @@
 #ifndef _OPENKIT_OPENKITCONSTANTS_H
 #define _OPENKIT_OPENKITCONSTANTS_H
 
+#include "OpenKitVersion.h"
+
 namespace openkit
 {
 	constexpr char WEBREQUEST_TAG_HEADER[] = "X-dynaTrace";
 	//TODO: stefan.eberl: generate the version using cmake
-	constexpr char DEFAULT_APPLICATION_VERSION[] = "0.1.0";
-	constexpr char DEFAULT_OPERATING_SYSTEM[] = "OpenKit 0.1.0";
-	constexpr char DEFAULT_MANUFACTURER[] = "Dynatrace";
+	constexpr char DEFAULT_APPLICATION_VERSION[] = OPENKIT_VERSION_STRING;
+	constexpr char DEFAULT_OPERATING_SYSTEM[] = "OpenKit " OPENKIT_VERSION_STRING;
+	constexpr char DEFAULT_MANUFACTURER[] = OPENKIT_COMPANY_NAME;
 	constexpr char DEFAULT_MODEL_ID[] = "OpenKitDevice";
 }
 
