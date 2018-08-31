@@ -15,6 +15,8 @@
 # file setting up OpenKit version constants
 
 if(__OPEN_KIT_VERSION_CMAKE)
+  # prevent double inclusion by testing, if this file has been included previously
+  # this works similar to an include guard in C/C++
   return()
 endif()
 set(__OPEN_KIT_VERSION_CMAKE TRUE)
@@ -59,7 +61,7 @@ set(OPENKIT_TITLE "OpenKit Native")
 set(OPENKIT_DESCRIPTION "Dynatrace OpenKit SDK for C/C++")
 set(OPENKIT_COMPANY_NAME "Dynatrace LLC")
 if ("${OPEN_KIT_BUILD_YEAR}" STREQUAL "2018")
-	set(OPENKIT_COPYRIGHT "(c) 2018 ${OPENKIT_COMPANY_NAME}")
+    set(OPENKIT_COPYRIGHT "(c) 2018 ${OPENKIT_COMPANY_NAME}")
 else ()
-	set(OPENKIT_COPYRIGHT "(c) 2018-${OPEN_KIT_BUILD_YEAR} ${OPENKIT_COMPANY_NAME}")
+    set(OPENKIT_COPYRIGHT "(c) 2018-${OPEN_KIT_BUILD_YEAR} ${OPENKIT_COMPANY_NAME}")
 endif()
