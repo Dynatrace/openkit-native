@@ -24,16 +24,17 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # limit configurations to Debug & Release builds only
 # and enable CTest
-SET (CMAKE_CONFIGURATION_TYPES Debug Release CACHE TYPE INTERNAL FORCE)
+set (CMAKE_CONFIGURATION_TYPES Debug Release CACHE TYPE INTERNAL FORCE)
 
 # project setup
-project(OpenKit C CXX)
+project(OpenKit 
+        LANGUAGES C CXX)
 
 # set CMake search path
 set(CMAKE_MODULE_PATH
-	"${CMAKE_CURRENT_SOURCE_DIR}/cmake"
-	"${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/"
-	CMAKE_MODULE_PATH)
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake"
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/"
+    CMAKE_MODULE_PATH)
 
 # ensure build is executed in separate directory
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
@@ -46,6 +47,9 @@ endif()
 include (BuildConfiguration)
 include (CompilerConfiguration)
 
+# version and other build information
+include (OpenKitVersion)
+
 # build 3rd party dependencies
 add_subdirectory(3rdparty)
 
@@ -55,9 +59,9 @@ build_open_kit()
 
 # build OpenKit tests
 if (OPENKIT_BUILD_TESTS)
-	enable_testing()
-	include(${CMAKE_CURRENT_SOURCE_DIR}/test/OpenKitTests.cmake)
-	build_open_kit_tests()
+    enable_testing()
+    include(${CMAKE_CURRENT_SOURCE_DIR}/test/OpenKitTests.cmake)
+    build_open_kit_tests()
 endif()
 
 # build samples
@@ -66,5 +70,5 @@ build_open_kit_samples()
 
 # add doc target (Doxygen)
 if (BUILD_DOC)
-	include(BuildDoxygenTarget)
+    include(BuildDoxygenTarget)
 endif()

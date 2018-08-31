@@ -79,7 +79,7 @@ set(OPENKIT_SOURCES_COMMUNICATION
     ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingInitialState.h
     ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingRequestUtil.cxx
     ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingRequestUtil.h
-	${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingResponseUtil.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingResponseUtil.cxx
     ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingResponseUtil.h
     ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingTerminalState.cxx
     ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingTerminalState.h
@@ -210,6 +210,56 @@ set(OPENKIT_SOURCES
 include(CompilerConfiguration)
 fix_compiler_flags()
 
+##
+# Utility macro for generating OpenKit version header file
+macro(_generate_open_kit_version_header)
+
+    set(OPENKIT_BUILD_YEAR "${OPEN_KIT_BUILD_YEAR}")
+    set(OPENKIT_VERSION_MAJOR ${OPENKIT_MAJOR_VERSION})
+    set(OPENKIT_VERSION_MINOR ${OPENKIT_MINOR_VERSION})
+    set(OPENKIT_VERSION_BUGFIX ${OPENKIT_BUGFIX_VERSION})
+    set(OPENKIT_BUILD_NUMBER ${OPENKIT_BUILD_VERSION})
+
+    set(VERSION_HEADER_TEMPLATE "${CMAKE_SOURCE_DIR}/cmake/Templates/OpenKitVersion.h.in")
+    set(VERSION_HEADER_OUTPUT "${CMAKE_BINARY_DIR}/include/OpenKitVersion.h")
+    configure_file(${VERSION_HEADER_TEMPLATE} ${VERSION_HEADER_OUTPUT} @ONLY)
+endmacro()
+
+##
+# Utility macro for generating OpenKit version.rc (ressource) file
+macro(_generate_open_kit_version_rc)
+
+    if (NOT BUILD_SHARED_LIBS OR NOT MSVC)
+        message(FATAL_ERROR "Only invoke when building OpenKit as dll (MSVC specific)")
+    endif ()
+
+    # setup RC internal values
+    set(FILE_TYPE "VFT_DLL")
+    if (NOT ("$ENV{TRAVIS}" STREQUAL "")           # Travis CI 
+        OR NOT ("$ENV{APPVEYOR}" STREQUAL ""))     # AppVeyor
+        set(ADDITIONAL_FILE_FLAGS "0L")
+    else ()
+        set(ADDITIONAL_FILE_FLAGS "VS_FF_PRERELEASE|VS_FF_PRIVATEBUILD")
+    endif ()
+        
+    # setup version, Copyright and such ...
+    set (PRODUCT_VERSION "${OPENKIT_MAJOR_VERSION},${OPENKIT_MINOR_VERSION},${OPENKIT_BUGFIX_VERSION},${OPENKIT_BUILD_VERSION}")
+    set (PRODUCT_VERSION_STR "${OPENKIT_VERSION_STRING}")
+    set (FILE_VERSION "${OPENKIT_MAJOR_VERSION},${OPENKIT_MINOR_VERSION},${OPENKIT_BUGFIX_VERSION},${OPENKIT_BUILD_VERSION}")
+    set (FILE_VERSION_STR "${OPENKIT_VERSION_STRING}")
+    set (COMPANY_NAME "${OPENKIT_COMPANY_NAME}")
+    set (COPYRIGHT_STR "${OPENKIT_COPYRIGHT}")
+    set (PRODUCT_NAME_STR "${OPENKIT_TITLE}")
+    set (INTERNAL_NAME_STR "${OPENKIT_TITLE}")
+    set (FILE_DESCRIPTION "${OPENKIT_DESCRIPTION}")
+
+    set(VERSION_RC_TEMPLATE "${CMAKE_SOURCE_DIR}/cmake/Templates/version.rc.in")
+    set(VERSION_RC_OUTPUT "${CMAKE_BINARY_DIR}/rc/version.rc")
+    configure_file(${VERSION_RC_TEMPLATE} ${VERSION_RC_OUTPUT} @ONLY)
+endmacro()
+
+##
+# Function to build the OpenKit target
 function(build_open_kit)
     message("Configuring OpenKit ... ")
 
@@ -231,9 +281,17 @@ function(build_open_kit)
 
     include(CompilerConfiguration)
     include(BuildFunctions)
-
     
-    open_kit_build_library(OpenKit "${OPENKIT_INCLUDE_DIRS}" "${OPENKIT_LIBS}" ${OPENKIT_SOURCES})
+    # generate OpenKitVersion.h
+    _generate_open_kit_version_header()
+    set (OPENKIT_LIB_SOURCES ${OPENKIT_SOURCES})
+    if (BUILD_SHARED_LIBS AND MSVC)
+        # generate version.rc in case of shared lib build
+        _generate_open_kit_version_rc()
+        set (OPENKIT_LIB_SOURCES ${OPENKIT_LIB_SOURCES} ${VERSION_RC_OUTPUT})
+    endif()
+
+    open_kit_build_library(OpenKit "${OPENKIT_INCLUDE_DIRS}" "${OPENKIT_LIBS}" ${OPENKIT_LIB_SOURCES})
 
     # enforce usage of C++11 for OpenKit
     enforce_cxx11_standard(OpenKit)
@@ -244,11 +302,19 @@ function(build_open_kit)
         target_compile_definitions(OpenKit PRIVATE -DOPENKIT_STATIC_DEFINE)
     endif()
 
+    # add version & soversion target properties
+    if (BUILD_SHARED_LIBS AND NOT MSVC)
+        set_target_properties(OpenKit PROPERTIES
+                              VERSION "${OPENKIT_MAJOR_VERSION}.${OPENKIT_MINOR_VERSION}.${OPENKIT_BUGFIX_VERSION}.${OPENKIT_BUILD_VERSION}"
+                              SOVERSION "${OPENKIT_MAJOR_VERSION}")
+    endif ()
+
     # add special preprocessor flag when curl is used as static library
     if (NOT BUILD_SHARED_LIBS OR OPENKIT_MONOLITHIC_SHARED_LIB)
         target_compile_definitions(OpenKit PRIVATE -DCURL_STATICLIB)
     endif()
 
+    # generate export header
     include(GenerateExportHeader)
     generate_export_header(OpenKit
         BASE_NAME OpenKit
@@ -267,6 +333,7 @@ function(build_open_kit)
     install(FILES
         ${PUBLIC_HEADERS}
         ${CMAKE_BINARY_DIR}/include/OpenKit_export.h
+        ${CMAKE_BINARY_DIR}/include/Templates/OpenKitVersion.h
         DESTINATION "${INSTALL_INC_DIR}"
     )
 
@@ -283,5 +350,10 @@ function(build_open_kit)
     source_group("Source Files\\Protocol\\SSL" FILES ${OPENKIT_SOURCES_PROTOCOL_SSL})
     source_group("Source Files\\Providers" FILES ${OPENKIT_SOURCES_PROVIDERS})
     source_group("Source Files\\Configuration" FILES ${OPENKIT_SOURCES_CONFIGURATION})
+
+    if (BUILD_SHARED_LIBS AND MSVC)
+        # add generated version.rc to Resource Files source group
+        source_group("Resource Files" FILES ${VERSION_RC_OUTPUT})
+    endif ()
 
 endfunction()

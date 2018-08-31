@@ -1,0 +1,56 @@
+/**
+* Copyright @OPENKIT_BUILD_YEAR@ Dynatrace LLC
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+#ifndef _OPENKIT_VERSION_H
+#define _OPENKIT_VERSION_H
+
+#ifndef OPENKIT_VERSION_MAJOR
+# define OPENKIT_VERSION_MAJOR @OPENKIT_VERSION_MAJOR@
+#endif
+
+#ifndef OPENKIT_VERSION_MINOR
+# define OPENKIT_VERSION_MINOR @OPENKIT_VERSION_MINOR@
+#endif
+
+#ifndef OPENKIT_VERSION_BUGFIX
+# define OPENKIT_VERSION_BUGFIX @OPENKIT_VERSION_BUGFIX@
+#endif
+
+#ifndef OPENKIT_BUILD_NUMBER
+# define OPENKIT_BUILD_NUMBER @OPENKIT_BUILD_NUMBER@
+#endif
+
+#ifndef OPENKIT_VERSION_STRING
+# define OPENKIT_VERSION_STRING "@OPENKIT_VERSION_MAJOR@.@OPENKIT_VERSION_MINOR@.@OPENKIT_VERSION_BUGFIX@.@OPENKIT_BUILD_NUMBER@"
+#endif
+
+#ifndef OPENKIT_TITLE
+# define OPENKIT_TITLE "@OPENKIT_TITLE@"
+#endif
+
+#ifndef OPENKIT_DESCRIPTION
+# define OPENKIT_DESCRIPTION "@OPENKIT_DESCRIPTION@"
+#endif
+
+#ifndef OPENKIT_COMPANY_NAME
+# define OPENKIT_COMPANY_NAME "@OPENKIT_COMPANY_NAME@"
+#endif
+
+#ifndef OPENKIT_COPYRIGHT
+# define OPENKIT_COPYRIGHT "@OPENKIT_COPYRIGHT@"
+#endif
+
+#endif
