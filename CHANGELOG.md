@@ -1,4 +1,4 @@
-# OpenKit Native (C/C++) Changelog
+# OpenKit Native ( C/C++ ) Changelog
 
 ## 1.0.0 [Release date: ]
 
