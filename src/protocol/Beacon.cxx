@@ -287,7 +287,7 @@ void Beacon::startSession()
 
 	addKeyValuePair(eventData, BEACON_KEY_PARENT_ACTION_ID, 0);
 	addKeyValuePair(eventData, BEACON_KEY_START_SEQUENCE_NUMBER, createSequenceNumber());
-	addKeyValuePair(eventData, BEACON_KEY_TIME_0, 0L);
+	addKeyValuePair(eventData, BEACON_KEY_TIME_0, int64_t(0));
 
 	addEventData(mSessionStartTime, eventData);
 }

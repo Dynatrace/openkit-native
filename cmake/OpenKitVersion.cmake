@@ -22,8 +22,8 @@ endif()
 set(__OPEN_KIT_VERSION_CMAKE TRUE)
 
 # configure OpenKit Version
-set (OPENKIT_MAJOR_VERSION 0)
-set (OPENKIT_MINOR_VERSION 9)
+set (OPENKIT_MAJOR_VERSION 1)
+set (OPENKIT_MINOR_VERSION 1)
 set (OPENKIT_BUGFIX_VERSION 0)
 if (NOT ("$ENV{TRAVIS_BUILD_NUMBER}" STREQUAL ""))
   # take build number from Travis CI
