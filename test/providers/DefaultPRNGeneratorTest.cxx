@@ -16,8 +16,7 @@
 
 #include "providers/DefaultPRNGenerator.h"
 #include <gtest/gtest.h>
-
-#include <limits>
+#include <gmock/gmock.h>
 
 using namespace providers;
 
@@ -41,23 +40,21 @@ public:
 	providers::DefaultPRNGenerator randomGenerator;
 };
 
-TEST_F(DefaultPRNGeneratorTest, DefaultPRNGeneratorProvidesPositiveUInt32)
+TEST_F(DefaultPRNGeneratorTest, DefaultPRNGeneratorProvidesPositiveInt32)
 {
 	// when
-	auto randomNumber = randomGenerator.nextUInt32(std::numeric_limits<uint32_t>::max());
+	auto randomNumber = randomGenerator.nextInt32(std::numeric_limits<int32_t>::max());
 
 	// then
-	EXPECT_GE(randomNumber, 0u);
-	EXPECT_LT(randomNumber, std::numeric_limits<uint32_t>::max());
+	EXPECT_THAT(randomNumber, testing::AllOf(testing::Ge(int32_t(0)), testing::Lt(std::numeric_limits<int32_t>::max())));
 }
 
 
 TEST_F(DefaultPRNGeneratorTest, DefaultPRNGeneratorProvidesPositiveUInt64)
 {
 	// when
-	auto randomNumber = randomGenerator.nextUInt64(std::numeric_limits<uint64_t>::max());
+	auto randomNumber = randomGenerator.nextInt64(std::numeric_limits<int64_t>::max());
 
 	// then
-	EXPECT_GE(randomNumber, 0u);
-	EXPECT_LT(randomNumber, std::numeric_limits<uint64_t>::max());
+	EXPECT_THAT(randomNumber, testing::AllOf(testing::Ge(int64_t(0)), testing::Lt(std::numeric_limits<int64_t>::max())));
 }

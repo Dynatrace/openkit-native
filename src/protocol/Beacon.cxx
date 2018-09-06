@@ -69,7 +69,7 @@ Beacon::Beacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching
 	}
 	else
 	{
-		mDeviceID = mRandomGenerator->nextUInt64(std::numeric_limits<uint64_t>::max());
+		mDeviceID = mRandomGenerator->nextInt64(std::numeric_limits<int64_t>::max());
 		mSessionNumber = 1;
 	}
 
@@ -220,7 +220,7 @@ core::UTF8String Beacon::createTag(int32_t parentActionID, int32_t sequenceNumbe
 	webRequestTag.concatenate("_");
 	webRequestTag.concatenate(std::to_string(mHTTPClientConfiguration->getServerID()));
 	webRequestTag.concatenate("_");
-	webRequestTag.concatenate(std::to_string(mConfiguration->getDeviceID()));
+	webRequestTag.concatenate(std::to_string(getDeviceID()));
 	webRequestTag.concatenate("_");
 	webRequestTag.concatenate(std::to_string(mSessionNumber));
 	webRequestTag.concatenate("_");
@@ -566,7 +566,7 @@ int32_t Beacon::getSessionNumber() const
 	return mSessionNumber;
 }
 
-uint64_t Beacon::getDeviceID() const
+int64_t Beacon::getDeviceID() const
 {
 	return mDeviceID;
 }
