@@ -294,46 +294,46 @@ TEST_F(BeaconTest, createTagReturnsTagStringForDataCollectionLevel2)
 	ASSERT_GT(tagString.getStringLength(), 0u);
 }
 
-TEST_F(BeaconTest, visitorIDIsRandomizedOnDataCollectionLevel0)
+TEST_F(BeaconTest, deviceIDIsRandomizedOnDataCollectionLevel0)
 {
 	auto mockRandomGenerator = getMockedRandomGenerator();
 
 	// then / verify
-	EXPECT_CALL(*mockRandomGenerator, nextUInt64(testing::_))
+	EXPECT_CALL(*mockRandomGenerator, nextInt64(testing::_))
 		.Times(1);
 
 	//when/given
 	auto target = buildBeacon(openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OFF);
 }
 
-TEST_F(BeaconTest, visitorIDIsRandomizedOnDataCollectionLevel1)
+TEST_F(BeaconTest, deviceIDIsRandomizedOnDataCollectionLevel1)
 {
 	auto mockRandomGenerator = getMockedRandomGenerator();
 
 	// then / verify
-	EXPECT_CALL(*mockRandomGenerator, nextUInt64(testing::_))
+	EXPECT_CALL(*mockRandomGenerator, nextInt64(testing::_))
 		.Times(1);
 
 	//given
 	auto target = buildBeacon(openkit::DataCollectionLevel::PERFORMANCE, openkit::CrashReportingLevel::OFF);
 }
 
-TEST_F(BeaconTest, givenVisitorIDIsUsedOnDataCollectionLevel2)
+TEST_F(BeaconTest, givenDeviceIDIsUsedOnDataCollectionLevel2)
 {
 	auto mockRandomGenerator = getMockedRandomGenerator();
 
 	// then / verify
-	EXPECT_CALL(*mockRandomGenerator, nextUInt64(testing::_))
+	EXPECT_CALL(*mockRandomGenerator, nextInt64(testing::_))
 		.Times(0);
 
 	//given
 	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF);
 
 	// when
-	auto visitorID = target->getDeviceID();
+	auto deviceID = target->getDeviceID();
 
 	// then
-	EXPECT_EQ(getConfiguration()->getDeviceID(), visitorID);
+	EXPECT_EQ(getConfiguration()->getDeviceID(), deviceID);
 }
 
 TEST_F(BeaconTest, randomVisitorIDCannotBeNegativeOnDataCollectionLevel0)
@@ -342,11 +342,10 @@ TEST_F(BeaconTest, randomVisitorIDCannotBeNegativeOnDataCollectionLevel0)
 	auto target = buildBeacon(openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OFF);
 
 	// when
-	auto visitorID = target->getDeviceID();
+	auto deviceID = target->getDeviceID();
 
 	// then
-	EXPECT_GE(visitorID, 0);
-	EXPECT_LT(visitorID, std::numeric_limits<uint64_t>::max());
+	EXPECT_THAT(deviceID, testing::AllOf(testing::Ge(int64_t(0)), testing::Lt(std::numeric_limits<int64_t>::max())));
 }
 
 TEST_F(BeaconTest, randomVisitorIDCannotBeNegativeOnDataCollectionLevel1)
@@ -355,11 +354,10 @@ TEST_F(BeaconTest, randomVisitorIDCannotBeNegativeOnDataCollectionLevel1)
 	auto target = buildBeacon(openkit::DataCollectionLevel::PERFORMANCE, openkit::CrashReportingLevel::OFF);
 
 	// when
-	auto visitorID = target->getDeviceID();
+	auto deviceID = target->getDeviceID();
 
 	// then
-	EXPECT_GE(visitorID, 0);
-	EXPECT_LT(visitorID, std::numeric_limits<uint64_t>::max());
+	EXPECT_THAT(deviceID, testing::AllOf(testing::Ge(int64_t(0)), testing::Lt(std::numeric_limits<int64_t>::max())));
 }
 
 TEST_F(BeaconTest, sessionIDIsAlwaysValue1OnDataCollectionLevel0)
