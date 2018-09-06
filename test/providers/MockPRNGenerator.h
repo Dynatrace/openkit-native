@@ -36,8 +36,8 @@ namespace test {
 
 		virtual ~MockPRNGenerator() {}
 
-		MOCK_METHOD1(nextUInt32, uint32_t(uint32_t));
-		MOCK_METHOD1(nextUInt64, uint64_t(uint64_t));
+		MOCK_METHOD1(nextInt32, int32_t(int32_t));
+		MOCK_METHOD1(nextInt64, int64_t(int64_t));
 	};
 }
 

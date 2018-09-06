@@ -38,14 +38,14 @@ namespace providers
 		/// @param[in] upperBound the upper boundary used for random number generation, is exclusive
 		/// @return random number within the requested boundaries
 		///
-		virtual uint32_t nextUInt32(uint32_t upperBound) = 0;
+		virtual int32_t nextInt32(int32_t upperBound) = 0;
 
 		///
 		/// Generate a random number between 0(inclusive) and upperBound(exclusive)
 		/// @param[in] upperBound the upper boundary used for random number generation, is exclusive
 		/// @return random number within the requested boundaries
 		///
-		virtual uint64_t nextUInt64(uint64_t upperBound) = 0;
+		virtual int64_t nextInt64(int64_t upperBound) = 0;
 	};
 }
 

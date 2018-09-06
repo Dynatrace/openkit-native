@@ -26,7 +26,7 @@ DefaultSessionIDProvider::DefaultSessionIDProvider()
 	, mNextIDMutex()
 {
 	providers::DefaultPRNGenerator randomGenerator;
-	mLastSessionNumber = randomGenerator.nextUInt32(std::numeric_limits<int32_t>::max());
+	mLastSessionNumber = randomGenerator.nextInt32(std::numeric_limits<int32_t>::max());
 	
 }
 
@@ -39,7 +39,7 @@ DefaultSessionIDProvider::DefaultSessionIDProvider(int32_t initialOffset)
 int32_t DefaultSessionIDProvider::getNextSessionID()
 {
 	std::lock_guard<std::mutex> lock(mNextIDMutex);
-	if (mLastSessionNumber == INT32_MAX)
+	if (mLastSessionNumber == std::numeric_limits<int32_t>::max())
 	{
 		mLastSessionNumber = 0;
 	}

@@ -50,7 +50,7 @@ namespace configuration
 		/// @param[in] beaconCacheConfiguration beacon cache configuration
 		/// @param[in] beaconConfiguration beacon configuration
 		///
-		Configuration(std::shared_ptr<configuration::Device> device, OpenKitType openKitType, const core::UTF8String& applicationName, const core::UTF8String& applicationVersion, const core::UTF8String& applicationID, uint64_t deviceID, const core::UTF8String& endpointURL,
+		Configuration(std::shared_ptr<configuration::Device> device, OpenKitType openKitType, const core::UTF8String& applicationName, const core::UTF8String& applicationVersion, const core::UTF8String& applicationID, int64_t deviceID, const core::UTF8String& endpointURL,
 			std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider, std::shared_ptr<openkit::ISSLTrustManager> sslTrustManager,
 			std::shared_ptr<configuration::BeaconCacheConfiguration> beaconCacheConfiguration, std::shared_ptr<configuration::BeaconConfiguration> beaconConfiguration);
 

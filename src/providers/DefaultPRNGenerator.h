@@ -36,9 +36,9 @@ namespace providers
 		///
 		DefaultPRNGenerator();
 
-		virtual uint32_t nextUInt32(uint32_t upperBound) override;
+		virtual int32_t nextInt32(int32_t upperBound) override;
 
-		virtual uint64_t nextUInt64(uint64_t upperBound) override;
+		virtual int64_t nextInt64(int64_t upperBound) override;
 
 	private:
 		/// random engine generating the random numbers
