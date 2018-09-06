@@ -24,14 +24,14 @@ DefaultPRNGenerator::DefaultPRNGenerator()
 {
 }
 
-uint32_t DefaultPRNGenerator::nextUInt32(uint32_t upperBound)
+int32_t DefaultPRNGenerator::nextInt32(int32_t upperBound)
 {
 	std::uniform_real_distribution<double> uniform_dist(0.0, 1.0);
-	return static_cast<uint32_t>(uniform_dist(mRandomEngine) * upperBound);
+	return static_cast<int32_t>(uniform_dist(mRandomEngine) * upperBound);
 }
 
-uint64_t DefaultPRNGenerator::nextUInt64(uint64_t upperBound)
+int64_t DefaultPRNGenerator::nextInt64(int64_t upperBound)
 {
 	std::uniform_real_distribution<double> uniform_dist(0.0, 1.0);
-	return static_cast<uint64_t>(uniform_dist(mRandomEngine) * upperBound);
+	return static_cast<int64_t>(uniform_dist(mRandomEngine) * upperBound);
 }
