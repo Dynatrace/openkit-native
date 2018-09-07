@@ -130,6 +130,16 @@ extern "C" {
 	OPENKIT_EXPORT struct OpenKitConfigurationHandle* createOpenKitConfiguration(const char* endpointURL, const char* applicationID, int64_t deviceID);
 
 	///
+	/// Creates an OpenKit configuration object with @c deviceID given as string.
+	/// @remarks If the given @c deviceID is longer than 250 characters, only the first 250 characters are used.
+	/// @param[in] endpointURL endpoint OpenKit connects to
+	/// @param[in] applicationID unique application id
+	/// @param[in] deviceID unique device id
+	/// @returns a configuration object that can be used for both AppMon and Dynatrace OpenKit instances
+	///
+	OPENKIT_EXPORT struct OpenKitConfigurationHandle* createOpenKitConfigurationWithStringDeviceID(const char* endpointURL, const char* applicationID, const char* deviceID);
+
+	///
 	/// Destroys a given configuration
 	/// @param[in] configurationHandle configuration handle to clean up
 	///
