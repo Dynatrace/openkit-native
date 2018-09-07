@@ -39,7 +39,6 @@ namespace openkit
 	///
 	class OPENKIT_EXPORT AbstractOpenKitBuilder
 	{
-
 		public:
 
 			///
