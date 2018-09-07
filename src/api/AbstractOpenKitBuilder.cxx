@@ -23,6 +23,11 @@
 using namespace openkit;
 
 AbstractOpenKitBuilder::AbstractOpenKitBuilder(const char* endpointURL, int64_t deviceID)
+	: AbstractOpenKitBuilder(endpointURL, std::to_string(deviceID).c_str())
+{
+}
+
+AbstractOpenKitBuilder::AbstractOpenKitBuilder(const char* endpointURL, const char* deviceID)
 	: mVerbose(false)
 	, mLogger(nullptr)
 	, mApplicationVersion(DEFAULT_APPLICATION_VERSION)
@@ -170,7 +175,7 @@ const std::string& AbstractOpenKitBuilder::getEndpointURL() const
 	return mEndpointURL;
 }
 
-int64_t AbstractOpenKitBuilder::getDeviceID() const
+const std::string& AbstractOpenKitBuilder::getDeviceID() const
 {
 	return mDeviceID;
 }

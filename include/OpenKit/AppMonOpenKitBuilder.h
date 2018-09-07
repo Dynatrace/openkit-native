@@ -36,6 +36,14 @@ namespace openkit
 		AppMonOpenKitBuilder(const char* endpointURL, const char* applicationName, int64_t deviceID);
 
 		///
+		/// Constructor
+		/// @param[in] endpointURL endpoint OpenKit connects to
+		/// @param[in] applicationName unique application name
+		/// @param[in] deviceID unique device id
+		///
+		AppMonOpenKitBuilder(const char* endpointURL, const char* applicationName, const char* deviceID);
+
+		///
 		/// Destructor
 		///
 		virtual ~AppMonOpenKitBuilder() {}

@@ -36,6 +36,14 @@ namespace openkit
 		DynatraceOpenKitBuilder(const char* endpointURL, const char* applicationID, int64_t deviceID);
 
 		///
+		/// Constructor
+		/// @param[in] endpointURL endpoint OpenKit connects to
+		/// @param[in] applicationID unique application id
+		/// @param[in] deviceID unique device id
+		///
+		DynatraceOpenKitBuilder(const char* endpointURL, const char* applicationID, const char* deviceID);
+
+		///
 		/// Destructor
 		///
 		virtual ~DynatraceOpenKitBuilder() {}
