@@ -45,10 +45,11 @@ using namespace protocol;
 
 static const char APP_ID[] = "appID";
 static const char APP_NAME[] = "appName";
+static const char DEVICE_ID[] = "deviceID";
 
 class BeaconTest : public testing::Test
 {
-public:
+protected:
 	void SetUp()
 	{
 		logger = std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(devNull, true));
@@ -75,23 +76,21 @@ public:
 
 	std::shared_ptr<protocol::Beacon> buildBeaconWithDefaultConfig()
 	{
-		std::shared_ptr<configuration::BeaconConfiguration> beaconConfiguration = std::make_shared<configuration::BeaconConfiguration>();
-
-		configuration = std::shared_ptr<configuration::Configuration>(new configuration::Configuration(device, configuration::OpenKitType::Type::DYNATRACE,
-			core::UTF8String(APP_NAME), "", APP_ID, 0, "",
-			sessionIDProviderMock, trustManager, beaconCacheConfiguration, beaconConfiguration));
-		configuration->enableCapture();
-
-		return std::make_shared<protocol::Beacon>(logger, beaconCache, configuration, core::UTF8String(""), threadIDProvider, mockTimingProvider, randomGeneratorMock);
+		return buildBeacon(configuration::BeaconConfiguration::DEFAULT_DATA_COLLECTION_LEVEL, configuration::BeaconConfiguration::DEFAULT_CRASH_REPORTING_LEVEL);
 	}
 
 	std::shared_ptr<protocol::Beacon> buildBeacon(openkit::DataCollectionLevel dl, openkit::CrashReportingLevel cl)
 	{
-		std::shared_ptr<configuration::BeaconConfiguration> beaconConfiguration = std::make_shared<configuration::BeaconConfiguration>(configuration::BeaconConfiguration::DEFAULT_MULTIPLICITY, dl, cl);
+		return buildBeacon(dl, cl, core::UTF8String(DEVICE_ID));
+	}
 
-		configuration = std::shared_ptr<configuration::Configuration>(new configuration::Configuration(device, configuration::OpenKitType::Type::DYNATRACE,
-			core::UTF8String(APP_NAME), "", APP_ID, 0, "",
-			sessionIDProviderMock, trustManager, beaconCacheConfiguration, beaconConfiguration));
+	std::shared_ptr<protocol::Beacon> buildBeacon(openkit::DataCollectionLevel dl, openkit::CrashReportingLevel cl, const core::UTF8String& deviceID)
+	{
+		auto beaconConfiguration = std::make_shared<configuration::BeaconConfiguration>(configuration::BeaconConfiguration::DEFAULT_MULTIPLICITY, dl, cl);
+
+		configuration = std::make_shared<configuration::Configuration>(device, configuration::OpenKitType::Type::DYNATRACE,
+			core::UTF8String(APP_NAME), "", APP_ID, deviceID, "",
+			sessionIDProviderMock, trustManager, beaconCacheConfiguration, beaconConfiguration);
 		configuration->enableCapture();
 
 		return std::make_shared<protocol::Beacon>(logger, beaconCache, configuration, core::UTF8String(""), threadIDProvider, mockTimingProvider, randomGeneratorMock);
@@ -336,28 +335,42 @@ TEST_F(BeaconTest, givenDeviceIDIsUsedOnDataCollectionLevel2)
 	EXPECT_EQ(getConfiguration()->getDeviceID(), deviceID);
 }
 
-TEST_F(BeaconTest, randomVisitorIDCannotBeNegativeOnDataCollectionLevel0)
+TEST_F(BeaconTest, randomDeviceIDCannotBeNegativeOnDataCollectionLevel0)
 {
 	// given
 	auto target = buildBeacon(openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OFF);
 
 	// when
-	auto deviceID = target->getDeviceID();
+	int64_t deviceID = std::stoll(target->getDeviceID().getStringData());
 
 	// then
 	EXPECT_THAT(deviceID, testing::AllOf(testing::Ge(int64_t(0)), testing::Lt(std::numeric_limits<int64_t>::max())));
 }
 
-TEST_F(BeaconTest, randomVisitorIDCannotBeNegativeOnDataCollectionLevel1)
+TEST_F(BeaconTest, randomDeviceIDCannotBeNegativeOnDataCollectionLevel1)
 {
 	// given
 	auto target = buildBeacon(openkit::DataCollectionLevel::PERFORMANCE, openkit::CrashReportingLevel::OFF);
 
 	// when
-	auto deviceID = target->getDeviceID();
+	int64_t deviceID = std::stoll(target->getDeviceID().getStringData());
 
 	// then
 	EXPECT_THAT(deviceID, testing::AllOf(testing::Ge(int64_t(0)), testing::Lt(std::numeric_limits<int64_t>::max())));
+}
+
+TEST_F(BeaconTest, deviceIDIsTruncatedTo250Characters)
+{
+	// given
+	auto deviceID = std::string(249, 'a') + "bc";
+
+	auto target = buildBeacon(configuration::BeaconConfiguration::DEFAULT_DATA_COLLECTION_LEVEL, configuration::BeaconConfiguration::DEFAULT_CRASH_REPORTING_LEVEL, deviceID);
+
+	// when
+	auto obtained = target->getDeviceID().getStringData();
+
+	// then
+	EXPECT_EQ(std::string(249, 'a') + "b", obtained);
 }
 
 TEST_F(BeaconTest, sessionIDIsAlwaysValue1OnDataCollectionLevel0)

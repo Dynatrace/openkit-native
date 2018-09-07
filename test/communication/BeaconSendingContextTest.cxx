@@ -52,7 +52,7 @@ public:
 		mBeaconCacheConfiguration = std::make_shared<configuration::BeaconCacheConfiguration>(-1, -1, -1);
 		mBeaconConfiguration = std::make_shared<configuration::BeaconConfiguration>();
 		mConfiguration = std::shared_ptr<configuration::Configuration>(new configuration::Configuration(std::shared_ptr<configuration::Device>(new configuration::Device("", "", "")),
-			configuration::OpenKitType::Type::DYNATRACE, core::UTF8String(""), core::UTF8String(""), core::UTF8String(""), 1, core::UTF8String(""),
+			configuration::OpenKitType::Type::DYNATRACE, core::UTF8String(""), core::UTF8String(""), core::UTF8String(""), core::UTF8String("1"), core::UTF8String(""),
 			std::make_shared<providers::DefaultSessionIDProvider>(),
 			std::make_shared<protocol::SSLStrictTrustManager>(),
 			mBeaconCacheConfiguration, mBeaconConfiguration));

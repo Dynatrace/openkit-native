@@ -40,12 +40,6 @@ namespace openkit
 	class OPENKIT_EXPORT AbstractOpenKitBuilder
 	{
 		public:
-			///
-			/// Constructor
-			/// @param[in] endpointURL endpoint OpenKit connects to
-			/// @param[in] deviceID unique device id
-			///
-			AbstractOpenKitBuilder(const char* endpointURL, int64_t deviceID);
 
 			///
 			/// Destructor
@@ -168,6 +162,21 @@ namespace openkit
 			virtual std::shared_ptr<configuration::Configuration> buildConfiguration() = 0;
 
 		protected:
+
+			///
+			/// Constructor
+			/// @param[in] endpointURL endpoint OpenKit connects to
+			/// @param[in] deviceID unique device id
+			///
+			AbstractOpenKitBuilder(const char* endpointURL, int64_t deviceID);
+
+			///
+			/// Constructor
+			/// @param[in] endpointURL endpoint OpenKit connects to
+			/// @param[in] deviceID unique device id
+			///
+			AbstractOpenKitBuilder(const char* endpointURL, const char* deviceID);
+
 			///
 			/// Returns the application version
 			/// @returns the application version
@@ -202,7 +211,7 @@ namespace openkit
 			/// Returns the device ID
 			/// @returns the device ID
 			///
-			int64_t getDeviceID() const;
+			const std::string& getDeviceID() const;
 
 			///
 			/// Returns the SSL trust manager
@@ -271,7 +280,7 @@ namespace openkit
 			std::string mEndpointURL;
 
 			/// device ID
-			int64_t mDeviceID;
+			std::string mDeviceID;
 
 			/// SSL trust manager
 			std::shared_ptr<openkit::ISSLTrustManager> mTrustManager;

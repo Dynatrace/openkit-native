@@ -19,6 +19,7 @@
 
 #include "communication/BeaconSendingTerminalState.h"
 #include "communication/AbstractBeaconSendingState.h"
+#include "../protocol/NullLogger.h"
 
 #include "MockBeaconSendingContext.h"
 
@@ -34,7 +35,7 @@ public:
 
 	void SetUp()
 	{
-		mLogger = std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(devNull, true));
+		mLogger = std::make_shared<NullLogger>();
 		mTarget = std::make_shared<BeaconSendingTerminalState>();
 	}
 
@@ -44,7 +45,6 @@ public:
 		mTarget = nullptr;
 	}
 
-	std::ostringstream devNull;
 	std::shared_ptr<openkit::ILogger> mLogger;
 	std::shared_ptr<BeaconSendingTerminalState> mTarget;
 };

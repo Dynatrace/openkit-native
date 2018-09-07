@@ -61,10 +61,10 @@ OpenKit::OpenKit(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<confi
 	}
 	if (logger->isDebugEnabled())
 	{
-		logger->debug("OpenKit() - applicationName=%s, applicationID=%s, deviceID=%" PRId64 ", endpointURL=%s",
+		logger->debug("OpenKit() - applicationName=%s, applicationID=%s, deviceID=%s, endpointURL=%s",
 			configuration->getApplicationName() != nullptr ? configuration->getApplicationName().getStringData().c_str() : "",
 			configuration->getApplicationID() != nullptr ? configuration->getApplicationID().getStringData().c_str() : "",
-			configuration->getDeviceID(),
+			configuration->getDeviceID() != nullptr ? configuration->getDeviceID().getStringData().c_str() : "",
 			configuration->getEndpointURL() != nullptr ? configuration->getEndpointURL().getStringData().c_str() : "");
 	}
 

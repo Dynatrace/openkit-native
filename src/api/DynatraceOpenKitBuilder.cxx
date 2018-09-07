@@ -21,11 +21,15 @@
 using namespace openkit;
 
 DynatraceOpenKitBuilder::DynatraceOpenKitBuilder(const char* endpointURL, const char* applicationID, int64_t deviceID)
+	: DynatraceOpenKitBuilder(endpointURL, applicationID, std::to_string(deviceID).c_str())
+{
+}
+
+DynatraceOpenKitBuilder::DynatraceOpenKitBuilder(const char* endpointURL, const char* applicationID, const char* deviceID)
 	: AbstractOpenKitBuilder(endpointURL, deviceID)
 	, mApplicationID(applicationID)
 	, mApplicationName()
 {
-
 }
 
 std::shared_ptr<configuration::Configuration> DynatraceOpenKitBuilder::buildConfiguration()
