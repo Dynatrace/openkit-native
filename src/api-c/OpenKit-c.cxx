@@ -222,7 +222,7 @@ extern "C" {
 	{
 		char* endpointURL = nullptr;
 		char* applicationID = nullptr;
-		int64_t deviceID = -1;
+		char* deviceID = nullptr;
 		char* applicationName = nullptr;
 		LoggerHandle* loggerHandle = nullptr;
 		bool ownsLoggerHandle = false;
@@ -242,6 +242,11 @@ extern "C" {
 
 	struct OpenKitConfigurationHandle* createOpenKitConfiguration(const char* endpointURL, const char* applicationID, int64_t deviceID)
 	{
+		return createOpenKitConfigurationWithStringDeviceID(endpointURL, applicationID, std::to_string(deviceID).c_str());
+	}
+
+	struct OpenKitConfigurationHandle* createOpenKitConfigurationWithStringDeviceID(const char* endpointURL, const char* applicationID, const char* deviceID)
+	{
 		OpenKitConfigurationHandle* handle = nullptr;
 		try
 		{
@@ -251,14 +256,13 @@ extern "C" {
 			{
 				handle->endpointURL = duplicateString(endpointURL);
 				handle->applicationID = duplicateString(applicationID);
-				handle->deviceID = deviceID;
+				handle->deviceID = duplicateString(deviceID);
 			}
 		}
 		CATCH_AND_IGNORE_ALL()
 
 		return handle;
 	}
-
 
 
 	void destroyOpenKitConfiguration(struct OpenKitConfigurationHandle* configurationHandle)
