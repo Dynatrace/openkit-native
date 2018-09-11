@@ -80,9 +80,9 @@ extern "C" {
 
 	typedef enum TRUST_MODE
 	{
-		STRICT_TRUST = 0,	///< Use the @ref protocol::SSLStrictTrustManager, trusting only valid certificates
-		BLIND_TRUST  = 1,	///< Use the @ref protocol::SSLBlindTrustManager, blindly trusting every certificate and every host (not recommended!)
-		CUSTOM_TRUST = 2	///< Use the @ref apic::CustomTrustManager, which is provided via the @c trustManagerHandle returned from @ref createCustomTrustManager
+		STRICT_TRUST = 0,	///< Use a class implementing @ref openkit::ISSLTrustManager, trusting only valid certificates
+		BLIND_TRUST  = 1,	///< Use a class implementing @ref openkit::ISSLTrustManager, blindly trusting every certificate and every host (not recommended!)
+		CUSTOM_TRUST = 2	///< Use a custom SSL trustmanager, which is provided via the @c trustManagerHandle returned from @ref createCustomTrustManager
 	} TRUST_MODE;
 
 	/// Function to apply the trust manager configuration on the passed CURL handle
@@ -534,7 +534,7 @@ extern "C" {
 	OPENKIT_EXPORT const char* getTag(struct WebRequestTracerHandle* webRequestTracerHandle);
 
 	///
-	/// Sets the response code of this web request. Has to be called before @ref core::WebRequestTracerBase::stop().
+	/// Sets the response code of this web request. Has to be called before@ref stopWebRequest().
 	///
 	/// @param[in] webRequestTracerHandle the handle returned by @ref traceWebRequestOnRootAction or @ref traceWebRequestOnAction
 	/// @param[in] responseCode response code of this web request
@@ -542,7 +542,7 @@ extern "C" {
 	OPENKIT_EXPORT void setResponseCode(struct WebRequestTracerHandle* webRequestTracerHandle, int32_t responseCode);
 
 	///
-	/// Sets the amount of sent data of this web request. Has to be called before @ref core::WebRequestTracerBase::stop().
+	/// Sets the amount of sent data of this web request. Has to be called before @ref stopWebRequest().
 	///
 	/// @param[in] webRequestTracerHandle the handle returned by @ref traceWebRequestOnRootAction or @ref traceWebRequestOnAction
 	/// @param[in] bytesSent number of bytes sent
@@ -550,7 +550,7 @@ extern "C" {
 	OPENKIT_EXPORT void setBytesSent(struct WebRequestTracerHandle* webRequestTracerHandle, int32_t bytesSent);
 
 	///
-	/// Sets the amount of received data of this web request. Has to be called before @ref core::WebRequestTracerBase::stop().
+	/// Sets the amount of received data of this web request. Has to be called before @ref stopWebRequest().
 	///
 	/// @param[in] webRequestTracerHandle the handle returned by @ref traceWebRequestOnRootAction or @ref traceWebRequestOnAction
 	/// @param[in] bytesReceived number of bytes received

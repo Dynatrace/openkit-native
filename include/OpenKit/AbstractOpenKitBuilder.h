@@ -72,7 +72,7 @@ namespace openkit
 
 			///
 			/// Sets the trust manager, if it's not @c nullptr.
-			/// Overrides the default trust manager which is @ref protocol::SSLStrictTrustManager by default
+			/// @remarks Overrides the default trust manager which is only accepting valid SSL certificates.
 			///
 			/// @param[in] trustManager trust manager implementation
 			/// @returns @c this for fluent usage
