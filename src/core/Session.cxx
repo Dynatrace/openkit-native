@@ -19,10 +19,13 @@
 #include "BeaconSender.h"
 #include "Action.h"
 #include "RootAction.h"
+#include "WebRequestTracerStringURL.h"
 
 #include <sstream>
 
 using namespace core;
+
+std::shared_ptr<NullWebRequestTracer> Session::NULL_WEB_REQUEST_TRACER(std::make_shared<NullWebRequestTracer>());
 
 Session::Session(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<BeaconSender> beaconSender, std::shared_ptr<protocol::Beacon> beacon)
 	: mLogger(logger)
@@ -103,6 +106,30 @@ void Session::reportCrash(const char* errorName, const char* reason, const char*
 	}
 }
 
+std::shared_ptr<openkit::IWebRequestTracer> Session::traceWebRequest(const char* url)
+{
+	core::UTF8String urlString(url);
+	if (urlString.empty())
+	{
+		mLogger->warning("%s traceWebRequest (string): url must not be null or empty", toString().c_str());
+		return NULL_WEB_REQUEST_TRACER;
+	}
+	if (!WebRequestTracerStringURL::isValidURLScheme(urlString))
+	{
+		mLogger->warning("%s traceWebRequest (string): url \"%s\" does not have a valid scheme", toString().c_str(), urlString.getStringData().c_str());
+		return NULL_WEB_REQUEST_TRACER;
+	}
+	if (mLogger->isDebugEnabled())
+	{
+		mLogger->debug("%s traceWebRequest (string) (%s))", toString().c_str(), url);
+	}
+
+	if (!isSessionEnded())
+	{
+		return std::make_shared<core::WebRequestTracerStringURL>(mLogger, mBeacon, 0, urlString);
+	}
+	return NULL_WEB_REQUEST_TRACER;
+}
 
 void Session::end()
 {
