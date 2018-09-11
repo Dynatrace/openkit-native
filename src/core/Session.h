@@ -73,6 +73,8 @@ namespace core
 
 		virtual void reportCrash(const char* errorName, const char* reason, const char* stacktrace) override;
 
+		virtual std::shared_ptr<openkit::IWebRequestTracer> traceWebRequest(const char* url) override;
+
 		virtual void end() override;
 
 		///
@@ -159,6 +161,9 @@ namespace core
 
 		/// instance of NullRootAction
 		std::shared_ptr<NullRootAction> NULL_ROOT_ACTION;
+
+		/// Null WebRequestTracer
+		static std::shared_ptr<NullWebRequestTracer> NULL_WEB_REQUEST_TRACER;
 	};
 }
 

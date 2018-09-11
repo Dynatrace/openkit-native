@@ -24,7 +24,8 @@
 
 namespace openkit
 {
-	class IRootAction;
+	class OPENKIT_EXPORT IRootAction;
+	class OPENKIT_EXPORT IWebRequestTracer;
 
 	///
 	/// This interface provides functionality to create Actions in a Session.
@@ -59,6 +60,18 @@ namespace openkit
 		/// @param[in] stacktrace stacktrace leading to that crash
 		///
 		virtual void reportCrash(const char* errorName, const char* reason, const char* stacktrace) = 0;
+
+		///
+		/// Allows tracing and timing of a web request handled by any 3rd party HTTP Client (e.g. CURL, EasyHttp, ...).
+		/// In this case the Dynatrace HTTP header (@ref openkit::OpenKitConstants::WEBREQUEST_TAG_HEADER) has to be set manually to the
+		/// tag value of this WebRequestTracer. <br>
+		/// If the web request is continued on a server-side Agent (e.g. Java, .NET, ...) this Session will be correlated to
+		/// the resulting server-side PurePath.
+		///
+		/// @param url the URL of the web request to be tagged and timed
+		/// @return a WebRequestTracer which allows getting the tag value and adding timing information
+		///
+		virtual std::shared_ptr<IWebRequestTracer> traceWebRequest(const char* url) = 0;
 
 		///
 		/// Ends this Session and marks it as ready for immediate sending.

@@ -18,7 +18,9 @@
 #define _CORE_NULLSESSION_H
 
 #include "OpenKit/ISession.h"
-#include "core/NullRootAction.h"
+#include "NullRootAction.h"
+#include "NullWebRequestTracer.h"
+
 #include <memory>
 
 namespace core
@@ -53,6 +55,11 @@ namespace core
 		virtual void reportCrash(const char* /*errorName*/, const char* /*reason*/, const char* /*stacktrace*/) override
 		{
 			// intentionally left empty, due to NullObject pattern
+		}
+
+		virtual std::shared_ptr<openkit::IWebRequestTracer> traceWebRequest(const char* /*url*/) override
+		{
+			return std::make_shared<NullWebRequestTracer>();
 		}
 
 		virtual void end() override
