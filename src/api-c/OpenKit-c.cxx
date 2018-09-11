@@ -977,6 +977,31 @@ extern "C" {
 		std::shared_ptr<openkit::ILogger> logger = nullptr;
 	} WebRequestTracerHandle;
 
+	WebRequestTracerHandle* traceWebRequestOnSession(struct SessionHandle* sessionHandle, const char* url)
+	{
+		// Sanity
+		if (sessionHandle == nullptr)
+		{
+			return nullptr;
+		}
+
+		WebRequestTracerHandle* handle = nullptr;
+		TRY
+		{
+			// retrieve the RootAction instance from the handle and call the respective method
+			assert(sessionHandle->sharedPointer != nullptr);
+			auto traceWebRequest = sessionHandle->sharedPointer->traceWebRequest(url);
+
+			// storing the returned shared pointer in the handle prevents it from going out of scope
+			handle = new WebRequestTracerHandle();
+			handle->sharedPointer = traceWebRequest;
+			handle->logger = sessionHandle->logger;
+		}
+		CATCH_AND_LOG(sessionHandle)
+
+		return handle;
+	}
+
 	WebRequestTracerHandle* traceWebRequestOnRootAction(RootActionHandle* rootActionHandle, const char* url)
 	{
 		// Sanity

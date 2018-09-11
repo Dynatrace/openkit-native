@@ -473,7 +473,20 @@ extern "C" {
 
 	///
 	/// Allows tracing and timing of a web request handled by any 3rd party HTTP Client (e.g. CURL, EasyHttp, ...).
-	/// In this case the Dynatrace HTTP header (@ref OpenKitConstants::WEBREQUEST_TAG_HEADER) has to be set manually to the
+	/// In this case the Dynatrace HTTP header (@ref WEBREQUEST_TAG_HEADER) has to be set manually to the
+	/// tag value of this WebRequestTracer. <br>
+	/// If the web request is continued on a server-side Agent (e.g. Java, .NET, ...) this Session will be correlated to
+	/// the resulting server-side PurePath.
+	///
+	/// @param[in] sessionHandle	the handle returned by @ref createSession
+	/// @param[in] url				the URL of the web request to be tagged and timed
+	/// @return a WebRequestTracer which allows getting the tag value and adding timing information
+	///
+	OPENKIT_EXPORT struct WebRequestTracerHandle* traceWebRequestOnSession(struct SessionHandle* sessionHandle, const char* url);
+
+	///
+	/// Allows tracing and timing of a web request handled by any 3rd party HTTP Client (e.g. CURL, EasyHttp, ...).
+	/// In this case the Dynatrace HTTP header (@ref WEBREQUEST_TAG_HEADER) has to be set manually to the
 	/// tag value of this WebRequestTracer. <br>
 	/// If the web request is continued on a server-side Agent (e.g. Java, .NET, ...) this Session will be correlated to
 	/// the resulting server-side PurePath.
@@ -486,7 +499,7 @@ extern "C" {
 
 	///
 	/// Allows tracing and timing of a web request handled by any 3rd party HTTP Client (e.g. CURL, EasyHttp, ...).
-	/// In this case the Dynatrace HTTP header (@ref OpenKitConstants::WEBREQUEST_TAG_HEADER) has to be set manually to the
+	/// In this case the Dynatrace HTTP header (@ref WEBREQUEST_TAG_HEADER) has to be set manually to the
 	/// tag value of this WebRequestTracer. <br>
 	/// If the web request is continued on a server-side Agent (e.g. Java, .NET, ...) this Session will be correlated to
 	/// the resulting server-side PurePath.
