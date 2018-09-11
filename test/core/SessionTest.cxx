@@ -682,7 +682,7 @@ TEST_F(SessionTest, traceWebRequestGivesNullTracerIfSessionIsEnded)
 	// given
 	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
 		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
+	EXPECT_CALL(*mockBeaconSender, finishSession(testing::_))
 		.Times(testing::Exactly(1));
 
 	const char* url = "http://example.com/pages/";
