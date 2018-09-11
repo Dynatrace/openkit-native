@@ -118,12 +118,7 @@
         {
           "name": "BUILD_SHARED_LIBS",
           "value": "ON"
-        },
-        {
-          "name": "BUILD_DOC",
-          "value": "ON"
         }
-
       ]
     },
     {
