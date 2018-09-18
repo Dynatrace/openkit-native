@@ -47,27 +47,28 @@ def config = [
     'Debug'
 ]
 windowsbuildCommands.each { cmd ->
-    config.each {configType ->
-        builds[configType + " " + cmd] = {
-            node("VS2015" && "VS2017") {
-                checkout scm
+    builds[cmd] = {
+        node("VS2015" && "VS2017") {
+            checkout scm
 
-                dir('build') {
-                    deleteDir()
-                }
+            dir('build') {
+                deleteDir()
+            }
 
-                dir('build') {
-                    bat("cmake.exe -G${cmd}")
-                    bat("cmake.exe --build . --target ALL_BUILD --config ${configType}")
-                    try {
-                        bat("bin\\${configType}\\OpenKitTest.exe --gtest_output=xml:testreport.xml")
-                    } finally {
-                        junit("testreport.xml")
-                    }
+            dir('build') {
+                bat("cmake.exe -G${cmd}")
+                try {
+                    config.each { configType ->
+                        bat("cmake.exe --build . --target ALL_BUILD --config ${configType}")
+                        bat("bin\\${configType}\\OpenKitTest.exe --gtest_output=xml:testreport_${configType}.xml")
+                    }    
+                } finally {
+                    junit("testreport*.xml")
                 }
             }
         }
     }
+
 }
 stage("build-and-test") {
     parallel(builds)
