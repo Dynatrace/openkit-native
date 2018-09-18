@@ -49,7 +49,7 @@ def config = [
 windowsbuildCommands.each { cmd ->
     config.each {configType ->
         builds[configType + " " + cmd] = {
-            node("oneagent-dynatrace-native-windows-x86-64") {
+            node("VS2015" && "VS2017") {
                 checkout scm
 
                 dir('build') {
