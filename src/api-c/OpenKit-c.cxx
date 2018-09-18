@@ -111,7 +111,7 @@ extern "C" {
 		return handle;
 	}
 
-	TrustManagerHandle* createStrictTrustManager()
+	static TrustManagerHandle* createStrictTrustManager()
 	{
 		// Sanity
 		TrustManagerHandle* handle = nullptr;
@@ -127,7 +127,7 @@ extern "C" {
 		return handle;
 	}
 
-	TrustManagerHandle* createBlindTrustManager()
+	static TrustManagerHandle* createBlindTrustManager()
 	{
 		// Sanity
 		TrustManagerHandle* handle = nullptr;
@@ -312,7 +312,7 @@ extern "C" {
 	void useTrustModeForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, TRUST_MODE trustMode, struct TrustManagerHandle* trustManagerHandle)
 	{
 		//sanity
-		if (configurationHandle != nullptr && trustManagerHandle != nullptr)
+		if (configurationHandle != nullptr)
 		{
 			configurationHandle->trustMode = trustMode;
 			configurationHandle->trustManagerHandle = trustManagerHandle;
