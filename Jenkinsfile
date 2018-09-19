@@ -37,8 +37,8 @@ buildCommands.each {
 }
 
 def windowsBuildGenerator = [
-    '"Visual Studio 15 2017 Win64" ../',
-    '"Visual Studio 14 2015 Win64" ../'
+    '"Visual Studio 15 2017 Win64"',
+    '"Visual Studio 14 2015 Win64"'
 ]
 def compileOptions = [
     "-DBUILD_SHARED_LIBS=ON",
@@ -48,9 +48,9 @@ def config = [
     'Release',
     'Debug'
 ]
-windowsBuildGenerator.each { cmd ->
+windowsBuildGenerator.each { generator ->
     compileOptions.each {option ->
-        builds[cmd + " " + option] = {
+        builds[generator + " " + option] = {
             node("VS2015" && "VS2017") {
                 checkout scm
 
@@ -59,7 +59,7 @@ windowsBuildGenerator.each { cmd ->
                 }
 
                 dir('build') {
-                    bat("cmake.exe -G${cmd} ${option}")
+                    bat("cmake.exe -G${generator} ${option} ../")
                     try {
                         config.each { configType ->
                             bat("cmake.exe --build . --target ALL_BUILD --config ${configType}")
