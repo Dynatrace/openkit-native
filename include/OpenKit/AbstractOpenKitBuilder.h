@@ -23,6 +23,7 @@
 #include "OpenKit/DataCollectionLevel.h"
 #include "OpenKit/CrashReportingLevel.h"
 
+#include <cstdint>
 #include <memory>
 
 #ifndef DOXYGEN_HIDE_FROM_DOC

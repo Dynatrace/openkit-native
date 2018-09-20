@@ -19,6 +19,8 @@
 
 #include "OpenKit/AbstractOpenKitBuilder.h"
 
+#include <cstdint>
+
 namespace openkit
 {
 	///

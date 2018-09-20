@@ -19,7 +19,7 @@
 
 #include "OpenKit_export.h"
 
-#include <stdint.h>
+#include <cstdint>
 #include <memory>
 
 namespace openkit
