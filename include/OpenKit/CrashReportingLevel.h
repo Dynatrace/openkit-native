@@ -17,7 +17,7 @@
 #ifndef _OPENKIT_CRASHREPORTINGLEVEL_H
 #define _OPENKIT_CRASHREPORTINGLEVEL_H
 
-#include <stdint.h>
+#include <cstdint>
 
 namespace openkit
 {
