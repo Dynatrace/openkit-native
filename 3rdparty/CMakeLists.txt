@@ -17,7 +17,7 @@
 ######
 
 ##
-# This is a hack to ensure when OpenKit is built using static CRT,
+# This is a workaround to ensure when OpenKit is built using static CRT,
 # then all 3rd party libs must use static CRT as well
 include(CompilerConfiguration)
 fix_compiler_flags()
