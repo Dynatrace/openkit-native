@@ -13,8 +13,8 @@ The following programs need to be available to build OpenKit C/C++.
 * A C++11 compliant compiler, like
   * Visual Studio 2015
   * Visual Studio 2017
-  * GCC
-  * Clang
+  * GCC (>= 5.0.0)
+  * Clang (>= 3.8.0)
 
 ### Optional programs
 
