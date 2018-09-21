@@ -49,8 +49,8 @@ This repository contains the reference implementation in C and C++. Other implem
 * CMake 3.0 or above
 * A C++11 compliant compiler
   * Visual Studio 2015/2017
-  * GCC
-  * Clang
+  * GCC (>= 5.0.0)
+  * Clang (>= 3.8.0)
 * An SSL library needs to be available
   * Secure Channel (aka. Schannel) for Microsoft Windows 
   * OpenSSL for GNU/Linux
