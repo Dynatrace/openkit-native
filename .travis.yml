@@ -1,0 +1,129 @@
+# Ubuntu 14.04 (LTS)
+dist: trusty
+
+# Container based (instead of VM)
+sudo: false
+
+# The main language that this repo uses - normally the value would be cpp
+# When setting this to cpp, Travis CI however does override some of our settings
+language: none
+
+# For sudo=false builds this section installs the necessary dependencies.
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+      - llvm-toolchain-precise-3.8
+    packages:
+      - cmake
+      - g++-5
+      - clang-3.8
+
+# fail fast
+matrix:
+  fast_finish: true
+
+# build matrix
+matrix:
+  include:
+    # gcc/g++ build
+    - name: "g++5 Debug Dynamic x86_64"
+      os: linux
+      env: CC=gcc-5 CXX=g++-5 CMAKE_BUILD_TYPE=Debug BUILD_SHARED_LIBS=ON OPENKIT_32_BIT=OFF
+    - name: "g++5 Release Dynamic x86_64"
+      os: linux
+      env: CC=gcc-5 CXX=g++-5 CMAKE_BUILD_TYPE=Release BUILD_SHARED_LIBS=ON OPENKIT_32_BIT=OFF
+    - name: "g++5 Debug Static x86_64"
+      os: linux
+      env: CC=gcc-5 CXX=g++-5 CMAKE_BUILD_TYPE=Debug BUILD_SHARED_LIBS=OFF OPENKIT_32_BIT=OFF
+    - name: "g++5 Release Static x86_64"
+      os: linux
+      env: CC=gcc-5 CXX=g++-5 CMAKE_BUILD_TYPE=Release BUILD_SHARED_LIBS=OFF OPENKIT_32_BIT=OFF
+    - name: "g++5 Debug Dynamic x86"
+      os: linux
+      env: CC=gcc-5 CXX=g++-5 CMAKE_BUILD_TYPE=Debug BUILD_SHARED_LIBS=ON OPENKIT_32_BIT=ON
+    - name: "g++5 Release Dynamic x86"
+      os: linux
+      env: CC=gcc-5 CXX=g++-5 CMAKE_BUILD_TYPE=Release BUILD_SHARED_LIBS=ON OPENKIT_32_BIT=ON
+    - name: "g++5 Debug Static x86"
+      os: linux
+      env: CC=gcc-5 CXX=g++-5 CMAKE_BUILD_TYPE=Debug BUILD_SHARED_LIBS=OFF OPENKIT_32_BIT=ON
+    - name: "g++5 Release Static x86"
+      os: linux
+      env: CC=gcc-5 CXX=g++-5 CMAKE_BUILD_TYPE=Release BUILD_SHARED_LIBS=OFF OPENKIT_32_BIT=ON
+    # clang build
+    - name: "clang Debug Dynamic x86_64"
+      os: linux
+      env: CC=clang-3.8 CXX=clang++-3.8 CMAKE_BUILD_TYPE=Debug BUILD_SHARED_LIBS=ON OPENKIT_32_BIT=OFF
+    - name: "clang Release Dynamic x86_64"
+      os: linux
+      env: CC=clang-3.8 CXX=clang++-3.8 CMAKE_BUILD_TYPE=Release BUILD_SHARED_LIBS=ON OPENKIT_32_BIT=OFF
+    - name: "clang Debug Static x86_64"
+      os: linux
+      env: CC=clang-3.8 CXX=clang++-3.8 CMAKE_BUILD_TYPE=Debug BUILD_SHARED_LIBS=OFF OPENKIT_32_BIT=OFF
+    - name: "clang Release Static x86_64"
+      os: linux
+      env: CC=clang-3.8 CXX=clang++-3.8 CMAKE_BUILD_TYPE=Release BUILD_SHARED_LIBS=OFF OPENKIT_32_BIT=OFF
+    - name: "clang Debug Dynamic x86"
+      os: linux
+      env: CC=clang-3.8 CXX=clang++-3.8 CMAKE_BUILD_TYPE=Debug BUILD_SHARED_LIBS=ON OPENKIT_32_BIT=ON
+    - name: "clang Release Dynamic x86"
+      os: linux
+      env: CC=clang-3.8 CXX=clang++-3.8 CMAKE_BUILD_TYPE=Release BUILD_SHARED_LIBS=ON OPENKIT_32_BIT=ON
+    - name: "clang Debug Static x86"
+      os: linux
+      env: CC=clang-3.8 CXX=clang++-3.8 CMAKE_BUILD_TYPE=Debug BUILD_SHARED_LIBS=OFF OPENKIT_32_BIT=ON
+    - name: "clang Release Static x86"
+      os: linux
+      env: CC=clang-3.8 CXX=clang++-3.8 CMAKE_BUILD_TYPE=Release BUILD_SHARED_LIBS=OFF OPENKIT_32_BIT=ON
+
+# run before the script: is executed
+before_script:
+- |
+  set -evx
+  # write out some stuff (debugging only)
+  env | sort
+  if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then
+    echo "This is *NOT* a pull request build"
+  else
+    echo "This is a pull request build"
+  fi
+  # 
+  cmake --version
+  $CXX --version
+
+# build script
+script:
+- |
+  set -evx
+  # evaluate number of processors
+  if [ -x /usr/bin/getconf ]; then
+    NPROCESSORS=$(/usr/bin/getconf _NPROCESSORS_ONLN)
+    # limit to 4 processor to avoid too high memory consumption
+    if [ $NPROCESSORS -gt 4 ] ; then
+      echo "$0:Note: Limiting processors to use by make from $NPROCESSORS to 4."
+      NPROCESSORS=4
+    fi
+  else
+    NPROCESSORS=2
+  fi
+  # setup some variables
+  MAKEFLAGS="-j$(($NPROCESSORS + 1))"
+  BUILD_DIRECTORY=build
+  CMAKE_GENERATOR="Unix Makefiles"
+
+  # create build directory and change into it
+  mkdir -p $BUILD_DIRECTORY
+  cd $BUILD_DIRECTORY
+
+  # CMake generation
+  cmake -G "$CMAKE_GENERATOR" -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE -DOPENKIT_BUILD_TESTS=ON -DBUILD_DOC=OFF -DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS .. || exit 1
+  # CMake build
+  cmake --build . -- $MAKEFLAGS || exit 1
+
+# execute tests
+after_success:
+- |
+  set -evx
+  # Run test using CTest
+  ctest -C $CMAKE_BUILD_TYPE --timeout 600 --output-on-failure || exit 1
