@@ -128,6 +128,12 @@ endmacro()
 # utility macro to overwrite default compiler flags
 macro(fix_compiler_flags)
 	if (MSVC)
+	    # parse optional macro arguments
+	    set(options USE_DEFAULT_WARNINGS_FLAGS)
+		set(oneValueArgs)
+		set(multiValueArgs)
+		cmake_parse_arguments(COMPILER_FLAGS "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
+
 		# For MSVC, CMake sets certain flags to defaults we want to override.
 		# This replacement code is taken from sample in the CMake Wiki at
 		# http://www.cmake.org/Wiki/CMake_FAQ#Dynamic_Replace.
@@ -149,7 +155,9 @@ macro(fix_compiler_flags)
 			endif()
 			# We prefer more strict warning checking for building
 			# Replaces /W3 with /W4 in defaults.
-			string(REPLACE "/W3" "/W4" ${flag_var} "${${flag_var}}")
+			if(NOT COMPILER_FLAGS_USE_DEFAULT_WARNINGS_FLAGS)
+				string(REPLACE "/W3" "/W4" ${flag_var} "${${flag_var}}")
+			endif()
 		endforeach()
 	endif()
 endmacro()
