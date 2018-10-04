@@ -27,52 +27,28 @@ matrix:
 matrix:
   include:
     # gcc/g++ build
-    - name: "g++5 Debug Dynamic x86_64"
-      os: linux
-      env: CC=gcc-5 CXX=g++-5 CMAKE_BUILD_TYPE=Debug BUILD_SHARED_LIBS=ON OPENKIT_32_BIT=OFF
     - name: "g++5 Release Dynamic x86_64"
       os: linux
       env: CC=gcc-5 CXX=g++-5 CMAKE_BUILD_TYPE=Release BUILD_SHARED_LIBS=ON OPENKIT_32_BIT=OFF
-    - name: "g++5 Debug Static x86_64"
-      os: linux
-      env: CC=gcc-5 CXX=g++-5 CMAKE_BUILD_TYPE=Debug BUILD_SHARED_LIBS=OFF OPENKIT_32_BIT=OFF
     - name: "g++5 Release Static x86_64"
       os: linux
       env: CC=gcc-5 CXX=g++-5 CMAKE_BUILD_TYPE=Release BUILD_SHARED_LIBS=OFF OPENKIT_32_BIT=OFF
-    - name: "g++5 Debug Dynamic x86"
-      os: linux
-      env: CC=gcc-5 CXX=g++-5 CMAKE_BUILD_TYPE=Debug BUILD_SHARED_LIBS=ON OPENKIT_32_BIT=ON
     - name: "g++5 Release Dynamic x86"
       os: linux
       env: CC=gcc-5 CXX=g++-5 CMAKE_BUILD_TYPE=Release BUILD_SHARED_LIBS=ON OPENKIT_32_BIT=ON
-    - name: "g++5 Debug Static x86"
-      os: linux
-      env: CC=gcc-5 CXX=g++-5 CMAKE_BUILD_TYPE=Debug BUILD_SHARED_LIBS=OFF OPENKIT_32_BIT=ON
     - name: "g++5 Release Static x86"
       os: linux
       env: CC=gcc-5 CXX=g++-5 CMAKE_BUILD_TYPE=Release BUILD_SHARED_LIBS=OFF OPENKIT_32_BIT=ON
     # clang build
-    - name: "clang Debug Dynamic x86_64"
-      os: linux
-      env: CC=clang-3.8 CXX=clang++-3.8 CMAKE_BUILD_TYPE=Debug BUILD_SHARED_LIBS=ON OPENKIT_32_BIT=OFF
     - name: "clang Release Dynamic x86_64"
       os: linux
       env: CC=clang-3.8 CXX=clang++-3.8 CMAKE_BUILD_TYPE=Release BUILD_SHARED_LIBS=ON OPENKIT_32_BIT=OFF
-    - name: "clang Debug Static x86_64"
-      os: linux
-      env: CC=clang-3.8 CXX=clang++-3.8 CMAKE_BUILD_TYPE=Debug BUILD_SHARED_LIBS=OFF OPENKIT_32_BIT=OFF
     - name: "clang Release Static x86_64"
       os: linux
       env: CC=clang-3.8 CXX=clang++-3.8 CMAKE_BUILD_TYPE=Release BUILD_SHARED_LIBS=OFF OPENKIT_32_BIT=OFF
-    - name: "clang Debug Dynamic x86"
-      os: linux
-      env: CC=clang-3.8 CXX=clang++-3.8 CMAKE_BUILD_TYPE=Debug BUILD_SHARED_LIBS=ON OPENKIT_32_BIT=ON
     - name: "clang Release Dynamic x86"
       os: linux
       env: CC=clang-3.8 CXX=clang++-3.8 CMAKE_BUILD_TYPE=Release BUILD_SHARED_LIBS=ON OPENKIT_32_BIT=ON
-    - name: "clang Debug Static x86"
-      os: linux
-      env: CC=clang-3.8 CXX=clang++-3.8 CMAKE_BUILD_TYPE=Debug BUILD_SHARED_LIBS=OFF OPENKIT_32_BIT=ON
     - name: "clang Release Static x86"
       os: linux
       env: CC=clang-3.8 CXX=clang++-3.8 CMAKE_BUILD_TYPE=Release BUILD_SHARED_LIBS=OFF OPENKIT_32_BIT=ON
