@@ -24,8 +24,8 @@
 
 namespace openkit
 {
-	class IWebRequestTracer;
-	class IAction;
+	class OPENKIT_EXPORT IWebRequestTracer;
+	class OPENKIT_EXPORT IAction;
 
 	///
 	/// This interface provides the same functionality as IAction, additionally it allows to create child actions

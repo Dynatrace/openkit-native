@@ -16,7 +16,7 @@
 
 #include "communication/BeaconSendingTimeSyncState.h"
 
-#include <math.h>
+#include <cmath>
 #include <algorithm>
 
 #include "communication/BeaconSendingContext.h"

@@ -22,7 +22,6 @@
 namespace openkit
 {
 	constexpr char WEBREQUEST_TAG_HEADER[] = "X-dynaTrace";
-	//TODO: stefan.eberl: generate the version using cmake
 	constexpr char DEFAULT_APPLICATION_VERSION[] = OPENKIT_VERSION_STRING;
 	constexpr char DEFAULT_OPERATING_SYSTEM[] = "OpenKit " OPENKIT_VERSION_STRING;
 	constexpr char DEFAULT_MANUFACTURER[] = OPENKIT_COMPANY_NAME;

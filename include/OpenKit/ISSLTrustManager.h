@@ -17,6 +17,8 @@
 #ifndef _PROTOCOL_SSL_ISSLTRUSTMANAGER_H
 #define _PROTOCOL_SSL_ISSLTRUSTMANAGER_H
 
+#include "OpenKit_export.h"
+
 #include "curl/curl.h"
 
 namespace openkit
@@ -26,7 +28,7 @@ namespace openkit
 	/// When OpenKit connects to a server with self-signed SSL/TLS certificates (e.g. AppMon) then
 	/// an implementation of this interface is required to verify the certificate.
 	///
-	class ISSLTrustManager
+	class OPENKIT_EXPORT ISSLTrustManager
 	{
 	public:
 

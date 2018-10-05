@@ -22,7 +22,7 @@ include (CMakeDependentOption)
 option(OPENKIT_BUILD_TESTS "Build tests (default: ON)" ON)
 
 # option to build API documentation via Doxygen
-option(BUILD_DOC  "Create and install the HTML based API documentation (requires Doxygen)" OFF)
+option(BUILD_DOC "Create and install the HTML based API documentation (requires Doxygen)" OFF)
 
 # build OpenKit as static or shared library
 option(BUILD_SHARED_LIBS "Build Shared Libraries" OFF)

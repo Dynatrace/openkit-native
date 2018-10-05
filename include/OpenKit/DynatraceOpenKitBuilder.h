@@ -17,6 +17,7 @@
 #ifndef _OPENKIT_DYNATRACEOPENKITBUILDER_H
 #define _OPENKIT_DYNATRACEOPENKITBUILDER_H
 
+#include "OpenKit_export.h"
 #include "OpenKit/AbstractOpenKitBuilder.h"
 
 #include <cstdint>
