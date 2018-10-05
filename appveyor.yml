@@ -8,7 +8,7 @@ platform:
   - x86
   - x64
 
-# Build Debug & Release
+# Build configurations
 configuration:
   - Release
 
