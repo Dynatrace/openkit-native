@@ -14,15 +14,17 @@
 * limitations under the License.
 */
 
-
-#include "OpenKit.h"
-
 #include "api-c/OpenKit-c.h"
 #include "api-c/CustomLogger.h"
 #include "api-c/CustomTrustManager.h"
 
-#include "OpenKit/DataCollectionLevel.h"
-#include "OpenKit/CrashReportingLevel.h"
+#include "OpenKit/IOpenKit.h"
+#include "OpenKit/DynatraceOpenKitBuilder.h"
+#include "OpenKit/AppMonOpenKitBuilder.h"
+#include "OpenKit/ISession.h"
+#include "OpenKit/IRootAction.h"
+#include "OpenKit/IAction.h"
+#include "OpenKit/IWebRequestTracer.h"
 
 #include "core/util/DefaultLogger.h"
 #include "protocol/ssl/SSLStrictTrustManager.h"

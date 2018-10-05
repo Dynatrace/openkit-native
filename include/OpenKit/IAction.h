@@ -24,8 +24,8 @@
 
 namespace openkit
 {
-	class IRootAction;
-	class IWebRequestTracer;
+	class OPENKIT_EXPORT IRootAction;
+	class OPENKIT_EXPORT IWebRequestTracer;
 
 	///
 	/// This interface provides functionality to report events/values/errors and traces web requests.
