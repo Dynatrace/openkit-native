@@ -17,6 +17,8 @@
 #ifndef _OPENKIT_ILOGGER_H
 #define _OPENKIT_ILOGGER_H
 
+#include "OpenKit_export.h"
+
 #include <iostream>
 
 // The GNU C compiler allows attaching characteristics to function declarations to allow the compiler to perform additional error checking.
@@ -56,7 +58,7 @@ namespace openkit
 	///
 	///   To reduce the risk of wrong logger usage the above compiler specifics are used.
 	///
-	class ILogger
+	class OPENKIT_EXPORT ILogger
 	{
 	public:
 		enum class LogLevel

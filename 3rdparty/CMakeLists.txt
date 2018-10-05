@@ -19,8 +19,9 @@
 ##
 # This is a workaround to ensure when OpenKit is built using static CRT,
 # then all 3rd party libs must use static CRT as well
+# Pass USE_DEFAULT_WARNINGS_FLAGS to ensure the default warning flags are not overridden (MSVC only).
 include(CompilerConfiguration)
-fix_compiler_flags()
+fix_compiler_flags(USE_DEFAULT_WARNINGS_FLAGS)
 
 ######
 # zlib

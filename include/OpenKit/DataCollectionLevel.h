@@ -17,6 +17,8 @@
 #ifndef _OPENKIT_DATACOLLECTIONLEVEL_H
 #define _OPENKIT_DATACOLLECTIONLEVEL_H
 
+#include "OpenKit_export.h"
+
 #include <cstdint>
 
 namespace openkit
@@ -24,7 +26,7 @@ namespace openkit
 	///
 	/// This enum declares the data collection level to use
 	///
-	enum class DataCollectionLevel : int32_t
+	enum class OPENKIT_EXPORT DataCollectionLevel : int32_t
 	{
 		OFF, // data collection is off
 		PERFORMANCE, // only collect performance data but omit user behavior data

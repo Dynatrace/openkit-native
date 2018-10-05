@@ -1,0 +1,87 @@
+version: 1.1.0.{build}
+
+# Build with Visual Studio 2017
+image: Visual Studio 2017
+
+# Various platforms
+platform:
+  - x86
+  - x64
+
+# Build configurations
+configuration:
+  - Release
+
+# Environment variables
+environment:
+  matrix:
+    - OPENKIT_BUILD_SHARED_LIBS: true
+    - OPENKIT_BUILD_SHARED_LIBS: false
+
+# Maximum number of concurrent jobs for the project
+max_jobs: 5
+
+# fail fast (No need to build failing configurations)
+matrix:
+  fast_finish: true
+
+# When only Markdown files are comitted, skip the build
+skip_commits:
+  files:
+    - '**/*.md'
+
+# build
+build:
+  verbosity: minimal
+
+install:
+- ps: |
+    # write out some stuff (debugging only)
+    (gci env:*).GetEnumerator() | Sort-Object Name | Out-String
+    If (-not (Test-Path env:APPVEYOR_PULL_REQUEST_NUMBER)) {
+      Write-Output "This is *NOT* a pull request build"
+    } Else {
+      Write-Output "This is a pull request build"
+    }
+
+build_script:
+- ps: |
+    # setup some required variables
+    # CMake Generator varies based on platform architecture
+    $generator = if ($env:platform -eq "x86") {
+      "Visual Studio 15 2017"
+    } else {
+      "Visual Studio 15 2017 Win64"
+    }
+    $buildDirectory = "build"
+    # define passed to CMake whether to build shared libs or not
+    $buildSharedLibs = if ($env:OPENKIT_BUILD_SHARED_LIBS -eq "true") {
+      "-DBUILD_SHARED_LIBS=ON"
+    } else {
+      "-DBUILD_SHARED_LIBS=OFF"
+    }
+
+    # create build directory and change into it
+    md -Name $buildDirectory -Force | Out-Null
+    cd $buildDirectory
+
+    # CMake generation
+    & cmake -G $generator "-DCMAKE_CONFIGURATION_TYPES=Debug;Release" -DOPENKIT_BUILD_TESTS=ON -DBUILD_DOC=OFF $buildSharedLibs ..
+    # CMake build
+    & cmake --build . --config $env:configuration
+
+test_script:
+- ps: |
+    # Run test using CTest
+    & ctest -C $env:configuration --timeout 600 --output-on-failure
+    if ($LastExitCode -ne 0) {
+        throw "Exec: $ErrorMessage"
+    }
+    # upload results to AppVeyor
+    $wc = New-Object 'System.Net.WebClient'
+    # in BuildFunctions.cmake (function open_kit_build_test)
+    # the result is written to TestResults directory
+    Get-ChildItem ".\TestResults" -Filter *.xml | 
+    Foreach-Object {
+      $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", $_.FullName)
+    }
