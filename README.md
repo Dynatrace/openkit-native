@@ -6,7 +6,7 @@
 
 | Operating System | Status  |
 | ---------------- |:-------:|
-| Windows          |[![Build status](https://ci.appveyor.com/api/projects/status/jdpv1bvje56f9na3/branch/release%2F1.0?svg=true)](https://ci.appveyor.com/project/openkitdt/openkit-native/branch/release/1.0) |
+| Windows          |[![Build status](https://ci.appveyor.com/api/projects/status/jdpv1bvje56f9na3/branch/release/1.0?svg=true)](https://ci.appveyor.com/project/openkitdt/openkit-native/branch/release/1.0) |
 | Linux            |[![Build Status](https://travis-ci.org/Dynatrace/openkit-native.svg?branch=release%2F1.0)](https://travis-ci.org/Dynatrace/openkit-native) |
 
 ## What is the OpenKit?
@@ -202,9 +202,3 @@ OpenKit includes the following 3rd party libraries
 * zlib 1.2.11 [3rdparty/zlib-1.2.11/README](3rdparty/zlib-1.2.11/README)
 * libcurl 7.59.0 [3rdparty/curl-7.59.0/README](3rdparty/curl-7.59.0/README)
 * Google Test & Google Mock 1.8.0 [3rdparty/googletest-release-1.8.0/README.md](3rdparty/googletest-release-1.8.0/README.md)
-
-
-## Known Current Limitations
-* Potential Memory Leak with OpenSSL 1.0.X on GNU/Linux
-  * This issue is fixed with OpenSSL 1.1.X
-
