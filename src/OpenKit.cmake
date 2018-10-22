@@ -333,7 +333,7 @@ function(build_open_kit)
     install(FILES
         ${PUBLIC_HEADERS}
         ${CMAKE_BINARY_DIR}/include/OpenKit_export.h
-        ${CMAKE_BINARY_DIR}/include/Templates/OpenKitVersion.h
+        ${CMAKE_BINARY_DIR}/include/OpenKitVersion.h
         DESTINATION "${INSTALL_INC_DIR}"
     )
 
