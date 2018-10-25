@@ -17,18 +17,20 @@
 #ifndef _OPENKIT_ABSTRACTOPENKITBUILDER_H
 #define _OPENKIT_ABSTRACTOPENKITBUILDER_H
 
+#include "OpenKit_export.h"
 #include "OpenKit/IOpenKit.h"
 #include "OpenKit/ILogger.h"
 #include "OpenKit/ISSLTrustManager.h"
 #include "OpenKit/DataCollectionLevel.h"
 #include "OpenKit/CrashReportingLevel.h"
 
+#include <cstdint>
 #include <memory>
 
 #ifndef DOXYGEN_HIDE_FROM_DOC
 namespace configuration
 {
-	class Configuration;
+	class OPENKIT_EXPORT Configuration;
 }
 #endif
 

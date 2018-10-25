@@ -22,7 +22,7 @@ include (CMakeDependentOption)
 option(OPENKIT_BUILD_TESTS "Build tests (default: ON)" ON)
 
 # option to build API documentation via Doxygen
-option(BUILD_DOC  "Create and install the HTML based API documentation (requires Doxygen)" OFF)
+option(BUILD_DOC "Create and install the HTML based API documentation (requires Doxygen)" OFF)
 
 # build OpenKit as static or shared library
 option(BUILD_SHARED_LIBS "Build Shared Libraries" OFF)
@@ -31,9 +31,17 @@ option(BUILD_SHARED_LIBS "Build Shared Libraries" OFF)
 CMAKE_DEPENDENT_OPTION(OPENKIT_MONOLITHIC_SHARED_LIB "Build monolithic OpenKit DLL with dependencies included" ON
                        "BUILD_SHARED_LIBS" OFF)
 
-# When other libraries are using a shared version of runtime libraries, OpenKit also has to use one.
-CMAKE_DEPENDENT_OPTION(OPENKIT_FORCE_SHARED_CRT "Use shared (DLL) run-time lib even when OpenKit is built as static lib." ON
-                       "NOT BUILD_SHARED_LIBS" OFF)
+if(MSVC)
+	# When other libraries are using a shared version of runtime libraries, OpenKit also has to use one.
+	# This only needs to be configured correctly if and only if OpenKit is built as static library (NOT shared library)
+	CMAKE_DEPENDENT_OPTION(OPENKIT_FORCE_SHARED_CRT "Use shared (DLL) run-time lib even when OpenKit is built as static lib." ON
+						   "NOT BUILD_SHARED_LIBS" OFF)
+
+	# Link C-Runtime static, even when building as dll
+	# This only has effect on windows platforms
+	CMAKE_DEPENDENT_OPTION(OPENKIT_FORCE_STATIC_CRT "Use static run-time lib even when OpenKit is built as dynamic lib." OFF
+						   "BUILD_SHARED_LIBS" OFF)
+endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang"
 	OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang"

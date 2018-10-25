@@ -17,14 +17,16 @@
 #ifndef _OPENKIT_CRASHREPORTINGLEVEL_H
 #define _OPENKIT_CRASHREPORTINGLEVEL_H
 
-#include <stdint.h>
+#include "OpenKit_export.h"
+
+#include <cstdint>
 
 namespace openkit
 {
 	///
 	/// This enum declares the crash reporting level to use
 	///
-	enum class CrashReportingLevel : int32_t
+	enum class OPENKIT_EXPORT CrashReportingLevel : int32_t
 	{
 		OFF, // no crash reporting at all
 		OPT_OUT_CRASHES, // opt out crash reporting

@@ -2,6 +2,12 @@
 
  [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
+## Build Status
+
+| Operating System | Status  |
+| ---------------- |:-------:|
+| Windows          |[![Build status](https://ci.appveyor.com/api/projects/status/jdpv1bvje56f9na3/branch/master?svg=true)](https://ci.appveyor.com/project/openkitdt/openkit-native/branch/master) |
+| Linux            |[![Build Status](https://travis-ci.org/Dynatrace/openkit-native.svg?branch=master)](https://travis-ci.org/Dynatrace/openkit-native) |
 
 ## What is the OpenKit?
 
@@ -49,8 +55,8 @@ This repository contains the reference implementation in C and C++. Other implem
 * CMake 3.0 or above
 * A C++11 compliant compiler
   * Visual Studio 2015/2017
-  * GCC
-  * Clang
+  * GCC (>= 5.0.0)
+  * Clang (>= 3.8.0)
 * An SSL library needs to be available
   * Secure Channel (aka. Schannel) for Microsoft Windows 
   * OpenSSL for GNU/Linux
@@ -196,9 +202,3 @@ OpenKit includes the following 3rd party libraries
 * zlib 1.2.11 [3rdparty/zlib-1.2.11/README](3rdparty/zlib-1.2.11/README)
 * libcurl 7.59.0 [3rdparty/curl-7.59.0/README](3rdparty/curl-7.59.0/README)
 * Google Test & Google Mock 1.8.0 [3rdparty/googletest-release-1.8.0/README.md](3rdparty/googletest-release-1.8.0/README.md)
-
-
-## Known Current Limitations
-* Potential Memory Leak with OpenSSL 1.0.X on GNU/Linux
-  * This issue is fixed with OpenSSL 1.1.X
-

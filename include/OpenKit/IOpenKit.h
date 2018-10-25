@@ -19,12 +19,13 @@
 
 #include "OpenKit_export.h"
 
+#include <cstdint>
 #include <memory>
 
 namespace openkit
 {
-	class ILogger;
-	class ISession;
+	class OPENKIT_EXPORT ILogger;
+	class OPENKIT_EXPORT ISession;
 
 	///
 	/// interface for OpenKit

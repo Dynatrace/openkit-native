@@ -128,13 +128,23 @@ endmacro()
 # utility macro to overwrite default compiler flags
 macro(fix_compiler_flags)
 	if (MSVC)
+	    # parse optional macro arguments
+	    set(options USE_DEFAULT_WARNINGS_FLAGS)
+		set(oneValueArgs)
+		set(multiValueArgs)
+		cmake_parse_arguments(COMPILER_FLAGS "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
+
 		# For MSVC, CMake sets certain flags to defaults we want to override.
 		# This replacement code is taken from sample in the CMake Wiki at
 		# http://www.cmake.org/Wiki/CMake_FAQ#Dynamic_Replace.
 		foreach (flag_var
-				 CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
-				 CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE)
-			if (NOT BUILD_SHARED_LIBS AND NOT OPENKIT_FORCE_SHARED_CRT)
+			 CMAKE_CXX_FLAGS CMAKE_C_FLAGS 
+			 CMAKE_CXX_FLAGS_DEBUG CMAKE_C_FLAGS_DEBUG
+			 CMAKE_CXX_FLAGS_RELEASE CMAKE_C_FLAGS_RELEASE
+             CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_C_FLAGS_MINSIZEREL 
+			 CMAKE_CXX_FLAGS_RELWITHDEBINFO CMAKE_C_FLAGS_RELWITHDEBINFO)
+			if ((NOT BUILD_SHARED_LIBS AND NOT OPENKIT_FORCE_SHARED_CRT)
+				OR (BUILD_SHARED_LIBS AND OPENKIT_FORCE_STATIC_CRT))
 				# When OpenKit is built as a shared library, it should also use shared runtime libraries.
 				if(${flag_var} MATCHES "/MD")
 					string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
@@ -145,7 +155,9 @@ macro(fix_compiler_flags)
 			endif()
 			# We prefer more strict warning checking for building
 			# Replaces /W3 with /W4 in defaults.
-			string(REPLACE "/W3" "/W4" ${flag_var} "${${flag_var}}")
+			if(NOT COMPILER_FLAGS_USE_DEFAULT_WARNINGS_FLAGS)
+				string(REPLACE "/W3" "/W4" ${flag_var} "${${flag_var}}")
+			endif()
 		endforeach()
 	endif()
 endmacro()

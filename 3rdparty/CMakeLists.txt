@@ -15,6 +15,14 @@
 ######
 # build all mandatory dependencies for OpenKit
 ######
+
+##
+# This is a workaround to ensure when OpenKit is built using static CRT,
+# then all 3rd party libs must use static CRT as well
+# Pass USE_DEFAULT_WARNINGS_FLAGS to ensure the default warning flags are not overridden (MSVC only).
+include(CompilerConfiguration)
+fix_compiler_flags(USE_DEFAULT_WARNINGS_FLAGS)
+
 ######
 # zlib
 add_subdirectory(zlib-1.2.11)
@@ -29,14 +37,15 @@ if (BUILD_SHARED_LIBS AND NOT OPENKIT_MONOLITHIC_SHARED_LIB)
 else()
     # either BUILD_SHARED_LIBS is disabled or OPENKIT_MONOLITHIC_SHARED_LIB is enabled
 	set(CURL_STATICLIB ON CACHE BOOL "Set to ON to build libcurl with static linking.")
-	if(WIN32)
-		if (OPENKIT_FORCE_SHARED_CRT OR OPENKIT_MONOLITHIC_SHARED_LIB)
-			set(CURL_STATIC_CRT OFF CACHE BOOL "Set to ON to build libcurl with static CRT on Windows (/MT).")
-		else()
-			set(CURL_STATIC_CRT ON CACHE BOOL "Set to ON to build libcurl with static CRT on Windows (/MT).")
-		endif()
+endif()
+if(MSVC)
+	if (OPENKIT_FORCE_SHARED_CRT OR (OPENKIT_MONOLITHIC_SHARED_LIB AND NOT OPENKIT_FORCE_STATIC_CRT))
+		set(CURL_STATIC_CRT OFF CACHE BOOL "Set to ON to build libcurl with static CRT on Windows (/MT).")
+	else()
+		set(CURL_STATIC_CRT ON CACHE BOOL "Set to ON to build libcurl with static CRT on Windows (/MT).")
 	endif()
 endif()
+
 set(HTTP_ONLY ON CACHE BOOL "disables all protocols except HTTP (This overrides all CURL_DISABLE_* options)")
 set(CMAKE_USE_LIBSSH2 OFF CACHE BOOL "Use libSSH2")
 set(CURL_ZLIB ON CACHE BOOL "Set to ON to enable building curl with zlib support.")
