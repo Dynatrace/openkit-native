@@ -107,8 +107,9 @@ TEST_F(BeaconSendingInitialStateTest, executeSetsLastOpenSessionBeaconSendTime)
 		.WillByDefault(testing::Return(mMockHTTPClient));
 	ON_CALL(mockContext, getCurrentTimestamp())
 		.WillByDefault(testing::Return(123456789L));
-	ON_CALL(mockContext, isShutdownRequested())
-		.WillByDefault(testing::Return(true));
+	EXPECT_CALL(mockContext, isShutdownRequested())
+		.WillOnce(testing::Return(false))
+		.WillRepeatedly(testing::Return(true));
 	
 	// check
 	EXPECT_CALL(mockContext, setLastOpenSessionBeaconSendTime(123456789L))
@@ -127,8 +128,9 @@ TEST_F(BeaconSendingInitialStateTest, executeSetsLastStatusCheckTime)
 
 	ON_CALL(mockContext, getCurrentTimestamp())
 		.WillByDefault(testing::Return(123456789L));
-	ON_CALL(mockContext, isShutdownRequested())
-		.WillByDefault(testing::Return(true));
+	EXPECT_CALL(mockContext, isShutdownRequested())
+		.WillOnce(testing::Return(false))
+		.WillRepeatedly(testing::Return(true));
 
 	//check
 	EXPECT_CALL(mockContext, setLastStatusCheckTime(123456789L))
@@ -179,7 +181,7 @@ TEST_F(BeaconSendingInitialStateTest, sleepTimeIsDoubledBetweenStatusRequestRetr
 	ON_CALL(mockContext, isShutdownRequested())
 		.WillByDefault(testing::Invoke(
 			[&callCount]() -> bool {
-		return callCount++ >= 5;
+		return callCount++ >= 6;
 	}
 	));//should return true the 6th time
 
@@ -193,6 +195,8 @@ TEST_F(BeaconSendingInitialStateTest, sleepTimeIsDoubledBetweenStatusRequestRetr
 	// check for 
 	uint64_t initialSleep = communication::BeaconSendingInitialState::INITIAL_RETRY_SLEEP_TIME_MILLISECONDS.count();
 	testing::InSequence s;
+	EXPECT_CALL(mockContext, sleep(::testing::_))
+		.Times(::testing::Exactly(0));
 	EXPECT_CALL(mockContext, sleep(initialSleep))
 		.Times(::testing::Exactly(1));
 	EXPECT_CALL(mockContext, sleep(initialSleep * 2))
@@ -202,6 +206,8 @@ TEST_F(BeaconSendingInitialStateTest, sleepTimeIsDoubledBetweenStatusRequestRetr
 	EXPECT_CALL(mockContext, sleep(initialSleep * 8))
 		.Times(::testing::Exactly(1));
 	EXPECT_CALL(mockContext, sleep(initialSleep * 16))
+		.Times(::testing::Exactly(1));
+	EXPECT_CALL(mockContext, sleep(BeaconSendingInitialState::REINIT_DELAY_MILLISECONDS[0].count()))
 		.Times(::testing::Exactly(1));
 
 	// when executing the state
@@ -229,7 +235,7 @@ TEST_F(BeaconSendingInitialStateTest, initialStatusRequestGivesUpWhenShutdownReq
 	ON_CALL(mockContext, isShutdownRequested())
 		.WillByDefault(testing::Invoke(
 			[&callCount]() -> bool {
-		return callCount++ >= 2;
+		return callCount++ >= 4;
 	}
 	));//should return true the 3rd time
 
@@ -245,7 +251,7 @@ TEST_F(BeaconSendingInitialStateTest, initialStatusRequestGivesUpWhenShutdownReq
 
 	// verify sleeps between each retry
 	EXPECT_CALL(mockContext, sleep(testing::_))
-		.Times(::testing::Exactly(2));
+		.Times(::testing::Exactly(4));
 
 	// when executing the state
 	target.execute(mockContext);
@@ -285,9 +291,9 @@ TEST_F(BeaconSendingInitialStateTest, reinitializeSleepsBeforeSendingStatusReque
 	ON_CALL(mockContext, isShutdownRequested())
 		.WillByDefault(testing::Invoke(
 			[&callCount]() -> bool {
-				return callCount++ >= 41; 
-				}
-		));//should return true the 42th time
+				return callCount++ >= 49; 
+			}
+		));//should return true the 49th time
 
 	ON_CALL(mockContext, getHTTPClient())
 		.WillByDefault(testing::Return(mMockHTTPClient));
@@ -301,6 +307,9 @@ TEST_F(BeaconSendingInitialStateTest, reinitializeSleepsBeforeSendingStatusReque
 	uint64_t initialSleep = communication::BeaconSendingInitialState::INITIAL_RETRY_SLEEP_TIME_MILLISECONDS.count();
 	
 	// then
+	// the "unexpected" call
+	EXPECT_CALL(mockContext, sleep(::testing::_))
+		.Times(::testing::Exactly(0));
 	// from first round
 	EXPECT_CALL(mockContext, sleep(initialSleep))
 		.Times(::testing::Exactly(1));
@@ -394,7 +403,10 @@ TEST_F(BeaconSendingInitialStateTest, reinitializeSleepsBeforeSendingStatusReque
 		.Times(::testing::Exactly(1));
 	EXPECT_CALL(mockContext, sleep(initialSleep * 8))
 		.Times(::testing::Exactly(1));
-	EXPECT_CALL(mockContext, sleep(initialSleep * 16))
+	EXPECT_CALL(mockContext, sleep(initialSleep * 
+		16))
+		.Times(::testing::Exactly(1));
+		EXPECT_CALL(mockContext, sleep(communication::BeaconSendingInitialState::REINIT_DELAY_MILLISECONDS[4].count()))
 		.Times(::testing::Exactly(1));
 
 	// when executing the state multiple times (7 times)
@@ -434,6 +446,7 @@ TEST_F(BeaconSendingInitialStateTest, receivingTooManyRequestsResponseUsesSleepT
 	// verify
 	EXPECT_CALL(mockContext, isShutdownRequested())
 		.WillOnce(testing::Return(false))
+		.WillOnce(testing::Return(false))
 		.WillRepeatedly(testing::Return(true));
 
 	EXPECT_CALL(mockContext, sleep(1234 * 1000))
@@ -463,6 +476,7 @@ TEST_F(BeaconSendingInitialStateTest, receivingTooManyRequestsResponseDisablesCa
 
 	// verify
 	EXPECT_CALL(mockContext, isShutdownRequested())
+		.WillOnce(testing::Return(false))
 		.WillOnce(testing::Return(false))
 		.WillRepeatedly(testing::Return(true));
 

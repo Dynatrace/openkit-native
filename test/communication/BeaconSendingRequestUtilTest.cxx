@@ -55,12 +55,11 @@ TEST_F(BeaconSendingRequestUtilTest, sendStatusRequestIsAbortedWhenShutdownIsReq
 	// given
 	ON_CALL(*mMockHTTPClient, sendStatusRequestRawPtrProxy())
 		.WillByDefault(testing::Invoke([&]() ->  protocol::StatusResponse* { return new protocol::StatusResponse(mLogger, "", 400, protocol::Response::ResponseHeaders()); }));
-	ON_CALL(*mMockContext, isShutdownRequested())
-		.WillByDefault(testing::Return(true));
 
 	// verify
 	EXPECT_CALL(*mMockContext, isShutdownRequested())
-		.Times(::testing::Exactly(1));
+		.WillOnce(::testing::Return(false))
+		.WillRepeatedly(::testing::Return(true));
 	EXPECT_CALL(*mMockContext, getHTTPClient())
 		.Times(::testing::Exactly(1));
 	EXPECT_CALL(*mMockHTTPClient, sendStatusRequestRawPtrProxy())

@@ -26,7 +26,7 @@ std::shared_ptr<StatusResponse> BeaconSendingRequestUtil::sendStatusRequest(Beac
 	uint64_t sleepTimeInMillis = initialRetryDelayInMillis;
 	uint32_t retry = 0;
 
-	while (true) 
+	while (!context.isShutdownRequested()) 
 	{
 		std::shared_ptr<IHTTPClient> httpClient = context.getHTTPClient();
 		if (httpClient == nullptr)
@@ -37,14 +37,14 @@ std::shared_ptr<StatusResponse> BeaconSendingRequestUtil::sendStatusRequest(Beac
 		statusResponse = httpClient->sendStatusRequest();
 		if (BeaconSendingResponseUtil::isSuccessfulResponse(statusResponse)
 			|| BeaconSendingResponseUtil::isTooManyRequestsResponse(statusResponse) // is handled by the states
-			|| retry >= numRetries
-			|| context.isShutdownRequested())
+			|| retry >= numRetries)
 		{
 			break;
 		}
 
 		// if no (valid) status response was received -> sleep and double the delay for each retry
 		context.sleep(sleepTimeInMillis);
+
 		sleepTimeInMillis *= 2;
 		retry++;
 	}
