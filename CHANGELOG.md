@@ -1,6 +1,6 @@
 # OpenKit Native ( C/C++ ) Changelog
 
-## [Unreleased](https://github.com/Dynatrace/openkit-native/compare/v1.1.0...HEAD)
+## [Unreleased](https://github.com/Dynatrace/openkit-native/compare/v1.1.0...release/1.1)
 
 ### Changed
 - Sleep calls in BeaconSender are interruptible to ensure OpenKit can be shutdown in time.
