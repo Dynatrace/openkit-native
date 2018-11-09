@@ -55,7 +55,6 @@ void BeaconSendingInitialState::doExecute(BeaconSendingContext& context)
 {
 	/// execute the status request until we get a response
 	auto statusResponse = executeStatusRequest(context);
-
 	if (context.isShutdownRequested()) 
 	{
 		// shutdown was requested -> abort init with failure
@@ -83,20 +82,19 @@ const char* BeaconSendingInitialState::getStateName() const
 std::shared_ptr<protocol::StatusResponse> BeaconSendingInitialState::executeStatusRequest(BeaconSendingContext& context)
 {
 	std::shared_ptr<protocol::StatusResponse> statusResponse = nullptr;
-	while (true)
+	while (!context.isShutdownRequested())
 	{
 		auto currentTimestamp = context.getCurrentTimestamp();
 		context.setLastOpenSessionBeaconSendTime(currentTimestamp);
 		context.setLastStatusCheckTime(currentTimestamp);
 
 		statusResponse = BeaconSendingRequestUtil::sendStatusRequest(context, MAX_INITIAL_STATUS_REQUEST_RETRIES, INITIAL_RETRY_SLEEP_TIME_MILLISECONDS.count());
-		if (context.isShutdownRequested() || BeaconSendingResponseUtil::isSuccessfulResponse(statusResponse))
+		if (BeaconSendingResponseUtil::isSuccessfulResponse(statusResponse))
 		{
-			// shutdown was requested or a successful status response was received
+			// successful status response was received
 			break;
 		}
 
-		
 		int64_t sleepTime = REINIT_DELAY_MILLISECONDS[mReinitializeDelayIndex].count();
 		if (BeaconSendingResponseUtil::isTooManyRequestsResponse(statusResponse))
 		{

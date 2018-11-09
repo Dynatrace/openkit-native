@@ -63,6 +63,11 @@ void BeaconSendingCaptureOffState::doExecute(BeaconSendingContext& context)
 	if (delta > 0 && !context.isShutdownRequested())
 	{
 		context.sleep(delta);
+		if (context.isShutdownRequested())
+		{
+			// shutdown was requested while sleeping - do not send any status request
+			return;
+		}
 	}
 	auto statusResponse = BeaconSendingRequestUtil::sendStatusRequest(context, STATUS_REQUEST_RETRIES, INITIAL_RETRY_SLEEP_TIME_MILLISECONDS.count());
 	handleStatusResponse(context, statusResponse);
