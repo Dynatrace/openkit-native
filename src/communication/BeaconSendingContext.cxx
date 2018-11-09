@@ -36,6 +36,8 @@ BeaconSendingContext::BeaconSendingContext(std::shared_ptr<openkit::ILogger> log
 	, mCurrentState(std::move(initialState))
 	, mNextState(nullptr)
 	, mShutdown(false)
+	, mShutdownMutex()
+	, mSleepConditionVariable()
 	, mInitSucceeded(false)
 	, mConfiguration(configuration)
 	, mHTTPClientProvider(httpClientProvider)
@@ -84,11 +86,14 @@ void BeaconSendingContext::executeCurrentState()
 
 void BeaconSendingContext::requestShutdown()
 {
+	std::unique_lock<std::mutex> lock(mShutdownMutex);
 	mShutdown = true;
+	mSleepConditionVariable.notify_all(); // wake up all sleeping threads
 }
 
 bool BeaconSendingContext::isShutdownRequested() const
 {
+	std::unique_lock<std::mutex> lock(mShutdownMutex);
 	return mShutdown;
 }
 
@@ -135,7 +140,6 @@ void BeaconSendingContext::clearAllSessionData()
 			mSessions.remove(session);
 		}
 	}
-
 }
 
 bool BeaconSendingContext::isCaptureOn() const
@@ -173,12 +177,13 @@ bool BeaconSendingContext::waitForInit(int64_t timeoutMillis)
 
 void BeaconSendingContext::sleep()
 {
-	mTimingProvider->sleep(DEFAULT_SLEEP_TIME_MILLISECONDS.count());
+	sleep(DEFAULT_SLEEP_TIME_MILLISECONDS.count());
 }
 
 void BeaconSendingContext::sleep(int64_t ms)
 {
-	mTimingProvider->sleep(ms);
+	std::unique_lock<std::mutex> lock(mShutdownMutex);
+	mSleepConditionVariable.wait_for(lock, std::chrono::milliseconds(ms), [&] { return mShutdown; });
 }
 
 int64_t BeaconSendingContext::getLastStatusCheckTime() const

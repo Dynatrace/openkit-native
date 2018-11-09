@@ -404,10 +404,15 @@ TEST_F(BeaconSendingContextTest, sleepDefaultTime)
 
 	// then
 	EXPECT_CALL(*timingProvider, sleep(BeaconSendingContext::DEFAULT_SLEEP_TIME_MILLISECONDS.count()))
-		.Times(testing::Exactly(1));
+		.Times(testing::Exactly(0));
 
 	// when
+	auto start = std::chrono::system_clock::now();
 	target->sleep();
+	auto duration = std::chrono::system_clock::now() - start;
+
+	// then ensure sleep is correct
+	ASSERT_GE(duration, BeaconSendingContext::DEFAULT_SLEEP_TIME_MILLISECONDS);
 }
 
 TEST_F(BeaconSendingContextTest, sleepWithGivenTime)
@@ -420,10 +425,15 @@ TEST_F(BeaconSendingContextTest, sleepWithGivenTime)
 
 	// then
 	EXPECT_CALL(*timingProvider, sleep(1234L))
-		.Times(testing::Exactly(1));
+		.Times(testing::Exactly(0));
 
 	// when
-	target->sleep(1234L);
+	auto start = std::chrono::system_clock::now();
+	target->sleep(100L);
+	auto duration = std::chrono::system_clock::now() - start;
+
+	// then ensure sleep is correct
+	ASSERT_GE(duration, std::chrono::milliseconds(100L));
 }
 
 TEST_F(BeaconSendingContextTest, defaultLastTimeSyncTimeIsMinusOne)
