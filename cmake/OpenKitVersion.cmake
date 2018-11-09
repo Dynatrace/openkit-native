@@ -21,10 +21,22 @@ if(__OPEN_KIT_VERSION_CMAKE)
 endif()
 set(__OPEN_KIT_VERSION_CMAKE TRUE)
 
-# configure OpenKit Version
-set (OPENKIT_MAJOR_VERSION 1)
-set (OPENKIT_MINOR_VERSION 1)
-set (OPENKIT_BUGFIX_VERSION 0)
+# Parse OpenKit version from version.properties file
+set(VERSION_PROPERTIES_FILE "version.properties")
+file(STRINGS "${VERSION_PROPERTIES_FILE}" VERSION_LINE REGEX [[^version=]] LIMIT_COUNT 1)
+
+# content of VERSION_LINE is now version=<major>.<minor>.<bugfix>
+# parse <major>, <minor> and <bugfix> into separate variables
+string(REGEX MATCH "^version=[0-9]+\\.[0-9]+\\.[0-9]+.*$"  VERSION_MATCH "${VERSION_LINE}")
+if (NOT VERSION_MATCH)
+    # content is not in expected format
+	message(FATAL_ERROR "Version string read is not in expected format.")
+endif()
+string(REGEX REPLACE "^version=(.*)$" "\\1" VERSION_STRING "${VERSION_LINE}")
+string(REGEX REPLACE "^([0-9]+)\\.([0-9]+)\\.([0-9]+).*$" "\\1" OPENKIT_MAJOR_VERSION "${VERSION_STRING}")
+string(REGEX REPLACE "^([0-9]+)\\.([0-9]+)\\.([0-9]+).*$" "\\2" OPENKIT_MINOR_VERSION "${VERSION_STRING}")
+string(REGEX REPLACE "^([0-9]+)\\.([0-9]+)\\.([0-9]+).*$" "\\3" OPENKIT_BUGFIX_VERSION "${VERSION_STRING}")
+
 if (NOT ("$ENV{TRAVIS_BUILD_NUMBER}" STREQUAL ""))
   # take build number from Travis CI
   set (OPENKIT_BUILD_VERSION $ENV{TRAVIS_BUILD_NUMBER})
