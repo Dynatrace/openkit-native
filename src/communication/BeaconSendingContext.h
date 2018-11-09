@@ -30,6 +30,8 @@
 
 #include <atomic>
 #include <memory>
+#include <mutex>
+#include <condition_variable>
 #include <chrono>
 
 namespace communication
@@ -328,8 +330,14 @@ namespace communication
 		/// instance of AbstractBeaconSendingState with the following state
 		std::shared_ptr<AbstractBeaconSendingState> mNextState;
 
-		/// Atomic shutdown flag
-		std::atomic<bool> mShutdown;
+		/// Boolean indicating shutdown flag.
+		bool mShutdown;
+
+		/// mutex used for sychronisation access to mShutdown
+		mutable std::mutex mShutdownMutex;
+
+		/// condition variable used to wait on when calling sleep.
+		std::condition_variable mSleepConditionVariable;
 
 		/// Atomic flag for successful initialization
 		std::atomic<bool> mInitSucceeded;

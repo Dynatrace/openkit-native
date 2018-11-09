@@ -48,6 +48,12 @@ void BeaconSendingCaptureOnState::doExecute(BeaconSendingContext& context)
 	}
 
 	context.sleep();
+	if (context.isShutdownRequested())
+	{
+		// shutdown was requested during sleep
+		// return and let the base class handle this
+		return;
+	}
 
 	// sned new session request for all sessions that are new
 	auto newSessionsResponse = sendNewSessionRequests(context);
