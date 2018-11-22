@@ -47,7 +47,7 @@ Beacon::Beacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching
 	, mBeaconCache(beaconCache)
 	, mHTTPClientConfiguration(configuration->getHTTPClientConfiguration())
 	, mBeaconConfiguration(configuration->getBeaconConfiguration())
-	, mDeviceID(nullptr)
+	, mDeviceID("")
 	, mRandomGenerator(randomGenerator)
 {
 	if (core::util::InetAddressValidator::IsValidIP(clientIPAddress))
