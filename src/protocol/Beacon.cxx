@@ -14,9 +14,9 @@
 * limitations under the License.
 */
 
+#include "Beacon.h"
 #include "OpenKit/DataCollectionLevel.h"
 #include "OpenKit/CrashReportingLevel.h"
-#include "Beacon.h"
 #include "ProtocolConstants.h"
 #include "BeaconProtocolConstants.h"
 #include "core/util/URLEncoding.h"
@@ -47,7 +47,7 @@ Beacon::Beacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching
 	, mBeaconCache(beaconCache)
 	, mHTTPClientConfiguration(configuration->getHTTPClientConfiguration())
 	, mBeaconConfiguration(configuration->getBeaconConfiguration())
-	, mDeviceID(0)
+	, mDeviceID(nullptr)
 	, mRandomGenerator(randomGenerator)
 {
 	if (core::util::InetAddressValidator::IsValidIP(clientIPAddress))
@@ -173,7 +173,7 @@ void Beacon::appendKey(core::UTF8String& s, const core::UTF8String& key)
 void Beacon::addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, const core::UTF8String& value)
 {
 	appendKey(s, key);
-	s.concatenate(core::util::URLEncoding::urlencode(value));
+	s.concatenate(core::util::URLEncoding::urlencode(value, { '_' }));
 }
 
 void Beacon::addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, int32_t value)
@@ -220,11 +220,11 @@ core::UTF8String Beacon::createTag(int32_t parentActionID, int32_t sequenceNumbe
 	webRequestTag.concatenate("_");
 	webRequestTag.concatenate(std::to_string(mHTTPClientConfiguration->getServerID()));
 	webRequestTag.concatenate("_");
-	webRequestTag.concatenate(getDeviceID());
+	webRequestTag.concatenate(core::util::URLEncoding::urlencode(getDeviceID(), { '_' }));
 	webRequestTag.concatenate("_");
 	webRequestTag.concatenate(std::to_string(mSessionNumber));
 	webRequestTag.concatenate("_");
-	webRequestTag.concatenate(mConfiguration->getApplicationID());
+	webRequestTag.concatenate(mConfiguration->getApplicationIDPercentEncoded());
 	webRequestTag.concatenate("_");
 	webRequestTag.concatenate(std::to_string(parentActionID));
 	webRequestTag.concatenate("_");
