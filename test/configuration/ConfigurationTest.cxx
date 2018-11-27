@@ -153,21 +153,3 @@ TEST_F(ConfigurationTest, defaultCrashReportingLevelIsDefaultValueFromBeaconConf
 	auto target = getDefaultConfiguration();
 	ASSERT_EQ(target->getBeaconConfiguration()->getCrashReportingLevel(), configuration::BeaconConfiguration::DEFAULT_CRASH_REPORTING_LEVEL);
 }
-
-TEST_F(ConfigurationTest, getApplicationID)
-{
-	// given
-	auto target = getDefaultConfiguration();
-
-	// then
-	ASSERT_EQ(target->getApplicationID(), "/App_ID%");
-}
-
-TEST_F(ConfigurationTest, getApplicationIDPercentEncodedDoesProperEncoding)
-{
-	// given
-	auto target = getDefaultConfiguration();
-
-	// then
-	ASSERT_EQ(target->getApplicationIDPercentEncoded(), "%2FApp%5FID%25");
-}
