@@ -51,7 +51,7 @@ bool BeaconSender::initialize()
 			mLogger->debug("BeaconSender thread started");
 		}
 
-		while (mBeaconSendingContext != nullptr && !mBeaconSendingContext->isInTerminalState() && !mShutdownTrigger)
+		while (mBeaconSendingContext != nullptr && !mBeaconSendingContext->isInTerminalState())
 		{
 			mBeaconSendingContext->executeCurrentState();
 		}
