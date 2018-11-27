@@ -39,6 +39,17 @@ namespace core
 			static core::UTF8String urlencode(const core::UTF8String& string);
 
 			///
+			/// URL-Encode the given string, taking additional characters into account
+			/// which are treated as reserved characters.
+			///
+			/// @param string The string to encode.
+			/// @param additionalReservedCharacters Additional characters to consider as reserved.
+			/// @returns url-encoded version of the current string
+			///
+			static core::UTF8String urlencode(const core::UTF8String& string,
+											  const std::unordered_set<char>& additionalReservedCharacters);
+
+			///
 			/// URL-Decode the given string
 			/// @returns url-decoded version of the current string
 			///

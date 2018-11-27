@@ -147,7 +147,7 @@ public:
 
 	}
 
-private:
+protected:
 	std::ostringstream devNull;
 	std::shared_ptr<openkit::ILogger> logger;
 	std::shared_ptr<providers::IThreadIDProvider> threadIDProvider;
@@ -292,6 +292,21 @@ TEST_F(BeaconTest, createTagReturnsTagStringForDataCollectionLevel2)
 
 	// then
 	ASSERT_GT(tagString.getStringLength(), 0u);
+}
+
+TEST_F(BeaconTest, createTagUsesEncodedAppID)
+{
+	// given
+	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF, "device_id/", "app_ID_");
+
+	// when
+	auto tagString = target->createTag(1, 1);
+
+	ASSERT_EQ(tagString, std::string("MT_3_1_device%5Fid%2F_0_")
+		+ std::string("app%5FID%5F")
+		+ std::string("_1_")
+		+ std::to_string(threadIDProvider->getThreadID())
+		+ std::string("_1"));
 }
 
 TEST_F(BeaconTest, deviceIDIsRandomizedOnDataCollectionLevel0)
