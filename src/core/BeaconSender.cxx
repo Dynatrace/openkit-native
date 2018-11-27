@@ -36,7 +36,6 @@ BeaconSender::BeaconSender(std::shared_ptr<openkit::ILogger> logger,
 	: mLogger(logger)
 	, mBeaconSendingContext(std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(logger, httpClientProvider, timingProvider, configuration)))
 	, mSendingThread()
-	, mShutdownTrigger(false)
 	, mTimingProvider(timingProvider)
 {
 
@@ -51,7 +50,7 @@ bool BeaconSender::initialize()
 			mLogger->debug("BeaconSender thread started");
 		}
 
-		while (mBeaconSendingContext != nullptr && !mBeaconSendingContext->isInTerminalState() && !mShutdownTrigger)
+		while (mBeaconSendingContext != nullptr && !mBeaconSendingContext->isInTerminalState())
 		{
 			mBeaconSendingContext->executeCurrentState();
 		}
@@ -90,7 +89,6 @@ void BeaconSender::shutdown()
 	}
 
 	mBeaconSendingContext->requestShutdown();
-	mShutdownTrigger = true;
 
 	auto start = mTimingProvider->provideTimestampInMilliseconds();
 	int64_t timePassed = 0;

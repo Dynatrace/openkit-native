@@ -16,6 +16,7 @@
 
 #include "configuration/Configuration.h"
 #include "configuration/HTTPClientConfiguration.h"
+#include "core/util/URLEncoding.h"
 
 
 using namespace configuration;
@@ -39,6 +40,7 @@ Configuration::Configuration(std::shared_ptr<configuration::Device> device, Open
 	, mOpenKitType(openKitType)
 	, mApplicationName(applicationName)
 	, mApplicationID(applicationID)
+	, mApplicationIDPercentEncoded(core::util::URLEncoding::urlencode(applicationID, { '_' } ))
 	, mApplicationVersion(applicationVersion)
 	, mEndpointURL(endpointURL)
 	, mDeviceID(deviceID)
@@ -152,6 +154,11 @@ const core::UTF8String& Configuration::getApplicationName() const
 const core::UTF8String& Configuration::getApplicationID() const
 {
 	return mApplicationID;
+}
+
+const core::UTF8String& Configuration::getApplicationIDPercentEncoded() const
+{
+	return mApplicationIDPercentEncoded;
 }
 
 const core::UTF8String& Configuration::getApplicationVersion() const
