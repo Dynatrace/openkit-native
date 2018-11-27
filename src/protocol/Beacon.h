@@ -416,6 +416,9 @@ namespace protocol
 		/// device id
 		core::UTF8String mDeviceID;
 
+		/// device id
+		core::UTF8String mDeviceIDPercentEncoded;
+
 		///random generator
 		std::shared_ptr<providers::IPRNGenerator> mRandomGenerator;
 	};

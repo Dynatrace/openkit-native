@@ -34,7 +34,7 @@ TEST_F(URLEncodingTest, urlEncodeQueryParameterWithSpacesAndEqualsSign)
 	UTF8String expectation("q%3Dgreater%20than%205");
 
 	UTF8String encoded = core::util::URLEncoding::urlencode(s);
-	EXPECT_TRUE(encoded.equals(expectation));
+	ASSERT_TRUE(encoded.equals(expectation));
 }
 
 TEST_F(URLEncodingTest, urlEncodeQueryParameterWithSpacesAndEqualsSignFinallyDecodeAgain)
@@ -43,7 +43,7 @@ TEST_F(URLEncodingTest, urlEncodeQueryParameterWithSpacesAndEqualsSignFinallyDec
 	UTF8String encoded = core::util::URLEncoding::urlencode(s);
 	UTF8String decoded = core::util::URLEncoding::urldecode(encoded);
 
-	EXPECT_TRUE(decoded.equals(s));
+	ASSERT_TRUE(decoded.equals(s));
 }
 
 TEST_F(URLEncodingTest, urlEncodeStringNotChangedAllCharactersAllowed)
@@ -51,7 +51,7 @@ TEST_F(URLEncodingTest, urlEncodeStringNotChangedAllCharactersAllowed)
 	UTF8String s(".All-this~characters_are_Allowed.");
 
 	UTF8String encoded = core::util::URLEncoding::urlencode(s);
-	EXPECT_TRUE(encoded.equals(s));
+	ASSERT_TRUE(encoded.equals(s));
 }
 
 TEST_F(URLEncodingTest, urlEncodeUTF8MultibyteName)
@@ -60,7 +60,7 @@ TEST_F(URLEncodingTest, urlEncodeUTF8MultibyteName)
 	UTF8String expectation("%D7%AA%F0%9F%98%8B");
 
 	UTF8String encoded = core::util::URLEncoding::urlencode(s);
-	EXPECT_TRUE(encoded.equals(expectation));
+	ASSERT_TRUE(encoded.equals(expectation));
 }
 
 TEST_F(URLEncodingTest, urlEncodeUTF8MultibyteNameFinallyDecodeAgain)
@@ -68,7 +68,7 @@ TEST_F(URLEncodingTest, urlEncodeUTF8MultibyteNameFinallyDecodeAgain)
 	UTF8String s("\xD7\xAA\xf0\x9f\x98\x8b");
 	UTF8String encoded = core::util::URLEncoding::urlencode(s);
 	UTF8String decoded = core::util::URLEncoding::urldecode(encoded);
-	EXPECT_TRUE(decoded.equals(s));
+	ASSERT_TRUE(decoded.equals(s));
 }
 
 TEST_F(URLEncodingTest, urlDecodeFailing_PercentFollowedByNonHexCharacterTwoInvalidBytes)
@@ -77,7 +77,7 @@ TEST_F(URLEncodingTest, urlDecodeFailing_PercentFollowedByNonHexCharacterTwoInva
 	UTF8String decoded = core::util::URLEncoding::urldecode(s);
 
 	UTF8String expectation("invalid?string");
-	EXPECT_TRUE(decoded.equals(expectation));
+	ASSERT_TRUE(decoded.equals(expectation));
 }
 
 TEST_F(URLEncodingTest, urlDecodeFailing_PercentFollowedByNonHexCharacterSecondByteInvalid)
@@ -86,7 +86,7 @@ TEST_F(URLEncodingTest, urlDecodeFailing_PercentFollowedByNonHexCharacterSecondB
 	UTF8String decoded = core::util::URLEncoding::urldecode(s);
 
 	UTF8String expectation("invalid?ARstring");
-	EXPECT_TRUE(decoded.equals(expectation));
+	ASSERT_TRUE(decoded.equals(expectation));
 }
 
 TEST_F(URLEncodingTest, urlDecodeFailing_PercentFollowedByNonHexCharacterFirstByteInvalid)
@@ -95,7 +95,7 @@ TEST_F(URLEncodingTest, urlDecodeFailing_PercentFollowedByNonHexCharacterFirstBy
 	UTF8String decoded = core::util::URLEncoding::urldecode(s);
 
 	UTF8String expectation("invalid?XString");
-	EXPECT_TRUE(decoded.equals(expectation));
+	ASSERT_TRUE(decoded.equals(expectation));
 }
 
 TEST_F(URLEncodingTest, urlDecodeFailing_OneCharacterMissingAtTheEnd)
@@ -104,7 +104,7 @@ TEST_F(URLEncodingTest, urlDecodeFailing_OneCharacterMissingAtTheEnd)
 	UTF8String decoded = core::util::URLEncoding::urldecode(s);
 
 	UTF8String expectation("invalidstring");
-	EXPECT_TRUE(decoded.equals(expectation));
+	ASSERT_TRUE(decoded.equals(expectation));
 }
 
 TEST_F(URLEncodingTest, urlDecodeFailing_BothCharactersMissingAtTheEnd)
@@ -113,7 +113,7 @@ TEST_F(URLEncodingTest, urlDecodeFailing_BothCharactersMissingAtTheEnd)
 	UTF8String decoded = core::util::URLEncoding::urldecode(s);
 
 	UTF8String expectation("invalidstring");
-	EXPECT_TRUE(decoded.equals(expectation));
+	ASSERT_TRUE(decoded.equals(expectation));
 }
 
 TEST_F(URLEncodingTest, urlEncodeDecodePercentSignPreserved)
@@ -123,6 +123,18 @@ TEST_F(URLEncodingTest, urlEncodeDecodePercentSignPreserved)
 	UTF8String encoded = core::util::URLEncoding::urlencode(s);
 	UTF8String decoded = core::util::URLEncoding::urldecode(encoded);
 
-	EXPECT_TRUE(decoded.equals(s));
+	ASSERT_TRUE(decoded.equals(s));
+}
 
+TEST_F(URLEncodingTest, itIsPossibleToMarkAdditionalCharactersAsReserved)
+{
+	// given
+	UTF8String input("0123456789-._~");
+	std::unordered_set<char> additionalReservedCharacters =  { '0', '_' };
+
+	// when
+	auto obtained = core::util::URLEncoding::urlencode(input, additionalReservedCharacters);
+
+	// then
+	ASSERT_EQ(obtained, "%30123456789-.%5F~");
 }
