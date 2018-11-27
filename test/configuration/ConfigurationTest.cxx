@@ -40,12 +40,12 @@ public:
 
 	std::unique_ptr<configuration::Configuration> getDefaultConfiguration()
 	{
-		return std::unique_ptr<Configuration>(new Configuration(device, openKitType, "", "", "", 0, "", sessionIDProvider, sslTrustManager, beaconCacheConfiguration, beaconConfiguration));
+		return std::unique_ptr<Configuration>(new Configuration(device, openKitType, "", "", "/App_ID%", 0, "", sessionIDProvider, sslTrustManager, beaconCacheConfiguration, beaconConfiguration));
 	}
 
 	std::unique_ptr<configuration::Configuration> getConfiguration(const core::UTF8String& beaconURL)
 	{
-		return std::unique_ptr<Configuration>(new Configuration(device, openKitType, "", "", "", 0, beaconURL, sessionIDProvider, sslTrustManager, beaconCacheConfiguration, beaconConfiguration));
+		return std::unique_ptr<Configuration>(new Configuration(device, openKitType, "", "", "/App_ID%", 0, beaconURL, sessionIDProvider, sslTrustManager, beaconCacheConfiguration, beaconConfiguration));
 	}
 private:
 	std::shared_ptr<Device> device = nullptr;
@@ -129,7 +129,6 @@ TEST_F(ConfigurationTest, capturingIsDisabledFromStatusResponse)
 	ASSERT_FALSE(target->isCapture());
 }
 
-
 TEST_F(ConfigurationTest, tenantURLisSetCorrectly)
 {
 	core::UTF8String host("localhost:9999");
@@ -141,7 +140,6 @@ TEST_F(ConfigurationTest, tenantURLisSetCorrectly)
 	auto target = getConfiguration(tenantURL);
 
 	ASSERT_TRUE(tenantURL.equals(target->getHTTPClientConfiguration()->getBaseURL()));
-
 }
 
 TEST_F(ConfigurationTest, defaultDataCollectionLevelIsDefaultValueFromBeaconConfiguration)
@@ -154,4 +152,22 @@ TEST_F(ConfigurationTest, defaultCrashReportingLevelIsDefaultValueFromBeaconConf
 {
 	auto target = getDefaultConfiguration();
 	ASSERT_EQ(target->getBeaconConfiguration()->getCrashReportingLevel(), configuration::BeaconConfiguration::DEFAULT_CRASH_REPORTING_LEVEL);
+}
+
+TEST_F(ConfigurationTest, getApplicationID)
+{
+	// given
+	auto target = getDefaultConfiguration();
+
+	// then
+	ASSERT_EQ(target->getApplicationID(), "/App_ID%");
+}
+
+TEST_F(ConfigurationTest, getApplicationIDPercentEncodedDoesProperEncoding)
+{
+	// given
+	auto target = getDefaultConfiguration();
+
+	// then
+	ASSERT_EQ(target->getApplicationIDPercentEncoded(), "%2FApp%5FID%25");
 }

@@ -106,9 +106,6 @@ namespace core
 		/// thread instance running the beacon sending state machine
 		std::future<bool> mSendingThread;
 
-		/// flag used as trigger for shutdown of the thread
-		std::atomic<bool> mShutdownTrigger;
-
 		/// timing provider for shutdown timeout
 		std::shared_ptr<providers::ITimingProvider> mTimingProvider;
 	};
