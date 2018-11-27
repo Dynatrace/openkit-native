@@ -129,7 +129,6 @@ TEST_F(ConfigurationTest, capturingIsDisabledFromStatusResponse)
 	ASSERT_FALSE(target->isCapture());
 }
 
-
 TEST_F(ConfigurationTest, tenantURLisSetCorrectly)
 {
 	core::UTF8String host("localhost:9999");
@@ -141,7 +140,6 @@ TEST_F(ConfigurationTest, tenantURLisSetCorrectly)
 	auto target = getConfiguration(tenantURL);
 
 	ASSERT_TRUE(tenantURL.equals(target->getHTTPClientConfiguration()->getBaseURL()));
-
 }
 
 TEST_F(ConfigurationTest, defaultDataCollectionLevelIsDefaultValueFromBeaconConfiguration)
@@ -165,7 +163,7 @@ TEST_F(ConfigurationTest, getApplicationID)
 	ASSERT_EQ(target->getApplicationID(), "/App_ID%");
 }
 
-TEST_F(ConfigurationTest, getApplicationIDPercentEncodedDoesPropperEncoding)
+TEST_F(ConfigurationTest, getApplicationIDPercentEncodedDoesProperEncoding)
 {
 	// given
 	auto target = getDefaultConfiguration();
