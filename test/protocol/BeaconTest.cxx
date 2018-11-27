@@ -87,10 +87,15 @@ public:
 
 	std::shared_ptr<protocol::Beacon> buildBeacon(openkit::DataCollectionLevel dl, openkit::CrashReportingLevel cl)
 	{
+		return buildBeacon(dl, cl, APP_ID, 0);
+	}
+
+	std::shared_ptr<protocol::Beacon> buildBeacon(openkit::DataCollectionLevel dl, openkit::CrashReportingLevel cl, const core::UTF8String& appID, int64_t deviceID)
+	{
 		std::shared_ptr<configuration::BeaconConfiguration> beaconConfiguration = std::make_shared<configuration::BeaconConfiguration>(configuration::BeaconConfiguration::DEFAULT_MULTIPLICITY, dl, cl);
 
 		configuration = std::shared_ptr<configuration::Configuration>(new configuration::Configuration(device, configuration::OpenKitType::Type::DYNATRACE,
-			core::UTF8String(APP_NAME), "", APP_ID, 0, "",
+			core::UTF8String(APP_NAME), "", appID, deviceID, "",
 			sessionIDProviderMock, trustManager, beaconCacheConfiguration, beaconConfiguration));
 		configuration->enableCapture();
 
@@ -297,12 +302,12 @@ TEST_F(BeaconTest, createTagReturnsTagStringForDataCollectionLevel2)
 TEST_F(BeaconTest, createTagUsesEncodedAppID)
 {
 	// given
-	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF, "device_id/", "app_ID_");
+	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF, "app_ID_", 42);
 
 	// when
 	auto tagString = target->createTag(1, 1);
 
-	ASSERT_EQ(tagString, std::string("MT_3_1_device%5Fid%2F_0_")
+	ASSERT_EQ(tagString, std::string("MT_3_1_42_0_")
 		+ std::string("app%5FID%5F")
 		+ std::string("_1_")
 		+ std::to_string(threadIDProvider->getThreadID())
