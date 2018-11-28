@@ -367,8 +367,8 @@ void HTTPClient::buildMonitorURL(core::UTF8String& monitorURL, const core::UTF8S
 	monitorURL.concatenate("?");
 	monitorURL.concatenate(REQUEST_TYPE_MOBILE);
 
-	appendQueryParam(monitorURL, QUERY_KEY_SERVER_ID, std::to_string(serverID).c_str());
-	appendQueryParam(monitorURL, QUERY_KEY_APPLICATION, applicationID.getStringData().c_str());
+	appendQueryParam(monitorURL, QUERY_KEY_SERVER_ID, std::to_string(serverID));
+	appendQueryParam(monitorURL, QUERY_KEY_APPLICATION, applicationID);
 	appendQueryParam(monitorURL, QUERY_KEY_VERSION, OPENKIT_VERSION);
 	appendQueryParam(monitorURL, QUERY_KEY_PLATFORM_TYPE, PLATFORM_TYPE_OPENKIT);
 	appendQueryParam(monitorURL, QUERY_KEY_AGENT_TECHNOLOGY_TYPE, AGENT_TECHNOLOGY_TYPE);
@@ -388,13 +388,13 @@ void HTTPClient::buildNewSessionURL(core::UTF8String& newSessionURL, const core:
 }
 
 
-void HTTPClient::appendQueryParam(core::UTF8String& url, const char* key, const char* value)
+void HTTPClient::appendQueryParam(core::UTF8String& url, const char* key, const core::UTF8String& value)
 {
 	// converts the given value string to a URL encoded string
 	url.concatenate("&");
-	url.concatenate(core::util::URLEncoding::urlencode(key));
+	url.concatenate(core::util::URLEncoding::urlencode(key, { '_' }));
 	url.concatenate("=");
-	url.concatenate(core::util::URLEncoding::urlencode(value));
+	url.concatenate(core::util::URLEncoding::urlencode(value, { '_' }));
 }
 
 std::shared_ptr<Response> HTTPClient::unknownErrorResponse(RequestType requestType)

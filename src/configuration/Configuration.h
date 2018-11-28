@@ -109,6 +109,12 @@ namespace configuration
 		const core::UTF8String& getApplicationID() const;
 
 		///
+		/// Returns the percent-encoded application id
+		/// @returns the application id
+		///
+		const core::UTF8String& getApplicationIDPercentEncoded() const;
+
+		///
 		/// Returns the application version
 		/// @returns the application version
 		///
@@ -205,6 +211,9 @@ namespace configuration
 
 		/// application id
 		core::UTF8String mApplicationID;
+
+		/// percent encoded id
+		core::UTF8String mApplicationIDPercentEncoded;
 
 		/// the application version
 		core::UTF8String mApplicationVersion;
