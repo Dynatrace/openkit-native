@@ -28,15 +28,15 @@ const std::unordered_set<unsigned char> URLEncoding::sUnreservedCharactersRFC398
 																					'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1',
 																					'2', '3', '4', '5', '6', '7', '8', '9', '-', '_', '.', '~' });
 
-static std::string escapeHexValueInPercentEncoding(unsigned char c)
+const char HEX_CHARACTERS[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+
+core::UTF8String URLEncoding::urlencode(const core::UTF8String& string)
 {
-	std::stringstream ss;
-	ss << "%" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << static_cast<int32_t>(c);
-	return ss.str();
+	return urlencode(string, {});
 }
 
- core::UTF8String URLEncoding::urlencode(const core::UTF8String& string)
- {
+core::UTF8String URLEncoding::urlencode(const core::UTF8String& string, const std::unordered_set<char>& additionalReservedCharacters)
+{
 	std::string encoded;
 	encoded.reserve(string.getStringLength());
 
@@ -45,21 +45,22 @@ static std::string escapeHexValueInPercentEncoding(unsigned char c)
 	for (auto it = stringData.begin(); it < stringData.end(); it++)
 	{
 		auto character = *it;
-		if (sUnreservedCharactersRFC3986.find(character) !=sUnreservedCharactersRFC3986.end()) //character is in the list of unreserved characters -> copy
+		if (sUnreservedCharactersRFC3986.find(character) != sUnreservedCharactersRFC3986.end()     // character is in the list of unreserved characters -> copy
+			&& additionalReservedCharacters.find(character) == additionalReservedCharacters.end()) // character is not additionally marked as reserved
 		{
 			encoded += character;
 		}
 		else // character must be escaped
 		{
-			auto escaped = escapeHexValueInPercentEncoding(character);
-			encoded += escaped.c_str();
+			char hexString[4] = { '%', 0, 0, 0 };
+			hexString[1] = HEX_CHARACTERS[(character >> 4) & 0x0F];
+			hexString[2] = HEX_CHARACTERS[character & 0x0F];
+			encoded += hexString;
 		}
 	}
 
 	return encoded;
-}
-
-
+ }
 
 core::UTF8String URLEncoding::urldecode(const core::UTF8String& string)
 {

@@ -125,7 +125,7 @@ namespace protocol
 
 		static void buildNewSessionURL(core::UTF8String& newSessionURL, const core::UTF8String& baseURL, const core::UTF8String& applicationID, uint32_t serverID);
 
-		static void appendQueryParam(core::UTF8String& url, const char* key, const char* vaalue);
+		static void appendQueryParam(core::UTF8String& url, const char* key, const core::UTF8String& value);
 
 		std::shared_ptr<Response> handleResponse(RequestType requestType, int32_t httpCode, const std::string& buffer, const Response::ResponseHeaders& responseHeaders);
 
