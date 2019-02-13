@@ -123,10 +123,6 @@ void BeaconSendingTimeSyncState::handleTimeSyncResponses(BeaconSendingContext& c
 	}
 
 	auto calculatedOffset = computeClusterTimeOffset(response.mTimeSyncOffsets);
-	if (calculatedOffset < 0)
-	{
-		return;
-	}
 
 	// initialize time provider with cluster time offset
 	context.initializeTimeSync(calculatedOffset, true);
