@@ -14,8 +14,6 @@
 * limitations under the License.
 */
 
-#include "gtest/gtest.h"
-#include "gmock/gmock.h"
 
 #include "communication/BeaconSendingTimeSyncState.h"
 #include "communication/BeaconSendingCaptureOffState.h"
@@ -27,66 +25,77 @@
 #include "../communication/CustomMatchers.h"
 #include "../protocol/NullLogger.h"
 
+#include <sstream>
+
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
+
 class BeaconSendingTimeSyncTest : public testing::Test
 {
-public:
 
-	BeaconSendingTimeSyncTest()
-		: mLogger(nullptr)
-		, mMockHTTPClient(nullptr)
+private:
+
+	static protocol::TimeSyncResponse* createTimeSyncResponse(std::shared_ptr<openkit::ILogger> logger,
+		                                                      std::int32_t responseCode,
+		                                                      std::uint64_t requestReceiveTimestamp,
+		                                                      std::uint64_t responseSendTimestamp)
 	{
+		std::ostringstream oss;
+		oss << protocol::RESPONSE_KEY_REQUEST_RECEIVE_TIME << "=" << requestReceiveTimestamp
+			<< "&" << protocol::RESPONSE_KEY_RESPONSE_SEND_TIME << "=" << responseSendTimestamp;
+
+		return new protocol::TimeSyncResponse(logger, core::UTF8String(oss.str()), responseCode, protocol::Response::ResponseHeaders());
 	}
+
+protected:
 
 	void SetUp()
 	{
 		mLogger = std::make_shared<NullLogger>();
-		auto httpClientConfiguration = std::make_shared<configuration::HTTPClientConfiguration>(core::UTF8String(""),0, core::UTF8String(""));
-		mMockHTTPClient = std::make_shared<testing::NiceMock<test::MockHTTPClient>>(httpClientConfiguration);
+		mMockHTTPClient = std::make_shared<testing::NiceMock<test::MockHTTPClient>>(
+			std::make_shared<configuration::HTTPClientConfiguration>(core::UTF8String(""), 0, core::UTF8String("")));
 
-		core::UTF8String response1 = core::UTF8String(protocol::RESPONSE_KEY_REQUEST_RECEIVE_TIME);
-		response1.concatenate("=6&");
-		response1.concatenate(protocol::RESPONSE_KEY_RESPONSE_SEND_TIME);
-		response1.concatenate("=7");
-		reponsesForASuccessfullTimeSync.push_back(new protocol::TimeSyncResponse(mLogger, response1, 200, protocol::Response::ResponseHeaders()));
-		reponsesForASuccessfullTimeSyncWithRetries.push_back(new protocol::TimeSyncResponse(mLogger, response1, 400, protocol::Response::ResponseHeaders()));
-		reponsesForASuccessfullTimeSyncWithRetries.push_back(new protocol::TimeSyncResponse(mLogger, response1, 200, protocol::Response::ResponseHeaders()));
+		reponsesForASuccessfullTimeSync =
+		{
+			BeaconSendingTimeSyncTest::createTimeSyncResponse(mLogger, 200, std::uint64_t(6), std::uint64_t(7)),
+			BeaconSendingTimeSyncTest::createTimeSyncResponse(mLogger, 200, std::uint64_t(20), std::uint64_t(22)),
+			BeaconSendingTimeSyncTest::createTimeSyncResponse(mLogger, 200, std::uint64_t(40), std::uint64_t(41)),
+			BeaconSendingTimeSyncTest::createTimeSyncResponse(mLogger, 200, std::uint64_t(48), std::uint64_t(50)),
+			BeaconSendingTimeSyncTest::createTimeSyncResponse(mLogger, 200, std::uint64_t(60), std::uint64_t(61))
+		};
 
-		core::UTF8String response2 = core::UTF8String(protocol::RESPONSE_KEY_REQUEST_RECEIVE_TIME);
-		response2.concatenate("=20&");
-		response2.concatenate(protocol::RESPONSE_KEY_RESPONSE_SEND_TIME);
-		response2.concatenate("=22");
-		reponsesForASuccessfullTimeSync.push_back(new protocol::TimeSyncResponse(mLogger, response2, 200, protocol::Response::ResponseHeaders()));
-		reponsesForASuccessfullTimeSyncWithRetries.push_back(new protocol::TimeSyncResponse(mLogger, response1, 400, protocol::Response::ResponseHeaders()));
-		reponsesForASuccessfullTimeSyncWithRetries.push_back(new protocol::TimeSyncResponse(mLogger, response1, 400, protocol::Response::ResponseHeaders()));
-		reponsesForASuccessfullTimeSyncWithRetries.push_back(new protocol::TimeSyncResponse(mLogger, response2, 200, protocol::Response::ResponseHeaders()));
+		responseForNegativeClusterTimeOffset =
+		{
+			BeaconSendingTimeSyncTest::createTimeSyncResponse(mLogger, 200, std::uint64_t(3), std::uint64_t(6)),
+			BeaconSendingTimeSyncTest::createTimeSyncResponse(mLogger, 200, std::uint64_t(12), std::uint64_t(19)),
+			BeaconSendingTimeSyncTest::createTimeSyncResponse(mLogger, 200, std::uint64_t(34), std::uint64_t(36)),
+			BeaconSendingTimeSyncTest::createTimeSyncResponse(mLogger, 200, std::uint64_t(45), std::uint64_t(47)),
+			BeaconSendingTimeSyncTest::createTimeSyncResponse(mLogger, 200, std::uint64_t(56), std::uint64_t(58))
+		};
 
-		core::UTF8String response3 = core::UTF8String(protocol::RESPONSE_KEY_REQUEST_RECEIVE_TIME);
-		response3.concatenate("=40&");
-		response3.concatenate(protocol::RESPONSE_KEY_RESPONSE_SEND_TIME);
-		response3.concatenate("=41");
-		reponsesForASuccessfullTimeSync.push_back(new protocol::TimeSyncResponse(mLogger, response3, 200, protocol::Response::ResponseHeaders()));
-		reponsesForASuccessfullTimeSyncWithRetries.push_back(new protocol::TimeSyncResponse(mLogger, response1, 400, protocol::Response::ResponseHeaders()));
-		reponsesForASuccessfullTimeSyncWithRetries.push_back(new protocol::TimeSyncResponse(mLogger, response1, 400, protocol::Response::ResponseHeaders()));
-		reponsesForASuccessfullTimeSyncWithRetries.push_back(new protocol::TimeSyncResponse(mLogger, response1, 400, protocol::Response::ResponseHeaders()));
-		reponsesForASuccessfullTimeSyncWithRetries.push_back(new protocol::TimeSyncResponse(mLogger, response3, 200, protocol::Response::ResponseHeaders()));
-
-		core::UTF8String response4 = core::UTF8String(protocol::RESPONSE_KEY_REQUEST_RECEIVE_TIME);
-		response4.concatenate("=48&");
-		response4.concatenate(protocol::RESPONSE_KEY_RESPONSE_SEND_TIME);
-		response4.concatenate("=50");
-		reponsesForASuccessfullTimeSync.push_back(new protocol::TimeSyncResponse(mLogger, response4, 200, protocol::Response::ResponseHeaders()));
-		reponsesForASuccessfullTimeSyncWithRetries.push_back(new protocol::TimeSyncResponse(mLogger, response1, 400, protocol::Response::ResponseHeaders()));
-		reponsesForASuccessfullTimeSyncWithRetries.push_back(new protocol::TimeSyncResponse(mLogger, response1, 400, protocol::Response::ResponseHeaders()));
-		reponsesForASuccessfullTimeSyncWithRetries.push_back(new protocol::TimeSyncResponse(mLogger, response1, 400, protocol::Response::ResponseHeaders()));
-		reponsesForASuccessfullTimeSyncWithRetries.push_back(new protocol::TimeSyncResponse(mLogger, response1, 400, protocol::Response::ResponseHeaders()));
-		reponsesForASuccessfullTimeSyncWithRetries.push_back(new protocol::TimeSyncResponse(mLogger, response4, 200, protocol::Response::ResponseHeaders()));
-
-		core::UTF8String response5 = core::UTF8String(protocol::RESPONSE_KEY_REQUEST_RECEIVE_TIME);
-		response5.concatenate("=60&");
-		response5.concatenate(protocol::RESPONSE_KEY_RESPONSE_SEND_TIME);
-		response5.concatenate("=61");
-		reponsesForASuccessfullTimeSync.push_back(new protocol::TimeSyncResponse(mLogger, response5, 200, protocol::Response::ResponseHeaders()));
-		reponsesForASuccessfullTimeSyncWithRetries.push_back(new protocol::TimeSyncResponse(mLogger, response5, 200, protocol::Response::ResponseHeaders()));
+		reponsesForASuccessfullTimeSyncWithRetries =
+		{
+			// first round
+			BeaconSendingTimeSyncTest::createTimeSyncResponse(mLogger, 400, std::uint64_t(6), std::uint64_t(7)),
+			BeaconSendingTimeSyncTest::createTimeSyncResponse(mLogger, 200, std::uint64_t(6), std::uint64_t(7)),
+			// second round
+			BeaconSendingTimeSyncTest::createTimeSyncResponse(mLogger, 400, std::uint64_t(20), std::uint64_t(22)),
+			BeaconSendingTimeSyncTest::createTimeSyncResponse(mLogger, 400, std::uint64_t(20), std::uint64_t(22)),
+			BeaconSendingTimeSyncTest::createTimeSyncResponse(mLogger, 200, std::uint64_t(20), std::uint64_t(22)),
+			// third round
+			BeaconSendingTimeSyncTest::createTimeSyncResponse(mLogger, 400, std::uint64_t(40), std::uint64_t(41)),
+			BeaconSendingTimeSyncTest::createTimeSyncResponse(mLogger, 400, std::uint64_t(40), std::uint64_t(41)),
+			BeaconSendingTimeSyncTest::createTimeSyncResponse(mLogger, 400, std::uint64_t(40), std::uint64_t(41)),
+			BeaconSendingTimeSyncTest::createTimeSyncResponse(mLogger, 200, std::uint64_t(40), std::uint64_t(41)),
+			// fourth round
+			BeaconSendingTimeSyncTest::createTimeSyncResponse(mLogger, 400, std::uint64_t(48), std::uint64_t(50)),
+			BeaconSendingTimeSyncTest::createTimeSyncResponse(mLogger, 400, std::uint64_t(48), std::uint64_t(50)),
+			BeaconSendingTimeSyncTest::createTimeSyncResponse(mLogger, 400, std::uint64_t(48), std::uint64_t(50)),
+			BeaconSendingTimeSyncTest::createTimeSyncResponse(mLogger, 400, std::uint64_t(48), std::uint64_t(50)),
+			BeaconSendingTimeSyncTest::createTimeSyncResponse(mLogger, 200, std::uint64_t(48), std::uint64_t(50)),
+			// fifth round
+			BeaconSendingTimeSyncTest::createTimeSyncResponse(mLogger, 200, std::uint64_t(60), std::uint64_t(61))
+		};
 
 		timestampsForASuccessfullTimeSync = { 2L, 8L, 10L, 23L, 32L, 42L, 44L, 52L, 54L, 62L, 66L };
 		timestampsForASuccessfullTimeSyncWithRetries = { 2L, 8L, 2L, 8L,
@@ -103,6 +112,11 @@ public:
 			delete response;
 		}
 
+		for (auto response : responseForNegativeClusterTimeOffset)
+		{
+			delete response;
+		}
+
 		for (auto response : reponsesForASuccessfullTimeSyncWithRetries)
 		{
 			delete response;
@@ -115,6 +129,7 @@ public:
 	std::shared_ptr<openkit::ILogger> mLogger;
 	std::shared_ptr<testing::NiceMock<test::MockHTTPClient>> mMockHTTPClient;
 	std::vector<protocol::TimeSyncResponse*> reponsesForASuccessfullTimeSync;
+	std::vector<protocol::TimeSyncResponse*> responseForNegativeClusterTimeOffset;
 	std::vector<protocol::TimeSyncResponse*> reponsesForASuccessfullTimeSyncWithRetries;
 	std::vector<uint64_t> timestampsForASuccessfullTimeSync;
 	std::vector<uint64_t> timestampsForASuccessfullTimeSyncWithRetries;
@@ -414,7 +429,6 @@ TEST_F(BeaconSendingTimeSyncTest, sleepTimeIsResetToInitialValueAfterASuccessful
 	target.execute(mockContext);
 }
 
-
 TEST_F(BeaconSendingTimeSyncTest, successfulTimeSyncInitializesTimeProvider)
 {
 	// given
@@ -463,6 +477,76 @@ TEST_F(BeaconSendingTimeSyncTest, successfulTimeSyncInitializesTimeProvider)
 
 	// verify init was done
 	EXPECT_CALL(mockContext, initializeTimeSync(2L, true))
+		.Times(testing::Exactly(1));
+
+	// verify number of method calls
+	uint32_t numberOfTimeSyncRequests = communication::BeaconSendingTimeSyncState::REQUIRED_TIME_SYNC_REQUESTS;
+	EXPECT_CALL(mockContext, getHTTPClient())
+		.Times(testing::Exactly(numberOfTimeSyncRequests));
+	EXPECT_CALL(*mMockHTTPClient, sendTimeSyncRequestRawPtrProxy())
+		.Times(testing::Exactly(numberOfTimeSyncRequests));
+	EXPECT_CALL(mockContext, getCurrentTimestamp())
+		.Times(testing::Exactly(numberOfTimeSyncRequests * 2 + 1));
+
+	EXPECT_CALL(mockContext, setLastTimeSyncTime(66L))
+		.Times(testing::Exactly(1));
+	//if initCompleted is called on mockContext this results in a failure because this is not an initial time sync and the mock
+	// is a StrictMock
+	EXPECT_CALL(mockContext, setInitCompleted(testing::_))
+		.Times(testing::Exactly(0));
+
+	// when
+	target.execute(mockContext);
+}
+
+TEST_F(BeaconSendingTimeSyncTest, clusterTimeOffsetCanBeNegativeAsWell)
+{
+	// given
+	auto target = communication::BeaconSendingTimeSyncState(false);
+
+	testing::NiceMock<test::MockBeaconSendingContext> mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
+	ON_CALL(mockContext, getLastTimeSyncTime())
+		.WillByDefault(testing::Return(-1));
+	ON_CALL(mockContext, isTimeSyncSupported())
+		.WillByDefault(testing::Return(true));
+	ON_CALL(mockContext, getHTTPClient())
+		.WillByDefault(testing::Return(mMockHTTPClient));
+
+	std::vector<protocol::TimeSyncResponse*>& responses = responseForNegativeClusterTimeOffset;
+	ON_CALL(*mMockHTTPClient, sendTimeSyncRequestRawPtrProxy())
+		.WillByDefault(testing::Invoke([&]() -> protocol::TimeSyncResponse* {
+		if (responses.size() > 0)
+		{
+			auto response = *responses.begin();
+			responses.erase(responses.begin());
+			return response;
+		}
+		else
+		{
+			return new protocol::TimeSyncResponse(mLogger, core::UTF8String(), 400, protocol::Response::ResponseHeaders());
+		}
+	}));
+
+	std::vector<uint64_t>& timestamps = timestampsForASuccessfullTimeSync;
+
+	ON_CALL(mockContext, getCurrentTimestamp())
+		.WillByDefault(testing::Invoke(
+			[&timestamps]() -> uint64_t {
+		if (timestamps.size() > 0)
+		{
+			auto time = *timestamps.begin();
+			timestamps.erase(timestamps.begin());
+			return time;
+		}
+		else
+		{
+			return 0;
+		}
+	}));
+
+
+	// verify init was done
+	EXPECT_CALL(mockContext, initializeTimeSync(-1L, true))
 		.Times(testing::Exactly(1));
 
 	// verify number of method calls
