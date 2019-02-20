@@ -2,8 +2,8 @@
 
 ## [Unreleased](https://github.com/Dynatrace/openkit-native/compare/v1.1.3...release/1.1)
 
-## 1.1.2 [Release date: 2018-12-20]
-[GitHub Releases](https://github.com/Dynatrace/openkit-native/releases/tag/v1.1.2)
+## 1.1.3 [Release date: 2018-12-20]
+[GitHub Releases](https://github.com/Dynatrace/openkit-native/releases/tag/v1.1.3)
 
 ### Changed
 - Fixed problem with infinite time sync requests  
