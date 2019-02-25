@@ -52,7 +52,6 @@ set(OPENKIT_SOURCES_TEST_CORE
 
 set(OPENKIT_SOURCES_TEST_PROTOCOL
 	${CMAKE_CURRENT_LIST_DIR}/protocol/StatusResponseTest.cxx
-	${CMAKE_CURRENT_LIST_DIR}/protocol/TimeSyncResponseTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/protocol/MockBeacon.h
     ${CMAKE_CURRENT_LIST_DIR}/protocol/MockHTTPClient.h
     ${CMAKE_CURRENT_LIST_DIR}/protocol/TestSSLTrustManager.h
@@ -64,7 +63,6 @@ set(OPENKIT_SOURCES_TEST_PROTOCOL
 )
 
 set(OPENKIT_SOURCES_TEST_PROVIDERS
-	${CMAKE_CURRENT_LIST_DIR}/providers/DefaultTimingProviderTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/providers/DefaultSessionIDProviderTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/providers/MockSessionIDProvider.h
 	${CMAKE_CURRENT_LIST_DIR}/providers/DefaultThreadIDProviderTest.cxx
@@ -84,7 +82,6 @@ set(OPENKIT_SOURCES_TEST_COMMUNICATION
 	${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingRequestUtilTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingResponseUtilTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingTerminalStateTest.cxx
-	${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingTimeSyncStateTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/communication/CustomMatchers.h
     ${CMAKE_CURRENT_LIST_DIR}/communication/MockAbstractBeaconSendingState.h
     ${CMAKE_CURRENT_LIST_DIR}/communication/MockBeaconSendingContext.h

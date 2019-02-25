@@ -126,30 +126,6 @@ namespace communication
 		virtual bool isCaptureOn() const;
 
 		///
-		/// Initialize time synchronisation with cluster time
-		/// @param[in] clusterTimeOffset the cluster offset
-		/// @param[in] isTimeSyncSupported @c true if time sync is supported, otherwise @c false
-		///
-		virtual void initializeTimeSync(int64_t clusterTimeOffset, bool isTimeSyncSupported);
-
-		///
-		/// Gets a boolean flag indicating whether time sync is supported or not.
-		/// @returns @c true if time sync is supported, @c false otherwise.
-		///
-		virtual bool isTimeSyncSupported() const;
-
-		///
-		/// Disables the time sync
-		///
-		virtual void disableTimeSyncSupport();
-
-		///
-		/// Gets a boolean flag indicating whether the time sync has been performed before
-		/// @returns @c true if time sync was performed, @c false otherwise
-		///
-		virtual bool isTimeSynced() const;
-
-		///
 		/// Gets the current state.
 		/// @returns the current state
 		///
@@ -263,18 +239,6 @@ namespace communication
 		virtual std::vector<std::shared_ptr<core::SessionWrapper>> getAllFinishedAndConfiguredSessions();
 
 		///
-		/// Returns the timestamp when time sync was executed last time.
-		/// @returns the timestamp of the last successful time sync
-		///
-		virtual int64_t getLastTimeSyncTime() const;
-
-		///
-		/// Set the timestamp of the last successful time sync
-		/// @param[in] lastTimeSyncTime timestamp 
-		///
-		virtual void setLastTimeSyncTime(int64_t lastTimeSyncTime);
-
-		///
 		/// Start a new session.
 		/// This add the @c session to the internal container of open sessions.
 		/// @param[in] session The new session to start.
@@ -359,12 +323,6 @@ namespace communication
 
 		/// countdown latch used for wait-on-initialization
 		core::util::CountDownLatch mInitCountdownLatch;
-
-		/// flag if time sync is supported
-		bool mIsTimeSyncSupported;
-
-		/// timestamp of the last time sync
-		int64_t mLastTimeSyncTime;
 
 		/// container storing all session wrappers
 		core::util::SynchronizedQueue<std::shared_ptr<core::SessionWrapper>> mSessions;

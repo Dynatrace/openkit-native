@@ -45,35 +45,6 @@ namespace providers
 		/// @param[in] milliseconds amount of milliseconds to sleep
 		///
 		virtual void sleep(int64_t milliseconds) override;
-
-		///
-		/// Initialize timing provider with cluster time offset. If @c false is provided
-		/// for @c isTimeSyncSupported, the cluster offset is set to 0.
-		/// @param[in] clusterTimeOffset offset received from cluster
-		/// @param[in] isTimeSyncSupported flag if time sync is supported
-		///
-		virtual void initialize(int64_t clusterTimeOffset, bool isTimeSyncSupported) override;
-
-		///
-		/// Returns whether time sync is supported or not
-		/// @returns @c true if time sync is supported otherwise @c false
-		///
-		virtual bool isTimeSyncSupported() override;
-
-		///
-		/// Converts a local timestamp to cluster time.
-		/// @param timestamp Timestamp in local time
-		/// @returns local time if not time synced or if not yet initialized
-		///
-		virtual int64_t convertToClusterTime(int64_t timestamp) override;
-
-	private:
-		/// offset between system-local and cluster time
-		int64_t mClusterTimeOffset;
-
-		/// flag if time sync is supported
-		bool mIsTimeSyncSupported;
-
 	};
 }
 

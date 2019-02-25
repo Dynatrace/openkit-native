@@ -36,11 +36,6 @@ namespace test {
 			return std::shared_ptr<protocol::StatusResponse>(sendStatusRequestRawPtrProxy());
 		}
 
-		virtual std::shared_ptr<protocol::TimeSyncResponse> sendTimeSyncRequest()
-		{
-			return std::shared_ptr<protocol::TimeSyncResponse>(sendTimeSyncRequestRawPtrProxy());
-		}
-
 		virtual std::shared_ptr<protocol::StatusResponse> sendBeaconRequest(const core::UTF8String& clientIPAddress, const core::UTF8String& beaconData)
 		{
 			return std::shared_ptr<protocol::StatusResponse>(sendBeaconRequestRawPtrProxy(clientIPAddress, beaconData));
@@ -56,8 +51,6 @@ namespace test {
 		MOCK_METHOD0(sendStatusRequestRawPtrProxy, protocol::StatusResponse*());
 
 		MOCK_METHOD2(sendBeaconRequestRawPtrProxy, protocol::StatusResponse*(const core::UTF8String&, const core::UTF8String&));
-
-		MOCK_METHOD0(sendTimeSyncRequestRawPtrProxy, protocol::TimeSyncResponse*());
 
 		MOCK_METHOD0(sendNewSessionRequestRawPtrProxy, protocol::StatusResponse*());
 	private:

@@ -92,34 +92,6 @@ TEST_F(BeaconSendingCaptureOffStateTest, aBeaconSendingCaptureOffStateHasTermina
 	ASSERT_EQ(obtained->getStateType(), communication::AbstractBeaconSendingState::StateType::BEACON_SENDING_FLUSH_SESSIONS_STATE);
 }
 
-TEST_F(BeaconSendingCaptureOffStateTest, aBeaconSendingCaptureOffStateTransitionsToTimeSyncStateWhenNotYetTimeSynched)
-{
-	// given
-	auto target = communication::BeaconSendingCaptureOffState();
-
-	testing::NiceMock<test::MockBeaconSendingContext> mockContext(mLogger);
-	ON_CALL(mockContext, getHTTPClient())
-		.WillByDefault(testing::Return(mMockHTTPClient));
-	ON_CALL(mockContext, isTimeSyncSupported())
-		.WillByDefault(testing::Return(true));
-	ON_CALL(mockContext, isCaptureOn())
-		.WillByDefault(testing::Return(false));
-	ON_CALL(mockContext, isTimeSynced())
-		.WillByDefault(testing::Return(false));
-
-	// then verify that capturing is set to disabled
-	EXPECT_CALL(mockContext, disableCapture())
-		.Times(::testing::Exactly(1));
-	// also verify that lastStatusCheckTime was updated
-	EXPECT_CALL(mockContext, setLastStatusCheckTime(testing::_))
-		.Times(testing::Exactly(1));
-	EXPECT_CALL(mockContext, setNextState(IsABeaconSendingTimeSyncState()))
-		.Times(testing::Exactly(1));
-
-	// when calling execute
-	target.execute(mockContext);
-}
-
 TEST_F(BeaconSendingCaptureOffStateTest, aBeaconSendingCaptureOffStateTransitionsToCaptureOnStateWhenCapturingActive)
 {
 	// given
@@ -128,11 +100,7 @@ TEST_F(BeaconSendingCaptureOffStateTest, aBeaconSendingCaptureOffStateTransition
 	testing::NiceMock<test::MockBeaconSendingContext> mockContext(mLogger);
 	ON_CALL(mockContext, getHTTPClient())
 		.WillByDefault(testing::Return(mMockHTTPClient));
-	ON_CALL(mockContext, isTimeSyncSupported())
-		.WillByDefault(testing::Return(true));
 	ON_CALL(mockContext, isCaptureOn())
-		.WillByDefault(testing::Return(true));
-	ON_CALL(mockContext, isTimeSynced())
 		.WillByDefault(testing::Return(true));
 
 	// then verify that capturing is set to disabled
@@ -142,38 +110,6 @@ TEST_F(BeaconSendingCaptureOffStateTest, aBeaconSendingCaptureOffStateTransition
 	EXPECT_CALL(mockContext, setLastStatusCheckTime(testing::_))
 		.Times(testing::Exactly(1));
 	EXPECT_CALL(mockContext, setNextState(IsABeaconSendingCaptureOnState()))
-		.Times(testing::Exactly(1));
-
-	// when calling execute
-	target.execute(mockContext);
-}
-
-TEST_F(BeaconSendingCaptureOffStateTest, aBeaconSendingCaptureOffStateWaitsForSpecifiedTimeWhenTimeSyncFails)
-{
-	// given
-	auto target = communication::BeaconSendingCaptureOffState();
-
-	testing::NiceMock<test::MockBeaconSendingContext> mockContext(mLogger);
-	ON_CALL(mockContext, getHTTPClient())
-		.WillByDefault(testing::Return(mMockHTTPClient));
-	ON_CALL(mockContext, isTimeSyncSupported())
-		.WillByDefault(testing::Return(true));
-	ON_CALL(mockContext, isCaptureOn())
-		.WillByDefault(testing::Return(false));
-	ON_CALL(mockContext, isTimeSynced())
-		.WillByDefault(testing::Return(false));
-
-	// then verify that capturing is set to disabled
-	EXPECT_CALL(mockContext, disableCapture())
-		.Times(::testing::Exactly(1));
-	// also verify that lastStatusCheckTime was updated
-	EXPECT_CALL(mockContext, setLastStatusCheckTime(0L))
-		.Times(testing::Exactly(1));
-	// verify that the next time sync operation will follow after a sleep of 7200000 ms
-	EXPECT_CALL(mockContext, sleep(7200000L))
-		.Times(testing::Exactly(1));
-	// verify that after sleeping the transition to BeaconSendingTimeSyncState works
-	EXPECT_CALL(mockContext, setNextState(IsABeaconSendingTimeSyncState()))
 		.Times(testing::Exactly(1));
 
 	// when calling execute
@@ -212,8 +148,6 @@ TEST_F(BeaconSendingCaptureOffStateTest, aBeaconSendingCaptureOffStateWaitsForGi
 	testing::NiceMock<test::MockBeaconSendingContext> mockContext(mLogger);
 	ON_CALL(mockContext, getHTTPClient())
 		.WillByDefault(testing::Return(mMockHTTPClient));
-	ON_CALL(mockContext, isTimeSyncSupported())
-		.WillByDefault(testing::Return(true));
 	ON_CALL(mockContext, isCaptureOn())
 		.WillByDefault(testing::Return(true));
 
@@ -240,8 +174,6 @@ TEST_F(BeaconSendingCaptureOffStateTest, aBeaconSendingCaptureOffStateStaysInOff
 	testing::NiceMock<test::MockBeaconSendingContext> mockContext(mLogger);
 	ON_CALL(mockContext, getHTTPClient())
 		.WillByDefault(testing::Return(mMockHTTPClient));
-	ON_CALL(mockContext, isTimeSyncSupported())
-		.WillByDefault(testing::Return(false));
 	ON_CALL(mockContext, isCaptureOn())
 		.WillByDefault(testing::Return(false));
 
@@ -267,11 +199,7 @@ TEST_F(BeaconSendingCaptureOffStateTest, aBeaconSendingCaptureOffStateDoesDoesNo
 	testing::NiceMock<test::MockBeaconSendingContext> mockContext(mLogger);
 	ON_CALL(mockContext, getHTTPClient())
 		.WillByDefault(testing::Return(mMockHTTPClient));
-	ON_CALL(mockContext, isTimeSyncSupported())
-		.WillByDefault(testing::Return(true));
 	ON_CALL(mockContext, isCaptureOn())
-		.WillByDefault(testing::Return(false));
-	ON_CALL(mockContext, isTimeSynced())
 		.WillByDefault(testing::Return(false));
 	EXPECT_CALL(mockContext, isShutdownRequested())
 		.WillOnce(testing::Return(false))
@@ -286,7 +214,7 @@ TEST_F(BeaconSendingCaptureOffStateTest, aBeaconSendingCaptureOffStateDoesDoesNo
 	// verify the sleep - since this is not multithreaded, the sleep time is stil the full time
 	EXPECT_CALL(mockContext, sleep(7200000L))
 		.Times(testing::Exactly(1));
-	// verify that after sleeping the transition to BeaconSendingTimeSyncState works
+	// verify that after sleeping the transition to IsABeaconSendingFlushSessionsState works
 	EXPECT_CALL(mockContext, setNextState(IsABeaconSendingFlushSessionsState()))
 		.Times(testing::Exactly(1));
 

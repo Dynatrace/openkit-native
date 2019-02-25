@@ -83,8 +83,6 @@ set(OPENKIT_SOURCES_COMMUNICATION
     ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingResponseUtil.h
     ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingTerminalState.cxx
     ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingTerminalState.h
-    ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingTimeSyncState.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingTimeSyncState.h
 )
 
 set(OPENKIT_SOURCES_CONFIGURATION
@@ -169,8 +167,6 @@ set(OPENKIT_SOURCES_PROTOCOL
     ${CMAKE_CURRENT_LIST_DIR}/protocol/Response.h
     ${CMAKE_CURRENT_LIST_DIR}/protocol/StatusResponse.cxx
     ${CMAKE_CURRENT_LIST_DIR}/protocol/StatusResponse.h
-    ${CMAKE_CURRENT_LIST_DIR}/protocol/TimeSyncResponse.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/protocol/TimeSyncResponse.h
 )
 
 set(OPENKIT_SOURCES_PROVIDERS

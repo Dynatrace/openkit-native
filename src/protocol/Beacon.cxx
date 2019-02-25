@@ -138,12 +138,9 @@ core::UTF8String Beacon::createBasicEventData(protocol::EventType eventType, con
 core::UTF8String Beacon::createTimestampData()
 {
 	core::UTF8String timestampData;
-	addKeyValuePair(timestampData, BEACON_KEY_SESSION_START_TIME, mTimingProvider->convertToClusterTime(mSessionStartTime));
-	addKeyValuePair(timestampData, BEACON_KEY_TIMESYNC_TIME, mTimingProvider->convertToClusterTime(mSessionStartTime));
-	if (!mTimingProvider->isTimeSyncSupported())
-	{
-		addKeyValuePair(timestampData, BEACON_KEY_TRANSMISSION_TIME, mTimingProvider->provideTimestampInMilliseconds());
-	}
+	addKeyValuePair(timestampData, BEACON_KEY_TRANSMISSION_TIME, mTimingProvider->provideTimestampInMilliseconds());
+	addKeyValuePair(timestampData, BEACON_KEY_SESSION_START_TIME, mSessionStartTime);
+
 	return timestampData;
 }
 

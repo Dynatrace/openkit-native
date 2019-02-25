@@ -20,7 +20,6 @@ namespace protocol
 {
 	// request type constants
 	constexpr char REQUEST_TYPE_MOBILE[] = "type=m";
-	constexpr char REQUEST_TYPE_TIMESYNC[] = "type=mts";
 
 	// query parameter constants
 	constexpr char QUERY_KEY_SERVER_ID[] = "srvid";
@@ -35,10 +34,6 @@ namespace protocol
 	constexpr char PLATFORM_TYPE_OPENKIT[] = "1";
 	constexpr char AGENT_TECHNOLOGY_TYPE[] = "okc";
 	constexpr int32_t PROTOCOL_VERSION = 3;
-
-	// time sync response constants
-	constexpr char RESPONSE_KEY_REQUEST_RECEIVE_TIME[] = "t1";
-	constexpr char RESPONSE_KEY_RESPONSE_SEND_TIME[] = "t2";
 
 	//maximum supported name length
 	constexpr int32_t MAX_NAME_LEN = 250;

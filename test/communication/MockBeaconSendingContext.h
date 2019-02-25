@@ -63,10 +63,6 @@ namespace test
 		MOCK_METHOD1(setInitCompleted, void(bool));
 		MOCK_CONST_METHOD0(isInTerminalState, bool());
 		MOCK_CONST_METHOD0(isCaptureOn, bool());
-		MOCK_METHOD2(initializeTimeSync, void(int64_t, bool));
-		MOCK_CONST_METHOD0(isTimeSyncSupported, bool());
-		MOCK_METHOD0(disableTimeSyncSupport, void());
-		MOCK_CONST_METHOD0(isTimeSynced, bool());
 		MOCK_METHOD1(setNextState, void(std::shared_ptr<AbstractBeaconSendingState> nextState));
 		MOCK_METHOD0(getHTTPClientProvider, std::shared_ptr<providers::IHTTPClientProvider>());
 		MOCK_METHOD0(getHTTPClient, std::shared_ptr<protocol::IHTTPClient>());
@@ -81,8 +77,6 @@ namespace test
 		MOCK_METHOD0(getAllOpenAndConfiguredSessions, std::vector<std::shared_ptr<core::SessionWrapper>>());
 		MOCK_METHOD0(getAllFinishedAndConfiguredSessions, std::vector<std::shared_ptr<core::SessionWrapper>>());
 		MOCK_METHOD0(disableCapture, void());
-		MOCK_CONST_METHOD0(getLastTimeSyncTime, int64_t());
-		MOCK_METHOD1(setLastTimeSyncTime, void(int64_t));
 		MOCK_METHOD1(finishSession, void(std::shared_ptr<core::Session>));
 		MOCK_METHOD1(removeSession, bool(std::shared_ptr<core::SessionWrapper>));
 		MOCK_METHOD1(pushBackFinishedSession, void(std::shared_ptr<core::Session>));

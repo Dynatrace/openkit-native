@@ -30,7 +30,6 @@ namespace communication
 	/// The sending state, when init is completed and capturing is turned on.
 	///
 	/// Transition to:
-	///   - @ref BeaconSendingTimeSyncState if BeaconSendingTimeSyncState::isTimeSyncRequired(BeaconSendingContext) is @c true
 	///   - @ref BeaconSendingCaptureOffState if capturing is turned off
 	///   - @ref BeaconSendingFlushSessionsState on shutdown
 	///

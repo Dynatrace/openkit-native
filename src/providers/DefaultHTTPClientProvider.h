@@ -24,7 +24,7 @@
 namespace providers
 {
 	///
-	/// Implementation of an HTTPClientProvider which creates a HTTP client for executing status check, beacon send and time sync requests.
+	/// Implementation of an HTTPClientProvider which creates a HTTP client for executing status check and beacon send requests.
 	///
 	class DefaultHTTPClientProvider : public IHTTPClientProvider
 	{

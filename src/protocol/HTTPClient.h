@@ -28,10 +28,9 @@
 namespace protocol
 {
 	///
-	/// HTTP client which abstracts the 3 basic request types:
+	/// HTTP client which abstracts the 2 basic request types:
 	/// - status check
 	/// - beacon send
-	/// - time sync
 	///
 	class HTTPClient : public IHTTPClient
 	{
@@ -44,7 +43,6 @@ namespace protocol
 		{
 			STATUS, ///< status check request
 			BEACON, ///< beacon send request
-			TIMESYNC, ///< time sync request
 			NEW_SESSION ///< new session request
 		};
 
@@ -83,8 +81,6 @@ namespace protocol
 
 		virtual std::shared_ptr<StatusResponse> sendBeaconRequest(const core::UTF8String& clientIPAddress, const core::UTF8String& beaconData) override;
 
-		virtual std::shared_ptr<TimeSyncResponse> sendTimeSyncRequest() override;
-
 		virtual std::shared_ptr<StatusResponse> sendNewSessionRequest() override;
 
 		///
@@ -121,8 +117,6 @@ namespace protocol
 		///
 		static void buildMonitorURL(core::UTF8String& monitorURL, const core::UTF8String& baseURL, const core::UTF8String& applicationID, uint32_t serverID);
 
-		static void buildTimeSyncURL(core::UTF8String& timeSyncURL, const core::UTF8String& baseURL);
-
 		static void buildNewSessionURL(core::UTF8String& newSessionURL, const core::UTF8String& baseURL, const core::UTF8String& applicationID, uint32_t serverID);
 
 		static void appendQueryParam(core::UTF8String& url, const char* key, const core::UTF8String& value);
@@ -146,9 +140,6 @@ namespace protocol
 
 		/// URL used for status check and beacon send requests
 		core::UTF8String mMonitorURL;
-
-		/// the beacon URL
-		core::UTF8String mTimeSyncURL;
 
 		/// buffer used for curl's read function
 		std::vector<unsigned char> mReadBuffer;

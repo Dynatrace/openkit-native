@@ -39,18 +39,6 @@ MATCHER(IsABeaconSendingInitState, "")
 	return false;
 }
 
-/// Checks if the argument (of type @ref AbstractBeaconSendingState) is of StateType BEACON_SENDING_TIME_SYNC_STATE
-MATCHER(IsABeaconSendingTimeSyncState, "")
-{
-	if (arg->getStateType() == communication::AbstractBeaconSendingState::StateType::BEACON_SENDING_TIME_SYNC_STATE)
-	{
-		return true;
-	}
-	*result_listener << "Unexpected stateType " << as_integer(arg->getStateType());
-
-	return false;
-}
-
 /// Checks if the argument (of type @ref AbstractBeaconSendingState) is of StateType BEACON_SENDING_CAPTURE_ON_STATE
 MATCHER(IsABeaconSendingCaptureOnState, "")
 {

@@ -47,7 +47,6 @@ namespace protocol
 
 	// timestamp constants
 	constexpr char BEACON_KEY_SESSION_START_TIME[] = "tv";
-	constexpr char BEACON_KEY_TIMESYNC_TIME[] = "ts";
 	constexpr char BEACON_KEY_TRANSMISSION_TIME[] = "tx";
 
 	//action related constants

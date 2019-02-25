@@ -36,9 +36,6 @@ namespace test {
 
 		MOCK_METHOD0(provideTimestampInMilliseconds, int64_t());
 		MOCK_METHOD1(sleep, void(int64_t));
-		MOCK_METHOD2(initialize, void(int64_t, bool));
-		MOCK_METHOD0(isTimeSyncSupported, bool());
-		MOCK_METHOD1(convertToClusterTime, int64_t(int64_t));
 	};
 }
 
