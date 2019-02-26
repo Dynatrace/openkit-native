@@ -154,9 +154,9 @@ namespace openkit
 			/// Sets the crash reporting level used
 			///
 			/// <ul>
-			///   <li> @ref openkit::CrashReportingLevel::OFF - Crashes are not send to the server
-			///   <li> @ref openkit::CrashReportingLevel::OPT_OUT_CRASHES - Crashes are not send to the server
-			///   <li> @ref openkit::CrashReportingLevel::OPT_IN_CRASHES - Crashes are send to the server
+			///   <li> @ref openkit::CrashReportingLevel::OFF - Crashes are not sent to the server
+			///   <li> @ref openkit::CrashReportingLevel::OPT_OUT_CRASHES - Crashes are not sent to the server
+			///   <li> @ref openkit::CrashReportingLevel::OPT_IN_CRASHES - Crashes are sent to the server
 			/// </ul>
 			///
 			/// Default behavior is the level @ref openkit::CrashReportingLevel::OFF
@@ -178,13 +178,6 @@ namespace openkit
 			virtual std::shared_ptr<configuration::Configuration> buildConfiguration() = 0;
 
 		protected:
-
-			///
-			/// Constructor
-			/// @param[in] endpointURL endpoint OpenKit connects to
-			/// @param[in] deviceID unique device id
-			///
-			AbstractOpenKitBuilder(const char* endpointURL, int64_t deviceID);
 
 			///
 			/// Constructor
