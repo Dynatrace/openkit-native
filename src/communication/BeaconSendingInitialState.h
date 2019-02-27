@@ -32,7 +32,8 @@ namespace communication
 	///
 	/// Transition to:
 	///   - @ref BeaconSendingTerminalState upon shutdown request
-	///   - @ref BeaconSendingTimeSyncState if initial status request succeeded
+	///   - @ref BeaconSendingCaptureOnState if initial status request succeeded and capturing is enabled.
+	///   - @ref BeaconSendingCaptureOffState if initial status request succeeded and capturing is disabled.
 	///
 	class BeaconSendingInitialState : public AbstractBeaconSendingState
 	{

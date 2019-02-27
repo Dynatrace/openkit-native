@@ -44,7 +44,6 @@ HTTPClient::HTTPClient(std::shared_ptr<openkit::ILogger> logger, const std::shar
 	, mCurl(nullptr)
 	, mServerID(configuration->getServerID())
 	, mMonitorURL()
-	, mTimeSyncURL()
 	, mReadBuffer()
 	, mReadBufferPos(0)
 	, mSSLTrustManager(nullptr)
@@ -52,7 +51,6 @@ HTTPClient::HTTPClient(std::shared_ptr<openkit::ILogger> logger, const std::shar
 {
 	// build the beacon URLs
 	buildMonitorURL(mMonitorURL, configuration->getBaseURL(), configuration->getApplicationID(), mServerID);
-	buildTimeSyncURL(mTimeSyncURL, configuration->getBaseURL());
 	buildNewSessionURL(mNewSessionURL, configuration->getBaseURL(), configuration->getApplicationID(), mServerID);
 
 	// if configuration provides a trust manager use it, else use strict trust manager
@@ -87,15 +85,6 @@ std::shared_ptr<StatusResponse> HTTPClient::sendBeaconRequest(const core::UTF8St
 	return response != nullptr
 		? std::static_pointer_cast<StatusResponse>(response)
 		: std::make_shared<StatusResponse>(mLogger, core::UTF8String(), std::numeric_limits<int32_t>::max(), Response::ResponseHeaders());
-}
-
-std::shared_ptr<TimeSyncResponse> HTTPClient::sendTimeSyncRequest()
-{
-	auto response = sendRequestInternal(RequestType::TIMESYNC, mTimeSyncURL, core::UTF8String(""), core::UTF8String("") , HttpMethod::GET);
-
-	return response != nullptr
-		? std::static_pointer_cast<TimeSyncResponse>(response)
-		: std::make_shared<TimeSyncResponse>(mLogger, core::UTF8String(), std::numeric_limits<int32_t>::max(), Response::ResponseHeaders());
 }
 
 std::shared_ptr<StatusResponse> HTTPClient::sendNewSessionRequest()
@@ -192,9 +181,6 @@ std::shared_ptr<Response> HTTPClient::sendRequestInternal(HTTPClient::RequestTyp
 			break;
 		case HTTPClient::RequestType::BEACON:
 			mLogger->debug("HTTPClient sendRequestInternal() - HTTP beacon request: %s", url.getStringData().c_str());
-			break;
-		case HTTPClient::RequestType::TIMESYNC:
-			mLogger->debug("HTTPClient sendRequestInternal() - HTTP timesync request: %s", url.getStringData().c_str());
 			break;
 		case HTTPClient::RequestType::NEW_SESSION:
 			mLogger->debug("HTTPClient sendRequestInternal() - HTTP new session request: %s", url.getStringData().c_str());
@@ -332,8 +318,6 @@ std::shared_ptr<Response> HTTPClient::handleResponse(RequestType requestType, in
 		// erroneous response
 		switch (requestType)
 		{
-		case RequestType::TIMESYNC:
-			return std::make_shared<TimeSyncResponse>(mLogger, core::UTF8String(), httpCode, responseHeaders);
 		case RequestType::STATUS:
 		case RequestType::NEW_SESSION: // FALLTHROUGH
 		case RequestType::BEACON:      // FALLTHROUGH
@@ -345,11 +329,7 @@ std::shared_ptr<Response> HTTPClient::handleResponse(RequestType requestType, in
 	else
 	{
 		// process status response
-		if (response.find(REQUEST_TYPE_TIMESYNC) == 0)
-		{
-			return std::make_shared<TimeSyncResponse>(mLogger, core::UTF8String(response.c_str()), httpCode, responseHeaders);
-		}
-		else if (response.find(REQUEST_TYPE_MOBILE) == 0)
+		if (response.find(REQUEST_TYPE_MOBILE) == 0)
 		{
 			return std::make_shared<StatusResponse>(mLogger, core::UTF8String(response.c_str()), httpCode, responseHeaders);
 		}
@@ -372,13 +352,6 @@ void HTTPClient::buildMonitorURL(core::UTF8String& monitorURL, const core::UTF8S
 	appendQueryParam(monitorURL, QUERY_KEY_VERSION, OPENKIT_VERSION);
 	appendQueryParam(monitorURL, QUERY_KEY_PLATFORM_TYPE, PLATFORM_TYPE_OPENKIT);
 	appendQueryParam(monitorURL, QUERY_KEY_AGENT_TECHNOLOGY_TYPE, AGENT_TECHNOLOGY_TYPE);
-}
-
-void HTTPClient::buildTimeSyncURL(core::UTF8String& timeSyncURL, const core::UTF8String& baseURL)
-{
-	timeSyncURL.concatenate(baseURL);
-	timeSyncURL.concatenate("?");
-	timeSyncURL.concatenate(REQUEST_TYPE_TIMESYNC);
 }
 
 void HTTPClient::buildNewSessionURL(core::UTF8String& newSessionURL, const core::UTF8String& baseURL, const core::UTF8String& applicationID, uint32_t serverID)
@@ -404,8 +377,6 @@ std::shared_ptr<Response> HTTPClient::unknownErrorResponse(RequestType requestTy
 	case RequestType::BEACON: // fallthrough
 	case RequestType::NEW_SESSION: // fallthrough
 		return std::make_shared<StatusResponse>(mLogger, core::UTF8String(), std::numeric_limits<int32_t>::max(), Response::ResponseHeaders());
-	case RequestType::TIMESYNC:
-		return std::make_shared<TimeSyncResponse>(mLogger, core::UTF8String(), std::numeric_limits<int32_t>::max(), Response::ResponseHeaders());
 	default:
 		// should not be reached
 		return nullptr;

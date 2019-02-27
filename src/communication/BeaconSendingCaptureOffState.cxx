@@ -22,7 +22,6 @@
 
 #include "communication/BeaconSendingFlushSessionsState.h"
 #include "communication/BeaconSendingCaptureOnState.h"
-#include "communication/BeaconSendingTimeSyncState.h"
 #include "communication/AbstractBeaconSendingState.h"
 #include "communication/BeaconSendingContext.h"
 #include "communication/BeaconSendingRequestUtil.h"
@@ -94,17 +93,11 @@ void BeaconSendingCaptureOffState::handleStatusResponse(BeaconSendingContext& co
 		// if it's an erroneous response capturing is disabled
 		context.handleStatusResponse(statusResponse);
 	}
-	// if initial time sync failed before
 	if (BeaconSendingResponseUtil::isTooManyRequestsResponse(statusResponse))
 	{
 		// received "too many requests" response
 		// in this case stay in capture off state and use the retry-after delay for sleeping
 		context.setNextState(std::make_shared<BeaconSendingCaptureOffState>(statusResponse->getRetryAfterInMilliseconds()));
-	}
-	else if (context.isTimeSyncSupported() && !context.isTimeSynced())
-	{
-		// if initial time sync failed before, then retry initial time sync
-		context.setNextState(std::shared_ptr<AbstractBeaconSendingState>(new BeaconSendingTimeSyncState(true)));
 	}
 	else if (BeaconSendingResponseUtil::isSuccessfulResponse(statusResponse) && context.isCaptureOn())
 	{

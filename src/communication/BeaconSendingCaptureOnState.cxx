@@ -22,7 +22,6 @@
 
 #include "communication/BeaconSendingCaptureOffState.h"
 #include "communication/BeaconSendingFlushSessionsState.h"
-#include "communication/BeaconSendingTimeSyncState.h"
 #include "communication/AbstractBeaconSendingState.h"
 #include "communication/BeaconSendingContext.h"
 #include "communication/BeaconSendingResponseUtil.h"
@@ -39,14 +38,6 @@ BeaconSendingCaptureOnState::BeaconSendingCaptureOnState()
 
 void BeaconSendingCaptureOnState::doExecute(BeaconSendingContext& context)
 {
-	// check if time sync is required (from time to time a re-sync must be performed)
-	if (BeaconSendingTimeSyncState::isTimeSyncRequired(context))
-	{
-		// time re-sync required -> transition
-		context.setNextState(std::shared_ptr<AbstractBeaconSendingState>(new BeaconSendingTimeSyncState()));
-		return;
-	}
-
 	context.sleep();
 	if (context.isShutdownRequested())
 	{

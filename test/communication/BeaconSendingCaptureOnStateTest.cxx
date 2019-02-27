@@ -63,12 +63,8 @@ public:
 			}));
 
 		mMockContext = std::shared_ptr<testing::NiceMock<test::MockBeaconSendingContext>>(new testing::NiceMock<test::MockBeaconSendingContext>(mLogger));
-		ON_CALL(*mMockContext, isTimeSyncSupported())
-			.WillByDefault(testing::Return(true));
 		ON_CALL(*mMockContext, isShutdownRequested())
 			.WillByDefault(testing::Return(false));
-		ON_CALL(*mMockContext, getLastTimeSyncTime())
-			.WillByDefault(testing::Return(0L));
 		ON_CALL(*mMockContext, getCurrentTimestamp())
 			.WillByDefault(testing::Return(42L));
 		ON_CALL(*mMockContext, getSendInterval())
@@ -174,47 +170,6 @@ TEST_F(BeaconSendingCaptureOnStateTest, aBeaconSendingCaptureOnStateHasTerminalS
 	ASSERT_THAT(terminalState, IsABeaconSendingFlushSessionsState());
 }
 
-TEST_F(BeaconSendingCaptureOnStateTest, aBeaconSendingCaptureOnStateTransitionsToTimeSyncStateWhenLastSyncTimeIsNegative)
-{
-	// given
-	auto target = communication::BeaconSendingCaptureOnState();
-
-	ON_CALL(*mMockContext, isTimeSyncSupported())
-		.WillByDefault(testing::Return(true));
-	ON_CALL(*mMockContext, isCaptureOn())
-		.WillByDefault(testing::Return(false));
-	ON_CALL(*mMockContext, getLastTimeSyncTime())
-		.WillByDefault(testing::Return(-1L));
-
-	// then expect lastStatusCheckTime to be updated and that next state is time sync state
-	EXPECT_CALL(*mMockContext, setNextState(IsABeaconSendingTimeSyncState()))
-		.Times(testing::Exactly(1));
-
-	// when calling execute
-	target.execute(*mMockContext);
-}
-
-TEST_F(BeaconSendingCaptureOnStateTest, aBeaconSendingCaptureOnStateTransitionsToTimeSyncStateWhenCheckIntervalPassed)
-{
-	// given
-	auto target = communication::BeaconSendingCaptureOnState();
-	
-	ON_CALL(*mMockContext, isTimeSyncSupported())
-		.WillByDefault(testing::Return(true));
-	ON_CALL(*mMockContext, isCaptureOn())
-		.WillByDefault(testing::Return(true));
-	ON_CALL(*mMockContext, getLastTimeSyncTime())
-		.WillByDefault(testing::Return(0L));
-	ON_CALL(*mMockContext, getCurrentTimestamp())
-		.WillByDefault(testing::Return(7500000L));
-
-	EXPECT_CALL(*mMockContext, setNextState(IsABeaconSendingTimeSyncState()))
-		.Times(testing::Exactly(1));
-
-	// when calling execute
-	target.execute(*mMockContext);
-}
-
 TEST_F(BeaconSendingCaptureOnStateTest, aBeaconSendingCaptureOnStateTransitionsToFlushStateIfShutdownRequested)
 {
 	// given
@@ -300,44 +255,11 @@ TEST_F(BeaconSendingCaptureOnStateTest, aBeaconSendingCaptureOnStateContinuesWit
 	target.execute(*mMockContext);
 }
 
-TEST_F(BeaconSendingCaptureOnStateTest, aBeaconSendingCaptureOnStateTransitionsToTimeSyncStateIfSessionExpired)
-{
-	// given
-	auto target = communication::BeaconSendingCaptureOnState();
-
-	testing::StrictMock<test::MockBeaconSendingContext> mockContext(mLogger);
-	ON_CALL(mockContext, isTimeSyncSupported())
-		.WillByDefault(testing::Return(true));
-	ON_CALL(mockContext, isShutdownRequested())
-		.WillByDefault(testing::Return(false));
-	ON_CALL(mockContext, getLastTimeSyncTime())
-		.WillByDefault(testing::Return(0L));
-	ON_CALL(mockContext, getCurrentTimestamp())
-		.WillByDefault(testing::Return(72000042L));
-	
-	// then
-	EXPECT_CALL(mockContext, isTimeSyncSupported())
-		.Times(::testing::Exactly(1));
-	EXPECT_CALL(mockContext, isShutdownRequested())
-		.Times(::testing::Exactly(1));
-	EXPECT_CALL(mockContext, getCurrentTimestamp())
-		.Times(::testing::Exactly(1));
-	EXPECT_CALL(mockContext, getLastTimeSyncTime())
-		.Times(::testing::Exactly(2));
-	EXPECT_CALL(mockContext, setNextState(IsABeaconSendingTimeSyncState()))
-		.Times(testing::Exactly(1));
-
-	// when calling execute
-	target.execute(mockContext);
-}
-
 TEST_F(BeaconSendingCaptureOnStateTest, aBeaconSendingCaptureOnStateTransitionsToCaptureOffStateWhenCapturingGotDisabled)
 {
 	// given
 	auto target = communication::BeaconSendingCaptureOnState();
 
-	ON_CALL(*mMockContext, isTimeSyncSupported())
-		.WillByDefault(testing::Return(true));
 	ON_CALL(*mMockContext, isCaptureOn())
 		.WillByDefault(testing::Return(false));
 	

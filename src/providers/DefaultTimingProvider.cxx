@@ -22,8 +22,6 @@
 using namespace providers;
 
 DefaultTimingProvider::DefaultTimingProvider()
-	: mClusterTimeOffset(0)
-	, mIsTimeSyncSupported(true)
 {
 }
 
@@ -39,27 +37,4 @@ int64_t DefaultTimingProvider::provideTimestampInMilliseconds()
 void DefaultTimingProvider::sleep(int64_t milliseconds)
 {
 	std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
-}
-
-void DefaultTimingProvider::initialize(int64_t clusterTimeOffset, bool isTimeSyncSupported)
-{
-	mIsTimeSyncSupported = isTimeSyncSupported;
-	if (mIsTimeSyncSupported)
-	{
-		mClusterTimeOffset = clusterTimeOffset;
-	}
-	else
-	{
-		mClusterTimeOffset = 0;
-	}
-}
-
-bool DefaultTimingProvider::isTimeSyncSupported()
-{
-	return mIsTimeSyncSupported;
-}
-
-int64_t DefaultTimingProvider::convertToClusterTime(int64_t timestamp)
-{
-	return timestamp + mClusterTimeOffset;
 }

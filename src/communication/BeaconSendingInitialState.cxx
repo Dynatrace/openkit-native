@@ -21,7 +21,8 @@
 #include <memory>
 
 #include "communication/BeaconSendingTerminalState.h"
-#include "communication/BeaconSendingTimeSyncState.h"
+#include "communication/BeaconSendingCaptureOnState.h"
+#include "communication/BeaconSendingCaptureOffState.h"
 #include "communication/AbstractBeaconSendingState.h"
 #include "communication/BeaconSendingRequestUtil.h"
 #include "communication/BeaconSendingResponseUtil.h"
@@ -63,9 +64,18 @@ void BeaconSendingInitialState::doExecute(BeaconSendingContext& context)
 	}
 	else if (BeaconSendingResponseUtil::isSuccessfulResponse(statusResponse)) 
 	{
-		// success -> continue with time sync
+		// success -> continue with capture on or capture off
+		// depending on whether capturing is enabled or not
 		context.handleStatusResponse(statusResponse);
-		context.setNextState(std::shared_ptr<AbstractBeaconSendingState>(new BeaconSendingTimeSyncState(true)));
+		if (context.isCaptureOn())
+		{
+			context.setNextState(std::make_shared<BeaconSendingCaptureOnState>());
+		}
+		else
+		{
+			context.setNextState(std::make_shared<BeaconSendingCaptureOffState>());
+		}
+		context.setInitCompleted(true);
 	}
 }
 

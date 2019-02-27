@@ -33,7 +33,6 @@ namespace communication
 	/// Transition to:
 	///   - @ref BeaconSendingCaptureOnState if capturing is re-enabled
 	///   - @ref BeaconSendingFlushSessionsState on shutdown
-	///   - @ref BeaconSendingTimeSyncState if initial time sync failed
 	///
 	class BeaconSendingCaptureOffState : public AbstractBeaconSendingState
 	{

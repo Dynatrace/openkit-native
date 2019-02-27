@@ -90,20 +90,6 @@ TEST_F(BeaconSendingContextTest, currentStateIsInitializedAccordingly)
 	EXPECT_THAT(target->getCurrentState(), IsABeaconSendingInitState());
 }
 
-TEST_F(BeaconSendingContextTest, initializeTimeSyncDelegatesToTimingProvider)
-{
-	// given
-	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
-
-	// then
-	EXPECT_CALL(*mMockTimingProvider, initialize(1L, true))
-		.Times(testing::Exactly(1));
-
-	// when
-	target->initializeTimeSync(1L, true);
-
-}
-
 TEST_F(BeaconSendingContextTest, setCurrentStateChangesState)
 {
 	// given
@@ -284,18 +270,6 @@ TEST_F(BeaconSendingContextTest, isCaptureOnReturnsValueFromConfiguration)
 	ASSERT_FALSE(target->isCaptureOn());
 }
 
-TEST_F(BeaconSendingContextTest, timeSyncIsNotSupportedIfDisabled)
-{
-	// given
-	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
-
-	// when
-	target->disableTimeSyncSupport();
-
-	// then
-	ASSERT_FALSE(target->isTimeSyncSupported());
-}
-
 TEST_F(BeaconSendingContextTest, setAndGetLastOpenSessionBeaconSendTime)
 {
 	// given
@@ -434,33 +408,6 @@ TEST_F(BeaconSendingContextTest, sleepWithGivenTime)
 
 	// then ensure sleep is correct
 	ASSERT_GE(duration, std::chrono::milliseconds(100L));
-}
-
-TEST_F(BeaconSendingContextTest, defaultLastTimeSyncTimeIsMinusOne)
-{
-	// given
-	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
-
-	// then
-	ASSERT_EQ(target->getLastTimeSyncTime(), -1L);
-}
-
-TEST_F(BeaconSendingContextTest, getAndSetLastTimeSyncTime)
-{
-	// given
-	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
-
-	// when setting first value
-	target->setLastTimeSyncTime(1234L);
-
-	// then
-	ASSERT_EQ(target->getLastTimeSyncTime(), 1234L);
-
-	// and when setting other value
-	target->setLastTimeSyncTime(4321L);
-
-	// then
-	ASSERT_EQ(target->getLastTimeSyncTime(), 4321L);
 }
 
 TEST_F(BeaconSendingContextTest, aDefaultConstructedContextDoesNotStoreAnySessions)
@@ -668,43 +615,6 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseWhenCapturingIsDisabled)
 
 	finishedSessions = target->getAllFinishedAndConfiguredSessions();
 	ASSERT_EQ(finishedSessions.size(), 0);//finished sessions are cleared
-}
-
-TEST_F(BeaconSendingContextTest, isTimeSyncedReturnsTrueIfSyncWasNeverPerformed)
-{
-	// given
-	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
-
-	// when
-	ON_CALL(*mMockTimingProvider, isTimeSyncSupported())
-		.WillByDefault(testing::Return(true));
-
-	// then
-	ASSERT_FALSE(target->isTimeSynced());
-}
-
-TEST_F(BeaconSendingContextTest, isTimeSyncedReturnsTrueIfSyncIsNotSupported)
-{
-	// given
-	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
-
-	// when
-	target->disableTimeSyncSupport();
-
-	// then
-	ASSERT_TRUE(target->isTimeSynced());
-}
-
-TEST_F(BeaconSendingContextTest, timingProviderIsCalledOnTimeSyncInit)
-{
-	// given
-	auto target = std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(mLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration));
-
-	// then
-	EXPECT_CALL(*mMockTimingProvider, initialize(1234L, true));
-
-	// when
-	target->initializeTimeSync(1234L, true);
 }
 
 TEST_F(BeaconSendingContextTest, whenStartingASessionTheSessionIsConsideredAsNew)

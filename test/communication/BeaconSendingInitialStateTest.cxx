@@ -261,7 +261,7 @@ TEST_F(BeaconSendingInitialStateTest, initialStatusRequestGivesUpWhenShutdownReq
 	ASSERT_TRUE(nextState->isTerminalState());
 }
 
-TEST_F(BeaconSendingInitialStateTest, aSuccessfulStatusResponsePerformsStateTransitionToTimeSyncState)
+TEST_F(BeaconSendingInitialStateTest, aSuccessfulStatusResponsePerformsStateTransitionToCaptureOnStateIfCapturingIsEnabled)
 {
 	// given
 	auto target = BeaconSendingInitialState();
@@ -270,9 +270,87 @@ TEST_F(BeaconSendingInitialStateTest, aSuccessfulStatusResponsePerformsStateTran
 
 	ON_CALL(mockContext, getHTTPClient())
 		.WillByDefault(testing::Return(mMockHTTPClient));
+	ON_CALL(mockContext, isCaptureOn())
+		.WillByDefault(testing::Return(true));
+	ON_CALL(*mMockHTTPClient, sendStatusRequestRawPtrProxy())
+		.WillByDefault(testing::Invoke([&]() -> protocol::StatusResponse* {
+		return new protocol::StatusResponse(mLogger, core::UTF8String("type=m&cp=1"), 200, protocol::Response::ResponseHeaders());
+	}));
 
-	// verify state transition
-	EXPECT_CALL(mockContext, setNextState(IsABeaconSendingTimeSyncState()))
+	// verify state transition to CaptureOn state
+	EXPECT_CALL(mockContext, setNextState(IsABeaconSendingCaptureOnState()))
+		.Times(::testing::Exactly(1));
+
+	// when
+	target.execute(mockContext);
+}
+
+TEST_F(BeaconSendingInitialStateTest, aSuccessfulStatusResponsePerformsStateTransitionToCaptureOffStateIfCapturingIsDisabled)
+{
+	// given
+	auto target = BeaconSendingInitialState();
+
+	testing::NiceMock<test::MockBeaconSendingContext> mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
+
+	ON_CALL(mockContext, getHTTPClient())
+		.WillByDefault(testing::Return(mMockHTTPClient));
+	ON_CALL(mockContext, isCaptureOn())
+		.WillByDefault(testing::Return(false));
+	ON_CALL(*mMockHTTPClient, sendStatusRequestRawPtrProxy())
+		.WillByDefault(testing::Invoke([&]() -> protocol::StatusResponse* {
+		return new protocol::StatusResponse(mLogger, core::UTF8String("type=m&cp=0"), 200, protocol::Response::ResponseHeaders());
+	}));
+
+	// verify state transition to CaptureOff state
+	EXPECT_CALL(mockContext, setNextState(IsABeaconSendingCaptureOffState()))
+		.Times(::testing::Exactly(1));
+
+	// when
+	target.execute(mockContext);
+}
+
+TEST_F(BeaconSendingInitialStateTest, aSuccessfulStatusResponseSetsInitCompletedIfCapturingIsEnabled)
+{
+	// given
+	auto target = BeaconSendingInitialState();
+
+	testing::NiceMock<test::MockBeaconSendingContext> mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
+
+	ON_CALL(mockContext, getHTTPClient())
+		.WillByDefault(testing::Return(mMockHTTPClient));
+	ON_CALL(mockContext, isCaptureOn())
+		.WillByDefault(testing::Return(true));
+	ON_CALL(*mMockHTTPClient, sendStatusRequestRawPtrProxy())
+		.WillByDefault(testing::Invoke([&]() -> protocol::StatusResponse* {
+		return new protocol::StatusResponse(mLogger, core::UTF8String("type=m&cp=1"), 200, protocol::Response::ResponseHeaders());
+	}));
+
+	// verify that setInitCompleted is set
+	EXPECT_CALL(mockContext, setInitCompleted(true))
+		.Times(::testing::Exactly(1));
+
+	// when
+	target.execute(mockContext);
+}
+
+TEST_F(BeaconSendingInitialStateTest, aSuccessfulStatusResponseSetsInitCompletedIfCapturingIsDisabled)
+{
+	// given
+	auto target = BeaconSendingInitialState();
+
+	testing::NiceMock<test::MockBeaconSendingContext> mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
+
+	ON_CALL(mockContext, getHTTPClient())
+		.WillByDefault(testing::Return(mMockHTTPClient));
+	ON_CALL(mockContext, isCaptureOn())
+		.WillByDefault(testing::Return(false));
+	ON_CALL(*mMockHTTPClient, sendStatusRequestRawPtrProxy())
+		.WillByDefault(testing::Invoke([&]() -> protocol::StatusResponse* {
+		return new protocol::StatusResponse(mLogger, core::UTF8String("type=m&cp=0"), 200, protocol::Response::ResponseHeaders());
+	}));
+
+	// verify that setInitCompleted is set
+	EXPECT_CALL(mockContext, setInitCompleted(true))
 		.Times(::testing::Exactly(1));
 
 	// when

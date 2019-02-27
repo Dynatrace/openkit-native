@@ -45,8 +45,6 @@ BeaconSendingContext::BeaconSendingContext(std::shared_ptr<openkit::ILogger> log
 	, mLastStatusCheckTime(0)
 	, mLastOpenSessionBeaconSendTime(0)
 	, mInitCountdownLatch(1)
-	, mIsTimeSyncSupported(true)
-	, mLastTimeSyncTime(-1)
 	, mSessions()
 {
 }
@@ -221,37 +219,6 @@ void BeaconSendingContext::setLastOpenSessionBeaconSendTime(int64_t timestamp)
 AbstractBeaconSendingState::StateType BeaconSendingContext::getCurrentStateType() const
 {
 	return mCurrentState->getStateType();
-}
-
-bool BeaconSendingContext::isTimeSyncSupported() const
-{
-	return mIsTimeSyncSupported;
-}
-
-
-void BeaconSendingContext::disableTimeSyncSupport()
-{
-	mIsTimeSyncSupported = false;
-}
-
-bool BeaconSendingContext::isTimeSynced() const
-{
-	return !mIsTimeSyncSupported || getLastTimeSyncTime() >= 0;
-}
-
-int64_t BeaconSendingContext::getLastTimeSyncTime() const
-{
-	return mLastTimeSyncTime;
-}
-
-void BeaconSendingContext::setLastTimeSyncTime(int64_t lastTimeSyncTime)
-{
-	mLastTimeSyncTime = lastTimeSyncTime;
-}
-
-void BeaconSendingContext::initializeTimeSync(int64_t clusterTimeOffset, bool isTimeSyncSupported)
-{
-	mTimingProvider->initialize(clusterTimeOffset, isTimeSyncSupported);
 }
 
 void BeaconSendingContext::startSession(std::shared_ptr<core::Session> session)

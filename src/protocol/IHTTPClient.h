@@ -20,17 +20,15 @@
 #include <memory>
 
 #include "protocol/StatusResponse.h"
-#include "protocol/TimeSyncResponse.h"
 #include "configuration/HTTPClientConfiguration.h"
 #include "core/UTF8String.h"
 
 namespace protocol
 {
 	///
-	/// HTTP client which abstracts the 3 basic request types:
+	/// HTTP client which abstracts the 2 basic request types:
 	/// - status check
 	/// - beacon send
-	/// - time sync
 	///
 	class IHTTPClient
 	{
@@ -54,12 +52,6 @@ namespace protocol
 		/// @returns a status response with the response data for the request or @c nullptr on error
 		///
 		virtual std::shared_ptr<StatusResponse> sendBeaconRequest(const core::UTF8String& clientIPAddress, const core::UTF8String& beaconData) = 0;
-
-		///
-		/// sends a timesync request and returns a timesync response
-		/// @returns a timesync response with the response data for the request or @c nullptr on error
-		///
-		virtual std::shared_ptr<TimeSyncResponse> sendTimeSyncRequest() = 0;
 
 		///
 		/// sends a new session request and returns a status response
