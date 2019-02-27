@@ -136,14 +136,28 @@ namespace openkit
 			///
 			/// Sets the data collection level used
 			///
-			/// Default behavior is the level @ref openkit::DataCollectionLevel::OFF
-			/// @param[in] dataCollectionLevel data collection level to use
+			/// Depending on the chosen level the amount and granularity of data sent is controlled.
+			/// <ul>
+			///   <li> @ref openkit::DataCollectionLevel::OFF - no data collected
+			///   <li> @ref openkit::DataCollectionLevel::PERFORMANCE - only performance related data is collected
+			///   <li> @ref openkit::DataCollectionLevel::USER_BEHAVIOR - all available RUM data including performance related data is collected
+			/// </ul>
+			///
+			/// Default behavior is the level @ref openkit::DataCollectionLevel::USER_BEHAVIOR
+			///
+			/// @param[in] dataCollectionLevel data collection level to apply.
 			/// @returns @c this
 			///
 			AbstractOpenKitBuilder& withDataCollectionLevel(openkit::DataCollectionLevel dataCollectionLevel);
 
 			///
 			/// Sets the crash reporting level used
+			///
+			/// <ul>
+			///   <li> @ref openkit::CrashReportingLevel::OFF - Crashes are not sent to the server
+			///   <li> @ref openkit::CrashReportingLevel::OPT_OUT_CRASHES - Crashes are not sent to the server
+			///   <li> @ref openkit::CrashReportingLevel::OPT_IN_CRASHES - Crashes are sent to the server
+			/// </ul>
 			///
 			/// Default behavior is the level @ref openkit::CrashReportingLevel::OFF
 			/// @param[in] crashReportingLevel crash reporting level to use
@@ -164,13 +178,6 @@ namespace openkit
 			virtual std::shared_ptr<configuration::Configuration> buildConfiguration() = 0;
 
 		protected:
-
-			///
-			/// Constructor
-			/// @param[in] endpointURL endpoint OpenKit connects to
-			/// @param[in] deviceID unique device id
-			///
-			AbstractOpenKitBuilder(const char* endpointURL, int64_t deviceID);
 
 			///
 			/// Constructor

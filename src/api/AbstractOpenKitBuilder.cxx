@@ -22,11 +22,6 @@
 
 using namespace openkit;
 
-AbstractOpenKitBuilder::AbstractOpenKitBuilder(const char* endpointURL, int64_t deviceID)
-	: AbstractOpenKitBuilder(endpointURL, std::to_string(deviceID).c_str())
-{
-}
-
 AbstractOpenKitBuilder::AbstractOpenKitBuilder(const char* endpointURL, const char* deviceID)
 	: mVerbose(false)
 	, mLogger(nullptr)
@@ -43,7 +38,6 @@ AbstractOpenKitBuilder::AbstractOpenKitBuilder(const char* endpointURL, const ch
 	, mDataCollectionLevel(configuration::BeaconConfiguration::DEFAULT_DATA_COLLECTION_LEVEL)
 	, mCrashReportingLevel(configuration::BeaconConfiguration::DEFAULT_CRASH_REPORTING_LEVEL)
 {
-
 }
 
 AbstractOpenKitBuilder& AbstractOpenKitBuilder::enableVerbose()
@@ -87,7 +81,6 @@ AbstractOpenKitBuilder& AbstractOpenKitBuilder::withOperatingSystem(const char* 
 
 AbstractOpenKitBuilder& AbstractOpenKitBuilder::withManufacturer(const char* manufacturer)
 {
-	
 	if (manufacturer != nullptr && strlen(manufacturer) > 0)
 	{
 		mManufacturer = manufacturer;
