@@ -12,30 +12,30 @@ diagram illustrates the states.
 
 ### Initialize
 
-The Init state (class `BeaconSendingInitState`) sends the initial status request to the server.
+The Init state (class `communication::BeaconSendingInitialState`) sends the initial status request to the server.
 The request is retried several times (by default 5 retries, in total 6 requests) with increasing
 delays between consecutive retries.  
-If the server returned a successful status response a state transition to either CaptureOn or CaptureOff
-is performed, depending on whether capturing is enabled or disabled in the initial status response.
-If the status request fails OpenKit stays in the Initialize state and sleeps some time
-until the next status request is sent. 
+If the server returned a successful status response a state transition to either CaptureOn or CaptureOff is 
+performed, depending on whether capturing is enabled or disabled in the initial status response. 
+If the status request fails OpenKit stays in the Initialize state and sleeps some time until the 
+next status request is sent.
  
-If `OpenKit.shutdown()` is called while OpenKit is in the Init state, 
+If `OpenKit::shutdown()` is called while OpenKit is in the Init state, 
 a transition to the Terminal state is performed.
 
 ### CaptureOff
 
-In the CaptureOff state (class `BeaconSendingCaptureOffState`) OpenKit checks when the last
+In the CaptureOff state (class `communication::BeaconSendingCaptureOffState`) OpenKit checks when the last
 status request was sent to the server and sleeps some time before performing the next status
 request.  
-A transition to CaptureOn state is performed if capturing was re-enabled by the server's status response.
-If capturing is disabled no transition is performed and the state machine stays in CaptureOff state.  
+A transition to CaptureOn state is performed if capturing was re-enabled by the server's status response. 
+If capturing is disabled no transition is performed and the state machine stays in CaptureOff state.
 
 If OpenKit is shut down during CaptureOff state a transition to FlushSessions is performed.
 
 ### CaptureOn
 
-In the CaptureOn state (class `BeaconSendingCaptureOnState`) OpenKit checks in regular intervals
+In the CaptureOn state (class `communication::BeaconSendingCaptureOnState`) OpenKit checks in regular intervals
 (the default value is 1 second) if it should send open sessions. The interval for sending
 open sessions is configured in the status response.  
 Furthermore all previously finished sessions are also sent to the server.  
