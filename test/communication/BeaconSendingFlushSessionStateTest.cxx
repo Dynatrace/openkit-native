@@ -27,7 +27,7 @@
 
 class BeaconSendingFlushSessionsStateTest : public testing::Test
 {
-public:
+protected:
 
 	BeaconSendingFlushSessionsStateTest()
 		: mLogger(nullptr)

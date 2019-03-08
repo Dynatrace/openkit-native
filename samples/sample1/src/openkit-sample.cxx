@@ -62,7 +62,7 @@ int32_t main(int32_t argc, char** argv)
 		.withManufacturer("Dynatrace")
 		.withOperatingSystem("ACME OS")
 		.withModelID("Model E")
-		.enableVerbose();
+		.withLogLevel(openkit::LogLevel::LOG_LEVEL_DEBUG);
 
 	auto openKit = builder.build();
 	openKit->waitForInitCompletion(20000);

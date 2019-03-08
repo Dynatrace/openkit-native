@@ -25,6 +25,8 @@ public:
 
 	virtual ~NullLogger() {}
 
+	virtual void log(openkit::LogLevel /*logLevel*/, const char* /*format*/, ...) override {}
+
 	virtual void error(const char* /*format*/, ...) override {}
 
 	virtual void warning(const char* /*format*/, ...) override {}

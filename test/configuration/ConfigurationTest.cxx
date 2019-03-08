@@ -28,7 +28,7 @@ using namespace configuration;
 
 class ConfigurationTest : public testing::Test
 {
-public:
+protected:
 	void SetUp()
 	{
 		sslTrustManager = std::shared_ptr<openkit::ISSLTrustManager>(new protocol::SSLStrictTrustManager());

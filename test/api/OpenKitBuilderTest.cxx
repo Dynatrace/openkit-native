@@ -34,7 +34,7 @@ using namespace openkit;
 
 class OpenKitBuilderTest : public testing::Test
 {
-public:
+protected:
 
 	void SetUp()
 	{
@@ -229,7 +229,7 @@ TEST_F(OpenKitBuilderTest, canSetModelIDForDynatrace)
 TEST_F(OpenKitBuilderTest, defaultLoggerIsUsedByDefault)
 {
 	auto logger = DynatraceOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
-		.enableVerbose()
+		.withLogLevel(openkit::LogLevel::LOG_LEVEL_DEBUG)
 		.getLogger();
 
 	auto typeCastLogger = std::dynamic_pointer_cast<core::util::DefaultLogger>(logger);
@@ -240,7 +240,7 @@ TEST_F(OpenKitBuilderTest, defaultLoggerIsUsedByDefault)
 TEST_F(OpenKitBuilderTest, verboseIsUsedInDefaultLogger)
 {
 	auto logger = DynatraceOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
-		.enableVerbose()
+		.withLogLevel(openkit::LogLevel::LOG_LEVEL_DEBUG)
 		.getLogger();
 
 	auto typeCastLogger = std::dynamic_pointer_cast<core::util::DefaultLogger>(logger);

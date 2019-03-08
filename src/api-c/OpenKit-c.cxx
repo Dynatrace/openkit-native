@@ -178,7 +178,7 @@ extern "C" {
 		LoggerHandle* handle = nullptr;
 		try
 		{
-			auto logger = std::shared_ptr<openkit::ILogger>(new apic::CustomLogger(levelEnabledFunc, logFunc));
+			auto logger = std::make_shared<apic::CustomLogger>(levelEnabledFunc, logFunc);
 			// storing the returned shared pointer in the handle prevents it from going out of scope
 			handle = new LoggerHandle();
 			handle->logger = logger;
@@ -188,12 +188,29 @@ extern "C" {
 		return handle;
 	}
 
-	LoggerHandle* createDefaultLogger()
+	static openkit::LogLevel toCppLogLevel(LOG_LEVEL cLogLevel)
+	{
+		switch (cLogLevel)
+		{
+		case LOGLEVEL_DEBUG:
+			return openkit::LogLevel::LOG_LEVEL_DEBUG;
+		case LOGLEVEL_INFO:
+			return openkit::LogLevel::LOG_LEVEL_INFO;
+		case LOGLEVEL_WARN:
+			return openkit::LogLevel::LOG_LEVEL_WARN;
+		case LOGLEVEL_ERROR:
+			return openkit::LogLevel::LOG_LEVEL_ERROR;
+		default:
+			return openkit::LogLevel::LOG_LEVEL_WARN;
+		}
+	}
+
+	static LoggerHandle* createDefaultLogger(LOG_LEVEL logLevel)
 	{
 		LoggerHandle* handle = nullptr;
 		try
 		{
-			auto logger = std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(true));
+			auto logger = std::make_shared<core::util::DefaultLogger>(toCppLogLevel(logLevel));
 			// storing the returned shared pointer in the handle prevents it from going out of scope
 			handle = new LoggerHandle();
 			handle->logger = logger;
@@ -227,6 +244,7 @@ extern "C" {
 		char* deviceID = nullptr;
 		char* applicationName = nullptr;
 		LoggerHandle* loggerHandle = nullptr;
+		LOG_LEVEL defaultLogLevel = LOGLEVEL_WARN;
 		bool ownsLoggerHandle = false;
 		char* applicationVersion = nullptr;
 		TRUST_MODE trustMode = STRICT_TRUST;
@@ -287,6 +305,14 @@ extern "C" {
 		// release configuration object
 		delete configurationHandle;
 		configurationHandle = nullptr;
+	}
+
+	void useDefaultLogLevelForConfiguration(OpenKitConfigurationHandle* configurationHandle, LOG_LEVEL defaultLogLevel)
+	{
+		if (configurationHandle != nullptr)
+		{
+			configurationHandle->defaultLogLevel = defaultLogLevel;
+		}
 	}
 
 	void useLoggerForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, struct LoggerHandle* loggerHandle)
@@ -419,7 +445,7 @@ extern "C" {
 		if (configurationHandle->loggerHandle == nullptr)
 		{
 			// caller did not provide a logger handle -> fallback to NullLogger
-			struct LoggerHandle* defaultLogger = createDefaultLogger();
+			struct LoggerHandle* defaultLogger = createDefaultLogger(configurationHandle->defaultLogLevel);
 
 			configurationHandle->loggerHandle = defaultLogger;
 			configurationHandle->ownsLoggerHandle = true;
@@ -498,13 +524,18 @@ extern "C" {
 	static OpenKitHandle* createOpenKitHandle(struct OpenKitConfigurationHandle* configurationHandle, std::shared_ptr<openkit::IOpenKit> openKit)
 	{
 		// storing the returned shared pointer in the handle prevents it from going out of scope
-		OpenKitHandle* handle = new OpenKitHandle();
-		handle->sharedPointer = openKit;
-		handle->logger = configurationHandle->loggerHandle->logger;
-		handle->loggerHandle = configurationHandle->loggerHandle;
-		handle->ownsLoggerHandle = configurationHandle->ownsLoggerHandle;
-		handle->trustManagerHandle = configurationHandle->trustManagerHandle;
-		handle->ownsTrustManagerHandle = configurationHandle->ownsTrustManagerHandle;
+		OpenKitHandle* handle = nullptr;
+		TRY
+		{
+			handle = new OpenKitHandle();
+			handle->sharedPointer = openKit;
+			handle->logger = configurationHandle->loggerHandle->logger;
+			handle->loggerHandle = configurationHandle->loggerHandle;
+			handle->ownsLoggerHandle = configurationHandle->ownsLoggerHandle;
+			handle->trustManagerHandle = configurationHandle->trustManagerHandle;
+			handle->ownsTrustManagerHandle = configurationHandle->ownsTrustManagerHandle;
+		}
+		CATCH_AND_LOG(configurationHandle->loggerHandle)
 
 		return handle;
 	}

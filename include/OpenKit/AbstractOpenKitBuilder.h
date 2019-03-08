@@ -26,6 +26,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <string>
 
 #ifndef DOXYGEN_HIDE_FROM_DOC
 namespace configuration
@@ -53,8 +54,17 @@ namespace openkit
 			/// If a custom logger is provided (by calling @ref withLogger(std::shared_ptr<openkit::ILogger>)) debug and info log output
 			/// depends on the values returned by @ref openkit::ILogger::isDebugEnabled() and @ref openkit::ILogger::isInfoEnabled().
  			/// @return @c this for fluent usage
+			/// @deprecated Use @ref AbstractOpenKitBuilder::withLogLevel instead.
 			///
-			AbstractOpenKitBuilder& enableVerbose();
+			OPENKIT_DEPRECATED AbstractOpenKitBuilder& enableVerbose();
+
+			///
+			/// Sets the default log level if the default logger is used.
+			/// If a custom logger is provided by calling @ref withLogger, debug and info log output
+			/// depends on the values returned by @ref ILogger::isDebugEnabled and @ref ILogger::isInfoEnabled.
+			/// @param logLevel The logLevel for the default logger
+			///
+			AbstractOpenKitBuilder& withLogLevel(openkit::LogLevel logLevel);
 
 			///
 			/// Sets the logger. If no logger is set the default console logger is used. For the default
@@ -267,8 +277,8 @@ namespace openkit
 			std::shared_ptr<openkit::ILogger> getLogger();
 
 		private:
-			/// Flag to enable INFO and DEBUG logs
-			bool mVerbose;
+			/// Log level used for the default logger
+			LogLevel mLogLevel;
 
 			/// The logger used to log traces
 			std::shared_ptr<ILogger> mLogger;

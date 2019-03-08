@@ -22,7 +22,7 @@ using namespace providers;
 
 class DefaultPRNGeneratorTest : public testing::Test
 {
-public:
+protected:
 	DefaultPRNGeneratorTest()
 	{
 	}

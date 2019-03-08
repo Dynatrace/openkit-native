@@ -109,6 +109,7 @@ This includes device specific information like operating system, manufacturer, o
 | `withDataCollectionLevel` | sets the data collection level (enum DataCollectionLevel) | USER_BEHAVIOR |
 | `withCrashReportingLevel` | sets the crash reporting level (enum CrashReportingLevel) | OPT_IN_CRASHES |
 | `enableVerbose`  | enables extended log output for OpenKit if the default logger is used  | `false` |
+| `withLogLevel` | sets the default log level if the default logger is used | `LogLevel.WARN` |
 
 When using the OpenKit C API, additional configuration can applied to the configuration created with the
 'createOpenKitConfiguration' function.
@@ -124,6 +125,7 @@ When using the OpenKit C API, additional configuration can applied to the config
 | `useBeaconCacheUpperMemoryBoundaryForConfiguration`  |  sets the upper memory boundary of the beacon cache in bytes | 80 MB when argument is less than 0 |
 | `useDataCollectionLevelForConfiguration` | sets the data collection level (enum DataCollectionLevel) | USER_BEHAVIOR |
 | `useCrashReportingLevelForConfiguration` | sets the crash reporting level (enum CrashReportingLevel) | OPT_IN_CRASHES |
+| `useLoggerForConfiguration` | sets a custom logger ` | A default logger, logging to stdout, is used as fallback |
 
 When passing a non-NULL `logger`, custom logging can be enabled. Further information is described in Logger.
 When passing a non-NULL `trustManagerHandle`, custom SSL/TLS certificate verification can be enabled.

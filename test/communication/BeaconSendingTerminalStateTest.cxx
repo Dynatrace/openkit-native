@@ -25,7 +25,7 @@
 
 class BeaconSendingTerminalStateTest : public testing::Test
 {
-public:
+protected:
 
 	BeaconSendingTerminalStateTest()
 		: mLogger(nullptr)

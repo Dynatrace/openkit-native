@@ -23,8 +23,6 @@ using namespace core;
 
 class URLEncodingTest : public testing::Test
 {
-public:
-
 };
 
 

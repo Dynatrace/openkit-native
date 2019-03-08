@@ -23,7 +23,7 @@
 using namespace openkit;
 
 AbstractOpenKitBuilder::AbstractOpenKitBuilder(const char* endpointURL, const char* deviceID)
-	: mVerbose(false)
+	: mLogLevel(LogLevel::LOG_LEVEL_WARN)
 	, mLogger(nullptr)
 	, mApplicationVersion(DEFAULT_APPLICATION_VERSION)
 	, mOperatingSystem(DEFAULT_OPERATING_SYSTEM)
@@ -42,7 +42,12 @@ AbstractOpenKitBuilder::AbstractOpenKitBuilder(const char* endpointURL, const ch
 
 AbstractOpenKitBuilder& AbstractOpenKitBuilder::enableVerbose()
 {
-	mVerbose = true;
+	return withLogLevel(LogLevel::LOG_LEVEL_DEBUG);
+}
+
+AbstractOpenKitBuilder& AbstractOpenKitBuilder::withLogLevel(openkit::LogLevel logLevel)
+{
+	mLogLevel = logLevel;
 	return *this;
 }
 
@@ -140,7 +145,7 @@ std::shared_ptr<openkit::ILogger> AbstractOpenKitBuilder::getLogger()
 	{
 		return mLogger;
 	}
-	return std::shared_ptr<ILogger>(new core::util::DefaultLogger(mVerbose));
+	return std::shared_ptr<ILogger>(new core::util::DefaultLogger(mLogLevel));
 }
 
 const std::string& AbstractOpenKitBuilder::getApplicationVersion() const

@@ -28,6 +28,7 @@ if(BUILD_SHARED_LIBS)
 endif()
 
 set(OPENKIT_SOURCES_TEST_API
+    ${CMAKE_CURRENT_LIST_DIR}/api/LogLevelTest.cxx
 	${CMAKE_CURRENT_LIST_DIR}/api/OpenKitBuilderTest.cxx
 )
 

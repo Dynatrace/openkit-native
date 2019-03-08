@@ -20,7 +20,9 @@
 #include "OpenKit/ILogger.h"
 #include "OpenKit/IWebRequestTracer.h"
 #include "core/NullWebRequestTracer.h"
+
 #include <memory>
+#include <string>
 
 namespace protocol
 {
