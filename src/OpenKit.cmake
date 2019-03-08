@@ -25,7 +25,7 @@ set(OPENKIT_PUBLIC_HEADERS_CXX_API
     ${CMAKE_SOURCE_DIR}/include/OpenKit/ISession.h
     ${CMAKE_SOURCE_DIR}/include/OpenKit/ISSLTrustManager.h
     ${CMAKE_SOURCE_DIR}/include/OpenKit/IWebRequestTracer.h
-	${CMAKE_SOURCE_DIR}/include/OpenKit/LogLevel.h
+    ${CMAKE_SOURCE_DIR}/include/OpenKit/LogLevel.h
     ${CMAKE_SOURCE_DIR}/include/OpenKit/OpenKitConstants.h
     ${CMAKE_SOURCE_DIR}/include/OpenKit.h
 )
@@ -38,7 +38,7 @@ set(OPENKIT_SOURCES_CXX_API
     ${CMAKE_CURRENT_LIST_DIR}/api/AbstractOpenKitBuilder.cxx
     ${CMAKE_CURRENT_LIST_DIR}/api/AppMonOpenKitBuilder.cxx
     ${CMAKE_CURRENT_LIST_DIR}/api/DynatraceOpenKitBuilder.cxx
-	${CMAKE_CURRENT_LIST_DIR}/api/LogLevel.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/api/LogLevel.cxx
 )
 
 set(OPENKIT_SOURCES_C_API
