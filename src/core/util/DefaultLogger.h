@@ -84,7 +84,9 @@ namespace core
 			/// The stream to be logged to
 			std::ostream &mStream;
 
-			/// Flag to enable INFO and DEBUG traces
+			/// Log level of this Logger instance.
+			/// @remarks Log messages with higher or same priority are logged,
+			/// all others are ignored.
 			openkit::LogLevel mLogLevel;
 		};
 	}
