@@ -22,7 +22,7 @@
 
 // The GNU C compiler allows attaching characteristics to function declarations to allow the compiler to perform additional error checking.
 #ifndef __GNUC__
-// For the MSC compiler we define the __attribute__ empty
+// For the MSVC compiler we define the __attribute__ empty
  #define __attribute__(x)
 #endif
 
@@ -74,7 +74,7 @@ namespace openkit
 		/// @param[in] format the message string in a printf formatted way with parameters to be passed via varargs
 		/// @param[in] ... variadic list of additional arguments
 		///
-		virtual void log(LogLevel logLevel, FORMAT_STRING(const char* format), ...) __attribute__((format(printf, 2, 3))) = 0;
+		virtual void log(LogLevel logLevel, FORMAT_STRING(const char* format), ...) __attribute__((format(printf, 3, 4))) = 0;
 		
 		///
 		/// Log with level 'error'.
