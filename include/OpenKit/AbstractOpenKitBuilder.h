@@ -54,12 +54,12 @@ namespace openkit
 			/// If a custom logger is provided (by calling @ref withLogger(std::shared_ptr<openkit::ILogger>)) debug and info log output
 			/// depends on the values returned by @ref openkit::ILogger::isDebugEnabled() and @ref openkit::ILogger::isInfoEnabled().
  			/// @return @c this for fluent usage
-			/// @deprecated Use @ref AbstractOpenKitBuilder::withLogLevel instead.
+			/// @deprecated Use @ref withLogLevel instead.
 			///
 			OPENKIT_DEPRECATED AbstractOpenKitBuilder& enableVerbose();
 
 			///
-			/// Sets the default log level if the default logger is used.
+			/// Sets the log level if the default logger is used.
 			/// If a custom logger is provided by calling @ref withLogger, debug and info log output
 			/// depends on the values returned by @ref ILogger::isDebugEnabled and @ref ILogger::isInfoEnabled.
 			/// @param logLevel The logLevel for the default logger

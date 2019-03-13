@@ -40,6 +40,7 @@ namespace openkit
 	/// @remarks The values retuned are right padded to have an equal length.
 	/// @param logLevel The log level for which to get its name.
 	/// @return Log level's name.
+	///
 	OPENKIT_EXPORT const char* getLogLevelName(LogLevel logLevel);
 }
 

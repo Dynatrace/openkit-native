@@ -146,10 +146,11 @@ extern "C" {
 	OPENKIT_EXPORT void destroyOpenKitConfiguration(struct OpenKitConfigurationHandle* configurationHandle);
 
 	///
-	/// Set the default log level that is used when using OpenKit's default logger.
+	/// Set the log level that is used when using OpenKit's default logger.
 	/// @remarks When using a non-default logger, by calling @ref useLoggerForConfiguration, this setting has no effect.
 	/// @param[in] configurationHandle configuration storing the given parameter
 	/// @param[in] defaultLogLevel Log level that is used for OpenKit's default logger.
+	///
 	OPENKIT_EXPORT void useDefaultLogLevelForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, LOG_LEVEL defaultLogLevel);
 
 	///
