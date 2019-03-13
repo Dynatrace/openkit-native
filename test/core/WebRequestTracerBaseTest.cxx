@@ -71,8 +71,8 @@ protected:
 		beaconCache = std::make_shared<caching::BeaconCache>(logger);
 
 		beaconSender = std::make_shared<core::BeaconSender>(logger, configuration, mockHTTPClientProvider, timingProvider);
-		mockBeaconStrict = std::make_shared<testing::StrictMock<test::MockBeacon>>(logger, beaconCache, configuration, core::UTF8String(""), threadIDProvider, timingProvider);	
-		mockBeaconNice = std::make_shared<testing::NiceMock<test::MockBeacon>>(logger, beaconCache, configuration, core::UTF8String(""), threadIDProvider, timingProvider);	
+		mockBeaconStrict = std::make_shared<testing::StrictMock<test::MockBeacon>>(logger, beaconCache, configuration, nullptr, threadIDProvider, timingProvider);	
+		mockBeaconNice = std::make_shared<testing::NiceMock<test::MockBeacon>>(logger, beaconCache, configuration, nullptr, threadIDProvider, timingProvider);	
 
 		action = std::make_shared<core::Action>(logger, mockBeaconNice, core::UTF8String("test action"));
 	}

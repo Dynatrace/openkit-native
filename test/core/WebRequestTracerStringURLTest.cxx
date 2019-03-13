@@ -55,12 +55,13 @@ protected:
 		auto beaconCache = std::make_shared<caching::BeaconCache>(logger);
 
 		logger = std::make_shared<core::util::DefaultLogger>(devNull, openkit::LogLevel::LOG_LEVEL_DEBUG);
-		mockBeacon = std::make_shared<testing::NiceMock<test::MockBeacon>>(logger, beaconCache, configuration, core::UTF8String(""), threadIDProvider, timingProvider);
+		mockBeacon = std::make_shared<testing::NiceMock<test::MockBeacon>>(logger, beaconCache, configuration, nullptr, threadIDProvider, timingProvider);
 	}
 
 	virtual void TearDown() override
 	{
 		logger = nullptr;
+		mockBeacon = nullptr;
 	}
 
 	std::ostringstream devNull;
