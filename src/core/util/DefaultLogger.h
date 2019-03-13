@@ -17,9 +17,9 @@
 #define _UTIL_DEFAULTLOGGER_H
 
 #include "OpenKit/ILogger.h"
+#include "OpenKit/LogLevel.h"
 
-#include <string>
-#include <sstream>
+#include <ostream>
 
 namespace core
 {
@@ -38,21 +38,23 @@ namespace core
 
 			///
 			/// Constructor
-			/// param[in] verbose a flag which is @c true to enable INFO and DEBUG traces
+			/// param[in] logLevel The log level of this logger
 			///
-			DefaultLogger(bool verbose);
+			DefaultLogger(openkit::LogLevel logLevel);
 
 			///
 			/// Constructor to let the default logger write to the provided stream. Intended for unit testing.
 			/// param[in] stream the stream where the default logger shall write to
-			/// param[in] versbose a flag which is @c true to enable INFO and DEBUG traces
+			/// param[in] logLevel The log level of this logger
 			///
-			DefaultLogger(std::ostream &stream, bool verbose);
+			DefaultLogger(std::ostream &stream, openkit::LogLevel logLevel);
 
 			///
 			/// Destructor
 			///
 			virtual ~DefaultLogger() {}
+
+			virtual void log(openkit::LogLevel logLevel, const char* format, ...) override;
 
 			virtual void error(const char* format, ...) override;
 
@@ -82,8 +84,10 @@ namespace core
 			/// The stream to be logged to
 			std::ostream &mStream;
 
-			/// Flag to enable INFO and DEBUG traces
-			bool mVerbose;
+			/// Log level of this Logger instance.
+			/// @remarks Log messages with higher or same priority are logged,
+			/// all others are ignored.
+			openkit::LogLevel mLogLevel;
 		};
 	}
 }

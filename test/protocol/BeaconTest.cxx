@@ -52,7 +52,7 @@ class BeaconTest : public testing::Test
 protected:
 	void SetUp()
 	{
-		logger = std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(devNull, true));
+		logger = std::make_shared<core::util::DefaultLogger>(devNull, openkit::LogLevel::LOG_LEVEL_DEBUG);
 		threadIDProvider = std::make_shared<providers::DefaultThreadIDProvider>();
 		timingProvider = std::make_shared<providers::DefaultTimingProvider>();
 		sessionIDProvider = std::make_shared<providers::DefaultSessionIDProvider>();

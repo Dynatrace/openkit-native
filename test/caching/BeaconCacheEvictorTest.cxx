@@ -31,10 +31,10 @@ using namespace caching;
 
 class BeaconCacheEvictorTest : public testing::Test
 {
-public:
+protected:
 	void SetUp()
 	{
-		mLogger = std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(devNull, true));
+		mLogger = std::make_shared<core::util::DefaultLogger>(devNull, openkit::LogLevel::LOG_LEVEL_DEBUG);
 		mMockBeaconCache = std::shared_ptr<testing::NiceMock<test::MockBeaconCache>>(new testing::NiceMock<test::MockBeaconCache>());
 		mMockStrategyOne = std::shared_ptr<testing::NiceMock<test::MockBeaconCacheEvictionStrategy>>(new testing::NiceMock<test::MockBeaconCacheEvictionStrategy>());
 		mMockStrategyTwo = std::shared_ptr<testing::NiceMock<test::MockBeaconCacheEvictionStrategy>>(new testing::NiceMock<test::MockBeaconCacheEvictionStrategy>());

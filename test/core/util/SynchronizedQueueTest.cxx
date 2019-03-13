@@ -24,7 +24,7 @@ using namespace core::util;
 
 class SynchronizedQueueTest : public testing::Test
 {
-public:
+protected:
 	std::shared_ptr<int32_t> elementOne = std::make_shared<int32_t>(1);
 	std::shared_ptr<int32_t> elementTwo = std::make_shared<int32_t>(1);
 	SynchronizedQueue<std::shared_ptr<int32_t>> synchronizedQueue;

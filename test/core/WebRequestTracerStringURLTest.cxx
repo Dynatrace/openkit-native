@@ -34,7 +34,7 @@ static const char* APP_NAME = "appName";
 
 class WebRequestTracerStringURLTest : public testing::Test
 {
-public:
+protected:
 
 	virtual void SetUp() override
 	{
@@ -54,7 +54,7 @@ public:
 
 		auto beaconCache = std::make_shared<caching::BeaconCache>(logger);
 
-		logger = std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(devNull, true));
+		logger = std::make_shared<core::util::DefaultLogger>(devNull, openkit::LogLevel::LOG_LEVEL_DEBUG);
 		mockBeacon = std::make_shared<testing::NiceMock<test::MockBeacon>>(logger, beaconCache, configuration, core::UTF8String(""), threadIDProvider, timingProvider);
 	}
 

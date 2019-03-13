@@ -23,7 +23,7 @@ using namespace core;
 
 class UTF8StringTest : public testing::Test
 {
-public:
+protected:
 	void SetUp()
 	{
 

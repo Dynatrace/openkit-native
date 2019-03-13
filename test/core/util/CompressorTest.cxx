@@ -25,7 +25,7 @@ using namespace base::util;
 
 class CompressorTest : public testing::Test
 {
-public:
+protected:
 	void SetUp()
 	{
 

@@ -22,7 +22,7 @@ using namespace configuration;
 
 class BeaconCacheConfigurationTest : public testing::Test
 {
-public:
+protected:
 	void SetUp()
 	{
 	}

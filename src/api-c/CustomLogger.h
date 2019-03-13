@@ -43,6 +43,8 @@ namespace apic
 		///
 		virtual ~CustomLogger() {}
 
+		virtual void log(openkit::LogLevel logLevel, const char* format, ...) override;
+
 		virtual void error(const char* format, ...) override;
 
 		virtual void warning(const char* format, ...) override;
@@ -60,6 +62,14 @@ namespace apic
 		virtual bool isDebugEnabled() const override;
 
 	private:
+
+		///
+		/// Translate the C++ log level to C log level
+		/// @param[in] logLevel The C++ log level to translate to C log level.
+		/// @return Translated log level
+		///
+		static LOG_LEVEL cppLogLevelToCLogLevel(openkit::LogLevel logLevel);
+
 		///
 		/// Does the actual logging to the provided function pointer
 		/// param[in] level the log level of the trace statement

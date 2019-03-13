@@ -22,17 +22,16 @@ using namespace protocol;
 
 class ResponseTest : public testing::Test
 {
-public:
+protected:
+
 	void SetUp()
 	{
-		logger = std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(devNull, true));
+		logger = std::make_shared<core::util::DefaultLogger>(devNull, openkit::LogLevel::LOG_LEVEL_DEBUG);
 	}
 
 	void TearDown()
 	{
 	}
-
-protected:
 
 	class TestResponse : public Response
 	{

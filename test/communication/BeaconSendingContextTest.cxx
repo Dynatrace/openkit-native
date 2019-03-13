@@ -35,7 +35,7 @@
 
 class BeaconSendingContextTest : public testing::Test
 {
-public:
+protected:
 
 	BeaconSendingContextTest()
 		: mLogger(nullptr)
@@ -48,7 +48,7 @@ public:
 
 	void SetUp()
 	{
-		mLogger = std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(devNull, true));
+		mLogger = std::make_shared<core::util::DefaultLogger>(devNull, openkit::LogLevel::LOG_LEVEL_DEBUG);
 		mBeaconCacheConfiguration = std::make_shared<configuration::BeaconCacheConfiguration>(-1, -1, -1);
 		mBeaconConfiguration = std::make_shared<configuration::BeaconConfiguration>();
 		mConfiguration = std::shared_ptr<configuration::Configuration>(new configuration::Configuration(std::shared_ptr<configuration::Device>(new configuration::Device("", "", "")),

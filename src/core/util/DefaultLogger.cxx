@@ -19,6 +19,7 @@
 #include <thread>
 #include <chrono>
 #include <ctime>
+#include <iostream>
 #include <sstream>
 #include <iomanip>
 #include <string>
@@ -27,76 +28,103 @@
 using namespace core::util;
 
 DefaultLogger::DefaultLogger()
-	: DefaultLogger(false)
+	: DefaultLogger(openkit::LogLevel::LOG_LEVEL_WARN)
 {
 }
 
-DefaultLogger::DefaultLogger(bool verbose)
-	: DefaultLogger(std::cout, verbose)
+DefaultLogger::DefaultLogger(openkit::LogLevel logLevel)
+	: DefaultLogger(std::cout, logLevel)
 {
 }
 
-DefaultLogger::DefaultLogger(std::ostream &stream, bool verbose)
+DefaultLogger::DefaultLogger(std::ostream &stream, openkit::LogLevel logLevel)
 	: mStream(stream)
-	, mVerbose(verbose)
+	, mLogLevel(logLevel)
 {
+}
+
+void DefaultLogger::log(openkit::LogLevel logLevel, const char* format, ...)
+{
+	if (logLevel < mLogLevel)
+	{
+		return;
+	}
+
+	va_list args;
+	va_start(args, format);
+	doLog(openkit::getLogLevelName(logLevel), format, args);
+	va_end(args);
 }
 
 void DefaultLogger::error(const char *format, ...)
 {
+	if (!isErrorEnabled())
+	{
+		return;
+	}
+
 	va_list args;
 	va_start(args, format);
-	doLog("ERROR", format, args);
+	doLog(openkit::getLogLevelName(openkit::LogLevel::LOG_LEVEL_ERROR), format, args);
 	va_end(args);
 }
 
 void DefaultLogger::warning(const char *format, ...)
 {
+	if (!isWarningEnabled())
+	{
+		return;
+	}
+
 	va_list args;
 	va_start(args, format);
-	doLog("WARN ", format, args);
+	doLog(openkit::getLogLevelName(openkit::LogLevel::LOG_LEVEL_WARN), format, args);
 	va_end(args);
 }
 
 void DefaultLogger::info(const char *format, ...)
 {
-	if (isInfoEnabled())
+	if (!isInfoEnabled())
 	{
-		va_list args;
-		va_start(args, format);
-		doLog("INFO ", format, args);
-		va_end(args);
+		return;
 	}
+
+	va_list args;
+	va_start(args, format);
+	doLog(openkit::getLogLevelName(openkit::LogLevel::LOG_LEVEL_INFO), format, args);
+	va_end(args);
 }
 
 void DefaultLogger::debug(const char *format, ...)
 {
-	if (isDebugEnabled())
+	if (!isDebugEnabled())
 	{
-		va_list args;
-		va_start(args, format);
-		doLog("DEBUG", format, args);
-		va_end(args);
+		return;
 	}
+
+	va_list args;
+	va_start(args, format);
+	doLog(openkit::getLogLevelName(openkit::LogLevel::LOG_LEVEL_DEBUG), format, args);
+	va_end(args);
 }
 
 bool DefaultLogger::isErrorEnabled() const
 {
-	return true;
+	return openkit::LogLevel::LOG_LEVEL_ERROR >= mLogLevel;
 }
 bool DefaultLogger::isWarningEnabled() const
 {
-	return true;
+	return openkit::LogLevel::LOG_LEVEL_WARN >= mLogLevel;
 }
 
 bool DefaultLogger::isInfoEnabled() const
 {
-	return mVerbose;
+	return openkit::LogLevel::LOG_LEVEL_INFO >= mLogLevel;
 }
 
 bool DefaultLogger::isDebugEnabled() const
 {
-	return mVerbose;
+	return openkit::LogLevel::LOG_LEVEL_DEBUG >= mLogLevel;
 }
 
 void DefaultLogger::doLog(const char * level, const char* format, va_list args)

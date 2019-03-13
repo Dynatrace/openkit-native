@@ -29,7 +29,7 @@
 
 class BeaconSendingCaptureOnStateTest : public testing::Test
 {
-public:
+protected:
 
 	BeaconSendingCaptureOnStateTest()
 		: mLogger(nullptr)
@@ -46,7 +46,7 @@ public:
 
 	void SetUp()
 	{
-		mLogger = std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(devNull, true));
+		mLogger = std::make_shared<core::util::DefaultLogger>(devNull, openkit::LogLevel::LOG_LEVEL_DEBUG);
 		mMockSession1Open = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>(mLogger));
 		mMockSession2Open = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>(mLogger));
 		mMockSession3Finished = std::shared_ptr<testing::NiceMock<test::MockSession>>(new testing::NiceMock<test::MockSession>(mLogger));

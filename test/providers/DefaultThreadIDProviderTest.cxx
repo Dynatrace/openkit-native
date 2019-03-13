@@ -23,7 +23,7 @@ using namespace providers;
 
 class DefaultThreadIDProviderTest : public testing::Test
 {
-public:
+protected:
 	DefaultThreadIDProvider provider;
 };
 

@@ -24,6 +24,14 @@ CustomLogger::CustomLogger(levelEnabledFunc levelEnabledFunc, logFunc logFunc)
 {
 }
 
+void CustomLogger::log(openkit::LogLevel logLevel, const char* format, ...)
+{
+	va_list args;
+	va_start(args, format);
+	doLog(CustomLogger::cppLogLevelToCLogLevel(logLevel), format, args);
+	va_end(args);
+}
+
 void CustomLogger::error(const char *format, ...)
 {
 	va_list args;
@@ -79,6 +87,23 @@ bool CustomLogger::isInfoEnabled() const
 bool CustomLogger::isDebugEnabled() const
 {
 	return mLevelEnabledFunc(LOG_LEVEL::LOGLEVEL_DEBUG);
+}
+
+LOG_LEVEL CustomLogger::cppLogLevelToCLogLevel(openkit::LogLevel logLevel)
+{
+	switch (logLevel)
+	{
+	case openkit::LogLevel::LOG_LEVEL_DEBUG:
+		return LOGLEVEL_DEBUG;
+	case openkit::LogLevel::LOG_LEVEL_INFO:
+		return LOGLEVEL_INFO;
+	case openkit::LogLevel::LOG_LEVEL_WARN:
+		return LOGLEVEL_WARN;
+	case openkit::LogLevel::LOG_LEVEL_ERROR:
+		return LOGLEVEL_ERROR;
+	default:
+		return LOGLEVEL_WARN;
+	}
 }
 
 void CustomLogger::doLog(LOG_LEVEL level, const char* format, va_list args)

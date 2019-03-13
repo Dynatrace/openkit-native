@@ -44,7 +44,7 @@ public:
 
 class TimeEvictionStrategyTest : public testing::Test
 {
-public:
+protected:
 	TimeEvictionStrategyTest()
 		: mLogger(nullptr)
 		, mMockBeaconCache()
@@ -54,7 +54,7 @@ public:
 
 	void SetUp()
 	{
-		mLogger = std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(devNull, true));
+		mLogger = std::make_shared<core::util::DefaultLogger>(devNull, openkit::LogLevel::LOG_LEVEL_DEBUG);
 		mMockBeaconCache = std::shared_ptr<testing::NiceMock<test::MockBeaconCache>>(new testing::NiceMock<test::MockBeaconCache>());
 		mMockTimingProvider = std::shared_ptr<testing::NiceMock<test::MockTimingProvider>>(new testing::NiceMock<test::MockTimingProvider>());
 	}
@@ -71,6 +71,7 @@ public:
 	std::shared_ptr<testing::NiceMock<test::MockBeaconCache>> mMockBeaconCache;
 	std::shared_ptr<testing::NiceMock<test::MockTimingProvider>> mMockTimingProvider;
 
+public:
 	
 	bool mockedIsAliveFunctionAlwaysTrue()
 	{
@@ -172,7 +173,7 @@ TEST_F(TimeEvictionStrategyTest, executeEvictionLogsAMessageOnceAndReturnsIfStra
 {
 	// given
 	std::ostringstream oss;
-	auto logger = std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(oss, true));
+	auto logger = std::make_shared<core::util::DefaultLogger>(oss, openkit::LogLevel::LOG_LEVEL_DEBUG);
 	auto configuration = std::make_shared<BeaconCacheConfiguration>(0L, 1000L, 2000L);
 	TimeEvictionStrategy target(logger, mMockBeaconCache, configuration, mMockTimingProvider, std::bind(&TimeEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this));
 
@@ -196,7 +197,7 @@ TEST_F(TimeEvictionStrategyTest, executeEvictionDoesNotLogIfStrategyIsDisabledAn
 {
 	// given
 	std::ostringstream oss;
-	auto logger = std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(oss, false));
+	auto logger = std::make_shared<core::util::DefaultLogger>(oss, openkit::LogLevel::LOG_LEVEL_WARN);
 	auto configuration = std::make_shared<BeaconCacheConfiguration>(0L, 1000L, 2000L);
 	TimeEvictionStrategy target(logger, mMockBeaconCache, configuration, mMockTimingProvider, std::bind(&TimeEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this));
 
@@ -293,7 +294,7 @@ TEST_F(TimeEvictionStrategyTest, executeEvictionLogsTheNumberOfRecordsRemoved)
 {
 	// given
 	std::ostringstream oss;
-	auto logger = std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(oss, true));
+	auto logger = std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(oss, openkit::LogLevel::LOG_LEVEL_DEBUG));
 	auto mockBeaconCache = std::shared_ptr<testing::NiceMock<test::MockBeaconCache>>(new testing::NiceMock<test::MockBeaconCache>());
 	auto mockTimingProvider = std::shared_ptr<testing::NiceMock<test::MockTimingProvider>>(new testing::NiceMock<test::MockTimingProvider>());
 	auto configuration = std::make_shared<BeaconCacheConfiguration>(1000L, 1000L, 2000L);
@@ -326,7 +327,7 @@ TEST_F(TimeEvictionStrategyTest, executeEvictionIsStoppedIfThreadGetsInterrupted
 	auto mockBeaconCache = std::shared_ptr<testing::StrictMock<test::MockBeaconCache>>(new testing::StrictMock<test::MockBeaconCache>());
 	auto mockTimingProvider = std::shared_ptr<testing::StrictMock<test::MockTimingProvider>>(new testing::StrictMock<test::MockTimingProvider>());
 	auto configuration = std::make_shared<BeaconCacheConfiguration>(1000L, 1000L, 2000L);
-	auto mockIsAlive = std::shared_ptr<testing::NiceMock<MockIsAlive>>(new testing::NiceMock<MockIsAlive>());
+	auto mockIsAlive = std::make_shared<testing::NiceMock<MockIsAlive>>();
 	TimeEvictionStrategy target(mLogger, mockBeaconCache, configuration, mockTimingProvider, std::bind(&MockIsAlive::isAlive, mockIsAlive));
 	uint32_t callCountIsAlive = 0;
 	ON_CALL(*mockIsAlive, isAlive())

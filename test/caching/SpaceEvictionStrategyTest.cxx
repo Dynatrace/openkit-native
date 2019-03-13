@@ -43,7 +43,7 @@ public:
 
 class SpaceEvictionStrategyTest : public testing::Test
 {
-public:
+protected:
 	SpaceEvictionStrategyTest()
 		: mLogger(nullptr)
 		, mMockBeaconCache()
@@ -52,7 +52,7 @@ public:
 
 	void SetUp()
 	{
-		mLogger = std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(devNull, true));
+		mLogger = std::make_shared<core::util::DefaultLogger>(devNull, openkit::LogLevel::LOG_LEVEL_DEBUG);
 		mMockBeaconCache = std::shared_ptr<testing::NiceMock<test::MockBeaconCache>>(new testing::NiceMock<test::MockBeaconCache>());
 	}
 
@@ -65,6 +65,8 @@ public:
 	std::ostringstream devNull;
 	std::shared_ptr<openkit::ILogger> mLogger;
 	std::shared_ptr<testing::NiceMock<test::MockBeaconCache>> mMockBeaconCache;
+
+public:
 
 	bool mockedIsAliveFunctionAlwaysTrue()
 	{
@@ -158,7 +160,7 @@ TEST_F(SpaceEvictionStrategyTest, executeEvictionLogsAMessageOnceAndReturnsIfStr
 {
 	// given
 	std::ostringstream oss;
-	auto logger = std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(oss, true));
+	auto logger = std::make_shared<core::util::DefaultLogger>(oss, openkit::LogLevel::LOG_LEVEL_DEBUG);
 	auto configuration = std::make_shared<BeaconCacheConfiguration>(1000L, 1000L, -1L);
 	SpaceEvictionStrategy target(logger, mMockBeaconCache, configuration, std::bind(&SpaceEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this));
 
@@ -182,7 +184,7 @@ TEST_F(SpaceEvictionStrategyTest, executeEvictionDoesNotLogIfStrategyIsDisabledA
 {
 	// given
 	std::ostringstream oss;
-	auto logger = std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(oss, false));
+	auto logger = std::make_shared<core::util::DefaultLogger>(oss, openkit::LogLevel::LOG_LEVEL_WARN);
 	auto configuration = std::make_shared<BeaconCacheConfiguration>(1000L, 1000L, -1L);
 	SpaceEvictionStrategy target(logger, mMockBeaconCache, configuration, std::bind(&SpaceEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this));
 
@@ -227,7 +229,7 @@ TEST_F(SpaceEvictionStrategyTest, executeEvictionLogsEvictionResultIfDebugIsEnab
 {
 	// given
 	std::ostringstream oss;
-	auto logger = std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(oss, true));
+	auto logger = std::make_shared<core::util::DefaultLogger>(oss, openkit::LogLevel::LOG_LEVEL_DEBUG);
 	auto configuration = std::make_shared<BeaconCacheConfiguration>(1000L, 1000L, 2000L);
 	SpaceEvictionStrategy target(logger, mMockBeaconCache, configuration, std::bind(&SpaceEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this));
 
@@ -258,7 +260,7 @@ TEST_F(SpaceEvictionStrategyTest, executeEvictionDoesNotLogEvictionResultIfDebug
 {
 	// given
 	std::ostringstream oss;
-	auto logger = std::shared_ptr<openkit::ILogger>(new core::util::DefaultLogger(oss, false));
+	auto logger = std::make_shared<core::util::DefaultLogger>(oss, openkit::LogLevel::LOG_LEVEL_WARN);
 	auto configuration = std::make_shared<BeaconCacheConfiguration>(1000L, 1000L, 2000L);
 	SpaceEvictionStrategy target(logger, mMockBeaconCache, configuration, std::bind(&SpaceEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this));
 

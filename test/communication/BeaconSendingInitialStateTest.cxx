@@ -28,7 +28,7 @@
 
 class BeaconSendingInitialStateTest : public testing::Test
 {
-public:
+protected:
 
 	BeaconSendingInitialStateTest()
 		: mLogger(nullptr)

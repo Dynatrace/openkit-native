@@ -18,12 +18,11 @@
 #define _OPENKIT_ILOGGER_H
 
 #include "OpenKit_export.h"
-
-#include <iostream>
+#include "OpenKit/LogLevel.h"
 
 // The GNU C compiler allows attaching characteristics to function declarations to allow the compiler to perform additional error checking.
 #ifndef __GNUC__
-// For the MSC compiler we define the __attribute__ empty
+// For the MSVC compiler we define the __attribute__ empty
  #define __attribute__(x)
 #endif
 
@@ -61,19 +60,22 @@ namespace openkit
 	class OPENKIT_EXPORT ILogger
 	{
 	public:
-		enum class LogLevel
-		{
-			LOGLEVEL_DEBUG = 0,
-			LOGLEVEL_INFO  = 1,
-			LOGLEVEL_WARN  = 2,
-			LOGLEVEL_ERROR = 3,
-		};
 
 		///
 		/// Destructor
 		///
 		virtual ~ILogger() {}
-
+		
+		///
+		/// Log an event with given level.
+		/// Without the additional compiler checks, the function declaration is:
+		/// void log(LogLevel logLevel, const char* format, ...);
+		/// @param[in] logLevel The log level that is used to log this event
+		/// @param[in] format the message string in a printf formatted way with parameters to be passed via varargs
+		/// @param[in] ... variadic list of additional arguments
+		///
+		virtual void log(LogLevel logLevel, FORMAT_STRING(const char* format), ...) __attribute__((format(printf, 3, 4))) = 0;
+		
 		///
 		/// Log with level 'error'.
 		/// Without the additional compiler checks, the function declaration is:

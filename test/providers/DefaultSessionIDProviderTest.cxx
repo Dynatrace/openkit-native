@@ -22,7 +22,7 @@ using namespace providers;
 
 class DefaultSessionIDProviderTest : public testing::Test
 {
-public:
+protected:
 
 	void SetUp()
 	{
