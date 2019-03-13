@@ -103,12 +103,12 @@ std::shared_ptr<openkit::ISession> OpenKit::createSession(const char* clientIPAd
 	{
 		mLogger->debug("OpenKit createSession(%s)", clientIPAddress != nullptr ? clientIPAddress : "null");
 	}
-	if (mIsShutdown == 1 || clientIPAddress == nullptr || strlen(clientIPAddress) == 0)
+	if (mIsShutdown)
 	{
 		return NULL_SESSION;
 	}
 
-	std::shared_ptr<protocol::Beacon> beacon = std::make_shared<protocol::Beacon>(mLogger, mBeaconCache, mConfiguration, clientIPAddress, mThreadIDProvider, mTimingProvider);
+	auto beacon = std::make_shared<protocol::Beacon>(mLogger, mBeaconCache, mConfiguration, clientIPAddress, mThreadIDProvider, mTimingProvider);
 	auto newSession = std::make_shared<core::Session>(mLogger, mBeaconSender, beacon);
 	newSession->startSession();
 	return newSession;

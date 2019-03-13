@@ -304,6 +304,7 @@ function(build_open_kit)
 
     # add version & soversion target properties
     if (BUILD_SHARED_LIBS AND NOT MSVC)
+        target_compile_options(OpenKit PUBLIC -Wno-attributes)
         set_target_properties(OpenKit PROPERTIES
                               VERSION "${OPENKIT_MAJOR_VERSION}.${OPENKIT_MINOR_VERSION}.${OPENKIT_BUGFIX_VERSION}.${OPENKIT_BUILD_VERSION}"
                               SOVERSION "${OPENKIT_MAJOR_VERSION}")
