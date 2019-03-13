@@ -35,7 +35,7 @@ namespace test {
 	class MockBeacon : public protocol::Beacon
 	{
 	public:
-		MockBeacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching::BeaconCache> beaconCache, std::shared_ptr<configuration::Configuration> configuration, const core::UTF8String clientIPAddress, std::shared_ptr<providers::IThreadIDProvider> threadIDProvider, std::shared_ptr<providers::ITimingProvider> timingProvider)
+		MockBeacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching::BeaconCache> beaconCache, std::shared_ptr<configuration::Configuration> configuration, const char* clientIPAddress, std::shared_ptr<providers::IThreadIDProvider> threadIDProvider, std::shared_ptr<providers::ITimingProvider> timingProvider)
 			: Beacon(logger, beaconCache, configuration, clientIPAddress, threadIDProvider, timingProvider)
 		{
 
