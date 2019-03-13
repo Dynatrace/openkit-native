@@ -28,12 +28,12 @@
 
 using namespace protocol;
 
-Beacon::Beacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching::IBeaconCache> beaconCache, std::shared_ptr<configuration::Configuration> configuration, const core::UTF8String clientIPAddress, std::shared_ptr<providers::IThreadIDProvider> threadIDProvider, std::shared_ptr<providers::ITimingProvider> timingProvider)
+Beacon::Beacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching::IBeaconCache> beaconCache, std::shared_ptr<configuration::Configuration> configuration, const char* clientIPAddress, std::shared_ptr<providers::IThreadIDProvider> threadIDProvider, std::shared_ptr<providers::ITimingProvider> timingProvider)
 	: Beacon(logger, beaconCache, configuration, clientIPAddress, threadIDProvider, timingProvider, std::make_shared<providers::DefaultPRNGenerator>())
 {
 }
 
-Beacon::Beacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching::IBeaconCache> beaconCache, std::shared_ptr<configuration::Configuration> configuration, const core::UTF8String clientIPAddress, std::shared_ptr<providers::IThreadIDProvider> threadIDProvider, std::shared_ptr<providers::ITimingProvider> timingProvider, std::shared_ptr<providers::IPRNGenerator> randomGenerator)
+Beacon::Beacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching::IBeaconCache> beaconCache, std::shared_ptr<configuration::Configuration> configuration, const char* clientIPAddress, std::shared_ptr<providers::IThreadIDProvider> threadIDProvider, std::shared_ptr<providers::ITimingProvider> timingProvider, std::shared_ptr<providers::IPRNGenerator> randomGenerator)
 	: mLogger(logger)
 	, mConfiguration(configuration)
 	, mClientIPAddress(core::UTF8String(""))
@@ -50,15 +50,21 @@ Beacon::Beacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching
 	, mDeviceID("")
 	, mRandomGenerator(randomGenerator)
 {
-	if (core::util::InetAddressValidator::IsValidIP(clientIPAddress))
+	core::UTF8String internalClientIPAddress(clientIPAddress);
+	if (clientIPAddress == nullptr)
 	{
-		mClientIPAddress = clientIPAddress;
+		// A client IP address, which is a nullptr, is valid.
+		// The real IP address is determined on the server side.
+	}
+	else if (core::util::InetAddressValidator::IsValidIP(internalClientIPAddress))
+	{
+		mClientIPAddress = internalClientIPAddress;
 	}
 	else
 	{
 		if (logger->isWarningEnabled())
 		{
-			logger->warning("Beacon() - Client IP address validation failed: %s", clientIPAddress.getStringData().c_str());
+			logger->warning("Beacon() - Client IP address validation failed: %s", internalClientIPAddress.getStringData().c_str());
 		}
 	}
 
@@ -579,4 +585,9 @@ void Beacon::setBeaconConfiguration(std::shared_ptr<configuration::BeaconConfigu
 std::shared_ptr<configuration::BeaconConfiguration> Beacon::getBeaconConfiguration() const
 {
 	return std::atomic_load(&mBeaconConfiguration);
+}
+
+const core::UTF8String& Beacon::getClientIPAddress() const
+{
+	return mClientIPAddress;
 }

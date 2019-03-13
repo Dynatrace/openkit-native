@@ -86,6 +86,11 @@ protected:
 
 	std::shared_ptr<protocol::Beacon> buildBeacon(openkit::DataCollectionLevel dl, openkit::CrashReportingLevel cl, const core::UTF8String& deviceID, const core::UTF8String& appID)
 	{
+		return buildBeacon(dl, cl, deviceID, appID, "127.0.0.1");
+	}
+
+	std::shared_ptr<protocol::Beacon> buildBeacon(openkit::DataCollectionLevel dl, openkit::CrashReportingLevel cl, const core::UTF8String& deviceID, const core::UTF8String& appID, const char* clientIPAddress)
+	{
 		auto beaconConfiguration = std::make_shared<configuration::BeaconConfiguration>(configuration::BeaconConfiguration::DEFAULT_MULTIPLICITY, dl, cl);
 
 		configuration = std::make_shared<configuration::Configuration>(device, configuration::OpenKitType::Type::DYNATRACE,
@@ -93,7 +98,7 @@ protected:
 			sessionIDProviderMock, trustManager, beaconCacheConfiguration, beaconConfiguration);
 		configuration->enableCapture();
 
-		return std::make_shared<protocol::Beacon>(logger, beaconCache, configuration, core::UTF8String(""), threadIDProvider, mockTimingProvider, randomGeneratorMock);
+		return std::make_shared<protocol::Beacon>(logger, beaconCache, configuration, clientIPAddress, threadIDProvider, mockTimingProvider, randomGeneratorMock);
 	}
 
 	std::shared_ptr<testing::NiceMock<test::MockWebRequestTracer>> createMockedWebRequestTracer(std::shared_ptr<protocol::Beacon> beacon)
@@ -993,4 +998,40 @@ TEST_F(BeaconTest, sessionStartIsReportedForDataCollectionLevel2)
 
 	//then
 	ASSERT_FALSE(target->isEmpty());
+}
+
+TEST_F(BeaconTest, clientIPAddressCanBeANullptr)
+{
+	//given
+	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF, core::UTF8String(DEVICE_ID), core::UTF8String(APP_ID), nullptr);
+	
+	// when, then
+	ASSERT_EQ(0, target->getClientIPAddress().getStringLength());
+}
+
+TEST_F(BeaconTest, clientIPAddressCanBeAnEmptyString)
+{
+	//given
+	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF, core::UTF8String(DEVICE_ID), core::UTF8String(APP_ID), "");
+
+	// when, then
+	ASSERT_EQ(0, target->getClientIPAddress().getStringLength());
+}
+
+TEST_F(BeaconTest, validClientIpIsStored)
+{
+	//given
+	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF, core::UTF8String(DEVICE_ID), core::UTF8String(APP_ID), "127.0.0.1");
+
+	// when, then
+	ASSERT_STREQ("127.0.0.1", target->getClientIPAddress().getStringData().c_str());
+}
+
+TEST_F(BeaconTest, invalidClientIPIsConvertedToEmptyString)
+{
+	//given
+	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF, core::UTF8String(DEVICE_ID), core::UTF8String(APP_ID), "asdf");
+
+	// when, then
+	ASSERT_EQ(0, target->getClientIPAddress().getStringLength());
 }
