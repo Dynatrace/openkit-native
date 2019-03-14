@@ -53,7 +53,7 @@ namespace protocol
 		/// @param[in] timingProvider timing provider used to retrieve timestamps
 		///
 		Beacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching::IBeaconCache> beaconCache,
-			std::shared_ptr<configuration::Configuration> configuration, const core::UTF8String clientIPAddress,
+			std::shared_ptr<configuration::Configuration> configuration, const char* clientIPAddress,
 			std::shared_ptr<providers::IThreadIDProvider> threadIDProvider,
 			std::shared_ptr<providers::ITimingProvider> timingProvider);
 
@@ -68,7 +68,7 @@ namespace protocol
 		/// @param[in] randomGenerator random number generator
 		///
 		Beacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching::IBeaconCache> beaconCache,
-			std::shared_ptr<configuration::Configuration> configuration, const core::UTF8String clientIPAddress, 
+			std::shared_ptr<configuration::Configuration> configuration, const char* clientIPAddress,
 			std::shared_ptr<providers::IThreadIDProvider> threadIDProvider , 
 			std::shared_ptr<providers::ITimingProvider> timingProvider, 
 			std::shared_ptr<providers::IPRNGenerator> randomGenerator);
@@ -237,13 +237,13 @@ namespace protocol
 
 		///
 		/// Returns the session number.
-		/// @return session number
+		/// @returns session number
 		///
 		int32_t getSessionNumber() const;
 
 		///
 		/// Returns the device id
-		/// @return device id
+		/// @returns device id
 		///
 		const core::UTF8String& getDeviceID() const;
 
@@ -259,6 +259,12 @@ namespace protocol
 		///
 		std::shared_ptr<configuration::BeaconConfiguration> getBeaconConfiguration() const;
 
+		///
+		/// Get the client IP address.
+		/// @returns The client's IP address.
+		///
+		const core::UTF8String& getClientIPAddress() const;
+
 	private:
 		///
 		/// Serialization helper method for creating basic beacon protocol data.
@@ -268,13 +274,13 @@ namespace protocol
 
 		///
 		/// Serialization helper method for creating basic event data
-		/// @return Serialized data
+		/// @returns Serialized data
 		///
 		core::UTF8String createBasicEventData(EventType eventType, const core::UTF8String& eventName);
 
 		///
 		/// Serialization helper method for creating basic timestamp data.
-		/// @return Serialized data
+		/// @returns Serialized data
 		///
 		core::UTF8String createTimestampData();
 
@@ -284,7 +290,7 @@ namespace protocol
 		/// @param[in] name Event name
 		/// @param[in] parentActionID The ID of the action on which this event was reported.
 		/// @param[inout] eventTimestamp uint64_t var that will be filled with the event timestamp
-		/// @return The timestamp associated with the event(timestamp since session start time).
+		/// @returns The timestamp associated with the event(timestamp since session start time).
 		///
 		core::UTF8String buildEvent(EventType eventType, const core::UTF8String& name, int32_t parentActionID, uint64_t& eventTimestamp);
 
@@ -342,7 +348,7 @@ namespace protocol
 		///
 		/// Get a timestamp relative to the time this session (aka. beacon) was created.
 		/// @param[in] timestamp The absolute timestamp for which to get a relative one.
-		/// @return relative timestamp
+		/// @returns relative timestamp
 		///
 		int64_t getTimeSinceSessionStartTime(int64_t timestamp);
 
@@ -369,7 +375,7 @@ namespace protocol
 
 		///
 		/// Generate multiplicity data
-		/// @return the multiplicity data
+		/// @returns the multiplicity data
 		///
 		core::UTF8String createMultiplicityData();
 
