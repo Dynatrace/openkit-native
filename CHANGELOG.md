@@ -1,8 +1,16 @@
 # OpenKit Native ( C/C++ ) Changelog
 
-## [Unreleased](https://github.com/Dynatrace/openkit-native/compare/v1.0.3...release/1.0)
+## [Unreleased](https://github.com/Dynatrace/openkit-native/compare/v1.0.4...release/1.0)
 
-## 1.0.3 [Release date: 2018-12-20]
+## 1.0.4 [Release date: 2019-03-14]
+[GitHub Releases](https://github.com/Dynatrace/openkit-native/releases/tag/v1.0.4)
+
+### Changed
+- OpenKit::createSession method accepts nullptr as IP address  
+  In case nullptr is passed, the IP is determined on the server side.
+- Reduce warnings when building on Linux
+
+## 1.0.3 [Release date: 2019-02-20]
 [GitHub Releases](https://github.com/Dynatrace/openkit-native/releases/tag/v1.0.3)
 
 ### Changed
