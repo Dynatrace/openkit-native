@@ -70,8 +70,8 @@ public:
 		beaconCache = std::make_shared<caching::BeaconCache>(logger);
 
 		mockBeaconSender = std::make_shared<testing::StrictMock<test::MockBeaconSender>>(logger, configuration, mockHTTPClientProvider, timingProvider);
-		mockBeaconStrict = std::make_shared<testing::StrictMock<test::MockBeacon>>(logger, beaconCache, configuration, core::UTF8String(""), threadIDProvider, timingProvider);	
-		mockBeaconNice = std::make_shared<testing::NiceMock<test::MockBeacon>>(logger, beaconCache, configuration, core::UTF8String(""), threadIDProvider, timingProvider);	
+		mockBeaconStrict = std::make_shared<testing::StrictMock<test::MockBeacon>>(logger, beaconCache, configuration, nullptr, threadIDProvider, timingProvider);	
+		mockBeaconNice = std::make_shared<testing::NiceMock<test::MockBeacon>>(logger, beaconCache, configuration, nullptr, threadIDProvider, timingProvider);
 	}
 
 	void TearDown()
