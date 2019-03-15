@@ -10,6 +10,11 @@
 - Remove "Enable minimal rebuild" compiler flag (MSVC only)
   In recent MSVC compilers this flag got marked as deprecated
 - BeaconSender thread was stopped too early and did not flush sessions
+- Fixed problem with infinite time sync requests  
+  This problem occurred mainly in AppMon settings.
+- OpenKit::createSession method accepts nullptr as IP address  
+  In case nullptr is passed, the IP is determined on the server side.
+- Reduce warnings when building on Linux
 
 ## 1.1.0 [Release date: 2018-10-25]
 [GitHub Releases](https://github.com/Dynatrace/openkit-native/releases/tag/v1.1.0)
