@@ -129,7 +129,7 @@ When an `IRootAction` or `IAction` is no longer required, it's highly recommende
 
 When the application developer wants to trace a web request, which is served by a service 
 instrumented by Dynatrace, an `IWebRequestTracer` should be used, which can be
-requested from a `ISession` or an `IAction`.
+requested from an `ISession` or an `IAction`.
 
 ### Named Events
 
@@ -143,7 +143,7 @@ and the value may be an Integer (`int32_t`), a floating point (`double`) or a UT
 ### Errors & Crashes
 
 Errors are a way to report an erroneous condition on an `IAction`.  
-Crashes are used to report (unhandled) exceptions on a `ISession`.
+Crashes are used to report (unhandled) exceptions on an `ISession`.
 
 ### Identify Users
 
