@@ -92,6 +92,11 @@ developer using OpenKit's API is responsible for appropriate encoding.
 When OpenKit encounters invalid characters in the passed `const char*` they are
 replaced using the Unicode Replacement Character (`U+FFFD`) in the internal copy.
 
+### DynatraceOpenKitBuilder / AppMonOpenKitBuilder
+A `DynatraceOpenKitBuilder`/`AppMonOpenKitBuilder` instance is responsible for setting 
+application relevant information, e.g. the application's version and device specific information, and to create
+an `IOpenKit` instance.
+
 ### OpenKit
  
 An `IOpenKit` instance is responsible for creating user sessions (see `ISession`).
@@ -106,7 +111,7 @@ On application shutdown, `shutdown()` needs to be called on the `IOpenKit` insta
 
 An `ISession` represents kind of a user session, similar to a browser session in a web application.
 However the application developer is free to choose how to treat an `ISession`.  
-The `ISession` is used to create `IRootAction` instances and report application crashes.  
+The `ISession` is used to create `IRootAction` instances, report application crashes and can be used for tracing web requests.
 
 When an `ISession` is no longer required, it's highly recommended to end it, using the `ISession::end()` method. 
 
@@ -114,14 +119,17 @@ When an `ISession` is no longer required, it's highly recommended to end it, usi
 
 The `IRootAction` and `IAction` are named hierarchical nodes for timing and attaching further details.
 An `IRootAction` is created from the `ISession` and it can create `IAction` instances.
-Both, `IRootAction` and `IAction`, provide the possibility to attach key-value pairs, named events and errors, and are used 
+Both, `IRootAction` and `IAction`, provide the possibility to attach key-value pairs, named events and errors, and can be used 
 for tracing web requests.
+
+When an `IRootAction` or `IAction` is no longer required, it's highly recommended to close it, using the `IAction::leaveAction()` or
+`IRootAction::leaveAction()` method.
 
 ### WebRequestTracer
 
 When the application developer wants to trace a web request, which is served by a service 
 instrumented by Dynatrace, an `IWebRequestTracer` should be used, which can be
-requested from an `IAction`.  
+requested from a `ISession` or an `IAction`.
 
 ### Named Events
 
