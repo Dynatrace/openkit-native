@@ -12,17 +12,17 @@ def compilers = [:]
 compilers["gcc"] = "CXX=/usr/bin/c++ CC=/usr/bin/cc"
 compilers["clang"] = "CXX=/usr/bin/clang++ CC=/usr/bin/clang"
 
-buildCommands.each{
-    compilers.each{compiler -> 
+buildCommands.each {
+    compilers.each {compiler ->
         builds[compiler.key + " " + it] = {
             node("openkit-ubuntu-native") {
                 checkout scm
             
-                dir('build') {
+                dir('public/build') {
                     deleteDir()
                 }
             
-                dir('build') {
+                dir('public/build') {
                     sh("${compiler.value} cmake -G${it}")
                     sh("${compiler.value} make clean all -j8")
                     try {
