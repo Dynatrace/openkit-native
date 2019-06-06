@@ -47,7 +47,9 @@ namespace openkit
 		///
 		/// @param[in] responseCode response code of this web request
 		/// @returns pointer to this WebRequestTracer instance that can be used for a fluent-API call
+		/// @deprecated use stop(int32_t) instead
 		///
+		OPENKIT_DEPRECATED
 		virtual std::shared_ptr<IWebRequestTracer> setResponseCode(int32_t responseCode) = 0;
 
 		///
@@ -73,8 +75,16 @@ namespace openkit
 
 		///
 		/// Stops the web request timing. Should be called when the web request is finished.
+		/// @deprectated use stop(int32_t) instead
 		///
+		OPENKIT_DEPRECATED
 		virtual void stop() = 0;
+
+		///
+		/// Stops the web request timing with the given response code. Should be called when the web request is finished.
+		/// @param[in] responseCode response code of this web request
+		///
+		virtual void stop(int32_t responseCode) = 0;
 	};
 }
 #endif

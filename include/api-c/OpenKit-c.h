@@ -33,7 +33,7 @@ extern "C" {
 
 	//
 	// Note:
-	// The OpenKit comes with a default logger printing trace statements to stdout. 
+	// The OpenKit comes with a default logger printing trace statements to stdout.
 	// This default logger can be replaced with a user provided logger. To achieve this,
 	// the OpenKit user must call @ref createLogger and provide two function pointers:
 	// One funtion pointer to a check function if the provided log level is enabled and
@@ -64,9 +64,9 @@ extern "C" {
 	/// Function to check if the provided log level is enabled. Called before each trace statement
 	typedef bool (*levelEnabledFunc)(LOG_LEVEL /* logLevel */);
 
-	/// Function to perform the log. The 
+	/// Function to perform the log. The
 	typedef void (*logFunc)(LOG_LEVEL /* logLevel */, const char* /* traceStatement */);
-	
+
 	/// An opaque type that we'll use as a handle
 	struct LoggerHandle;
 
@@ -96,7 +96,7 @@ extern "C" {
 
 	/// destroy a trust manager
 	OPENKIT_EXPORT void destroyTrustManager(struct TrustManagerHandle* trustManagerHandle);
-	
+
 	//--------------
 	//  Configuration
 	//--------------
@@ -235,7 +235,7 @@ extern "C" {
 	struct OpenKitHandle;
 
 	///
-	/// Creates an OpenKit instance for Dynatrace Saas/Managed 
+	/// Creates an OpenKit instance for Dynatrace Saas/Managed
 	/// @param[in] configurationHandle configuration object
 	/// @return OpenKit instance handle to work with
 	///
@@ -260,7 +260,7 @@ extern "C" {
 	///
 	/// The calling thread is blocked until OpenKit is fully initialized or until OpenKit is shut down using the
 	/// shutdown() method.
-	/// 
+	///
 	/// Be aware, if @ref openkit::AbstractOpenKitBuilder is wrongly configured, for example when creating an
 	/// instance with an incorrect endpoint URL, then this method might hang indefinitely, unless shutdown() is called.
 	///
@@ -274,7 +274,7 @@ extern "C" {
 	///
 	/// The calling thread is blocked until OpenKit is fully initialized or until OpenKit is shut down using the
 	/// shutdown() method or the timeout expired.
-	/// 
+	///
 	/// Be aware, if @ref openkit::AbstractOpenKitBuilder is wrongly configured, for example when creating an
 	/// instance with an incorrect endpoint URL, then this method might hang indefinitely, unless shutdown() is called
 	/// or timeout expires.
@@ -339,7 +339,7 @@ extern "C" {
 
 	/// An opaque type that we'll use as a handle
 	struct RootActionHandle;
-	
+
 	///
 	/// Enters a root action with a specified name in this session.
 	/// @param[in] sessionHandle the handle returned by @ref createSession
@@ -528,8 +528,18 @@ extern "C" {
 	/// Stops the web request timing. Should be called when the web request is finished.
 	/// After calling @c stop the webRequestTracerHandle is released and must not be used any more.
 	/// @param[in] webRequestTracerHandle the handle returned by @ref traceWebRequestOnRootAction or @ref traceWebRequestOnAction
+	/// @deprecated use stopWebRequest(struct WebRequestTracerHandle*, int32_t) instead
 	///
+	OPENKIT_DEPRECATED
 	OPENKIT_EXPORT void stopWebRequest(struct WebRequestTracerHandle* webRequestTracerHandle);
+
+	///
+	/// Stops the web request timing with the given respone code. Should be called when the web request is finished.
+	/// After calling @c stop the webRequestTracerHandle is released and must not be used any more.
+	/// @param[in] webRequestTracerHandle the handle returned by @ref traceWebRequestOnRootAction or @ref traceWebRequestOnAction
+	/// @param[in] responseCode response code of this web request
+	///
+	OPENKIT_EXPORT void stopWebRequestWithResponseCode(struct WebRequestTracerHandle* webRequestTracerhandle, int32_t responseCode);
 
 	///
 	/// Returns the Dynatrace tag which has to be set manually as Dynatrace HTTP header
@@ -546,7 +556,9 @@ extern "C" {
 	///
 	/// @param[in] webRequestTracerHandle the handle returned by @ref traceWebRequestOnRootAction or @ref traceWebRequestOnAction
 	/// @param[in] responseCode response code of this web request
+	/// @deprecated use stopWebRequest(struct WebRequestTracerHandle*, int32_t) instead
 	///
+	OPENKIT_DEPRECATED
 	OPENKIT_EXPORT void setResponseCode(struct WebRequestTracerHandle* webRequestTracerHandle, int32_t responseCode);
 
 	///

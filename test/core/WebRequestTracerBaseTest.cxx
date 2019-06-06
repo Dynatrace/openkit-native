@@ -71,8 +71,8 @@ protected:
 		beaconCache = std::make_shared<caching::BeaconCache>(logger);
 
 		beaconSender = std::make_shared<core::BeaconSender>(logger, configuration, mockHTTPClientProvider, timingProvider);
-		mockBeaconStrict = std::make_shared<testing::StrictMock<test::MockBeacon>>(logger, beaconCache, configuration, nullptr, threadIDProvider, timingProvider);	
-		mockBeaconNice = std::make_shared<testing::NiceMock<test::MockBeacon>>(logger, beaconCache, configuration, nullptr, threadIDProvider, timingProvider);	
+		mockBeaconStrict = std::make_shared<testing::StrictMock<test::MockBeacon>>(logger, beaconCache, configuration, nullptr, threadIDProvider, timingProvider);
+		mockBeaconNice = std::make_shared<testing::NiceMock<test::MockBeacon>>(logger, beaconCache, configuration, nullptr, threadIDProvider, timingProvider);
 
 		action = std::make_shared<core::Action>(logger, mockBeaconNice, core::UTF8String("test action"));
 	}
@@ -87,7 +87,7 @@ public:
 	std::shared_ptr<providers::IThreadIDProvider> threadIDProvider;
 	std::shared_ptr<providers::ITimingProvider> timingProvider;
 	std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider;
-	
+
 	std::shared_ptr<testing::NiceMock<test::MockHTTPClient>> mockHTTPClient;
 	std::shared_ptr<openkit::ISSLTrustManager> trustManager;
 
@@ -164,6 +164,18 @@ TEST_F(WebRequestTracerTest, aWebRequestTracerIsStoppedAfterStopHasBeenCalled)
 	ASSERT_TRUE(testWebRequestTracer->isStopped());
 }
 
+TEST_F(WebRequestTracerTest, aWebRequestTracerIsStoppedAfterStopWithResponseCodeHasBeenCalled)
+{
+	// given
+	std::shared_ptr<core::WebRequestTracerBase> testWebRequestTracer = std::make_shared<core::WebRequestTracerBase>(logger, mockBeaconNice, action->getID());
+
+	// when
+	testWebRequestTracer->stop(200);
+
+	// verify
+	ASSERT_TRUE(testWebRequestTracer->isStopped());
+}
+
 TEST_F(WebRequestTracerTest, setResponseCodeSetsTheResponseCode)
 {
 	// given
@@ -174,6 +186,18 @@ TEST_F(WebRequestTracerTest, setResponseCodeSetsTheResponseCode)
 
 	// verify
 	ASSERT_EQ(obtained, testWebRequestTracer);
+	ASSERT_EQ(testWebRequestTracer->getResponseCode(), 418);
+}
+
+TEST_F(WebRequestTracerTest, stopWithResponseCodeSetsTheResponseCode)
+{
+	// given
+	std::shared_ptr<core::WebRequestTracerBase> testWebRequestTracer = std::make_shared<core::WebRequestTracerBase>(logger, mockBeaconNice, action->getID());
+
+	// when
+	testWebRequestTracer->stop(418);
+
+	// verify
 	ASSERT_EQ(testWebRequestTracer->getResponseCode(), 418);
 }
 
@@ -189,6 +213,19 @@ TEST_F(WebRequestTracerTest, setResponseCodeDoesNotSetTheResponseCodeIfStopped)
 	// verify
 	ASSERT_EQ(obtained, testWebRequestTracer);
 	ASSERT_EQ(testWebRequestTracer->getResponseCode(), -1);
+}
+
+TEST_F(WebRequestTracerTest, stopWithResponseCodeDoesNotSetTheResponseCodeIfStopped)
+{
+	// given
+	std::shared_ptr<core::WebRequestTracerBase> testWebRequestTracer = std::make_shared<core::WebRequestTracerBase>(logger, mockBeaconNice, action->getID());
+	testWebRequestTracer->stop(200);
+
+	// when
+	testWebRequestTracer->stop(404);
+
+	// verify
+	ASSERT_EQ(testWebRequestTracer->getResponseCode(), 200);
 }
 
 TEST_F(WebRequestTracerTest, setBytesSentSetsTheNumberOfSentBytes)
@@ -218,6 +255,20 @@ TEST_F(WebRequestTracerTest, setBytesSentDoesNotSetAnythingIfStopped)
 	ASSERT_EQ(testWebRequestTracer->getBytesSent(), -1);
 }
 
+TEST_F(WebRequestTracerTest, setBytesSentDoesNotSetAnythingIfStoppedWithResponseCode)
+{
+	// given
+	std::shared_ptr<core::WebRequestTracerBase> testWebRequestTracer = std::make_shared<core::WebRequestTracerBase>(logger, mockBeaconNice, action->getID());
+
+	// when
+	testWebRequestTracer->stop(200);
+	auto obtained = testWebRequestTracer->setBytesSent(1234 );
+
+	// verify
+	ASSERT_EQ(obtained, testWebRequestTracer);
+	ASSERT_EQ(testWebRequestTracer->getBytesSent(), -1);
+}
+
 TEST_F(WebRequestTracerTest, setBytesReceivedSetsTheNumberOfReceivedBytes)
 {
 	// given
@@ -238,6 +289,20 @@ TEST_F(WebRequestTracerTest, setBytesReceivedDoesNotSetAnythingIfStopped)
 
 	// when
 	testWebRequestTracer->stop();
+	auto obtained = testWebRequestTracer->setBytesReceived(1234);
+
+	// verify
+	ASSERT_EQ(obtained, testWebRequestTracer);
+	ASSERT_EQ(testWebRequestTracer->getBytesReceived(), -1);
+}
+
+TEST_F(WebRequestTracerTest, setBytesReceivedDoesNotSetAnythingIfStoppedWithResponseCode)
+{
+	// given
+	std::shared_ptr<core::WebRequestTracerBase> testWebRequestTracer = std::make_shared<core::WebRequestTracerBase>(logger, mockBeaconNice, action->getID());
+
+	// when
+	testWebRequestTracer->stop(200);
 	auto obtained = testWebRequestTracer->setBytesReceived(1234);
 
 	// verify
@@ -276,6 +341,22 @@ TEST_F(WebRequestTracerTest, startDoesNothingIfAlreadyStopped)
 	ASSERT_EQ(testWebRequestTracer->getStartTime(), 123456789L);
 }
 
+TEST_F(WebRequestTracerTest, startDoesNothingIfAlreadyStoppedWithResponseCode)
+{
+	// given
+	ON_CALL(*mockBeaconNice, getCurrentTimestamp())
+		.WillByDefault(testing::Return(123456789L));
+	std::shared_ptr<core::WebRequestTracerBase> testWebRequestTracer = std::make_shared<core::WebRequestTracerBase>(logger, mockBeaconNice, action->getID());
+
+	// when
+	testWebRequestTracer->stop(200);
+	auto obtained = testWebRequestTracer->start();
+
+	// verify
+	ASSERT_EQ(obtained, testWebRequestTracer);
+	ASSERT_EQ(testWebRequestTracer->getStartTime(), 123456789L);
+}
+
 TEST_F(WebRequestTracerTest, stopCanOnlyBeExecutedOnce)
 {
 	// given
@@ -290,9 +371,6 @@ TEST_F(WebRequestTracerTest, stopCanOnlyBeExecutedOnce)
 
 	std::shared_ptr<core::WebRequestTracerBase> testWebRequestTracer = std::make_shared<core::WebRequestTracerBase>(logger, mockBeaconNice, action->getID());
 
-
-
-
 	testWebRequestTracer->stop();
 	ASSERT_EQ(testWebRequestTracer->getEndSequenceNo(), 42);
 
@@ -305,4 +383,32 @@ TEST_F(WebRequestTracerTest, stopCanOnlyBeExecutedOnce)
 		.Times(testing::Exactly(0));
 
 	testWebRequestTracer->stop();
+}
+
+TEST_F(WebRequestTracerTest, stopWithResponseCodeCanOnlyBeExecutedOnce)
+{
+	// given
+	ON_CALL(*mockBeaconNice, createSequenceNumber())
+		.WillByDefault(testing::Return(42));
+
+	// when
+	EXPECT_CALL(*mockBeaconNice, createSequenceNumber())
+		.Times(testing::Exactly(2));
+	EXPECT_CALL(*mockBeaconNice, addWebRequest(testing::_, testing::_))
+		.Times(testing::Exactly(1));
+
+	std::shared_ptr<core::WebRequestTracerBase> testWebRequestTracer = std::make_shared<core::WebRequestTracerBase>(logger, mockBeaconNice, action->getID());
+
+	testWebRequestTracer->stop(200);
+	ASSERT_EQ(testWebRequestTracer->getEndSequenceNo(), 42);
+
+	// when called another time
+	testing::Mock::VerifyAndClearExpectations(&mockBeaconNice);
+
+	EXPECT_CALL(*mockBeaconNice, createSequenceNumber())
+		.Times(testing::Exactly(0));
+	EXPECT_CALL(*mockBeaconNice, addWebRequest(testing::_, testing::_))
+		.Times(testing::Exactly(0));
+
+	testWebRequestTracer->stop(404);
 }

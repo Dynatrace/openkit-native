@@ -83,7 +83,7 @@ bool levelEnabledFunction(LOG_LEVEL level)
 ///
 /// Log function to write the trace statements to stdout. The function prepends a human-readable time stamp
 /// and the log level.
-/// 
+///
 /// @param[in] level the log level, either DEBUG or INFO (WARN and ERROR traces are currently always logged)
 /// @param[in] traceStatement the already formatted trace statement string
 ///
@@ -165,10 +165,9 @@ int32_t main(int32_t argc, char** argv)
 #else
 		usleep(144 * 1000);
 #endif
-		setResponseCode(webRequest, 200);
 		setBytesSent(webRequest, 123);
 		setBytesReceived(webRequest, 45);
-		stopWebRequest(webRequest);
+		stopWebRequestWithResponseCode(webRequest, 200);
 
 		leaveAction(actionHandle);
 		leaveRootAction(rootActionHandle);

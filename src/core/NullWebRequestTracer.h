@@ -41,6 +41,10 @@ namespace core
 			return emptyString;
 		}
 
+		///
+		/// @deprecated use stop(int32_t) instead
+		///
+		OPENKIT_DEPRECATED
 		virtual std::shared_ptr<openkit::IWebRequestTracer> setResponseCode(int32_t /*responseCode*/) override
 		{
 			return shared_from_this();
@@ -61,10 +65,20 @@ namespace core
 			return shared_from_this();
 		}
 
+		///
+		/// @deprecated use stop(int32_t) instead
+		///
+		OPENKIT_DEPRECATED
 		virtual void stop() override
 		{
 			// intentionally left empty, due to NullObject pattern
 		}
+
+		virtual void stop(int32_t /*responseCode*/) override
+		{
+			// nothing, NullObject pattern
+		}
+
 	private:
 		const char* emptyString = "";
 	};

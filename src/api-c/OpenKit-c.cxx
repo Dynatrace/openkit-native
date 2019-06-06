@@ -639,7 +639,7 @@ extern "C" {
 			}
 		}
 		CATCH_AND_LOG(openKitHandle)
-			
+
 		return false;
 	}
 
@@ -655,7 +655,7 @@ extern "C" {
 			}
 		}
 		CATCH_AND_LOG(openKitHandle)
-		
+
 		return false;
 	}
 
@@ -775,7 +775,7 @@ extern "C" {
 			handle->logger = sessionHandle->logger;
 		}
 		CATCH_AND_LOG(sessionHandle)
-		
+
 		return handle;
 	}
 
@@ -903,7 +903,7 @@ extern "C" {
 			handle->logger = rootActionHandle->logger;
 		}
 		CATCH_AND_LOG(rootActionHandle)
-		
+
 		return handle;
 	}
 
@@ -1056,7 +1056,7 @@ extern "C" {
 			handle->logger = rootActionHandle->logger;
 		}
 		CATCH_AND_LOG(rootActionHandle)
-		
+
 		return handle;
 	}
 
@@ -1081,7 +1081,7 @@ extern "C" {
 			handle->logger = actionHandle->logger;
 		}
 		CATCH_AND_LOG(actionHandle)
-		
+
 		return handle;
 	}
 
@@ -1099,6 +1099,10 @@ extern "C" {
 		CATCH_AND_LOG(webRequestTracerHandle)
 	}
 
+	///
+	/// @deprecated use stopWebRequest(WebRequestTracerHandle*, int32_t) instead
+	///
+	OPENKIT_DEPRECATED
 	void stopWebRequest(WebRequestTracerHandle* webRequestTracerHandle)
 	{
 		// Sanity
@@ -1121,6 +1125,28 @@ extern "C" {
 		CATCH_AND_LOG(webRequestTracerHandle)
 	}
 
+	void stopWebRequestWithResponseCode(WebRequestTracerHandle* webRequestTracerHandle, int32_t responseCode)
+	{
+		// Sanity
+		if(webRequestTracerHandle == nullptr)
+		{
+			return;
+		}
+
+		TRY
+		{
+			// retrieve the WebRequestTracer instance from the handle and call the respective method
+			assert(webRequestTracerHandle->sharedPointer != nullptr);
+			webRequestTracerHandle->sharedPointer->stop(responseCode);
+
+			// release shared pointer
+			webRequestTracerHandle->sharedPointer = nullptr;
+			webRequestTracerHandle->logger = nullptr;
+			delete webRequestTracerHandle;
+		}
+		CATCH_AND_LOG(webRequestTracerHandle)
+	}
+
 	const char* getTag(WebRequestTracerHandle* webRequestTracerHandle)
 	{
 		TRY
@@ -1133,10 +1159,14 @@ extern "C" {
 			}
 		}
 		CATCH_AND_LOG(webRequestTracerHandle)
-		
+
 		return nullptr;
 	}
 
+	///
+	/// @deprecated use stopWebRequest(WebRequestTracerHandle*, int32_t) instead
+	///
+	OPENKIT_DEPRECATED
 	void setResponseCode(WebRequestTracerHandle* webRequestTracerHandle, int32_t responseCode)
 	{
 		TRY

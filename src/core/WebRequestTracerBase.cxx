@@ -49,6 +49,10 @@ namespace core
 		return tag;
 	}
 
+	///
+	/// @deprecated use stop(int_32t) instead
+	///
+	OPENKIT_DEPRECATED
 	std::shared_ptr<openkit::IWebRequestTracer> WebRequestTracerBase::setResponseCode(int32_t responseCode)
 	{
 		if (!isStopped())
@@ -89,11 +93,20 @@ namespace core
 		return shared_from_this();
 	}
 
+	///
+	/// @deprecated use stop(int32_t) instead
+	///
+	OPENKIT_DEPRECATED
 	void WebRequestTracerBase::stop()
+	{
+		stop(mResponseCode);
+	}
+
+	void WebRequestTracerBase::stop(int32_t responseCode)
 	{
 		if (mLogger->isDebugEnabled())
 		{
-			mLogger->debug("%s - stop()", toString().c_str());
+			mLogger->debug("%s - stop(rc=%d)", toString().c_str(), responseCode);
 		}
 		int64_t expected = -1;
 		if (atomic_compare_exchange_strong(&mEndTime, &expected, mBeacon->getCurrentTimestamp()) == false)
@@ -101,6 +114,7 @@ namespace core
 			return;
 		}
 
+		mResponseCode = responseCode;
 		mEndSequenceNo = mBeacon->createSequenceNumber();
 
 		//add web request to beacon

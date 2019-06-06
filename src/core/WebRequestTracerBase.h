@@ -53,6 +53,10 @@ namespace core
 
 		const char* getTag() const override;
 
+		///
+		/// @deprecated use stop(int32_t) instead
+		///
+		OPENKIT_DEPRECATED
 		virtual std::shared_ptr<IWebRequestTracer> setResponseCode(int32_t responseCode) override;
 
 		virtual std::shared_ptr<IWebRequestTracer> setBytesSent(int32_t bytesSent) override;
@@ -61,7 +65,13 @@ namespace core
 
 		virtual std::shared_ptr<IWebRequestTracer> start() override;
 
+		///
+		/// @deprectaed use stop(int32_t) instead
+		///
+		OPENKIT_DEPRECATED
 		virtual void stop() override;
+
+		virtual void stop(int32_t responseCode);
 
 		///
 		/// Returns the target URL of the web request
@@ -71,42 +81,42 @@ namespace core
 
 		///
 		/// Returns the response code of the web request
-		/// @returns response code of the web request 
+		/// @returns response code of the web request
 		///
 		virtual int32_t getResponseCode() const;
 
 		///
 		/// Returns the start time of the web request
-		/// @returns start time of the web request 
+		/// @returns start time of the web request
 		///
 		int64_t getStartTime() const;
 
 		///
 		/// Returns the end time of the web request
-		/// @returns end time of the web request 
+		/// @returns end time of the web request
 		///
 		int64_t getEndTime() const;
 
 		///
 		/// Returns the start sequence number
-		/// @returns start sequence number of the web request 
+		/// @returns start sequence number of the web request
 		///
 		int32_t getStartSequenceNo() const;
 
 		///
 		/// Returns the end sequence number
-		/// @returns end sequence number of the web request 
+		/// @returns end sequence number of the web request
 		///
 		int32_t getEndSequenceNo() const;
 
 		///
-		/// Returns the number of bytes sent 
+		/// Returns the number of bytes sent
 		/// @returns amount of bytes sent
 		///
 		virtual int32_t getBytesSent() const;
 
 		///
-		/// Returns the number of bytes received 
+		/// Returns the number of bytes received
 		/// @returns amount of bytes received
 		///
 		virtual int32_t getBytesReceived() const;
@@ -151,7 +161,7 @@ namespace core
 
 		/// start sequence number
 		int32_t mStartSequenceNo;
-		
+
 		/// end sequence number
 		int32_t mEndSequenceNo;
 
