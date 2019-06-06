@@ -2,11 +2,15 @@
 
 ## [Unreleased](https://github.com/Dynatrace/openkit-native/compare/v1.1.4...release/1.1)
 
+### Changed
+- Fix incorrect check in C-API's useBeaconCacheBehaviorForConfiguration function when setting the
+  upper memory bound.
+
 ## 1.1.4 [Release date: 2019-03-14]
 [GitHub Releases](https://github.com/Dynatrace/openkit-native/releases/tag/v1.1.4)
 
 ### Changed
-- OpenKit::createSession method accepts nullptr as IP address  
+- OpenKit::createSession method accepts nullptr as IP address
   In case nullptr is passed, the IP is determined on the server side.
 - Reduce warnings when building on Linux
 
@@ -14,7 +18,7 @@
 [GitHub Releases](https://github.com/Dynatrace/openkit-native/releases/tag/v1.1.3)
 
 ### Changed
-- Fixed problem with infinite time sync requests  
+- Fixed problem with infinite time sync requests
   This problem occurred mainly in AppMon settings.
 
 ## 1.1.2 [Release date: 2018-12-20]
@@ -38,9 +42,9 @@
 [GitHub Releases](https://github.com/Dynatrace/openkit-native/releases/tag/v1.1.0)
 
 ### Added
-- Device ID can be specified as String in addition to long  
+- Device ID can be specified as String in addition to long
   This allows to send UUIDs or other specifiers
-- Standalone web request tagging  
+- Standalone web request tagging
   A WebRequestTracer can also be obtained from a Session
 
 ## 1.0.0 [Release date: 2018-10-25]
