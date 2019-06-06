@@ -359,7 +359,7 @@ extern "C" {
 		{
 			configurationHandle->beaconCacheLowerMemoryBoundary = beaconCacheLowerMemoryBoundary;
 		}
-		if (configurationHandle != nullptr && beaconCacheLowerMemoryBoundary >= 0)
+		if (configurationHandle != nullptr && beaconCacheUpperMemoryBoundary >= 0)
 		{
 			configurationHandle->beaconCacheUpperMemoryBoundary = beaconCacheUpperMemoryBoundary;
 		}
@@ -604,7 +604,7 @@ extern "C" {
 			}
 		}
 		CATCH_AND_LOG(openKitHandle)
-			
+
 		return false;
 	}
 
@@ -620,7 +620,7 @@ extern "C" {
 			}
 		}
 		CATCH_AND_LOG(openKitHandle)
-		
+
 		return false;
 	}
 
@@ -740,7 +740,7 @@ extern "C" {
 			handle->logger = sessionHandle->logger;
 		}
 		CATCH_AND_LOG(sessionHandle)
-		
+
 		return handle;
 	}
 
@@ -868,7 +868,7 @@ extern "C" {
 			handle->logger = rootActionHandle->logger;
 		}
 		CATCH_AND_LOG(rootActionHandle)
-		
+
 		return handle;
 	}
 
@@ -996,7 +996,7 @@ extern "C" {
 			handle->logger = rootActionHandle->logger;
 		}
 		CATCH_AND_LOG(rootActionHandle)
-		
+
 		return handle;
 	}
 
@@ -1021,7 +1021,7 @@ extern "C" {
 			handle->logger = actionHandle->logger;
 		}
 		CATCH_AND_LOG(actionHandle)
-		
+
 		return handle;
 	}
 
@@ -1073,7 +1073,7 @@ extern "C" {
 			}
 		}
 		CATCH_AND_LOG(webRequestTracerHandle)
-		
+
 		return nullptr;
 	}
 

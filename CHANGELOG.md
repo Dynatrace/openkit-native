@@ -2,11 +2,15 @@
 
 ## [Unreleased](https://github.com/Dynatrace/openkit-native/compare/v1.0.4...release/1.0)
 
+### Changed
+- Fix incorrect check in C-API's useBeaconCacheBehaviorForConfiguration function when setting the
+  upper memory bound.
+
 ## 1.0.4 [Release date: 2019-03-14]
 [GitHub Releases](https://github.com/Dynatrace/openkit-native/releases/tag/v1.0.4)
 
 ### Changed
-- OpenKit::createSession method accepts nullptr as IP address  
+- OpenKit::createSession method accepts nullptr as IP address
   In case nullptr is passed, the IP is determined on the server side.
 - Reduce warnings when building on Linux
 
@@ -14,7 +18,7 @@
 [GitHub Releases](https://github.com/Dynatrace/openkit-native/releases/tag/v1.0.3)
 
 ### Changed
-- Fixed problem with infinite time sync requests  
+- Fixed problem with infinite time sync requests
   This problem occurred mainly in AppMon settings.
 
 ## 1.0.2 [Release date: 2018-12-20]
