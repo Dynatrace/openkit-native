@@ -389,7 +389,7 @@ extern "C" {
 		{
 			configurationHandle->beaconCacheLowerMemoryBoundary = beaconCacheLowerMemoryBoundary;
 		}
-		if (configurationHandle != nullptr && beaconCacheLowerMemoryBoundary >= 0)
+		if (configurationHandle != nullptr && beaconCacheUpperMemoryBoundary >= 0)
 		{
 			configurationHandle->beaconCacheUpperMemoryBoundary = beaconCacheUpperMemoryBoundary;
 		}

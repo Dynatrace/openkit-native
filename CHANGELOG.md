@@ -3,6 +3,8 @@
 ## [Unreleased](https://github.com/Dynatrace/openkit-native/compare/v1.1.0...HEAD)
 
 ### Changed
+- Fix incorrect check in C-API's useBeaconCacheBehaviorForConfiguration function when setting the
+  upper memory bound.
 - Response code is now a parameter of IWebRequestTracer's stop function
   (stopWebRequestWithResponseCode in C API).
   Existing functions for stopping and setting the response code have been deprecated.
