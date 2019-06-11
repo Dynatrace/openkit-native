@@ -20,7 +20,6 @@
 #include <sstream>
 
 #include "NullWebRequestTracer.h"
-#include "WebRequestTracerStringURL.h"
 
 using namespace core;
 

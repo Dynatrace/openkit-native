@@ -37,8 +37,8 @@ set(OPENKIT_SOURCES_TEST_CORE
     ${CMAKE_CURRENT_LIST_DIR}/core/SessionTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/ActionTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/RootActionTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/core/WebRequestTracerBaseTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/core/WebRequestTracerStringURLTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/WebRequestTracerTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/WebRequestTracerURLValidityTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/util/CompressorTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/util/URLEncodingTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/util/SynchronizedQueueTest.cxx
@@ -170,8 +170,8 @@ function(build_open_kit_tests)
     endif()
 
     if (WIN32 AND BUILD_SHARED_LIBS AND NOT OPENKIT_MONOLITHIC_SHARED_LIB)
-       add_custom_command ( TARGET OpenKitTest POST_BUILD 
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:zlib> $<TARGET_FILE_DIR:OpenKitTest> 
+       add_custom_command ( TARGET OpenKitTest POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:zlib> $<TARGET_FILE_DIR:OpenKitTest>
             COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:libcurl> $<TARGET_FILE_DIR:OpenKitTest>  )
     endif()
 

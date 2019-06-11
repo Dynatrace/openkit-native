@@ -26,7 +26,6 @@
 #include "providers/DefaultSessionIDProvider.h"
 #include "providers/DefaultHTTPClientProvider.h"
 #include "core/BeaconSender.h"
-#include "core/WebRequestTracerStringURL.h"
 #include "core/Action.h"
 #include "configuration/Configuration.h"
 
@@ -66,7 +65,7 @@ protected:
 		device = std::shared_ptr<configuration::Device>(new configuration::Device(core::UTF8String(""), core::UTF8String(""), core::UTF8String("")));
 
 		beaconCacheConfiguration = std::make_shared<configuration::BeaconCacheConfiguration>(-1, -1, -1);
-		
+
 		beaconCache = std::make_shared<caching::BeaconCache>(logger);
 
 		randomGeneratorMock = std::make_shared<testing::NiceMock<test::MockPRNGenerator>>();
@@ -186,7 +185,7 @@ TEST_F(BeaconTest, noWebRequestIsReportedForDataCollectionLevel0)
 		.WillByDefault(testing::Return(45));
 	ON_CALL(*mockWebRequestTracer, getResponseCode())
 		.WillByDefault(testing::Return(400));
-	
+
 	// verify / then
 	EXPECT_CALL(*mockWebRequestTracer, getBytesSent())
 		.Times(0);
@@ -437,7 +436,7 @@ TEST_F(BeaconTest, sessionIDIsValueFromSessionIDProviderOnDataCollectionLevel2)
 	constexpr int32_t THE_ANSWER = 42;
 
 	//given
-	
+
 	auto mockSessionIDProvider = getSessionIDProviderMock();
 
 	ON_CALL(*mockSessionIDProvider, getNextSessionID())
@@ -1004,7 +1003,7 @@ TEST_F(BeaconTest, clientIPAddressCanBeANullptr)
 {
 	//given
 	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF, core::UTF8String(DEVICE_ID), core::UTF8String(APP_ID), nullptr);
-	
+
 	// when, then
 	ASSERT_EQ(0, target->getClientIPAddress().getStringLength());
 }

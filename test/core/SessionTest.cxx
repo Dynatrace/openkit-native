@@ -25,7 +25,7 @@
 #include "protocol/ssl/SSLStrictTrustManager.h"
 #include "providers/DefaultSessionIDProvider.h"
 #include "providers/DefaultHTTPClientProvider.h"
-#include "core/WebRequestTracerStringURL.h"
+#include "core/WebRequestTracer.h"
 #include "core/NullWebRequestTracer.h"
 
 #include "OpenKit/IRootAction.h"
@@ -620,9 +620,9 @@ TEST_F(SessionTest, traceWebRequestWithValidUrlStringGivesAppropriateTracer)
 
 	// then
 	ASSERT_NE(nullptr, obtained);
-	ASSERT_NE(nullptr, std::dynamic_pointer_cast<core::WebRequestTracerStringURL>(obtained));
+	ASSERT_NE(nullptr, std::dynamic_pointer_cast<core::WebRequestTracer>(obtained));
 
-	auto webRequestTracer = std::dynamic_pointer_cast<core::WebRequestTracerStringURL>(obtained);
+	auto webRequestTracer = std::dynamic_pointer_cast<core::WebRequestTracer>(obtained);
 	EXPECT_TRUE(webRequestTracer->getURL().equals(url));
 }
 

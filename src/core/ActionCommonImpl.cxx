@@ -17,7 +17,7 @@
 #include "ActionCommonImpl.h"
 #include "core/UTF8String.h"
 #include "protocol/Beacon.h"
-#include "core/WebRequestTracerStringURL.h"
+#include "core/WebRequestTracer.h"
 
 using namespace core;
 
@@ -122,7 +122,7 @@ std::shared_ptr<openkit::IWebRequestTracer> ActionCommonImpl::traceWebRequest(co
 		mLogger->warning("%s traceWebRequest (string): url must not be null or empty", mObjectID.c_str());
 		return NULL_WEB_REQUEST_TRACER;
 	}
-	if (!WebRequestTracerStringURL::isValidURLScheme(urlString))
+	if (!WebRequestTracer::isValidURLScheme(urlString))
 	{
 		mLogger->warning("%s traceWebRequest (string): url \"%s\" does not have a valid scheme", mObjectID.c_str(), urlString.getStringData().c_str());
 		return NULL_WEB_REQUEST_TRACER;
@@ -132,5 +132,5 @@ std::shared_ptr<openkit::IWebRequestTracer> ActionCommonImpl::traceWebRequest(co
 		mLogger->debug("%s traceWebRequest (string) (%s))", mObjectID.c_str(), url);
 	}
 
-	return std::make_shared<core::WebRequestTracerStringURL>(mLogger, mBeacon, mActionID, urlString);
+	return std::make_shared<core::WebRequestTracer>(mLogger, mBeacon, mActionID, urlString);
 }

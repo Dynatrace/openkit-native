@@ -14,8 +14,8 @@
 * limitations under the License.
 */
 
-#ifndef _CORE_WEBREQUESTTRACERBASE_H
-#define _CORE_WEBREQUESTTRACERBASE_H
+#ifndef _CORE_WEBREQUESTTRACER_H
+#define _CORE_WEBREQUESTTRACER_H
 
 #ifdef __GNUC__
 #pragma GCC diagnostic push
@@ -37,19 +37,41 @@ namespace protocol
 namespace core
 {
 	///
-	/// Base class for WebRequest tracers.
+	/// Implements a tracer for web requests
 	///
-	class WebRequestTracerBase : public openkit::IWebRequestTracer, public std::enable_shared_from_this<WebRequestTracerBase>
+	class WebRequestTracer : public openkit::IWebRequestTracer, public std::enable_shared_from_this<WebRequestTracer>
 	{
 	public:
 
 		///
 		/// Constructor taking an @ref core::Action
 		/// @param[in] logger to write traces to
-		/// @param[in] beacon @ref protocol::Beacon used to serialize the @ref WebRequestTracerBase
+		/// @param[in] beacon @ref protocol::Beacon used to serialize the @ref WebRequestTracer
+
 		/// @param[in] parentActionID id of the parent of the WebRequestTracer
 		///
-		WebRequestTracerBase(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<protocol::Beacon> beacon, int32_t parentActionID);
+		WebRequestTracer
+		(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<protocol::Beacon> beacon, int32_t parentActionID);
+
+		///
+		/// Constructor which can be used for tracing and timing of a web request handled by any 3rd party HTTP Client.
+		/// Setting the Dynatrace tag to the @ref openkit::OpenKitConstants::WEBREQUEST_TAG_HEADER
+		/// HTTP header has to be done manually by the user.
+		/// @param[in] logger to write traces to
+		/// @param[in] beacon @ref protocol::Beacon used to serialize the WebRequestTracer
+		/// @param[in] parentActionID parent of the WebRequestTracer
+		/// @param[in] url target url of the web request
+		///
+		WebRequestTracer
+		(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<protocol::Beacon> beacon, int32_t parentActionID, const UTF8String& url);
+
+		///
+		/// Test if given @c url contains a valid URL scheme according to RFC3986.
+		/// @param[in] url The url to validate
+		/// @return @c true on success, @c false otherwhise.
+		///
+		static bool isValidURLScheme(const UTF8String& url);
+
 
 		const char* getTag() const override;
 

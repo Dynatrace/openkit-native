@@ -14,15 +14,18 @@
 * limitations under the License.
 */
 
-#include "WebRequestTracerBase.h"
+#include "WebRequestTracer.h"
 
 #include "protocol/Beacon.h"
 
 #include <sstream>
+#include <regex>
 
 namespace core
 {
-	WebRequestTracerBase::WebRequestTracerBase(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<protocol::Beacon> beacon, int32_t parentActionID)
+	static const std::regex SCHEMA_VALIDATION_PATTERN("^[a-zA-Z][a-zA-Z0-9+\\-.]*://.+$", std::regex::optimize | std::regex::ECMAScript);
+
+	WebRequestTracer::WebRequestTracer(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<protocol::Beacon> beacon, int32_t parentActionID)
 		: mLogger(logger)
 		, mBeacon(beacon)
 		, mParentActionID(parentActionID)
@@ -39,7 +42,30 @@ namespace core
 
 	}
 
-	const char* WebRequestTracerBase::getTag() const
+	WebRequestTracer::WebRequestTracer(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<protocol::Beacon> beacon, int32_t parentActionID, const UTF8String& url)
+		: WebRequestTracer(logger, beacon, parentActionID)
+	{
+		if (isValidURLScheme(url))
+		{
+			auto indexOfQuestionMark = url.getIndexOf("?");
+
+			if (indexOfQuestionMark != std::string::npos)
+			{
+				WebRequestTracer::mURL = url.substring(0, indexOfQuestionMark);
+			}
+			else
+			{
+				WebRequestTracer::mURL = url;
+			}
+		}
+	}
+
+	bool WebRequestTracer::isValidURLScheme(const UTF8String& url)
+	{
+		return std::regex_match(url.getStringData(), SCHEMA_VALIDATION_PATTERN);
+	}
+
+	const char* WebRequestTracer::getTag() const
 	{
 		const char* tag = mWebRequestTag.getStringData().c_str();
 		if (mLogger->isDebugEnabled())
@@ -53,7 +79,7 @@ namespace core
 	/// @deprecated use stop(int_32t) instead
 	///
 	OPENKIT_DEPRECATED
-	std::shared_ptr<openkit::IWebRequestTracer> WebRequestTracerBase::setResponseCode(int32_t responseCode)
+	std::shared_ptr<openkit::IWebRequestTracer> WebRequestTracer::setResponseCode(int32_t responseCode)
 	{
 		if (!isStopped())
 		{
@@ -62,7 +88,7 @@ namespace core
 		return shared_from_this();
 	}
 
-	std::shared_ptr<openkit::IWebRequestTracer> WebRequestTracerBase::setBytesSent(int32_t bytesSent)
+	std::shared_ptr<openkit::IWebRequestTracer> WebRequestTracer::setBytesSent(int32_t bytesSent)
 	{
 		if (!isStopped())
 		{
@@ -71,7 +97,7 @@ namespace core
 		return shared_from_this();
 	}
 
-	std::shared_ptr<openkit::IWebRequestTracer> WebRequestTracerBase::setBytesReceived(int32_t bytesReceived)
+	std::shared_ptr<openkit::IWebRequestTracer> WebRequestTracer::setBytesReceived(int32_t bytesReceived)
 	{
 		if (!isStopped())
 		{
@@ -80,7 +106,7 @@ namespace core
 		return shared_from_this();
 	}
 
-	std::shared_ptr<openkit::IWebRequestTracer> WebRequestTracerBase::start()
+	std::shared_ptr<openkit::IWebRequestTracer> WebRequestTracer::start()
 	{
 		if (mLogger->isDebugEnabled())
 		{
@@ -97,12 +123,12 @@ namespace core
 	/// @deprecated use stop(int32_t) instead
 	///
 	OPENKIT_DEPRECATED
-	void WebRequestTracerBase::stop()
+	void WebRequestTracer::stop()
 	{
 		stop(mResponseCode);
 	}
 
-	void WebRequestTracerBase::stop(int32_t responseCode)
+	void WebRequestTracer::stop(int32_t responseCode)
 	{
 		if (mLogger->isDebugEnabled())
 		{
@@ -121,55 +147,55 @@ namespace core
 		mBeacon->addWebRequest(mParentActionID, shared_from_this());
 	}
 
-	const core::UTF8String WebRequestTracerBase::getURL() const
+	const core::UTF8String WebRequestTracer::getURL() const
 	{
 		return mURL;
 	}
 
-	int32_t WebRequestTracerBase::getResponseCode() const
+	int32_t WebRequestTracer::getResponseCode() const
 	{
 		return mResponseCode;
 	}
 
-	int64_t WebRequestTracerBase::getStartTime() const
+	int64_t WebRequestTracer::getStartTime() const
 	{
 		return mStartTime;
 	}
 
-	int64_t WebRequestTracerBase::getEndTime() const
+	int64_t WebRequestTracer::getEndTime() const
 	{
 		return mEndTime;
 	}
 
-	int32_t WebRequestTracerBase::getStartSequenceNo() const
+	int32_t WebRequestTracer::getStartSequenceNo() const
 	{
 		return mStartSequenceNo;
 	}
 
-	int32_t WebRequestTracerBase::getEndSequenceNo() const
+	int32_t WebRequestTracer::getEndSequenceNo() const
 	{
 		return mEndSequenceNo;
 	}
 
-	int32_t WebRequestTracerBase::getBytesSent() const
+	int32_t WebRequestTracer::getBytesSent() const
 	{
 		return mBytesSent;
 	}
 
-	int32_t WebRequestTracerBase::getBytesReceived() const
+	int32_t WebRequestTracer::getBytesReceived() const
 	{
 		return mBytesReceived;
 	}
 
-	bool WebRequestTracerBase::isStopped() const
+	bool WebRequestTracer::isStopped() const
 	{
 		return mEndTime != -1;
 	}
 
-	const std::string core::WebRequestTracerBase::toString() const
+	const std::string core::WebRequestTracer::toString() const
 	{
 		std::stringstream ss;
-		ss << "WebRequestTracerBase [sn=" << this->mBeacon->getSessionNumber() << ", id=" << mParentActionID << ", url='" << mURL.getStringData().c_str() << "']";
+		ss << "WebRequestTracer [sn=" << this->mBeacon->getSessionNumber() << ", id=" << mParentActionID << ", url='" << mURL.getStringData().c_str() << "']";
 		return ss.str();
 	}
 }

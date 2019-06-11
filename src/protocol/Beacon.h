@@ -27,7 +27,7 @@
 #include "core/Action.h"
 #include "core/RootAction.h"
 #include "core/Session.h"
-#include "core/WebRequestTracerBase.h"
+#include "core/WebRequestTracer.h"
 #include "caching/BeaconCache.h"
 #include "EventType.h"
 
@@ -69,12 +69,12 @@ namespace protocol
 		///
 		Beacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching::IBeaconCache> beaconCache,
 			std::shared_ptr<configuration::Configuration> configuration, const char* clientIPAddress,
-			std::shared_ptr<providers::IThreadIDProvider> threadIDProvider , 
-			std::shared_ptr<providers::ITimingProvider> timingProvider, 
+			std::shared_ptr<providers::IThreadIDProvider> threadIDProvider ,
+			std::shared_ptr<providers::ITimingProvider> timingProvider,
 			std::shared_ptr<providers::IPRNGenerator> randomGenerator);
 
 		///
-		/// Destructor 
+		/// Destructor
 		///
 		virtual ~Beacon() {}
 
@@ -104,7 +104,7 @@ namespace protocol
 		/// Create a web request tag
 		/// Web request tags can be attached as HTTP header for web request tracing.
 		/// @param[in] parentActionID The ID of the @ref core::Action for which to create a web request tag.
-		/// @param[in] sequenceNumber Sequence number of the @ref core::WebRequestTracerBase
+		/// @param[in] sequenceNumber Sequence number of the @ref core::WebRequestBase
 		/// @returns A web request tracer tag
 		///
 		virtual core::UTF8String createTag(int32_t parentActionID, int32_t sequenceNumber);
@@ -199,12 +199,12 @@ namespace protocol
 		virtual void reportCrash(const core::UTF8String& errorName, const core::UTF8String& reason, const core::UTF8String& stacktrace);
 
 		///
-		/// Add @ref core::WebRequestTracerBase to Beacon
+		/// Add @ref core::WebRequestTracer to Beacon
 		/// The serialized data is added to @ref caching::BeaconCache
 		/// @param[in] parentActionID The @ref core::Action on which the web request was reported
-		/// @param[in] webRequestTracer @ref core::WebRequestTracerBase to serialize
+		/// @param[in] webRequestTracer @ref core::WebRequestBase to serialize
 		///
-		virtual void addWebRequest(int32_t parentActionID, std::shared_ptr<core::WebRequestTracerBase> webRequestTracer);
+		virtual void addWebRequest(int32_t parentActionID, std::shared_ptr<core::WebRequestTracer> webRequestTracer);
 
 		///
 		/// Add user identification to Beacon.
@@ -213,7 +213,7 @@ namespace protocol
 		///
 		virtual void identifyUser(const core::UTF8String& userTag);
 
-		/// 
+		///
 		/// Sends the current Beacon state
 		/// @param[in] clientProvider the @ref providers::IHTTPClientProvider to use for sending
 		/// @returns the status response returned for the Beacon data
@@ -222,7 +222,7 @@ namespace protocol
 
 		///
 		/// Tests if the Beacon is empty
-		/// 
+		///
 		/// A beacon is considered to be empty, if it does not contain any action or event data.
 		/// @returns @c true if the beacon is empty, @c false otherwise
 		///

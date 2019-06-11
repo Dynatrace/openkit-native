@@ -19,17 +19,17 @@
 
 #include "OpenKit/ILogger.h"
 
-#include "core/WebRequestTracerBase.h"
+#include "core/WebRequestTracer.h"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
 namespace test {
-	class MockWebRequestTracer : public core::WebRequestTracerBase
+	class MockWebRequestTracer : public core::WebRequestTracer
 	{
 	public:
 		MockWebRequestTracer(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<protocol::Beacon> beacon)
-			: WebRequestTracerBase(logger, beacon, 0)
+			: WebRequestTracer(logger, beacon, 0)
 		{
 		}
 

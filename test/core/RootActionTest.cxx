@@ -27,7 +27,7 @@
 #include "providers/DefaultSessionIDProvider.h"
 #include "providers/DefaultHTTPClientProvider.h"
 #include "core/BeaconSender.h"
-#include "core/WebRequestTracerStringURL.h"
+#include "core/WebRequestTracer.h"
 #include "core/RootAction.h"
 #include "configuration/Configuration.h"
 
@@ -84,7 +84,7 @@ protected:
 	std::shared_ptr<providers::IThreadIDProvider> threadIDProvider;
 	std::shared_ptr<providers::ITimingProvider> timingProvider;
 	std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider;
-	
+
 	std::shared_ptr<testing::NiceMock<test::MockHTTPClient>> mockHTTPClient;
 	std::shared_ptr<openkit::ISSLTrustManager> trustManager;
 
@@ -445,8 +445,8 @@ TEST_F(RootActionTest, canTraceWebRequestUrl)
 	auto webRequestTracer = testAction->traceWebRequest(urlStr.getStringData().c_str());
 
 	// verify the returned request
-	std::shared_ptr<core::WebRequestTracerStringURL> webRequestTracerStringURL = std::static_pointer_cast<core::WebRequestTracerStringURL>(webRequestTracer);
-	EXPECT_TRUE(webRequestTracerStringURL->getURL().equals(urlStr));
+	std::shared_ptr<core::WebRequestTracer> webRequestTracerImpl = std::static_pointer_cast<core::WebRequestTracer>(webRequestTracer);
+	EXPECT_TRUE(webRequestTracerImpl->getURL().equals(urlStr));
 }
 
 TEST_F(RootActionTest, canTraceWebRequestUrlWithParameters)
@@ -466,8 +466,8 @@ TEST_F(RootActionTest, canTraceWebRequestUrlWithParameters)
 	auto webRequestTracer = testAction->traceWebRequest(urlWithParamString.getStringData().c_str());
 
 	// verify the returned request
-	std::shared_ptr<core::WebRequestTracerStringURL> webRequestTracerStringURL = std::static_pointer_cast<core::WebRequestTracerStringURL>(webRequestTracer);
-	EXPECT_TRUE(webRequestTracerStringURL->getURL().equals(urlStr));
+	std::shared_ptr<core::WebRequestTracer> webRequestTracerImpl = std::static_pointer_cast<core::WebRequestTracer>(webRequestTracer);
+	EXPECT_TRUE(webRequestTracerImpl->getURL().equals(urlStr));
 }
 
 TEST_F(RootActionTest, tracingANullStringWebRequestIsNotAllowed)

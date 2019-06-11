@@ -19,7 +19,7 @@
 #include "BeaconSender.h"
 #include "Action.h"
 #include "RootAction.h"
-#include "WebRequestTracerStringURL.h"
+#include "WebRequestTracer.h"
 
 #include <sstream>
 
@@ -114,7 +114,7 @@ std::shared_ptr<openkit::IWebRequestTracer> Session::traceWebRequest(const char*
 		mLogger->warning("%s traceWebRequest (string): url must not be null or empty", toString().c_str());
 		return NULL_WEB_REQUEST_TRACER;
 	}
-	if (!WebRequestTracerStringURL::isValidURLScheme(urlString))
+	if (!WebRequestTracer::isValidURLScheme(urlString))
 	{
 		mLogger->warning("%s traceWebRequest (string): url \"%s\" does not have a valid scheme", toString().c_str(), urlString.getStringData().c_str());
 		return NULL_WEB_REQUEST_TRACER;
@@ -126,7 +126,7 @@ std::shared_ptr<openkit::IWebRequestTracer> Session::traceWebRequest(const char*
 
 	if (!isSessionEnded())
 	{
-		return std::make_shared<core::WebRequestTracerStringURL>(mLogger, mBeacon, 0, urlString);
+		return std::make_shared<core::WebRequestTracer>(mLogger, mBeacon, 0, urlString);
 	}
 	return NULL_WEB_REQUEST_TRACER;
 }

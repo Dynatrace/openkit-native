@@ -73,7 +73,7 @@ namespace core
 		/// @param value Actual value to report.
 		///
 		void reportValue(const char* valueName, const char* value);
-	
+
 		///
 		/// Add error to Beacon.
 		/// @param errorName Error's name.

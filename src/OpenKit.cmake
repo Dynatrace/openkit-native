@@ -142,10 +142,8 @@ set(OPENKIT_SOURCES_CORE
     ${CMAKE_CURRENT_LIST_DIR}/core/SessionWrapper.h
     ${CMAKE_CURRENT_LIST_DIR}/core/UTF8String.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/UTF8String.h
-    ${CMAKE_CURRENT_LIST_DIR}/core/WebRequestTracerBase.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/core/WebRequestTracerBase.h
-    ${CMAKE_CURRENT_LIST_DIR}/core/WebRequestTracerStringURL.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/core/WebRequestTracerStringURL.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/WebRequestTracer.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/WebRequestTracer.h
 )
 
 set(OPENKIT_SOURCES_PROTOCOL_SSL
@@ -233,13 +231,13 @@ macro(_generate_open_kit_version_rc)
 
     # setup RC internal values
     set(FILE_TYPE "VFT_DLL")
-    if (NOT ("$ENV{TRAVIS}" STREQUAL "")           # Travis CI 
+    if (NOT ("$ENV{TRAVIS}" STREQUAL "")           # Travis CI
         OR NOT ("$ENV{APPVEYOR}" STREQUAL ""))     # AppVeyor
         set(ADDITIONAL_FILE_FLAGS "0L")
     else ()
         set(ADDITIONAL_FILE_FLAGS "VS_FF_PRERELEASE|VS_FF_PRIVATEBUILD")
     endif ()
-        
+
     # setup version, Copyright and such ...
     set (PRODUCT_VERSION "${OPENKIT_MAJOR_VERSION},${OPENKIT_MINOR_VERSION},${OPENKIT_BUGFIX_VERSION},${OPENKIT_BUILD_VERSION}")
     set (PRODUCT_VERSION_STR "${OPENKIT_VERSION_STRING}")
@@ -279,7 +277,7 @@ function(build_open_kit)
 
     include(CompilerConfiguration)
     include(BuildFunctions)
-    
+
     # generate OpenKitVersion.h
     _generate_open_kit_version_header()
     set (OPENKIT_LIB_SOURCES ${OPENKIT_SOURCES})
