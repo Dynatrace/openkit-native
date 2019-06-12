@@ -21,6 +21,7 @@
 - OpenKit::createSession method accepts nullptr as IP address
   In case nullptr is passed, the IP is determined on the server side.
 - Reduce warnings when building on Linux
+- Fix compiler errors for certain Visual Studio versions
 
 ## 1.1.0 [Release date: 2018-10-25]
 [GitHub Releases](https://github.com/Dynatrace/openkit-native/releases/tag/v1.1.0)

@@ -31,6 +31,7 @@
 #include "protocol/ssl/SSLBlindTrustManager.h"
 
 #include <list>
+#include <exception>
 #include <assert.h>
 #include <string.h>
 
