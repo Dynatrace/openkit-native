@@ -5,6 +5,7 @@
 ### Changed
 - Fix incorrect check in C-API's useBeaconCacheBehaviorForConfiguration function when setting the
   upper memory bound.
+- Fix compiler errors for certain Visual Studio versions
 
 ## 1.1.4 [Release date: 2019-03-14]
 [GitHub Releases](https://github.com/Dynatrace/openkit-native/releases/tag/v1.1.4)

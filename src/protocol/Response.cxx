@@ -16,6 +16,7 @@
 
 #include "Response.h"
 
+#include <stdexcept>
 #include <inttypes.h>
 
 using namespace protocol;
