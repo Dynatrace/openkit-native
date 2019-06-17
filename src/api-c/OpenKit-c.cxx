@@ -27,6 +27,7 @@
 #include "OpenKit/IWebRequestTracer.h"
 
 #include "core/util/DefaultLogger.h"
+#include "core/util/StringUtil.h"
 #include "protocol/ssl/SSLStrictTrustManager.h"
 #include "protocol/ssl/SSLBlindTrustManager.h"
 
@@ -242,7 +243,8 @@ extern "C" {
 	{
 		char* endpointURL = nullptr;
 		char* applicationID = nullptr;
-		char* deviceID = nullptr;
+		int64_t deviceID = -1;
+		char* origDeviceID = nullptr;
 		char* applicationName = nullptr;
 		LoggerHandle* loggerHandle = nullptr;
 		LOG_LEVEL defaultLogLevel = LOGLEVEL_WARN;
@@ -261,12 +263,7 @@ extern "C" {
 		CrashReportingLevel crashReportingLevel = CRASH_REPORTING_LEVEL_OPT_IN_CRASHES;
 	} OpenKitConfigurationHandle;
 
-	struct OpenKitConfigurationHandle* createOpenKitConfiguration(const char* endpointURL, const char* applicationID, int64_t deviceID)
-	{
-		return createOpenKitConfigurationWithStringDeviceID(endpointURL, applicationID, std::to_string(deviceID).c_str());
-	}
-
-	struct OpenKitConfigurationHandle* createOpenKitConfigurationWithStringDeviceID(const char* endpointURL, const char* applicationID, const char* deviceID)
+	struct OpenKitConfigurationHandle* createOpenKitConfigurationWithOrigAndHashedDeviceId(const char* endpointURL, const char* applicationID, int64_t deviceID, const char* origDeviceID)
 	{
 		OpenKitConfigurationHandle* handle = nullptr;
 		try
@@ -277,12 +274,23 @@ extern "C" {
 			{
 				handle->endpointURL = duplicateString(endpointURL);
 				handle->applicationID = duplicateString(applicationID);
-				handle->deviceID = duplicateString(deviceID);
+				handle->deviceID = deviceID;
+				handle->origDeviceID = duplicateString(origDeviceID);
 			}
 		}
 		CATCH_AND_IGNORE_ALL()
 
 		return handle;
+	}
+
+	struct OpenKitConfigurationHandle* createOpenKitConfiguration(const char* endpointURL, const char* applicationID, int64_t deviceID)
+	{
+		return createOpenKitConfigurationWithOrigAndHashedDeviceId(endpointURL, applicationID, deviceID, std::to_string(deviceID).c_str());
+	}
+
+	struct OpenKitConfigurationHandle* createOpenKitConfigurationWithStringDeviceID(const char* endpointURL, const char* applicationID, const char* deviceID)
+	{
+		return createOpenKitConfigurationWithOrigAndHashedDeviceId(endpointURL, applicationID, core::util::StringUtil::toNumericOr64BitHash(deviceID), deviceID);
 	}
 
 
@@ -546,7 +554,7 @@ extern "C" {
 		OpenKitHandle* handle = nullptr;
 		TRY
 		{
-			openkit::DynatraceOpenKitBuilder builder(configurationHandle->endpointURL, configurationHandle->applicationID, configurationHandle->deviceID);
+			openkit::DynatraceOpenKitBuilder builder(configurationHandle->endpointURL, configurationHandle->applicationID, configurationHandle->origDeviceID);
 			if (configurationHandle->applicationName != nullptr)
 			{
 				builder.withApplicationName(configurationHandle->applicationName);
@@ -567,7 +575,7 @@ extern "C" {
 		OpenKitHandle* handle = nullptr;
 		TRY
 		{
-			openkit::AppMonOpenKitBuilder builder(configurationHandle->endpointURL, configurationHandle->applicationName, configurationHandle->deviceID);
+			openkit::AppMonOpenKitBuilder builder(configurationHandle->endpointURL, configurationHandle->applicationName, configurationHandle->origDeviceID);
 
 			// initialize the abstract builder
 			initializeOpenKitBuilder(builder, configurationHandle);

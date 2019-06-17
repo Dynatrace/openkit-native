@@ -44,7 +44,7 @@ using namespace protocol;
 
 static const char APP_ID[] = "appID";
 static const char APP_NAME[] = "appName";
-static const char DEVICE_ID[] = "deviceID";
+static const int64_t DEVICE_ID = 42;
 
 class BeaconTest : public testing::Test
 {
@@ -80,20 +80,20 @@ protected:
 
 	std::shared_ptr<protocol::Beacon> buildBeacon(openkit::DataCollectionLevel dl, openkit::CrashReportingLevel cl)
 	{
-		return buildBeacon(dl, cl, core::UTF8String(DEVICE_ID), core::UTF8String(APP_ID));
+		return buildBeacon(dl, cl, DEVICE_ID, core::UTF8String(APP_ID));
 	}
 
-	std::shared_ptr<protocol::Beacon> buildBeacon(openkit::DataCollectionLevel dl, openkit::CrashReportingLevel cl, const core::UTF8String& deviceID, const core::UTF8String& appID)
+	std::shared_ptr<protocol::Beacon> buildBeacon(openkit::DataCollectionLevel dl, openkit::CrashReportingLevel cl, int64_t deviceID, const core::UTF8String& appID)
 	{
 		return buildBeacon(dl, cl, deviceID, appID, "127.0.0.1");
 	}
 
-	std::shared_ptr<protocol::Beacon> buildBeacon(openkit::DataCollectionLevel dl, openkit::CrashReportingLevel cl, const core::UTF8String& deviceID, const core::UTF8String& appID, const char* clientIPAddress)
+	std::shared_ptr<protocol::Beacon> buildBeacon(openkit::DataCollectionLevel dl, openkit::CrashReportingLevel cl, int64_t deviceID, const core::UTF8String& appID, const char* clientIPAddress)
 	{
 		auto beaconConfiguration = std::make_shared<configuration::BeaconConfiguration>(configuration::BeaconConfiguration::DEFAULT_MULTIPLICITY, dl, cl);
 
 		configuration = std::make_shared<configuration::Configuration>(device, configuration::OpenKitType::Type::DYNATRACE,
-			core::UTF8String(APP_NAME), "", appID, deviceID, "",
+			core::UTF8String(APP_NAME), "", appID, deviceID, std::to_string(deviceID).c_str(), "",
 			sessionIDProviderMock, trustManager, beaconCacheConfiguration, beaconConfiguration);
 		configuration->enableCapture();
 
@@ -300,12 +300,12 @@ TEST_F(BeaconTest, createTagReturnsTagStringForDataCollectionLevel2)
 TEST_F(BeaconTest, createTagEncodesDeviceIDPropperly)
 {
 	// given
-	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF, "device_id/", APP_ID);
+	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF, -42, APP_ID);
 
 	// when
 	auto tagString = target->createTag(1, 1);
 
-	ASSERT_EQ(tagString, std::string("MT_3_1_device%5Fid%2F_0_")
+	ASSERT_EQ(tagString, std::string("MT_3_1_-42_0_")
 							+ APP_ID
 							+ std::string("_1_")
 							+ std::to_string(threadIDProvider->getThreadID())
@@ -315,12 +315,12 @@ TEST_F(BeaconTest, createTagEncodesDeviceIDPropperly)
 TEST_F(BeaconTest, createTagUsesEncodedAppID)
 {
 	// given
-	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF, "device_id/", "app_ID_");
+	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF, 42, "app_ID_");
 
 	// when
 	auto tagString = target->createTag(1, 1);
 
-	ASSERT_EQ(tagString, std::string("MT_3_1_device%5Fid%2F_0_")
+	ASSERT_EQ(tagString, std::string("MT_3_1_42_0_")
 		+ std::string("app%5FID%5F")
 		+ std::string("_1_")
 		+ std::to_string(threadIDProvider->getThreadID())
@@ -375,7 +375,7 @@ TEST_F(BeaconTest, randomDeviceIDCannotBeNegativeOnDataCollectionLevel0)
 	auto target = buildBeacon(openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OFF);
 
 	// when
-	int64_t deviceID = std::stoll(target->getDeviceID().getStringData());
+	auto deviceID = target->getDeviceID();
 
 	// then
 	EXPECT_THAT(deviceID, testing::AllOf(testing::Ge(int64_t(0)), testing::Lt(std::numeric_limits<int64_t>::max())));
@@ -387,24 +387,10 @@ TEST_F(BeaconTest, randomDeviceIDCannotBeNegativeOnDataCollectionLevel1)
 	auto target = buildBeacon(openkit::DataCollectionLevel::PERFORMANCE, openkit::CrashReportingLevel::OFF);
 
 	// when
-	int64_t deviceID = std::stoll(target->getDeviceID().getStringData());
+	auto deviceID = target->getDeviceID();
 
 	// then
 	EXPECT_THAT(deviceID, testing::AllOf(testing::Ge(int64_t(0)), testing::Lt(std::numeric_limits<int64_t>::max())));
-}
-
-TEST_F(BeaconTest, deviceIDIsTruncatedTo250Characters)
-{
-	// given
-	auto deviceID = std::string(249, 'a') + "bc";
-
-	auto target = buildBeacon(configuration::BeaconConfiguration::DEFAULT_DATA_COLLECTION_LEVEL, configuration::BeaconConfiguration::DEFAULT_CRASH_REPORTING_LEVEL, deviceID, APP_ID);
-
-	// when
-	auto obtained = target->getDeviceID().getStringData();
-
-	// then
-	EXPECT_EQ(std::string(249, 'a') + "b", obtained);
 }
 
 TEST_F(BeaconTest, sessionIDIsAlwaysValue1OnDataCollectionLevel0)
@@ -1002,7 +988,7 @@ TEST_F(BeaconTest, sessionStartIsReportedForDataCollectionLevel2)
 TEST_F(BeaconTest, clientIPAddressCanBeANullptr)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF, core::UTF8String(DEVICE_ID), core::UTF8String(APP_ID), nullptr);
+	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF, DEVICE_ID, core::UTF8String(APP_ID), nullptr);
 
 	// when, then
 	ASSERT_EQ(0, target->getClientIPAddress().getStringLength());
@@ -1011,7 +997,7 @@ TEST_F(BeaconTest, clientIPAddressCanBeANullptr)
 TEST_F(BeaconTest, clientIPAddressCanBeAnEmptyString)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF, core::UTF8String(DEVICE_ID), core::UTF8String(APP_ID), "");
+	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF, DEVICE_ID, core::UTF8String(APP_ID), "");
 
 	// when, then
 	ASSERT_EQ(0, target->getClientIPAddress().getStringLength());
@@ -1020,7 +1006,7 @@ TEST_F(BeaconTest, clientIPAddressCanBeAnEmptyString)
 TEST_F(BeaconTest, validClientIpIsStored)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF, core::UTF8String(DEVICE_ID), core::UTF8String(APP_ID), "127.0.0.1");
+	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF, DEVICE_ID, core::UTF8String(APP_ID), "127.0.0.1");
 
 	// when, then
 	ASSERT_STREQ("127.0.0.1", target->getClientIPAddress().getStringData().c_str());
@@ -1029,7 +1015,7 @@ TEST_F(BeaconTest, validClientIpIsStored)
 TEST_F(BeaconTest, invalidClientIPIsConvertedToEmptyString)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF, core::UTF8String(DEVICE_ID), core::UTF8String(APP_ID), "asdf");
+	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF, DEVICE_ID, core::UTF8String(APP_ID), "asdf");
 
 	// when, then
 	ASSERT_EQ(0, target->getClientIPAddress().getStringLength());

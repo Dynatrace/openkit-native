@@ -194,6 +194,15 @@ namespace openkit
 			/// @param[in] endpointURL endpoint OpenKit connects to
 			/// @param[in] deviceID unique device id
 			///
+			AbstractOpenKitBuilder(const char* endpointURL, int64_t deviceID);
+
+			///
+			/// Constructor
+			/// @param[in] endpointURL endpoint OpenKit connects to
+			/// @param[in] deviceID unique device id
+			/// @deprecated use AbstractOpenKitBuilder(const char*, int64_t) constructor instead
+			///
+			OPENKIT_DEPRECATED
 			AbstractOpenKitBuilder(const char* endpointURL, const char* deviceID);
 
 			///
@@ -203,7 +212,7 @@ namespace openkit
 			const std::string& getApplicationVersion() const;
 
 			///
-			/// Returns the operating system 
+			/// Returns the operating system
 			/// @returns the operating system
 			///
 			const std::string& getOperatingSystem() const;
@@ -230,7 +239,13 @@ namespace openkit
 			/// Returns the device ID
 			/// @returns the device ID
 			///
-			const std::string& getDeviceID() const;
+			int64_t getDeviceID() const;
+
+			///
+			/// Returns the original device ID (before hashing)
+			/// @return the original device ID
+			///
+			const std::string& getOrigDeviceID() const;
 
 			///
 			/// Returns the SSL trust manager
@@ -277,6 +292,14 @@ namespace openkit
 			std::shared_ptr<openkit::ILogger> getLogger();
 
 		private:
+			///
+			/// Constructor
+			/// @param[in] endpointURL endpoint OpenKit connects to
+			/// @param[in] deviceID unique device id
+			/// @param[in] origDeviceID device id before it was hashed
+			///
+			AbstractOpenKitBuilder(const char* endpointURL, int64_t deviceID, const char* origDeviceID);
+
 			/// Log level used for the default logger
 			LogLevel mLogLevel;
 
@@ -299,7 +322,10 @@ namespace openkit
 			std::string mEndpointURL;
 
 			/// device ID
-			std::string mDeviceID;
+			int64_t mDeviceID;
+
+			/// original device ID (before hashing)
+			std::string mOrigDeviceID;
 
 			/// SSL trust manager
 			std::shared_ptr<openkit::ISSLTrustManager> mTrustManager;

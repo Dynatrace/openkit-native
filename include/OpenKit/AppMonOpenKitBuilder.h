@@ -43,7 +43,9 @@ namespace openkit
 		/// @param[in] endpointURL endpoint OpenKit connects to
 		/// @param[in] applicationName unique application name
 		/// @param[in] deviceID unique device id
+		/// @deprecated use AppMonOpenKitBuilder(const char*, const char*, int64_t) constructor instead
 		///
+		OPENKIT_DEPRECATED
 		AppMonOpenKitBuilder(const char* endpointURL, const char* applicationName, const char* deviceID);
 
 		///

@@ -16,6 +16,7 @@
 
 #include "OpenKit/AbstractOpenKitBuilder.h"
 #include "core/util/DefaultLogger.h"
+#include "core/util/StringUtil.h"
 #include "core/OpenKit.h"
 #include "OpenKit/OpenKitConstants.h"
 #include "protocol/ssl/SSLStrictTrustManager.h"
@@ -23,6 +24,16 @@
 using namespace openkit;
 
 AbstractOpenKitBuilder::AbstractOpenKitBuilder(const char* endpointURL, const char* deviceID)
+	: AbstractOpenKitBuilder(endpointURL, core::util::StringUtil::toNumericOr64BitHash(deviceID), deviceID)
+{
+}
+
+AbstractOpenKitBuilder::AbstractOpenKitBuilder(const char* endpointURL, int64_t deviceID)
+	: AbstractOpenKitBuilder(endpointURL, deviceID, std::to_string(deviceID).c_str())
+{
+}
+
+AbstractOpenKitBuilder::AbstractOpenKitBuilder(const char* endpointURL, int64_t deviceID, const char* origDeviceID)
 	: mLogLevel(LogLevel::LOG_LEVEL_WARN)
 	, mLogger(nullptr)
 	, mApplicationVersion(DEFAULT_APPLICATION_VERSION)
@@ -31,6 +42,7 @@ AbstractOpenKitBuilder::AbstractOpenKitBuilder(const char* endpointURL, const ch
 	, mModelID(DEFAULT_MODEL_ID)
 	, mEndpointURL(endpointURL)
 	, mDeviceID(deviceID)
+	, mOrigDeviceID(origDeviceID)
 	, mTrustManager(std::make_shared<protocol::SSLStrictTrustManager>())
 	, mBeaconCacheMaxRecordAge(configuration::BeaconCacheConfiguration::DEFAULT_MAX_RECORD_AGE_IN_MILLIS.count())
 	, mBeaconCacheLowerMemoryBoundary(configuration::BeaconCacheConfiguration::DEFAULT_LOWER_MEMORY_BOUNDARY_IN_BYTES)
@@ -173,9 +185,14 @@ const std::string& AbstractOpenKitBuilder::getEndpointURL() const
 	return mEndpointURL;
 }
 
-const std::string& AbstractOpenKitBuilder::getDeviceID() const
+int64_t AbstractOpenKitBuilder::getDeviceID() const
 {
 	return mDeviceID;
+}
+
+const std::string& AbstractOpenKitBuilder::getOrigDeviceID() const
+{
+	return mOrigDeviceID;
 }
 
 std::shared_ptr<openkit::ISSLTrustManager> AbstractOpenKitBuilder::getTrustManager() const

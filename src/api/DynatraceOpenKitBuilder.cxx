@@ -21,7 +21,8 @@
 using namespace openkit;
 
 DynatraceOpenKitBuilder::DynatraceOpenKitBuilder(const char* endpointURL, const char* applicationID, int64_t deviceID)
-	: DynatraceOpenKitBuilder(endpointURL, applicationID, std::to_string(deviceID).c_str())
+	: AbstractOpenKitBuilder(endpointURL, deviceID)
+	, mApplicationID(applicationID)
 {
 }
 
@@ -49,12 +50,13 @@ std::shared_ptr<configuration::Configuration> DynatraceOpenKitBuilder::buildConf
 		);
 
 	return std::make_shared<configuration::Configuration>(
-			device,	
+			device,
 			configuration::OpenKitType::Type::DYNATRACE,
 			mApplicationName,
 			getApplicationVersion(),
 			mApplicationID,
 			getDeviceID(),
+			getOrigDeviceID(),
 			getEndpointURL(),
 			std::make_shared<providers::DefaultSessionIDProvider>(),
 			getTrustManager(),

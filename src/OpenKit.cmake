@@ -119,6 +119,8 @@ set(OPENKIT_SOURCES_CORE_UTIL
     ${CMAKE_CURRENT_LIST_DIR}/core/util/SynchronizedQueue.h
     ${CMAKE_CURRENT_LIST_DIR}/core/util/URLEncoding.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/util/URLEncoding.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/util/StringUtil.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/util/StringUtil.h
 )
 
 set(OPENKIT_SOURCES_CORE

@@ -27,6 +27,7 @@
 #include "OpenKit/OpenKitConstants.h"
 #include "protocol/ssl/SSLStrictTrustManager.h"
 #include "core/util/DefaultLogger.h"
+#include "core/util/StringUtil.h"
 
 #include "../protocol/TestSSLTrustManager.h"
 
@@ -89,6 +90,48 @@ TEST_F(OpenKitBuilderTest, defaultsAreSetForAppMon)
 	ASSERT_EQ(beaconConfiguration->getCrashReportingLevel(), configuration::BeaconConfiguration::DEFAULT_CRASH_REPORTING_LEVEL);
 }
 
+TEST_F(OpenKitBuilderTest, appMonOpenKitBuilderTakesStringDeviceID)
+{
+    // when
+    auto deviceIdString = std::string("some text");
+    auto configuration = AppMonOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, deviceIdString.c_str()).buildConfiguration();
+
+    // when
+    auto hashedDeviceId = core::util::StringUtil::to64BitHash(deviceIdString);
+
+    // then
+    ASSERT_EQ(configuration->getDeviceID(), hashedDeviceId);
+}
+
+TEST_F(OpenKitBuilderTest, appMonOpenKitBuilderTakesOverNumericDeviceIdString)
+{
+    // given
+    auto configuration = AppMonOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, "42").buildConfiguration();
+
+    // when, then
+    ASSERT_EQ(configuration->getDeviceID(), 42);
+}
+
+TEST_F(OpenKitBuilderTest, appMonOpenKitBuilderTrimsDeviceIdString)
+{
+    // given
+    const char* deviceIdString = " 42 ";
+    auto configuration = AppMonOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, deviceIdString).buildConfiguration();
+
+    // when, then
+    ASSERT_EQ(configuration->getDeviceID(), 42);
+}
+
+TEST_F(OpenKitBuilderTest, appMonKitBuilderTakesNumericDeviceId)
+{
+    //given
+    auto deviceId = 42;
+    auto configuration = AppMonOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, deviceId).buildConfiguration();
+
+    // when, then
+    ASSERT_EQ(configuration->getDeviceID(), deviceId);
+}
+
 TEST_F(OpenKitBuilderTest, defaultsAreSetForDynatrace)
 {
 	auto configuration = DynatraceOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID).buildConfiguration();
@@ -107,6 +150,48 @@ TEST_F(OpenKitBuilderTest, defaultsAreSetForDynatrace)
 	ASSERT_EQ(beaconCacheConfiguration->getMaxRecordAge(), configuration::BeaconCacheConfiguration::DEFAULT_MAX_RECORD_AGE_IN_MILLIS.count());
 	ASSERT_EQ(beaconCacheConfiguration->getCacheSizeUpperBound(), configuration::BeaconCacheConfiguration::DEFAULT_UPPER_MEMORY_BOUNDARY_IN_BYTES);
 	ASSERT_EQ(beaconCacheConfiguration->getCacheSizeLowerBound(), configuration::BeaconCacheConfiguration::DEFAULT_LOWER_MEMORY_BOUNDARY_IN_BYTES);
+}
+
+TEST_F(OpenKitBuilderTest, dynatraceOpenKitBuilderTakesStringDeviceId)
+{
+    // given
+    auto deviceIdString = std::string("some text");
+    auto configuration = DynatraceOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, deviceIdString.c_str()).buildConfiguration();
+
+    // when
+    auto hashedDeviceId = core::util::StringUtil::to64BitHash(deviceIdString);
+
+    // then
+    ASSERT_EQ(configuration->getDeviceID(), hashedDeviceId);
+}
+
+TEST_F(OpenKitBuilderTest, dynatraceOpenKitBuilderTakesOverNumericDeviceIdString)
+{
+    // given
+    auto configuration = DynatraceOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, "42").buildConfiguration();
+
+    // when, then
+    ASSERT_EQ(configuration->getDeviceID(), 42);
+}
+
+TEST_F(OpenKitBuilderTest, dynatraceOpenKitBuilderTrimsDeviceIdString)
+{
+    // given
+    const char* deviceIdString = " 42 ";
+    auto configuration = DynatraceOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, deviceIdString).buildConfiguration();
+
+    // when, then
+    ASSERT_EQ(configuration->getDeviceID(), 42);
+}
+
+TEST_F(OpenKitBuilderTest, dynatraceOpenKitBuilderTakesNumericDeviceId)
+{
+    //given
+    auto deviceId = 42;
+    auto configuration = DynatraceOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, deviceId).buildConfiguration();
+
+    // when, then
+    ASSERT_EQ(configuration->getDeviceID(), deviceId);
 }
 
 TEST_F(OpenKitBuilderTest, applicationNameIsSetCorrectlyForAppMon)

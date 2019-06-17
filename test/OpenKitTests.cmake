@@ -43,6 +43,7 @@ set(OPENKIT_SOURCES_TEST_CORE
     ${CMAKE_CURRENT_LIST_DIR}/core/util/URLEncodingTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/util/SynchronizedQueueTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/util/InetAddressValidatorTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/util/StringUtilTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/MockBeaconSender.h
     ${CMAKE_CURRENT_LIST_DIR}/core/MockSession.h
     ${CMAKE_CURRENT_LIST_DIR}/core/util/DefaultLoggerTest.cxx

@@ -3,6 +3,9 @@
 ## [Unreleased](https://github.com/Dynatrace/openkit-native/compare/v1.1.0...HEAD)
 
 ### Changed
+- On OpenKitBuilder creation device ID is parsed from the given string. Non-numeric
+  device IDs are hashed to a corresponding numeric value. Internally a numeric
+  type is used for the device ID.
 - Fix incorrect check in C-API's useBeaconCacheBehaviorForConfiguration function when setting the
   upper memory bound.
 - Response code is now a parameter of IWebRequestTracer's stop function

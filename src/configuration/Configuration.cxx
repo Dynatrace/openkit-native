@@ -27,7 +27,7 @@ constexpr int32_t DEFAULT_MAX_BEACON_SIZE = 30 * 1024;            // default: ma
 constexpr bool DEFAULT_CAPTURE_ERRORS = true;                     // default: capture errors on
 constexpr bool DEFAULT_CAPTURE_CRASHES = true;                    // default: capture crashes on
 
-Configuration::Configuration(std::shared_ptr<configuration::Device> device, OpenKitType openKitType, const core::UTF8String& applicationName, const core::UTF8String& applicationVersion, const core::UTF8String& applicationID, const core::UTF8String& deviceID, const core::UTF8String& endpointURL,
+Configuration::Configuration(std::shared_ptr<configuration::Device> device, OpenKitType openKitType, const core::UTF8String& applicationName, const core::UTF8String& applicationVersion, const core::UTF8String& applicationID, int64_t deviceID, const core::UTF8String& origDeviceID, const core::UTF8String& endpointURL,
 	std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider, std::shared_ptr<openkit::ISSLTrustManager> sslTrustManager,
 	std::shared_ptr<configuration::BeaconCacheConfiguration> beaconCacheConfiguration, std::shared_ptr<configuration::BeaconConfiguration> beaconConfiguration)
 	: mHTTPClientConfiguration(std::make_shared<configuration::HTTPClientConfiguration>(endpointURL, openKitType.getDefaultServerID(), applicationID, sslTrustManager))
@@ -44,6 +44,7 @@ Configuration::Configuration(std::shared_ptr<configuration::Device> device, Open
 	, mApplicationVersion(applicationVersion)
 	, mEndpointURL(endpointURL)
 	, mDeviceID(deviceID)
+	, mOrigDeviceID(origDeviceID)
 	, mDevice(device)
 	, mBeaconCacheConfiguration(beaconCacheConfiguration)
 	, mBeaconConfiguration(beaconConfiguration)
@@ -81,9 +82,9 @@ void Configuration::updateSettings(std::shared_ptr<protocol::StatusResponse> sta
 	//check if HTTP configuration changed
 	if (mHTTPClientConfiguration->getServerID() != newServerID)
 	{
-		mHTTPClientConfiguration = std::make_shared<configuration::HTTPClientConfiguration>(mEndpointURL, 
+		mHTTPClientConfiguration = std::make_shared<configuration::HTTPClientConfiguration>(mEndpointURL,
 																							newServerID,
-																							mApplicationID, 
+																							mApplicationID,
 																							mHTTPClientConfiguration->getSSLTrustManager());
 	}
 
@@ -171,9 +172,14 @@ const core::UTF8String& Configuration::getEndpointURL() const
 	return mEndpointURL;
 }
 
-const core::UTF8String& Configuration::getDeviceID() const
+int64_t Configuration::getDeviceID() const
 {
 	return mDeviceID;
+}
+
+const core::UTF8String& Configuration::getOrigDeviceID() const
+{
+	return mOrigDeviceID;
 }
 
 int64_t Configuration::getSendInterval() const

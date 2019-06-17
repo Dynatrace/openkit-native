@@ -50,7 +50,7 @@ namespace configuration
 		/// @param[in] beaconCacheConfiguration beacon cache configuration
 		/// @param[in] beaconConfiguration beacon configuration
 		///
-		Configuration(std::shared_ptr<configuration::Device> device, OpenKitType openKitType, const core::UTF8String& applicationName, const core::UTF8String& applicationVersion, const core::UTF8String& applicationID, const core::UTF8String& deviceID, const core::UTF8String& endpointURL,
+		Configuration(std::shared_ptr<configuration::Device> device, OpenKitType openKitType, const core::UTF8String& applicationName, const core::UTF8String& applicationVersion, const core::UTF8String& applicationID, int64_t deviceID, const core::UTF8String& origDeviceID, const core::UTF8String& endpointURL,
 			std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider, std::shared_ptr<openkit::ISSLTrustManager> sslTrustManager,
 			std::shared_ptr<configuration::BeaconCacheConfiguration> beaconCacheConfiguration, std::shared_ptr<configuration::BeaconConfiguration> beaconConfiguration);
 
@@ -130,7 +130,12 @@ namespace configuration
 		/// Returns the device id
 		/// @returns the device id
 		///
-		const core::UTF8String& getDeviceID() const;
+		int64_t getDeviceID() const;
+
+		///
+		/// Returns the device id like it looked before it was parsed/hashed
+		///
+		const core::UTF8String& getOrigDeviceID() const;
 
 		///
 		/// Returns the send interval
@@ -193,7 +198,7 @@ namespace configuration
 
 		/// the send interval
 		int64_t mSendInterval;
-		
+
 		/// maximum beacon size
 		int32_t mMaxBeaconSize;
 
@@ -222,7 +227,10 @@ namespace configuration
 		core::UTF8String mEndpointURL;
 
 		///device ID
-		core::UTF8String mDeviceID;
+		int64_t mDeviceID;
+
+		/// original device ID
+		core::UTF8String mOrigDeviceID;
 
 		/// device information
 		std::shared_ptr<configuration::Device> mDevice;

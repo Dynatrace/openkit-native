@@ -47,7 +47,7 @@ Beacon::Beacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching
 	, mBeaconCache(beaconCache)
 	, mHTTPClientConfiguration(configuration->getHTTPClientConfiguration())
 	, mBeaconConfiguration(configuration->getBeaconConfiguration())
-	, mDeviceID("")
+	, mDeviceID()
 	, mRandomGenerator(randomGenerator)
 {
 	core::UTF8String internalClientIPAddress(clientIPAddress);
@@ -70,12 +70,12 @@ Beacon::Beacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching
 
 	if (mBeaconConfiguration->getDataCollectionLevel() == openkit::DataCollectionLevel::USER_BEHAVIOR)
 	{
-		mDeviceID = truncate(mConfiguration->getDeviceID());
+		mDeviceID = mConfiguration->getDeviceID();
 		mSessionNumber = configuration->createSessionNumber();
 	}
 	else
 	{
-		mDeviceID = std::to_string(mRandomGenerator->nextInt64(std::numeric_limits<int64_t>::max()));
+		mDeviceID = mRandomGenerator->nextInt64(std::numeric_limits<int64_t>::max());
 		mSessionNumber = 1;
 	}
 
@@ -223,7 +223,7 @@ core::UTF8String Beacon::createTag(int32_t parentActionID, int32_t sequenceNumbe
 	webRequestTag.concatenate("_");
 	webRequestTag.concatenate(std::to_string(mHTTPClientConfiguration->getServerID()));
 	webRequestTag.concatenate("_");
-	webRequestTag.concatenate(core::util::URLEncoding::urlencode(getDeviceID(), { '_' }));
+	webRequestTag.concatenate(std::to_string(getDeviceID()));
 	webRequestTag.concatenate("_");
 	webRequestTag.concatenate(std::to_string(mSessionNumber));
 	webRequestTag.concatenate("_");
@@ -569,7 +569,7 @@ int32_t Beacon::getSessionNumber() const
 	return mSessionNumber;
 }
 
-const core::UTF8String& Beacon::getDeviceID() const
+int64_t Beacon::getDeviceID() const
 {
 	return mDeviceID;
 }

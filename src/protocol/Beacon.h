@@ -245,7 +245,7 @@ namespace protocol
 		/// Returns the device id
 		/// @returns device id
 		///
-		const core::UTF8String& getDeviceID() const;
+		int64_t getDeviceID() const;
 
 		///
 		/// Sets the beacon configuration on the Beacon
@@ -420,10 +420,7 @@ namespace protocol
 		std::shared_ptr<configuration::BeaconConfiguration> mBeaconConfiguration;
 
 		/// device id
-		core::UTF8String mDeviceID;
-
-		/// device id
-		core::UTF8String mDeviceIDPercentEncoded;
+		int64_t mDeviceID;
 
 		///random generator
 		std::shared_ptr<providers::IPRNGenerator> mRandomGenerator;
