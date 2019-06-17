@@ -43,7 +43,9 @@ namespace openkit
 		/// @param[in] endpointURL endpoint OpenKit connects to
 		/// @param[in] applicationID unique application id
 		/// @param[in] deviceID unique device id
+		/// @deprecated use DynatraceOpenKitBuilder(const char*, const char*, int64_t) constructor instead
 		///
+		OPENKIT_DEPRECATED
 		DynatraceOpenKitBuilder(const char* endpointURL, const char* applicationID, const char* deviceID);
 
 		///

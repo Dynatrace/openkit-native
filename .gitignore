@@ -1,4 +1,5 @@
 build
 .vs
 .vscode
+.idea
 docs/doxygen

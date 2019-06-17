@@ -69,12 +69,12 @@ namespace protocol
 		///
 		Beacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching::IBeaconCache> beaconCache,
 			std::shared_ptr<configuration::Configuration> configuration, const char* clientIPAddress,
-			std::shared_ptr<providers::IThreadIDProvider> threadIDProvider , 
-			std::shared_ptr<providers::ITimingProvider> timingProvider, 
+			std::shared_ptr<providers::IThreadIDProvider> threadIDProvider,
+			std::shared_ptr<providers::ITimingProvider> timingProvider,
 			std::shared_ptr<providers::IPRNGenerator> randomGenerator);
 
 		///
-		/// Destructor 
+		/// Destructor
 		///
 		virtual ~Beacon() {}
 
@@ -213,7 +213,7 @@ namespace protocol
 		///
 		virtual void identifyUser(const core::UTF8String& userTag);
 
-		/// 
+		///
 		/// Sends the current Beacon state
 		/// @param[in] clientProvider the @ref providers::IHTTPClientProvider to use for sending
 		/// @returns the status response returned for the Beacon data
@@ -222,7 +222,7 @@ namespace protocol
 
 		///
 		/// Tests if the Beacon is empty
-		/// 
+		///
 		/// A beacon is considered to be empty, if it does not contain any action or event data.
 		/// @returns @c true if the beacon is empty, @c false otherwise
 		///
@@ -245,7 +245,7 @@ namespace protocol
 		/// Returns the device id
 		/// @returns device id
 		///
-		const core::UTF8String& getDeviceID() const;
+		int64_t getDeviceID() const;
 
 		///
 		/// Sets the beacon configuration on the Beacon
@@ -420,10 +420,7 @@ namespace protocol
 		std::shared_ptr<configuration::BeaconConfiguration> mBeaconConfiguration;
 
 		/// device id
-		core::UTF8String mDeviceID;
-
-		/// device id
-		core::UTF8String mDeviceIDPercentEncoded;
+		int64_t mDeviceID;
 
 		///random generator
 		std::shared_ptr<providers::IPRNGenerator> mRandomGenerator;

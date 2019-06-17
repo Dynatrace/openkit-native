@@ -21,7 +21,8 @@
 using namespace openkit;
 
 AppMonOpenKitBuilder::AppMonOpenKitBuilder(const char* endpointURL, const char* applicationName, int64_t deviceID)
-	: AppMonOpenKitBuilder(endpointURL, applicationName, std::to_string(deviceID).c_str())
+	: AbstractOpenKitBuilder(endpointURL, deviceID)
+	, mApplicationName(applicationName)
 {
 }
 
@@ -54,6 +55,7 @@ std::shared_ptr<configuration::Configuration> AppMonOpenKitBuilder::buildConfigu
 		getApplicationVersion(),
 		mApplicationName,
 		getDeviceID(),
+		getOrigDeviceID(),
 		getEndpointURL(),
 		std::make_shared<providers::DefaultSessionIDProvider>(),
 		getTrustManager(),

@@ -40,12 +40,12 @@ public:
 
 	std::unique_ptr<configuration::Configuration> getDefaultConfiguration()
 	{
-		return std::unique_ptr<Configuration>(new Configuration(device, openKitType, "", "", "/App_ID%", 0, "", sessionIDProvider, sslTrustManager, beaconCacheConfiguration, beaconConfiguration));
+		return std::unique_ptr<Configuration>(new Configuration(device, openKitType, "", "", "/App_ID%", 0, "0", "", sessionIDProvider, sslTrustManager, beaconCacheConfiguration, beaconConfiguration));
 	}
 
 	std::unique_ptr<configuration::Configuration> getConfiguration(const core::UTF8String& beaconURL)
 	{
-		return std::unique_ptr<Configuration>(new Configuration(device, openKitType, "", "", "/App_ID%", 0, beaconURL, sessionIDProvider, sslTrustManager, beaconCacheConfiguration, beaconConfiguration));
+		return std::unique_ptr<Configuration>(new Configuration(device, openKitType, "", "", "/App_ID%", 0, "0", beaconURL, sessionIDProvider, sslTrustManager, beaconCacheConfiguration, beaconConfiguration));
 	}
 private:
 	std::shared_ptr<Device> device = nullptr;

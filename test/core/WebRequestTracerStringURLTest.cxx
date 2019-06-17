@@ -48,7 +48,7 @@ public:
 		auto beaconConfiguration = std::make_shared<configuration::BeaconConfiguration>();
 		auto beaconCacheConfiguration = std::make_shared<configuration::BeaconCacheConfiguration>(-1, -1, -1);
 		auto configuration = std::shared_ptr<configuration::Configuration>(new configuration::Configuration(device, configuration::OpenKitType::Type::DYNATRACE,
-			core::UTF8String(APP_NAME), "", APP_ID, 0, "",
+			core::UTF8String(APP_NAME), "", APP_ID, 0, "0", "",
 			sessionIDProvider, trustManager, beaconCacheConfiguration, beaconConfiguration));
 		configuration->enableCapture();
 

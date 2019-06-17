@@ -61,7 +61,7 @@ public:
 		beaconConfiguration = std::make_shared<configuration::BeaconConfiguration>();
 		beaconCacheConfiguration = std::make_shared<configuration::BeaconCacheConfiguration>(-1, -1, -1);
 		configuration = std::shared_ptr<configuration::Configuration>(new configuration::Configuration(device, configuration::OpenKitType::Type::DYNATRACE,
-			core::UTF8String(APP_NAME), "", APP_ID, 0, "",
+			core::UTF8String(APP_NAME), "", APP_ID, 0,"0", "",
 			sessionIDProvider, trustManager, beaconCacheConfiguration, beaconConfiguration));
 		configuration->enableCapture();
 
@@ -84,7 +84,7 @@ public:
 	std::shared_ptr<providers::IThreadIDProvider> threadIDProvider;
 	std::shared_ptr<providers::ITimingProvider> timingProvider;
 	std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider;
-	
+
 	std::shared_ptr<testing::NiceMock<test::MockHTTPClient>> mockHTTPClient;
 	std::shared_ptr<openkit::ISSLTrustManager> trustManager;
 
