@@ -548,8 +548,7 @@ webRequestTracer->start();
 
 webRequestTracer->setBytesSent(12345);     // 12345 bytes sent
 webRequestTracer->setBytesReceived(67890); // 67890 bytes received
-webRequestTracer->setResponseCode(200);    // 200 was the response code
-webRequestTracer->stop();
+webRequestTracer->stop(200);               // 200 was the response code
 
 // also reset the shared pointer after stop() method has been called
 // to cleanup pointer
@@ -577,10 +576,9 @@ startWebRequest(webRequestTracer);
 
 // perform the request here & do not forget to add the HTTP header
 
-setBytesSent(webRequestTracer, 12345);     // 12345 bytes sent
-setBytesReceived(webRequestTracer, 67890); // 67890 bytes received
-setResponseCode(webRequestTracer, 200);    // 200 was the response code
-stopWebRequest(webRequestTracer);
+setBytesSent(webRequestTracer, 12345);                  // 12345 bytes sent
+setBytesReceived(webRequestTracer, 67890);              // 67890 bytes received
+stopWebRequestWithResponseCode(webRequestTracer, 200);  // 200 was the response code
 
 // since webRequestTracer now points to an invalid memory
 // location, it's recommended to set the pointer to NULL.
