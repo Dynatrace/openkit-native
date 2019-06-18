@@ -95,14 +95,19 @@ void Session::reportCrash(const char* errorName, const char* reason, const char*
 		mLogger->warning("%s reportCrash: errorName must not be null or empty", toString().c_str());
 		return;
 	}
+
+	UTF8String reasonString(reason);
+	UTF8String stacktraceString(stacktrace);
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("%s reportCrash(%s, %s, %s)", toString().c_str(), errorName, (reason != nullptr ? reason : "null"), (stacktrace != nullptr ? stacktrace : "null"));
+		mLogger->debug("%s reportCrash(%s, %s, %s)", toString().c_str(), errorNameString.getStringData().c_str(),
+				(reason != nullptr ? reasonString.getStringData().c_str() : "null"),
+				(stacktrace != nullptr ? stacktraceString.getStringData().c_str() : "null"));
 	}
 
 	if (!isSessionEnded())
 	{
-		mBeacon->reportCrash(errorNameString, UTF8String(reason), UTF8String(stacktrace));
+		mBeacon->reportCrash(errorNameString, reasonString, stacktraceString);
 	}
 }
 
@@ -121,7 +126,7 @@ std::shared_ptr<openkit::IWebRequestTracer> Session::traceWebRequest(const char*
 	}
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("%s traceWebRequest (string) (%s))", toString().c_str(), url);
+		mLogger->debug("%s traceWebRequest (string) (%s))", toString().c_str(), urlString.getStringData().c_str());
 	}
 
 	if (!isSessionEnded())

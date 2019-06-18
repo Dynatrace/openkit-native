@@ -37,7 +37,7 @@ namespace core
 		/// Default constructor building an empty string
 		///
 		UTF8String();
-			
+
 		///
 		/// Initialize using a standard string. Either UTF8 multibyte
 		/// data or plain US-ASCII can be used to initialize strings.
@@ -110,7 +110,7 @@ namespace core
 		/// characters. The reason is that UTF8 characters can span multiple bytes.
 		/// @param[in] comparisonCharacter the character to search in the string, character also supports multi-byte UTF8 characters
 		/// @param[in] offset start search for character at the given offset
-		/// @return the index of 
+		/// @return the index of
 		///
 		size_t getIndexOf(const char* comparisonCharacter, size_t offset = 0) const;
 
@@ -158,7 +158,7 @@ namespace core
 		/// Checks if the given character belongs to a previous UTF8 multibyte character
 		/// NOTE: The bit mask @c '10xxxxxx' determines if a character belongs to a
 		///       previous character.
-		/// @param[in] character codepoint to check 
+		/// @param[in] character codepoint to check
 		/// @returns flag if character belongs to a previous charater
 		///
 		bool isPartOfPreviousUtf8Multibyte(const unsigned char character) const;
@@ -170,6 +170,15 @@ namespace core
 		/// @returns the number of bytes taken by the current character
 		///
 		size_t getByteWidthOfCharacter(const unsigned char character) const;
+
+		///
+		/// Checks if the character at the given offset in the given string corresponds to a string terminator.
+		/// In addition to the standard string termination with \0 a termination according to modified UTF-8 (0xC0 0x80)
+		/// is also considered.
+		///
+		/// @return @c true if the character(s) at the given offset specify a string terminator, @c false otherwise.
+		///
+		inline bool isStringTerminationCharacter(const char* stringData, size_t offset) const;
 
 	private:
 

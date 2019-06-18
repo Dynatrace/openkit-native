@@ -14,6 +14,13 @@
 * limitations under the License.
 */
 
+#include "HTTPClient.h"
+#include "HTTPResponseParser.h"
+#include "ProtocolConstants.h"
+#include "core/util/Compressor.h"
+#include "core/util/URLEncoding.h"
+#include "protocol/ssl/SSLStrictTrustManager.h"
+
 #include <cstdint>
 #include <chrono>
 #include <thread>
@@ -22,13 +29,6 @@
 #include <cctype>
 #include <limits>
 #include <string.h>
-
-#include "HTTPClient.h"
-#include "HTTPResponseParser.h"
-#include "ProtocolConstants.h"
-#include "core/util/Compressor.h"
-#include "core/util/URLEncoding.h"
-#include "protocol/ssl/SSLStrictTrustManager.h"
 
 // connection constants
 constexpr uint32_t MAX_SEND_RETRIES = 3;	// max number of retries of the HTTP GET or POST operation
@@ -61,7 +61,7 @@ HTTPClient::HTTPClient(std::shared_ptr<openkit::ILogger> logger, const std::shar
 	}
 	else
 	{
-		mSSLTrustManager = std::shared_ptr<openkit::ISSLTrustManager>(new protocol::SSLStrictTrustManager());
+		mSSLTrustManager = std::make_shared<protocol::SSLStrictTrustManager>();
 	}
 }
 
@@ -340,7 +340,7 @@ std::shared_ptr<Response> HTTPClient::handleResponse(RequestType requestType, in
 		}
 	}
 }
- 
+
 void HTTPClient::buildMonitorURL(core::UTF8String& monitorURL, const core::UTF8String& baseURL, const core::UTF8String& applicationID, uint32_t serverID)
 {
 	monitorURL.concatenate(baseURL);

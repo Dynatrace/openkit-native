@@ -199,7 +199,7 @@ TEST_F(UTF8StringTest, aStringCanBeInitializedWithABrokenThreeByteUTF8FollowedBy
 	EXPECT_EQ(stringData[2], '\xBD');
 	EXPECT_EQ(stringData[3], '\xD7');
 	EXPECT_EQ(stringData[4], '\xAA');
-	
+
 	EXPECT_EQ(s.getStringLength(), 2);
 	EXPECT_EQ(stringData.size(), 5);
 }
@@ -224,6 +224,139 @@ TEST_F(UTF8StringTest, aStringCanBeInitializedWhenTwoOfThreeMultiByteCharactersA
 	EXPECT_EQ(s.getStringLength(), 3);
 	EXPECT_EQ(stringData.size(), 9);
 }
+
+TEST_F(UTF8StringTest, aStringCanBeInitializedWithAnAsciiStringModifiedUtf8Terminated)
+{
+	UTF8String s("Hello\xC0\x80");
+
+	auto stringData = s.getStringData();
+
+	EXPECT_EQ(stringData[0], 'H');
+	EXPECT_EQ(stringData[1], 'e');
+	EXPECT_EQ(stringData[2], 'l');
+	EXPECT_EQ(stringData[3], 'l');
+	EXPECT_EQ(stringData[4], 'o');
+
+	EXPECT_EQ(s.getStringLength(), 5);
+	EXPECT_EQ(stringData.size(), 5);
+}
+
+TEST_F(UTF8StringTest, aStringCanBeInitializedWithAnAsciiStringPartialModifiedUtf8Terminator)
+{
+	UTF8String s("Hello\xC0\x81");
+
+	auto stringData = s.getStringData();
+
+	EXPECT_EQ(stringData[0], 'H');
+	EXPECT_EQ(stringData[1], 'e');
+	EXPECT_EQ(stringData[2], 'l');
+	EXPECT_EQ(stringData[3], 'l');
+	EXPECT_EQ(stringData[4], 'o');
+	EXPECT_EQ(stringData[5], '\xC0');
+	EXPECT_EQ(stringData[6], '\x81');
+
+	EXPECT_EQ(s.getStringLength(), 6);
+	EXPECT_EQ(stringData.size(), 7);
+}
+
+TEST_F(UTF8StringTest, aStringCanBeInitializedWithAnAsciiStringPrematurelyModifiedUtf8Terminated)
+{
+	UTF8String s("Hello\xC0\x80 World");
+
+	auto stringData = s.getStringData();
+
+	EXPECT_EQ(stringData[0], 'H');
+	EXPECT_EQ(stringData[1], 'e');
+	EXPECT_EQ(stringData[2], 'l');
+	EXPECT_EQ(stringData[3], 'l');
+	EXPECT_EQ(stringData[4], 'o');
+
+	EXPECT_EQ(s.getStringLength(), 5);
+	EXPECT_EQ(stringData.size(), 5);
+}
+
+TEST_F(UTF8StringTest, aStringCanBeInitializedWith2ByteCharactersModifiedUtf8Terminated)
+{
+	UTF8String s("\xD7\xAA\xD7\x95\xD7\x93\xD7\x94\xC0\x80");
+
+	auto stringData = s.getStringData();
+
+	EXPECT_EQ(stringData[0], '\xD7'); // 1/2
+	EXPECT_EQ(stringData[1], '\xAA'); // 2/2
+	EXPECT_EQ(stringData[2], '\xD7'); // 1/2
+	EXPECT_EQ(stringData[3], '\x95'); // 2/2
+	EXPECT_EQ(stringData[4], '\xD7'); // 1/2
+	EXPECT_EQ(stringData[5], '\x93'); // 2/2
+	EXPECT_EQ(stringData[6], '\xD7'); // 1/2
+	EXPECT_EQ(stringData[7], '\x94'); // 2/2
+
+	EXPECT_EQ(s.getStringLength(), 4);
+	EXPECT_EQ(stringData.size(), 8);
+}
+
+TEST_F(UTF8StringTest, aStringCanBeInitializedWith2ByteCharactersPrematurelyModifiedUtf8Terminated)
+{
+	UTF8String s("\xD7\xAA\xD7\x95\xD7\x93\xC0\x80\xD7\x94");
+
+	auto stringData = s.getStringData();
+
+	EXPECT_EQ(stringData[0], '\xD7'); // 1/2
+	EXPECT_EQ(stringData[1], '\xAA'); // 2/2
+	EXPECT_EQ(stringData[2], '\xD7'); // 1/2
+	EXPECT_EQ(stringData[3], '\x95'); // 2/2
+	EXPECT_EQ(stringData[4], '\xD7'); // 1/2
+	EXPECT_EQ(stringData[5], '\x93'); // 2/2
+
+	EXPECT_EQ(s.getStringLength(), 3);
+	EXPECT_EQ(stringData.size(), 6);
+}
+
+TEST_F(UTF8StringTest, aStringCanBeInitializedWith2ByteCharactersPartialModifiedUtf8Terminator)
+{
+	UTF8String s("\xD7\xAA\xD7\x95\xD7\x93\xD7\x94\xC0\x81");
+
+	auto stringData = s.getStringData();
+
+	EXPECT_EQ(stringData[0], '\xD7'); // 1/2
+	EXPECT_EQ(stringData[1], '\xAA'); // 2/2
+	EXPECT_EQ(stringData[2], '\xD7'); // 1/2
+	EXPECT_EQ(stringData[3], '\x95'); // 2/2
+	EXPECT_EQ(stringData[4], '\xD7'); // 1/2
+	EXPECT_EQ(stringData[5], '\x93'); // 2/2
+	EXPECT_EQ(stringData[6], '\xD7'); // 1/2
+	EXPECT_EQ(stringData[7], '\x94'); // 2/2
+	EXPECT_EQ(stringData[8], '\xC0'); // 1/2
+	EXPECT_EQ(stringData[9], '\x81'); // 2/2
+
+	EXPECT_EQ(s.getStringLength(), 5);
+	EXPECT_EQ(stringData.size(), 10);
+}
+
+TEST_F(UTF8StringTest, aStringCanBeInitialiyedWithOnlyModifiedUtf8Terminator)
+{
+	UTF8String s("\xC0\x80");
+
+	auto stringData = s.getStringData();
+
+	EXPECT_EQ(s.getStringLength(), 0);
+	EXPECT_EQ(stringData.size(), 0);
+}
+
+TEST_F(UTF8StringTest, aStringCanBeInitialiyedWithPartialModifiedUtf8TerminatorButTerminatedWithNull)
+{
+	UTF8String s("\xD7\xAA\xD7\x95\xC0\x00");
+
+	auto stringData = s.getStringData();
+
+	EXPECT_EQ(stringData[0], '\xD7'); // 1/2
+	EXPECT_EQ(stringData[1], '\xAA'); // 2/2
+	EXPECT_EQ(stringData[2], '\xD7'); // 1/2
+	EXPECT_EQ(stringData[3], '\x95'); // 2/2
+
+	EXPECT_EQ(s.getStringLength(), 2);
+	EXPECT_EQ(stringData.size(), 4);
+}
+
 
 TEST_F(UTF8StringTest, aStringWillNotBeConstructedUsingANullPointer)
 {
@@ -311,7 +444,7 @@ TEST_F(UTF8StringTest, aStringIsComparedWithAnIdenticalString)
 {
 	UTF8String s1("1234567890");
 	UTF8String s2("1234567890");
-	
+
 	bool comparison = s1.equals(s2);
 	EXPECT_TRUE(comparison);
 }
@@ -328,7 +461,7 @@ TEST_F(UTF8StringTest, aStringIsComparedWithADifferentString)
 TEST_F(UTF8StringTest, aStringIsComparedWithANullString)
 {
 	UTF8String s("abc\xD7\xAA\x78\xF0\x9F\x98\x8B\x64\xEA\xA6\x85xyz");
-	
+
 	bool comparison = s.equals(NULL);
 	EXPECT_FALSE(comparison);
 }

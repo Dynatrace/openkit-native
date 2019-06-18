@@ -15,8 +15,8 @@
 */
 
 #include "UTF8String.h"
-#include "memory.h"
 
+#include <cstring>
 #include <stdio.h>
 #include <sstream>
 
@@ -59,7 +59,7 @@ const std::string& UTF8String::getStringData() const
 
 bool UTF8String::isPartOfPreviousUtf8Multibyte(const unsigned char character) const
 {
-	//only highest bit set -> belongs to a multibyte utf character 
+	//only highest bit set -> belongs to a multibyte utf character
 	// |---|---|---|---|---|---|---|---|
 	// | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |  -> 0xC0
 	// |---|---|---|---|---|---|---|---|
@@ -156,7 +156,7 @@ void UTF8String::validateString(const char* stringData)
 
 	auto byteLength = 0;
 
-	while (*(stringData + byteLength) != '\0')
+	while (!isStringTerminationCharacter(stringData, byteLength))
 	{
 		byteLength++;
 	}
@@ -165,7 +165,7 @@ void UTF8String::validateString(const char* stringData)
 	{
 		return;
 	}
-		
+
 	mData.clear();
 
 	auto multibyteSeqenceLength = -1;
@@ -200,7 +200,7 @@ void UTF8String::validateString(const char* stringData)
 
 				characterCount++;
 			}
-		} 
+		}
 		else if (byteWidthOfCurrentCharacter == 1)//valid single byte US-ASCII character only using the lower seven bytes
 		{
 			if (multibyteSeqenceLength >= 0)
@@ -208,7 +208,7 @@ void UTF8String::validateString(const char* stringData)
 				this->mData.append(replacementCharacterASCII);
 				characterCount ++;
 			}
-	
+
 			this->mData.push_back(stringData[i]);
 
 			multibyteSeqenceLength = -1;
@@ -232,6 +232,22 @@ void UTF8String::validateString(const char* stringData)
 	}
 
 	mStringLength = characterCount;
+}
+
+inline bool UTF8String::isStringTerminationCharacter(const char* stringData, size_t offset) const
+{
+	auto character = *(stringData + offset);
+	if (character == '\0') // standard null terminated string
+	{
+		return true;
+	}
+
+	if (character == '\xC0' && *(stringData + offset + 1) == '\x80') // modified UTF-8 terminated string
+	{
+		return true;
+	}
+
+	return false;
 }
 
 bool UTF8String::equals(const UTF8String& other) const
@@ -342,7 +358,7 @@ UTF8String UTF8String::substring(size_t start, size_t length) const
 		UTF8String substring;
 		substring.mStringLength = characterCounter;
 		substring.mData.insert(substring.mData.begin(), mData.begin() + byteOffsetStart, mData.begin() + byteOffsetEnd + 1);
-		
+
 		return substring;
 	}
 	return UTF8String();

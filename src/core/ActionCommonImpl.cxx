@@ -40,7 +40,7 @@ void ActionCommonImpl::reportEvent(const char* eventName)
 	}
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("%s reportEvent(%s)", mObjectID.c_str(), eventName);
+		mLogger->debug("%s reportEvent(%s)", mObjectID.c_str(), eventNameString.getStringData().c_str());
 	}
 
 	mBeacon->reportEvent(mActionID, eventNameString);
@@ -56,7 +56,7 @@ void ActionCommonImpl::reportValue(const char* valueName, int32_t value)
 	}
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("%s reportValue (int) (%s, %d))", mObjectID.c_str(), valueName, value);
+		mLogger->debug("%s reportValue (int) (%s, %d))", mObjectID.c_str(), valueNameString.getStringData().c_str(), value);
 	}
 
 	mBeacon->reportValue(mActionID, valueNameString, value);
@@ -73,7 +73,7 @@ void ActionCommonImpl::reportValue(const char* valueName, double value)
 	}
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("%s reportValue (double) (%s, %f))", mObjectID.c_str(), valueName, value);
+		mLogger->debug("%s reportValue (double) (%s, %f))", mObjectID.c_str(), valueNameString.getStringData().c_str(), value);
 	}
 
 	mBeacon->reportValue(mActionID, valueNameString, value);
@@ -89,7 +89,10 @@ void ActionCommonImpl::reportValue(const char* valueName, const char* value)
 	}
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("%s reportValue (string) (%s, %s))", mObjectID.c_str(), valueName, (value != nullptr ? value : "null"));
+		UTF8String valueString(value);
+		mLogger->debug("%s reportValue (string) (%s, %s))", mObjectID.c_str(),
+				valueNameString.getStringData().c_str(),
+				(value != nullptr ? valueString.getStringData().c_str() : "null"));
 	}
 
 	mBeacon->reportValue(mActionID, valueNameString, value);
@@ -107,7 +110,9 @@ void ActionCommonImpl::reportError(const char* errorName, int32_t errorCode, con
 	}
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("%s reportError (%s, %d, %s))", mObjectID.c_str(), errorName, errorCode, (reason != nullptr ? reason : "null"));
+		mLogger->debug("%s reportError (%s, %d, %s))", mObjectID.c_str(),
+				errorNameString.getStringData().c_str(), errorCode,
+				(reason != nullptr ? reasonString.getStringData().c_str() : "null"));
 	}
 
 	mBeacon->reportError(mActionID, errorNameString, errorCode, reasonString);
@@ -129,7 +134,7 @@ std::shared_ptr<openkit::IWebRequestTracer> ActionCommonImpl::traceWebRequest(co
 	}
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("%s traceWebRequest (string) (%s))", mObjectID.c_str(), url);
+		mLogger->debug("%s traceWebRequest (string) (%s))", mObjectID.c_str(), urlString.getStringData().c_str());
 	}
 
 	return std::make_shared<core::WebRequestTracer>(mLogger, mBeacon, mActionID, urlString);

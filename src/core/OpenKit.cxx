@@ -102,7 +102,7 @@ std::shared_ptr<openkit::ISession> OpenKit::createSession(const char* clientIPAd
 {
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("OpenKit createSession(%s)", clientIPAddress != nullptr ? clientIPAddress : "null");
+		mLogger->debug("OpenKit createSession(%s)", clientIPAddress != nullptr ? core::UTF8String(clientIPAddress).getStringData().c_str() : "null");
 	}
 	if (mIsShutdown)
 	{

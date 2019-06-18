@@ -2,6 +2,9 @@
 
 ## [Unreleased](https://github.com/Dynatrace/openkit-native/compare/v1.1.0...HEAD)
 
+### Security
+- Support for modified UTF-8 terminated strings.
+
 ### Changed
 - On OpenKitBuilder creation device ID is parsed from the given string. Non-numeric
   device IDs are hashed to a corresponding numeric value. Internally a numeric
