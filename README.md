@@ -44,6 +44,10 @@ This repository contains the reference implementation in C and C++. Other implem
 * Avoid usage of compiler specific extensions to support a broad variety of C++ compilers
 * Design reentrant APIs and document them
 
+## General Remarks
+
+* All non binary files within the repository (except for 3rd party files) are formatted with unix style (LF) line endings.
+
 ## Prerequisites
 
 ### Running the OpenKit
