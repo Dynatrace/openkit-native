@@ -36,10 +36,10 @@ const char APPLICATION_VERSION[] = "1.2.3";
 /// @param[in] argc the command line argument count
 /// @param[in] argv the command line arguments
 /// @param[out] beaconURL the beaconURL is the endpoint URL, e.g. "https://bf1234567xyz.com/mbeacon"
-/// @param[out] serverID the ID of the server within the cluster
+/// @param[out] deviceID the numeric ID of the device
 /// @param[out] applicationID the ID of the application
 ///
-void parseCommandLine(int32_t argc, char** argv, char** beaconURL, uint32_t* serverID, char** applicationID)
+bool parseCommandLine(int32_t argc, char** argv, char** beaconURL, uint32_t* deviceID, char** applicationID)
 {
 	int32_t index = 2;
 	if (argc > 2 && argv != NULL)
@@ -56,13 +56,19 @@ void parseCommandLine(int32_t argc, char** argv, char** beaconURL, uint32_t* ser
 			{
 				*applicationID = cur;
 			}
+			else if (strcmp("-d", prev) == 0)
+			{
+				*deviceID = atoi(cur);
+			}
 			else if (strcmp("-s", prev) == 0)
 			{
-				*serverID = atoi(cur);
+				fprintf(stderr, "parameter -s is deprecated, use -d instead.");
 			}
 			index++;
 		}
 	}
+
+	return deviceID > 0 && *beaconURL != NULL > 0 && *applicationID != NULL;
 }
 
 #define UNUSED_ARG(x) ((x)=(x))
@@ -111,18 +117,24 @@ void logFunction(LOG_LEVEL level, const char* traceStatement)
 int32_t main(int32_t argc, char** argv)
 {
 	char* beaconURL = NULL;
-	uint32_t serverID = 0;
+	uint32_t deviceID = 0;
 	char* applicationID = NULL;
 
-	parseCommandLine(argc, argv, &beaconURL, &serverID, &applicationID);
+	bool hasValidCommandLineParams = parseCommandLine(argc, argv, &beaconURL, &deviceID, &applicationID);
+	if (!hasValidCommandLineParams)
+	{
+		fprintf(stderr, "The application is is called the following way and requires all arguments.");
+		fprintf(stderr, "./openkit-sample -a <application id> -u <beacon url> -d <device id>");
+		exit(-1);
+	}
 
 	printf("BeaconURL = %s\n", beaconURL);
 	printf("ApplicationID = %s\n", applicationID);
-	printf("ServerID = %u\n", serverID);
+	printf("DeviceID = %u\n", deviceID);
 
 	struct LoggerHandle* loggerHandle = createLogger(&levelEnabledFunction, &logFunction);
 
-	struct OpenKitConfigurationHandle* configurationHandle = createOpenKitConfiguration(beaconURL, applicationID, serverID);
+	struct OpenKitConfigurationHandle* configurationHandle = createOpenKitConfiguration(beaconURL, applicationID, deviceID);
 
 	useLoggerForConfiguration(configurationHandle, loggerHandle);
 	useApplicationVersionForConfiguration(configurationHandle, "v0.1.x");

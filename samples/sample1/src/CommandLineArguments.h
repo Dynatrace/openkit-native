@@ -56,10 +56,10 @@ namespace sample
 		const std::string& getBeaconURL() const;
 
 		///
-		/// Get the server id
-		/// @returns the parsed server id or @c -1 in case of failure to parse the server ID
+		/// Get the device id
+		/// @returns the parsed device id or @c -1 in case of failure to parse the device ID
 		///
-		int32_t getServerID() const;
+		int32_t getDeviceID() const;
 
 		///
 		/// Returns a flag if a connect attempt can be made given the available arguments
@@ -73,8 +73,8 @@ namespace sample
 		static void printHelp();
 	private:
 
-		/// Server ID
-		int32_t mServerID;
+		/// device ID
+		int32_t mDeviceID;
 
 		/// application version
 		std::string mApplicationID;

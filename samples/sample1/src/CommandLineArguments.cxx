@@ -19,7 +19,7 @@
 using namespace sample;
 
 CommandLineArguments::CommandLineArguments()
-	: mServerID(0)
+	: mDeviceID(0)
 	, mApplicationID("")
 	, mBeaconURL("")
 {
@@ -45,17 +45,23 @@ void CommandLineArguments::parse(uint32_t argc, char** argv)
 				mBeaconURL = current;
 			}
 
-			if (previous == "-s")
+
+			if (previous == "-d")
 			{
 				try
 				{
-					mServerID = std::stoi(current);
+					mDeviceID = std::stoi(current);
 				}
 				catch (...)
 				{
-					mServerID = -1;
+					mDeviceID = -1;
 				}
 			}
+			if (previous =="-s")
+			{
+				std::cerr << "parameter -s is deprecated, use -d instead";
+			}
+
 			index++;
 		}
 	}
@@ -71,18 +77,18 @@ const std::string& CommandLineArguments::getBeaconURL() const
 	return mBeaconURL;
 }
 
-int32_t CommandLineArguments::getServerID() const
+int32_t CommandLineArguments::getDeviceID() const
 {
-	return mServerID;
+	return mDeviceID;
 }
 
 bool CommandLineArguments::isValidConfiguration() const
 {
-	return (mServerID > 0) && !mBeaconURL.empty() && !mApplicationID.empty();
+	return (mDeviceID > 0) && !mBeaconURL.empty() && !mApplicationID.empty();
 }
 
 void CommandLineArguments::printHelp()
 {
 	std::cerr << "The application is is called the following way and requires all arguments." << std::endl;
-	std::cerr << "./openkit-sample -a <application id> -u <beacon url> -s <server id>" << std::endl;
+	std::cerr << "./openkit-sample -a <application id> -u <beacon url> -d <device id>" << std::endl;
 }

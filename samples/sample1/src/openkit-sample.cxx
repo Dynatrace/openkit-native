@@ -27,7 +27,7 @@
 
 constexpr char APPLICATION_VERSION[] = "1.2.3";
 
-void parseCommandLine(uint32_t argc, char** argv, std::string& beaconURL, uint32_t& serverID, std::string& applicationID)
+void parseCommandLine(uint32_t argc, char** argv, std::string& beaconURL, uint32_t& deviceID, std::string& applicationID)
 {
 	sample::CommandLineArguments commandLine;
 	commandLine.parse(argc, argv);
@@ -35,7 +35,7 @@ void parseCommandLine(uint32_t argc, char** argv, std::string& beaconURL, uint32
 	if (commandLine.isValidConfiguration())
 	{
 		beaconURL = commandLine.getBeaconURL();
-		serverID = commandLine.getServerID();
+		deviceID = commandLine.getDeviceID();
 		applicationID = commandLine.getApplicationID();
 	}
 	else
@@ -51,12 +51,12 @@ void parseCommandLine(uint32_t argc, char** argv, std::string& beaconURL, uint32
 int32_t main(int32_t argc, char** argv)
 {
 	std::string beaconURL;
-	uint32_t serverID = 0;
+	uint32_t deviceID = 0;
 	std::string applicationID;
 
-	parseCommandLine(argc, argv, beaconURL, serverID, applicationID);
+	parseCommandLine(argc, argv, beaconURL, deviceID, applicationID);
 
-	openkit::DynatraceOpenKitBuilder builder(beaconURL.c_str(), applicationID.c_str(), serverID);
+	openkit::DynatraceOpenKitBuilder builder(beaconURL.c_str(), applicationID.c_str(), deviceID);
 	builder.withApplicationName("openkit-sample-c++")
 		.withApplicationVersion(APPLICATION_VERSION)
 		.withManufacturer("Dynatrace")
