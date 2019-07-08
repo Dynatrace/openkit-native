@@ -21,8 +21,9 @@ The big advantages of the OpenKit are that it's designed to
 * be easily portable to other languages and platforms
 
 This repository contains the reference implementation in C and C++. Other implementations are listed as follows:
-* Java: https://github.com/Dynatrace/openkit-java
+* Java: https://github.com/Dynatrace/openkit-java/
 * .NET: https://github.com/Dynatrace/openkit-dotnet/
+* JavaScript: https://github.com/Dynatrace/openkit-js/
 
 ## What you can do with the OpenKit
 * Create Sessions and User Actions
