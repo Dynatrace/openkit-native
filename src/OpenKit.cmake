@@ -189,6 +189,50 @@ set(OPENKIT_SOURCES_PROVIDERS
     ${CMAKE_CURRENT_LIST_DIR}/providers/ITimingProvider.h
 )
 
+set(OPENKIT_SOURCES_UTIL_JSON_CONSTANTS
+    ${CMAKE_CURRENT_LIST_DIR}/util/json/constants/JsonLiterals.h
+    ${CMAKE_CURRENT_LIST_DIR}/util/json/constants/JsonLiterals.cxx
+)
+
+set(OPENKIT_SOURCES_UTIL_JSON_LEXER
+    ${CMAKE_CURRENT_LIST_DIR}/util/json/lexer/JsonLexer.h
+    ${CMAKE_CURRENT_LIST_DIR}/util/json/lexer/JsonLexer.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/util/json/lexer/JsonLexerConstants.h
+    ${CMAKE_CURRENT_LIST_DIR}/util/json/lexer/JsonLexerException.h
+    ${CMAKE_CURRENT_LIST_DIR}/util/json/lexer/JsonLexerException.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/util/json/lexer/JsonLexerState.h
+    ${CMAKE_CURRENT_LIST_DIR}/util/json/lexer/JsonToken.h
+    ${CMAKE_CURRENT_LIST_DIR}/util/json/lexer/JsonToken.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/util/json/lexer/JsonTokenType.h
+)
+
+set(OPENKIT_SOURCES_UTIL_JSON_OBJECTS
+    ${CMAKE_CURRENT_LIST_DIR}/util/json/objects/JsonArrayValue.h
+    ${CMAKE_CURRENT_LIST_DIR}/util/json/objects/JsonArrayValue.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/util/json/objects/JsonBooleanValue.h
+    ${CMAKE_CURRENT_LIST_DIR}/util/json/objects/JsonBooleanValue.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/util/json/objects/JsonNullValue.h
+    ${CMAKE_CURRENT_LIST_DIR}/util/json/objects/JsonNullValue.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/util/json/objects/JsonNumberValue.h
+    ${CMAKE_CURRENT_LIST_DIR}/util/json/objects/JsonNumberValue.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/util/json/objects/JsonObjectValue.h
+    ${CMAKE_CURRENT_LIST_DIR}/util/json/objects/JsonObjectValue.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/util/json/objects/JsonStringValue.h
+    ${CMAKE_CURRENT_LIST_DIR}/util/json/objects/JsonStringValue.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/util/json/objects/JsonValue.h
+)
+
+set(OPENKIT_SOURCES_UTIL_JSON_PARSER
+        ${CMAKE_CURRENT_LIST_DIR}/util/json/parser/JsonParserState.h
+        ${CMAKE_CURRENT_LIST_DIR}/util/json/parser/JsonParserException.h
+        ${CMAKE_CURRENT_LIST_DIR}/util/json/parser/JsonParserException.cxx
+)
+
+set(OPENKIT_SOURCES_UTIL_JSON
+    ${CMAKE_CURRENT_LIST_DIR}/util/json/JsonParser.h
+    ${CMAKE_CURRENT_LIST_DIR}/util/json/JsonParser.cxx
+)
+
 # Create a combined list of all source files
 set(OPENKIT_SOURCES
     ${OPENKIT_PUBLIC_HEADERS_C_API}
@@ -203,6 +247,11 @@ set(OPENKIT_SOURCES
     ${OPENKIT_SOURCES_PROTOCOL_SSL}
     ${OPENKIT_SOURCES_PROTOCOL}
     ${OPENKIT_SOURCES_CONFIGURATION}
+    ${OPENKIT_SOURCES_UTIL_JSON_CONSTANTS}
+    ${OPENKIT_SOURCES_UTIL_JSON_LEXER}
+    ${OPENKIT_SOURCES_UTIL_JSON_OBJECTS}
+    ${OPENKIT_SOURCES_UTIL_JSON_PARSER}
+    ${OPENKIT_SOURCES_UTIL_JSON}
 )
 
 include(CompilerConfiguration)

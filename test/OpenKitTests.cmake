@@ -108,6 +108,15 @@ set(OPENKIT_SOURCES_TEST_CACHING
     ${CMAKE_CURRENT_LIST_DIR}/caching/MockObserver.h
 )
 
+set(OPENKIT_SOURCES_TEST_UTIL_JSON_OBJECTS
+    ${CMAKE_CURRENT_LIST_DIR}/util/json/objects/JsonArrayValueTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/util/json/objects/JsonBooleanValueTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/util/json/objects/JsonNullValueTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/util/json/objects/JsonNumberValueTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/util/json/objects/JsonObjectValueTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/util/json/objects/JsonStringValueTest.cxx
+)
+
 set(OPENKIT_SOURCES_UNITTEST
     # Test files
     ${OPENKIT_SOURCES_TEST_API}
@@ -117,6 +126,7 @@ set(OPENKIT_SOURCES_UNITTEST
     ${OPENKIT_SOURCES_TEST_COMMUNICATION}
     ${OPENKIT_SOURCES_TEST_CONFIGURATION}
     ${OPENKIT_SOURCES_TEST_CACHING}
+    ${OPENKIT_SOURCES_TEST_UTIL_JSON_OBJECTS}
 )
 
 include(CompilerConfiguration)
