@@ -23,6 +23,7 @@ using namespace openkit;
 DynatraceOpenKitBuilder::DynatraceOpenKitBuilder(const char* endpointURL, const char* applicationID, int64_t deviceID)
 	: AbstractOpenKitBuilder(endpointURL, deviceID)
 	, mApplicationID(applicationID)
+	, mApplicationName()
 {
 }
 

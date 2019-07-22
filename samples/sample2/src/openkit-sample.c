@@ -41,6 +41,10 @@ const char APPLICATION_VERSION[] = "1.2.3";
 ///
 bool parseCommandLine(int32_t argc, char** argv, char** beaconURL, uint32_t* deviceID, char** applicationID)
 {
+	*deviceID = 0;
+	*beaconURL = NULL;
+	*applicationID = NULL;
+
 	int32_t index = 2;
 	if (argc > 2 && argv != NULL)
 	{
@@ -68,7 +72,7 @@ bool parseCommandLine(int32_t argc, char** argv, char** beaconURL, uint32_t* dev
 		}
 	}
 
-	return deviceID > 0 && *beaconURL != NULL > 0 && *applicationID != NULL;
+	return *deviceID > 0 && *beaconURL != NULL && *applicationID != NULL;
 }
 
 #define UNUSED_ARG(x) ((x)=(x))
