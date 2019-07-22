@@ -81,6 +81,40 @@ namespace core
 			///
 			static int64_t toNumericOr64BitHash(const char* string);
 
+			///
+			/// Converts the given UTF-16 (2-byte character) string to a corresponding UTF-8 (single byte character)
+			/// string representation
+			///
+			/// @param utf16String the string to be converted
+			///
+			/// @return the converted UTF-8 string
+			///
+			static std::string convertUtf16StringToUtf8String(std::u16string& utf16String);
+
+			///
+			/// Determines if the given character is a unicode high-surrogate (leading surrogate) character.
+			///
+			/// @par
+			/// Surrogate characters not represent characters by themselves, but are used in UTF-16 encoding when
+			/// representing supplemental characters.
+			///
+			/// @param character the character to be checked
+			/// @return @c if the given character represents a high surrogate character, @c false otherwise.
+			///
+			static bool isHighSurrogateCharacter(int32_t character);
+
+			///
+			/// Determines if the given character is a unicode low-surrogate (trailing surrogate) character.
+			///
+			/// @par
+			/// Surrogate characters not represent characters by themselves, but are used in UTF-16 encoding when
+			/// representing supplemental characters.
+			///
+			/// @param character the character to be checked
+			/// @return @c true if the given character represents a low surrogate character, @c false otherwise.
+			///
+			static bool isLowSurrogateCharacter(int32_t character);
+
 		private:
 			/// utility class, not instantiable
 			StringUtil();

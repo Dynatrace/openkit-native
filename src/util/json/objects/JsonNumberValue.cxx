@@ -52,7 +52,7 @@ std::shared_ptr<JsonNumberValue> JsonNumberValue::fromNumberLiteral(const std::s
 {
 	std::smatch matches;
 
-	if (!std::regex_match(literalValue, matches, JsonLiterals::NUMBER_PATTERN))
+	if (!std::regex_match(literalValue, matches, JsonLiterals::getNumberPattern()))
 	{
 		return nullptr;
 	}

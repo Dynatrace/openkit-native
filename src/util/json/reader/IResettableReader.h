@@ -14,49 +14,46 @@
  * limitations under the License.
  */
 
-#ifndef _UTIL_JSON_CONSTANTS_JSONLITERALS_H
-#define _UTIL_JSON_CONSTANTS_JSONLITERALS_H
+#ifndef _UTIL_JSON_READER_IRESETTABLEREADER_H
+#define _UTIL_JSON_READER_IRESETTABLEREADER_H
 
-#include <string>
-#include <regex>
+#include <cstdint>
 
 namespace util
 {
 	namespace json
 	{
-		namespace constants
+		namespace reader
 		{
-			class JsonLiterals
+			class IResettableReader
 			{
-			public:
+			public: // functions
 
 				///
-				/// boolean true literal
+				/// Destructor
 				///
-				static const char* BOOLEAN_TRUE_LITERAL;
+				virtual ~IResettableReader() = default;
 
 				///
-				/// boolean false literal
+				/// Reads the next character
 				///
-				static const char* BOOLEAN_FALSE_LITERAL;
+				virtual int32_t read() = 0;
 
 				///
-				/// null literal
+				/// Marks the current position to which the reader can be reset.
 				///
-				static const char* NULL_LITERAL;
+				/// @param readAheadLimit the number of characters which can be read after marking for a reset operation
+				///   to be successful
+				///
+				virtual void mark(int32_t readAheadLimit) = 0;
 
 				///
-				/// regex pattern for parsing number literals
+				/// Reset the reader to the previously marked position
 				///
-				static const char* NUMBER_PATTERN_STRING;
-
-				///
-				/// Get sole instance of JSON number pattern regex.
-				///
-				static const std::regex& getNumberPattern();
+				virtual void reset() = 0;
 			};
 		}
 	}
 }
 
-#endif //_UTIL_JSON_CONSTANTS_JSONLITERALS_H
+#endif //_UTIL_JSON_READER_IRESETTABLEREADER_H

@@ -24,11 +24,6 @@ namespace util
 		namespace lexer
 		{
 			///
-			/// End of file character
-			///
-			constexpr int EOF = -1;
-
-			///
 			/// space character
 			///
 			constexpr char SPACE = ' ';
@@ -86,7 +81,7 @@ namespace util
 			///
 			/// Character that may be escaped
 			///
-			constexpr char SOLIDUS = '\';
+			constexpr char SOLIDUS = '/';
 
 			///
 			/// start and end of JSON string (quotation mark)
@@ -115,7 +110,7 @@ namespace util
 			///
 			/// form feed character
 			///
-			constexpr char FORM_FEED = 'f';
+			constexpr char FORM_FEED = '\f';
 
 			///
 			/// the number of characters used after an unicode escape is encountered

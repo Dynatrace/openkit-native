@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 
-#include "util/json/constants/JsonLiterals.h"
+#include "util/json/reader/IResettableReader.h"
 
-using namespace util::json::constants;
+#include <gmock/gmock.h>
 
-
-const char* JsonLiterals::BOOLEAN_TRUE_LITERAL = "true";
-
-const char* JsonLiterals::BOOLEAN_FALSE_LITERAL = "false";
-
-const char* JsonLiterals::NULL_LITERAL = "null";
-
-const char* JsonLiterals::NUMBER_PATTERN_STRING = "^-?(0|[1-9]\\d*)(\\.\\d+)?([eE][+-]?\\d+)?$";
-
-const std::regex& JsonLiterals::getNumberPattern()
+namespace test
 {
-	static std::regex numberPattern(JsonLiterals::NUMBER_PATTERN_STRING, std::regex::optimize);
-	return numberPattern;
+	class MockResettableReader : public util::json::reader::IResettableReader
+	{
+	public:
+		MOCK_METHOD0(read, int32_t());
+
+		MOCK_METHOD1(mark, void(int32_t lookAheadLimit));
+
+		MOCK_METHOD0(reset, void());
+	};
 }

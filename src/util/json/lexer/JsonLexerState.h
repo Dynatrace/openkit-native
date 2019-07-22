@@ -41,7 +41,7 @@ namespace util
 				///
 				/// End of file state
 				///
-				EOF,
+				END_OF_FILE,
 
 				///
 				/// Error state

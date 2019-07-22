@@ -206,6 +206,12 @@ set(OPENKIT_SOURCES_UTIL_JSON_LEXER
     ${CMAKE_CURRENT_LIST_DIR}/util/json/lexer/JsonTokenType.h
 )
 
+set(OPENKIT_SOURCES_UTIL_JSON_READER
+    ${CMAKE_CURRENT_LIST_DIR}/util/json/reader/IResettableReader.h
+    ${CMAKE_CURRENT_LIST_DIR}/util/json/reader/DefaultResettableReader.h
+    ${CMAKE_CURRENT_LIST_DIR}/util/json/reader/DefaultResettableReader.cxx
+)
+
 set(OPENKIT_SOURCES_UTIL_JSON_OBJECTS
     ${CMAKE_CURRENT_LIST_DIR}/util/json/objects/JsonArrayValue.h
     ${CMAKE_CURRENT_LIST_DIR}/util/json/objects/JsonArrayValue.cxx
@@ -249,6 +255,7 @@ set(OPENKIT_SOURCES
     ${OPENKIT_SOURCES_CONFIGURATION}
     ${OPENKIT_SOURCES_UTIL_JSON_CONSTANTS}
     ${OPENKIT_SOURCES_UTIL_JSON_LEXER}
+    ${OPENKIT_SOURCES_UTIL_JSON_READER}
     ${OPENKIT_SOURCES_UTIL_JSON_OBJECTS}
     ${OPENKIT_SOURCES_UTIL_JSON_PARSER}
     ${OPENKIT_SOURCES_UTIL_JSON}

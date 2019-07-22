@@ -19,6 +19,8 @@
 #include <iterator>
 #include <algorithm>
 #include <cctype>
+#include <codecvt>
+#include <locale>
 
 using namespace core::util;
 
@@ -119,4 +121,29 @@ int64_t StringUtil::toNumericOr64BitHash(const char* str)
 	}
 
 	return StringUtil::to64BitHash(string);
+}
+
+std::string StringUtil::convertUtf16StringToUtf8String(std::u16string& utf16String)
+{
+#if _WIN32 && _MSC_VER >= 1900
+	// a bug in Visual C++ STL library results in a linking error when using std::codecvt.
+	// see: https://social.msdn.microsoft.com/Forums/en-US/8f40dcd8-c67f-4eba-9134-a19b9178e481/vs-2015-rc-linker-stdcodecvt-error
+
+	std::wstring_convert<std::codecvt_utf8_utf16<int16_t>, int16_t> convert;
+	auto p = reinterpret_cast<const int16_t*>(utf16String.data());
+	return convert.to_bytes(p, p + utf16String.size());
+#else
+	std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
+	return convert.to_bytes(utf16String);
+#endif
+}
+
+bool StringUtil::isHighSurrogateCharacter(int32_t character)
+{
+	return character >= 0xD800 && character <= 0xDBFF;
+}
+
+bool StringUtil::isLowSurrogateCharacter(int32_t character)
+{
+	return character >= 0xDC00 && character <= 0xDFFF;
 }
