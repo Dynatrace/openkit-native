@@ -35,6 +35,10 @@ JsonLexer::JsonLexer(const JsonLexer::ReaderPtr input)
 {
 }
 
+JsonLexer::~JsonLexer()
+{
+}
+
 const JsonLexer::JsonTokenPtr JsonLexer::nextToken()
 {
 	if (mLexerState == JsonLexerState::ERROR)

@@ -2,6 +2,9 @@
 
 ## [Unreleased](https://github.com/Dynatrace/openkit-native/compare/v1.1.0...HEAD)
 
+### Added
+- Support for parsing JSON
+
 ### Security
 - Support for modified UTF-8 terminated strings.
 

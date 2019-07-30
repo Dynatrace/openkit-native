@@ -17,13 +17,43 @@
 #ifndef _UTIL_JSON_PARSER_JSONPARSEREXCEPTION_H
 #define _UTIL_JSON_PARSER_JSONPARSEREXCEPTION_H
 
+#include <exception>
+#include <string>
+
 namespace util
 {
 	namespace json
 	{
 		namespace parser
 		{
+			class JsonParserException : public std::exception
+			{
+			public: // functions
 
+				///
+				/// Constructor taking an exception message
+				///
+				/// @param[in] message the message describing the cause of the exception
+				///
+				JsonParserException(const std::string& message);
+
+				///
+				/// Returns the describing message of the cause of this message
+				///
+				const char* what() const noexcept;
+
+				///
+				/// Returns the describing message of the cause of this exception
+				///
+				const std::string& getMessage() const;
+
+			private:
+
+				///
+				/// the message describing the cause of the exception
+				///
+				const std::string mMessage;
+			};
 		}
 	}
 }

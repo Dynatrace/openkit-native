@@ -29,7 +29,7 @@ class JsonObjectValueTest : public testing::Test
 TEST_F(JsonObjectValueTest, isObjectType)
 {
 	// given
-	auto emptyMap = JsonObjectValue::JsonObjectMap();
+	auto emptyMap = std::make_shared<JsonObjectValue::JsonObjectMap>();
 
 	// then
 	ASSERT_THAT(JsonObjectValue::fromMap(emptyMap)->getValueType(), testing::Eq(JsonValueType::OBJECT_VALUE));
@@ -38,7 +38,8 @@ TEST_F(JsonObjectValueTest, isObjectType)
 TEST_F(JsonObjectValueTest, sizeReturnsSizeOfUnderlyingMap)
 {
 	// given
-	auto jsonValueMap = JsonObjectValue::JsonObjectMap({{"first", JsonBooleanValue::TRUE}});
+	auto jsonValueMap = std::make_shared<JsonObjectValue::JsonObjectMap>();
+	jsonValueMap->insert({"first", JsonBooleanValue::TRUE});
 
 	auto target = JsonObjectValue::fromMap(jsonValueMap);
 
@@ -49,7 +50,7 @@ TEST_F(JsonObjectValueTest, sizeReturnsSizeOfUnderlyingMap)
 	ASSERT_THAT(obtained, testing::Eq(1));
 
 	// and when
-	jsonValueMap.insert({"second", JsonBooleanValue::FALSE});
+	jsonValueMap->insert({"second", JsonBooleanValue::FALSE});
 	target = JsonObjectValue::fromMap(jsonValueMap);
 	obtained = target->size();
 
@@ -61,7 +62,8 @@ TEST_F(JsonObjectValueTest, sizeReturnsSizeOfUnderlyingMap)
 TEST_F(JsonObjectValueTest, containsKeyDelegatesTheCallToTheUnderlyingMap)
 {
 	// given
-	auto jsonValueMap = JsonObjectValue::JsonObjectMap({{"first", JsonBooleanValue::TRUE}, {"second", JsonBooleanValue::FALSE}});
+	auto jsonValueMap = std::make_shared<JsonObjectValue::JsonObjectMap>();
+	jsonValueMap->insert({{"first", JsonBooleanValue::TRUE}, {"second", JsonBooleanValue::FALSE}});
 
 	auto target = JsonObjectValue::fromMap(jsonValueMap);
 
@@ -87,7 +89,8 @@ TEST_F(JsonObjectValueTest, containsKeyDelegatesTheCallToTheUnderlyingMap)
 TEST_F(JsonObjectValueTest, findReturnsValueOfUnderlyingMap)
 {
 	// given
-	auto jsonValueMap = JsonObjectValue::JsonObjectMap({{"first", JsonBooleanValue::TRUE}, {"second", JsonBooleanValue::FALSE}});
+	auto jsonValueMap = std::make_shared<JsonObjectValue::JsonObjectMap>();
+	jsonValueMap->insert({{"first", JsonBooleanValue::TRUE}, {"second", JsonBooleanValue::FALSE}});
 
 	auto target = JsonObjectValue::fromMap(jsonValueMap);
 
@@ -113,7 +116,8 @@ TEST_F(JsonObjectValueTest, findReturnsValueOfUnderlyingMap)
 TEST_F(JsonObjectValueTest, indexOperatorReturnsValueOfUnderlyingMap)
 {
 	// given
-	auto jsonValueMap = JsonObjectValue::JsonObjectMap({{"first", JsonBooleanValue::TRUE}, {"second", JsonBooleanValue::FALSE}});
+	auto jsonValueMap = std::make_shared<JsonObjectValue::JsonObjectMap>();
+	jsonValueMap->insert({{"first", JsonBooleanValue::TRUE}, {"second", JsonBooleanValue::FALSE}});
 
 	auto target = JsonObjectValue::fromMap(jsonValueMap);
 
@@ -139,7 +143,8 @@ TEST_F(JsonObjectValueTest, indexOperatorReturnsValueOfUnderlyingMap)
 TEST_F(JsonObjectValueTest, beginReturnsIteratorToUnderlyingMap)
 {
 	// given
-	auto jsonValueMap = JsonObjectValue::JsonObjectMap({{"first",  JsonBooleanValue::TRUE}, {"second", JsonBooleanValue::FALSE}});
+	auto jsonValueMap = std::make_shared<JsonObjectValue::JsonObjectMap>();
+	jsonValueMap->insert({{"first",  JsonBooleanValue::TRUE}, {"second", JsonBooleanValue::FALSE}});
 
 	auto target = JsonObjectValue::fromMap(jsonValueMap);
 

@@ -19,12 +19,12 @@
 using namespace util::json::objects;
 
 
-JsonObjectValue::JsonObjectValue(const JsonObjectMap& jsonObjectMap)
+JsonObjectValue::JsonObjectValue(const JsonObjectMapPtr jsonObjectMap)
 	: mJsonObjectMap(jsonObjectMap)
 {
 }
 
-std::shared_ptr<JsonObjectValue> JsonObjectValue::fromMap(const JsonObjectMap& jsonObjectMap)
+std::shared_ptr<JsonObjectValue> JsonObjectValue::fromMap(const JsonObjectMapPtr jsonObjectMap)
 {
 	return std::shared_ptr<JsonObjectValue>(new JsonObjectValue(jsonObjectMap));
 }
@@ -36,41 +36,41 @@ JsonValueType JsonObjectValue::getValueType() const
 
 size_t JsonObjectValue::size() const
 {
-	return mJsonObjectMap.size();
+	return mJsonObjectMap->size();
 }
 
 bool JsonObjectValue::containsKey(const std::string& key) const
 {
-	auto entry = mJsonObjectMap.find(key);
-	return entry != mJsonObjectMap.end();
+	auto entry = mJsonObjectMap->find(key);
+	return entry != mJsonObjectMap->end();
 }
 
 JsonObjectValue::JsonObjectMap::const_iterator JsonObjectValue::find(const std::string& key) const
 {
-	return mJsonObjectMap.find(key);
+	return mJsonObjectMap->find(key);
 }
 
 std::shared_ptr<JsonValue> JsonObjectValue::operator[] (const std::string& key)
 {
-	return mJsonObjectMap[key];
+	return (*mJsonObjectMap)[key];
 }
 
 JsonObjectValue::JsonObjectMap::iterator JsonObjectValue::begin()
 {
-	return mJsonObjectMap.begin();
+	return mJsonObjectMap->begin();
 }
 
 JsonObjectValue::JsonObjectMap::const_iterator JsonObjectValue::begin() const
 {
-	return mJsonObjectMap.begin();
+	return mJsonObjectMap->begin();
 }
 
 JsonObjectValue::JsonObjectMap::iterator JsonObjectValue::end()
 {
-	return mJsonObjectMap.end();
+	return mJsonObjectMap->end();
 }
 
 JsonObjectValue::JsonObjectMap::const_iterator JsonObjectValue::end() const
 {
-	return mJsonObjectMap.end();
+	return mJsonObjectMap->end();
 }

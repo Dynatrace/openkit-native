@@ -14,22 +14,17 @@
  * limitations under the License.
  */
 
-#include "util/json/parser/JsonParserException.h"
+#include "util/json/lexer/JsonLexer.h"
 
-using namespace util::json::parser;
+#include <gmock/gmock.h>
 
-
-JsonParserException::JsonParserException(const std::string& message)
-	: mMessage(message)
+namespace test
 {
-}
+	class MockJsonLexer : public util::json::lexer::JsonLexer
+	{
+	public:
+		MockJsonLexer(const std::string& input) : JsonLexer(input){}
 
-const char* JsonParserException::what() const noexcept
-{
-	return mMessage.c_str();
-}
-
-const std::string& JsonParserException::getMessage() const
-{
-	return mMessage;
+		MOCK_METHOD0(nextToken, const std::shared_ptr<util::json::lexer::JsonToken>());
+	};
 }

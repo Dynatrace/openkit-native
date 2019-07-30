@@ -19,7 +19,6 @@
 
 #include <exception>
 #include <string>
-#include <memory>
 
 namespace util
 {

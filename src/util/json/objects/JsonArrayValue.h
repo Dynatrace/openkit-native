@@ -41,6 +41,7 @@ namespace util
 			public: // type defs
 
 				using JsonValueList = std::list<std::shared_ptr<JsonValue>>;
+				using JsonValueListPtr = std::shared_ptr<JsonValueList>;
 
 			public: // functions
 
@@ -49,7 +50,7 @@ namespace util
 				/// @param[in] values the list of JSON values the created array should hold
 				/// @return a newly created @ref JsonArrayValue
 				///
-				static std::shared_ptr<JsonArrayValue> fromList(const JsonValueList& values);
+				static std::shared_ptr<JsonArrayValue> fromList(const JsonValueListPtr values);
 
 				///
 				/// Indicates that this value is of type array.
@@ -86,7 +87,7 @@ namespace util
 				///
 				/// the actual holder of the array elements
 				///
-				JsonValueList mJsonValues;
+				JsonValueListPtr mJsonValues;
 
 			private: // functions
 
@@ -94,7 +95,7 @@ namespace util
 				/// Constructor for initializing this JSON array with a list of values
 				/// @param[in] values the underlying values of this JSON array
 				///
-				JsonArrayValue(const JsonValueList& values);
+				JsonArrayValue(const JsonValueListPtr values);
 			};
 		}
 	}

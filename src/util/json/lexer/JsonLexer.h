@@ -40,6 +40,11 @@ namespace util
 			public: // functions
 
 				///
+				/// Destructor
+				///
+				virtual ~JsonLexer();
+
+				///
 				/// Constructor taking the JSON string
 				///
 				/// @param input JSON string for lexical analysis
@@ -58,7 +63,7 @@ namespace util
 				///
 				/// @return the next @ref JsonToken or @c nullptr if there is no such token.
 				///
-				const JsonTokenPtr nextToken();
+				virtual const JsonTokenPtr nextToken();
 
 			private: // members
 

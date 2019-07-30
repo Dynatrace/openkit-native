@@ -38,6 +38,7 @@ namespace util
 			public: // type defs
 
 				using JsonObjectMap = std::unordered_map<std::string, std::shared_ptr<JsonValue>>;
+				using JsonObjectMapPtr = std::shared_ptr<JsonObjectMap>;
 
 			public: // functions
 
@@ -46,7 +47,7 @@ namespace util
 				/// @param jsonObjectMap the map storing the keys and values of the JSON object.
 				/// @return the created @ref JsonObjectValue.
 				///
-				static std::shared_ptr<JsonObjectValue> fromMap(const JsonObjectMap& jsonObjectMap);
+				static std::shared_ptr<JsonObjectValue> fromMap(const JsonObjectMapPtr jsonObjectMap);
 
 				///
 				/// Indicates that this value is of type object
@@ -105,7 +106,7 @@ namespace util
 				///
 				/// the underlying map for this JSON object
 				///
-				JsonObjectMap mJsonObjectMap;
+				JsonObjectMapPtr mJsonObjectMap;
 
 			private: // functions
 
@@ -117,7 +118,7 @@ namespace util
 				///
 				/// @param jsonObjectMap the underlying map representing this JSON object.
 				///
-				JsonObjectValue(const JsonObjectMap& jsonObjectMap);
+				JsonObjectValue(const JsonObjectMapPtr jsonObjectMap);
 			};
 		}
 	}

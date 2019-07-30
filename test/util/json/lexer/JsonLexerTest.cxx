@@ -26,27 +26,33 @@
 
 using namespace util::json::lexer;
 
-
-#define ASSERT_IS_LITERAL_TOKEN(token, tokenType, value)		\
-	ASSERT_THAT(token, testing::NotNull());						\
-	ASSERT_THAT(token->getTokenType(), testing::Eq(tokenType));	\
-	ASSERT_THAT(token->getValue(), testing::Eq(value));
-
-#define ASSERT_IS_STRUCTURAL_TOKEN(token, tokenType) 	\
-	ASSERT_THAT(token, testing::NotNull());						\
-	ASSERT_THAT(token->getTokenType(), testing::Eq(tokenType));	\
-	ASSERT_THAT(token->getValue(), testing::Eq(""));
-
-#define ASSERT_THROWS_LEXER_EXCEPTION(targetCall, message)		\
-	try															\
-	{															\
-		targetCall;												\
-		FAIL() << "Expected JsonLexerException to be thrown";	\
-	}															\
-	catch (JsonLexerException& e)								\
-	{															\
-		ASSERT_THAT(e.getMessage(), testing::Eq(message));		\
+MATCHER_P2(isLiteralTokenOf, tokenType, value, "")
+{
+	if (arg == nullptr)
+	{
+		return false;
 	}
+	if (arg->getTokenType() != tokenType)
+	{
+		return false;
+	}
+
+	return arg->getValue() == value;
+}
+
+MATCHER_P(isStructuralTokenOf, tokenType, "")
+{
+	if (arg == nullptr)
+	{
+		return false;
+	}
+	if (arg->getTokenType() != tokenType)
+	{
+		return false;
+	}
+
+	return arg->getValue() == "";
+}
 
 
 class JsonLexerTest : public testing::Test
@@ -65,6 +71,19 @@ protected:
 		}
 
 		throw std::logic_error("not a nested exception");
+	}
+
+	static void assertNextTokenThrowsLexerException(JsonLexer& lexer, const std::string& message)
+	{
+		try
+		{
+			lexer.nextToken();
+			FAIL() << "Expected JsonLexerException to be thrown";
+		}
+		catch (JsonLexerException& e)
+		{
+			ASSERT_THAT(e.getMessage(), testing::Eq(message));
+		}
 	}
 };
 
@@ -101,7 +120,7 @@ TEST_F(JsonLexerTest, lexingStructuralCharacterBeginArrayGivesExpectedToken)
 	auto obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_STRUCTURAL_TOKEN(obtained, JsonTokenType::LEFT_SQUARE_BRACKET);
+	ASSERT_THAT(obtained, isStructuralTokenOf(JsonTokenType::LEFT_SQUARE_BRACKET));
 }
 
 TEST_F(JsonLexerTest, lexingStructuralCharacterEndArrayGivesExpectedToken)
@@ -113,7 +132,7 @@ TEST_F(JsonLexerTest, lexingStructuralCharacterEndArrayGivesExpectedToken)
 	auto obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_STRUCTURAL_TOKEN(obtained, JsonTokenType::RIGHT_SQUARE_BRACKET);
+	ASSERT_THAT(obtained, isStructuralTokenOf(JsonTokenType::RIGHT_SQUARE_BRACKET));
 }
 
 TEST_F(JsonLexerTest, lexingArrayTokenWithoutWhitespaceWorks)
@@ -125,13 +144,13 @@ TEST_F(JsonLexerTest, lexingArrayTokenWithoutWhitespaceWorks)
 	auto obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_STRUCTURAL_TOKEN(obtained, JsonTokenType::LEFT_SQUARE_BRACKET);
+	ASSERT_THAT(obtained, isStructuralTokenOf(JsonTokenType::LEFT_SQUARE_BRACKET));
 
 	// and when
 	obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_STRUCTURAL_TOKEN(obtained, JsonTokenType::RIGHT_SQUARE_BRACKET);
+	ASSERT_THAT(obtained, isStructuralTokenOf(JsonTokenType::RIGHT_SQUARE_BRACKET));
 
 	// and when
 	obtained = target.nextToken();
@@ -149,13 +168,13 @@ TEST_F(JsonLexerTest, lexingArrayTokensWorksWithWhitespaces)
 	auto obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_STRUCTURAL_TOKEN(obtained, JsonTokenType::LEFT_SQUARE_BRACKET);
+	ASSERT_THAT(obtained, isStructuralTokenOf(JsonTokenType::LEFT_SQUARE_BRACKET));
 
 	// and when
 	obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_STRUCTURAL_TOKEN(obtained, JsonTokenType::RIGHT_SQUARE_BRACKET);
+	ASSERT_THAT(obtained, isStructuralTokenOf(JsonTokenType::RIGHT_SQUARE_BRACKET));
 
 	// and when
 	obtained = target.nextToken();
@@ -173,7 +192,7 @@ TEST_F(JsonLexerTest, lexingStructuralCharacterBeginObjectGivesExpectedToken)
 	auto obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_STRUCTURAL_TOKEN(obtained, JsonTokenType::LEFT_BRACE);
+	ASSERT_THAT(obtained, isStructuralTokenOf(JsonTokenType::LEFT_BRACE));
 }
 
 TEST_F(JsonLexerTest, lexingStructuralCharacterEndObjectGivesExpectedToken)
@@ -185,7 +204,7 @@ TEST_F(JsonLexerTest, lexingStructuralCharacterEndObjectGivesExpectedToken)
 	auto obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_STRUCTURAL_TOKEN(obtained, JsonTokenType::RIGHT_BRACE);
+	ASSERT_THAT(obtained, isStructuralTokenOf(JsonTokenType::RIGHT_BRACE));
 }
 
 TEST_F(JsonLexerTest, lexingObjectTokensWithoutWhitespacesWorks)
@@ -197,13 +216,13 @@ TEST_F(JsonLexerTest, lexingObjectTokensWithoutWhitespacesWorks)
 	auto obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_STRUCTURAL_TOKEN(obtained, JsonTokenType::LEFT_BRACE);
+	ASSERT_THAT(obtained, isStructuralTokenOf(JsonTokenType::LEFT_BRACE));
 
 	// and when
 	obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_STRUCTURAL_TOKEN(obtained, JsonTokenType::RIGHT_BRACE);
+	ASSERT_THAT(obtained, isStructuralTokenOf(JsonTokenType::RIGHT_BRACE));
 
 	// and when
 	obtained = target.nextToken();
@@ -221,13 +240,13 @@ TEST_F(JsonLexerTest, lexingObjectTokensWorksWithWhitespaces)
 	auto obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_STRUCTURAL_TOKEN(obtained, JsonTokenType::LEFT_BRACE);
+	ASSERT_THAT(obtained, isStructuralTokenOf(JsonTokenType::LEFT_BRACE));
 
 	// and when
 	obtained = target.nextToken();
 
 	// when
-	ASSERT_IS_STRUCTURAL_TOKEN(obtained, JsonTokenType::RIGHT_BRACE);
+	ASSERT_THAT(obtained, isStructuralTokenOf(JsonTokenType::RIGHT_BRACE));
 
 	// and when
 	obtained = target.nextToken();
@@ -245,7 +264,7 @@ TEST_F(JsonLexerTest, lexingNameSeparatorTokenGivesAppropriateToken)
 	auto obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_STRUCTURAL_TOKEN(obtained, JsonTokenType::COLON);
+	ASSERT_THAT(obtained, isStructuralTokenOf(JsonTokenType::COLON));
 }
 
 TEST_F(JsonLexerTest, lexingValueSeparatorTokenGivesAppropriateToken)
@@ -257,7 +276,7 @@ TEST_F(JsonLexerTest, lexingValueSeparatorTokenGivesAppropriateToken)
 	auto obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_STRUCTURAL_TOKEN(obtained, JsonTokenType::COMMA);
+	ASSERT_THAT(obtained, isStructuralTokenOf(JsonTokenType::COMMA));
 }
 
 TEST_F(JsonLexerTest, lexingBooleanTrueLiteralGivesAppropriateToken)
@@ -269,7 +288,7 @@ TEST_F(JsonLexerTest, lexingBooleanTrueLiteralGivesAppropriateToken)
 	auto obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_LITERAL_TOKEN(obtained, JsonTokenType::LITERAL_BOOLEAN, "true");
+	ASSERT_THAT(obtained, isLiteralTokenOf(JsonTokenType::LITERAL_BOOLEAN, "true"));
 }
 
 TEST_F(JsonLexerTest, lexingBooleanTrueLiteralWithLeadingAndTrailingWhitespaces)
@@ -281,7 +300,7 @@ TEST_F(JsonLexerTest, lexingBooleanTrueLiteralWithLeadingAndTrailingWhitespaces)
 	auto obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_LITERAL_TOKEN(obtained, JsonTokenType::LITERAL_BOOLEAN, "true");
+	ASSERT_THAT(obtained, isLiteralTokenOf(JsonTokenType::LITERAL_BOOLEAN, "true"));
 
 	// and when
 	obtained = target.nextToken();
@@ -296,7 +315,7 @@ TEST_F(JsonLexerTest, lexingBooleanTrueLiteralWithWrongCasingThrowsAnError)
 	auto target = JsonLexer("trUe");
 
 	// when, then
-	ASSERT_THROWS_LEXER_EXCEPTION(target.nextToken(), "Unexpected literal \"trUe\"");
+	assertNextTokenThrowsLexerException(target, "Unexpected literal \"trUe\"");
 }
 
 TEST_F(JsonLexerTest, lexingBooleanFalseLiteralGivesAppropriateToken)
@@ -308,7 +327,7 @@ TEST_F(JsonLexerTest, lexingBooleanFalseLiteralGivesAppropriateToken)
 	auto obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_LITERAL_TOKEN(obtained, JsonTokenType::LITERAL_BOOLEAN, "false");
+	ASSERT_THAT(obtained, isLiteralTokenOf(JsonTokenType::LITERAL_BOOLEAN, "false"));
 }
 
 TEST_F(JsonLexerTest, lexingBooleanFalseLiteralWithLeadingAndTrailingWhitespaces)
@@ -320,7 +339,7 @@ TEST_F(JsonLexerTest, lexingBooleanFalseLiteralWithLeadingAndTrailingWhitespaces
 	auto obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_LITERAL_TOKEN(obtained, JsonTokenType::LITERAL_BOOLEAN, "false");
+	ASSERT_THAT(obtained, isLiteralTokenOf(JsonTokenType::LITERAL_BOOLEAN, "false"));
 
 	// and when
 	obtained = target.nextToken();
@@ -338,7 +357,7 @@ TEST_F(JsonLexerTest, lexingNullLiteralGivesAppropriateToken)
 	auto obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_LITERAL_TOKEN(obtained, JsonTokenType::LITERAL_NULL, "null");
+	ASSERT_THAT(obtained, isLiteralTokenOf(JsonTokenType::LITERAL_NULL, "null"));
 }
 
 TEST_F(JsonLexerTest, lexingNullLiteralWithLeadingAndTrailingWhitespacesGivesAppropriateToken)
@@ -350,7 +369,7 @@ TEST_F(JsonLexerTest, lexingNullLiteralWithLeadingAndTrailingWhitespacesGivesApp
 	auto obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_LITERAL_TOKEN(obtained, JsonTokenType::LITERAL_NULL, "null");
+	ASSERT_THAT(obtained, isLiteralTokenOf(JsonTokenType::LITERAL_NULL, "null"));
 
 	// and when
 	obtained = target.nextToken();
@@ -365,7 +384,7 @@ TEST_F(JsonLexerTest, lexingNullLiteralWithWrongCasingThrowsAnError)
 	auto target = JsonLexer("nUll");
 
 	// when, then
-	ASSERT_THROWS_LEXER_EXCEPTION(target.nextToken(), "Unexpected literal \"nUll\"");
+	assertNextTokenThrowsLexerException(target, "Unexpected literal \"nUll\"");
 }
 
 TEST_F(JsonLexerTest, lexingIntegerNumberGivesAppropriateToken)
@@ -377,7 +396,7 @@ TEST_F(JsonLexerTest, lexingIntegerNumberGivesAppropriateToken)
 	auto obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_LITERAL_TOKEN(obtained, JsonTokenType::VALUE_NUMBER, "42");
+	ASSERT_THAT(obtained, isLiteralTokenOf(JsonTokenType::VALUE_NUMBER, "42"));
 }
 
 TEST_F(JsonLexerTest, lexingNegativeIntegerNumberGivesAppropriateToken)
@@ -389,7 +408,7 @@ TEST_F(JsonLexerTest, lexingNegativeIntegerNumberGivesAppropriateToken)
 	auto obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_LITERAL_TOKEN(obtained, JsonTokenType::VALUE_NUMBER, "-42");
+	ASSERT_THAT(obtained, isLiteralTokenOf(JsonTokenType::VALUE_NUMBER, "-42"));
 }
 
 TEST_F(JsonLexerTest, lexingMinusSignWithoutSubsequentDigitsThrowsException)
@@ -398,7 +417,7 @@ TEST_F(JsonLexerTest, lexingMinusSignWithoutSubsequentDigitsThrowsException)
 	auto target = JsonLexer("-");
 
 	// when, then
-	ASSERT_THROWS_LEXER_EXCEPTION(target.nextToken(),  "Invalid number literal \"-\"");
+	assertNextTokenThrowsLexerException(target,  "Invalid number literal \"-\"");
 }
 
 TEST_F(JsonLexerTest, lexingIntegerNumberWithLeadingPlusThrowsException)
@@ -407,7 +426,7 @@ TEST_F(JsonLexerTest, lexingIntegerNumberWithLeadingPlusThrowsException)
 	auto target = JsonLexer("+42");
 
 	// when
-	ASSERT_THROWS_LEXER_EXCEPTION(target.nextToken(),  "Unexpected literal \"+42\"");
+	assertNextTokenThrowsLexerException(target,  "Unexpected literal \"+42\"");
 }
 
 TEST_F(JsonLexerTest, lexingNumberWithLeadingYeroThrowsException)
@@ -416,7 +435,7 @@ TEST_F(JsonLexerTest, lexingNumberWithLeadingYeroThrowsException)
 	auto target = JsonLexer("01234");
 
 	// when, then
-	ASSERT_THROWS_LEXER_EXCEPTION(target.nextToken(), "Invalid number literal \"01234\"");
+	assertNextTokenThrowsLexerException(target, "Invalid number literal \"01234\"");
 }
 
 TEST_F(JsonLexerTest, lexingNumberWithFractionPartGivesAppropriateToken)
@@ -428,7 +447,7 @@ TEST_F(JsonLexerTest, lexingNumberWithFractionPartGivesAppropriateToken)
 	auto obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_LITERAL_TOKEN(obtained, JsonTokenType::VALUE_NUMBER, "123.45");
+	ASSERT_THAT(obtained, isLiteralTokenOf(JsonTokenType::VALUE_NUMBER, "123.45"));
 }
 
 TEST_F(JsonLexerTest, lexingNegativeNumberWithFractionPartGivesAppropriateToken)
@@ -440,7 +459,7 @@ TEST_F(JsonLexerTest, lexingNegativeNumberWithFractionPartGivesAppropriateToken)
 	auto obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_LITERAL_TOKEN(obtained, JsonTokenType::VALUE_NUMBER, "-123.45");
+	ASSERT_THAT(obtained, isLiteralTokenOf(JsonTokenType::VALUE_NUMBER, "-123.45"));
 }
 
 TEST_F(JsonLexerTest, lexingNumberWithDecimalSeparatorAndNoSubsequentDigitsThrowsException)
@@ -449,7 +468,7 @@ TEST_F(JsonLexerTest, lexingNumberWithDecimalSeparatorAndNoSubsequentDigitsThrow
 	auto target = JsonLexer("1234.");
 
 	// when, then
-	ASSERT_THROWS_LEXER_EXCEPTION(target.nextToken(), "Invalid number literal \"1234.\"");
+	assertNextTokenThrowsLexerException(target, "Invalid number literal \"1234.\"");
 }
 
 TEST_F(JsonLexerTest, lexingNumberWithOnlyZerosInDecimalPartGivesAppropriateToken)
@@ -461,7 +480,7 @@ TEST_F(JsonLexerTest, lexingNumberWithOnlyZerosInDecimalPartGivesAppropriateToke
 	auto obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_LITERAL_TOKEN(obtained, JsonTokenType::VALUE_NUMBER, "123.00");
+	ASSERT_THAT(obtained, isLiteralTokenOf(JsonTokenType::VALUE_NUMBER, "123.00"));
 }
 
 TEST_F(JsonLexerTest, lexingNumberWithExponentGivesAppropriateToken)
@@ -473,7 +492,7 @@ TEST_F(JsonLexerTest, lexingNumberWithExponentGivesAppropriateToken)
 	auto obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_LITERAL_TOKEN(obtained, JsonTokenType::VALUE_NUMBER, "1e3");
+	ASSERT_THAT(obtained, isLiteralTokenOf(JsonTokenType::VALUE_NUMBER, "1e3"));
 }
 
 TEST_F(JsonLexerTest, lexingNumberWithUpperCaeExponentGivesAppropriateToken)
@@ -485,7 +504,7 @@ TEST_F(JsonLexerTest, lexingNumberWithUpperCaeExponentGivesAppropriateToken)
 	auto obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_LITERAL_TOKEN(obtained, JsonTokenType::VALUE_NUMBER, "1E2");
+	ASSERT_THAT(obtained, isLiteralTokenOf(JsonTokenType::VALUE_NUMBER, "1E2"));
 }
 
 TEST_F(JsonLexerTest, lexingNumberWithExplicitPositiveExponentGivesAppropriateToken)
@@ -497,7 +516,7 @@ TEST_F(JsonLexerTest, lexingNumberWithExplicitPositiveExponentGivesAppropriateTo
 	auto obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_LITERAL_TOKEN(obtained, JsonTokenType::VALUE_NUMBER, "1e+5");
+	ASSERT_THAT(obtained, isLiteralTokenOf(JsonTokenType::VALUE_NUMBER, "1e+5"));
 }
 
 TEST_F(JsonLexerTest, lexingNumberWithExplicitPositiveUpperCaseExponentGivesAppropriateToken)
@@ -509,7 +528,7 @@ TEST_F(JsonLexerTest, lexingNumberWithExplicitPositiveUpperCaseExponentGivesAppr
 	auto obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_LITERAL_TOKEN(obtained, JsonTokenType::VALUE_NUMBER, "1E+5");
+	ASSERT_THAT(obtained, isLiteralTokenOf(JsonTokenType::VALUE_NUMBER, "1E+5"));
 }
 
 TEST_F(JsonLexerTest, lexingNumberWithNegativeExponentGivesAppropriateToken)
@@ -521,7 +540,7 @@ TEST_F(JsonLexerTest, lexingNumberWithNegativeExponentGivesAppropriateToken)
 	auto obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_LITERAL_TOKEN(obtained, JsonTokenType::VALUE_NUMBER, "1e-2");
+	ASSERT_THAT(obtained, isLiteralTokenOf(JsonTokenType::VALUE_NUMBER, "1e-2"));
 }
 
 TEST_F(JsonLexerTest, lexingNumberWithNegativeUpperCaeExponentGivesAppropriateToken)
@@ -533,7 +552,7 @@ TEST_F(JsonLexerTest, lexingNumberWithNegativeUpperCaeExponentGivesAppropriateTo
 	auto obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_LITERAL_TOKEN(obtained, JsonTokenType::VALUE_NUMBER, "1E-2");
+	ASSERT_THAT(obtained, isLiteralTokenOf(JsonTokenType::VALUE_NUMBER, "1E-2"));
 }
 
 TEST_F(JsonLexerTest, lexingNumberWithExponentAndNoDigitsThrowsException)
@@ -542,7 +561,7 @@ TEST_F(JsonLexerTest, lexingNumberWithExponentAndNoDigitsThrowsException)
 	auto target = JsonLexer("1e");
 
 	// when, then
-	ASSERT_THROWS_LEXER_EXCEPTION(target.nextToken(), "Invalid number literal \"1e\"");
+	assertNextTokenThrowsLexerException(target, "Invalid number literal \"1e\"");
 }
 
 TEST_F(JsonLexerTest, lexingNumberWithUpperCaseExponentAndNoDigitsThrowsException)
@@ -551,7 +570,7 @@ TEST_F(JsonLexerTest, lexingNumberWithUpperCaseExponentAndNoDigitsThrowsExceptio
 	auto target = JsonLexer("2E");
 
 	// when, then
-	ASSERT_THROWS_LEXER_EXCEPTION(target.nextToken(), "Invalid number literal \"2E\"");
+	assertNextTokenThrowsLexerException(target, "Invalid number literal \"2E\"");
 }
 
 TEST_F(JsonLexerTest, lexingNumberWithExponentFollowedByPlusAndNoDigitsThrowsException)
@@ -560,7 +579,7 @@ TEST_F(JsonLexerTest, lexingNumberWithExponentFollowedByPlusAndNoDigitsThrowsExc
 	auto target = JsonLexer("1e+");
 
 	// when, then
-	ASSERT_THROWS_LEXER_EXCEPTION(target.nextToken(), "Invalid number literal \"1e+\"");
+	assertNextTokenThrowsLexerException(target, "Invalid number literal \"1e+\"");
 }
 
 TEST_F(JsonLexerTest, lexingNumberWithUpperCaseExponentFollowedByPlusAndNoDigitsThrowsException)
@@ -569,7 +588,7 @@ TEST_F(JsonLexerTest, lexingNumberWithUpperCaseExponentFollowedByPlusAndNoDigits
 	auto target = JsonLexer("2E+");
 
 	// when, then
-	ASSERT_THROWS_LEXER_EXCEPTION(target.nextToken(), "Invalid number literal \"2E+\"");
+	assertNextTokenThrowsLexerException(target, "Invalid number literal \"2E+\"");
 }
 
 TEST_F(JsonLexerTest, lexingNumberWithExponentFollowedByMinusAndNoDigitsThrowsException)
@@ -578,7 +597,7 @@ TEST_F(JsonLexerTest, lexingNumberWithExponentFollowedByMinusAndNoDigitsThrowsEx
 	auto target = JsonLexer("1e-");
 
 	// when, then
-	ASSERT_THROWS_LEXER_EXCEPTION(target.nextToken(), "Invalid number literal \"1e-\"");
+	assertNextTokenThrowsLexerException(target, "Invalid number literal \"1e-\"");
 }
 
 TEST_F(JsonLexerTest, lexingNumberWithUpperCaseExponentFollowedByMinusAndNoDigitsThrowsException)
@@ -587,7 +606,7 @@ TEST_F(JsonLexerTest, lexingNumberWithUpperCaseExponentFollowedByMinusAndNoDigit
 	auto target = JsonLexer("2E-");
 
 	// when, then
-	ASSERT_THROWS_LEXER_EXCEPTION(target.nextToken(), "Invalid number literal \"2E-\"");
+	assertNextTokenThrowsLexerException(target, "Invalid number literal \"2E-\"");
 }
 
 TEST_F(JsonLexerTest, lexingNumberWithFractionAndExponentGivesAppropriateToken)
@@ -599,7 +618,7 @@ TEST_F(JsonLexerTest, lexingNumberWithFractionAndExponentGivesAppropriateToken)
 	auto obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_LITERAL_TOKEN(obtained, JsonTokenType::VALUE_NUMBER, "1.234e-2");
+	ASSERT_THAT(obtained, isLiteralTokenOf(JsonTokenType::VALUE_NUMBER, "1.234e-2"));
 }
 
 TEST_F(JsonLexerTest, lexingNumberWithFractionAndUpperCaseExponentGivesAppropriateToken)
@@ -611,7 +630,7 @@ TEST_F(JsonLexerTest, lexingNumberWithFractionAndUpperCaseExponentGivesAppropria
 	auto obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_LITERAL_TOKEN(obtained, JsonTokenType::VALUE_NUMBER, "1.25E-3");
+	ASSERT_THAT(obtained, isLiteralTokenOf(JsonTokenType::VALUE_NUMBER, "1.25E-3"));
 }
 
 TEST_F(JsonLexerTest, lexingNumberWithDecimalSeparatorImmediatelyFollowedByExponentThrowsException)
@@ -620,7 +639,7 @@ TEST_F(JsonLexerTest, lexingNumberWithDecimalSeparatorImmediatelyFollowedByExpon
 	auto target = JsonLexer("1.e-2");
 
 	// when, then
-	ASSERT_THROWS_LEXER_EXCEPTION(target.nextToken(), "Invalid number literal \"1.e-2\"");
+	assertNextTokenThrowsLexerException(target, "Invalid number literal \"1.e-2\"");
 }
 
 TEST_F(JsonLexerTest, lexingNumberWithDecimalSeparatorImmediatelyFollowedByUpperCaseExponentThrowsException)
@@ -629,7 +648,7 @@ TEST_F(JsonLexerTest, lexingNumberWithDecimalSeparatorImmediatelyFollowedByUpper
 	auto target = JsonLexer("1.E-5");
 
 	// when, then
-	ASSERT_THROWS_LEXER_EXCEPTION(target.nextToken(), "Invalid number literal \"1.E-5\"");
+	assertNextTokenThrowsLexerException(target, "Invalid number literal \"1.E-5\"");
 }
 
 TEST_F(JsonLexerTest, lexingStringGivesAppropriateToken)
@@ -641,7 +660,7 @@ TEST_F(JsonLexerTest, lexingStringGivesAppropriateToken)
 	auto obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_LITERAL_TOKEN(obtained, JsonTokenType::VALUE_STRING, "foobar");
+	ASSERT_THAT(obtained, isLiteralTokenOf(JsonTokenType::VALUE_STRING, "foobar"));
 }
 
 TEST_F(JsonLexerTest, lexingEmptyStringGivesAppropriateToken)
@@ -653,7 +672,7 @@ TEST_F(JsonLexerTest, lexingEmptyStringGivesAppropriateToken)
 	auto obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_LITERAL_TOKEN(obtained, JsonTokenType::VALUE_STRING, "");
+	ASSERT_THAT(obtained, isLiteralTokenOf(JsonTokenType::VALUE_STRING, ""));
 }
 
 TEST_F(JsonLexerTest, lexingUnterminatedStringThrowsException)
@@ -662,13 +681,13 @@ TEST_F(JsonLexerTest, lexingUnterminatedStringThrowsException)
 	auto target = JsonLexer("\"foo");
 
 	// when, then
-	ASSERT_THROWS_LEXER_EXCEPTION(target.nextToken(), "Unterminated string literal \"foo\"");
+	assertNextTokenThrowsLexerException(target, "Unterminated string literal \"foo\"");
 }
 
 TEST_F(JsonLexerTest, lexingStringWithEscapedCharactersWorks)
 {
 	// given
-	auto target = JsonLexer("\"\\u0000\\u0001\\u0010\\n\\\"\\\\\\/\\b\\f\\n\\r\\t\"");
+	auto target = JsonLexer(R"("\u0000\u0001\u0010\n\"\\\/\b\f\n\r\t")");
 
 	// when
 	auto obtained = target.nextToken();
@@ -677,16 +696,16 @@ TEST_F(JsonLexerTest, lexingStringWithEscapedCharactersWorks)
 	std::stringstream stream;
 	// gcc < version 6 treats \u0000 as \u0001 (see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=53690) so use the hex representation
 	stream << '\x0000' << "\u0001\u0010\n\"\\/\b\f\n\r\t";
-	ASSERT_IS_LITERAL_TOKEN(obtained, JsonTokenType::VALUE_STRING, stream.str());
+	ASSERT_THAT(obtained, isLiteralTokenOf(JsonTokenType::VALUE_STRING, stream.str()));
 }
 
 TEST_F(JsonLexerTest, lexingStringWithInvalidEscapeSequenceThrowsException)
 {
 	// given
-	auto target = JsonLexer("\"Hello \\a World!\'");
+	auto target = JsonLexer(R"("Hello \a World!')");
 
 	// when, then
-	ASSERT_THROWS_LEXER_EXCEPTION(target.nextToken(), "Invalid escape sequence \"\\a\"");
+	assertNextTokenThrowsLexerException(target, R"(Invalid escape sequence "\a")");
 }
 
 TEST_F(JsonLexerTest, lexingUnterminatedStringAfterEscapeSequenceThrowsAnException)
@@ -695,31 +714,31 @@ TEST_F(JsonLexerTest, lexingUnterminatedStringAfterEscapeSequenceThrowsAnExcepti
 	auto target = JsonLexer("\"foo \\");
 
 	// when, then
-	ASSERT_THROWS_LEXER_EXCEPTION(target.nextToken(), "Unterminated string literal \"foo \"");
+	assertNextTokenThrowsLexerException(target, "Unterminated string literal \"foo \"");
 }
 
 TEST_F(JsonLexerTest, lexingStringWithEscapeAsciiCharactersGivesAppropriateToken)
 {
 	// given
-	auto target = JsonLexer("\"\\u0048\\u0065\\u006c\\u006c\\u006f\\u0020\\u0057\\u006f\\u0072\\u006c\\u0064\\u0021\"");
+	auto target = JsonLexer(R"("\u0048\u0065\u006c\u006c\u006f\u0020\u0057\u006f\u0072\u006c\u0064\u0021")");
 
 	// when
 	auto obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_LITERAL_TOKEN(obtained, JsonTokenType::VALUE_STRING, "Hello World!");
+	ASSERT_THAT(obtained, isLiteralTokenOf(JsonTokenType::VALUE_STRING, "Hello World!"));
 }
 
 TEST_F(JsonLexerTest, lexingStringWithEscapedUpperCaseAsciiCharactersGivesAppropriateToken)
 {
 	// given
-	auto target = JsonLexer("\"\\u0048\\u0065\\u006C\\u006C\\u006F\\u0020\\u0057\\u006F\\u0072\\u006C\\u0064\\u0021\"");
+	auto target = JsonLexer(R"("\u0048\u0065\u006C\u006C\u006F\u0020\u0057\u006F\u0072\u006C\u0064\u0021")");
 
 	// when
 	auto obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_LITERAL_TOKEN(obtained, JsonTokenType::VALUE_STRING, "Hello World!");
+	ASSERT_THAT(obtained, isLiteralTokenOf(JsonTokenType::VALUE_STRING, "Hello World!"));
 }
 
 TEST_F(JsonLexerTest, lexingStringWithCharactersThatMustBeEscapedButAreNotThrowsAnException)
@@ -728,13 +747,13 @@ TEST_F(JsonLexerTest, lexingStringWithCharactersThatMustBeEscapedButAreNotThrows
 	auto target = JsonLexer("\"\n\"");
 
 	// when, then
-	ASSERT_THROWS_LEXER_EXCEPTION(target.nextToken(), "Invalid control character \"\\u000A\"");
+	assertNextTokenThrowsLexerException(target, R"(Invalid control character "\u000A")");
 }
 
 TEST_F(JsonLexerTest, lexingStringWithSurrogatePairGivesAppropriateToken)
 {
 	// given
-	auto target = JsonLexer("\"\\u0048\\u0065\\u006C\\u006C\\u006F\\u0020\\uD834\\uDD1E\\u0021\"");
+	auto target = JsonLexer(R"("\u0048\u0065\u006C\u006C\u006F\u0020\uD834\uDD1E\u0021")");
 
 	// when
 	auto obtained = target.nextToken();
@@ -746,139 +765,139 @@ TEST_F(JsonLexerTest, lexingStringWithSurrogatePairGivesAppropriateToken)
 
 	auto expectedString = core::util::StringUtil::convertUtf16StringToUtf8String(expectedUtf16String);
 
-	ASSERT_IS_LITERAL_TOKEN(obtained, JsonTokenType::VALUE_STRING, expectedString);
+	ASSERT_THAT(obtained, isLiteralTokenOf(JsonTokenType::VALUE_STRING, expectedString));
 }
 
 TEST_F(JsonLexerTest, lexingStringWithHighSurrogateOnlyThrowsAnException)
 {
 	// given
-	auto target = JsonLexer("\"\\u0048\\u0065\\u006C\\u006C\\u006F\\u0020\\uD834\\u0021\"");
+	auto target = JsonLexer(R"("\u0048\u0065\u006C\u006C\u006F\u0020\uD834\u0021")");
 
 	// when, then
-	ASSERT_THROWS_LEXER_EXCEPTION(target.nextToken(), "Invalid UTF-16 surrogate pair \"\\uD834\"");
+	assertNextTokenThrowsLexerException(target, R"(Invalid UTF-16 surrogate pair "\uD834")");
 }
 
 TEST_F(JsonLexerTest, lexingStringWithLowSurrogateOnlyThrowsAnException)
 {
 	// given
-	auto target = JsonLexer("\"\\u0048\\u0065\\u006C\\u006C\\u006F\\u0020\\uDD1E\\u0021\"");
+	auto target = JsonLexer(R"("\u0048\u0065\u006C\u006C\u006F\u0020\uDD1E\u0021")");
 
 	// when, then
-	ASSERT_THROWS_LEXER_EXCEPTION(target.nextToken(), "Invalid UTF-16 surrogate pair \"\\uDD1E\"");
+	assertNextTokenThrowsLexerException(target, R"(Invalid UTF-16 surrogate pair "\uDD1E")");
 }
 
 TEST_F(JsonLexerTest, lexingStringWithNonHexCharacterInUnicodeEscapeSequenceThrowsAnException)
 {
 	// given
-	auto target = JsonLexer("\"\\u0048\\u0065\\u006C\\u006C\\u006F\\u0020\\uDDGE\\u0021\"");
+	auto target = JsonLexer(R"("\u0048\u0065\u006C\u006C\u006F\u0020\uDDGE\u0021")");
 
 	// when, then
-	ASSERT_THROWS_LEXER_EXCEPTION(target.nextToken(), "Invalid unicode escape sequence \"\\uDDG\"");
+	assertNextTokenThrowsLexerException(target, R"(Invalid unicode escape sequence "\uDDG")");
 }
 
 TEST_F(JsonLexerTest, lexingStringWithTooShortUnicodeEscapeSequenceThrowsAnException)
 {
 	// given
-	auto target = JsonLexer("\"\\u007\"");
+	auto target = JsonLexer(R"("\u007")");
 
 	// when
-	ASSERT_THROWS_LEXER_EXCEPTION(target.nextToken(), "Invalid unicode escape sequence \"\\u007\"\"");
+	assertNextTokenThrowsLexerException(target, R"(Invalid unicode escape sequence "\u007"")");
 }
 
 TEST_F(JsonLexerTest, lexingCompoundTokenStringGivesTokensInAppropriateOrder)
 {
 	// given
-	auto target = JsonLexer("{\"asdf\": [1234.45e-3, \"a\", null, true, false] } ");
+	auto target = JsonLexer(R"({"asdf": [1234.45e-3, "a", null, true, false] } )");
 
 	// when
 	auto obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_STRUCTURAL_TOKEN(obtained, JsonTokenType::LEFT_BRACE);
+	ASSERT_THAT(obtained, isStructuralTokenOf(JsonTokenType::LEFT_BRACE));
 
 	// and when
 	obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_LITERAL_TOKEN(obtained, JsonTokenType::VALUE_STRING, "asdf");
+	ASSERT_THAT(obtained, isLiteralTokenOf(JsonTokenType::VALUE_STRING, "asdf"));
 
 	// and when
 	obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_STRUCTURAL_TOKEN(obtained, JsonTokenType::COLON);
+	ASSERT_THAT(obtained, isStructuralTokenOf(JsonTokenType::COLON));
 
 	// and when
 	obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_STRUCTURAL_TOKEN(obtained, JsonTokenType::LEFT_SQUARE_BRACKET);
+	ASSERT_THAT(obtained, isStructuralTokenOf(JsonTokenType::LEFT_SQUARE_BRACKET));
 
 	// and when
 	obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_LITERAL_TOKEN(obtained, JsonTokenType::VALUE_NUMBER, "1234.45e-3");
+	ASSERT_THAT(obtained, isLiteralTokenOf(JsonTokenType::VALUE_NUMBER, "1234.45e-3"));
 
 	// and when
 	obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_STRUCTURAL_TOKEN(obtained, JsonTokenType::COMMA);
+	ASSERT_THAT(obtained, isStructuralTokenOf(JsonTokenType::COMMA));
 
 	// and when
 	obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_LITERAL_TOKEN(obtained, JsonTokenType::VALUE_STRING, "a");
+	ASSERT_THAT(obtained, isLiteralTokenOf(JsonTokenType::VALUE_STRING, "a"));
 
 	// and when
 	obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_STRUCTURAL_TOKEN(obtained, JsonTokenType::COMMA);
+	ASSERT_THAT(obtained, isStructuralTokenOf(JsonTokenType::COMMA));
 
 	// and when
 	obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_LITERAL_TOKEN(obtained, JsonTokenType::LITERAL_NULL, "null");
+	ASSERT_THAT(obtained, isLiteralTokenOf(JsonTokenType::LITERAL_NULL, "null"));
 
 	// and when
 	obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_STRUCTURAL_TOKEN(obtained, JsonTokenType::COMMA);
+	ASSERT_THAT(obtained, isStructuralTokenOf(JsonTokenType::COMMA));
 
 	// and when
 	obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_LITERAL_TOKEN(obtained, JsonTokenType::LITERAL_BOOLEAN, "true");
+	ASSERT_THAT(obtained, isLiteralTokenOf(JsonTokenType::LITERAL_BOOLEAN, "true"));
 
 	// and when
 	obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_STRUCTURAL_TOKEN(obtained, JsonTokenType::COMMA);
+	ASSERT_THAT(obtained, isStructuralTokenOf(JsonTokenType::COMMA));
 
 	// and when
 	obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_LITERAL_TOKEN(obtained, JsonTokenType::LITERAL_BOOLEAN, "false");
+	ASSERT_THAT(obtained, isLiteralTokenOf(JsonTokenType::LITERAL_BOOLEAN, "false"));
 
 	// and when
 	obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_STRUCTURAL_TOKEN(obtained, JsonTokenType::RIGHT_SQUARE_BRACKET);
+	ASSERT_THAT(obtained, isStructuralTokenOf(JsonTokenType::RIGHT_SQUARE_BRACKET));
 
 	// and when
 	obtained = target.nextToken();
 
 	// then
-	ASSERT_IS_STRUCTURAL_TOKEN(obtained, JsonTokenType::RIGHT_BRACE);
+	ASSERT_THAT(obtained, isStructuralTokenOf(JsonTokenType::RIGHT_BRACE));
 
 	// and when
 	obtained = target.nextToken();
@@ -935,7 +954,7 @@ TEST_F(JsonLexerTest, requestingNextTokenAfterIoFailureHasBeenThrownThrowsAnExce
 	}
 
 	// and when requesting the next token a second time
-	ASSERT_THROWS_LEXER_EXCEPTION(target.nextToken(),  "JSON Lexer is in erroneous state");
+	assertNextTokenThrowsLexerException(target,  "JSON Lexer is in erroneous state");
 }
 
 TEST_F(JsonLexerTest, requestingNextTokenAfterLexerExceptionHasBeenThrownThrowsAnException)
@@ -944,8 +963,8 @@ TEST_F(JsonLexerTest, requestingNextTokenAfterLexerExceptionHasBeenThrownThrowsA
 	auto target = JsonLexer("1. 1.234");
 
 	// when requesting token the first time, then
-	ASSERT_THROWS_LEXER_EXCEPTION(target.nextToken(), "Invalid number literal \"1.\"");
+	assertNextTokenThrowsLexerException(target, "Invalid number literal \"1.\"");
 
 	// and when requesting the next token a second time
-	ASSERT_THROWS_LEXER_EXCEPTION(target.nextToken(), "JSON Lexer is in erroneous state");
+	assertNextTokenThrowsLexerException(target, "JSON Lexer is in erroneous state");
 }

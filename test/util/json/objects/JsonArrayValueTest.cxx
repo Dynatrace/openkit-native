@@ -30,7 +30,7 @@ class JsonArrayValueTest : public testing::Test
 TEST_F(JsonArrayValueTest, isArrayType)
 {
 	// given
-	auto emptyList = std::list<std::shared_ptr<JsonValue>>();
+	auto emptyList = std::make_shared<std::list<std::shared_ptr<JsonValue>>>();
 
 	// when, then
 	ASSERT_THAT(JsonArrayValue::fromList(emptyList)->getValueType(), testing::Eq(JsonValueType::ARRAY_VALUE));
@@ -39,7 +39,8 @@ TEST_F(JsonArrayValueTest, isArrayType)
 TEST_F(JsonArrayValueTest, sizeReturnsSizeOfUnderlyingList)
 {
 	// given
-	auto jsonValues = JsonArrayValue::JsonValueList({JsonBooleanValue::TRUE});
+	auto jsonValues = std::make_shared<JsonArrayValue::JsonValueList>();
+	jsonValues->push_back(JsonBooleanValue::TRUE);
 
 	auto target = JsonArrayValue::fromList(jsonValues);
 
@@ -50,7 +51,7 @@ TEST_F(JsonArrayValueTest, sizeReturnsSizeOfUnderlyingList)
 	ASSERT_THAT(obtained, testing::Eq(1));
 
 	// and when
-	jsonValues.push_back(JsonBooleanValue::FALSE);
+	jsonValues->push_back(JsonBooleanValue::FALSE);
 	target = JsonArrayValue::fromList(jsonValues);
 
 	obtained = target->size();
@@ -62,7 +63,9 @@ TEST_F(JsonArrayValueTest, sizeReturnsSizeOfUnderlyingList)
 TEST_F(JsonArrayValueTest, beginReturnsIteratorOfUnderlyingList)
 {
 	// given
-	auto jsonValues = JsonArrayValue::JsonValueList({JsonBooleanValue::TRUE, JsonBooleanValue::FALSE});
+	auto jsonValues = std::make_shared<JsonArrayValue::JsonValueList>();
+	jsonValues->push_back(JsonBooleanValue::TRUE);
+	jsonValues->push_back(JsonBooleanValue::FALSE);
 
 	auto target = JsonArrayValue::fromList(jsonValues);
 

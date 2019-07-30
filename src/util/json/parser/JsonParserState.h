@@ -23,7 +23,63 @@ namespace util
 	{
 		namespace parser
 		{
+			enum class JsonParserState
+			{
+				///
+				/// initial state of the JSON parser
+				///
+				INIT,
 
+				///
+				/// state when start of an array was encountered
+				///
+				IN_ARRAY_START,
+
+				///
+				/// state in array after a value was parsed
+				///
+				IN_ARRAY_VALUE,
+
+				///
+				/// state in array after a delimiter was parsed
+				///
+				IN_ARRAY_DELIMITER,
+
+				///
+				/// state when start of an object was encountered
+				///
+				IN_OBJECT_START,
+
+				///
+				/// state in object after a key was parsed
+				///
+				IN_OBJECT_KEY,
+
+				///
+				/// state in object after a key value delimiter (":") was parsed
+				///
+				IN_OBJECT_COLON,
+
+				///
+				/// state in object after a value was parsed
+				///
+				IN_OBJECT_VALUE,
+
+				///
+				/// state in object after comma delimiter was parsed
+				///
+				IN_OBJECT_DELIMITER,
+
+				///
+				/// end state of the JSON parser
+				///
+				END,
+
+				///
+				/// error state
+				///
+				ERROR
+			};
 		}
 	}
 }

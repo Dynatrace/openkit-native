@@ -19,12 +19,12 @@
 using namespace util::json::objects;
 
 
-JsonArrayValue::JsonArrayValue(const JsonValueList& values)
+JsonArrayValue::JsonArrayValue(const JsonValueListPtr values)
 		: mJsonValues(values)
 {
 }
 
-std::shared_ptr<JsonArrayValue> JsonArrayValue::fromList(const JsonValueList& values)
+std::shared_ptr<JsonArrayValue> JsonArrayValue::fromList(const JsonValueListPtr values)
 {
 	return std::shared_ptr<JsonArrayValue>(new JsonArrayValue(values));
 }
@@ -36,25 +36,25 @@ JsonValueType JsonArrayValue::getValueType() const
 
 size_t JsonArrayValue::size() const
 {
-	return mJsonValues.size();
+	return mJsonValues->size();
 }
 
 JsonArrayValue::JsonValueList::iterator JsonArrayValue::begin()
 {
-	return mJsonValues.begin();
+	return mJsonValues->begin();
 }
 
 JsonArrayValue::JsonValueList::const_iterator JsonArrayValue::begin() const
 {
-	return mJsonValues.begin();
+	return mJsonValues->begin();
 }
 
 JsonArrayValue::JsonValueList::iterator JsonArrayValue::end()
 {
-	return mJsonValues.end();
+	return mJsonValues->end();
 }
 
 JsonArrayValue::JsonValueList::const_iterator JsonArrayValue::end() const
 {
-	return mJsonValues.end();
+	return mJsonValues->end();
 }
