@@ -1,6 +1,9 @@
 # OpenKit Native ( C/C++ ) Changelog
 
-## [Unreleased](https://github.com/Dynatrace/openkit-native/compare/v1.1.4...release/1.1)
+## [Unreleased](https://github.com/Dynatrace/openkit-native/compare/v1.1.5...release/1.1)
+
+## 1.1.5 [Release date: 2019-08-08]
+[GitHub Releases](https://github.com/Dynatrace/openkit-native/releases/tag/v1.1.5)
 
 ### Changed
 - On OpenKitBuilder creation device ID is parsed from the given string. Non-numeric
