@@ -404,6 +404,9 @@ namespace protocol
 		/// session number
 		int32_t mSessionNumber;
 
+		/// beacon ID
+		int32_t mBeaconId;
+
 		/// session start time
 		int64_t mSessionStartTime;
 

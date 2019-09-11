@@ -30,6 +30,7 @@
 #include "configuration/Configuration.h"
 
 #include "../protocol/MockHTTPClient.h"
+#include "../caching/MockBeaconCache.h"
 #include "../providers/MockHTTPClientProvider.h"
 #include "../core/MockWebRequestTracer.h"
 #include "../providers/MockPRNGenerator.h"
@@ -162,7 +163,7 @@ protected:
 
 	std::shared_ptr<configuration::Device> device;
 	std::shared_ptr<configuration::BeaconCacheConfiguration> beaconCacheConfiguration;
-	std::shared_ptr<caching::BeaconCache> beaconCache;
+	std::shared_ptr<caching::IBeaconCache> beaconCache;
 
 	std::shared_ptr<core::BeaconSender> beaconSender;
 	std::shared_ptr<testing::NiceMock<test::MockHTTPClientProvider>> mockHTTPClientProvider;
@@ -276,25 +277,60 @@ TEST_F(BeaconTest, createTagReturnsEmptyStringForDataCollectionLevel0)
 TEST_F(BeaconTest, createTagReturnsTagStringForDataCollectionLevel1)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::PERFORMANCE, openkit::CrashReportingLevel::OFF);
+	int64_t deviceId = 37;
+	int64_t ignoredDeviceId = 999;
+	auto appId = std::string("appID");
+	auto mockRandom = getMockedRandomGenerator();
+	ON_CALL(*mockRandom, nextInt64(testing::_)).WillByDefault(testing::Return(deviceId));
+
+	auto target = buildBeacon(openkit::DataCollectionLevel::PERFORMANCE, openkit::CrashReportingLevel::OFF, ignoredDeviceId, appId);
 
 	// when
 	auto tagString = target->createTag(1, 1);
 
 	//then
-	ASSERT_GT(tagString.getStringLength(), 0u);
+	std::stringstream str;
+	str << "MT"						// tag prefix
+		<< "_3"						// protocol version
+		<< "_1"						// server ID
+		<< "_" << deviceId			// device ID
+		<< "_1" 					// session number (must always be 1 for data collection level performance)
+		<< "_appID"					// application ID
+		<< "_1"						// parent action ID
+		<< "_" << threadIDProvider->getThreadID() // thread ID
+		<< "_1"						// sequence number
+	;
+
+	ASSERT_THAT(tagString.getStringData(), testing::Eq(str.str()));
 }
 
 TEST_F(BeaconTest, createTagReturnsTagStringForDataCollectionLevel2)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF);
+	int64_t deviceId = 37;
+	int32_t sessionId = 73;
+	auto appId = std::string("appID");
+	auto mockSessionIdProvider = getSessionIDProviderMock();
+	ON_CALL(*mockSessionIdProvider, getNextSessionID()).WillByDefault(testing::Return(sessionId));
+
+	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF, deviceId, appId);
 
 	// when
 	auto tagString = target->createTag(1, 1);
 
 	// then
-	ASSERT_GT(tagString.getStringLength(), 0u);
+	std::stringstream str;
+	str << "MT"						// tag prefix
+		<< "_3"						// protocol version
+		<< "_1"						// server ID
+		<< "_" << deviceId			// device ID
+		<< "_" << sessionId			// session number (must always be 1 for data collection level performance)
+		<< "_" << appId				// application ID
+		<< "_1"						// parent action ID
+		<< "_" << threadIDProvider->getThreadID() // thread ID
+		<< "_1"						// sequence number
+	;
+	ASSERT_THAT(tagString.getStringData(), str.str());
 }
 
 TEST_F(BeaconTest, createTagEncodesDeviceIDPropperly)
@@ -1019,4 +1055,24 @@ TEST_F(BeaconTest, invalidClientIPIsConvertedToEmptyString)
 
 	// when, then
 	ASSERT_EQ(0, target->getClientIPAddress().getStringLength());
+}
+
+TEST_F(BeaconTest, useInternalBeaconIdForAccessingBeaconCacheWhenSessionNumberReportingDisabled)
+{
+	// given
+	auto mockBeaconCache = std::make_shared<testing::NiceMock<test::MockBeaconCache>>();
+	beaconCache = mockBeaconCache;
+
+	int32_t beaconId = 73;
+	auto mockSessionIdProvider = getSessionIDProviderMock();
+	ON_CALL(*mockSessionIdProvider, getNextSessionID()).WillByDefault(testing::Return(beaconId));
+
+	auto target = buildBeacon(openkit::DataCollectionLevel::PERFORMANCE, openkit::CrashReportingLevel::OPT_IN_CRASHES);
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, deleteCacheEntry(beaconId)).Times(1);
+
+	// when
+	target->clearData();
+
 }
