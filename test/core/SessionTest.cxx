@@ -452,6 +452,8 @@ TEST_F(SessionTest, endSessionWithOpenRootActions)
 		.Times(testing::Exactly(1));
 	EXPECT_CALL(*mockBeaconStrict, endSession(testing::_))
 		.Times(testing::Exactly(1));
+	EXPECT_CALL(*mockBeaconStrict, mockAddAction(testing::Matcher<std::shared_ptr<core::RootAction>>(testing::_)))
+		.Times(testing::Exactly(2)); // via calling end and delegating to end of on both entered root actions
 	EXPECT_CALL(*mockBeaconSender, finishSession(testing::_))
 		.Times(testing::Exactly(1));
 	EXPECT_CALL(*mockBeaconStrict, send(testing::_))

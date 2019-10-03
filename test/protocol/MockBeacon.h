@@ -61,6 +61,19 @@ namespace test {
 			reportValueString(actionID, valueName, value);
 		}
 
+		void addAction(std::shared_ptr<core::RootAction> rootAction) override
+		{
+			Beacon::addAction(rootAction);
+			mockAddAction(rootAction);
+		}
+
+		void addAction(std::shared_ptr<core::Action> action) override
+		{
+			Beacon::addAction(action);
+			mockAddAction(action);
+		}
+
+
 		virtual ~MockBeacon() {}
 
 		MOCK_METHOD1(identifyUser, void(const core::UTF8String& userTag));
@@ -77,6 +90,8 @@ namespace test {
 		MOCK_METHOD1(send, std::shared_ptr<protocol::StatusResponse>(std::shared_ptr<providers::IHTTPClientProvider>));
 		MOCK_METHOD2(createTag, core::UTF8String(int32_t, int32_t));
 		MOCK_METHOD0(createSequenceNumber, int32_t());
+		MOCK_METHOD1(mockAddAction, void(std::shared_ptr<core::RootAction>));
+		MOCK_METHOD1(mockAddAction, void(std::shared_ptr<core::Action>));
 	};
 }
 #endif

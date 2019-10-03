@@ -2,6 +2,10 @@
 
 ## [Unreleased](https://github.com/Dynatrace/openkit-native/compare/v1.1.5...release/1.1)
 
+### Changed
+- Fix `leaveAction` in `RootAction` so that the `mEndTime` and `mEndSequenceNumber` is set before 
+  the root action is added to the `Beacon`.
+
 ## 1.1.5 [Release date: 2019-08-08]
 [GitHub Releases](https://github.com/Dynatrace/openkit-native/releases/tag/v1.1.5)
 

@@ -115,8 +115,6 @@ std::shared_ptr<openkit::IWebRequestTracer> RootAction::traceWebRequest(const ch
 
 void RootAction::doLeaveAction()
 {
-	// add Action to Beacon
-	mBeacon->addAction(shared_from_this());
 
 	while (!mOpenChildActions.isEmpty())
 	{
@@ -128,6 +126,9 @@ void RootAction::doLeaveAction()
 	mEndTime = mBeacon->getCurrentTimestamp();
 	mEndSequenceNumber = mBeacon->createSequenceNumber();
 
+	// add Action to Beacon
+	mBeacon->addAction(shared_from_this());
+	
 	mSession->rootActionEnded(std::static_pointer_cast<RootAction>(shared_from_this()));
 	mSession = nullptr;
 }
