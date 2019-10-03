@@ -70,7 +70,7 @@ public:
 		beaconCache = std::make_shared<caching::BeaconCache>(logger);
 
 		mockBeaconSender = std::make_shared<testing::StrictMock<test::MockBeaconSender>>(logger, configuration, mockHTTPClientProvider, timingProvider);
-		mockBeaconStrict = std::make_shared<testing::StrictMock<test::MockBeacon>>(logger, beaconCache, configuration, nullptr, threadIDProvider, timingProvider);	
+		mockBeaconStrict = std::make_shared<testing::StrictMock<test::MockBeacon>>(logger, beaconCache, configuration, nullptr, threadIDProvider, timingProvider);
 		mockBeaconNice = std::make_shared<testing::NiceMock<test::MockBeacon>>(logger, beaconCache, configuration, nullptr, threadIDProvider, timingProvider);
 	}
 
@@ -84,7 +84,7 @@ public:
 	std::shared_ptr<providers::IThreadIDProvider> threadIDProvider;
 	std::shared_ptr<providers::ITimingProvider> timingProvider;
 	std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider;
-	
+
 	std::shared_ptr<testing::NiceMock<test::MockHTTPClient>> mockHTTPClient;
 	std::shared_ptr<openkit::ISSLTrustManager> trustManager;
 
@@ -146,7 +146,7 @@ TEST_F(SessionTest, enterNotClosedAction)
     // add/enter one action
     auto rootAction = testSession->enterAction("Some action");
 	ASSERT_TRUE(rootAction != nullptr);
-    
+
     // verify that (because the actions is still active) it is not in the beacon cache (thus the cache is empty)
     ASSERT_TRUE(testSession->isEmpty());
 }
@@ -175,7 +175,7 @@ TEST_F(SessionTest, enterMultipleActions)
 	rootAction1->leaveAction();
 	auto rootAction2 = testSession->enterAction("some action 2");
 	rootAction2->leaveAction();
-	
+
 	// verify that the actions are closed, thus moved to the beacon cache (thus the cache is no longer empty)
 	ASSERT_FALSE(testSession->isEmpty());
 }
@@ -185,7 +185,7 @@ TEST_F(SessionTest, enterSameActions)
 {
 	// create test environment
 	std::shared_ptr<core::Session> testSession = std::make_shared<core::Session>(logger, mockBeaconSender, mockBeaconNice);
-	
+
 	// add/enter two actions
 	auto rootAction1 = testSession->enterAction("some action");
 	rootAction1->leaveAction();
@@ -453,6 +453,8 @@ TEST_F(SessionTest, endSessionWithOpenRootActions)
 		.Times(testing::Exactly(1));
 	EXPECT_CALL(*mockBeaconStrict, endSession(testing::_))
 		.Times(testing::Exactly(1));
+	EXPECT_CALL(*mockBeaconStrict, mockAddAction(testing::Matcher<std::shared_ptr<core::RootAction>>(testing::_)))
+		.Times(testing::Exactly(2)); // via calling end and delegating to end of on both entered root actions
 	EXPECT_CALL(*mockBeaconSender, finishSession(testing::_))
 		.Times(testing::Exactly(1));
 	EXPECT_CALL(*mockBeaconStrict, send(testing::_))
@@ -507,10 +509,10 @@ TEST_F(SessionTest, clearCapturedData)
 
     // verify that the actions are closed, thus moved to the beacon cache (thus the cache is no longer empty)
 	ASSERT_FALSE(testSession->isEmpty());
-     
+
 	// clear the captured data
 	testSession->clearCapturedData();
-    
+
 	// verify that the cached items are cleared and the cache is empty
 	ASSERT_TRUE(testSession->isEmpty());
 }

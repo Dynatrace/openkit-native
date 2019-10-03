@@ -6,6 +6,8 @@
 - Fix incorrect check in C-API's useBeaconCacheBehaviorForConfiguration function when setting the
   upper memory bound.
 - Fix compiler errors for certain Visual Studio versions
+- Fix `leaveAction` in `RootAction` so that the `mEndTime` and `mEndSequenceNumber` is set before 
+  the root action is added to the `Beacon`.
 
 ## 1.0.4 [Release date: 2019-03-14]
 [GitHub Releases](https://github.com/Dynatrace/openkit-native/releases/tag/v1.0.4)
