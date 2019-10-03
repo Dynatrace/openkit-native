@@ -13,15 +13,13 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-#include "core/UTF8String.h"
-#include "memory.h"
+
+#include "Types.h"
 
 #include <cstdint>
 #include <gtest/gtest.h>
 
-#include "core/util/Compressor.h"
-
-using namespace base::util;
+using namespace test::types;
 
 class CompressorTest : public testing::Test
 {
@@ -43,7 +41,7 @@ TEST_F(CompressorTest, gzipCompressHelloWorld)
 	size_t inDataSize = strlen(inData) + 1;
 
 	std::vector<unsigned char> readBuffer;
-	Compressor::compressMemory(inData, inDataSize, readBuffer);
+	Compressor_t::compressMemory(inData, inDataSize, readBuffer);
 
 	// verify the GZIP magical number
 	EXPECT_EQ(readBuffer[0], 0x1F);

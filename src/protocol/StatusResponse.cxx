@@ -30,7 +30,13 @@ constexpr char RESPONSE_KEY_MULTIPLICITY[] = "mp";
 
 using namespace protocol;
 
-StatusResponse::StatusResponse(std::shared_ptr<openkit::ILogger> logger, const core::UTF8String& response, int32_t responseCode, const Response::ResponseHeaders& responseHeaders)
+StatusResponse::StatusResponse
+(
+	std::shared_ptr<openkit::ILogger> logger,
+	const core::UTF8String& response,
+	int32_t responseCode,
+	const Response::ResponseHeaders& responseHeaders
+)
 	: Response(logger, responseCode, responseHeaders)
 	, mCapture(true)
 	, mSendInterval(-1)
@@ -49,7 +55,7 @@ void StatusResponse::parseResponse(const core::UTF8String& response)
 	auto parts = response.split('&');
 	for (auto const& part : parts)
 	{
-		auto found = part.getIndexOf("="); 
+		auto found = part.getIndexOf("=");
 		if (found != std::string::npos)
 		{
 			auto key = part.substring(0, found);

@@ -53,7 +53,7 @@ namespace openkit
 		///
 		virtual ~AppMonOpenKitBuilder() {}
 
-		virtual std::shared_ptr<configuration::Configuration> buildConfiguration() override;
+		virtual std::shared_ptr<core::configuration::Configuration> buildConfiguration() override;
 
 	private:
 

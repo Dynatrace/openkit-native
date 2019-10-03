@@ -17,13 +17,13 @@
 #ifndef _TEST_PROVIDERS_MOCKSESSIONIDPROVIDER_H
 #define _TEST_PROVIDERS_MOCKSESSIONIDPROVIDER_H
 
-#include "providers/ISessionIDProvider.h"
+#include "Types.h"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
 namespace test {
-	class MockSessionIDProvider : public providers::ISessionIDProvider
+	class MockSessionIDProvider : public types::ISessionIdProvider_t
 	{
 	public:
 

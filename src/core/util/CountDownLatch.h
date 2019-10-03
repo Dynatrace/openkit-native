@@ -61,7 +61,7 @@ namespace core
 			/// the count
 			uint32_t mCount;
 
-			/// mutex used for sychronisation
+			/// mutex used for synchronisation
 			std::mutex mMutex;
 
 			/// condition variable used as countdown latch

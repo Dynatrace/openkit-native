@@ -14,9 +14,11 @@
 * limitations under the License.
 */
 
-#include "OpenKit/LogLevel.h"
+#include "Types.h"
 
 #include <gtest/gtest.h>
+
+using namespace test::types;
 
 class LogLevelTest : public ::testing::Test
 {
@@ -25,7 +27,7 @@ class LogLevelTest : public ::testing::Test
 TEST_F(LogLevelTest, getLogLevelNameForLogLevelDebug)
 {
 	// when
-	auto obtained = openkit::getLogLevelName(openkit::LogLevel::LOG_LEVEL_DEBUG);
+	auto obtained = openkit::getLogLevelName(LogLevel_t::LOG_LEVEL_DEBUG);
 
 	// then
 	ASSERT_STREQ("DEBUG", obtained);
@@ -34,7 +36,7 @@ TEST_F(LogLevelTest, getLogLevelNameForLogLevelDebug)
 TEST_F(LogLevelTest, getLogLevelNameForLogLevelInfo)
 {
 	// when
-	auto obtained = openkit::getLogLevelName(openkit::LogLevel::LOG_LEVEL_INFO);
+	auto obtained = openkit::getLogLevelName(LogLevel_t::LOG_LEVEL_INFO);
 
 	// then
 	ASSERT_STREQ("INFO ", obtained);
@@ -43,7 +45,7 @@ TEST_F(LogLevelTest, getLogLevelNameForLogLevelInfo)
 TEST_F(LogLevelTest, getLogLevelNameForLogLevelWarn)
 {
 	// when
-	auto obtained = openkit::getLogLevelName(openkit::LogLevel::LOG_LEVEL_WARN);
+	auto obtained = openkit::getLogLevelName(LogLevel_t::LOG_LEVEL_WARN);
 
 	// then
 	ASSERT_STREQ("WARN ", obtained);
@@ -52,7 +54,7 @@ TEST_F(LogLevelTest, getLogLevelNameForLogLevelWarn)
 TEST_F(LogLevelTest, getLogLevelNameForLogLevelError)
 {
 	// when
-	auto obtained = openkit::getLogLevelName(openkit::LogLevel::LOG_LEVEL_ERROR);
+	auto obtained = openkit::getLogLevelName(LogLevel_t::LOG_LEVEL_ERROR);
 
 	// then
 	ASSERT_STREQ("ERROR", obtained);
@@ -61,7 +63,7 @@ TEST_F(LogLevelTest, getLogLevelNameForLogLevelError)
 TEST_F(LogLevelTest, getLogLevelNameForUnknownLogLevel)
 {
 	// when
-	auto obtained = openkit::getLogLevelName(openkit::LogLevel(666));
+	auto obtained = openkit::getLogLevelName(LogLevel_t(666));
 
 	// then
 	ASSERT_STREQ("N/A  ", obtained);

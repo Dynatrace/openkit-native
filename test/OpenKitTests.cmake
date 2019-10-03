@@ -33,23 +33,26 @@ set(OPENKIT_SOURCES_TEST_API
 )
 
 set(OPENKIT_SOURCES_TEST_CORE
+    ${CMAKE_CURRENT_LIST_DIR}/core/MockBeaconSender.h
     ${CMAKE_CURRENT_LIST_DIR}/core/UTF8StringTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/core/SessionTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/core/ActionTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/core/RootActionTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/core/WebRequestTracerTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/core/WebRequestTracerURLValidityTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/util/CompressorTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/core/util/URLEncodingTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/core/util/SynchronizedQueueTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/util/DefaultLoggerTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/util/InetAddressValidatorTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/util/StringUtilTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/core/MockBeaconSender.h
-    ${CMAKE_CURRENT_LIST_DIR}/core/MockSession.h
-    ${CMAKE_CURRENT_LIST_DIR}/core/util/DefaultLoggerTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/core/MockWebRequestTracer.h
-    ${CMAKE_CURRENT_LIST_DIR}/core/MockAction.h
-    ${CMAKE_CURRENT_LIST_DIR}/core/MockRootAction.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/util/SynchronizedQueueTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/util/URLEncodingTest.cxx
+)
+
+set(OPENKIT_SOURCES_TEST_CORE_OBJECTS
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/ActionTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/RootActionTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/SessionTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/MockAction.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/MockRootAction.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/MockSession.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/MockWebRequestTracer.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/WebRequestTracerTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/WebRequestTracerURLValidityTest.cxx
 )
 
 set(OPENKIT_SOURCES_TEST_PROTOCOL
@@ -65,47 +68,46 @@ set(OPENKIT_SOURCES_TEST_PROTOCOL
 )
 
 set(OPENKIT_SOURCES_TEST_PROVIDERS
+    ${CMAKE_CURRENT_LIST_DIR}/providers/DefaultPRNGeneratorTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/providers/DefaultSessionIDProviderTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/providers/MockSessionIDProvider.h
     ${CMAKE_CURRENT_LIST_DIR}/providers/DefaultThreadIDProviderTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/providers/MockHTTPClientProvider.h
     ${CMAKE_CURRENT_LIST_DIR}/providers/MockPRNGenerator.h
-    ${CMAKE_CURRENT_LIST_DIR}/providers/DefaultPRNGeneratorTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/providers/MockSessionIDProvider.h
     ${CMAKE_CURRENT_LIST_DIR}/providers/MockTimingProvider.h
 )
 
-set(OPENKIT_SOURCES_TEST_COMMUNICATION
-    ${CMAKE_CURRENT_LIST_DIR}/communication/AbstractBeaconSendingStateTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingCaptureOffStateTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingCaptureOnStateTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingContextTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingFlushSessionStateTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingInitialStateTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingRequestUtilTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingResponseUtilTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingTerminalStateTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/communication/CustomMatchers.h
-    ${CMAKE_CURRENT_LIST_DIR}/communication/MockAbstractBeaconSendingState.h
-    ${CMAKE_CURRENT_LIST_DIR}/communication/MockBeaconSendingContext.h
-    ${CMAKE_CURRENT_LIST_DIR}/communication/TestBeaconSendingState.h
+set(OPENKIT_SOURCES_TEST_CORE_COMMUNICATION
+    ${CMAKE_CURRENT_LIST_DIR}/core/communication/AbstractBeaconSendingStateTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/communication/BeaconSendingCaptureOffStateTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/communication/BeaconSendingCaptureOnStateTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/communication/BeaconSendingContextTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/communication/BeaconSendingFlushSessionStateTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/communication/BeaconSendingInitialStateTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/communication/BeaconSendingRequestUtilTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/communication/BeaconSendingResponseUtilTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/communication/BeaconSendingTerminalStateTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/communication/CustomMatchers.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/communication/MockAbstractBeaconSendingState.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/communication/MockBeaconSendingContext.h
 )
 
-set(OPENKIT_SOURCES_TEST_CONFIGURATION
-    ${CMAKE_CURRENT_LIST_DIR}/configuration/ConfigurationTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/configuration/BeaconConfigurationTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/configuration/BeaconCacheConfigurationTest.cxx
+set(OPENKIT_SOURCES_TEST_CORE_CONFIGURATION
+    ${CMAKE_CURRENT_LIST_DIR}/core/configuration/BeaconConfigurationTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/configuration/BeaconCacheConfigurationTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/configuration/ConfigurationTest.cxx
 )
 
-set(OPENKIT_SOURCES_TEST_CACHING
-    ${CMAKE_CURRENT_LIST_DIR}/caching/BeaconCacheEntryTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/caching/BeaconCacheRecordTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/caching/SpaceEvictionStrategyTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/caching/TimeEvictionStrategyTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/caching/BeaconCacheEvictorTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/caching/BeaconCacheTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/caching/MockBeaconCache.h
-    ${CMAKE_CURRENT_LIST_DIR}/caching/MockBeaconCacheEvictionStrategy.h
-    ${CMAKE_CURRENT_LIST_DIR}/caching/MockObserver.h
+set(OPENKIT_SOURCES_TEST_CORE_CACHING
+    ${CMAKE_CURRENT_LIST_DIR}/core/caching/BeaconCacheEntryTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/caching/BeaconCacheRecordTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/caching/BeaconCacheEvictorTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/caching/BeaconCacheTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/caching/MockBeaconCache.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/caching/MockBeaconCacheEvictionStrategy.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/caching/MockObserver.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/caching/SpaceEvictionStrategyTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/caching/TimeEvictionStrategyTest.cxx
 )
 
 set(OPENKIT_SOURCES_TEST_UTIL_JSON_LEXER
@@ -136,11 +138,12 @@ set(OPENKIT_SOURCES_UNITTEST
     # Test files
     ${OPENKIT_SOURCES_TEST_API}
     ${OPENKIT_SOURCES_TEST_CORE}
+    ${OPENKIT_SOURCES_TEST_CORE_OBJECTS}
+    ${OPENKIT_SOURCES_TEST_CORE_COMMUNICATION}
+    ${OPENKIT_SOURCES_TEST_CORE_CONFIGURATION}
+    ${OPENKIT_SOURCES_TEST_CACHING}
     ${OPENKIT_SOURCES_TEST_PROTOCOL}
     ${OPENKIT_SOURCES_TEST_PROVIDERS}
-    ${OPENKIT_SOURCES_TEST_COMMUNICATION}
-    ${OPENKIT_SOURCES_TEST_CONFIGURATION}
-    ${OPENKIT_SOURCES_TEST_CACHING}
     ${OPENKIT_SOURCES_TEST_UTIL_JSON_LEXER}
     ${OPENKIT_SOURCES_TEST_UTIL_JSON_OBJECTS}
     ${OPENKIT_SOURCES_TEST_UTIL_JSON_READER}
@@ -211,11 +214,10 @@ function(build_open_kit_tests)
 
     source_group("Source Files\\API" FILES ${OPENKIT_SOURCES_TEST_API})
     source_group("Source Files\\Core" FILES ${OPENKIT_SOURCES_TEST_CORE})
+    source_group("Source Files\\Core\\Caching" FILES ${OPENKIT_SOURCES_TEST_CORE_CACHING})
+    source_group("Source Files\\Core\\Communication" FILES ${OPENKIT_SOURCES_TEST_CORE_COMMUNICATION})
+    source_group("Source Files\\Core\\Configuration" FILES ${OPENKIT_SOURCES_TEST_CORE_CONFIGURATION})
     source_group("Source Files\\Protocol" FILES ${OPENKIT_SOURCES_TEST_PROTOCOL})
     source_group("Source Files\\Providers" FILES ${OPENKIT_SOURCES_TEST_PROVIDERS})
-    source_group("Source Files\\Communication" FILES ${OPENKIT_SOURCES_TEST_COMMUNICATION})
-    source_group("Source Files\\Configuration" FILES ${OPENKIT_SOURCES_TEST_CONFIGURATION})
-    source_group("Source Files\\Caching" FILES ${OPENKIT_SOURCES_TEST_CACHING})
-    source_group("Source Files\\Caching" FILES ${OPENKIT_SOURCES_TEST_CACHING})
 
 endfunction()

@@ -36,7 +36,7 @@ namespace providers
 		DefaultSessionIDProvider();
 
 		///
-		/// Construtor with inital offset
+		/// Constructor with initial offset
 		///
 		DefaultSessionIDProvider(int32_t initialOffset);
 

@@ -53,7 +53,7 @@ namespace openkit
 		///
 		virtual ~DynatraceOpenKitBuilder() {}
 
-		virtual std::shared_ptr<configuration::Configuration> buildConfiguration() override;
+		virtual std::shared_ptr<core::configuration::Configuration> buildConfiguration() override;
 
 		///
 		/// Sets the application name. The value is only set if it is not @c nullptr.

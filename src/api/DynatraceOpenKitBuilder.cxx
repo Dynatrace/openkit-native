@@ -16,7 +16,7 @@
 
 #include "OpenKit/DynatraceOpenKitBuilder.h"
 #include "providers/DefaultSessionIDProvider.h"
-#include "configuration/Configuration.h"
+#include "core/configuration/Configuration.h"
 
 using namespace openkit;
 
@@ -34,25 +34,25 @@ DynatraceOpenKitBuilder::DynatraceOpenKitBuilder(const char* endpointURL, const 
 {
 }
 
-std::shared_ptr<configuration::Configuration> DynatraceOpenKitBuilder::buildConfiguration()
+std::shared_ptr<core::configuration::Configuration> DynatraceOpenKitBuilder::buildConfiguration()
 {
-	std::shared_ptr<configuration::Device> device = std::make_shared<configuration::Device>(getOperatingSystem(), getManufacturer(), getModelID());
+	auto device = std::make_shared<core::configuration::Device>(getOperatingSystem(), getManufacturer(), getModelID());
 
-	std::shared_ptr<configuration::BeaconCacheConfiguration> beaconCacheConfiguration = std::make_shared<configuration::BeaconCacheConfiguration>(
+	auto beaconCacheConfiguration = std::make_shared<core::configuration::BeaconCacheConfiguration>(
 			getBeaconCacheMaxRecordAge(),
 			getBeaconCacheLowerMemoryBoundary(),
 			getBeaconCacheUpperMemoryBoundary()
 		);
 
-	std::shared_ptr<configuration::BeaconConfiguration> beaconConfiguration = std::make_shared<configuration::BeaconConfiguration>(
-		configuration::BeaconConfiguration::DEFAULT_MULTIPLICITY, // starting with default multiplicity, value changed according to server response
+	auto beaconConfiguration = std::make_shared<core::configuration::BeaconConfiguration>(
+		core::configuration::BeaconConfiguration::DEFAULT_MULTIPLICITY, // starting with default multiplicity, value changed according to server response
 		getDataCollectionLevel(),
 		getCrashReportingLevel()
 		);
 
-	return std::make_shared<configuration::Configuration>(
+	return std::make_shared<core::configuration::Configuration>(
 			device,
-			configuration::OpenKitType::Type::DYNATRACE,
+			core::configuration::OpenKitType::Type::DYNATRACE,
 			mApplicationName,
 			getApplicationVersion(),
 			mApplicationID,

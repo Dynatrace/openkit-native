@@ -14,17 +14,17 @@
 * limitations under the License.
 */
 
-#include "providers/DefaultThreadIDProvider.h"
-#include <gtest/gtest.h>
+#include "Types.h"
 
+#include <gtest/gtest.h>
 #include <thread>
 
-using namespace providers;
+using namespace test::types;
 
 class DefaultThreadIDProviderTest : public testing::Test
 {
 protected:
-	DefaultThreadIDProvider provider;
+	DefaultThreadIdProvider_t provider;
 };
 
 TEST_F(DefaultThreadIDProviderTest, currentThreadIDIsReturned)
@@ -47,7 +47,7 @@ TEST_F(DefaultThreadIDProviderTest, convertNativeThreadIDToPositiveIntegerVerify
 	int64_t testLongValue = 0x0000000600000005; // bytes 0101 and 0110 -> xor resulting in 0011
 
 	//when
-	int32_t result = DefaultThreadIDProvider::convertNativeThreadIDToPositiveInteger(testLongValue);
+	int32_t result = DefaultThreadIdProvider_t::convertNativeThreadIDToPositiveInteger(testLongValue);
 
 	//verify
 	ASSERT_EQ(result, 3);
@@ -59,7 +59,7 @@ TEST_F(DefaultThreadIDProviderTest, convertNativeThreadIDToPositiveIntegerVerify
 	int64_t testLongValue = (uint64_t)1 << 31;//single bit set, xor leads to negative value with most significant bit set
 
 	//when
-	int32_t result = DefaultThreadIDProvider::convertNativeThreadIDToPositiveInteger(testLongValue);
+	int32_t result = DefaultThreadIdProvider_t::convertNativeThreadIDToPositiveInteger(testLongValue);
 
 	//verify
 	ASSERT_EQ(result, 0);
@@ -71,7 +71,7 @@ TEST_F(DefaultThreadIDProviderTest, convertNativeThreadIDToPositiveIntegerVerify
 	int64_t testLongValue = (uint64_t)1 << 63;//single bit set, xor leads to negative value with most significant bit set
 
 									//when
-	int32_t result = DefaultThreadIDProvider::convertNativeThreadIDToPositiveInteger(testLongValue);
+	int32_t result = DefaultThreadIdProvider_t::convertNativeThreadIDToPositiveInteger(testLongValue);
 
 	//verify
 	ASSERT_EQ(result, 0);

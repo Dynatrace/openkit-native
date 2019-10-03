@@ -17,15 +17,15 @@
 #ifndef _TEST_PROTOCOL_NULLLOGGER_H
 #define _TEST_PROTOCOL_NULLLOGGER_H
 
-#include <OpenKit/ILogger.h>
+#include "../api/Types.h"
 
-class NullLogger : public openkit::ILogger
+class NullLogger : public test::types::ILogger_t
 {
 public:
 
 	virtual ~NullLogger() {}
 
-	virtual void log(openkit::LogLevel /*logLevel*/, const char* /*format*/, ...) override {}
+	virtual void log(test::types::LogLevel_t /*logLevel*/, const char* /*format*/, ...) override {}
 
 	virtual void error(const char* /*format*/, ...) override {}
 

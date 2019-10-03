@@ -49,57 +49,57 @@ set(OPENKIT_SOURCES_C_API
     ${CMAKE_CURRENT_LIST_DIR}/api-c/OpenKit-c.cxx
 )
 
-set(OPENKIT_SOURCES_CACHING
-    ${CMAKE_CURRENT_LIST_DIR}/caching/BeaconCache.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/caching/BeaconCache.h
-    ${CMAKE_CURRENT_LIST_DIR}/caching/BeaconCacheEntry.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/caching/BeaconCacheEntry.h
-    ${CMAKE_CURRENT_LIST_DIR}/caching/BeaconCacheEvictor.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/caching/BeaconCacheEvictor.h
-    ${CMAKE_CURRENT_LIST_DIR}/caching/BeaconCacheRecord.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/caching/BeaconCacheRecord.h
-    ${CMAKE_CURRENT_LIST_DIR}/caching/IBeaconCache.h
-    ${CMAKE_CURRENT_LIST_DIR}/caching/IObserver.h
-    ${CMAKE_CURRENT_LIST_DIR}/caching/SpaceEvictionStrategy.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/caching/SpaceEvictionStrategy.h
-    ${CMAKE_CURRENT_LIST_DIR}/caching/TimeEvictionStrategy.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/caching/TimeEvictionStrategy.h
+set(OPENKIT_SOURCES_CORE_CACHING
+    ${CMAKE_CURRENT_LIST_DIR}/core/caching/BeaconCache.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/caching/BeaconCache.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/caching/BeaconCacheEntry.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/caching/BeaconCacheEntry.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/caching/BeaconCacheEvictor.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/caching/BeaconCacheEvictor.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/caching/BeaconCacheRecord.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/caching/BeaconCacheRecord.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/caching/IBeaconCache.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/caching/IObserver.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/caching/SpaceEvictionStrategy.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/caching/SpaceEvictionStrategy.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/caching/TimeEvictionStrategy.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/caching/TimeEvictionStrategy.h
 )
 
-set(OPENKIT_SOURCES_COMMUNICATION
-    ${CMAKE_CURRENT_LIST_DIR}/communication/AbstractBeaconSendingState.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/communication/AbstractBeaconSendingState.h
-    ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingCaptureOffState.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingCaptureOffState.h
-    ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingCaptureOnState.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingCaptureOnState.h
-    ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingContext.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingContext.h
-    ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingFlushSessionsState.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingFlushSessionsState.h
-    ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingInitialState.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingInitialState.h
-    ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingRequestUtil.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingRequestUtil.h
-    ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingResponseUtil.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingResponseUtil.h
-    ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingTerminalState.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/communication/BeaconSendingTerminalState.h
+set(OPENKIT_SOURCES_CORE_COMMUNICATION
+    ${CMAKE_CURRENT_LIST_DIR}/core/communication/AbstractBeaconSendingState.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/communication/AbstractBeaconSendingState.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/communication/BeaconSendingCaptureOffState.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/communication/BeaconSendingCaptureOffState.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/communication/BeaconSendingCaptureOnState.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/communication/BeaconSendingCaptureOnState.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/communication/BeaconSendingContext.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/communication/BeaconSendingContext.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/communication/BeaconSendingFlushSessionsState.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/communication/BeaconSendingFlushSessionsState.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/communication/BeaconSendingInitialState.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/communication/BeaconSendingInitialState.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/communication/BeaconSendingRequestUtil.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/communication/BeaconSendingRequestUtil.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/communication/BeaconSendingResponseUtil.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/communication/BeaconSendingResponseUtil.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/communication/BeaconSendingTerminalState.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/communication/BeaconSendingTerminalState.h
 )
 
-set(OPENKIT_SOURCES_CONFIGURATION
-    ${CMAKE_CURRENT_LIST_DIR}/configuration/BeaconCacheConfiguration.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/configuration/BeaconCacheConfiguration.h
-    ${CMAKE_CURRENT_LIST_DIR}/configuration/BeaconConfiguration.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/configuration/BeaconConfiguration.h
-    ${CMAKE_CURRENT_LIST_DIR}/configuration/Configuration.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/configuration/Configuration.h
-    ${CMAKE_CURRENT_LIST_DIR}/configuration/Device.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/configuration/Device.h
-    ${CMAKE_CURRENT_LIST_DIR}/configuration/HTTPClientConfiguration.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/configuration/HTTPClientConfiguration.h
-    ${CMAKE_CURRENT_LIST_DIR}/configuration/OpenKitType.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/configuration/OpenKitType.h
+set(OPENKIT_SOURCES_CORE_CONFIGURATION
+    ${CMAKE_CURRENT_LIST_DIR}/core/configuration/BeaconCacheConfiguration.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/configuration/BeaconCacheConfiguration.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/configuration/BeaconConfiguration.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/configuration/BeaconConfiguration.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/configuration/Configuration.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/configuration/Configuration.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/configuration/Device.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/configuration/Device.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/configuration/HTTPClientConfiguration.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/configuration/HTTPClientConfiguration.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/configuration/OpenKitType.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/configuration/OpenKitType.h
 )
 
 set(OPENKIT_SOURCES_CORE_UTIL
@@ -124,28 +124,31 @@ set(OPENKIT_SOURCES_CORE_UTIL
 )
 
 set(OPENKIT_SOURCES_CORE
-    ${CMAKE_CURRENT_LIST_DIR}/core/Action.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/core/Action.h
-    ${CMAKE_CURRENT_LIST_DIR}/core/ActionCommonImpl.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/core/ActionCommonImpl.h
     ${CMAKE_CURRENT_LIST_DIR}/core/BeaconSender.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/BeaconSender.h
-    ${CMAKE_CURRENT_LIST_DIR}/core/NullAction.h
-    ${CMAKE_CURRENT_LIST_DIR}/core/NullRootAction.h
-    ${CMAKE_CURRENT_LIST_DIR}/core/NullSession.h
-    ${CMAKE_CURRENT_LIST_DIR}/core/NullWebRequestTracer.h
-    ${CMAKE_CURRENT_LIST_DIR}/core/OpenKit.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/core/OpenKit.h
-    ${CMAKE_CURRENT_LIST_DIR}/core/RootAction.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/core/RootAction.h
-    ${CMAKE_CURRENT_LIST_DIR}/core/Session.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/core/Session.h
     ${CMAKE_CURRENT_LIST_DIR}/core/SessionWrapper.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/SessionWrapper.h
     ${CMAKE_CURRENT_LIST_DIR}/core/UTF8String.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/UTF8String.h
-    ${CMAKE_CURRENT_LIST_DIR}/core/WebRequestTracer.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/core/WebRequestTracer.h
+)
+
+set(OPENKIT_SOURCES_CORE_OBJECTS
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/Action.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/Action.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/ActionCommonImpl.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/ActionCommonImpl.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/NullAction.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/NullRootAction.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/NullSession.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/NullWebRequestTracer.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/OpenKit.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/OpenKit.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/RootAction.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/RootAction.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/Session.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/Session.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/WebRequestTracer.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/WebRequestTracer.h
 )
 
 set(OPENKIT_SOURCES_PROTOCOL_SSL
@@ -229,9 +232,9 @@ set(OPENKIT_SOURCES_UTIL_JSON_OBJECTS
 )
 
 set(OPENKIT_SOURCES_UTIL_JSON_PARSER
-        ${CMAKE_CURRENT_LIST_DIR}/util/json/parser/JsonParserState.h
-        ${CMAKE_CURRENT_LIST_DIR}/util/json/parser/JsonParserException.h
-        ${CMAKE_CURRENT_LIST_DIR}/util/json/parser/JsonParserException.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/util/json/parser/JsonParserState.h
+    ${CMAKE_CURRENT_LIST_DIR}/util/json/parser/JsonParserException.h
+    ${CMAKE_CURRENT_LIST_DIR}/util/json/parser/JsonParserException.cxx
 )
 
 set(OPENKIT_SOURCES_UTIL_JSON
@@ -245,14 +248,15 @@ set(OPENKIT_SOURCES
     ${OPENKIT_SOURCES_C_API}
     ${OPENKIT_PUBLIC_HEADERS_CXX_API}
     ${OPENKIT_SOURCES_CXX_API}
-    ${OPENKIT_SOURCES_CACHING}
     ${OPENKIT_SOURCES_CORE}
+    ${OPENKIT_SOURCES_CORE_CACHING}
+    ${OPENKIT_SOURCES_CORE_COMMUNICATION}
+    ${OPENKIT_SOURCES_CORE_CONFIGURATION}
+    ${OPENKIT_SOURCES_CORE_OBJECTS}
     ${OPENKIT_SOURCES_CORE_UTIL}
-    ${OPENKIT_SOURCES_COMMUNICATION}
-    ${OPENKIT_SOURCES_PROVIDERS}
     ${OPENKIT_SOURCES_PROTOCOL_SSL}
     ${OPENKIT_SOURCES_PROTOCOL}
-    ${OPENKIT_SOURCES_CONFIGURATION}
+    ${OPENKIT_SOURCES_PROVIDERS}
     ${OPENKIT_SOURCES_UTIL_JSON_CONSTANTS}
     ${OPENKIT_SOURCES_UTIL_JSON_LEXER}
     ${OPENKIT_SOURCES_UTIL_JSON_READER}
@@ -397,14 +401,14 @@ function(build_open_kit)
     source_group("Source Files\\API - C" FILES ${OPENKIT_SOURCES_C_API})
     source_group("Header Files\\API - C++" FILES ${OPENKIT_PUBLIC_HEADERS_CXX_API})
     source_group("Source Files\\API - C++" FILES ${OPENKIT_SOURCES_CXX_API})
-    source_group("Source Files\\Caching" FILES ${OPENKIT_SOURCES_CACHING})
     source_group("Source Files\\Core" FILES ${OPENKIT_SOURCES_CORE})
+    source_group("Source Files\\Core\\Caching" FILES ${OPENKIT_SOURCES_CORE_CACHING})
+    source_group("Source Files\\Core\\Communication" FILES ${OPENKIT_SOURCES_CORE_COMMUNICATION})
+    source_group("Source Files\\Core\\Configuration" FILES ${OPENKIT_SOURCES_CORE_CONFIGURATION})
     source_group("Source Files\\Core\\Util" FILES ${OPENKIT_SOURCES_CORE_UTIL})
-    source_group("Source Files\\Communication" FILES ${OPENKIT_SOURCES_COMMUNICATION})
     source_group("Source Files\\Protocol" FILES ${OPENKIT_SOURCES_PROTOCOL})
     source_group("Source Files\\Protocol\\SSL" FILES ${OPENKIT_SOURCES_PROTOCOL_SSL})
     source_group("Source Files\\Providers" FILES ${OPENKIT_SOURCES_PROVIDERS})
-    source_group("Source Files\\Configuration" FILES ${OPENKIT_SOURCES_CONFIGURATION})
 
     if (BUILD_SHARED_LIBS AND MSVC)
         # add generated version.rc to Resource Files source group

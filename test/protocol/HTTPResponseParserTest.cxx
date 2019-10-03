@@ -14,13 +14,12 @@
 * limitations under the License.
 */
 
-#include "protocol/HTTPResponseParser.h"
+#include "Types.h"
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-using namespace protocol;
-
+using namespace test::types;
 
 class HTTPResponseParserTest : public testing::Test
 {
@@ -30,7 +29,7 @@ class HTTPResponseParserTest : public testing::Test
 TEST_F(HTTPResponseParserTest, defaultConstructedGivesEmptyResponseBody)
 {
 	// given
-	auto target = HTTPResponseParser();
+	auto target = HttpResponseParser_t();
 
 	// then
 	ASSERT_TRUE(target.getResponseBody().empty());
@@ -39,7 +38,7 @@ TEST_F(HTTPResponseParserTest, defaultConstructedGivesEmptyResponseBody)
 TEST_F(HTTPResponseParserTest, responseBodyDataSetsResponseData)
 {
 	// given
-	auto target = HTTPResponseParser();
+	auto target = HttpResponseParser_t();
 	auto body = std::string("foo");
 
 	// when
@@ -53,7 +52,7 @@ TEST_F(HTTPResponseParserTest, responseBodyDataSetsResponseData)
 TEST_F(HTTPResponseParserTest, responseBodyDataConcatenatesDataIfCalledMultipleTimes)
 {
 	// given
-	auto target = HTTPResponseParser();
+	auto target = HttpResponseParser_t();
 	auto bodyOne = std::string("foo");
 	auto bodyTwo = std::string("bar");
 
@@ -70,7 +69,7 @@ TEST_F(HTTPResponseParserTest, responseBodyDataConcatenatesDataIfCalledMultipleT
 TEST_F(HTTPResponseParserTest, defaultConstructedGivesEmptyResponseHeaders)
 {
 	// given
-	auto target = HTTPResponseParser();
+	auto target = HttpResponseParser_t();
 
 	// then
 	ASSERT_TRUE(target.getResponseHeaders().empty());
@@ -79,7 +78,7 @@ TEST_F(HTTPResponseParserTest, defaultConstructedGivesEmptyResponseHeaders)
 TEST_F(HTTPResponseParserTest, emptyDataDoesNotCrashParser)
 {
 	// given
-	auto target = HTTPResponseParser();
+	auto target = HttpResponseParser_t();
 
 	// when adding the HTTP status line
 	auto obtained = target.responseHeaderData("", sizeof(std::string::value_type), std::size_t(0));
@@ -92,7 +91,7 @@ TEST_F(HTTPResponseParserTest, emptyDataDoesNotCrashParser)
 TEST_F(HTTPResponseParserTest, headerLineWithCrLfDoesNotCrashParser)
 {
 	// given
-	auto target = HTTPResponseParser();
+	auto target = HttpResponseParser_t();
 
 	// when adding the HTTP status line
 	auto obtained = target.responseHeaderData("\r\n", sizeof(std::string::value_type), std::size_t(2));
@@ -105,7 +104,7 @@ TEST_F(HTTPResponseParserTest, headerLineWithCrLfDoesNotCrashParser)
 TEST_F(HTTPResponseParserTest, aParseableResponseHeaderMustContainAColon)
 {
 	// given
-	auto target = HTTPResponseParser();
+	auto target = HttpResponseParser_t();
 	auto statusLine = std::string("HTTP/1.1 200 OK\r\n");
 
 	// when adding the HTTP status line
@@ -119,7 +118,7 @@ TEST_F(HTTPResponseParserTest, aParseableResponseHeaderMustContainAColon)
 TEST_F(HTTPResponseParserTest, parsingColonSeparatedLineWorks)
 {
 	// given
-	auto target = HTTPResponseParser();
+	auto target = HttpResponseParser_t();
 	auto headerString = std::string("content-length:42");
 
 	// when adding the line
@@ -137,7 +136,7 @@ TEST_F(HTTPResponseParserTest, parsingColonSeparatedLineWorks)
 TEST_F(HTTPResponseParserTest, keyIsTransformedToLowerCase)
 {
 	// given
-	auto target = HTTPResponseParser();
+	auto target = HttpResponseParser_t();
 	auto headerString = std::string("Content-Length:42");
 
 	// when adding the line
@@ -154,7 +153,7 @@ TEST_F(HTTPResponseParserTest, keyIsTransformedToLowerCase)
 TEST_F(HTTPResponseParserTest, optionalWhitespacheFromValuesAreStripped)
 {
 	// given
-	auto target = HTTPResponseParser();
+	auto target = HttpResponseParser_t();
 	auto headerString = std::string("Content-Length: \t 42\t\t ");
 
 	// when adding the line
@@ -171,7 +170,7 @@ TEST_F(HTTPResponseParserTest, optionalWhitespacheFromValuesAreStripped)
 TEST_F(HTTPResponseParserTest, trailingCRLFIsStripped)
 {
 	// given
-	auto target = HTTPResponseParser();
+	auto target = HttpResponseParser_t();
 	auto headerString = std::string("Content-Length: 42\r\n");
 
 	// when adding the line
@@ -188,7 +187,7 @@ TEST_F(HTTPResponseParserTest, trailingCRLFIsStripped)
 TEST_F(HTTPResponseParserTest, multipleLinesWithSimilarKeyMergesValues)
 {
 	// given
-	auto target = HTTPResponseParser();
+	auto target = HttpResponseParser_t();
 	auto headerStringOne = std::string("Set-Cookie:Test=test_value\r\n");
 	auto headerStringTwo = std::string("set-cookie: foo=bar\r\n");
 

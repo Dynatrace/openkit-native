@@ -37,7 +37,13 @@ namespace protocol
 		/// @param[in] responseCode a numerical response code
 		/// @param[in] responseHeaders HTTP response headers
 		///
-		StatusResponse(std::shared_ptr<openkit::ILogger> logger, const core::UTF8String& response, int32_t responseCode, const Response::ResponseHeaders& responseHeaders);
+		StatusResponse
+		(
+			std::shared_ptr<openkit::ILogger> logger,
+			const core::UTF8String& response,
+			int32_t responseCode,
+			const Response::ResponseHeaders& responseHeaders
+		);
 
 		///
 		/// Destructor
@@ -53,7 +59,7 @@ namespace protocol
 		///
 		/// Get the send interval
 		/// @returns send interval in seconds
-		/// 
+		///
 		int32_t getSendInterval() const;
 
 		///
@@ -111,7 +117,7 @@ namespace protocol
 
 		/// server id
 		int32_t mServerID;
-		
+
 		/// maximum beacon size
 		int32_t mMaxBeaconSize;
 

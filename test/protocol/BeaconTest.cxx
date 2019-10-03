@@ -13,35 +13,19 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-#include "protocol/Beacon.h"
 
-#include "OpenKit/DataCollectionLevel.h"
-#include "OpenKit/CrashReportingLevel.h"
-#include "caching/BeaconCache.h"
+#include "Types.h"
+#include "MockTypes.h"
+#include "../api/Types.h"
+#include "../core/caching/Types.h"
+#include "../core/caching/MockTypes.h"
+#include "../core/objects/Types.h"
+#include "../core/objects/MockTypes.h"
+#include "../core/util/Types.h"
+#include "../providers/Types.h"
+#include "../providers/MockTypes.h"
 
-#include "core/util/DefaultLogger.h"
-#include "providers/DefaultThreadIDProvider.h"
-#include "providers/DefaultTimingProvider.h"
-#include "protocol/ssl/SSLStrictTrustManager.h"
-#include "providers/DefaultSessionIDProvider.h"
-#include "providers/DefaultHTTPClientProvider.h"
-#include "core/BeaconSender.h"
-#include "core/Action.h"
-#include "configuration/Configuration.h"
-
-#include "../protocol/MockHTTPClient.h"
-#include "../caching/MockBeaconCache.h"
-#include "../providers/MockHTTPClientProvider.h"
-#include "../core/MockWebRequestTracer.h"
-#include "../providers/MockPRNGenerator.h"
-#include "../providers/MockSessionIDProvider.h"
-#include "../core/MockAction.h"
-#include "../core/MockRootAction.h"
-#include "../core/MockSession.h"
-#include "../providers/MockTimingProvider.h"
-
-using namespace core;
-using namespace protocol;
+using namespace test::types;
 
 static const char APP_ID[] = "appID";
 static const char APP_NAME[] = "appName";
@@ -52,96 +36,107 @@ class BeaconTest : public testing::Test
 protected:
 	void SetUp()
 	{
-		logger = std::make_shared<core::util::DefaultLogger>(devNull, openkit::LogLevel::LOG_LEVEL_DEBUG);
-		threadIDProvider = std::make_shared<providers::DefaultThreadIDProvider>();
-		timingProvider = std::make_shared<providers::DefaultTimingProvider>();
-		sessionIDProvider = std::make_shared<providers::DefaultSessionIDProvider>();
+		logger = std::make_shared<DefaultLogger_t>(devNull, LogLevel_t::LOG_LEVEL_DEBUG);
+		threadIDProvider = std::make_shared<DefaultThreadIdProvider_t>();
+		timingProvider = std::make_shared<DefaultTimingProvider_t>();
+		sessionIDProvider = std::make_shared<DefaultSessionIdProvider_t>();
 
-		std::shared_ptr<configuration::HTTPClientConfiguration> httpClientConfiguration = std::make_shared<configuration::HTTPClientConfiguration>(core::UTF8String(""), 0, core::UTF8String(""));
-		mockHTTPClientProvider = std::make_shared<testing::NiceMock<test::MockHTTPClientProvider>>();
-		mockHTTPClient = std::shared_ptr<testing::NiceMock<test::MockHTTPClient>>(new testing::NiceMock<test::MockHTTPClient>(httpClientConfiguration));
+		auto httpClientConfiguration = std::make_shared<HttpClientConfiguration_t>(Utf8String_t(""), 0, Utf8String_t(""));
+		mockHTTPClientProvider = std::make_shared<MockNiceHttpClientProvider_t>();
+		mockHTTPClient = std::make_shared<MockNiceHttpClient_t>(httpClientConfiguration);
 
-		trustManager = std::make_shared<protocol::SSLStrictTrustManager>();
+		trustManager = std::make_shared<SslStrictTrustManager_t>();
 
-		device = std::shared_ptr<configuration::Device>(new configuration::Device(core::UTF8String(""), core::UTF8String(""), core::UTF8String("")));
+		device = std::make_shared<Device_t>(Utf8String_t(""), Utf8String_t(""), Utf8String_t(""));
 
-		beaconCacheConfiguration = std::make_shared<configuration::BeaconCacheConfiguration>(-1, -1, -1);
+		beaconCacheConfiguration = std::make_shared<BeaconCacheConfiguration_t>(-1, -1, -1);
 
-		beaconCache = std::make_shared<caching::BeaconCache>(logger);
+		beaconCache = std::make_shared<BeaconCache_t>(logger);
 
-		randomGeneratorMock = std::make_shared<testing::NiceMock<test::MockPRNGenerator>>();
-		sessionIDProviderMock = std::make_shared<testing::NiceMock<test::MockSessionIDProvider>>();
-		mockTimingProvider = std::make_shared<testing::NiceMock<test::MockTimingProvider>>();
+		randomGeneratorMock = std::make_shared<MockNicePrnGenerator_t>();
+		sessionIDProviderMock = std::make_shared<MockNiceSessionIdProvider_t>();
+		mockTimingProvider = std::make_shared<MockNiceTimingProvider_t>();
 	}
 
-	std::shared_ptr<protocol::Beacon> buildBeaconWithDefaultConfig()
+	Beacon_sp buildBeaconWithDefaultConfig()
 	{
-		return buildBeacon(configuration::BeaconConfiguration::DEFAULT_DATA_COLLECTION_LEVEL, configuration::BeaconConfiguration::DEFAULT_CRASH_REPORTING_LEVEL);
+		return buildBeacon(BeaconConfiguration_t::DEFAULT_DATA_COLLECTION_LEVEL, BeaconConfiguration_t::DEFAULT_CRASH_REPORTING_LEVEL);
 	}
 
-	std::shared_ptr<protocol::Beacon> buildBeacon(openkit::DataCollectionLevel dl, openkit::CrashReportingLevel cl)
+	Beacon_sp buildBeacon(DataCollectionLevel_t dl, CrashReportingLevel_t cl)
 	{
-		return buildBeacon(dl, cl, DEVICE_ID, core::UTF8String(APP_ID));
+		return buildBeacon(dl, cl, DEVICE_ID, Utf8String_t(APP_ID));
 	}
 
-	std::shared_ptr<protocol::Beacon> buildBeacon(openkit::DataCollectionLevel dl, openkit::CrashReportingLevel cl, int64_t deviceID, const core::UTF8String& appID)
+	Beacon_sp buildBeacon(DataCollectionLevel_t dl, CrashReportingLevel_t cl, int64_t deviceID, const Utf8String_t& appID)
 	{
 		return buildBeacon(dl, cl, deviceID, appID, "127.0.0.1");
 	}
 
-	std::shared_ptr<protocol::Beacon> buildBeacon(openkit::DataCollectionLevel dl, openkit::CrashReportingLevel cl, int64_t deviceID, const core::UTF8String& appID, const char* clientIPAddress)
+	Beacon_sp buildBeacon(DataCollectionLevel_t dl, CrashReportingLevel_t cl, int64_t deviceID, const Utf8String_t& appID, const char* clientIPAddress)
 	{
-		auto beaconConfiguration = std::make_shared<configuration::BeaconConfiguration>(configuration::BeaconConfiguration::DEFAULT_MULTIPLICITY, dl, cl);
+		auto beaconConfiguration = std::make_shared<BeaconConfiguration_t>(BeaconConfiguration_t::DEFAULT_MULTIPLICITY, dl, cl);
 
-		configuration = std::make_shared<configuration::Configuration>(device, configuration::OpenKitType::Type::DYNATRACE,
-			core::UTF8String(APP_NAME), "", appID, deviceID, std::to_string(deviceID).c_str(), "",
-			sessionIDProviderMock, trustManager, beaconCacheConfiguration, beaconConfiguration);
+		configuration = std::make_shared<Configuration_t>(
+			device,
+			OpenKitType_t::Type::DYNATRACE,
+			Utf8String_t(APP_NAME),
+			"",
+			appID,
+			deviceID,
+			std::to_string(deviceID).c_str(),
+			"",
+			sessionIDProviderMock,
+			trustManager,
+			beaconCacheConfiguration,
+			beaconConfiguration
+		);
 		configuration->enableCapture();
 
-		return std::make_shared<protocol::Beacon>(logger, beaconCache, configuration, clientIPAddress, threadIDProvider, mockTimingProvider, randomGeneratorMock);
+		return std::make_shared<Beacon_t>(logger, beaconCache, configuration, clientIPAddress, threadIDProvider, mockTimingProvider, randomGeneratorMock);
 	}
 
-	std::shared_ptr<testing::NiceMock<test::MockWebRequestTracer>> createMockedWebRequestTracer(std::shared_ptr<protocol::Beacon> beacon)
+	MockNiceWebRequestTracer_sp createMockedWebRequestTracer(Beacon_sp beacon)
 	{
-		return std::make_shared<testing::NiceMock<test::MockWebRequestTracer>>(logger, beacon);
+		return std::make_shared<MockNiceWebRequestTracer_t>(logger, beacon);
 	}
 
-	std::shared_ptr<testing::NiceMock<test::MockSession>> createMockedSession()
+	MockNiceSession_sp createMockedSession()
 	{
-		return std::make_shared<testing::NiceMock<test::MockSession>>(logger);
+		return std::make_shared<MockNiceSession_t>(logger);
 	}
 
-	std::shared_ptr<testing::NiceMock<test::MockAction>> createMockedAction(std::shared_ptr<protocol::Beacon> beacon)
+	MockNiceAction_sp createMockedAction(Beacon_sp beacon)
 	{
-		return std::make_shared<testing::NiceMock<test::MockAction>>(logger, beacon);
+		return std::make_shared<MockNiceAction_t>(logger, beacon);
 	}
 
-	std::shared_ptr<testing::NiceMock<test::MockRootAction>> createMockedRootAction(std::shared_ptr<protocol::Beacon> beacon)
+	MockNiceRootAction_sp createMockedRootAction(Beacon_sp beacon)
 	{
-		return std::make_shared<testing::NiceMock<test::MockRootAction>>(logger, beacon, createMockedSession());
+		return std::make_shared<MockNiceRootAction_t>(logger, beacon, createMockedSession());
 	}
 
-	std::shared_ptr<testing::NiceMock<test::MockPRNGenerator>> getMockedRandomGenerator()
+	MockNicePrnGenerator_sp getMockedRandomGenerator()
 	{
 		return randomGeneratorMock;
 	}
 
-	std::shared_ptr<testing::NiceMock<test::MockSessionIDProvider>> getSessionIDProviderMock()
+	MockNiceSessionIdProvider_sp getSessionIDProviderMock()
 	{
 		return sessionIDProviderMock;
 	}
 
-	std::shared_ptr<testing::NiceMock<test::MockTimingProvider>> getTimingProviderMock()
+	MockNiceTimingProvider_sp getTimingProviderMock()
 	{
 		return mockTimingProvider;
 	}
 
-	std::shared_ptr<configuration::Configuration> getConfiguration()
+	Configuration_sp getConfiguration()
 	{
 		return configuration;
 	}
 
-	std::shared_ptr<openkit::ILogger> getLogger()
+	ILogger_sp getLogger()
 	{
 		return logger;
 	}
@@ -153,32 +148,32 @@ protected:
 
 protected:
 	std::ostringstream devNull;
-	std::shared_ptr<openkit::ILogger> logger;
-	std::shared_ptr<providers::IThreadIDProvider> threadIDProvider;
-	std::shared_ptr<providers::ITimingProvider> timingProvider;
-	std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider;
+	ILogger_sp logger;
+	IThreadIdProvider_sp threadIDProvider;
+	ITimingProvider_sp timingProvider;
+	ISessionIdProvider_sp sessionIDProvider;
 
-	std::shared_ptr<testing::NiceMock<test::MockHTTPClient>> mockHTTPClient;
-	std::shared_ptr<openkit::ISSLTrustManager> trustManager;
+	MockNiceHttpClient_sp mockHTTPClient;
+	ISslTrustManager_sp trustManager;
 
-	std::shared_ptr<configuration::Device> device;
-	std::shared_ptr<configuration::BeaconCacheConfiguration> beaconCacheConfiguration;
-	std::shared_ptr<caching::IBeaconCache> beaconCache;
+	Device_sp device;
+	BeaconCacheConfiguration_sp beaconCacheConfiguration;
+	IBeaconCache_sp beaconCache;
 
-	std::shared_ptr<core::BeaconSender> beaconSender;
-	std::shared_ptr<testing::NiceMock<test::MockHTTPClientProvider>> mockHTTPClientProvider;
+	BeaconSender_sp beaconSender;
+	MockNiceHttpClientProvider_sp mockHTTPClientProvider;
 
-	std::shared_ptr<testing::NiceMock<test::MockPRNGenerator>> randomGeneratorMock;
-	std::shared_ptr<testing::NiceMock<test::MockSessionIDProvider>> sessionIDProviderMock;
-	std::shared_ptr<configuration::Configuration> configuration;
-	std::shared_ptr<testing::NiceMock<test::MockTimingProvider>> mockTimingProvider;
+	MockNicePrnGenerator_sp randomGeneratorMock;
+	MockNiceSessionIdProvider_sp sessionIDProviderMock;
+	Configuration_sp configuration;
+	MockNiceTimingProvider_sp mockTimingProvider;
 };
 
 TEST_F(BeaconTest, noWebRequestIsReportedForDataCollectionLevel0)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OFF);
-	auto mockWebRequestTracer = std::make_shared<testing::NiceMock<test::MockWebRequestTracer>>(getLogger(), target);
+	auto target = buildBeacon(DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF);
+	auto mockWebRequestTracer = std::make_shared<MockNiceWebRequestTracer_t>(getLogger(), target);
 
 	ON_CALL(*mockWebRequestTracer, getBytesSent())
 		.WillByDefault(testing::Return(123));
@@ -206,7 +201,7 @@ TEST_F(BeaconTest, noWebRequestIsReportedForDataCollectionLevel0)
 TEST_F(BeaconTest, webRequestIsReportedForDataCollectionLevel1)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::PERFORMANCE, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::PERFORMANCE, CrashReportingLevel_t::OFF);
 	auto mockWebRequestTracer = createMockedWebRequestTracer(target);
 
 	ON_CALL(*mockWebRequestTracer, getBytesSent())
@@ -235,7 +230,7 @@ TEST_F(BeaconTest, webRequestIsReportedForDataCollectionLevel1)
 TEST_F(BeaconTest, webRequestIsReportedForDataCollectionLevel2)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::USER_BEHAVIOR, CrashReportingLevel_t::OFF);
 	auto mockWebRequestTracer = createMockedWebRequestTracer(target);
 
 	ON_CALL(*mockWebRequestTracer, getBytesSent())
@@ -265,7 +260,7 @@ TEST_F(BeaconTest, webRequestIsReportedForDataCollectionLevel2)
 TEST_F(BeaconTest, createTagReturnsEmptyStringForDataCollectionLevel0)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF);
 
 	// when
 	auto tagString = target->createTag(1,1);
@@ -283,7 +278,7 @@ TEST_F(BeaconTest, createTagReturnsTagStringForDataCollectionLevel1)
 	auto mockRandom = getMockedRandomGenerator();
 	ON_CALL(*mockRandom, nextInt64(testing::_)).WillByDefault(testing::Return(deviceId));
 
-	auto target = buildBeacon(openkit::DataCollectionLevel::PERFORMANCE, openkit::CrashReportingLevel::OFF, ignoredDeviceId, appId);
+	auto target = buildBeacon(DataCollectionLevel_t::PERFORMANCE, CrashReportingLevel_t::OFF, ignoredDeviceId, appId);
 
 	// when
 	auto tagString = target->createTag(1, 1);
@@ -313,7 +308,7 @@ TEST_F(BeaconTest, createTagReturnsTagStringForDataCollectionLevel2)
 	auto mockSessionIdProvider = getSessionIDProviderMock();
 	ON_CALL(*mockSessionIdProvider, getNextSessionID()).WillByDefault(testing::Return(sessionId));
 
-	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF, deviceId, appId);
+	auto target = buildBeacon(DataCollectionLevel_t::USER_BEHAVIOR, CrashReportingLevel_t::OFF, deviceId, appId);
 
 	// when
 	auto tagString = target->createTag(1, 1);
@@ -336,7 +331,7 @@ TEST_F(BeaconTest, createTagReturnsTagStringForDataCollectionLevel2)
 TEST_F(BeaconTest, createTagEncodesDeviceIDPropperly)
 {
 	// given
-	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF, -42, APP_ID);
+	auto target = buildBeacon(DataCollectionLevel_t::USER_BEHAVIOR, CrashReportingLevel_t::OFF, -42, APP_ID);
 
 	// when
 	auto tagString = target->createTag(1, 1);
@@ -351,7 +346,7 @@ TEST_F(BeaconTest, createTagEncodesDeviceIDPropperly)
 TEST_F(BeaconTest, createTagUsesEncodedAppID)
 {
 	// given
-	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF, 42, "app_ID_");
+	auto target = buildBeacon(DataCollectionLevel_t::USER_BEHAVIOR, CrashReportingLevel_t::OFF, 42, "app_ID_");
 
 	// when
 	auto tagString = target->createTag(1, 1);
@@ -372,7 +367,7 @@ TEST_F(BeaconTest, deviceIDIsRandomizedOnDataCollectionLevel0)
 		.Times(1);
 
 	//when/given
-	auto target = buildBeacon(openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF);
 }
 
 TEST_F(BeaconTest, deviceIDIsRandomizedOnDataCollectionLevel1)
@@ -384,7 +379,7 @@ TEST_F(BeaconTest, deviceIDIsRandomizedOnDataCollectionLevel1)
 		.Times(1);
 
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::PERFORMANCE, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::PERFORMANCE, CrashReportingLevel_t::OFF);
 }
 
 TEST_F(BeaconTest, givenDeviceIDIsUsedOnDataCollectionLevel2)
@@ -396,7 +391,7 @@ TEST_F(BeaconTest, givenDeviceIDIsUsedOnDataCollectionLevel2)
 		.Times(0);
 
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::USER_BEHAVIOR, CrashReportingLevel_t::OFF);
 
 	// when
 	auto deviceID = target->getDeviceID();
@@ -408,7 +403,7 @@ TEST_F(BeaconTest, givenDeviceIDIsUsedOnDataCollectionLevel2)
 TEST_F(BeaconTest, randomDeviceIDCannotBeNegativeOnDataCollectionLevel0)
 {
 	// given
-	auto target = buildBeacon(openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF);
 
 	// when
 	auto deviceID = target->getDeviceID();
@@ -420,7 +415,7 @@ TEST_F(BeaconTest, randomDeviceIDCannotBeNegativeOnDataCollectionLevel0)
 TEST_F(BeaconTest, randomDeviceIDCannotBeNegativeOnDataCollectionLevel1)
 {
 	// given
-	auto target = buildBeacon(openkit::DataCollectionLevel::PERFORMANCE, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::PERFORMANCE, CrashReportingLevel_t::OFF);
 
 	// when
 	auto deviceID = target->getDeviceID();
@@ -432,7 +427,7 @@ TEST_F(BeaconTest, randomDeviceIDCannotBeNegativeOnDataCollectionLevel1)
 TEST_F(BeaconTest, sessionIDIsAlwaysValue1OnDataCollectionLevel0)
 {
 	// given
-	auto target = buildBeacon(openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF);
 
 	// when
 	auto sessionNumber = target->getSessionNumber();
@@ -444,7 +439,7 @@ TEST_F(BeaconTest, sessionIDIsAlwaysValue1OnDataCollectionLevel0)
 TEST_F(BeaconTest, sessionIDIsAlwaysValue1OnDataCollectionLevel1)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::PERFORMANCE, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::PERFORMANCE, CrashReportingLevel_t::OFF);
 
 	// when
 	auto sessionNumber = target->getSessionNumber();
@@ -467,7 +462,7 @@ TEST_F(BeaconTest, sessionIDIsValueFromSessionIDProviderOnDataCollectionLevel2)
 	EXPECT_CALL(*mockSessionIDProvider, getNextSessionID())
 		.Times(1);
 
-	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::USER_BEHAVIOR, CrashReportingLevel_t::OFF);
 
 	// when
 	auto sessionNumber = target->getSessionNumber();
@@ -479,7 +474,7 @@ TEST_F(BeaconTest, sessionIDIsValueFromSessionIDProviderOnDataCollectionLevel2)
 TEST_F(BeaconTest, actionNotReportedForDataCollectionLevel0_Action)
 {
 	// given
-	auto target = buildBeacon(openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF);
 	auto actionMock = createMockedAction(target);
 
 	//verify
@@ -497,7 +492,7 @@ TEST_F(BeaconTest, actionNotReportedForDataCollectionLevel0_Action)
 TEST_F(BeaconTest, actionNotReportedForDataCollectionLevel0_RootAction)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF);
 	auto rootActionMock = createMockedRootAction(target);
 
 	//verify
@@ -514,7 +509,7 @@ TEST_F(BeaconTest, actionNotReportedForDataCollectionLevel0_RootAction)
 TEST_F(BeaconTest, actionReportedForDataCollectionLevel1_Action)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::PERFORMANCE, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::PERFORMANCE, CrashReportingLevel_t::OFF);
 	auto actionMock = createMockedAction(target);
 
 	//verify
@@ -532,7 +527,7 @@ TEST_F(BeaconTest, actionReportedForDataCollectionLevel1_Action)
 TEST_F(BeaconTest, actionReportedForDataCollectionLevel1_RootAction)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::PERFORMANCE, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::PERFORMANCE, CrashReportingLevel_t::OFF);
 	auto rootActionMock = createMockedRootAction(target);
 
 	//verify
@@ -549,7 +544,7 @@ TEST_F(BeaconTest, actionReportedForDataCollectionLevel1_RootAction)
 TEST_F(BeaconTest, actionReportedForDataCollectionLevel2_Action)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::USER_BEHAVIOR, CrashReportingLevel_t::OFF);
 	auto actionMock = createMockedAction(target);
 
 	//verify
@@ -567,7 +562,7 @@ TEST_F(BeaconTest, actionReportedForDataCollectionLevel2_Action)
 TEST_F(BeaconTest, actionReportedForDataCollectionLevel2_RootAction)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::USER_BEHAVIOR, CrashReportingLevel_t::OFF);
 	auto rootActionMock = createMockedRootAction(target);
 
 	//verify
@@ -584,7 +579,7 @@ TEST_F(BeaconTest, actionReportedForDataCollectionLevel2_RootAction)
 TEST_F(BeaconTest, sessionNotReportedForDataCollectionLevel0)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF);
 	auto sessionMock = createMockedSession();
 
 	//verify
@@ -601,7 +596,7 @@ TEST_F(BeaconTest, sessionNotReportedForDataCollectionLevel0)
 TEST_F(BeaconTest, sessionReportedForDataCollectionLevel1)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::PERFORMANCE, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::PERFORMANCE, CrashReportingLevel_t::OFF);
 	auto sessionMock = createMockedSession();
 
 	//verify
@@ -618,7 +613,7 @@ TEST_F(BeaconTest, sessionReportedForDataCollectionLevel1)
 TEST_F(BeaconTest, sessionReportedForDataCollectionLevel2)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::USER_BEHAVIOR, CrashReportingLevel_t::OFF);
 	auto sessionMock = createMockedSession();
 
 	//verify
@@ -635,14 +630,14 @@ TEST_F(BeaconTest, sessionReportedForDataCollectionLevel2)
 TEST_F(BeaconTest, identifyUserNotAllowedToReportOnDataCollectionLevel0)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF);
 	auto timingProviderMock = getTimingProviderMock();
 
 	EXPECT_CALL(*timingProviderMock, provideTimestampInMilliseconds())
 		.Times(0);
 
 	// when
-	target->identifyUser(core::UTF8String("testUser"));
+	target->identifyUser(Utf8String_t("testUser"));
 
 	//then
 	ASSERT_TRUE(target->isEmpty());
@@ -651,14 +646,14 @@ TEST_F(BeaconTest, identifyUserNotAllowedToReportOnDataCollectionLevel0)
 TEST_F(BeaconTest, identifyUserNotAllowedToReportOnDataCollectionLevel1)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::PERFORMANCE, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::PERFORMANCE, CrashReportingLevel_t::OFF);
 	auto timingProviderMock = getTimingProviderMock();
 
 	EXPECT_CALL(*timingProviderMock, provideTimestampInMilliseconds())
 		.Times(0);
 
 	// when
-	target->identifyUser(core::UTF8String("testUser"));
+	target->identifyUser(Utf8String_t("testUser"));
 
 	//then
 	ASSERT_TRUE(target->isEmpty());
@@ -667,14 +662,14 @@ TEST_F(BeaconTest, identifyUserNotAllowedToReportOnDataCollectionLevel1)
 TEST_F(BeaconTest, identifyUserReportsOnDataCollectionLevel2)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::USER_BEHAVIOR, CrashReportingLevel_t::OFF);
 	auto timingProviderMock = getTimingProviderMock();
 
 	EXPECT_CALL(*timingProviderMock, provideTimestampInMilliseconds())
 		.Times(1);
 
 	// when
-	target->identifyUser(core::UTF8String("testUser"));
+	target->identifyUser(Utf8String_t("testUser"));
 
 	//then
 	ASSERT_FALSE(target->isEmpty());
@@ -683,14 +678,14 @@ TEST_F(BeaconTest, identifyUserReportsOnDataCollectionLevel2)
 TEST_F(BeaconTest, reportErrorDoesNotReportOnDataCollectionLevel0)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF);
 	auto timingProviderMock = getTimingProviderMock();
 
 	EXPECT_CALL(*timingProviderMock, provideTimestampInMilliseconds())
 		.Times(0);
 
 	// when
-	target->reportError(1, core::UTF8String("test error name"), 132, core::UTF8String("no reason detected"));
+	target->reportError(1, Utf8String_t("test error name"), 132, Utf8String_t("no reason detected"));
 
 	//then
 	ASSERT_TRUE(target->isEmpty());
@@ -699,14 +694,14 @@ TEST_F(BeaconTest, reportErrorDoesNotReportOnDataCollectionLevel0)
 TEST_F(BeaconTest, reportErrorDoesReportOnDataCollectionLevel1)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::PERFORMANCE, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::PERFORMANCE, CrashReportingLevel_t::OFF);
 	auto timingProviderMock = getTimingProviderMock();
 
 	EXPECT_CALL(*timingProviderMock, provideTimestampInMilliseconds())
 		.Times(1);
 
 	// when
-	target->reportError(1, core::UTF8String("test error name"), 132, core::UTF8String("no reason detected"));
+	target->reportError(1, Utf8String_t("test error name"), 132, Utf8String_t("no reason detected"));
 
 	//then
 	ASSERT_FALSE(target->isEmpty());
@@ -715,14 +710,14 @@ TEST_F(BeaconTest, reportErrorDoesReportOnDataCollectionLevel1)
 TEST_F(BeaconTest, reportErrorDoesReportOnDataCollectionLevel2)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::USER_BEHAVIOR, CrashReportingLevel_t::OFF);
 	auto timingProviderMock = getTimingProviderMock();
 
 	EXPECT_CALL(*timingProviderMock, provideTimestampInMilliseconds())
 		.Times(1);
 
 	// when
-	target->reportError(1, core::UTF8String("test error name"), 132, core::UTF8String("no reason detected"));
+	target->reportError(1, Utf8String_t("test error name"), 132, Utf8String_t("no reason detected"));
 
 
 	//then
@@ -732,14 +727,14 @@ TEST_F(BeaconTest, reportErrorDoesReportOnDataCollectionLevel2)
 TEST_F(BeaconTest, reportCrashDoesNotReportOnDataCollectionLevel0)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF);
 	auto timingProviderMock = getTimingProviderMock();
 
 	EXPECT_CALL(*timingProviderMock, provideTimestampInMilliseconds())
 		.Times(0);
 
 	// when
-	target->reportCrash(core::UTF8String("OutOfMemory exception"), core::UTF8String("insufficient memory"), core::UTF8String("stacktrace:123"));
+	target->reportCrash(Utf8String_t("OutOfMemory exception"), Utf8String_t("insufficient memory"), Utf8String_t("stacktrace:123"));
 
 	//then
 	ASSERT_TRUE(target->isEmpty());
@@ -748,14 +743,14 @@ TEST_F(BeaconTest, reportCrashDoesNotReportOnDataCollectionLevel0)
 TEST_F(BeaconTest, reportCrashDoesNotReportOnDataCollectionLevel1)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OPT_OUT_CRASHES);
+	auto target = buildBeacon(DataCollectionLevel_t::OFF, CrashReportingLevel_t::OPT_OUT_CRASHES);
 	auto timingProviderMock = getTimingProviderMock();
 
 	EXPECT_CALL(*timingProviderMock, provideTimestampInMilliseconds())
 		.Times(0);
 
 	// when
-	target->reportCrash(core::UTF8String("OutOfMemory exception"), core::UTF8String("insufficient memory"), core::UTF8String("stacktrace:123"));
+	target->reportCrash(Utf8String_t("OutOfMemory exception"), Utf8String_t("insufficient memory"), Utf8String_t("stacktrace:123"));
 
 	//then
 	ASSERT_TRUE(target->isEmpty());
@@ -764,14 +759,14 @@ TEST_F(BeaconTest, reportCrashDoesNotReportOnDataCollectionLevel1)
 TEST_F(BeaconTest, reportCrashDoesReportOnCrashReportingLevel2)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OPT_IN_CRASHES);
+	auto target = buildBeacon(DataCollectionLevel_t::OFF, CrashReportingLevel_t::OPT_IN_CRASHES);
 	auto timingProviderMock = getTimingProviderMock();
 
 	EXPECT_CALL(*timingProviderMock, provideTimestampInMilliseconds())
 		.Times(1);
 
 	// when
-	target->reportCrash(core::UTF8String("OutOfMemory exception"), core::UTF8String("insufficient memory"), core::UTF8String("stacktrace:123"));
+	target->reportCrash(Utf8String_t("OutOfMemory exception"), Utf8String_t("insufficient memory"), Utf8String_t("stacktrace:123"));
 
 	//then
 	ASSERT_FALSE(target->isEmpty());
@@ -780,7 +775,7 @@ TEST_F(BeaconTest, reportCrashDoesReportOnCrashReportingLevel2)
 TEST_F(BeaconTest, intValueNotReportedForDataCollectionLevel0)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF);
 	auto timingProviderMock = getTimingProviderMock();
 
 	EXPECT_CALL(*timingProviderMock, provideTimestampInMilliseconds())
@@ -796,7 +791,7 @@ TEST_F(BeaconTest, intValueNotReportedForDataCollectionLevel0)
 TEST_F(BeaconTest, intValueNotReportedForDataCollectionLevel1)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::PERFORMANCE, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::PERFORMANCE, CrashReportingLevel_t::OFF);
 	auto timingProviderMock = getTimingProviderMock();
 
 	EXPECT_CALL(*timingProviderMock, provideTimestampInMilliseconds())
@@ -813,7 +808,7 @@ TEST_F(BeaconTest, intValueNotReportedForDataCollectionLevel1)
 TEST_F(BeaconTest, intValueReportedForDataCollectionLevel2)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::USER_BEHAVIOR, CrashReportingLevel_t::OFF);
 	auto timingProviderMock = getTimingProviderMock();
 
 	EXPECT_CALL(*timingProviderMock, provideTimestampInMilliseconds())
@@ -829,7 +824,7 @@ TEST_F(BeaconTest, intValueReportedForDataCollectionLevel2)
 TEST_F(BeaconTest, doubleValueNotReportedForDataCollectionLevel0)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF);
 	auto timingProviderMock = getTimingProviderMock();
 
 	EXPECT_CALL(*timingProviderMock, provideTimestampInMilliseconds())
@@ -845,7 +840,7 @@ TEST_F(BeaconTest, doubleValueNotReportedForDataCollectionLevel0)
 TEST_F(BeaconTest, doubleValueNotReportedForDataCollectionLevel1)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::PERFORMANCE, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::PERFORMANCE, CrashReportingLevel_t::OFF);
 	auto timingProviderMock = getTimingProviderMock();
 
 	EXPECT_CALL(*timingProviderMock, provideTimestampInMilliseconds())
@@ -862,7 +857,7 @@ TEST_F(BeaconTest, doubleValueNotReportedForDataCollectionLevel1)
 TEST_F(BeaconTest, doubleValueReportedForDataCollectionLevel2)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::USER_BEHAVIOR, CrashReportingLevel_t::OFF);
 	auto timingProviderMock = getTimingProviderMock();
 
 	EXPECT_CALL(*timingProviderMock, provideTimestampInMilliseconds())
@@ -878,7 +873,7 @@ TEST_F(BeaconTest, doubleValueReportedForDataCollectionLevel2)
 TEST_F(BeaconTest, stringValueNotReportedForDataCollectionLevel0)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF);
 	auto timingProviderMock = getTimingProviderMock();
 
 	EXPECT_CALL(*timingProviderMock, provideTimestampInMilliseconds())
@@ -894,7 +889,7 @@ TEST_F(BeaconTest, stringValueNotReportedForDataCollectionLevel0)
 TEST_F(BeaconTest, stringValueNotReportedForDataCollectionLevel1)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::PERFORMANCE, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::PERFORMANCE, CrashReportingLevel_t::OFF);
 	auto timingProviderMock = getTimingProviderMock();
 
 	EXPECT_CALL(*timingProviderMock, provideTimestampInMilliseconds())
@@ -911,7 +906,7 @@ TEST_F(BeaconTest, stringValueNotReportedForDataCollectionLevel1)
 TEST_F(BeaconTest, stringValueReportedForDataCollectionLevel2)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::USER_BEHAVIOR, CrashReportingLevel_t::OFF);
 	auto timingProviderMock = getTimingProviderMock();
 
 	EXPECT_CALL(*timingProviderMock, provideTimestampInMilliseconds())
@@ -927,7 +922,7 @@ TEST_F(BeaconTest, stringValueReportedForDataCollectionLevel2)
 TEST_F(BeaconTest, namedEventNotReportedForDataCollectionLevel0)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF);
 	auto timingProviderMock = getTimingProviderMock();
 
 	EXPECT_CALL(*timingProviderMock, provideTimestampInMilliseconds())
@@ -943,7 +938,7 @@ TEST_F(BeaconTest, namedEventNotReportedForDataCollectionLevel0)
 TEST_F(BeaconTest, namedEventNotReportedForDataCollectionLevel1)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::PERFORMANCE, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::PERFORMANCE, CrashReportingLevel_t::OFF);
 	auto timingProviderMock = getTimingProviderMock();
 
 	EXPECT_CALL(*timingProviderMock, provideTimestampInMilliseconds())
@@ -960,7 +955,7 @@ TEST_F(BeaconTest, namedEventNotReportedForDataCollectionLevel1)
 TEST_F(BeaconTest, namedEventNotReportedForDataCollectionLevel2)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::USER_BEHAVIOR, CrashReportingLevel_t::OFF);
 	auto timingProviderMock = getTimingProviderMock();
 
 	EXPECT_CALL(*timingProviderMock, provideTimestampInMilliseconds())
@@ -988,7 +983,7 @@ TEST_F(BeaconTest, sessionStartIsReported)
 TEST_F(BeaconTest, sessionStartIsReportedForDataCollectionLevel0)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::OFF, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF);
 
 	// when
 	target->startSession();
@@ -1000,7 +995,7 @@ TEST_F(BeaconTest, sessionStartIsReportedForDataCollectionLevel0)
 TEST_F(BeaconTest, sessionStartIsReportedForDataCollectionLevel1)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::PERFORMANCE, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::PERFORMANCE, CrashReportingLevel_t::OFF);
 
 	// when
 	target->startSession();
@@ -1012,7 +1007,7 @@ TEST_F(BeaconTest, sessionStartIsReportedForDataCollectionLevel1)
 TEST_F(BeaconTest, sessionStartIsReportedForDataCollectionLevel2)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF);
+	auto target = buildBeacon(DataCollectionLevel_t::USER_BEHAVIOR, CrashReportingLevel_t::OFF);
 
 	// when
 	target->startSession();
@@ -1024,7 +1019,7 @@ TEST_F(BeaconTest, sessionStartIsReportedForDataCollectionLevel2)
 TEST_F(BeaconTest, clientIPAddressCanBeANullptr)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF, DEVICE_ID, core::UTF8String(APP_ID), nullptr);
+	auto target = buildBeacon(DataCollectionLevel_t::USER_BEHAVIOR, CrashReportingLevel_t::OFF, DEVICE_ID, Utf8String_t(APP_ID), nullptr);
 
 	// when, then
 	ASSERT_EQ(0, target->getClientIPAddress().getStringLength());
@@ -1033,7 +1028,7 @@ TEST_F(BeaconTest, clientIPAddressCanBeANullptr)
 TEST_F(BeaconTest, clientIPAddressCanBeAnEmptyString)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF, DEVICE_ID, core::UTF8String(APP_ID), "");
+	auto target = buildBeacon(DataCollectionLevel_t::USER_BEHAVIOR, CrashReportingLevel_t::OFF, DEVICE_ID, Utf8String_t(APP_ID), "");
 
 	// when, then
 	ASSERT_EQ(0, target->getClientIPAddress().getStringLength());
@@ -1042,7 +1037,7 @@ TEST_F(BeaconTest, clientIPAddressCanBeAnEmptyString)
 TEST_F(BeaconTest, validClientIpIsStored)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF, DEVICE_ID, core::UTF8String(APP_ID), "127.0.0.1");
+	auto target = buildBeacon(DataCollectionLevel_t::USER_BEHAVIOR, CrashReportingLevel_t::OFF, DEVICE_ID, Utf8String_t(APP_ID), "127.0.0.1");
 
 	// when, then
 	ASSERT_STREQ("127.0.0.1", target->getClientIPAddress().getStringData().c_str());
@@ -1051,7 +1046,7 @@ TEST_F(BeaconTest, validClientIpIsStored)
 TEST_F(BeaconTest, invalidClientIPIsConvertedToEmptyString)
 {
 	//given
-	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF, DEVICE_ID, core::UTF8String(APP_ID), "asdf");
+	auto target = buildBeacon(DataCollectionLevel_t::USER_BEHAVIOR, CrashReportingLevel_t::OFF, DEVICE_ID, Utf8String_t(APP_ID), "asdf");
 
 	// when, then
 	ASSERT_EQ(0, target->getClientIPAddress().getStringLength());
@@ -1060,14 +1055,14 @@ TEST_F(BeaconTest, invalidClientIPIsConvertedToEmptyString)
 TEST_F(BeaconTest, useInternalBeaconIdForAccessingBeaconCacheWhenSessionNumberReportingDisabled)
 {
 	// given
-	auto mockBeaconCache = std::make_shared<testing::NiceMock<test::MockBeaconCache>>();
+	auto mockBeaconCache = std::make_shared<MockNiceBeaconCache_t>();
 	beaconCache = mockBeaconCache;
 
 	int32_t beaconId = 73;
 	auto mockSessionIdProvider = getSessionIDProviderMock();
 	ON_CALL(*mockSessionIdProvider, getNextSessionID()).WillByDefault(testing::Return(beaconId));
 
-	auto target = buildBeacon(openkit::DataCollectionLevel::PERFORMANCE, openkit::CrashReportingLevel::OPT_IN_CRASHES);
+	auto target = buildBeacon(DataCollectionLevel_t::PERFORMANCE, CrashReportingLevel_t::OPT_IN_CRASHES);
 
 	// expect
 	EXPECT_CALL(*mockBeaconCache, deleteCacheEntry(beaconId)).Times(1);

@@ -17,35 +17,43 @@
 #ifndef _TEST_CORE_MOCKBEACONSENDER_H
 #define _TEST_CORE_MOCKBEACONSENDER_H
 
-#include "core/BeaconSender.h"
+#include "Types.h"
+#include "configuration/Types.h"
+#include "objects/Types.h"
+#include "util/Types.h"
+#include "../api/Types.h"
+#include "../providers/Types.h"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
 #include <memory>
 
-#include "core/util/DefaultLogger.h"
-#include "core/Session.h"
-#include "providers/IHTTPClientProvider.h"
-#include "providers/ITimingProvider.h"
-#include "configuration/Configuration.h"
-
 namespace test {
-	class MockBeaconSender : public core::BeaconSender
+class MockBeaconSender : public types::BeaconSender_t
 	{
 	public:
-		MockBeaconSender(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<configuration::Configuration> configuration,
-			std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
-			std::shared_ptr<providers::ITimingProvider> timingProvider)
-			: BeaconSender(logger, configuration,  httpClientProvider, timingProvider)
+		MockBeaconSender
+		(
+			types::ILogger_sp logger,
+			types::Configuration_sp configuration,
+			types::IHttpClientProvider_sp httpClientProvider,
+			types::ITimingProvider_sp timingProvider
+		)
+		: BeaconSender
+		(
+			logger,
+			configuration,
+			httpClientProvider,
+			timingProvider
+		)
 		{
-
 		}
 
 		virtual ~MockBeaconSender() {}
 
-		MOCK_METHOD1(startSession, void(std::shared_ptr<core::Session>));
-		MOCK_METHOD1(finishSession, void(std::shared_ptr<core::Session>));
+		MOCK_METHOD1(startSession, void(types::Session_sp));
+		MOCK_METHOD1(finishSession, void(types::Session_sp));
 	};
 }
 #endif

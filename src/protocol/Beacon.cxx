@@ -28,12 +28,38 @@
 
 using namespace protocol;
 
-Beacon::Beacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching::IBeaconCache> beaconCache, std::shared_ptr<configuration::Configuration> configuration, const char* clientIPAddress, std::shared_ptr<providers::IThreadIDProvider> threadIDProvider, std::shared_ptr<providers::ITimingProvider> timingProvider)
-	: Beacon(logger, beaconCache, configuration, clientIPAddress, threadIDProvider, timingProvider, std::make_shared<providers::DefaultPRNGenerator>())
+Beacon::Beacon
+(
+	std::shared_ptr<openkit::ILogger> logger,
+	std::shared_ptr<core::caching::IBeaconCache> beaconCache,
+	std::shared_ptr<core::configuration::Configuration> configuration,
+	const char* clientIPAddress,
+	std::shared_ptr<providers::IThreadIDProvider> threadIDProvider,
+	std::shared_ptr<providers::ITimingProvider> timingProvider
+)
+: Beacon
+(
+	logger,
+	beaconCache,
+	configuration,
+	clientIPAddress,
+	threadIDProvider,
+	timingProvider,
+	std::make_shared<providers::DefaultPRNGenerator>()
+)
 {
 }
 
-Beacon::Beacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching::IBeaconCache> beaconCache, std::shared_ptr<configuration::Configuration> configuration, const char* clientIPAddress, std::shared_ptr<providers::IThreadIDProvider> threadIDProvider, std::shared_ptr<providers::ITimingProvider> timingProvider, std::shared_ptr<providers::IPRNGenerator> randomGenerator)
+Beacon::Beacon
+(
+	std::shared_ptr<openkit::ILogger> logger,
+	std::shared_ptr<core::caching::IBeaconCache> beaconCache,
+	std::shared_ptr<core::configuration::Configuration> configuration,
+	const char* clientIPAddress,
+	std::shared_ptr<providers::IThreadIDProvider> threadIDProvider,
+	std::shared_ptr<providers::ITimingProvider> timingProvider,
+	std::shared_ptr<providers::IPRNGenerator> randomGenerator
+)
 	: mLogger(logger)
 	, mConfiguration(configuration)
 	, mClientIPAddress(core::UTF8String(""))
@@ -240,7 +266,7 @@ core::UTF8String Beacon::createTag(int32_t parentActionID, int32_t sequenceNumbe
 	return webRequestTag;
 }
 
-void Beacon::addAction(std::shared_ptr<core::Action> action)
+void Beacon::addAction(std::shared_ptr<core::objects::Action> action)
 {
 	if (std::atomic_load(&mBeaconConfiguration)->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
 	{
@@ -259,7 +285,7 @@ void Beacon::addAction(std::shared_ptr<core::Action> action)
 	addActionData(action->getStartTime(), actionData);
 }
 
-void Beacon::addAction(std::shared_ptr<core::RootAction> action)
+void Beacon::addAction(std::shared_ptr<core::objects::RootAction> action)
 {
 	if (std::atomic_load(&mBeaconConfiguration)->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
 	{
@@ -297,7 +323,7 @@ void Beacon::startSession()
 	addEventData(mSessionStartTime, eventData);
 }
 
-void Beacon::endSession(std::shared_ptr<core::Session> session)
+void Beacon::endSession(std::shared_ptr<core::objects::Session> session)
 {
 	if (std::atomic_load(&mBeaconConfiguration)->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
 	{
@@ -421,7 +447,7 @@ void Beacon::reportCrash(const core::UTF8String& errorName, const core::UTF8Stri
 	addEventData(timestamp, eventData);
 }
 
-void Beacon::addWebRequest(int32_t parentActionID, std::shared_ptr<core::WebRequestTracer> webRequestTracer)
+void Beacon::addWebRequest(int32_t parentActionID, std::shared_ptr<core::objects::WebRequestTracer> webRequestTracer)
 {
 	if (std::atomic_load(&mBeaconConfiguration)->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
 	{
@@ -576,12 +602,12 @@ int64_t Beacon::getDeviceID() const
 	return mDeviceID;
 }
 
-void Beacon::setBeaconConfiguration(std::shared_ptr<configuration::BeaconConfiguration> beaconConfiguration)
+void Beacon::setBeaconConfiguration(std::shared_ptr<core::configuration::BeaconConfiguration> beaconConfiguration)
 {
 	std::atomic_store(&mBeaconConfiguration, beaconConfiguration);
 }
 
-std::shared_ptr<configuration::BeaconConfiguration> Beacon::getBeaconConfiguration() const
+std::shared_ptr<core::configuration::BeaconConfiguration> Beacon::getBeaconConfiguration() const
 {
 	return std::atomic_load(&mBeaconConfiguration);
 }

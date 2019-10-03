@@ -17,10 +17,10 @@
 #ifndef _TEST_PROVIDERS_MOCKTIMINGPROVIDER_H
 #define _TEST_PROVIDERS_MOCKTIMINGPROVIDER_H
 
-#include "providers/ITimingProvider.h"
+#include "Types.h"
 
 namespace test {
-	class MockTimingProvider : public providers::ITimingProvider
+	class MockTimingProvider : public types::ITimingProvider_t
 	{
 	public:
 

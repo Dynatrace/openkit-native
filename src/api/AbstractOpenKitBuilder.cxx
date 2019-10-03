@@ -17,7 +17,7 @@
 #include "OpenKit/AbstractOpenKitBuilder.h"
 #include "core/util/DefaultLogger.h"
 #include "core/util/StringUtil.h"
-#include "core/OpenKit.h"
+#include "core/objects/OpenKit.h"
 #include "OpenKit/OpenKitConstants.h"
 #include "protocol/ssl/SSLStrictTrustManager.h"
 
@@ -44,11 +44,11 @@ AbstractOpenKitBuilder::AbstractOpenKitBuilder(const char* endpointURL, int64_t 
 	, mDeviceID(deviceID)
 	, mOrigDeviceID(origDeviceID)
 	, mTrustManager(std::make_shared<protocol::SSLStrictTrustManager>())
-	, mBeaconCacheMaxRecordAge(configuration::BeaconCacheConfiguration::DEFAULT_MAX_RECORD_AGE_IN_MILLIS.count())
-	, mBeaconCacheLowerMemoryBoundary(configuration::BeaconCacheConfiguration::DEFAULT_LOWER_MEMORY_BOUNDARY_IN_BYTES)
-	, mBeaconCacheUpperMemoryBoundary(configuration::BeaconCacheConfiguration::DEFAULT_UPPER_MEMORY_BOUNDARY_IN_BYTES)
-	, mDataCollectionLevel(configuration::BeaconConfiguration::DEFAULT_DATA_COLLECTION_LEVEL)
-	, mCrashReportingLevel(configuration::BeaconConfiguration::DEFAULT_CRASH_REPORTING_LEVEL)
+	, mBeaconCacheMaxRecordAge(core::configuration::BeaconCacheConfiguration::DEFAULT_MAX_RECORD_AGE_IN_MILLIS.count())
+	, mBeaconCacheLowerMemoryBoundary(core::configuration::BeaconCacheConfiguration::DEFAULT_LOWER_MEMORY_BOUNDARY_IN_BYTES)
+	, mBeaconCacheUpperMemoryBoundary(core::configuration::BeaconCacheConfiguration::DEFAULT_UPPER_MEMORY_BOUNDARY_IN_BYTES)
+	, mDataCollectionLevel(core::configuration::BeaconConfiguration::DEFAULT_DATA_COLLECTION_LEVEL)
+	, mCrashReportingLevel(core::configuration::BeaconConfiguration::DEFAULT_CRASH_REPORTING_LEVEL)
 {
 }
 
@@ -146,7 +146,7 @@ AbstractOpenKitBuilder& AbstractOpenKitBuilder::withCrashReportingLevel(CrashRep
 
 std::shared_ptr<openkit::IOpenKit> AbstractOpenKitBuilder::build()
 {
-	auto openKit = std::make_shared<core::OpenKit>(getLogger(), buildConfiguration());
+	auto openKit = std::make_shared<core::objects::OpenKit>(getLogger(), buildConfiguration());
 	openKit->initialize();
 	return openKit;
 }

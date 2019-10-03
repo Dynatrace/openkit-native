@@ -20,7 +20,7 @@
 #include <memory>
 
 #include "protocol/StatusResponse.h"
-#include "configuration/HTTPClientConfiguration.h"
+#include "core/configuration/HTTPClientConfiguration.h"
 #include "core/UTF8String.h"
 
 namespace protocol

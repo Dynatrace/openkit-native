@@ -14,10 +14,11 @@
 * limitations under the License.
 */
 
-#include "providers/DefaultSessionIDProvider.h"
+#include "Types.h"
+
 #include <gtest/gtest.h>
 
-using namespace providers;
+using namespace test::types;
 
 
 class DefaultSessionIDProviderTest : public testing::Test
@@ -32,18 +33,18 @@ protected:
 	{
 	}
 
-	DefaultSessionIDProvider* getProvider()
+	DefaultSessionIdProvider_t* getProvider()
 	{
 		return &mProvider;
 	}
 
-	DefaultSessionIDProvider mProvider;
+	DefaultSessionIdProvider_t mProvider;
 };
 
 TEST_F(DefaultSessionIDProviderTest, defaultSessionIDProviderInitializedWithTimestampReturnsANonNegativeInteger)
 {
 	//given
-	DefaultSessionIDProvider* provider = getProvider();
+	DefaultSessionIdProvider_t* provider = getProvider();
 
 	//when
 	int32_t actual = provider->getNextSessionID();
@@ -55,7 +56,7 @@ TEST_F(DefaultSessionIDProviderTest, defaultSessionIDProviderInitializedWithTime
 TEST_F(DefaultSessionIDProviderTest, defaultSessionIDProviderProvidesConsecutiveNumbers)
 {
 	//given
-	DefaultSessionIDProvider* provider = getProvider();
+	DefaultSessionIdProvider_t* provider = getProvider();
 
 	// when
 	int32_t firstSessionID = provider->getNextSessionID();
@@ -68,7 +69,7 @@ TEST_F(DefaultSessionIDProviderTest, defaultSessionIDProviderProvidesConsecutive
 TEST_F(DefaultSessionIDProviderTest, aProviderInitializedWithMaxIntValueProvidesMinSessionIdValueAtNextCall)
 {
 	//given
-	DefaultSessionIDProvider provider(INT32_MAX);
+	DefaultSessionIdProvider_t provider(INT32_MAX);
 
 	//when
 	int32_t actual = provider.getNextSessionID();
@@ -80,7 +81,7 @@ TEST_F(DefaultSessionIDProviderTest, aProviderInitializedWithMaxIntValueProvides
 TEST_F(DefaultSessionIDProviderTest, aProviderInitializedWithZeroProvidesMinSessionIdValueAtNextCall)
 {
 	//given
-	DefaultSessionIDProvider provider(0);
+	DefaultSessionIdProvider_t provider(0);
 
 	//when
 	int32_t actual = provider.getNextSessionID();

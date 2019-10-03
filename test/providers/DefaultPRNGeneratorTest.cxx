@@ -14,11 +14,12 @@
 * limitations under the License.
 */
 
-#include "providers/DefaultPRNGenerator.h"
+#include "Types.h"
+
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-using namespace providers;
+using namespace test::types;
 
 class DefaultPRNGeneratorTest : public testing::Test
 {
@@ -37,7 +38,7 @@ protected:
 
 public:
 	/// the test target
-	providers::DefaultPRNGenerator randomGenerator;
+	DefaultPrnGenerator_t randomGenerator;
 };
 
 TEST_F(DefaultPRNGeneratorTest, DefaultPRNGeneratorProvidesPositiveInt32)

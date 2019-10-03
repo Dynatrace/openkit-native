@@ -39,7 +39,11 @@ constexpr uint64_t READ_TIMEOUT = 30;		// Time-out the read operation after this
 using namespace protocol;
 using namespace base::util;
 
-HTTPClient::HTTPClient(std::shared_ptr<openkit::ILogger> logger, const std::shared_ptr<configuration::HTTPClientConfiguration> configuration)
+HTTPClient::HTTPClient
+(
+	std::shared_ptr<openkit::ILogger> logger,
+	const std::shared_ptr<core::configuration::HTTPClientConfiguration> configuration
+)
 	: mLogger(logger)
 	, mCurl(nullptr)
 	, mServerID(configuration->getServerID())

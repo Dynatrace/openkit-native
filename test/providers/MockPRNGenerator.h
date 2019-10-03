@@ -17,13 +17,13 @@
 #ifndef _TEST_PROVIDERS_MOCKPRNGENERATOR_H
 #define _TEST_PROVIDERS_MOCKPRNGENERATOR_H
 
-#include "providers/IPRNGenerator.h"
+#include "Types.h"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
 namespace test {
-	class MockPRNGenerator : public providers::IPRNGenerator
+	class MockPRNGenerator : public types::IPrnGenerator_t
 	{
 	public:
 

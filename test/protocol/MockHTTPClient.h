@@ -17,44 +17,54 @@
 #ifndef _TEST_PROTOCOL_MOCKHTTPCLIENT_H
 #define _TEST_PROTOCOL_MOCKHTTPCLIENT_H
 
-#include "protocol/IHTTPClient.h"
+#include "Types.h"
+#include "../core/Types.h"
+#include "../core/configuration/Types.h"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
 namespace test {
-	class MockHTTPClient : public protocol::IHTTPClient
+	class MockHTTPClient : public types::IHttpClient_t
 	{
 	public:
-		MockHTTPClient(std::shared_ptr<configuration::HTTPClientConfiguration> configuration)
+		MockHTTPClient(types::HttpClientConfiguration_sp configuration)
 			: mHTTPClientConfiguration(configuration)
 		{
 		}
 
-		virtual std::shared_ptr<protocol::StatusResponse> sendStatusRequest()
+		virtual types::StatusResponse_sp sendStatusRequest()
 		{
-			return std::shared_ptr<protocol::StatusResponse>(sendStatusRequestRawPtrProxy());
+			return types::StatusResponse_sp(sendStatusRequestRawPtrProxy());
 		}
 
-		virtual std::shared_ptr<protocol::StatusResponse> sendBeaconRequest(const core::UTF8String& clientIPAddress, const core::UTF8String& beaconData)
+		virtual types::StatusResponse_sp sendBeaconRequest(
+				const types::Utf8String_t& clientIPAddress,
+				const types::Utf8String_t& beaconData
+			)
 		{
-			return std::shared_ptr<protocol::StatusResponse>(sendBeaconRequestRawPtrProxy(clientIPAddress, beaconData));
+			return types::StatusResponse_sp(sendBeaconRequestRawPtrProxy(clientIPAddress, beaconData));
 		}
 
-		virtual std::shared_ptr<protocol::StatusResponse> sendNewSessionRequest()
+		virtual types::StatusResponse_sp sendNewSessionRequest()
 		{
-			return std::shared_ptr<protocol::StatusResponse>(sendNewSessionRequestRawPtrProxy());
+			return types::StatusResponse_sp(sendNewSessionRequestRawPtrProxy());
 		}
 
 		virtual ~MockHTTPClient() {}
 
-		MOCK_METHOD0(sendStatusRequestRawPtrProxy, protocol::StatusResponse*());
+		MOCK_METHOD0(sendStatusRequestRawPtrProxy, types::StatusResponse_sp());
 
-		MOCK_METHOD2(sendBeaconRequestRawPtrProxy, protocol::StatusResponse*(const core::UTF8String&, const core::UTF8String&));
+		MOCK_METHOD2(sendBeaconRequestRawPtrProxy,
+			types::StatusResponse_sp(
+				const types::Utf8String_t&,
+				const types::Utf8String_t&
+			)
+		);
 
-		MOCK_METHOD0(sendNewSessionRequestRawPtrProxy, protocol::StatusResponse*());
+		MOCK_METHOD0(sendNewSessionRequestRawPtrProxy, types::StatusResponse_sp());
 	private:
-		std::shared_ptr<configuration::HTTPClientConfiguration> mHTTPClientConfiguration;
+		types::HttpClientConfiguration_sp mHTTPClientConfiguration;
 	};
 }
 #endif

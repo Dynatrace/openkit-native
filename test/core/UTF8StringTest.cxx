@@ -13,13 +13,13 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-#include "core/UTF8String.h"
+#include "Types.h"
 #include "memory.h"
 
 #include <cstdint>
 #include <gtest/gtest.h>
 
-using namespace core;
+using namespace test::types;
 
 class UTF8StringTest : public testing::Test
 {
@@ -37,7 +37,7 @@ protected:
 
 TEST_F(UTF8StringTest, aStringCanBeInitializedWithAnASCIIString)
 {
-	UTF8String s("test123");
+	Utf8String_t s("test123");
 
 	const std::string stringData = s.getStringData();
 
@@ -56,7 +56,7 @@ TEST_F(UTF8StringTest, aStringCanBeInitializedWithAnASCIIString)
 
 TEST_F(UTF8StringTest, aStringCanBeInitializedWithFour2ByteCharacters)
 {
-	UTF8String s("\xD7\xAA\xD7\x95\xD7\x93\xD7\x94");
+	Utf8String_t s("\xD7\xAA\xD7\x95\xD7\x93\xD7\x94");
 
 	const std::string stringData = s.getStringData();
 
@@ -76,7 +76,7 @@ TEST_F(UTF8StringTest, aStringCanBeInitializedWithFour2ByteCharacters)
 TEST_F(UTF8StringTest, aStringCanBeInitializedByReplacingInvalidUTF8FirstByte)
 {
 	//third character (is ASCII )breaks the 2nd UTF8 character ( 2 byte wide)
-	UTF8String s("\xD7\xAAy\x95\xD7\x93\xD7\x94");
+	Utf8String_t s("\xD7\xAAy\x95\xD7\x93\xD7\x94");
 
 	const std::string stringData = s.getStringData();
 	EXPECT_EQ(stringData[0], '\xD7');
@@ -97,7 +97,7 @@ TEST_F(UTF8StringTest, aStringCanBeInitializedByReplacingInvalidUTF8FirstByte)
 TEST_F(UTF8StringTest, aStringCanBeInitializedByReplacingInvalidUTF8SecondByte)
 {
 	//third character (is ASCII )breaks the 2nd UTF8 character ( 2 byte wide)
-	UTF8String s("\xD7\xAA\x95r\xD7\x93\xD7\x94");
+	Utf8String_t s("\xD7\xAA\x95r\xD7\x93\xD7\x94");
 
 	const std::string stringData = s.getStringData();
 
@@ -119,7 +119,7 @@ TEST_F(UTF8StringTest, aStringCanBeInitializedByReplacingInvalidUTF8SecondByte)
 
 TEST_F(UTF8StringTest, aStringCanBeInitializedUsingATwoByteAndAFourByteUTF8)
 {
-	UTF8String s("\xD7\xAA\xf0\x9f\x98\x8b");
+	Utf8String_t s("\xD7\xAA\xf0\x9f\x98\x8b");
 
 	const std::string stringData = s.getStringData();
 
@@ -136,7 +136,7 @@ TEST_F(UTF8StringTest, aStringCanBeInitializedUsingATwoByteAndAFourByteUTF8)
 
 TEST_F(UTF8StringTest, aStringCanBeInitializedUsingAOneByteUTF8)
 {
-	UTF8String s("\x61\x62\x63\x72\x74\x78");
+	Utf8String_t s("\x61\x62\x63\x72\x74\x78");
 
 	const std::string stringData = s.getStringData();
 
@@ -161,7 +161,7 @@ TEST_F(UTF8StringTest, aStringCanInitializedUsingACombinationOfAllByteWidths)
 	//- a single byte UTF8 character
 	//- a three byte UTF8 character
 	//- xyz in plain ASCII
-	UTF8String s("abc\xD7\xAA\x78\xF0\x9F\x98\x8B\x64\xEA\xA6\x85xyz");
+	Utf8String_t s("abc\xD7\xAA\x78\xF0\x9F\x98\x8B\x64\xEA\xA6\x85xyz");
 
 	const std::string stringData = s.getStringData();
 
@@ -190,7 +190,7 @@ TEST_F(UTF8StringTest, aStringCanInitializedUsingACombinationOfAllByteWidths)
 TEST_F(UTF8StringTest, aStringCanBeInitializedWithABrokenThreeByteUTF8FollowedByaTwoByteUTF8)
 {
 	//valid \xEA\xA6\x85 \xD7\xAA
-	UTF8String s("\xEA\xA6\xD7\xAA");
+	Utf8String_t s("\xEA\xA6\xD7\xAA");
 
 	const std::string stringData = s.getStringData();
 
@@ -207,7 +207,7 @@ TEST_F(UTF8StringTest, aStringCanBeInitializedWithABrokenThreeByteUTF8FollowedBy
 TEST_F(UTF8StringTest, aStringCanBeInitializedWhenTwoOfThreeMultiByteCharactersAreBroken)
 {
 	//valid \xea\xa6\x8a \xea\xa6\x8d \xea\xa6\x90
-	UTF8String s("\xea\xa6\xe6\x8d\xea\xa6\x90");
+	Utf8String_t s("\xea\xa6\xe6\x8d\xea\xa6\x90");
 
 	const std::string stringData = s.getStringData();
 
@@ -227,7 +227,7 @@ TEST_F(UTF8StringTest, aStringCanBeInitializedWhenTwoOfThreeMultiByteCharactersA
 
 TEST_F(UTF8StringTest, aStringCanBeInitializedWithAnAsciiStringModifiedUtf8Terminated)
 {
-	UTF8String s("Hello\xC0\x80");
+	Utf8String_t s("Hello\xC0\x80");
 
 	auto stringData = s.getStringData();
 
@@ -243,7 +243,7 @@ TEST_F(UTF8StringTest, aStringCanBeInitializedWithAnAsciiStringModifiedUtf8Termi
 
 TEST_F(UTF8StringTest, aStringCanBeInitializedWithAnAsciiStringPartialModifiedUtf8Terminator)
 {
-	UTF8String s("Hello\xC0\x81");
+	Utf8String_t s("Hello\xC0\x81");
 
 	auto stringData = s.getStringData();
 
@@ -261,7 +261,7 @@ TEST_F(UTF8StringTest, aStringCanBeInitializedWithAnAsciiStringPartialModifiedUt
 
 TEST_F(UTF8StringTest, aStringCanBeInitializedWithAnAsciiStringPrematurelyModifiedUtf8Terminated)
 {
-	UTF8String s("Hello\xC0\x80 World");
+	Utf8String_t s("Hello\xC0\x80 World");
 
 	auto stringData = s.getStringData();
 
@@ -277,7 +277,7 @@ TEST_F(UTF8StringTest, aStringCanBeInitializedWithAnAsciiStringPrematurelyModifi
 
 TEST_F(UTF8StringTest, aStringCanBeInitializedWith2ByteCharactersModifiedUtf8Terminated)
 {
-	UTF8String s("\xD7\xAA\xD7\x95\xD7\x93\xD7\x94\xC0\x80");
+	Utf8String_t s("\xD7\xAA\xD7\x95\xD7\x93\xD7\x94\xC0\x80");
 
 	auto stringData = s.getStringData();
 
@@ -296,7 +296,7 @@ TEST_F(UTF8StringTest, aStringCanBeInitializedWith2ByteCharactersModifiedUtf8Ter
 
 TEST_F(UTF8StringTest, aStringCanBeInitializedWith2ByteCharactersPrematurelyModifiedUtf8Terminated)
 {
-	UTF8String s("\xD7\xAA\xD7\x95\xD7\x93\xC0\x80\xD7\x94");
+	Utf8String_t s("\xD7\xAA\xD7\x95\xD7\x93\xC0\x80\xD7\x94");
 
 	auto stringData = s.getStringData();
 
@@ -313,7 +313,7 @@ TEST_F(UTF8StringTest, aStringCanBeInitializedWith2ByteCharactersPrematurelyModi
 
 TEST_F(UTF8StringTest, aStringCanBeInitializedWith2ByteCharactersPartialModifiedUtf8Terminator)
 {
-	UTF8String s("\xD7\xAA\xD7\x95\xD7\x93\xD7\x94\xC0\x81");
+	Utf8String_t s("\xD7\xAA\xD7\x95\xD7\x93\xD7\x94\xC0\x81");
 
 	auto stringData = s.getStringData();
 
@@ -334,7 +334,7 @@ TEST_F(UTF8StringTest, aStringCanBeInitializedWith2ByteCharactersPartialModified
 
 TEST_F(UTF8StringTest, aStringCanBeInitialiyedWithOnlyModifiedUtf8Terminator)
 {
-	UTF8String s("\xC0\x80");
+	Utf8String_t s("\xC0\x80");
 
 	auto stringData = s.getStringData();
 
@@ -344,7 +344,7 @@ TEST_F(UTF8StringTest, aStringCanBeInitialiyedWithOnlyModifiedUtf8Terminator)
 
 TEST_F(UTF8StringTest, aStringCanBeInitialiyedWithPartialModifiedUtf8TerminatorButTerminatedWithNull)
 {
-	UTF8String s("\xD7\xAA\xD7\x95\xC0\x00");
+	Utf8String_t s("\xD7\xAA\xD7\x95\xC0\x00");
 
 	auto stringData = s.getStringData();
 
@@ -360,12 +360,12 @@ TEST_F(UTF8StringTest, aStringCanBeInitialiyedWithPartialModifiedUtf8TerminatorB
 
 TEST_F(UTF8StringTest, aStringWillNotBeConstructedUsingANullPointer)
 {
-	UTF8String s("");
+	Utf8String_t s("");
 	const std::string stringData = s.getStringData();
 	EXPECT_TRUE(stringData.size() == 0);
 	EXPECT_EQ(s.getStringLength(), 0);
 
-	UTF8String s2(s);
+	Utf8String_t s2(s);
 	const std::string stringData2 = s2.getStringData();
 	EXPECT_TRUE(stringData2.size() == 0);
 	EXPECT_EQ(s2.getStringLength(), 0);
@@ -373,7 +373,7 @@ TEST_F(UTF8StringTest, aStringWillNotBeConstructedUsingANullPointer)
 
 TEST_F(UTF8StringTest, aStringCanBeSearchedForASCIICharacters)
 {
-	UTF8String s("abc\xD7\xAA\x78\xF0\x9F\x98\x8B\x64\xEA\xA6\x85xyz");
+	Utf8String_t s("abc\xD7\xAA\x78\xF0\x9F\x98\x8B\x64\xEA\xA6\x85xyz");
 
 	size_t pos_of_c = s.getIndexOf("c");
 	EXPECT_EQ(pos_of_c, 2);
@@ -384,7 +384,7 @@ TEST_F(UTF8StringTest, aStringCanBeSearchedForASCIICharacters)
 
 TEST_F(UTF8StringTest, aStringCanBeSearchedForASCIICharactersZeroOffsetProvided)
 {
-	UTF8String s("abc\xD7\xAA\x78\xF0\x9F\x98\x8B\x64\xEA\xA6\x85xyz");
+	Utf8String_t s("abc\xD7\xAA\x78\xF0\x9F\x98\x8B\x64\xEA\xA6\x85xyz");
 
 	size_t pos_of_c = s.getIndexOf("c", 0);
 	EXPECT_EQ(pos_of_c, 2);
@@ -395,7 +395,7 @@ TEST_F(UTF8StringTest, aStringCanBeSearchedForASCIICharactersZeroOffsetProvided)
 
 TEST_F(UTF8StringTest, aStringCanBeSearchedForUTF8Characters)
 {
-	UTF8String s("abc\xD7\xAA\x78\xF0\x9F\x98\x8B\x64\xEA\xA6\x85xyz");
+	Utf8String_t s("abc\xD7\xAA\x78\xF0\x9F\x98\x8B\x64\xEA\xA6\x85xyz");
 
 	const char* utf_character = "\xEA\xA6\x85";
 
@@ -405,7 +405,7 @@ TEST_F(UTF8StringTest, aStringCanBeSearchedForUTF8Characters)
 
 TEST_F(UTF8StringTest, aStringDoesNotContainAGivenCharacter)
 {
-	UTF8String s("abcefgh");
+	Utf8String_t s("abcefgh");
 
 	char character_d = 'd';
 
@@ -415,7 +415,7 @@ TEST_F(UTF8StringTest, aStringDoesNotContainAGivenCharacter)
 
 TEST_F(UTF8StringTest, aStringIndexOfUsingTheOffsetParameter)
 {
-	UTF8String s("abcefgh");
+	Utf8String_t s("abcefgh");
 
 	char character_b = 'b';
 
@@ -431,9 +431,9 @@ TEST_F(UTF8StringTest, aStringIndexOfUsingTheOffsetParameter)
 
 TEST_F(UTF8StringTest, aStringIsDuplicated_ValidString)
 {
-	UTF8String s("abc\xD7\xAA\x78\xF0\x9F\x98\x8B\x64\xEA\xA6\x85xyz");
+	Utf8String_t s("abc\xD7\xAA\x78\xF0\x9F\x98\x8B\x64\xEA\xA6\x85xyz");
 
-	UTF8String duplicate(s);
+	Utf8String_t duplicate(s);
 
 	bool comparison_result = s.equals(duplicate);
 	EXPECT_TRUE(comparison_result);
@@ -442,8 +442,8 @@ TEST_F(UTF8StringTest, aStringIsDuplicated_ValidString)
 
 TEST_F(UTF8StringTest, aStringIsComparedWithAnIdenticalString)
 {
-	UTF8String s1("1234567890");
-	UTF8String s2("1234567890");
+	Utf8String_t s1("1234567890");
+	Utf8String_t s2("1234567890");
 
 	bool comparison = s1.equals(s2);
 	EXPECT_TRUE(comparison);
@@ -451,8 +451,8 @@ TEST_F(UTF8StringTest, aStringIsComparedWithAnIdenticalString)
 
 TEST_F(UTF8StringTest, aStringIsComparedWithADifferentString)
 {
-	UTF8String s1("1234567890");
-	UTF8String s2("1234567898");
+	Utf8String_t s1("1234567890");
+	Utf8String_t s2("1234567898");
 
 	bool comparison = s1.equals(s2);
 	EXPECT_FALSE(comparison);
@@ -460,7 +460,7 @@ TEST_F(UTF8StringTest, aStringIsComparedWithADifferentString)
 
 TEST_F(UTF8StringTest, aStringIsComparedWithANullString)
 {
-	UTF8String s("abc\xD7\xAA\x78\xF0\x9F\x98\x8B\x64\xEA\xA6\x85xyz");
+	Utf8String_t s("abc\xD7\xAA\x78\xF0\x9F\x98\x8B\x64\xEA\xA6\x85xyz");
 
 	bool comparison = s.equals(NULL);
 	EXPECT_FALSE(comparison);
@@ -470,9 +470,9 @@ TEST_F(UTF8StringTest, aStringIsComparedWithANullString)
 
 TEST_F(UTF8StringTest, zeroLengthSubstringFromValidAsciiString)
 {
-	UTF8String s("0123456789");
+	Utf8String_t s("0123456789");
 
-	UTF8String substr = s.substring(0, 0);
+	Utf8String_t substr = s.substring(0, 0);
 
 	EXPECT_TRUE(substr.getStringData().empty());
 	EXPECT_EQ(0, substr.getStringLength());
@@ -480,11 +480,11 @@ TEST_F(UTF8StringTest, zeroLengthSubstringFromValidAsciiString)
 
 TEST_F(UTF8StringTest, substringFromValidAsciiStringStartAtZero)
 {
-	UTF8String s("0123456789");
+	Utf8String_t s("0123456789");
 
-	UTF8String substr = s.substring(0, 3);
+	Utf8String_t substr = s.substring(0, 3);
 
-	UTF8String expect("012");
+	Utf8String_t expect("012");
 	EXPECT_EQ(3, substr.getStringData().size());
 	EXPECT_EQ(3, substr.getStringLength());
 	bool comparison_result = substr.equals(expect);
@@ -493,11 +493,11 @@ TEST_F(UTF8StringTest, substringFromValidAsciiStringStartAtZero)
 
 TEST_F(UTF8StringTest, substringFromValidAsciiStringMiddle)
 {
-	UTF8String s("0123456789");
+	Utf8String_t s("0123456789");
 
-	UTF8String substr = s.substring(3, 3);
+	Utf8String_t substr = s.substring(3, 3);
 
-	UTF8String expect("345");
+	Utf8String_t expect("345");
 	EXPECT_EQ(3, substr.getStringData().size());
 	EXPECT_EQ(3, substr.getStringLength());
 	bool comparison_result = substr.equals(expect);
@@ -506,11 +506,11 @@ TEST_F(UTF8StringTest, substringFromValidAsciiStringMiddle)
 
 TEST_F(UTF8StringTest, substringFromValidAsciiStringUpToEnd)
 {
-	UTF8String s("0123456789");
+	Utf8String_t s("0123456789");
 
-	UTF8String substr = s.substring(7, 3);
+	Utf8String_t substr = s.substring(7, 3);
 
-	UTF8String expect("789");
+	Utf8String_t expect("789");
 	EXPECT_EQ(3, substr.getStringData().size());
 	EXPECT_EQ(3, substr.getStringLength());
 	bool comparison_result = substr.equals(expect);
@@ -519,11 +519,11 @@ TEST_F(UTF8StringTest, substringFromValidAsciiStringUpToEnd)
 
 TEST_F(UTF8StringTest, substringFromValidAsciiStringRangeFullRange)
 {
-	UTF8String s("0123456789");
+	Utf8String_t s("0123456789");
 
-	UTF8String substr = s.substring(0, 10);
+	Utf8String_t substr = s.substring(0, 10);
 
-	UTF8String expect("0123456789");
+	Utf8String_t expect("0123456789");
 	EXPECT_EQ(10, substr.getStringData().size());
 	EXPECT_EQ(10, substr.getStringLength());
 	bool comparison_result = substr.equals(expect);
@@ -532,11 +532,11 @@ TEST_F(UTF8StringTest, substringFromValidAsciiStringRangeFullRange)
 
 TEST_F(UTF8StringTest, substringFromValidAsciiStringRangeFullRangeOpenEnd)
 {
-	UTF8String s("0123456789");
+	Utf8String_t s("0123456789");
 
-	UTF8String substr = s.substring(0);
+	Utf8String_t substr = s.substring(0);
 
-	UTF8String expect("0123456789");
+	Utf8String_t expect("0123456789");
 	EXPECT_EQ(10, substr.getStringData().size());
 	EXPECT_EQ(10, substr.getStringLength());
 	bool comparison_result = substr.equals(expect);
@@ -545,11 +545,11 @@ TEST_F(UTF8StringTest, substringFromValidAsciiStringRangeFullRangeOpenEnd)
 
 TEST_F(UTF8StringTest, substringFromValidUTF8StringStartAtZero)
 {
-	UTF8String s(u8"H€lloWorld");
+	Utf8String_t s(u8"H€lloWorld");
 
-	UTF8String substr = s.substring(0, 5);
+	Utf8String_t substr = s.substring(0, 5);
 
-	UTF8String expect(u8"H€llo");
+	Utf8String_t expect(u8"H€llo");
 	EXPECT_EQ(7, substr.getStringData().size()); // 4*1byte + 1*3byte (€ consumed 3 bytes)
 	EXPECT_EQ(5, substr.getStringLength());
 	bool comparison_result = substr.equals(expect);
@@ -558,11 +558,11 @@ TEST_F(UTF8StringTest, substringFromValidUTF8StringStartAtZero)
 
 TEST_F(UTF8StringTest, substringFromValidUTF8StringMiddle)
 {
-	UTF8String s(u8"H€lloWorld");
+	Utf8String_t s(u8"H€lloWorld");
 
-	UTF8String substr = s.substring(1, 5);
+	Utf8String_t substr = s.substring(1, 5);
 
-	UTF8String expect(u8"€lloW");
+	Utf8String_t expect(u8"€lloW");
 	EXPECT_EQ(7, substr.getStringData().size()); // 4*1byte + 1*3byte (€ consumed 3 bytes)
 	EXPECT_EQ(5, substr.getStringLength());
 	bool comparison_result = substr.equals(expect);
@@ -571,11 +571,11 @@ TEST_F(UTF8StringTest, substringFromValidUTF8StringMiddle)
 
 TEST_F(UTF8StringTest, substringFromValidUTF8StringUpToEnd)
 {
-	UTF8String s(u8"H€lloWorld");
+	Utf8String_t s(u8"H€lloWorld");
 
-	UTF8String substr = s.substring(1, 9);
+	Utf8String_t substr = s.substring(1, 9);
 
-	UTF8String expect(u8"€lloWorld");
+	Utf8String_t expect(u8"€lloWorld");
 	EXPECT_EQ(11, substr.getStringData().size()); // 8*1byte + 1*3byte (€ consumed 3 bytes)
 	EXPECT_EQ(9, substr.getStringLength());
 	bool comparison_result = substr.equals(expect);
@@ -584,11 +584,11 @@ TEST_F(UTF8StringTest, substringFromValidUTF8StringUpToEnd)
 
 TEST_F(UTF8StringTest, substringFromValidUTF8StringFullRange)
 {
-	UTF8String s(u8"H€lloWorld");
+	Utf8String_t s(u8"H€lloWorld");
 
-	UTF8String substr = s.substring(0, 10);
+	Utf8String_t substr = s.substring(0, 10);
 
-	UTF8String expect(u8"H€lloWorld");
+	Utf8String_t expect(u8"H€lloWorld");
 	EXPECT_EQ(12, substr.getStringData().size());// 9*1byte + 1*3byte (€ consumed 3 bytes)
 	EXPECT_EQ(10, substr.getStringLength());
 	bool comparison_result = substr.equals(expect);
@@ -597,11 +597,11 @@ TEST_F(UTF8StringTest, substringFromValidUTF8StringFullRange)
 
 TEST_F(UTF8StringTest, substringFromValidUTF8StringFullRangeOpenEnd)
 {
-	UTF8String s(u8"H€lloWorld");
+	Utf8String_t s(u8"H€lloWorld");
 
-	UTF8String substr = s.substring(0);
+	Utf8String_t substr = s.substring(0);
 
-	UTF8String expect(u8"H€lloWorld");
+	Utf8String_t expect(u8"H€lloWorld");
 	EXPECT_EQ(12, substr.getStringData().size());// 9*1byte + 1*3byte (€ consumed 3 bytes)
 	EXPECT_EQ(10, substr.getStringLength());
 	bool comparison_result = substr.equals(expect);
@@ -610,9 +610,9 @@ TEST_F(UTF8StringTest, substringFromValidUTF8StringFullRangeOpenEnd)
 
 TEST_F(UTF8StringTest, substringFromValidRange_UTF8Multibyte)
 {
-	UTF8String s("\xD7\xAA\xD7\x95\xD7\x93\xD7\x94"); // 4 2-byte characters
+	Utf8String_t s("\xD7\xAA\xD7\x95\xD7\x93\xD7\x94"); // 4 2-byte characters
 
-	UTF8String substr = s.substring(1, 3);
+	Utf8String_t substr = s.substring(1, 3);
 
 	const char* expect = "\xD7\x95\xD7\x93\xD7\x94";
 	EXPECT_EQ(6, substr.getStringData().size());
@@ -623,9 +623,9 @@ TEST_F(UTF8StringTest, substringFromValidRange_UTF8Multibyte)
 
 TEST_F(UTF8StringTest, substringFromValidRange_UTF8MultibyteASCIIMix)
 {
-	UTF8String s("\xD7\xAAza\xD7\x95yb\xD7\x93xc\xD7\x94wd"); // 2-byte characters mixed with triplets of ASCII
+	Utf8String_t s("\xD7\xAAza\xD7\x95yb\xD7\x93xc\xD7\x94wd"); // 2-byte characters mixed with triplets of ASCII
 
-	UTF8String substr = s.substring(3, 4);
+	Utf8String_t substr = s.substring(3, 4);
 
 	const char* expect = "\xD7\x95yb\xD7\x93";
 	EXPECT_EQ(6, substr.getStringData().size());
@@ -636,18 +636,18 @@ TEST_F(UTF8StringTest, substringFromValidRange_UTF8MultibyteASCIIMix)
 
 TEST_F(UTF8StringTest, substringWithInvalidStart)
 {
-	UTF8String s("0123456789");
+	Utf8String_t s("0123456789");
 
-	UTF8String substr = s.substring((size_t)-1, 7);
+	Utf8String_t substr = s.substring((size_t)-1, 7);
 
 	EXPECT_TRUE(substr.getStringLength() == 0);
 }
 
 TEST_F(UTF8StringTest, substringWithTooLongLength)
 {
-	UTF8String s("0123456789");
+	Utf8String_t s("0123456789");
 
-	UTF8String substr = s.substring(1, 12);
+	Utf8String_t substr = s.substring(1, 12);
 
 	const char* expect = "123456789";
 	EXPECT_EQ(9, substr.getStringData().size());
@@ -658,8 +658,8 @@ TEST_F(UTF8StringTest, substringWithTooLongLength)
 
 TEST_F(UTF8StringTest, concatenateASCIIWithUTFString)
 {
-	UTF8String s1("abc");
-	UTF8String s2("\xD7\x95yb\xD7\x93");
+	Utf8String_t s1("abc");
+	Utf8String_t s2("\xD7\x95yb\xD7\x93");
 
 	s1.concatenate(s2);
 
@@ -681,8 +681,8 @@ TEST_F(UTF8StringTest, concatenateASCIIWithUTFString)
 
 TEST_F(UTF8StringTest, concatenateUTFWithASCIIString)
 {
-	UTF8String s1("\xD7\xAA\xD7\x95");
-	UTF8String s2("test");
+	Utf8String_t s1("\xD7\xAA\xD7\x95");
+	Utf8String_t s2("test");
 
 	s1.concatenate(s2);
 
@@ -703,7 +703,7 @@ TEST_F(UTF8StringTest, concatenateUTFWithASCIIString)
 
 TEST_F(UTF8StringTest, concatenateWithCharPointer)
 {
-	UTF8String s("part 1 -");
+	Utf8String_t s("part 1 -");
 	s.concatenate("part 2");
 
 	const std::string stringData = s.getStringData();
@@ -730,7 +730,7 @@ TEST_F(UTF8StringTest, concatenateWithCharPointer)
 
 TEST_F(UTF8StringTest, concatenateWithEmptyString)
 {
-	UTF8String s("test123");
+	Utf8String_t s("test123");
 	s.concatenate("");
 
 	const std::string stringData = s.getStringData();
@@ -749,35 +749,35 @@ TEST_F(UTF8StringTest, concatenateWithEmptyString)
 
 TEST_F(UTF8StringTest, emptyString)
 {
-	UTF8String s("");
+	Utf8String_t s("");
 	EXPECT_TRUE(s.empty());
 }
 
 TEST_F(UTF8StringTest, notEmptyString)
 {
-	UTF8String s("Hello World");
+	Utf8String_t s("Hello World");
 	EXPECT_FALSE(s.empty());
 }
 
 TEST_F(UTF8StringTest, splitEmptyString)
 {
-	UTF8String s("");
-	std::vector<UTF8String> parts = s.split(' ');
+	Utf8String_t s("");
+	std::vector<Utf8String_t> parts = s.split(' ');
 	EXPECT_TRUE(parts.empty());
 }
 
 TEST_F(UTF8StringTest, splitAsciiStringDelimNotExists)
 {
-	UTF8String s("HelloWorld");
-	std::vector<UTF8String> parts = s.split(' ');
+	Utf8String_t s("HelloWorld");
+	std::vector<Utf8String_t> parts = s.split(' ');
 	EXPECT_EQ(1, parts.size());
 	EXPECT_TRUE(parts.at(0).equals(s));
 }
 
 TEST_F(UTF8StringTest, splitAsciiString)
 {
-	UTF8String s("Hello World");
-	std::vector<UTF8String> parts = s.split(' ');
+	Utf8String_t s("Hello World");
+	std::vector<Utf8String_t> parts = s.split(' ');
 	EXPECT_EQ(2, parts.size());
 	EXPECT_TRUE(parts.at(0).equals("Hello"));
 	EXPECT_TRUE(parts.at(1).equals("World"));
@@ -785,8 +785,8 @@ TEST_F(UTF8StringTest, splitAsciiString)
 
 TEST_F(UTF8StringTest, splitAsciiStringMultipleDelimExists)
 {
-	UTF8String s("One,Two,Three");
-	std::vector<UTF8String> parts = s.split(',');
+	Utf8String_t s("One,Two,Three");
+	std::vector<Utf8String_t> parts = s.split(',');
 	EXPECT_EQ(3, parts.size());
 	EXPECT_TRUE(parts.at(0).equals("One"));
 	EXPECT_TRUE(parts.at(1).equals("Two"));
@@ -795,8 +795,8 @@ TEST_F(UTF8StringTest, splitAsciiStringMultipleDelimExists)
 
 TEST_F(UTF8StringTest, splitAsciiStringMultipleDelimExistsWithEmptyParts)
 {
-	UTF8String s("One,Two,,Four,Five,,");
-	std::vector<UTF8String> parts = s.split(',');
+	Utf8String_t s("One,Two,,Four,Five,,");
+	std::vector<Utf8String_t> parts = s.split(',');
 	EXPECT_EQ(6, parts.size());
 	EXPECT_TRUE(parts.at(0).equals("One"));
 	EXPECT_TRUE(parts.at(1).equals("Two"));
@@ -808,16 +808,16 @@ TEST_F(UTF8StringTest, splitAsciiStringMultipleDelimExistsWithEmptyParts)
 
 TEST_F(UTF8StringTest, splitUtf8StringDelimNotExists)
 {
-	UTF8String s(u8"H€lloWorld");
-	std::vector<UTF8String> parts = s.split(' ');
+	Utf8String_t s(u8"H€lloWorld");
+	std::vector<Utf8String_t> parts = s.split(' ');
 	EXPECT_EQ(1, parts.size());
 	EXPECT_TRUE(parts.at(0).equals(s));
 }
 
 TEST_F(UTF8StringTest, splitUtf8String)
 {
-	UTF8String s(u8"H€llo World");
-	std::vector<UTF8String> parts = s.split(' ');
+	Utf8String_t s(u8"H€llo World");
+	std::vector<Utf8String_t> parts = s.split(' ');
 	EXPECT_EQ(2, parts.size());
 	EXPECT_TRUE(parts.at(0).equals(u8"H€llo"));
 	EXPECT_TRUE(parts.at(1).equals(u8"World"));
@@ -825,8 +825,8 @@ TEST_F(UTF8StringTest, splitUtf8String)
 
 TEST_F(UTF8StringTest, splitUtf8StringMultipleDelimExists)
 {
-	UTF8String s(u8"On€,Two,Thr€e");
-	std::vector<UTF8String> parts = s.split(',');
+	Utf8String_t s(u8"On€,Two,Thr€e");
+	std::vector<Utf8String_t> parts = s.split(',');
 	EXPECT_EQ(3, parts.size());
 	EXPECT_TRUE(parts.at(0).equals(u8"On€"));
 	EXPECT_TRUE(parts.at(1).equals(u8"Two"));
@@ -835,8 +835,8 @@ TEST_F(UTF8StringTest, splitUtf8StringMultipleDelimExists)
 
 TEST_F(UTF8StringTest, splitUtf8StringMultipleDelimExistsWithEmptyParts)
 {
-	UTF8String s(u8"On€,Two,,Four,Fiv€,,");
-	std::vector<UTF8String> parts = s.split(',');
+	Utf8String_t s(u8"On€,Two,,Four,Fiv€,,");
+	std::vector<Utf8String_t> parts = s.split(',');
 	EXPECT_EQ(6, parts.size());
 	EXPECT_TRUE(parts.at(0).equals(u8"On€"));
 	EXPECT_TRUE(parts.at(1).equals(u8"Two"));
@@ -848,8 +848,8 @@ TEST_F(UTF8StringTest, splitUtf8StringMultipleDelimExistsWithEmptyParts)
 
 TEST_F(UTF8StringTest, equalAsciiStrings)
 {
-	UTF8String s1("Hello World");
-	UTF8String s2("Hello World");
+	Utf8String_t s1("Hello World");
+	Utf8String_t s2("Hello World");
 
 	EXPECT_TRUE(s1 == s2);
 	EXPECT_FALSE(s1 != s2);
@@ -857,8 +857,8 @@ TEST_F(UTF8StringTest, equalAsciiStrings)
 
 TEST_F(UTF8StringTest, notEqualAsciiStrings)
 {
-	UTF8String s1("Hello");
-	UTF8String s2("World");
+	Utf8String_t s1("Hello");
+	Utf8String_t s2("World");
 
 	EXPECT_FALSE(s1 == s2);
 	EXPECT_TRUE(s1 != s2);
@@ -866,8 +866,8 @@ TEST_F(UTF8StringTest, notEqualAsciiStrings)
 
 TEST_F(UTF8StringTest, equalUtf8Strings)
 {
-	UTF8String s1(u8"H€llo World");
-	UTF8String s2(u8"H€llo World");
+	Utf8String_t s1(u8"H€llo World");
+	Utf8String_t s2(u8"H€llo World");
 
 	EXPECT_TRUE(s1 == s2);
 	EXPECT_FALSE(s1 != s2);
@@ -875,8 +875,8 @@ TEST_F(UTF8StringTest, equalUtf8Strings)
 
 TEST_F(UTF8StringTest, notEqualUtf8Strings)
 {
-	UTF8String s1(u8"H€llo");
-	UTF8String s2(u8"World");
+	Utf8String_t s1(u8"H€llo");
+	Utf8String_t s2(u8"World");
 
 	EXPECT_FALSE(s1 == s2);
 	EXPECT_TRUE(s1 != s2);

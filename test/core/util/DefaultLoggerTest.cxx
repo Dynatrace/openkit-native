@@ -14,11 +14,12 @@
 * limitations under the License.
 */
 
-#include "core/util/DefaultLogger.h"
+#include "Types.h"
+#include "../../api/Types.h"
 
 #include <gtest/gtest.h>
 
-using namespace core::util;
+using namespace test::types;
 
 class DefaultLoggerTest : public testing::Test
 {
@@ -27,60 +28,60 @@ class DefaultLoggerTest : public testing::Test
 TEST_F(DefaultLoggerTest, isErrorEnabledIsTrueIfLevelIsLessThanOrEqualToLevelError)
 {
 	// when <= ERROR, then
-	ASSERT_TRUE(DefaultLogger(openkit::LogLevel::LOG_LEVEL_ERROR).isErrorEnabled());
-	ASSERT_TRUE(DefaultLogger(openkit::LogLevel(std::int32_t(openkit::LogLevel::LOG_LEVEL_ERROR) - 1)).isErrorEnabled());
+	ASSERT_TRUE(DefaultLogger_t(LogLevel_t::LOG_LEVEL_ERROR).isErrorEnabled());
+	ASSERT_TRUE(DefaultLogger_t(LogLevel_t(std::int32_t(LogLevel_t::LOG_LEVEL_ERROR) - 1)).isErrorEnabled());
 }
 
 TEST_F(DefaultLoggerTest, isErrorEnabledIsFalseIfLevelIsGreaterThanLevelError)
 {
 	// when >= ERROR, then
-	ASSERT_FALSE(DefaultLogger(openkit::LogLevel(std::int32_t(openkit::LogLevel::LOG_LEVEL_ERROR) + 1)).isErrorEnabled());
+	ASSERT_FALSE(DefaultLogger_t(LogLevel_t(std::int32_t(LogLevel_t::LOG_LEVEL_ERROR) + 1)).isErrorEnabled());
 }
 
 TEST_F(DefaultLoggerTest, isWarningEnabledIsTrueIfLevelIsLessThanOrEqualToLevelWarn)
 {
 	// when <= WARN, then
-	ASSERT_TRUE(DefaultLogger(openkit::LogLevel::LOG_LEVEL_WARN).isWarningEnabled());
-	ASSERT_TRUE(DefaultLogger(openkit::LogLevel(std::int32_t(openkit::LogLevel::LOG_LEVEL_WARN) - 1)).isWarningEnabled());
+	ASSERT_TRUE(DefaultLogger_t(LogLevel_t::LOG_LEVEL_WARN).isWarningEnabled());
+	ASSERT_TRUE(DefaultLogger_t(LogLevel_t(std::int32_t(LogLevel_t::LOG_LEVEL_WARN) - 1)).isWarningEnabled());
 }
 
 TEST_F(DefaultLoggerTest, isWarningEnabledIsFalseIfLevelIsGreaterThanLevelWarn)
 {
 	// when > WARN, then
-	ASSERT_FALSE(DefaultLogger(openkit::LogLevel(std::int32_t(openkit::LogLevel::LOG_LEVEL_WARN) + 1)).isWarningEnabled());
+	ASSERT_FALSE(DefaultLogger_t(LogLevel_t(std::int32_t(LogLevel_t::LOG_LEVEL_WARN) + 1)).isWarningEnabled());
 }
 
 TEST_F(DefaultLoggerTest, isInfoEnabledIsTrueIfLevelIsLessThanOrEqualToLevelInfo)
 {
 	// when <= INFO, then
-	ASSERT_TRUE(DefaultLogger(openkit::LogLevel::LOG_LEVEL_INFO).isInfoEnabled());
-	ASSERT_TRUE(DefaultLogger(openkit::LogLevel(std::int32_t(openkit::LogLevel::LOG_LEVEL_INFO) - 1)).isInfoEnabled());
+	ASSERT_TRUE(DefaultLogger_t(LogLevel_t::LOG_LEVEL_INFO).isInfoEnabled());
+	ASSERT_TRUE(DefaultLogger_t(LogLevel_t(std::int32_t(LogLevel_t::LOG_LEVEL_INFO) - 1)).isInfoEnabled());
 }
 
 TEST_F(DefaultLoggerTest, isInfoEnabledIsFalseIfLevelIsGreaterThanLevelInfo)
 {
 	// when > INFO, then
-	ASSERT_FALSE(DefaultLogger(openkit::LogLevel(std::int32_t(openkit::LogLevel::LOG_LEVEL_INFO) + 1)).isInfoEnabled());
+	ASSERT_FALSE(DefaultLogger_t(LogLevel_t(std::int32_t(LogLevel_t::LOG_LEVEL_INFO) + 1)).isInfoEnabled());
 }
 
 TEST_F(DefaultLoggerTest, isDebugEnabledIsTrueIfLevelIsLessThanOrEqualToLevelDebug)
 {
 	// when <= DEBUG, then
-	ASSERT_TRUE(DefaultLogger(openkit::LogLevel::LOG_LEVEL_DEBUG).isDebugEnabled());
-	ASSERT_TRUE(DefaultLogger(openkit::LogLevel(std::int32_t(openkit::LogLevel::LOG_LEVEL_DEBUG) - 1)).isDebugEnabled());
+	ASSERT_TRUE(DefaultLogger_t(LogLevel_t::LOG_LEVEL_DEBUG).isDebugEnabled());
+	ASSERT_TRUE(DefaultLogger_t(LogLevel_t(std::int32_t(LogLevel_t::LOG_LEVEL_DEBUG) - 1)).isDebugEnabled());
 }
 
 TEST_F(DefaultLoggerTest, isDebugEnabledIsFalseIfLevelIsGreaterThanLevelDebug)
 {
 	// when > DEBUG, then
-	ASSERT_FALSE(DefaultLogger(openkit::LogLevel(std::int32_t(openkit::LogLevel::LOG_LEVEL_DEBUG) + 1)).isDebugEnabled());
+	ASSERT_FALSE(DefaultLogger_t(LogLevel_t(std::int32_t(LogLevel_t::LOG_LEVEL_DEBUG) + 1)).isDebugEnabled());
 }
 
 TEST_F(DefaultLoggerTest, defaultLoggerPrintOutInteger)
 {
 	// given
 	std::ostringstream oss;
-	DefaultLogger logger(oss, openkit::LogLevel::LOG_LEVEL_DEBUG);
+	DefaultLogger_t logger(oss, LogLevel_t::LOG_LEVEL_DEBUG);
 
 	// then
 	uint32_t i = 7;
@@ -95,7 +96,7 @@ TEST_F(DefaultLoggerTest, defaultLoggerPrintOutString)
 {
 	// given
 	std::ostringstream oss;
-	DefaultLogger logger(oss, openkit::LogLevel::LOG_LEVEL_DEBUG);
+	DefaultLogger_t logger(oss, LogLevel_t::LOG_LEVEL_DEBUG);
 
 	// then
 	std::string str("World");
@@ -110,7 +111,7 @@ TEST_F(DefaultLoggerTest, defaultLoggerPrintOutDouble)
 {
 	// given
 	std::ostringstream oss;
-	DefaultLogger logger(oss, openkit::LogLevel::LOG_LEVEL_DEBUG);
+	DefaultLogger_t logger(oss, LogLevel_t::LOG_LEVEL_DEBUG);
 
 	// then
 	double pi = 3.14159265358979323846;
@@ -125,7 +126,7 @@ TEST_F(DefaultLoggerTest, defaultLoggerPrintOutMultiple)
 {
 	// given
 	std::ostringstream oss;
-	DefaultLogger logger(oss, openkit::LogLevel::LOG_LEVEL_DEBUG);
+	DefaultLogger_t logger(oss, LogLevel_t::LOG_LEVEL_DEBUG);
 
 	// then
 	double pi = 3.14159265358979323846;
@@ -142,7 +143,7 @@ TEST_F(DefaultLoggerTest, defaultLoggerPrintOutAVeryLongString)
 {
 	// given
 	std::ostringstream oss;
-	DefaultLogger logger(oss, openkit::LogLevel::LOG_LEVEL_DEBUG);
+	DefaultLogger_t logger(oss, LogLevel_t::LOG_LEVEL_DEBUG);
 
 	// then
 	std::string longText = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. "

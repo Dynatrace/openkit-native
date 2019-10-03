@@ -27,7 +27,12 @@ static constexpr int32_t HTTP_TOO_MANY_REQUESTS = 429;
 static constexpr char RESPONSE_KEY_RETRY_AFTER[] = "retry-after";
 static constexpr int64_t DEFAULT_RETRY_AFTER_IN_MILLISECONDS = 10L * 60L * 1000L; // 10 minutes in milliseconds
 
-Response::Response(std::shared_ptr<openkit::ILogger> logger, int32_t responseCode, const ResponseHeaders& responseHeaders)
+Response::Response
+(
+	std::shared_ptr<openkit::ILogger> logger,
+	int32_t responseCode,
+	const ResponseHeaders& responseHeaders
+)
 	: mLogger(logger)
 	, mResponseCode(responseCode)
 	, mResponseHeaders(responseHeaders)

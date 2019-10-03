@@ -17,13 +17,17 @@
 #ifndef _CORE_SESSIONWRAPPER_H
 #define _CORE_SESSIONWRAPPER_H
 
-#include "Session.h"
+#include "core/objects/Session.h"
 #include "protocol/StatusResponse.h"
 
 #include <memory>
 
-namespace configuration {
-	class BeaconConfiguration;
+namespace core
+{
+	namespace configuration
+	{
+		class BeaconConfiguration;
+	}
 }
 
 namespace core
@@ -39,25 +43,25 @@ namespace core
 		/// Constructor taking a session object
 		/// @param[in] session pointer
 		///
-		SessionWrapper(std::shared_ptr<Session> session);
+		SessionWrapper(std::shared_ptr<core::objects::Session> session);
 
 		///
-		/// Updates the @ref configuration::BeaconConfiguration in the wrapped session.
+		/// Updates the @ref core::configuration::BeaconConfiguration in the wrapped session.
 		/// Besides updating the beacon configuration this also sets the @ref beaconConfigurationSet to  @c true.
 		/// @param[in] beaconConfiguration the beacon configuration to update the session with
 		///
-		void updateBeaconConfiguration(std::shared_ptr<configuration::BeaconConfiguration> beaconConfiguration);
+		void updateBeaconConfiguration(std::shared_ptr<core::configuration::BeaconConfiguration> beaconConfiguration);
 
 		///
 		/// Returns the beacon configuration
 		/// @returns the current beacon configuration
 		///
-		std::shared_ptr<configuration::BeaconConfiguration> getBeaconConfiguration() const;
+		std::shared_ptr<core::configuration::BeaconConfiguration> getBeaconConfiguration() const;
 
 		///
 		/// Returns a flag if the beacon configuration of the session has been set at least once
 		/// @returns flag if the configuration has been set
-		/// 
+		///
 		bool isBeaconConfigurationSet() const;
 
 		///
@@ -99,7 +103,7 @@ namespace core
 		/// Gets the wrapped session
 		/// @returns the wrapped session
 		///
-		std::shared_ptr<Session> getWrappedSession() const;
+		std::shared_ptr<core::objects::Session> getWrappedSession() const;
 
 		///
 		/// Get a boolean value indicating whether data sending is allowed or not.
@@ -123,7 +127,7 @@ namespace core
 	private:
 
 		/// pointer to wrapped session
-		std::shared_ptr<Session> mWrappedSession;
+		std::shared_ptr<core::objects::Session> mWrappedSession;
 
 		/// the beacon configuration used by the session
 		std::shared_ptr<configuration::BeaconConfiguration> mBeaconConfiguration;

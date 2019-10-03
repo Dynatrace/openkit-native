@@ -18,7 +18,7 @@
 
 using namespace providers;
 
-std::shared_ptr<protocol::IHTTPClient> DefaultHTTPClientProvider::createClient(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<configuration::HTTPClientConfiguration> configuration)
+std::shared_ptr<protocol::IHTTPClient> DefaultHTTPClientProvider::createClient(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<core::configuration::HTTPClientConfiguration> configuration)
 {
 	return std::shared_ptr<protocol::IHTTPClient>(new protocol::HTTPClient(logger, configuration));
 }

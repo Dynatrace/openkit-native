@@ -14,13 +14,13 @@
 * limitations under the License.
 */
 
-#include "core/util/StringUtil.h"
+#include "Types.h"
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
 
-using namespace core::util;
+using namespace test::types;
 
 class StringUtilTest : public testing::Test
 {
@@ -34,7 +34,7 @@ TEST_F(StringUtilTest, leftTrimEmptyString)
 	auto string = std::string("");
 
 	// when
-	StringUtil::leftTrim(string);
+	StringUtil_t::leftTrim(string);
 
 	// then
 	ASSERT_THAT(string, testing::Eq(std::string("")));
@@ -46,7 +46,7 @@ TEST_F(StringUtilTest, rightTrimEmptyString)
 	auto string = std::string("");
 
 	// when
-	StringUtil::rightTrim(string);
+	StringUtil_t::rightTrim(string);
 
 	// then
 	ASSERT_THAT(string, testing::Eq(std::string("")));
@@ -58,7 +58,7 @@ TEST_F(StringUtilTest, trimEmptyString)
 	auto string = std::string("");
 
 	// when
-	StringUtil::trim(string);
+	StringUtil_t::trim(string);
 
 	//then
 	ASSERT_THAT(string, testing::Eq(std::string("")));
@@ -70,7 +70,7 @@ TEST_F(StringUtilTest, leftTrimLeadingWhiteSpaces)
 	auto string = std::string("  some string");
 
 	//when
-	StringUtil::leftTrim(string);
+	StringUtil_t::leftTrim(string);
 
 	// then
 	ASSERT_THAT(string, testing::Eq(std::string("some string")));
@@ -82,7 +82,7 @@ TEST_F(StringUtilTest, leftTrimToCopyLeadingWhiteSpaces)
 	auto string = std::string("  some string");
 
 	// when
-	auto trimmedString = StringUtil::leftTrimToCopy(string);
+	auto trimmedString = StringUtil_t::leftTrimToCopy(string);
 
 	// then
 	ASSERT_THAT(&string, testing::Ne(&trimmedString));
@@ -96,7 +96,7 @@ TEST_F(StringUtilTest, rightTrimLeadingWhiteSpaces)
 	auto string = std::string("  some string");
 
 	// when
-	StringUtil::rightTrim(string);
+	StringUtil_t::rightTrim(string);
 
 	// then
 	ASSERT_THAT(string, testing::Eq(std::string("  some string")));
@@ -108,7 +108,7 @@ TEST_F(StringUtilTest, rightTrimToCopyLadingWhiteSpaces)
 	auto string = std::string("  some string");
 
 	// when
-	auto trimmedString = StringUtil::rightTrimToCopy(string);
+	auto trimmedString = StringUtil_t::rightTrimToCopy(string);
 
 	// then
 	ASSERT_THAT(&string, testing::Ne(&trimmedString));
@@ -122,7 +122,7 @@ TEST_F(StringUtilTest, trimLeadingWhiteSpaces)
 	auto string = std::string("  some string");
 
 	// when
-	StringUtil::trim(string);
+	StringUtil_t::trim(string);
 
 	// then
 	ASSERT_THAT(string, testing::Eq(std::string("some string")));
@@ -134,7 +134,7 @@ TEST_F(StringUtilTest, trimToCopyLeadingWhiteSpaces)
 	auto string = std::string("  some string");
 
 	// when
-	auto trimmedString = StringUtil::trimToCopy(string);
+	auto trimmedString = StringUtil_t::trimToCopy(string);
 
 	//then
 	ASSERT_THAT(&string, testing::Ne(&trimmedString));
@@ -148,7 +148,7 @@ TEST_F(StringUtilTest, leftTrimTrailingWhiteSpaces)
 	auto string = std::string("some string  ");
 
 	// when
-	StringUtil::leftTrim(string);
+	StringUtil_t::leftTrim(string);
 
 	// then
 	ASSERT_THAT(string, testing::Eq(std::string("some string  ")));
@@ -160,7 +160,7 @@ TEST_F(StringUtilTest,leftTrimToCopyTrailingWhiteSpaces)
 	auto string = std::string("some string  ");
 
 	// when
-	auto trimmedString = StringUtil::leftTrimToCopy(string);
+	auto trimmedString = StringUtil_t::leftTrimToCopy(string);
 
 	// then
 	ASSERT_THAT(&string, testing::Ne(&trimmedString));
@@ -174,7 +174,7 @@ TEST_F(StringUtilTest, rightTrimTrailingWhiteSpaces)
 	auto string = std::string("some string  ");
 
 	// when
-	StringUtil::rightTrim(string);
+	StringUtil_t::rightTrim(string);
 
 	// then
 	ASSERT_THAT(string, testing::Eq(std::string("some string")));
@@ -186,7 +186,7 @@ TEST_F(StringUtilTest, rightTrimToCopyTrailingWhiteSpaces)
 	auto string = std::string("some string  ");
 
 	// when
-	auto trimmedString = StringUtil::rightTrimToCopy(string);
+	auto trimmedString = StringUtil_t::rightTrimToCopy(string);
 
 	// then
 	ASSERT_THAT(&string, testing::Ne(&trimmedString));
@@ -200,7 +200,7 @@ TEST_F(StringUtilTest, trimTrailingWhiteSpaces)
 	auto string = std::string("some string  ");
 
 	// when
-	StringUtil::trim(string);
+	StringUtil_t::trim(string);
 
 	//then
 	ASSERT_THAT(string, testing::Eq(std::string("some string")));
@@ -212,7 +212,7 @@ TEST_F(StringUtilTest, trimToCopyTrailingWhiteSpaces)
 	auto string = std::string("some string  ");
 
 	// when
-	auto trimmedString = StringUtil::trimToCopy(string);
+	auto trimmedString = StringUtil_t::trimToCopy(string);
 
 	// then
 	ASSERT_THAT(&string, testing::Ne(&trimmedString));
@@ -226,7 +226,7 @@ TEST_F(StringUtilTest, leftTrimLeadingAndTrailingWhiteSpaces)
 	auto string = std::string("  some string  ");
 
 	// when
-	StringUtil::leftTrim(string);
+	StringUtil_t::leftTrim(string);
 
 	// then
 	ASSERT_THAT(string, testing::Eq(std::string("some string  ")));
@@ -238,7 +238,7 @@ TEST_F(StringUtilTest, leftTrimToCopyLeadingAndTrailingWhiteSpaces)
 	auto string = std::string("  some string  ");
 
 	// when
-	auto trimmedString = StringUtil::leftTrimToCopy(string);
+	auto trimmedString = StringUtil_t::leftTrimToCopy(string);
 
 	//then
 	ASSERT_THAT(&string, testing::Ne(&trimmedString));
@@ -252,7 +252,7 @@ TEST_F(StringUtilTest, rightTrimLeadingAndTrailingWhiteSpaces)
 	auto string = std::string("  some string  ");
 
 	// when
-	StringUtil::rightTrim(string);
+	StringUtil_t::rightTrim(string);
 
 	// then
 	ASSERT_THAT(string, testing::Eq(std::string("  some string")));
@@ -264,7 +264,7 @@ TEST_F(StringUtilTest,rightTrimToCopyLeadingAndTrailingWhiteSpaces)
 	auto string = std::string("  some string  ");
 
 	// when
-	auto trimmedString = StringUtil::rightTrimToCopy(string);
+	auto trimmedString = StringUtil_t::rightTrimToCopy(string);
 
 	// then
 	ASSERT_THAT(&string, testing::Ne(&trimmedString));
@@ -279,7 +279,7 @@ TEST_F(StringUtilTest, trimLeadingAndTrailingWhiteSpaces)
 	auto string = std::string("  some string  ");
 
 	// when
-	StringUtil::trim(string);
+	StringUtil_t::trim(string);
 
 	//then
 	ASSERT_THAT(string, testing::Eq(std::string("some string")));
@@ -291,7 +291,7 @@ TEST_F(StringUtilTest, trimToCopyLeadingAndTrailingWhiteSpaces)
 	auto string = std::string("  some string  ");
 
 	// when
-	auto trimmedString = StringUtil::trimToCopy(string);
+	auto trimmedString = StringUtil_t::trimToCopy(string);
 
 	// then
 	ASSERT_THAT(&string, testing::Ne(&trimmedString));
@@ -304,7 +304,7 @@ TEST_F(StringUtilTest, trimToCopyLeadingAndTrailingWhiteSpaces)
 TEST_F(StringUtilTest, toNumericOr64BitHashWithNullString)
 {
 	// given, when
-	auto hash = StringUtil::toNumericOr64BitHash(nullptr);
+	auto hash = StringUtil_t::toNumericOr64BitHash(nullptr);
 
 	// then
 	ASSERT_THAT(hash, testing::Eq(0));
@@ -313,7 +313,7 @@ TEST_F(StringUtilTest, toNumericOr64BitHashWithNullString)
 TEST_F(StringUtilTest, toNumericOr64BitHashWithEmptyString)
 {
 	// given, when
-	auto hash = StringUtil::toNumericOr64BitHash("");
+	auto hash = StringUtil_t::toNumericOr64BitHash("");
 
 	// then
 	ASSERT_THAT(hash, testing::Eq(0));
@@ -322,7 +322,7 @@ TEST_F(StringUtilTest, toNumericOr64BitHashWithEmptyString)
 TEST_F(StringUtilTest, toNumericOr64BitHashWithEmptyWhitespaceString)
 {
 	// given, when
-	auto hash = StringUtil::toNumericOr64BitHash("  ");
+	auto hash = StringUtil_t::toNumericOr64BitHash("  ");
 
 	// then
 	ASSERT_THAT(hash, testing::Eq(0));
@@ -331,7 +331,7 @@ TEST_F(StringUtilTest, toNumericOr64BitHashWithEmptyWhitespaceString)
 TEST_F(StringUtilTest, toNumericOr64BitHashWithNumericString)
 {
 	// given, when
-	auto hash = StringUtil::toNumericOr64BitHash("42");
+	auto hash = StringUtil_t::toNumericOr64BitHash("42");
 
 	// then
 	ASSERT_THAT(hash, testing::Eq(42));
@@ -340,7 +340,7 @@ TEST_F(StringUtilTest, toNumericOr64BitHashWithNumericString)
 TEST_F(StringUtilTest, toNumeric64BitHashWithNonNumericString)
 {
 	// given, when
-	auto hash = StringUtil::toNumericOr64BitHash("abcd");
+	auto hash = StringUtil_t::toNumericOr64BitHash("abcd");
 
 	// then
 	ASSERT_THAT(hash, testing::Gt(0));
@@ -349,7 +349,7 @@ TEST_F(StringUtilTest, toNumeric64BitHashWithNonNumericString)
 TEST_F(StringUtilTest, toNumericOr64BithashWithAlphanumericString)
 {
 	// given, when
-	auto hash = StringUtil::toNumericOr64BitHash("42abcd");
+	auto hash = StringUtil_t::toNumericOr64BitHash("42abcd");
 
 	// then
 	ASSERT_THAT(hash, testing::Ne(42));
@@ -359,7 +359,7 @@ TEST_F(StringUtilTest, toNumericOr64BithashWithAlphanumericString)
 TEST_F(StringUtilTest, to64BitHashWithEmptyString)
 {
 	// given, when
-	auto hash = StringUtil::to64BitHash(std::string(""));
+	auto hash = StringUtil_t::to64BitHash(std::string(""));
 
 	// then
 	ASSERT_THAT(hash, testing::Eq(0));
@@ -372,8 +372,8 @@ TEST_F(StringUtilTest, to64BitHashDifferentStringsDifferentHash)
 	auto secondString = std::string("some other string");
 
 	// when
-	auto firstHash = StringUtil::to64BitHash(firstString);
-	auto secondHash = StringUtil::to64BitHash(secondString);
+	auto firstHash = StringUtil_t::to64BitHash(firstString);
+	auto secondHash = StringUtil_t::to64BitHash(secondString);
 
 	// then
 	ASSERT_THAT(firstHash, testing::Ne(secondHash));
@@ -386,8 +386,8 @@ TEST_F(StringUtilTest, to64BitHashEqualStringsSameHash)
 	auto secondString = std::string("str");
 
 	// when
-	auto firstHash = StringUtil::to64BitHash(firstString);
-	auto secondHash = StringUtil::to64BitHash(secondString);
+	auto firstHash = StringUtil_t::to64BitHash(firstString);
+	auto secondHash = StringUtil_t::to64BitHash(secondString);
 
 	// then
 	ASSERT_THAT(&firstString, testing::Ne(&secondString));
@@ -402,8 +402,8 @@ TEST_F(StringUtilTest, to64BitHashCaseSensitiveStringsDifferentHash)
 	auto upperCase = std::string("Value");
 
 	// when
-	auto lowerCaseHash = StringUtil::to64BitHash(lowerCase);
-	auto upperCaseHash = StringUtil::to64BitHash(upperCase);
+	auto lowerCaseHash = StringUtil_t::to64BitHash(lowerCase);
+	auto upperCaseHash = StringUtil_t::to64BitHash(upperCase);
 
 	// then
 	ASSERT_THAT(lowerCaseHash, testing::Ne(upperCaseHash));
@@ -412,7 +412,7 @@ TEST_F(StringUtilTest, to64BitHashCaseSensitiveStringsDifferentHash)
 TEST_F(StringUtilTest, to64BitHashWithEmptyWhiteSpaceString)
 {
 	// given, when
-	auto hash = StringUtil::to64BitHash(std::string("  "));
+	auto hash = StringUtil_t::to64BitHash(std::string("  "));
 
 	// then
 	ASSERT_THAT(hash, testing::Eq(0));
@@ -421,7 +421,7 @@ TEST_F(StringUtilTest, to64BitHashWithEmptyWhiteSpaceString)
 TEST_F(StringUtilTest, to64BitHashWithEvenString)
 {
 	// given, when
-	auto hash = StringUtil::to64BitHash(std::string("even"));
+	auto hash = StringUtil_t::to64BitHash(std::string("even"));
 
 	// then
 	ASSERT_THAT(hash, testing::Gt(0));
@@ -430,7 +430,7 @@ TEST_F(StringUtilTest, to64BitHashWithEvenString)
 TEST_F(StringUtilTest, to64BitHashWithOddString)
 {
 	// given, when
-	auto hash = StringUtil::to64BitHash(std::string("odd"));
+	auto hash = StringUtil_t::to64BitHash(std::string("odd"));
 
 	// then
 	ASSERT_THAT(hash, testing::Gt(0));

@@ -13,12 +13,14 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-#include "protocol/Response.h"
-#include "core/util/DefaultLogger.h"
+
+#include "Types.h"
+#include "../api/Types.h"
+#include "../core/util/Types.h"
 
 #include <gtest/gtest.h>
 
-using namespace protocol;
+using namespace test::types;
 
 class ResponseTest : public testing::Test
 {
@@ -26,24 +28,24 @@ protected:
 
 	void SetUp()
 	{
-		logger = std::make_shared<core::util::DefaultLogger>(devNull, openkit::LogLevel::LOG_LEVEL_DEBUG);
+		logger = std::make_shared<DefaultLogger_t>(devNull, LogLevel_t::LOG_LEVEL_DEBUG);
 	}
 
 	void TearDown()
 	{
 	}
 
-	class TestResponse : public Response
+	class TestResponse : public Response_t
 	{
 	public:
 
-		TestResponse(std::shared_ptr<openkit::ILogger> logger, int32_t responseCode, const Response::ResponseHeaders& responseHeaders) :
+		TestResponse(ILogger_sp logger, int32_t responseCode, const Response_t::ResponseHeaders& responseHeaders) :
 			Response(logger, responseCode, responseHeaders)
 		{
 		}
 	};
 	std::ostringstream devNull;
-	std::shared_ptr<openkit::ILogger> logger;
+	ILogger_sp logger;
 };
 
 static constexpr char RESPONSE_KEY_RETRY_AFTER[] = "retry-after";
@@ -52,7 +54,7 @@ static constexpr int64_t DEFAULT_RETRY_AFTER_IN_MILLISECONDS = 10L * 60L * 1000L
 TEST_F(ResponseTest, isSuccessfulResponseGivesTrueForResponseCodesLessThan400)
 {
 	// given
-	auto target = TestResponse(logger, 399, Response::ResponseHeaders());
+	auto target = TestResponse(logger, 399, Response_t::ResponseHeaders());
 
 	// then
 	ASSERT_TRUE(target.isSuccessfulResponse());
@@ -61,7 +63,7 @@ TEST_F(ResponseTest, isSuccessfulResponseGivesTrueForResponseCodesLessThan400)
 TEST_F(ResponseTest, isSuccessfulResponseGivesFalseForResponseCodesEqualTo400)
 {
 	// given
-	auto target = TestResponse(logger, 400, Response::ResponseHeaders());
+	auto target = TestResponse(logger, 400, Response_t::ResponseHeaders());
 
 	// then
 	ASSERT_FALSE(target.isSuccessfulResponse());
@@ -70,7 +72,7 @@ TEST_F(ResponseTest, isSuccessfulResponseGivesFalseForResponseCodesEqualTo400)
 TEST_F(ResponseTest, isSuccessfulResponseGivesFalseForResponseCodesGreaterThan400)
 {
 	// given
-	auto target = TestResponse(logger, 401, Response::ResponseHeaders());
+	auto target = TestResponse(logger, 401, Response_t::ResponseHeaders());
 
 	// then
 	ASSERT_FALSE(target.isSuccessfulResponse());
@@ -79,7 +81,7 @@ TEST_F(ResponseTest, isSuccessfulResponseGivesFalseForResponseCodesGreaterThan40
 TEST_F(ResponseTest, isErroneousResponseGivesTrueForErrorCodeEqualTo400)
 {
 	// given
-	auto target = TestResponse(logger, 400, Response::ResponseHeaders());
+	auto target = TestResponse(logger, 400, Response_t::ResponseHeaders());
 
 	// then
 	ASSERT_TRUE(target.isErroneousResponse());
@@ -88,7 +90,7 @@ TEST_F(ResponseTest, isErroneousResponseGivesTrueForErrorCodeEqualTo400)
 TEST_F(ResponseTest, isErroneousResponseGivesTrueForErrorCodeGreaterThan400)
 {
 	// given
-	auto target = TestResponse(logger, 401, Response::ResponseHeaders());
+	auto target = TestResponse(logger, 401, Response_t::ResponseHeaders());
 
 	// then
 	ASSERT_TRUE(target.isErroneousResponse());
@@ -97,7 +99,7 @@ TEST_F(ResponseTest, isErroneousResponseGivesTrueForErrorCodeGreaterThan400)
 TEST_F(ResponseTest, isErroneousResponseGivesFalseForErrorCodeLessThan400)
 {
 	// given
-	auto target = TestResponse(logger, 399, Response::ResponseHeaders());
+	auto target = TestResponse(logger, 399, Response_t::ResponseHeaders());
 
 	// then
 	ASSERT_FALSE(target.isErroneousResponse());
@@ -106,7 +108,7 @@ TEST_F(ResponseTest, isErroneousResponseGivesFalseForErrorCodeLessThan400)
 TEST_F(ResponseTest, isTooManyRequestsResponseGivesTrueIfResponseCodeIsEqualTo429)
 {
 	// given
-	auto target = TestResponse(logger, 429, Response::ResponseHeaders());
+	auto target = TestResponse(logger, 429, Response_t::ResponseHeaders());
 
 	// then
 	ASSERT_TRUE(target.isTooManyRequestsResponse());
@@ -115,7 +117,7 @@ TEST_F(ResponseTest, isTooManyRequestsResponseGivesTrueIfResponseCodeIsEqualTo42
 TEST_F(ResponseTest, isTooManyRequestsResponseGivesFalseIfResponseCodeIsNotEqualTo429)
 {
 	// given
-	auto target = TestResponse(logger, 404, Response::ResponseHeaders());
+	auto target = TestResponse(logger, 404, Response_t::ResponseHeaders());
 
 	// then
 	ASSERT_FALSE(target.isTooManyRequestsResponse());
@@ -124,7 +126,7 @@ TEST_F(ResponseTest, isTooManyRequestsResponseGivesFalseIfResponseCodeIsNotEqual
 TEST_F(ResponseTest, responseCodeIsSet)
 {
 	// given
-	auto target = TestResponse(logger, 418, Response::ResponseHeaders());
+	auto target = TestResponse(logger, 418, Response_t::ResponseHeaders());
 
 	// then
 	ASSERT_EQ(418, target.getResponseCode());
@@ -133,7 +135,7 @@ TEST_F(ResponseTest, responseCodeIsSet)
 TEST_F(ResponseTest, headersAreSet)
 {
 	// given
-	auto headers = Response::ResponseHeaders
+	auto headers = Response_t::ResponseHeaders
 	{
 		{ "X-Foo", std::vector<std::string> { "X-BAR" } },
 		{ "X-YZ", std::vector<std::string> { } }
@@ -147,7 +149,7 @@ TEST_F(ResponseTest, headersAreSet)
 TEST_F(ResponseTest, getRetryAfterReturnsDefaultValueIfResponseKeyDoesNotExist)
 {
 	// given
-	auto target = TestResponse(logger, 429, Response::ResponseHeaders());
+	auto target = TestResponse(logger, 429, Response_t::ResponseHeaders());
 
 	// when
 	auto obtained = target.getRetryAfterInMilliseconds();
@@ -159,7 +161,7 @@ TEST_F(ResponseTest, getRetryAfterReturnsDefaultValueIfResponseKeyDoesNotExist)
 TEST_F(ResponseTest, getRetryAfterReturnsDefaultValueIfMultipleValuesWereRetrieved)
 {
 	// given
-	auto responseHeaders = Response::ResponseHeaders
+	auto responseHeaders = Response_t::ResponseHeaders
 	{
 		{ RESPONSE_KEY_RETRY_AFTER, std::vector<std::string>{ "100", "200" } }
 	};
@@ -175,7 +177,7 @@ TEST_F(ResponseTest, getRetryAfterReturnsDefaultValueIfMultipleValuesWereRetriev
 TEST_F(ResponseTest, getRetryAfterReturnsDefaultValueIfValueIsNotAnIntegerValue)
 {
 	// given
-	auto responseHeaders = Response::ResponseHeaders
+	auto responseHeaders = Response_t::ResponseHeaders
 	{
 		{ RESPONSE_KEY_RETRY_AFTER, std::vector<std::string>{ "a" } }
 	};
@@ -191,7 +193,7 @@ TEST_F(ResponseTest, getRetryAfterReturnsDefaultValueIfValueIsNotAnIntegerValue)
 TEST_F(ResponseTest, getRetryAfterReturnsDefaultValueIfValueIsOutOfIntegerRange)
 {
 	// given
-	auto responseHeaders = Response::ResponseHeaders
+	auto responseHeaders = Response_t::ResponseHeaders
 	{
 		// use string value 2^31, which is one too high for int32_t
 		{ RESPONSE_KEY_RETRY_AFTER, std::vector<std::string>{ "2147483648" } }
@@ -208,7 +210,7 @@ TEST_F(ResponseTest, getRetryAfterReturnsDefaultValueIfValueIsOutOfIntegerRange)
 TEST_F(ResponseTest, getRetryAfterReturnsParsedValue)
 {
 	// given
-	auto responseHeaders = Response::ResponseHeaders
+	auto responseHeaders = Response_t::ResponseHeaders
 	{
 		{ RESPONSE_KEY_RETRY_AFTER, std::vector<std::string>{ "1234" } }
 	};

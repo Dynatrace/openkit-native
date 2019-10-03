@@ -21,23 +21,25 @@ using namespace core;
 
 constexpr uint32_t MAX_NEW_SESSION_REQUESTS = 4;
 
-SessionWrapper::SessionWrapper(std::shared_ptr<Session> session)
+SessionWrapper::SessionWrapper
+(
+	std::shared_ptr<core::objects::Session> session
+)
 	: mWrappedSession(session)
 	, mBeaconConfiguration()
 	, mIsBeaconConfigurationSet(false)
 	, mSessionFinished(false)
 	, mNumNewSessionRequestsLeft(MAX_NEW_SESSION_REQUESTS)
 {
-
 }
 
-void SessionWrapper::updateBeaconConfiguration(std::shared_ptr<configuration::BeaconConfiguration> beaconConfiguration)
+void SessionWrapper::updateBeaconConfiguration(std::shared_ptr<core::configuration::BeaconConfiguration> beaconConfiguration)
 {
 	mWrappedSession->setBeaconConfiguration(beaconConfiguration);
 	mIsBeaconConfigurationSet = true;
 }
 
-std::shared_ptr<configuration::BeaconConfiguration> SessionWrapper::getBeaconConfiguration() const
+std::shared_ptr<core::configuration::BeaconConfiguration> SessionWrapper::getBeaconConfiguration() const
 {
 	return mWrappedSession->getBeaconConfiguration();
 }
@@ -77,7 +79,7 @@ void SessionWrapper::end()
 	mWrappedSession->end();
 }
 
-std::shared_ptr<Session> SessionWrapper::getWrappedSession() const
+std::shared_ptr<core::objects::Session> SessionWrapper::getWrappedSession() const
 {
 	return mWrappedSession;
 }

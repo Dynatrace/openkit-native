@@ -29,10 +29,10 @@
 #include <string>
 
 #ifndef DOXYGEN_HIDE_FROM_DOC
-namespace configuration
+namespace core { namespace configuration
 {
 	class OPENKIT_EXPORT Configuration;
-}
+}}
 #endif
 
 namespace openkit
@@ -185,7 +185,7 @@ namespace openkit
 			/// Builds the configuration for the OpenKit instance
 			/// @returns the configuration build using the parameters in this class
 			///
-			virtual std::shared_ptr<configuration::Configuration> buildConfiguration() = 0;
+			virtual std::shared_ptr<core::configuration::Configuration> buildConfiguration() = 0;
 
 		protected:
 

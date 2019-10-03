@@ -17,65 +17,154 @@
 #ifndef _TEST_PROTOCOL_MOCKBEACON_H
 #define _TEST_PROTOCOL_MOCKBEACON_H
 
-#include "protocol/Beacon.h"
+#include "Types.h"
+#include "../api/Types.h"
+#include "../core/Types.h"
+#include "../core/objects/Types.h"
+#include "../core/util/Types.h"
+#include "../core/caching/Types.h"
+#include "../core/configuration/Types.h"
+#include "../protocol/Types.h"
+#include "../providers/Types.h"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include <memory>
-
-#include "core/util/DefaultLogger.h"
-#include "caching/BeaconCache.h"
-#include "configuration/Configuration.h"
-#include "core/UTF8String.h"
-#include "providers/ITimingProvider.h"
-#include "providers/IThreadIDProvider.h"
-
 namespace test {
-	class MockBeacon : public protocol::Beacon
+	class MockBeacon : public types::Beacon_t
 	{
 	public:
-		MockBeacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching::BeaconCache> beaconCache, std::shared_ptr<configuration::Configuration> configuration, const char* clientIPAddress, std::shared_ptr<providers::IThreadIDProvider> threadIDProvider, std::shared_ptr<providers::ITimingProvider> timingProvider)
-			: Beacon(logger, beaconCache, configuration, clientIPAddress, threadIDProvider, timingProvider)
+		MockBeacon
+		(
+			types::ILogger_sp logger,
+			types::BeaconCache_sp beaconCache,
+			types::Configuration_sp configuration,
+			const char* clientIPAddress,
+			types::IThreadIdProvider_sp threadIDProvider,
+			types::ITimingProvider_sp timingProvider
+		)
+		: types::Beacon_t
+		(
+			logger,
+			beaconCache,
+			configuration,
+			clientIPAddress,
+			threadIDProvider,
+			timingProvider
+		)
 		{
-
 		}
 
-		std::shared_ptr<protocol::StatusResponse> RealSend(std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider)
+		types::StatusResponse_sp RealSend(types::IHttpClientProvider_sp httpClientProvider)
 		{
-			return protocol::Beacon::send(httpClientProvider);
+			return types::Beacon_t::send(httpClientProvider);
 		}
 
-		void reportValue(int32_t actionID, const core::UTF8String& valueName, int32_t value) override
+		void reportValue(int32_t actionID, const types::Utf8String_t& valueName, int32_t value) override
 		{
 			reportValueInt32(actionID, valueName, value);
 		}
 
-		void reportValue(int32_t actionID, const core::UTF8String& valueName, double value) override
+		void reportValue(int32_t actionID, const types::Utf8String_t& valueName, double value) override
 		{
 			reportValueDouble(actionID, valueName, value);
 		}
 
-		void reportValue(int32_t actionID, const core::UTF8String& valueName, const core::UTF8String& value) override
+		void reportValue(
+			int32_t actionID,
+			const types::Utf8String_t& valueName,
+			const types::Utf8String_t& value
+		) override
 		{
 			reportValueString(actionID, valueName, value);
 		}
 
 		virtual ~MockBeacon() {}
 
-		MOCK_METHOD1(identifyUser, void(const core::UTF8String& userTag));
-		MOCK_METHOD2(reportEvent, void(int32_t, const core::UTF8String&));
-		MOCK_METHOD3(reportValueInt32, void(int32_t, const core::UTF8String&, int32_t));
-		MOCK_METHOD3(reportValueDouble, void(int32_t, const core::UTF8String&, double));
-		MOCK_METHOD3(reportValueString, void(int32_t, const core::UTF8String&, const core::UTF8String&));
-		MOCK_METHOD4(reportError, void(int32_t, const core::UTF8String&, int32_t, const core::UTF8String&));
-		MOCK_METHOD3(reportCrash, void(const core::UTF8String&, const core::UTF8String&, const core::UTF8String&));
-		MOCK_METHOD2(addWebRequest, void(int32_t, std::shared_ptr<core::WebRequestTracer>));
+		MOCK_METHOD1(identifyUser,
+			void(
+				const types::Utf8String_t& userTag
+			)
+		);
+
+		MOCK_METHOD2(reportEvent,
+			void(
+				int32_t,
+				const types::Utf8String_t&
+			)
+		);
+
+		MOCK_METHOD3(reportValueInt32,
+			void(
+				int32_t,
+				const types::Utf8String_t&,
+				int32_t
+			)
+		);
+
+		MOCK_METHOD3(reportValueDouble,
+			void(
+				int32_t,
+				const types::Utf8String_t&,
+				double
+			)
+		);
+
+		MOCK_METHOD3(reportValueString,
+			void(
+				int32_t,
+				const types::Utf8String_t&,
+				const types::Utf8String_t&
+			)
+		);
+
+		MOCK_METHOD4(reportError,
+			void(
+				int32_t,
+				const types::Utf8String_t&,
+				int32_t,
+				const types::Utf8String_t&
+			)
+		);
+
+		MOCK_METHOD3(reportCrash,
+			void(
+				const types::Utf8String_t&,
+				const types::Utf8String_t&,
+				const types::Utf8String_t&
+			)
+		);
+
+		MOCK_METHOD2(addWebRequest,
+			void(
+				int32_t,
+				types::WebRequestTracer_sp
+			)
+		);
+
 		MOCK_METHOD0(startSession, void(void));
-		MOCK_METHOD1(endSession, void(std::shared_ptr<core::Session>));
+
+		MOCK_METHOD1(endSession,
+			void(
+				types::Session_sp
+			)
+		);
+
 		MOCK_CONST_METHOD0(getCurrentTimestamp, int64_t(void));
-		MOCK_METHOD1(send, std::shared_ptr<protocol::StatusResponse>(std::shared_ptr<providers::IHTTPClientProvider>));
-		MOCK_METHOD2(createTag, core::UTF8String(int32_t, int32_t));
+
+		MOCK_METHOD1(send,
+			types::StatusResponse_sp(
+				types::IHttpClientProvider_sp
+			)
+		);
+
+		MOCK_METHOD2(createTag,
+			types::Utf8String_t(
+				int32_t,
+				int32_t
+			)
+		);
+
 		MOCK_METHOD0(createSequenceNumber, int32_t());
 	};
 }

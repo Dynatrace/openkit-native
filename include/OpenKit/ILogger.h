@@ -43,7 +43,7 @@ namespace openkit
 {
 	///
 	/// This interface provides logging functionality to OpenKit. By subclassing, OpenKit can make use of custom loggers.
-	/// The provided logger interface offers 4 diffent levels of (increasing) priority: DEBUG, INFO, WARN, ERROR.
+	/// The provided logger interface offers 4 different levels of (increasing) priority: DEBUG, INFO, WARN, ERROR.
 	///
 	/// Note:
 	///   The logger uses a printf syntax with a format string and parameters to be passed via variadic arguments. E.g.:
@@ -65,7 +65,7 @@ namespace openkit
 		/// Destructor
 		///
 		virtual ~ILogger() {}
-		
+
 		///
 		/// Log an event with given level.
 		/// Without the additional compiler checks, the function declaration is:
@@ -75,7 +75,7 @@ namespace openkit
 		/// @param[in] ... variadic list of additional arguments
 		///
 		virtual void log(LogLevel logLevel, FORMAT_STRING(const char* format), ...) __attribute__((format(printf, 3, 4))) = 0;
-		
+
 		///
 		/// Log with level 'error'.
 		/// Without the additional compiler checks, the function declaration is:

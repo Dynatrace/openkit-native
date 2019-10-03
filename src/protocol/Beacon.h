@@ -22,13 +22,13 @@
 #include "providers/ITimingProvider.h"
 #include "providers/IThreadIDProvider.h"
 #include "providers/IPRNGenerator.h"
-#include "configuration/Configuration.h"
-#include "configuration/HTTPClientConfiguration.h"
-#include "core/Action.h"
-#include "core/RootAction.h"
-#include "core/Session.h"
-#include "core/WebRequestTracer.h"
-#include "caching/BeaconCache.h"
+#include "core/configuration/Configuration.h"
+#include "core/configuration/HTTPClientConfiguration.h"
+#include "core/objects/Action.h"
+#include "core/objects/RootAction.h"
+#include "core/objects/Session.h"
+#include "core/objects/WebRequestTracer.h"
+#include "core/caching/BeaconCache.h"
 #include "EventType.h"
 
 #include <memory>
@@ -52,10 +52,15 @@ namespace protocol
 		/// @param[in] threadIDProvider provider for thread ids
 		/// @param[in] timingProvider timing provider used to retrieve timestamps
 		///
-		Beacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching::IBeaconCache> beaconCache,
-			std::shared_ptr<configuration::Configuration> configuration, const char* clientIPAddress,
+		Beacon
+		(
+			std::shared_ptr<openkit::ILogger> logger,
+			std::shared_ptr<core::caching::IBeaconCache> beaconCache,
+			std::shared_ptr<core::configuration::Configuration> configuration,
+			const char* clientIPAddress,
 			std::shared_ptr<providers::IThreadIDProvider> threadIDProvider,
-			std::shared_ptr<providers::ITimingProvider> timingProvider);
+			std::shared_ptr<providers::ITimingProvider> timingProvider
+		);
 
 		///
 		/// Constructor for Beacon
@@ -67,11 +72,16 @@ namespace protocol
 		/// @param[in] timingProvider timing provider used to retrieve timestamps
 		/// @param[in] randomGenerator random number generator
 		///
-		Beacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching::IBeaconCache> beaconCache,
-			std::shared_ptr<configuration::Configuration> configuration, const char* clientIPAddress,
+		Beacon
+		(
+			std::shared_ptr<openkit::ILogger> logger,
+			std::shared_ptr<core::caching::IBeaconCache> beaconCache,
+			std::shared_ptr<core::configuration::Configuration> configuration,
+			const char* clientIPAddress,
 			std::shared_ptr<providers::IThreadIDProvider> threadIDProvider ,
 			std::shared_ptr<providers::ITimingProvider> timingProvider,
-			std::shared_ptr<providers::IPRNGenerator> randomGenerator);
+			std::shared_ptr<providers::IPRNGenerator> randomGenerator
+		);
 
 		///
 		/// Destructor
@@ -103,25 +113,25 @@ namespace protocol
 		///
 		/// Create a web request tag
 		/// Web request tags can be attached as HTTP header for web request tracing.
-		/// @param[in] parentActionID The ID of the @ref core::Action for which to create a web request tag.
-		/// @param[in] sequenceNumber Sequence number of the @ref core::WebRequestBase
+		/// @param[in] parentActionID The ID of the @ref core::objects::Action for which to create a web request tag.
+		/// @param[in] sequenceNumber Sequence number of the @ref core::objects::WebRequestBase
 		/// @returns A web request tracer tag
 		///
 		virtual core::UTF8String createTag(int32_t parentActionID, int32_t sequenceNumber);
 
 		///
-		/// Add @ref core::Action to Beacon
+		/// Add @ref core::objects::Action to Beacon
 		/// The serialized data is added to the Beacon
 		/// @param[in] action action to add to the Beacon
 		///
-		void addAction(std::shared_ptr<core::Action> action);
+		void addAction(std::shared_ptr<core::objects::Action> action);
 
 		///
-		/// Add @ref core::RootAction to Beacon
+		/// Add @ref core::objects::RootAction to Beacon
 		/// The serialized data is added to the Beacon
 		/// @param[in] action root action to add to the Beacon
 		///
-		void addAction(std::shared_ptr<core::RootAction> action);
+		void addAction(std::shared_ptr<core::objects::RootAction> action);
 
 		///
 		/// Add sessionStart to Beacon
@@ -129,17 +139,17 @@ namespace protocol
 		virtual void startSession();
 
 		///
-		/// Add @ref core::Session to Beacon when session is ended.
+		/// Add @ref core::objects::Session to Beacon when session is ended.
 		/// @param[in] session ended session that is added to the Beacon
 		///
-		virtual void endSession(std::shared_ptr<core::Session> session);
+		virtual void endSession(std::shared_ptr<core::objects::Session> session);
 
 		///
 		/// Add key-value-pair to Beacon.
 		///
-		/// The serialized data is added to @ref caching::BeaconCache.
+		/// The serialized data is added to @ref core::caching::BeaconCache.
 		///
-		/// @param actionID The id of the @ref core::Action on which this value was reported.
+		/// @param actionID The id of the @ref core::objects::Action on which this value was reported.
 		/// @param valueName Value's name.
 		/// @param value Actual value to report.
 		///
@@ -150,7 +160,7 @@ namespace protocol
 		///
 		/// The serialized data is added to @ref caching::BeaconCache.
 		///
-		/// @param actionID The id of the @ref core::Action on which this value was reported.
+		/// @param actionID The id of the @ref core::objects::Action on which this value was reported.
 		/// @param valueName Value's name.
 		/// @param value Actual value to report.
 		///
@@ -161,7 +171,7 @@ namespace protocol
 		///
 		/// The serialized data is added to @ref caching::BeaconCache.
 		///
-		/// @param actionID The id of the @ref core::Action on which this value was reported.
+		/// @param actionID The id of the @ref core::objects::Action on which this value was reported.
 		/// @param valueName Value's name.
 		/// @param value Actual value to report.
 		///
@@ -172,7 +182,7 @@ namespace protocol
 		///
 		/// The serialized data is added to @ref caching::BeaconCache.
 		///
-		/// @param actionID The id of the @ref core::Action on which this event was reported.
+		/// @param actionID The id of the @ref core::objects::Action on which this event was reported.
 		/// @param eventName Event's name.
 		///
 		virtual void reportEvent(int32_t actionID, const core::UTF8String& eventName);
@@ -180,9 +190,9 @@ namespace protocol
 		///
 		/// Add error to Beacon.
 		///
-		/// The serialized data is added to @ref caching::BeaconCache.
+		/// The serialized data is added to @ref core::caching::BeaconCache.
 		///
-		/// @param actionID The id of the @ref core::Action on which this error was reported.
+		/// @param actionID The id of the @ref core::objects::Action on which this error was reported.
 		/// @param errorName Error's name.
 		/// @param errorCode Some error code.
 		/// @param reason Reason for that error.
@@ -191,7 +201,7 @@ namespace protocol
 
 		///
 		/// Add crash to Beacon
-		/// The serialized data is added to @ref caching::BeaconCache
+		/// The serialized data is added to @ref core::caching::BeaconCache
 		/// @param[in] errorName Error's name.
 		/// @param[in] reason Reason for that error.
 		/// @param[in] stacktrace Crash stacktrace.
@@ -200,15 +210,15 @@ namespace protocol
 
 		///
 		/// Add @ref core::WebRequestTracer to Beacon
-		/// The serialized data is added to @ref caching::BeaconCache
-		/// @param[in] parentActionID The @ref core::Action on which the web request was reported
-		/// @param[in] webRequestTracer @ref core::WebRequestBase to serialize
+		/// The serialized data is added to @ref core::caching::BeaconCache
+		/// @param[in] parentActionID The @ref core::objects::Action on which the web request was reported
+		/// @param[in] webRequestTracer @ref core::objects::WebRequestBase to serialize
 		///
-		virtual void addWebRequest(int32_t parentActionID, std::shared_ptr<core::WebRequestTracer> webRequestTracer);
+		virtual void addWebRequest(int32_t parentActionID, std::shared_ptr<core::objects::WebRequestTracer> webRequestTracer);
 
 		///
 		/// Add user identification to Beacon.
-		/// The serialized data is added to @ref caching::BeaconCache
+		/// The serialized data is added to @ref core::caching::BeaconCache
 		/// @param[in] userTag User tag containing data to serialize.
 		///
 		virtual void identifyUser(const core::UTF8String& userTag);
@@ -251,13 +261,13 @@ namespace protocol
 		/// Sets the beacon configuration on the Beacon
 		/// @param[in] beaconConfiguration the beacon configuration to apply to this Beacon
 		///
-		void setBeaconConfiguration(std::shared_ptr<configuration::BeaconConfiguration> beaconConfiguration);
+		void setBeaconConfiguration(std::shared_ptr<core::configuration::BeaconConfiguration> beaconConfiguration);
 
 		///
 		/// Return the beacon configuration
 		/// @returns the beacon configuration
 		///
-		std::shared_ptr<configuration::BeaconConfiguration> getBeaconConfiguration() const;
+		std::shared_ptr<core::configuration::BeaconConfiguration> getBeaconConfiguration() const;
 
 		///
 		/// Get the client IP address.
@@ -384,7 +394,7 @@ namespace protocol
 		std::shared_ptr<openkit::ILogger> mLogger;
 
 		/// configuration
-		std::shared_ptr<configuration::Configuration> mConfiguration;
+		std::shared_ptr<core::configuration::Configuration> mConfiguration;
 
 		/// client IP Address
 		core::UTF8String mClientIPAddress;
@@ -414,13 +424,13 @@ namespace protocol
 		core::UTF8String mImmutableBasicBeaconData;
 
 		///cache for beacons
-		std::shared_ptr<caching::IBeaconCache> mBeaconCache;
+		std::shared_ptr<core::caching::IBeaconCache> mBeaconCache;
 
 		/// HTTP client configuration
-		std::shared_ptr<configuration::HTTPClientConfiguration> mHTTPClientConfiguration;
+		std::shared_ptr<core::configuration::HTTPClientConfiguration> mHTTPClientConfiguration;
 
 		/// beacon configuration
-		std::shared_ptr<configuration::BeaconConfiguration> mBeaconConfiguration;
+		std::shared_ptr<core::configuration::BeaconConfiguration> mBeaconConfiguration;
 
 		/// device id
 		int64_t mDeviceID;

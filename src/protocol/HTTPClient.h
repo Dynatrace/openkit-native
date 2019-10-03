@@ -60,7 +60,11 @@ namespace protocol
 		/// @param[in] logger to write traces to
 		/// @param[in] configuration configuration parameters for the HTTPClient
 		///
-		HTTPClient(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<configuration::HTTPClientConfiguration> configuration);
+		HTTPClient
+		(
+			std::shared_ptr<openkit::ILogger> logger,
+			std::shared_ptr<core::configuration::HTTPClientConfiguration> configuration
+		);
 
 		///
 		/// Destructor

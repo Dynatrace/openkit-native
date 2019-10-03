@@ -25,7 +25,7 @@
 #include "providers/IHTTPClientProvider.h"
 #include "providers/ITimingProvider.h"
 
-#include "Session.h"
+#include "core/objects/Session.h"
 
 namespace core
 {
@@ -42,9 +42,13 @@ namespace core
 		/// @param[in] httpClientProvider the provider for HTTPClient instances
 		/// @param[in] timingProvider utility requried for timing related stuff
 		///
-		BeaconSender(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<configuration::Configuration> configuration,
+		BeaconSender
+		(
+			std::shared_ptr<openkit::ILogger> logger,
+			std::shared_ptr<configuration::Configuration> configuration,
 			std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
-			std::shared_ptr<providers::ITimingProvider> timingProvider);
+			std::shared_ptr<providers::ITimingProvider> timingProvider
+		);
 
 		virtual ~BeaconSender() {}
 
@@ -73,7 +77,7 @@ namespace core
 
 		///
 		/// Get a bool indicating whether OpenKit has been initialized or not.
-		/// @returns @c true if @ref OpenKit has been initialized, @c false otherwise. 
+		/// @returns @c true if @ref OpenKit has been initialized, @c false otherwise.
 		bool isInitialized() const;
 
 		///
@@ -87,14 +91,14 @@ namespace core
 		/// In case capturing is disabled, this method has no effect.
 		/// @param[in] session Session to start
 		///
-		virtual void startSession(std::shared_ptr<Session> session);
+		virtual void startSession(std::shared_ptr<core::objects::Session> session);
 
 		///
 		/// When finishing a Session, remove it from open Sessions and put it into finished Sessions.
 		/// As soon as a session gets finished it will be transferred to the server.
 		/// @param[in] session Session to finish
 		///
-		virtual void finishSession(std::shared_ptr<Session> session);
+		virtual void finishSession(std::shared_ptr<core::objects::Session> session);
 
 	private:
 		/// Logger to write traces to

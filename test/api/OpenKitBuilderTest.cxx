@@ -14,24 +14,22 @@
 * limitations under the License.
 */
 
+#include "Types.h"
+#include "../core/configuration/Types.h"
+#include "../core/util/Types.h"
+#include "../protocol/Types.h"
+#include "../protocol/TestSSLTrustManager.h"
+
+#include "core/util/StringUtil.h"
+#include "OpenKit/OpenKitConstants.h"
+
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
 #include <stdint.h>
 #include <memory>
 
-#include "OpenKit/DynatraceOpenKitBuilder.h"
-#include "OpenKit/AppMonOpenKitBuilder.h"
-
-#include "configuration/Configuration.h"
-#include "OpenKit/OpenKitConstants.h"
-#include "protocol/ssl/SSLStrictTrustManager.h"
-#include "core/util/DefaultLogger.h"
-#include "core/util/StringUtil.h"
-
-#include "../protocol/TestSSLTrustManager.h"
-
-using namespace openkit;
+using namespace test::types;
 
 class OpenKitBuilderTest : public testing::Test
 {
@@ -45,7 +43,7 @@ protected:
 	static constexpr const char* DEFAULT_ENDPOINT_URL = "https://localhost:12345";
 	static constexpr const char* DEFAULT_APPLICATION_ID = "asdf123";
 	static constexpr int64_t DEFAULT_DEVICE_ID = 123L;
-	std::shared_ptr<openkit::ISSLTrustManager> testSSLTrustManager;
+	ISslTrustManager_sp testSSLTrustManager;
 	static constexpr const char* TEST_APPLICATION_VERSION = "1.2.3.4";
 	static constexpr const char* TEST_OPERATING_SYSTEM = "Some OS";
 	static constexpr const char* TEST_MANUFACTURER = "ACME";
@@ -68,7 +66,7 @@ constexpr int64_t OpenKitBuilderTest::TEST_CACHE_UPPER_MEMORY_BOUNDARY;
 
 TEST_F(OpenKitBuilderTest, defaultsAreSetForAppMon)
 {
-	auto configuration = AppMonOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID).buildConfiguration();
+	auto configuration = AppMonOpenKitBuilder_t(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID).buildConfiguration();
 
 	ASSERT_TRUE(configuration->getApplicationVersion().equals(openkit::DEFAULT_APPLICATION_VERSION));
 	auto device = configuration->getDevice();
@@ -76,25 +74,25 @@ TEST_F(OpenKitBuilderTest, defaultsAreSetForAppMon)
 	ASSERT_TRUE(device->getOperatingSystem().equals(openkit::DEFAULT_OPERATING_SYSTEM));
 	ASSERT_TRUE(device->getModelID().equals(openkit::DEFAULT_MODEL_ID));
 
-	auto trustManagerCast = std::dynamic_pointer_cast<protocol::SSLStrictTrustManager>(configuration->getHTTPClientConfiguration()->getSSLTrustManager());
+	auto trustManagerCast = std::dynamic_pointer_cast<SslStrictTrustManager_t>(configuration->getHTTPClientConfiguration()->getSSLTrustManager());
 	ASSERT_TRUE(trustManagerCast != nullptr);
 
 	auto beaconCacheConfiguration = configuration->getBeaconCacheConfiguration();
 	ASSERT_TRUE(beaconCacheConfiguration != nullptr);
-	ASSERT_EQ(beaconCacheConfiguration->getMaxRecordAge(), configuration::BeaconCacheConfiguration::DEFAULT_MAX_RECORD_AGE_IN_MILLIS.count());
-	ASSERT_EQ(beaconCacheConfiguration->getCacheSizeUpperBound(), configuration::BeaconCacheConfiguration::DEFAULT_UPPER_MEMORY_BOUNDARY_IN_BYTES);
-	ASSERT_EQ(beaconCacheConfiguration->getCacheSizeLowerBound(), configuration::BeaconCacheConfiguration::DEFAULT_LOWER_MEMORY_BOUNDARY_IN_BYTES);
+	ASSERT_EQ(beaconCacheConfiguration->getMaxRecordAge(), BeaconCacheConfiguration_t::DEFAULT_MAX_RECORD_AGE_IN_MILLIS.count());
+	ASSERT_EQ(beaconCacheConfiguration->getCacheSizeUpperBound(), BeaconCacheConfiguration_t::DEFAULT_UPPER_MEMORY_BOUNDARY_IN_BYTES);
+	ASSERT_EQ(beaconCacheConfiguration->getCacheSizeLowerBound(), BeaconCacheConfiguration_t::DEFAULT_LOWER_MEMORY_BOUNDARY_IN_BYTES);
 
 	auto beaconConfiguration = configuration->getBeaconConfiguration();
-	ASSERT_EQ(beaconConfiguration->getDataCollectionLevel(), configuration::BeaconConfiguration::DEFAULT_DATA_COLLECTION_LEVEL);
-	ASSERT_EQ(beaconConfiguration->getCrashReportingLevel(), configuration::BeaconConfiguration::DEFAULT_CRASH_REPORTING_LEVEL);
+	ASSERT_EQ(beaconConfiguration->getDataCollectionLevel(), BeaconConfiguration_t::DEFAULT_DATA_COLLECTION_LEVEL);
+	ASSERT_EQ(beaconConfiguration->getCrashReportingLevel(), BeaconConfiguration_t::DEFAULT_CRASH_REPORTING_LEVEL);
 }
 
 TEST_F(OpenKitBuilderTest, appMonOpenKitBuilderTakesStringDeviceID)
 {
     // when
     auto deviceIdString = std::string("some text");
-    auto configuration = AppMonOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, deviceIdString.c_str()).buildConfiguration();
+    auto configuration = AppMonOpenKitBuilder_t(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, deviceIdString.c_str()).buildConfiguration();
 
     // when
     auto hashedDeviceId = core::util::StringUtil::to64BitHash(deviceIdString);
@@ -106,7 +104,7 @@ TEST_F(OpenKitBuilderTest, appMonOpenKitBuilderTakesStringDeviceID)
 TEST_F(OpenKitBuilderTest, appMonOpenKitBuilderTakesOverNumericDeviceIdString)
 {
     // given
-    auto configuration = AppMonOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, "42").buildConfiguration();
+    auto configuration = AppMonOpenKitBuilder_t(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, "42").buildConfiguration();
 
     // when, then
     ASSERT_EQ(configuration->getDeviceID(), 42);
@@ -116,7 +114,7 @@ TEST_F(OpenKitBuilderTest, appMonOpenKitBuilderTrimsDeviceIdString)
 {
     // given
     const char* deviceIdString = " 42 ";
-    auto configuration = AppMonOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, deviceIdString).buildConfiguration();
+    auto configuration = AppMonOpenKitBuilder_t(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, deviceIdString).buildConfiguration();
 
     // when, then
     ASSERT_EQ(configuration->getDeviceID(), 42);
@@ -126,7 +124,7 @@ TEST_F(OpenKitBuilderTest, appMonKitBuilderTakesNumericDeviceId)
 {
     //given
     auto deviceId = 42;
-    auto configuration = AppMonOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, deviceId).buildConfiguration();
+    auto configuration = AppMonOpenKitBuilder_t(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, deviceId).buildConfiguration();
 
     // when, then
     ASSERT_EQ(configuration->getDeviceID(), deviceId);
@@ -134,7 +132,7 @@ TEST_F(OpenKitBuilderTest, appMonKitBuilderTakesNumericDeviceId)
 
 TEST_F(OpenKitBuilderTest, defaultsAreSetForDynatrace)
 {
-	auto configuration = DynatraceOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID).buildConfiguration();
+	auto configuration = DynatraceOpenKitBuilder_t(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID).buildConfiguration();
 
 	ASSERT_TRUE(configuration->getApplicationVersion().equals(openkit::DEFAULT_APPLICATION_VERSION));
 	auto device = configuration->getDevice();
@@ -147,16 +145,16 @@ TEST_F(OpenKitBuilderTest, defaultsAreSetForDynatrace)
 
 	auto beaconCacheConfiguration = configuration->getBeaconCacheConfiguration();
 	ASSERT_TRUE(beaconCacheConfiguration != nullptr);
-	ASSERT_EQ(beaconCacheConfiguration->getMaxRecordAge(), configuration::BeaconCacheConfiguration::DEFAULT_MAX_RECORD_AGE_IN_MILLIS.count());
-	ASSERT_EQ(beaconCacheConfiguration->getCacheSizeUpperBound(), configuration::BeaconCacheConfiguration::DEFAULT_UPPER_MEMORY_BOUNDARY_IN_BYTES);
-	ASSERT_EQ(beaconCacheConfiguration->getCacheSizeLowerBound(), configuration::BeaconCacheConfiguration::DEFAULT_LOWER_MEMORY_BOUNDARY_IN_BYTES);
+	ASSERT_EQ(beaconCacheConfiguration->getMaxRecordAge(), BeaconCacheConfiguration_t::DEFAULT_MAX_RECORD_AGE_IN_MILLIS.count());
+	ASSERT_EQ(beaconCacheConfiguration->getCacheSizeUpperBound(), BeaconCacheConfiguration_t::DEFAULT_UPPER_MEMORY_BOUNDARY_IN_BYTES);
+	ASSERT_EQ(beaconCacheConfiguration->getCacheSizeLowerBound(), BeaconCacheConfiguration_t::DEFAULT_LOWER_MEMORY_BOUNDARY_IN_BYTES);
 }
 
 TEST_F(OpenKitBuilderTest, dynatraceOpenKitBuilderTakesStringDeviceId)
 {
     // given
     auto deviceIdString = std::string("some text");
-    auto configuration = DynatraceOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, deviceIdString.c_str()).buildConfiguration();
+    auto configuration = DynatraceOpenKitBuilder_t(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, deviceIdString.c_str()).buildConfiguration();
 
     // when
     auto hashedDeviceId = core::util::StringUtil::to64BitHash(deviceIdString);
@@ -168,7 +166,7 @@ TEST_F(OpenKitBuilderTest, dynatraceOpenKitBuilderTakesStringDeviceId)
 TEST_F(OpenKitBuilderTest, dynatraceOpenKitBuilderTakesOverNumericDeviceIdString)
 {
     // given
-    auto configuration = DynatraceOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, "42").buildConfiguration();
+    auto configuration = DynatraceOpenKitBuilder_t(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, "42").buildConfiguration();
 
     // when, then
     ASSERT_EQ(configuration->getDeviceID(), 42);
@@ -178,7 +176,7 @@ TEST_F(OpenKitBuilderTest, dynatraceOpenKitBuilderTrimsDeviceIdString)
 {
     // given
     const char* deviceIdString = " 42 ";
-    auto configuration = DynatraceOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, deviceIdString).buildConfiguration();
+    auto configuration = DynatraceOpenKitBuilder_t(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, deviceIdString).buildConfiguration();
 
     // when, then
     ASSERT_EQ(configuration->getDeviceID(), 42);
@@ -188,7 +186,7 @@ TEST_F(OpenKitBuilderTest, dynatraceOpenKitBuilderTakesNumericDeviceId)
 {
     //given
     auto deviceId = 42;
-    auto configuration = DynatraceOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, deviceId).buildConfiguration();
+    auto configuration = DynatraceOpenKitBuilder_t(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, deviceId).buildConfiguration();
 
     // when, then
     ASSERT_EQ(configuration->getDeviceID(), deviceId);
@@ -196,14 +194,14 @@ TEST_F(OpenKitBuilderTest, dynatraceOpenKitBuilderTakesNumericDeviceId)
 
 TEST_F(OpenKitBuilderTest, applicationNameIsSetCorrectlyForAppMon)
 {
-	auto configuration = AppMonOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID).buildConfiguration();
+	auto configuration = AppMonOpenKitBuilder_t(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID).buildConfiguration();
 	ASSERT_TRUE(configuration->getApplicationName() == DEFAULT_APPLICATION_ID);
 	ASSERT_EQ(configuration->getApplicationName(), configuration->getApplicationID());
 }
 
 TEST_F(OpenKitBuilderTest, canOverrideTrustManagerForAppMon)
 {
-	auto configuration = AppMonOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
+	auto configuration = AppMonOpenKitBuilder_t(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
 		.withTrustManager(testSSLTrustManager)
 		.buildConfiguration();
 
@@ -212,7 +210,7 @@ TEST_F(OpenKitBuilderTest, canOverrideTrustManagerForAppMon)
 
 TEST_F(OpenKitBuilderTest, cannotOverrideNullTrustManagerForAppMon)
 {
-	auto configuration = AppMonOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
+	auto configuration = AppMonOpenKitBuilder_t(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
 		.withTrustManager(testSSLTrustManager) // first call, set a known & valid trust manager
 		.withTrustManager(nullptr)
 		.buildConfiguration();
@@ -222,7 +220,7 @@ TEST_F(OpenKitBuilderTest, cannotOverrideNullTrustManagerForAppMon)
 
 TEST_F(OpenKitBuilderTest, canOverrideTrustManagerForDynatrace)
 {
-	auto configuration = DynatraceOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
+	auto configuration = DynatraceOpenKitBuilder_t(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
 		.withTrustManager(testSSLTrustManager)
 		.buildConfiguration();
 
@@ -231,7 +229,7 @@ TEST_F(OpenKitBuilderTest, canOverrideTrustManagerForDynatrace)
 
 TEST_F(OpenKitBuilderTest, cannotOverrideNullTrustManagerForDynatrace)
 {
-	auto configuration = DynatraceOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
+	auto configuration = DynatraceOpenKitBuilder_t(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
 		.withTrustManager(testSSLTrustManager) // first call, set a known & valid trust manager
 		.withTrustManager(nullptr)
 		.buildConfiguration();
@@ -241,7 +239,7 @@ TEST_F(OpenKitBuilderTest, cannotOverrideNullTrustManagerForDynatrace)
 
 TEST_F(OpenKitBuilderTest, canSetApplicationVersionForAppMon)
 {
-	auto configuration = AppMonOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
+	auto configuration = AppMonOpenKitBuilder_t(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
 		.withApplicationVersion(TEST_APPLICATION_VERSION)
 		.buildConfiguration();
 
@@ -250,7 +248,7 @@ TEST_F(OpenKitBuilderTest, canSetApplicationVersionForAppMon)
 
 TEST_F(OpenKitBuilderTest, canSetApplicationVersionForDynatrace)
 {
-	auto configuration = DynatraceOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
+	auto configuration = DynatraceOpenKitBuilder_t(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
 		.withApplicationVersion(TEST_APPLICATION_VERSION)
 		.buildConfiguration();
 
@@ -259,7 +257,7 @@ TEST_F(OpenKitBuilderTest, canSetApplicationVersionForDynatrace)
 
 TEST_F(OpenKitBuilderTest, canSetOperatingSystemForAppMon)
 {
-	auto configuration = AppMonOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
+	auto configuration = AppMonOpenKitBuilder_t(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
 		.withOperatingSystem(TEST_OPERATING_SYSTEM)
 		.buildConfiguration();
 
@@ -268,7 +266,7 @@ TEST_F(OpenKitBuilderTest, canSetOperatingSystemForAppMon)
 
 TEST_F(OpenKitBuilderTest, canSetOperatingSystemForDynatrace)
 {
-	auto configuration = DynatraceOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
+	auto configuration = DynatraceOpenKitBuilder_t(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
 		.withOperatingSystem(TEST_OPERATING_SYSTEM)
 		.buildConfiguration();
 
@@ -277,7 +275,7 @@ TEST_F(OpenKitBuilderTest, canSetOperatingSystemForDynatrace)
 
 TEST_F(OpenKitBuilderTest, canSetManufacturerForAppMon)
 {
-	auto configuration = AppMonOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
+	auto configuration = AppMonOpenKitBuilder_t(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
 		.withManufacturer(TEST_MANUFACTURER)
 		.buildConfiguration();
 
@@ -286,7 +284,7 @@ TEST_F(OpenKitBuilderTest, canSetManufacturerForAppMon)
 
 TEST_F(OpenKitBuilderTest, canSetManufactureForDynatrace)
 {
-	auto configuration = DynatraceOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
+	auto configuration = DynatraceOpenKitBuilder_t(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
 		.withManufacturer(TEST_MANUFACTURER)
 		.buildConfiguration();
 
@@ -295,7 +293,7 @@ TEST_F(OpenKitBuilderTest, canSetManufactureForDynatrace)
 
 TEST_F(OpenKitBuilderTest, canSetModelIDForAppMon)
 {
-	auto configuration = AppMonOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
+	auto configuration = AppMonOpenKitBuilder_t(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
 		.withModelID(TEST_MODEL_ID)
 		.buildConfiguration();
 
@@ -304,7 +302,7 @@ TEST_F(OpenKitBuilderTest, canSetModelIDForAppMon)
 
 TEST_F(OpenKitBuilderTest, canSetModelIDForDynatrace)
 {
-	auto configuration = DynatraceOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
+	auto configuration = DynatraceOpenKitBuilder_t(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
 		.withModelID(TEST_MODEL_ID)
 		.buildConfiguration();
 
@@ -313,22 +311,22 @@ TEST_F(OpenKitBuilderTest, canSetModelIDForDynatrace)
 
 TEST_F(OpenKitBuilderTest, defaultLoggerIsUsedByDefault)
 {
-	auto logger = DynatraceOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
-		.withLogLevel(openkit::LogLevel::LOG_LEVEL_DEBUG)
+	auto logger = DynatraceOpenKitBuilder_t(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
+		.withLogLevel(LogLevel_t::LOG_LEVEL_DEBUG)
 		.getLogger();
 
-	auto typeCastLogger = std::dynamic_pointer_cast<core::util::DefaultLogger>(logger);
+	auto typeCastLogger = std::dynamic_pointer_cast<DefaultLogger_t>(logger);
 
 	ASSERT_TRUE(typeCastLogger != nullptr);
 }
 
 TEST_F(OpenKitBuilderTest, verboseIsUsedInDefaultLogger)
 {
-	auto logger = DynatraceOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
-		.withLogLevel(openkit::LogLevel::LOG_LEVEL_DEBUG)
+	auto logger = DynatraceOpenKitBuilder_t(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
+		.withLogLevel(LogLevel_t::LOG_LEVEL_DEBUG)
 		.getLogger();
 
-	auto typeCastLogger = std::dynamic_pointer_cast<core::util::DefaultLogger>(logger);
+	auto typeCastLogger = std::dynamic_pointer_cast<DefaultLogger_t>(logger);
 
 	ASSERT_TRUE(typeCastLogger != nullptr);
 	ASSERT_TRUE(typeCastLogger->isDebugEnabled());
@@ -337,7 +335,7 @@ TEST_F(OpenKitBuilderTest, verboseIsUsedInDefaultLogger)
 
 TEST_F(OpenKitBuilderTest, canSetCustomMaxBeaconRecordAgeForAppMon)
 {
-	auto configuration = AppMonOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
+	auto configuration = AppMonOpenKitBuilder_t(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
 		.withBeaconCacheMaxRecordAge(TEST_CACHE_MAX_RECORD_AGE)
 		.buildConfiguration();
 
@@ -346,7 +344,7 @@ TEST_F(OpenKitBuilderTest, canSetCustomMaxBeaconRecordAgeForAppMon)
 
 TEST_F(OpenKitBuilderTest, canSetCustomMaxBeaconRecordAgeForDynatrace)
 {
-	auto configuration = DynatraceOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
+	auto configuration = DynatraceOpenKitBuilder_t(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
 		.withBeaconCacheMaxRecordAge(TEST_CACHE_MAX_RECORD_AGE)
 		.buildConfiguration();
 
@@ -356,7 +354,7 @@ TEST_F(OpenKitBuilderTest, canSetCustomMaxBeaconRecordAgeForDynatrace)
 
 TEST_F(OpenKitBuilderTest, canSetBeaconCacheLowerMemoryBoundaryForAppMon)
 {
-	auto configuration = AppMonOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
+	auto configuration = AppMonOpenKitBuilder_t(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
 		.withBeaconCacheLowerMemoryBoundary(TEST_CACHE_LOWER_MEMORY_BOUNDARY)
 		.buildConfiguration();
 
@@ -365,7 +363,7 @@ TEST_F(OpenKitBuilderTest, canSetBeaconCacheLowerMemoryBoundaryForAppMon)
 
 TEST_F(OpenKitBuilderTest, canSetBeaconCacheLowerMemoryBoundaryForDynatrace)
 {
-	auto configuration = DynatraceOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
+	auto configuration = DynatraceOpenKitBuilder_t(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
 		.withBeaconCacheLowerMemoryBoundary(TEST_CACHE_LOWER_MEMORY_BOUNDARY)
 		.buildConfiguration();
 
@@ -374,7 +372,7 @@ TEST_F(OpenKitBuilderTest, canSetBeaconCacheLowerMemoryBoundaryForDynatrace)
 
 TEST_F(OpenKitBuilderTest, canSetBeaconCacheUpperMemoryBoundaryForAppMon)
 {
-	auto configuration = AppMonOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
+	auto configuration = AppMonOpenKitBuilder_t(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
 		.withBeaconCacheUpperMemoryBoundary(TEST_CACHE_UPPER_MEMORY_BOUNDARY)
 		.buildConfiguration();
 
@@ -383,7 +381,7 @@ TEST_F(OpenKitBuilderTest, canSetBeaconCacheUpperMemoryBoundaryForAppMon)
 
 TEST_F(OpenKitBuilderTest, canSetBeaconCacheUpperMemoryBoundaryForDynatrace)
 {
-	auto configuration = DynatraceOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
+	auto configuration = DynatraceOpenKitBuilder_t(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
 		.withBeaconCacheUpperMemoryBoundary(TEST_CACHE_UPPER_MEMORY_BOUNDARY)
 		.buildConfiguration();
 
@@ -392,36 +390,36 @@ TEST_F(OpenKitBuilderTest, canSetBeaconCacheUpperMemoryBoundaryForDynatrace)
 
 TEST_F(OpenKitBuilderTest, canSetDataCollectionLevelForDynatrace)
 {
-	auto configuration = DynatraceOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
-		.withDataCollectionLevel(DataCollectionLevel::PERFORMANCE)
+	auto configuration = DynatraceOpenKitBuilder_t(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
+		.withDataCollectionLevel(DataCollectionLevel_t::PERFORMANCE)
 		.buildConfiguration();
 
-	ASSERT_EQ(configuration->getBeaconConfiguration()->getDataCollectionLevel(), DataCollectionLevel::PERFORMANCE);
+	ASSERT_EQ(configuration->getBeaconConfiguration()->getDataCollectionLevel(), DataCollectionLevel_t::PERFORMANCE);
 }
 
 TEST_F(OpenKitBuilderTest, canSetDataCollectionLevelForAppMon)
 {
-	auto configuration = AppMonOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
-		.withDataCollectionLevel(DataCollectionLevel::PERFORMANCE)
+	auto configuration = AppMonOpenKitBuilder_t(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
+		.withDataCollectionLevel(DataCollectionLevel_t::PERFORMANCE)
 		.buildConfiguration();
 
-	ASSERT_EQ(configuration->getBeaconConfiguration()->getDataCollectionLevel(), DataCollectionLevel::PERFORMANCE);
+	ASSERT_EQ(configuration->getBeaconConfiguration()->getDataCollectionLevel(), DataCollectionLevel_t::PERFORMANCE);
 }
 
 TEST_F(OpenKitBuilderTest, canSetCrashReportingLevelForDynatrace)
 {
-	auto configuration = DynatraceOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
-		.withCrashReportingLevel(CrashReportingLevel::OPT_IN_CRASHES)
+	auto configuration = DynatraceOpenKitBuilder_t(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
+		.withCrashReportingLevel(CrashReportingLevel_t::OPT_IN_CRASHES)
 		.buildConfiguration();
 
-	ASSERT_EQ(configuration->getBeaconConfiguration()->getCrashReportingLevel(), CrashReportingLevel::OPT_IN_CRASHES);
+	ASSERT_EQ(configuration->getBeaconConfiguration()->getCrashReportingLevel(), CrashReportingLevel_t::OPT_IN_CRASHES);
 }
 
 TEST_F(OpenKitBuilderTest, canSetCrashReportingLevelForAppMon)
 {
-	auto configuration = AppMonOpenKitBuilder(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
-		.withCrashReportingLevel(CrashReportingLevel::OPT_IN_CRASHES)
+	auto configuration = AppMonOpenKitBuilder_t(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
+		.withCrashReportingLevel(CrashReportingLevel_t::OPT_IN_CRASHES)
 		.buildConfiguration();
 
-	ASSERT_EQ(configuration->getBeaconConfiguration()->getCrashReportingLevel(), CrashReportingLevel::OPT_IN_CRASHES);
+	ASSERT_EQ(configuration->getBeaconConfiguration()->getCrashReportingLevel(), CrashReportingLevel_t::OPT_IN_CRASHES);
 }

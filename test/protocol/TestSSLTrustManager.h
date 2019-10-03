@@ -17,9 +17,11 @@
 #ifndef _TEST_PROTOCOL_TESTSSLTRUSTMANAGER_H
 #define _TEST_PROTOCOL_TESTSSLTRUSTMANAGER_H
 
+#include "../api/Types.h"
+
 namespace test
 {
-	class TestSSLTrustManager : public openkit::ISSLTrustManager
+	class TestSSLTrustManager : public types::ISslTrustManager_t
 	{
 	public:
 		virtual ~TestSSLTrustManager() {}

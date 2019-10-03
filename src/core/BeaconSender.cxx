@@ -23,22 +23,27 @@
 #include "communication/BeaconSendingContext.h"
 
 using namespace core;
-using namespace communication;
+using namespace core::communication;
 using namespace providers;
 
 constexpr int32_t SHUTDOWN_TIMEOUT_MILLISECONDS = 10 * 1000;
 constexpr int32_t SHUTDOWN_SLICED_WAIT_TIME_MILLISECONDS = 100;
 
-BeaconSender::BeaconSender(std::shared_ptr<openkit::ILogger> logger,
-						   std::shared_ptr<configuration::Configuration> configuration,
-						   std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
-						   std::shared_ptr<providers::ITimingProvider> timingProvider)
+BeaconSender::BeaconSender
+(
+	std::shared_ptr<openkit::ILogger> logger,
+	std::shared_ptr<core::configuration::Configuration> configuration,
+	std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
+	std::shared_ptr<providers::ITimingProvider> timingProvider
+)
 	: mLogger(logger)
-	, mBeaconSendingContext(std::shared_ptr<BeaconSendingContext>(new BeaconSendingContext(logger, httpClientProvider, timingProvider, configuration)))
+	, mBeaconSendingContext
+	(
+		std::make_shared<BeaconSendingContext>(logger, httpClientProvider, timingProvider, configuration)
+	)
 	, mSendingThread()
 	, mTimingProvider(timingProvider)
 {
-
 }
 
 bool BeaconSender::initialize()
@@ -62,7 +67,7 @@ bool BeaconSender::initialize()
 
 		return mBeaconSendingContext->isShutdownRequested();
 	});
-	
+
 	return true;
 }
 
@@ -106,7 +111,7 @@ void BeaconSender::shutdown()
 	// if the thread is still running here it will either finish later or killed when the main process is ended
 }
 
-void BeaconSender::startSession(std::shared_ptr<Session> session)
+void BeaconSender::startSession(std::shared_ptr<core::objects::Session> session)
 {
 	if (mLogger->isDebugEnabled())
 	{
@@ -115,7 +120,7 @@ void BeaconSender::startSession(std::shared_ptr<Session> session)
 	mBeaconSendingContext->startSession(session);
 }
 
-void BeaconSender::finishSession(std::shared_ptr<Session> session)
+void BeaconSender::finishSession(std::shared_ptr<core::objects::Session> session)
 {
 	if (mLogger->isDebugEnabled())
 	{
