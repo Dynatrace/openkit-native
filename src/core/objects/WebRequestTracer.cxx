@@ -25,15 +25,21 @@ using namespace core::objects;
 
 static const std::regex SCHEMA_VALIDATION_PATTERN("^[a-zA-Z][a-zA-Z0-9+\\-.]*://.+$", std::regex::optimize | std::regex::ECMAScript);
 
+const std::string WebRequestTracer::UNKNOWN_URL = "<unknown>";
+
 WebRequestTracer::WebRequestTracer
 (
-	std::shared_ptr<openkit::ILogger> logger,
-	std::shared_ptr<protocol::Beacon> beacon,
-	int32_t parentActionID
+	const std::shared_ptr<openkit::ILogger> logger,
+	const std::shared_ptr<OpenKitComposite> parent,
+	const std::shared_ptr<protocol::Beacon> beacon,
+	const core::UTF8String& url
 )
 	: mLogger(logger)
+	, mParent(parent)
+	, mMutex()
 	, mBeacon(beacon)
-	, mParentActionID(parentActionID)
+	, mParentActionID(parent->getActionId())
+	, mURL(calculateUrlFrom(url))
 	, mResponseCode(-1)
 	, mBytesSent(-1)
 	, mBytesReceived(-1)
@@ -41,44 +47,30 @@ WebRequestTracer::WebRequestTracer
 	, mEndTime(-1)
 	, mStartSequenceNo(beacon->createSequenceNumber())
 	, mEndSequenceNo(-1)
-	, mWebRequestTag(beacon->createTag(parentActionID, mStartSequenceNo))
-	, mURL(core::UTF8String("<unknown>")
-)
+	, mWebRequestTag(beacon->createTag(parent->getActionId(), mStartSequenceNo))
 {
-}
-
-WebRequestTracer::WebRequestTracer
-(
-	std::shared_ptr<openkit::ILogger> logger,
-	std::shared_ptr<protocol::Beacon> beacon,
-	int32_t parentActionID,
-	const core::UTF8String& url
-)
-: WebRequestTracer
-(
-	logger,
-	beacon,
-	parentActionID
-)
-{
-	if (isValidURLScheme(url))
-	{
-		auto indexOfQuestionMark = url.getIndexOf("?");
-
-		if (indexOfQuestionMark != std::string::npos)
-		{
-			WebRequestTracer::mURL = url.substring(0, indexOfQuestionMark);
-		}
-		else
-		{
-			WebRequestTracer::mURL = url;
-		}
-	}
 }
 
 bool WebRequestTracer::isValidURLScheme(const core::UTF8String& url)
 {
 	return std::regex_match(url.getStringData(), SCHEMA_VALIDATION_PATTERN);
+}
+
+core::UTF8String WebRequestTracer::calculateUrlFrom(const core::UTF8String& url)
+{
+	if (!isValidURLScheme(url))
+	{
+		return UNKNOWN_URL;
+	}
+
+	auto indexOfQuestionMark = url.getIndexOf("?");
+
+	if (indexOfQuestionMark == std::string::npos)
+	{
+		return url;
+	}
+
+	return url.substring(0, indexOfQuestionMark);
 }
 
 const char* WebRequestTracer::getTag() const
@@ -97,27 +89,42 @@ const char* WebRequestTracer::getTag() const
 OPENKIT_DEPRECATED
 std::shared_ptr<openkit::IWebRequestTracer> WebRequestTracer::setResponseCode(int32_t responseCode)
 {
-	if (!isStopped())
+	// synchronized scope
 	{
-		mResponseCode = responseCode;
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		if (!isStopped())
+		{
+			mResponseCode = responseCode;
+		}
 	}
 	return shared_from_this();
 }
 
 std::shared_ptr<openkit::IWebRequestTracer> WebRequestTracer::setBytesSent(int32_t bytesSent)
 {
-	if (!isStopped())
+	// synchronized scope
 	{
-		mBytesSent = bytesSent;
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		if (!isStopped())
+		{
+			mBytesSent = bytesSent;
+		}
 	}
 	return shared_from_this();
 }
 
 std::shared_ptr<openkit::IWebRequestTracer> WebRequestTracer::setBytesReceived(int32_t bytesReceived)
 {
-	if (!isStopped())
+	// synchronized scope
 	{
-		mBytesReceived = bytesReceived;
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		if (!isStopped())
+		{
+			mBytesReceived = bytesReceived;
+		}
 	}
 	return shared_from_this();
 }
@@ -128,9 +135,15 @@ std::shared_ptr<openkit::IWebRequestTracer> WebRequestTracer::start()
 	{
 		mLogger->debug("%s - start()", toString().c_str());
 	}
-	if (!isStopped())
+
+	// synchronized scope
 	{
-		mStartTime = mBeacon->getCurrentTimestamp();
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		if (!isStopped())
+		{
+			mStartTime = mBeacon->getCurrentTimestamp();
+		}
 	}
 	return shared_from_this();
 }
@@ -150,17 +163,30 @@ void WebRequestTracer::stop(int32_t responseCode)
 	{
 		mLogger->debug("%s - stop(rc=%d)", toString().c_str(), responseCode);
 	}
-	int64_t expected = -1;
-	if (atomic_compare_exchange_strong(&mEndTime, &expected, mBeacon->getCurrentTimestamp()) == false)
-	{
-		return;
-	}
 
-	mResponseCode = responseCode;
-	mEndSequenceNo = mBeacon->createSequenceNumber();
+	// synchronized scope
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+		if (isStopped()) {
+			// stop was already previously called.
+			return;
+		}
+
+		mResponseCode = responseCode;
+		mEndSequenceNo = mBeacon->createSequenceNumber();
+		mEndTime = mBeacon->getCurrentTimestamp();
+	}
 
 	//add web request to beacon
 	mBeacon->addWebRequest(mParentActionID, shared_from_this());
+
+	// detach from parent
+	mParent->onChildClosed(shared_from_this());
+}
+
+void WebRequestTracer::close()
+{
+	stop(mResponseCode);
 }
 
 const core::UTF8String WebRequestTracer::getURL() const
@@ -206,6 +232,11 @@ int32_t WebRequestTracer::getBytesReceived() const
 bool WebRequestTracer::isStopped() const
 {
 	return mEndTime != -1;
+}
+
+std::shared_ptr<OpenKitComposite> WebRequestTracer::getParent() const
+{
+	return mParent;
 }
 
 const std::string WebRequestTracer::toString() const

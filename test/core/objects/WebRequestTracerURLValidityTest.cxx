@@ -15,6 +15,7 @@
 */
 
 #include "Types.h"
+#include "MockTypes.h"
 #include "../Types.h"
 #include "../caching/Types.h"
 #include "../configuration/Types.h"
@@ -67,6 +68,9 @@ protected:
 
 		logger = std::make_shared<DefaultLogger_t>(devNull, LogLevel_t::LOG_LEVEL_DEBUG);
 		mockBeacon = std::make_shared<MockNiceBeacon_t>(logger, beaconCache, configuration, nullptr, threadIDProvider, timingProvider);
+		mockParent = std::make_shared<MockNiceOpenKitComposite_t>();
+		ON_CALL(*mockParent, getActionId())
+			.WillByDefault(testing::Return(42));
 	}
 
 	virtual void TearDown() override
@@ -78,6 +82,7 @@ protected:
 	std::ostringstream devNull;
 	ILogger_sp logger;
 	MockNiceBeacon_sp mockBeacon;
+	MockNiceOpenKitComposite_sp mockParent;
 };
 
 
@@ -120,7 +125,7 @@ TEST_F(WebRequestTracerURLValidityTest, aSchemeIsInvalidIfInvalidCharactersAreEn
 TEST_F(WebRequestTracerURLValidityTest, anURLIsOnlySetInConstructorIfItIsValid)
 {
 	// given
-	WebRequestTracer_t target(logger, mockBeacon, 42, "a1337://foo");
+	WebRequestTracer_t target(logger, mockParent, mockBeacon, "a1337://foo");
 
 	// then
 	ASSERT_EQ(target.getURL(), "a1337://foo");
@@ -129,7 +134,7 @@ TEST_F(WebRequestTracerURLValidityTest, anURLIsOnlySetInConstructorIfItIsValid)
 TEST_F(WebRequestTracerURLValidityTest, ifURLIsInvalidTheDefaultValueIsUsed)
 {
 	// given
-	WebRequestTracer_t target(logger, mockBeacon, 42, "1337://foo");
+	WebRequestTracer_t target(logger, mockParent, mockBeacon, "1337://foo");
 
 	// then
 	ASSERT_EQ(target.getURL(), "<unknown>");
@@ -138,7 +143,7 @@ TEST_F(WebRequestTracerURLValidityTest, ifURLIsInvalidTheDefaultValueIsUsed)
 TEST_F(WebRequestTracerURLValidityTest, urlStoredDoesNotContainRequestParameters)
 {
 	// given
-	WebRequestTracer_t target(logger, mockBeacon, 42, "https://www.google.com/foo/bar?foo=bar&asdf=jklo");
+	WebRequestTracer_t target(logger, mockParent, mockBeacon, "https://www.google.com/foo/bar?foo=bar&asdf=jklo");
 
 	// then
 	ASSERT_EQ(target.getURL(), "https://www.google.com/foo/bar");

@@ -112,7 +112,7 @@ std::shared_ptr<openkit::IWebRequestTracer> RootAction::traceWebRequest(const ch
 {
 	if (!isActionLeft())
 	{
-		return mActionImpl.traceWebRequest(url);
+		return mActionImpl.traceWebRequest(shared_from_this(), url);
 	}
 	return ActionCommonImpl::NULL_WEB_REQUEST_TRACER;
 }
@@ -149,6 +149,11 @@ void RootAction::leaveAction()
 	}
 
 	doLeaveAction();
+}
+
+void RootAction::close()
+{
+	leaveAction();
 }
 
 void RootAction::childActionEnded(std::shared_ptr<Action> childAction)
@@ -194,6 +199,16 @@ bool RootAction::isActionLeft() const
 bool RootAction::hasOpenChildActions() const
 {
 	return !mOpenChildActions.isEmpty();
+}
+
+void RootAction::onChildClosed(const std::shared_ptr<core::objects::IOpenKitObject> childObject)
+{
+	removeChildFromList(childObject);
+}
+
+int32_t RootAction::getActionId() const
+{
+	return getID();
 }
 
 const std::string RootAction::toString() const

@@ -20,6 +20,7 @@
 #include "OpenKit/ILogger.h"
 #include "OpenKit/IWebRequestTracer.h"
 #include "NullWebRequestTracer.h"
+#include "core/objects/OpenKitComposite.h"
 
 #include <memory>
 #include <string>
@@ -92,9 +93,10 @@ namespace core
 
 			///
 			/// Add web request to Beacon
-			/// @param[in] url the url used by the WebRequestTracer
+			/// @param [in] the parent (action or root action) of the web request tracer
+			/// @param [in] url the url used by the WebRequestTracer
 			///
-			std::shared_ptr<openkit::IWebRequestTracer> traceWebRequest(const char* url);
+			std::shared_ptr<openkit::IWebRequestTracer> traceWebRequest(const std::shared_ptr<OpenKitComposite> parent, const char* url);
 
 		private:
 			/// logger instance

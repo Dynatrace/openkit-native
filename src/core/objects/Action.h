@@ -24,6 +24,8 @@
 
 #include "OpenKit/IAction.h"
 #include "OpenKit/ILogger.h"
+#include "core/objects/IOpenKitObject.h"
+#include "core/objects/OpenKitComposite.h"
 #include "core/util/SynchronizedQueue.h"
 #include "core/UTF8String.h"
 #include "NullWebRequestTracer.h"
@@ -45,10 +47,13 @@ namespace core
 		///
 		/// Actual implementation of the IAction interface.
 		/// It is intentional that Action does not serve as a base class for RootAction. This would result in the diamond-inheritance
-		/// problem in RootAction. This is because RootAction would inherit from Action which inherits from IAction. But RootAction iself also
+		/// problem in RootAction. This is because RootAction would inherit from Action which inherits from IAction. But RootAction itself also
 		/// inherited from IAction. The code duplication between Action and RootAction is the easiest way to avoid the diamond-inheritance.
 		///
-		class Action : public openkit::IAction, public std::enable_shared_from_this<Action>
+		class Action
+			: public OpenKitComposite
+			, public openkit::IAction
+			, public std::enable_shared_from_this<Action>
 		{
 		public:
 
@@ -144,6 +149,12 @@ namespace core
 			/// @returns @c true if action was already left, @c false if action is open
 			///
 			bool isActionLeft() const;
+
+			void onChildClosed(const std::shared_ptr<IOpenKitObject> childObject) override;
+
+			int32_t getActionId() const override;
+
+			void close() override;
 
 		private:
 			///

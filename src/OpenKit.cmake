@@ -137,12 +137,15 @@ set(OPENKIT_SOURCES_CORE_OBJECTS
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/Action.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/ActionCommonImpl.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/ActionCommonImpl.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/IOpenKitObject.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/NullAction.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/NullRootAction.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/NullSession.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/NullWebRequestTracer.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/OpenKit.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/OpenKit.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/OpenKitComposite.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/OpenKitComposite.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/RootAction.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/RootAction.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/Session.cxx

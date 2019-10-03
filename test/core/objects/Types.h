@@ -19,11 +19,13 @@
 
 #include "core/objects/Action.h"
 #include "core/objects/ActionCommonImpl.h"
+#include "core/objects/IOpenKitObject.h"
 #include "core/objects/NullAction.h"
 #include "core/objects/NullRootAction.h"
 #include "core/objects/NullSession.h"
 #include "core/objects/NullWebRequestTracer.h"
 #include "core/objects/OpenKit.h"
+#include "core/objects/OpenKitComposite.h"
 #include "core/objects/RootAction.h"
 #include "core/objects/Session.h"
 #include "core/objects/WebRequestTracer.h"
@@ -37,6 +39,9 @@ namespace test
 
 		using ActionCommonImpl_t = core::objects::ActionCommonImpl;
 		using ActionCommonImpl_sp = std::shared_ptr<ActionCommonImpl_t>;
+
+		using IOpenKitObject_t = core::objects::IOpenKitObject;
+		using IOpenKitObject_sp = std::shared_ptr<IOpenKitObject_t>;
 
 		using NullAction_t = core::objects::NullAction;
 		using NullAction_sp = std::shared_ptr<NullAction_t>;
@@ -52,6 +57,9 @@ namespace test
 
 		using OpenKit_t = core::objects::OpenKit;
 		using OpenKit_sp = std::shared_ptr<OpenKit_t>;
+
+		using OpenKitComposite_t = core::objects::OpenKitComposite;
+		using OpenKitComposite_sp = std::shared_ptr<OpenKitComposite_t>;
 
 		using RootAction_t = core::objects::RootAction;
 		using RootAction_sp = std::shared_ptr<RootAction_t>;

@@ -28,6 +28,9 @@
 #include "NullRootAction.h"
 
 #include "core/UTF8String.h"
+#include "core/configuration/BeaconConfiguration.h"
+#include "core/objects/IOpenKitObject.h"
+#include "core/objects/OpenKitComposite.h"
 #include "core/util/SynchronizedQueue.h"
 #include "providers/IHTTPClientProvider.h"
 #include "providers/IHTTPClientProvider.h"
@@ -55,7 +58,10 @@ namespace core
 		///
 		///  Actual implementation of the ISession interface.
 		///
-		class Session : public openkit::ISession, public std::enable_shared_from_this<Session>
+		class Session
+			: public OpenKitComposite
+			, public openkit::ISession
+			, public std::enable_shared_from_this<Session>
 		{
 		public:
 
@@ -145,6 +151,10 @@ namespace core
 			/// @returns the beacon configuration
 			///
 			virtual std::shared_ptr<configuration::BeaconConfiguration> getBeaconConfiguration() const;
+
+			void onChildClosed(std::shared_ptr<IOpenKitObject> childObject) override;
+
+			void close() override;
 
 		private:
 			///

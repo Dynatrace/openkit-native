@@ -56,6 +56,8 @@ protected:
 		randomGeneratorMock = std::make_shared<MockNicePrnGenerator_t>();
 		sessionIDProviderMock = std::make_shared<MockNiceSessionIdProvider_t>();
 		mockTimingProvider = std::make_shared<MockNiceTimingProvider_t>();
+
+		mockParent = std::make_shared<MockNiceOpenKitComposite_t>();
 	}
 
 	Beacon_sp buildBeaconWithDefaultConfig()
@@ -98,7 +100,7 @@ protected:
 
 	MockNiceWebRequestTracer_sp createMockedWebRequestTracer(Beacon_sp beacon)
 	{
-		return std::make_shared<MockNiceWebRequestTracer_t>(logger, beacon);
+		return std::make_shared<MockNiceWebRequestTracer_t>(logger, mockParent, beacon, "");
 	}
 
 	MockNiceSession_sp createMockedSession()
@@ -167,13 +169,15 @@ protected:
 	MockNiceSessionIdProvider_sp sessionIDProviderMock;
 	Configuration_sp configuration;
 	MockNiceTimingProvider_sp mockTimingProvider;
+
+	MockNiceOpenKitComposite_sp mockParent;
 };
 
 TEST_F(BeaconTest, noWebRequestIsReportedForDataCollectionLevel0)
 {
 	//given
 	auto target = buildBeacon(DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF);
-	auto mockWebRequestTracer = std::make_shared<MockNiceWebRequestTracer_t>(getLogger(), target);
+	auto mockWebRequestTracer = std::make_shared<MockNiceWebRequestTracer_t>(getLogger(), mockParent, target, "");
 
 	ON_CALL(*mockWebRequestTracer, getBytesSent())
 		.WillByDefault(testing::Return(123));

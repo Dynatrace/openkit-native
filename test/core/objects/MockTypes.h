@@ -18,6 +18,7 @@
 #define _TEST_CORE_OBJECTS_MOCKTYPES_H
 
 #include "MockAction.h"
+#include "MockOpenKitComposite.h"
 #include "MockRootAction.h"
 #include "MockSession.h"
 #include "MockWebRequestTracer.h"
@@ -33,6 +34,12 @@ namespace test
 		using MockAction_t = MockAction;
 		using MockNiceAction_t = testing::NiceMock<MockAction_t>;
 		using MockNiceAction_sp = std::shared_ptr<MockNiceAction_t>;
+
+		using MockOpenKitComposite_t = MockOpenKitComposite;
+		using MockNiceOpenKitComposite_t = testing::NiceMock<MockOpenKitComposite_t>;
+		using MockNiceOpenKitComposite_sp = std::shared_ptr<MockNiceOpenKitComposite_t>;
+		using MockStrictOpenKitComposite_t = testing::StrictMock<MockOpenKitComposite_t>;
+		using MockStrictOpenKitComposite_sp = std::shared_ptr<MockStrictOpenKitComposite_t>;
 
 		using MockRootAction_t = MockRootAction;
 		using MockNiceRootAction_t = testing::NiceMock<MockRootAction_t>;

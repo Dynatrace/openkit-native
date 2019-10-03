@@ -135,7 +135,7 @@ std::shared_ptr<openkit::IWebRequestTracer> Session::traceWebRequest(const char*
 
 	if (!isSessionEnded())
 	{
-		return std::make_shared<core::objects::WebRequestTracer>(mLogger, mBeacon, 0, urlString);
+		return std::make_shared<core::objects::WebRequestTracer>(mLogger, shared_from_this(), mBeacon, urlString);
 	}
 	return NULL_WEB_REQUEST_TRACER;
 }
@@ -161,6 +161,11 @@ void Session::end()
 	mBeacon->endSession(shared_from_this());
 
 	mBeaconSender->finishSession(shared_from_this());
+}
+
+void Session::close()
+{
+	end();
 }
 
 bool Session::isSessionEnded() const
@@ -191,6 +196,11 @@ bool Session::isEmpty() const
 void Session::clearCapturedData()
 {
 	mBeacon->clearData();
+}
+
+void Session::onChildClosed(std::shared_ptr<core::objects::IOpenKitObject> childObject)
+{
+	removeChildFromList(childObject);
 }
 
 const std::string Session::toString() const

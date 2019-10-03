@@ -126,7 +126,7 @@ void ActionCommonImpl::reportError(const char* errorName, int32_t errorCode, con
 
 }
 
-std::shared_ptr<openkit::IWebRequestTracer> ActionCommonImpl::traceWebRequest(const char* url)
+std::shared_ptr<openkit::IWebRequestTracer> ActionCommonImpl::traceWebRequest(const std::shared_ptr<OpenKitComposite> parent, const char* url)
 {
 	core::UTF8String urlString(url);
 	if (urlString.empty())
@@ -144,5 +144,5 @@ std::shared_ptr<openkit::IWebRequestTracer> ActionCommonImpl::traceWebRequest(co
 		mLogger->debug("%s traceWebRequest (string) (%s))", mObjectID.c_str(), urlString.getStringData().c_str());
 	}
 
-	return std::make_shared<core::objects::WebRequestTracer>(mLogger, mBeacon, mActionID, urlString);
+	return std::make_shared<core::objects::WebRequestTracer>(mLogger, parent, mBeacon, urlString);
 }

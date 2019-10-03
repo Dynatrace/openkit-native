@@ -48,6 +48,7 @@ set(OPENKIT_SOURCES_TEST_CORE_OBJECTS
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/RootActionTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/SessionTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/MockAction.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/MockOpenKitComposite.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/MockRootAction.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/MockSession.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/MockWebRequestTracer.h

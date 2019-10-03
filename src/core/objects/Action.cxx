@@ -46,7 +46,8 @@ Action::Action
 (
 	std::shared_ptr<openkit::ILogger> logger,
 	std::shared_ptr<protocol::Beacon> beacon,
-	const core::UTF8String& name, std::shared_ptr<RootAction> parentAction
+	const core::UTF8String& name,
+	std::shared_ptr<RootAction> parentAction
 )
 	: mLogger(logger)
 	, mParentAction(parentAction)
@@ -110,7 +111,7 @@ std::shared_ptr<openkit::IWebRequestTracer> Action::traceWebRequest(const char* 
 {
 	if (!isActionLeft())
 	{
-		return mActionImpl.traceWebRequest(url);
+		return mActionImpl.traceWebRequest(shared_from_this(), url);
 	}
 	return ActionCommonImpl::NULL_WEB_REQUEST_TRACER;
 }
@@ -151,6 +152,11 @@ std::shared_ptr<openkit::IRootAction> Action::doLeaveAction()
 
 }
 
+void Action::close()
+{
+	leaveAction();
+}
+
 int32_t Action::getID() const
 {
 	return mID;
@@ -189,6 +195,16 @@ int32_t Action::getEndSequenceNo() const
 bool Action::isActionLeft() const
 {
 	return mEndTime != -1;
+}
+
+void Action::onChildClosed(const std::shared_ptr<IOpenKitObject> childObject)
+{
+	removeChildFromList(childObject);
+}
+
+int32_t Action::getActionId() const
+{
+	return getID();
 }
 
 const std::string Action::toString() const

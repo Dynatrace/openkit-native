@@ -24,10 +24,12 @@
 
 #include "OpenKit/IOpenKit.h"
 #include "OpenKit/IWebRequestTracer.h"
-
-#include <atomic>
-
+#include "core/objects/IOpenKitObject.h"
+#include "core/objects/OpenKitComposite.h"
 #include "core/UTF8String.h"
+
+#include <mutex>
+
 
 namespace protocol
 {
@@ -41,40 +43,31 @@ namespace core
 		///
 		/// Implements a tracer for web requests
 		///
-		class WebRequestTracer : public openkit::IWebRequestTracer, public std::enable_shared_from_this<WebRequestTracer>
+		class WebRequestTracer
+			: public openkit::IWebRequestTracer
+			, public core::objects::IOpenKitObject
+			, public std::enable_shared_from_this<WebRequestTracer>
 		{
 		public:
-
-			///
-			/// Constructor taking an @ref core::Action
-			/// @param[in] logger to write traces to
-			/// @param[in] beacon @ref protocol::Beacon used to serialize the @ref WebRequestTracer
-
-			/// @param[in] parentActionID id of the parent of the WebRequestTracer
-			///
-			WebRequestTracer
-			(
-				std::shared_ptr<openkit::ILogger> logger,
-				std::shared_ptr<protocol::Beacon> beacon,
-				int32_t parentActionID
-			);
 
 			///
 			/// Constructor which can be used for tracing and timing of a web request handled by any 3rd party HTTP Client.
 			/// Setting the Dynatrace tag to the @ref openkit::OpenKitConstants::WEBREQUEST_TAG_HEADER
 			/// HTTP header has to be done manually by the user.
+			///
 			/// @param[in] logger to write traces to
-			/// @param[in] beacon @ref protocol::Beacon used to serialize the WebRequestTracer
-			/// @param[in] parentActionID parent of the WebRequestTracer
-			/// @param[in] url target url of the web request
+			/// @param[in] parent the parent object, to which this web request belongs
+			/// @param[in] beacon @ref protocol::Beacon used to serialize the @ref WebRequestTracer
 			///
 			WebRequestTracer
 			(
-				std::shared_ptr<openkit::ILogger> logger,
-				std::shared_ptr<protocol::Beacon> beacon,
-				int32_t parentActionID,
+				const std::shared_ptr<openkit::ILogger> logger,
+				const std::shared_ptr<OpenKitComposite> parent,
+				const std::shared_ptr<protocol::Beacon> beacon,
 				const core::UTF8String& url
 			);
+
+			static const std::string UNKNOWN_URL;
 
 			///
 			/// Test if given @c url contains a valid URL scheme according to RFC3986.
@@ -83,6 +76,11 @@ namespace core
 			///
 			static bool isValidURLScheme(const core::UTF8String& url);
 
+			///
+			/// Checks if the given @c url is valid and returns the URL excluding possible parameters.
+			/// In case the url is invalid @ref UNKNOWN_URL is returned.
+			///
+			static core::UTF8String calculateUrlFrom(const core::UTF8String& url);
 
 			const char* getTag() const override;
 
@@ -105,6 +103,8 @@ namespace core
 			virtual void stop() override;
 
 			virtual void stop(int32_t responseCode);
+
+			void close() override;
 
 			///
 			/// Returns the target URL of the web request
@@ -160,22 +160,41 @@ namespace core
 			///
 			bool isStopped() const;
 
+			///
+			/// Returns the parent object of this web request tracer.
+			///
+			std::shared_ptr<OpenKitComposite> getParent() const;
+
 		private:
+
 			///
 			/// Returns a string describing the object, based on some important fields.
-			/// This function is indended for debug printouts.
+			/// This function is intended for debug printouts.
 			/// @return a string describing the object
 			///
 			const std::string toString() const;
 
 			/// Logger to write traces to
-			std::shared_ptr<openkit::ILogger> mLogger;
+			const std::shared_ptr<openkit::ILogger> mLogger;
+
+			///
+			/// Parent object of this web request tracer.
+			///
+			const std::shared_ptr<OpenKitComposite> mParent;
+
+			///
+			/// Mutex for synchronization
+			///
+			std::mutex mMutex;
 
 			/// @ref protocol::Beacon used to serialize the WebRequestTracer
-			std::shared_ptr<protocol::Beacon> mBeacon;
+			const std::shared_ptr<protocol::Beacon> mBeacon;
 
 			/// ID of the @ref core::Action or @ref core::RootAction which is the parent of the WebRequestTracer
-			int32_t mParentActionID;
+			const int32_t mParentActionID;
+
+			/// The target URL of the web request
+			const core::UTF8String mURL;
 
 			/// Response code of the the web request
 			int32_t mResponseCode;
@@ -190,7 +209,7 @@ namespace core
 			int64_t mStartTime;
 
 			/// web request end time
-			std::atomic<int64_t> mEndTime;
+			int64_t mEndTime;
 
 			/// start sequence number
 			int32_t mStartSequenceNo;
@@ -200,10 +219,6 @@ namespace core
 
 			/// Dynatrace tag that has to be used for tracing the web request
 			core::UTF8String mWebRequestTag;
-
-		protected:
-			/// The target URL of the web request
-			core::UTF8String mURL;
 		};
 	}
 }
