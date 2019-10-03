@@ -31,6 +31,8 @@
   In case nullptr is passed, the IP is determined on the server side.
 - Reduce warnings when building on Linux
 - Fix compiler errors for certain Visual Studio versions
+- Fix `leaveAction` in `RootAction` so that the `mEndTime` and `mEndSequenceNumber` is set before 
+  the root action is added to the `Beacon`.
 
 ### Improvements
 - Reformatted text files to unix style line endings (excluding 3rd party files)

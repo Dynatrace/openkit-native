@@ -124,14 +124,14 @@ namespace protocol
 		/// The serialized data is added to the Beacon
 		/// @param[in] action action to add to the Beacon
 		///
-		void addAction(std::shared_ptr<core::objects::Action> action);
+		virtual void addAction(std::shared_ptr<core::objects::Action> action);
 
 		///
 		/// Add @ref core::objects::RootAction to Beacon
 		/// The serialized data is added to the Beacon
 		/// @param[in] action root action to add to the Beacon
 		///
-		void addAction(std::shared_ptr<core::objects::RootAction> action);
+		virtual void addAction(std::shared_ptr<core::objects::RootAction> action);
 
 		///
 		/// Add sessionStart to Beacon

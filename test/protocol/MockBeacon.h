@@ -79,6 +79,18 @@ namespace test {
 			reportValueString(actionID, valueName, value);
 		}
 
+		void addAction(types::RootAction_sp rootAction) override
+		{
+			types::Beacon_t::addAction(rootAction);
+			mockAddAction(rootAction);
+		}
+
+		void addAction(types::Action_sp action) override
+		{
+			types::Beacon_t::addAction(action);
+			mockAddAction(action);
+		}
+
 		virtual ~MockBeacon() {}
 
 		MOCK_METHOD1(identifyUser,
@@ -166,6 +178,18 @@ namespace test {
 		);
 
 		MOCK_METHOD0(createSequenceNumber, int32_t());
+
+		MOCK_METHOD1(mockAddAction,
+			void(
+				types::RootAction_sp
+			)
+		);
+
+		MOCK_METHOD1(mockAddAction,
+			void(
+				types::Action_sp
+			)
+		);
 	};
 }
 #endif

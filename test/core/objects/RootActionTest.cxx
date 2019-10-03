@@ -544,6 +544,57 @@ TEST_F(RootActionTest, leaveActionTwice)
 	testAction->leaveAction();
 }
 
+TEST_F(RootActionTest, leaveActionSetsEndTimeBeforeAddingToBeacon)
+{
+	// expect
+	{
+		testing::InSequence s;
+
+		EXPECT_CALL(*mockBeacon, getCurrentTimestamp()).Times(1); 	// root action constructor
+		EXPECT_CALL(*mockBeacon, createSequenceNumber()).Times(1); 	// root action constructor
+
+		EXPECT_CALL(*mockBeacon, getCurrentTimestamp()).Times(2); 	// check if action is ended + set end timestamp
+		EXPECT_CALL(*mockBeacon, createSequenceNumber()).Times(1); 	// set end sequence number
+		EXPECT_CALL(*mockBeacon, mockAddAction(testing::Matcher<RootAction_sp>(testing::_)));
+	}
+
+	// given
+	auto target = std::make_shared<RootAction_t>(logger, mockBeacon, core::UTF8String("root action"), session);
+
+	// when
+	target->leaveAction();
+}
+
+TEST_F(RootActionTest, leaveActionLeavesChildActionsBeforeSettingEndTime)
+{
+	// expect
+	{
+		testing::InSequence s;
+		EXPECT_CALL(*mockBeacon, getCurrentTimestamp());	// constructor root action
+		EXPECT_CALL(*mockBeacon, createSequenceNumber());	// constructor root action
+
+		EXPECT_CALL(*mockBeacon, getCurrentTimestamp());	// constructor child action
+		EXPECT_CALL(*mockBeacon, createSequenceNumber());	// constructor child action
+
+
+		EXPECT_CALL(*mockBeacon, getCurrentTimestamp());	// check if root action is ended
+		EXPECT_CALL(*mockBeacon, getCurrentTimestamp());	// check if child action is ended
+		EXPECT_CALL(*mockBeacon, getCurrentTimestamp());	// set end time on child action
+		EXPECT_CALL(*mockBeacon, createSequenceNumber());	// set end sequence number on child action
+		EXPECT_CALL(*mockBeacon, mockAddAction(testing::Matcher<Action_sp>(testing::_)));
+		EXPECT_CALL(*mockBeacon, getCurrentTimestamp());	// set end time on root action
+		EXPECT_CALL(*mockBeacon, createSequenceNumber());	// set end sequence number on root action
+		EXPECT_CALL(*mockBeacon, mockAddAction(testing::Matcher<RootAction_sp>(testing::_)));
+	}
+
+	// given
+	auto target = std::make_shared<RootAction_t>(logger, mockBeacon, core::UTF8String("root action"), session);
+	target->enterAction("child action");
+
+	// when
+	target->leaveAction();
+}
+
 TEST_F(RootActionTest, verifySequenceNumbersParents)
 {
 	EXPECT_CALL(*mockBeacon, createSequenceNumber())
