@@ -111,6 +111,11 @@ TEST_F(RootActionTest, enterActionWithNullNameGivesNullAction)
 	ASSERT_TRUE(childAction != nullptr);
 	std::shared_ptr<core::NullAction> typeCast = std::dynamic_pointer_cast<core::NullAction>(childAction);
 	ASSERT_TRUE(typeCast != nullptr);
+
+	auto leftAction = typeCast->leaveAction();
+	ASSERT_THAT(leftAction, testing::NotNull());
+	auto obtainedRootAction = std::dynamic_pointer_cast<RootAction>(leftAction);
+	ASSERT_THAT(testRootAction, testing::Eq(obtainedRootAction));
 }
 
 TEST_F(RootActionTest, enterActionWithEmptyNameGivesNullAction)
@@ -125,6 +130,11 @@ TEST_F(RootActionTest, enterActionWithEmptyNameGivesNullAction)
 	ASSERT_TRUE(childAction != nullptr);
 	std::shared_ptr<core::NullAction> typeCast = std::dynamic_pointer_cast<core::NullAction>(childAction);
 	ASSERT_TRUE(typeCast != nullptr);
+
+	auto leftAction = typeCast->leaveAction();
+	ASSERT_THAT(leftAction, testing::NotNull());
+	auto obtainedRootAction = std::dynamic_pointer_cast<RootAction>(leftAction);
+	ASSERT_THAT(testRootAction, testing::Eq(obtainedRootAction));
 }
 
 TEST_F(RootActionTest, enterAndLeaveActions)
@@ -190,6 +200,11 @@ TEST_F(RootActionTest, enterActionGivesNullActionIfAlreadyLeft)
 	ASSERT_TRUE(obtained != nullptr);
 	std::shared_ptr<core::NullAction> typeCast = std::dynamic_pointer_cast<core::NullAction>(obtained);
 	ASSERT_TRUE(typeCast != nullptr);
+
+	auto leftAction = typeCast->leaveAction();
+	ASSERT_THAT(leftAction, testing::NotNull());
+	auto obtainedRootAction = std::dynamic_pointer_cast<RootAction>(leftAction);
+	ASSERT_THAT(testRootAction, testing::Eq(obtainedRootAction));
 }
 
 TEST_F(RootActionTest, reportEvent)
@@ -203,8 +218,6 @@ TEST_F(RootActionTest, reportEvent)
 	auto returnedAction = testAction->reportEvent(eventName);
 
 	ASSERT_EQ(testAction, returnedAction);
-
-
 }
 
 TEST_F(RootActionTest, reportEventDoesNothingIfEventNameIsNull)
