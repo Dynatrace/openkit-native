@@ -178,18 +178,12 @@ namespace core
 
 			/// synchronized queue of root actions of this session
 			util::SynchronizedQueue<std::shared_ptr<openkit::IRootAction>> mOpenRootActions;
-
-			/// instance of NullRootAction
-			std::shared_ptr<NullRootAction> NULL_ROOT_ACTION;
-
-			/// Null WebRequestTracer
-			static std::shared_ptr<NullWebRequestTracer> NULL_WEB_REQUEST_TRACER;
 		};
 	}
 }
 
 #ifdef __GNUC__
-#pragma GCC diagnostic push
+#pragma GCC diagnostic pop
 #endif
 
 #endif

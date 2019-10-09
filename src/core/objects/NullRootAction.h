@@ -17,9 +17,14 @@
 #ifndef _CORE_OBJECTS_NULLROOTACTION_H
 #define _CORE_OBJECTS_NULLROOTACTION_H
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnon-virtual-dtor" // enable_shared_from_this has a public non virtual destructor throwing a false positive in this code
+#endif
+
+#include "OpenKit/IAction.h"
 #include "OpenKit/IRootAction.h"
-#include "NullAction.h"
-#include "NullWebRequestTracer.h"
+#include "OpenKit/IWebRequestTracer.h"
 
 #include <memory>
 
@@ -31,51 +36,35 @@ namespace core
 		/// This class is returned as RootAction by @ref openkit::IOpenKit::createSession(const char*) when the
 		/// @ref openkit::IOpenKit::shutdown() has been called before.
 		///
-		class NullRootAction  : public openkit::IRootAction, public std::enable_shared_from_this<NullRootAction>
+		class NullRootAction
+			: public openkit::IRootAction
+			, public std::enable_shared_from_this<NullRootAction>
 		{
 		public:
 
-			virtual std::shared_ptr<openkit::IAction> enterAction(const char* /*actionName*/) override
-			{
-				return std::shared_ptr<NullAction>(new NullAction(shared_from_this()));
-			}
+			static const std::shared_ptr<NullRootAction> INSTANCE;
 
-			virtual std::shared_ptr<IRootAction> reportEvent(const char* /*eventName*/) override
-			{
-				return shared_from_this();
-			}
+			std::shared_ptr<openkit::IAction> enterAction(const char* /*actionName*/) override;
 
-			virtual std::shared_ptr<IRootAction> reportValue(const char* /*valueName*/, int32_t /*value*/) override
-			{
-				return shared_from_this();
-			}
+			std::shared_ptr<openkit::IRootAction> reportEvent(const char* /*eventName*/) override;
 
-			virtual std::shared_ptr<IRootAction> reportValue(const char* /*valueName*/, double /*value*/) override
-			{
-				return shared_from_this();
-			}
+			std::shared_ptr<openkit::IRootAction> reportValue(const char* /*valueName*/, int32_t /*value*/) override;
 
-			virtual std::shared_ptr<IRootAction> reportValue(const char* /*valueName*/, const char* /*value*/) override
-			{
-				return shared_from_this();
-			}
+			std::shared_ptr<openkit::IRootAction> reportValue(const char* /*valueName*/, double /*value*/) override;
 
-			virtual std::shared_ptr<IRootAction> reportError(const char* /*errorName*/, int32_t /*errorCode*/, const char* /*reason*/) override
-			{
-				return shared_from_this();
-			}
+			std::shared_ptr<openkit::IRootAction> reportValue(const char* /*valueName*/, const char* /*value*/) override;
 
-			virtual std::shared_ptr<openkit::IWebRequestTracer> traceWebRequest(const char* /*url*/) override
-			{
-				return std::make_shared<NullWebRequestTracer>();
-			}
+			std::shared_ptr<openkit::IRootAction> reportError(const char* /*errorName*/, int32_t /*errorCode*/, const char* /*reason*/) override;
 
-			virtual void leaveAction() override
-			{
-				// intentionally left empty, due to NullObject pattern
-			}
+			std::shared_ptr<openkit::IWebRequestTracer> traceWebRequest(const char* /*url*/) override;
+
+			void leaveAction() override;
 		};
 	}
 }
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 #endif

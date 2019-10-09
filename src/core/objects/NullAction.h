@@ -17,6 +17,11 @@
 #ifndef _CORE_OBJECTS_NULLACTION_H
 #define _CORE_OBJECTS_NULLACTION_H
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnon-virtual-dtor" // enable_shared_from_this has a public non virtual destructor throwing a false positive in this code
+#endif
+
 #include "OpenKit/IAction.h"
 #include "OpenKit/IRootAction.h"
 #include "NullWebRequestTracer.h"
@@ -68,7 +73,7 @@ namespace core
 
 			virtual std::shared_ptr<openkit::IWebRequestTracer> traceWebRequest(const char* /*url*/) override
 			{
-				return std::make_shared<NullWebRequestTracer>();
+				return NullWebRequestTracer::INSTANCE;
 			}
 
 			virtual std::shared_ptr<openkit::IRootAction> leaveAction() override
@@ -80,5 +85,9 @@ namespace core
 		};
 	}
 }
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 #endif

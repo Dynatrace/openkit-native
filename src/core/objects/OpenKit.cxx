@@ -82,7 +82,6 @@ OpenKit::OpenKit
 		)
 	)
 	, mIsShutdown(0)
-	, NULL_SESSION(std::make_shared<core::objects::NullSession>())
 {
 	if (logger->isInfoEnabled())
 	{
@@ -136,7 +135,7 @@ std::shared_ptr<openkit::ISession> OpenKit::createSession(const char* clientIPAd
 	}
 	if (mIsShutdown)
 	{
-		return NULL_SESSION;
+		return  NullSession::INSTANCE;
 	}
 
 	auto beacon = std::make_shared<protocol::Beacon>(mLogger, mBeaconCache, mConfiguration, clientIPAddress, mThreadIDProvider, mTimingProvider);

@@ -133,9 +133,6 @@ namespace core
 			/// atomic flag for shutdown state
 			std::atomic<int32_t> mIsShutdown;
 
-			/// instance of NullSession
-			std::shared_ptr<NullSession> NULL_SESSION;
-
 			/// global instance count
 			static int32_t gInstanceCount;
 

@@ -110,12 +110,6 @@ namespace core
 
 			/// object information
 			const std::string mObjectID;
-
-		public:
-
-			/// Null WebRequestTracer
-			static std::shared_ptr<NullWebRequestTracer> NULL_WEB_REQUEST_TRACER;
-
 		};
 	}
 }

@@ -30,55 +30,38 @@ namespace core
 	namespace objects
 	{
 		///
-		/// This class is returned as WebRequestTracer by @ref openkit::IOpenKit::createSession(const char*) when the @ref openkit::IOpenKit::shutdown()
-		/// has been called before.
+		/// This class is returned as WebRequestTracer by @ref openkit::IOpenKit::createSession(const char*) when the
+		/// @ref openkit::IOpenKit::shutdown() has been called before.
 		///
-		class NullWebRequestTracer : public openkit::IWebRequestTracer, public std::enable_shared_from_this<NullWebRequestTracer>
+		class NullWebRequestTracer
+			: public openkit::IWebRequestTracer
+			, public std::enable_shared_from_this<NullWebRequestTracer>
 		{
 		public:
 
-			const char* getTag() const override
-			{
-				return emptyString;
-			}
+			static const std::shared_ptr<NullWebRequestTracer> INSTANCE;
+
+			const char* getTag() const override;
 
 			///
 			/// @deprecated use stop(int32_t) instead
 			///
 			OPENKIT_DEPRECATED
-			virtual std::shared_ptr<openkit::IWebRequestTracer> setResponseCode(int32_t /*responseCode*/) override
-			{
-				return shared_from_this();
-			}
+			std::shared_ptr<openkit::IWebRequestTracer> setResponseCode(int32_t /*responseCode*/) override;
 
-			virtual std::shared_ptr<openkit::IWebRequestTracer> setBytesSent(int32_t /*bytesSent*/) override
-			{
-				return shared_from_this();
-			}
+			std::shared_ptr<openkit::IWebRequestTracer> setBytesSent(int32_t /*bytesSent*/) override;
 
-			virtual std::shared_ptr<openkit::IWebRequestTracer> setBytesReceived(int32_t /*bytesReceived*/) override
-			{
-				return shared_from_this();
-			}
+			std::shared_ptr<openkit::IWebRequestTracer> setBytesReceived(int32_t /*bytesReceived*/) override;
 
-			virtual std::shared_ptr<openkit::IWebRequestTracer> start() override
-			{
-				return shared_from_this();
-			}
+			std::shared_ptr<openkit::IWebRequestTracer> start() override;
 
 			///
 			/// @deprecated use stop(int32_t) instead
 			///
 			OPENKIT_DEPRECATED
-			virtual void stop() override
-			{
-				// intentionally left empty, due to NullObject pattern
-			}
+			void stop() override;
 
-			virtual void stop(int32_t /*responseCode*/) override
-			{
-				// nothing, NullObject pattern
-			}
+			void stop(int32_t /*responseCode*/) override;
 
 		private:
 			const char* emptyString = "";
@@ -87,7 +70,7 @@ namespace core
 }
 
 #ifdef __GNUC__
-#pragma GCC diagnostic push
+#pragma GCC diagnostic pop
 #endif
 
 #endif

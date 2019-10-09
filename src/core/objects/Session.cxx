@@ -25,8 +25,6 @@
 
 using namespace core::objects;
 
-std::shared_ptr<NullWebRequestTracer> Session::NULL_WEB_REQUEST_TRACER(std::make_shared<NullWebRequestTracer>());
-
 Session::Session
 (
 	std::shared_ptr<openkit::ILogger> logger,
@@ -38,7 +36,6 @@ Session::Session
 	, mBeacon(beacon)
 	, mEndTime(-1)
 	, mOpenRootActions()
-	, NULL_ROOT_ACTION(std::make_shared<NullRootAction>())
 {
 }
 
@@ -54,7 +51,7 @@ std::shared_ptr<openkit::IRootAction> Session::enterAction(const char* actionNam
 	if (actionNameString.empty())
 	{
 		mLogger->warning("%s enterAction: actionName must not be null or empty", toString().c_str());
-		return NULL_ROOT_ACTION;
+		return NullRootAction::INSTANCE;
 	}
 	if (mLogger->isDebugEnabled())
 	{
@@ -63,7 +60,7 @@ std::shared_ptr<openkit::IRootAction> Session::enterAction(const char* actionNam
 
 	if (isSessionEnded())
 	{
-		return NULL_ROOT_ACTION;
+		return NullRootAction::INSTANCE;
 	}
 	std::shared_ptr<openkit::IRootAction> pointer = std::make_shared<RootAction>(mLogger, mBeacon, actionNameString, shared_from_this());
 	mOpenRootActions.put(pointer);
@@ -121,12 +118,12 @@ std::shared_ptr<openkit::IWebRequestTracer> Session::traceWebRequest(const char*
 	if (urlString.empty())
 	{
 		mLogger->warning("%s traceWebRequest (string): url must not be null or empty", toString().c_str());
-		return NULL_WEB_REQUEST_TRACER;
+		return NullWebRequestTracer::INSTANCE;
 	}
 	if (!WebRequestTracer::isValidURLScheme(urlString))
 	{
 		mLogger->warning("%s traceWebRequest (string): url \"%s\" does not have a valid scheme", toString().c_str(), urlString.getStringData().c_str());
-		return NULL_WEB_REQUEST_TRACER;
+		return NullWebRequestTracer::INSTANCE;
 	}
 	if (mLogger->isDebugEnabled())
 	{
@@ -137,7 +134,7 @@ std::shared_ptr<openkit::IWebRequestTracer> Session::traceWebRequest(const char*
 	{
 		return std::make_shared<core::objects::WebRequestTracer>(mLogger, shared_from_this(), mBeacon, urlString);
 	}
-	return NULL_WEB_REQUEST_TRACER;
+	return NullWebRequestTracer::INSTANCE;
 }
 
 void Session::end()

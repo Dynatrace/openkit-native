@@ -113,7 +113,7 @@ std::shared_ptr<openkit::IWebRequestTracer> Action::traceWebRequest(const char* 
 	{
 		return mActionImpl.traceWebRequest(shared_from_this(), url);
 	}
-	return ActionCommonImpl::NULL_WEB_REQUEST_TRACER;
+	return NullWebRequestTracer::INSTANCE;
 }
 
 std::shared_ptr<openkit::IRootAction> Action::leaveAction()

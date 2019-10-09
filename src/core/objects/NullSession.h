@@ -18,8 +18,8 @@
 #define _CORE_OBJECTS_NULLSESSION_H
 
 #include "OpenKit/ISession.h"
-#include "NullRootAction.h"
-#include "NullWebRequestTracer.h"
+#include "OpenKit/IRootAction.h"
+#include "OpenKit/IWebRequestTracer.h"
 
 #include <memory>
 
@@ -35,38 +35,17 @@ namespace core
 		{
 		public:
 
-			///
-			/// Constructor
-			///
-			NullSession()
-			{
+			static const std::shared_ptr<NullSession> INSTANCE;
 
-			}
+			std::shared_ptr<openkit::IRootAction> enterAction(const char* /*actionName*/) override;
 
-			virtual std::shared_ptr<openkit::IRootAction> enterAction(const char* /*actionName*/) override
-			{
-				return std::make_shared<NullRootAction>();
-			}
+			void identifyUser(const char* /*userTag*/) override;
 
-			virtual void identifyUser(const char* /*userTag*/) override
-			{
-				// intentionally left empty, due to NullObject pattern
-			}
+			void reportCrash(const char* /*errorName*/, const char* /*reason*/, const char* /*stacktrace*/) override;
 
-			virtual void reportCrash(const char* /*errorName*/, const char* /*reason*/, const char* /*stacktrace*/) override
-			{
-				// intentionally left empty, due to NullObject pattern
-			}
+			std::shared_ptr<openkit::IWebRequestTracer> traceWebRequest(const char* /*url*/) override;
 
-			virtual std::shared_ptr<openkit::IWebRequestTracer> traceWebRequest(const char* /*url*/) override
-			{
-				return std::make_shared<NullWebRequestTracer>();
-			}
-
-			virtual void end() override
-			{
-				// intentionally left empty, due to NullObject pattern
-			}
+			void end() override;
 		};
 	}
 }
