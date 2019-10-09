@@ -27,7 +27,6 @@
 #include "OpenKit/ILogger.h"
 #include "protocol/Beacon.h"
 #include "UTF8String.h"
-#include "NullAction.h"
 #include "NullWebRequestTracer.h"
 #include "core/ActionCommonImpl.h"
 
@@ -177,9 +176,6 @@ namespace core
 
 		/// action end time
 		std::atomic<int64_t> mEndTime;
-
-		/// NullAction
-		std::shared_ptr<NullAction> NULL_ACTION;
 
 		/// Impl object with the actual implementations for Action/RootAction
 		ActionCommonImpl mActionImpl;

@@ -5,6 +5,8 @@
 ### Changed
 - Fix `leaveAction` in `RootAction` so that the `mEndTime` and `mEndSequenceNumber` is set before 
   the root action is added to the `Beacon`.
+- Fix `enterAction` for a ended/left `RootAction` to return a `NullAction` with the `RootAction` as parent instead of
+  a `NullAction` without parent.
 
 ## 1.1.5 [Release date: 2019-08-08]
 [GitHub Releases](https://github.com/Dynatrace/openkit-native/releases/tag/v1.1.5)

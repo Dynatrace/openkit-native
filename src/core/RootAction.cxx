@@ -15,6 +15,7 @@
 */
 
 #include "RootAction.h"
+#include "NullAction.h"
 
 #include <memory>
 #include <sstream>
@@ -35,7 +36,6 @@ RootAction::RootAction(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr
 	, mStartSequenceNumber(mBeacon->createSequenceNumber())
 	, mEndSequenceNumber(-1)
 	, mEndTime(-1)
-	, NULL_ACTION(std::make_shared<NullAction>())
 	, mActionImpl(logger, beacon, mID, toString())
 {
 
@@ -47,7 +47,7 @@ std::shared_ptr<openkit::IAction> RootAction::enterAction(const char* actionName
 	if (actionNameString.empty())
 	{
 		mLogger->warning("%s enterAction: actionName must not be null or empty", toString().c_str());
-		return NULL_ACTION;
+		return std::make_shared<NullAction>(shared_from_this());
 	}
 
 	if (!isActionLeft())
@@ -56,7 +56,7 @@ std::shared_ptr<openkit::IAction> RootAction::enterAction(const char* actionName
 		mOpenChildActions.put(std::static_pointer_cast<openkit::IAction>(childAction));
 		return childAction;
 	}
-	return NULL_ACTION;
+	return std::make_shared<NullAction>(shared_from_this());
 }
 
 std::shared_ptr<openkit::IRootAction> RootAction::reportEvent(const char* eventName)
@@ -128,7 +128,7 @@ void RootAction::doLeaveAction()
 
 	// add Action to Beacon
 	mBeacon->addAction(shared_from_this());
-	
+
 	mSession->rootActionEnded(std::static_pointer_cast<RootAction>(shared_from_this()));
 	mSession = nullptr;
 }
