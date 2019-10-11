@@ -61,8 +61,8 @@ namespace test
 		using ISslTrustManager_t = openkit::ISSLTrustManager;
 		using ISslTrustManager_sp = std::shared_ptr<ISslTrustManager_t>;
 
-		using IWebRequstTracer_t = openkit::IWebRequestTracer;
-		using IWebRequestTracer_sp = std::shared_ptr<IWebRequstTracer_t>;
+		using IWebRequestTracer_t = openkit::IWebRequestTracer;
+		using IWebRequestTracer_sp = std::shared_ptr<IWebRequestTracer_t>;
 
 		using LogLevel_t = openkit::LogLevel;
 	}

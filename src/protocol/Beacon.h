@@ -24,8 +24,7 @@
 #include "providers/IPRNGenerator.h"
 #include "core/configuration/Configuration.h"
 #include "core/configuration/HTTPClientConfiguration.h"
-#include "core/objects/Action.h"
-#include "core/objects/RootAction.h"
+#include "core/objects/IActionCommon.h"
 #include "core/objects/Session.h"
 #include "core/objects/WebRequestTracer.h"
 #include "core/caching/BeaconCache.h"
@@ -92,7 +91,7 @@ namespace protocol
 		/// Create unique sequence number
 		/// The sequence number returned is only unique per Beacon.
 		/// Calling this method on two different Beacon instances, might give the same result.
-		/// @returns a unique sequencen number;
+		/// @returns a unique sequence number;
 		///
 		virtual int32_t createSequenceNumber();
 
@@ -108,7 +107,7 @@ namespace protocol
 		/// -Calling this method on two different Beacon instances, might give the same result.
 		/// @returns a unique identifier
 		///
-		int32_t createID();
+		virtual int32_t createID();
 
 		///
 		/// Create a web request tag
@@ -124,14 +123,7 @@ namespace protocol
 		/// The serialized data is added to the Beacon
 		/// @param[in] action action to add to the Beacon
 		///
-		virtual void addAction(std::shared_ptr<core::objects::Action> action);
-
-		///
-		/// Add @ref core::objects::RootAction to Beacon
-		/// The serialized data is added to the Beacon
-		/// @param[in] action root action to add to the Beacon
-		///
-		virtual void addAction(std::shared_ptr<core::objects::RootAction> action);
+		virtual void addAction(std::shared_ptr<core::objects::IActionCommon> action);
 
 		///
 		/// Add sessionStart to Beacon
@@ -249,7 +241,7 @@ namespace protocol
 		/// Returns the session number.
 		/// @returns session number
 		///
-		int32_t getSessionNumber() const;
+		virtual int32_t getSessionNumber() const;
 
 		///
 		/// Returns the device id

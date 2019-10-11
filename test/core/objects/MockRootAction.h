@@ -34,16 +34,11 @@ namespace test
 	public:
 		MockRootAction
 		(
-			types::ILogger_sp logger,
-			types::Beacon_sp beacon,
-			types::Session_sp session
+			types::IActionCommon_sp actionImpl
 		)
 		: RootAction
 		(
-			logger,
-			beacon,
-			types::Utf8String_t("Mock Action"),
-			session
+			actionImpl
 		)
 		{
 		}

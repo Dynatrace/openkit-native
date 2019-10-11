@@ -1,0 +1,47 @@
+/**
+ * Copyright 2018-2019 Dynatrace LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#ifndef _TEST_API_MOCKTYPES_H
+#define _TEST_API_MOCKTYPES_H
+
+#include "MockIRootAction.h"
+#include "MockILogger.h"
+
+#include "gmock/gmock.h"
+
+#include <memory>
+
+namespace test
+{
+	namespace types
+	{
+		using MockILogger_t = MockILogger;
+		using MockILogger_sp = std::shared_ptr<MockILogger_t>;
+		using MockNiceILogger_t = testing::NiceMock<MockILogger_t>;
+		using MockNiceILogger_sp = std::shared_ptr<MockNiceILogger_t>;
+		using MockStrictILogger_t = testing::StrictMock<MockILogger_t>;
+		using MockStrictILogger_sp = std::shared_ptr<MockStrictILogger_t>;
+
+		using MockIRootAction_t = MockIRootAction;
+		using MockIRootAction_sp = std::shared_ptr<MockIRootAction_t>;
+		using MockNiceIRootAction_t = testing::NiceMock<MockIRootAction_t>;
+		using MockNiceIRootAction_sp = std::shared_ptr<MockNiceIRootAction_t>;
+		using MockStrictIRootAction_t = testing::StrictMock<MockIRootAction_t>;
+		using MockStrictIRootAction_sp = std::shared_ptr<MockStrictIRootAction_t>;
+	}
+}
+
+#endif

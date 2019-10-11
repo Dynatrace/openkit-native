@@ -21,6 +21,7 @@
 #include "../configuration/Types.h"
 #include "../util/Types.h"
 #include "../../api/Types.h"
+#include "../../api/MockTypes.h"
 #include "../../protocol/Types.h"
 #include "../../protocol/MockTypes.h"
 #include "../../providers/Types.h"
@@ -81,15 +82,32 @@ protected:
 		mockBeaconStrict = std::make_shared<MockStrictBeacon_t>(logger, beaconCache, configuration, nullptr, threadIDProvider, timingProvider);
 		mockBeaconNice = std::make_shared<MockNiceBeacon_t>(logger, beaconCache, configuration, nullptr, threadIDProvider, timingProvider);
 
-		action = std::make_shared<Action_t>(logger, mockBeaconNice, Utf8String_t("test action"));
+		auto actionCommonImpl = std::make_shared<MockNiceIActionCommon_t>();
+		auto rootAction = std::make_shared<MockIRootAction_t>();
+		action = std::make_shared<LeafAction_t>(actionCommonImpl, rootAction);
 
-		mockStrictParent = std::make_shared<MockStrictOpenKitComposite_t>();
+		mockNiceparent = std::make_shared<MockNiceOpenKitComposite_t>();
 	}
 
 	void TearDown()
 	{
-
 	}
+
+	WebRequestTracer_sp createTracer()
+	{
+		return createTracer(mockBeaconNice);
+	}
+
+	WebRequestTracer_sp createTracer(Beacon_sp beacon)
+	{
+		return std::make_shared<WebRequestTracer_t>(
+			logger,
+			mockNiceparent,
+			beacon,
+			""
+		);
+	}
+
 public:
 	std::ostringstream devNull;
 	ILogger_sp logger;
@@ -110,9 +128,8 @@ public:
 	MockNiceBeacon_sp mockBeaconNice;
 	MockNiceHttpClientProvider_sp mockHTTPClientProvider;
 
-	Action_sp action;
-	MockStrictOpenKitComposite_sp mockStrictParent;
-
+	LeafAction_sp action;
+	MockNiceOpenKitComposite_sp mockNiceparent;
 };
 
 
@@ -126,7 +143,7 @@ TEST_F(WebRequestTracerTest, defaultValues)
 		.WillByDefault(testing::Return(123456789L));
 
 	// test the constructor call
-	auto testWebRequestTracer = std::make_shared<WebRequestTracer_t>(logger, action,mockBeaconNice, "");
+	auto testWebRequestTracer = createTracer();
 
 	// verify default values
 	auto tracerURL = testWebRequestTracer->getURL();
@@ -146,7 +163,7 @@ TEST_F(WebRequestTracerTest, getTag)
 	Utf8String_t theTag(TAG);
 	ON_CALL(*mockBeaconNice, createTag(testing::_, testing::_))
 		.WillByDefault(testing::Return(theTag));
-	auto testWebRequestTracer  = std::make_shared<WebRequestTracer_t>(logger, action, mockBeaconNice, "");
+	auto testWebRequestTracer = createTracer();
 
 	//verify
 	const char* actualValue = testWebRequestTracer->getTag();
@@ -157,7 +174,7 @@ TEST_F(WebRequestTracerTest, getTag)
 TEST_F(WebRequestTracerTest, aNewlyCreatedWebRequestTracerIsNotStopped)
 {
 	// given
-	auto testWebRequestTracer  = std::make_shared<WebRequestTracer_t>(logger, action, mockBeaconNice, "");
+	auto testWebRequestTracer = createTracer();
 
 	//verify
 	ASSERT_FALSE(testWebRequestTracer->isStopped());
@@ -166,7 +183,7 @@ TEST_F(WebRequestTracerTest, aNewlyCreatedWebRequestTracerIsNotStopped)
 TEST_F(WebRequestTracerTest, aWebRequestTracerIsStoppedAfterStopHasBeenCalled)
 {
 	// given
-	auto testWebRequestTracer  = std::make_shared<WebRequestTracer_t>(logger, action, mockBeaconNice, "");
+	auto testWebRequestTracer = createTracer();
 
 	// when
 	testWebRequestTracer->stop();
@@ -178,7 +195,7 @@ TEST_F(WebRequestTracerTest, aWebRequestTracerIsStoppedAfterStopHasBeenCalled)
 TEST_F(WebRequestTracerTest, aWebRequestTracerIsStoppedAfterStopWithResponseCodeHasBeenCalled)
 {
 	// given
-	auto testWebRequestTracer  = std::make_shared<WebRequestTracer_t>(logger, action, mockBeaconNice, "");
+	auto testWebRequestTracer = createTracer();
 
 	// when
 	testWebRequestTracer->stop(200);
@@ -190,7 +207,7 @@ TEST_F(WebRequestTracerTest, aWebRequestTracerIsStoppedAfterStopWithResponseCode
 TEST_F(WebRequestTracerTest, setResponseCodeSetsTheResponseCode)
 {
 	// given
-	auto testWebRequestTracer  = std::make_shared<WebRequestTracer_t>(logger, action, mockBeaconNice, "");
+	auto testWebRequestTracer = createTracer();
 
 	// when
 	auto obtained = testWebRequestTracer->setResponseCode(418);
@@ -203,7 +220,7 @@ TEST_F(WebRequestTracerTest, setResponseCodeSetsTheResponseCode)
 TEST_F(WebRequestTracerTest, stopWithResponseCodeSetsTheResponseCode)
 {
 	// given
-	auto testWebRequestTracer  = std::make_shared<WebRequestTracer_t>(logger, action, mockBeaconNice, "");
+	auto testWebRequestTracer = createTracer();
 
 	// when
 	testWebRequestTracer->stop(418);
@@ -215,7 +232,7 @@ TEST_F(WebRequestTracerTest, stopWithResponseCodeSetsTheResponseCode)
 TEST_F(WebRequestTracerTest, setResponseCodeDoesNotSetTheResponseCodeIfStopped)
 {
 	// given
-	auto testWebRequestTracer  = std::make_shared<WebRequestTracer_t>(logger, action, mockBeaconNice, "");
+	auto testWebRequestTracer = createTracer();
 
 	// when
 	testWebRequestTracer->stop();
@@ -229,7 +246,7 @@ TEST_F(WebRequestTracerTest, setResponseCodeDoesNotSetTheResponseCodeIfStopped)
 TEST_F(WebRequestTracerTest, stopWithResponseCodeDoesNotSetTheResponseCodeIfStopped)
 {
 	// given
-	auto testWebRequestTracer  = std::make_shared<WebRequestTracer_t>(logger, action, mockBeaconNice, "");
+	auto testWebRequestTracer = createTracer();
 	testWebRequestTracer->stop(200);
 
 	// when
@@ -242,7 +259,7 @@ TEST_F(WebRequestTracerTest, stopWithResponseCodeDoesNotSetTheResponseCodeIfStop
 TEST_F(WebRequestTracerTest, setBytesSentSetsTheNumberOfSentBytes)
 {
 	// given
-	auto testWebRequestTracer  = std::make_shared<WebRequestTracer_t>(logger, action, mockBeaconNice, "");
+	auto testWebRequestTracer = createTracer();
 
 	// when
 	auto obtained = testWebRequestTracer->setBytesSent(1234);
@@ -255,7 +272,7 @@ TEST_F(WebRequestTracerTest, setBytesSentSetsTheNumberOfSentBytes)
 TEST_F(WebRequestTracerTest, setBytesSentDoesNotSetAnythingIfStopped)
 {
 	// given
-	auto testWebRequestTracer  = std::make_shared<WebRequestTracer_t>(logger, action, mockBeaconNice, "");
+	auto testWebRequestTracer = createTracer();
 
 	// when
 	testWebRequestTracer->stop();
@@ -269,7 +286,7 @@ TEST_F(WebRequestTracerTest, setBytesSentDoesNotSetAnythingIfStopped)
 TEST_F(WebRequestTracerTest, setBytesSentDoesNotSetAnythingIfStoppedWithResponseCode)
 {
 	// given
-	auto testWebRequestTracer  = std::make_shared<WebRequestTracer_t>(logger, action, mockBeaconNice, "");
+	auto testWebRequestTracer = createTracer();
 
 	// when
 	testWebRequestTracer->stop(200);
@@ -283,7 +300,7 @@ TEST_F(WebRequestTracerTest, setBytesSentDoesNotSetAnythingIfStoppedWithResponse
 TEST_F(WebRequestTracerTest, setBytesReceivedSetsTheNumberOfReceivedBytes)
 {
 	// given
-	auto testWebRequestTracer  = std::make_shared<WebRequestTracer_t>(logger, action, mockBeaconNice, "");
+	auto testWebRequestTracer = createTracer();
 
 	// when
 	auto obtained = testWebRequestTracer->setBytesReceived(1234);
@@ -296,7 +313,7 @@ TEST_F(WebRequestTracerTest, setBytesReceivedSetsTheNumberOfReceivedBytes)
 TEST_F(WebRequestTracerTest, setBytesReceivedDoesNotSetAnythingIfStopped)
 {
 	// given
-	auto testWebRequestTracer  = std::make_shared<WebRequestTracer_t>(logger, action, mockBeaconNice, "");
+	auto testWebRequestTracer = createTracer();
 
 	// when
 	testWebRequestTracer->stop();
@@ -310,7 +327,7 @@ TEST_F(WebRequestTracerTest, setBytesReceivedDoesNotSetAnythingIfStopped)
 TEST_F(WebRequestTracerTest, setBytesReceivedDoesNotSetAnythingIfStoppedWithResponseCode)
 {
 	// given
-	auto testWebRequestTracer  = std::make_shared<WebRequestTracer_t>(logger, action, mockBeaconNice, "");
+	auto testWebRequestTracer = createTracer();
 
 	// when
 	testWebRequestTracer->stop(200);
@@ -326,7 +343,7 @@ TEST_F(WebRequestTracerTest, startSetsTheStartTime)
 	// given
 	ON_CALL(*mockBeaconNice, getCurrentTimestamp())
 		.WillByDefault(testing::Return(123456789L));
-	auto testWebRequestTracer  = std::make_shared<WebRequestTracer_t>(logger, action, mockBeaconNice, "");
+	auto testWebRequestTracer = createTracer();
 
 	// when
 	auto obtained = testWebRequestTracer->start();
@@ -341,7 +358,7 @@ TEST_F(WebRequestTracerTest, startDoesNothingIfAlreadyStopped)
 	// given
 	ON_CALL(*mockBeaconNice, getCurrentTimestamp())
 		.WillByDefault(testing::Return(123456789L));
-	auto testWebRequestTracer  = std::make_shared<WebRequestTracer_t>(logger, action, mockBeaconNice, "");
+	auto testWebRequestTracer = createTracer();
 
 	// when
 	testWebRequestTracer->stop();
@@ -357,7 +374,7 @@ TEST_F(WebRequestTracerTest, startDoesNothingIfAlreadyStoppedWithResponseCode)
 	// given
 	ON_CALL(*mockBeaconNice, getCurrentTimestamp())
 		.WillByDefault(testing::Return(123456789L));
-	auto testWebRequestTracer  = std::make_shared<WebRequestTracer_t>(logger, action, mockBeaconNice, "");
+	auto testWebRequestTracer = createTracer();
 
 	// when
 	testWebRequestTracer->stop(200);
@@ -380,7 +397,7 @@ TEST_F(WebRequestTracerTest, stopCanOnlyBeExecutedOnce)
 	EXPECT_CALL(*mockBeaconNice, addWebRequest(testing::_, testing::_))
 		.Times(testing::Exactly(1));
 
-	auto testWebRequestTracer  = std::make_shared<WebRequestTracer_t>(logger, action, mockBeaconNice, "");
+	auto testWebRequestTracer = createTracer();
 
 	testWebRequestTracer->stop();
 	ASSERT_EQ(testWebRequestTracer->getEndSequenceNo(), 42);
@@ -408,7 +425,7 @@ TEST_F(WebRequestTracerTest, stopWithResponseCodeCanOnlyBeExecutedOnce)
 	EXPECT_CALL(*mockBeaconNice, addWebRequest(testing::_, testing::_))
 		.Times(testing::Exactly(1));
 
-	auto testWebRequestTracer  = std::make_shared<WebRequestTracer_t>(logger, action, mockBeaconNice, "");
+	auto testWebRequestTracer = createTracer();
 
 	testWebRequestTracer->stop(200);
 	ASSERT_EQ(testWebRequestTracer->getEndSequenceNo(), 42);
@@ -424,17 +441,17 @@ TEST_F(WebRequestTracerTest, stopWithResponseCodeCanOnlyBeExecutedOnce)
 	testWebRequestTracer->stop(404);
 }
 
-TEST_F(WebRequestTracerTest, aNewlyCreatedWebRequestTracerDoesNotAttacoTOTheParent)
+TEST_F(WebRequestTracerTest, aNewlyCreatedWebRequestTracerDoesNotAttachToTheParent)
 {
 	// expect
-	EXPECT_CALL(*mockStrictParent, getActionId())
+	EXPECT_CALL(*mockNiceparent, getActionId())
 		.Times(testing::Exactly(2));
 
 	// given, when
-	auto target = std::make_shared<WebRequestTracer_t>(logger, mockStrictParent, mockBeaconNice, "");
+	auto target = createTracer();
 
 	// then
 	auto obtained = target->getParent();
-	ASSERT_THAT(mockStrictParent, testing::Eq(obtained));
+	ASSERT_THAT(mockNiceparent, testing::Eq(obtained));
 
 }

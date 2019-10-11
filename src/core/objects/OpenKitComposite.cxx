@@ -18,12 +18,17 @@
 
 using namespace core::objects;
 
-void OpenKitComposite::storeChildInList(const std::shared_ptr<IOpenKitObject> childObject)
+std::list<std::shared_ptr<IOpenKitObject>> OpenKitComposite::getCopyOfChildObjects()
+{
+	return mChildren;
+}
+
+void OpenKitComposite::storeChildInList(std::shared_ptr<IOpenKitObject> childObject)
 {
 	mChildren.push_back(childObject);
 }
 
-void OpenKitComposite::removeChildFromList(const std::shared_ptr<IOpenKitObject> childObject)
+void OpenKitComposite::removeChildFromList(std::shared_ptr<IOpenKitObject> childObject)
 {
 	mChildren.remove(childObject);
 }

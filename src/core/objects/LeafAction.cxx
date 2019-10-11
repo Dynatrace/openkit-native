@@ -14,64 +14,71 @@
 * limitations under the License.
 */
 
+#include "LeafAction.h"
+#include "protocol/Beacon.h"
 #include "RootAction.h"
 
+#include <atomic>
 #include <memory>
 #include <sstream>
 
 #include "NullWebRequestTracer.h"
+#include "WebRequestTracer.h"
 
 using namespace core::objects;
 
-RootAction::RootAction
+LeafAction::LeafAction
 (
-	std::shared_ptr<IActionCommon> actionImpl
+	std::shared_ptr<IActionCommon> actionImpl,
+	std::shared_ptr<openkit::IRootAction> parentAction
 )
 	: mActionImpl(actionImpl)
+	, mParentAction(parentAction)
 {
 }
 
-std::shared_ptr<openkit::IAction> RootAction::enterAction(const char* actionName)
-{
-	return mActionImpl->enterAction(shared_from_this(), actionName);
-}
-
-std::shared_ptr<openkit::IRootAction> RootAction::reportEvent(const char* eventName)
+std::shared_ptr<openkit::IAction> LeafAction::reportEvent(const char* eventName)
 {
 	mActionImpl->reportEvent(eventName);
 	return shared_from_this();
 }
 
-std::shared_ptr<openkit::IRootAction> RootAction::reportValue(const char* valueName, int32_t value)
+std::shared_ptr<openkit::IAction> LeafAction::reportValue(const char* valueName, int32_t value)
 {
 	mActionImpl->reportValue(valueName, value);
 	return shared_from_this();
 }
 
-std::shared_ptr<openkit::IRootAction> RootAction::reportValue(const char* valueName, double value)
+std::shared_ptr<openkit::IAction> LeafAction::reportValue(const char* valueName, double value)
 {
 	mActionImpl->reportValue(valueName, value);
 	return shared_from_this();
 }
 
-std::shared_ptr<openkit::IRootAction> RootAction::reportValue(const char* valueName, const char* value)
+std::shared_ptr<openkit::IAction> LeafAction::reportValue(const char* valueName, const char* value)
 {
 	mActionImpl->reportValue(valueName, value);
 	return shared_from_this();
 }
 
-std::shared_ptr<openkit::IRootAction> RootAction::reportError(const char* errorName, int32_t errorCode, const char* reason)
+std::shared_ptr<openkit::IAction> LeafAction::reportError(const char* errorName, int32_t errorCode, const char* reason)
 {
 	mActionImpl->reportError(errorName, errorCode, reason);
 	return shared_from_this();
 }
 
-std::shared_ptr<openkit::IWebRequestTracer> RootAction::traceWebRequest(const char* url)
+std::shared_ptr<openkit::IWebRequestTracer> LeafAction::traceWebRequest(const char* url)
 {
 	return mActionImpl->traceWebRequest(url);
 }
 
-void RootAction::leaveAction()
+std::shared_ptr<openkit::IRootAction> LeafAction::leaveAction()
 {
 	mActionImpl->leaveAction();
+	return mParentAction;
+}
+
+const std::shared_ptr<IActionCommon> LeafAction::getActionImpl()
+{
+	return mActionImpl;
 }

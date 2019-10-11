@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef _TEST_CORE_OBJECTS_MOCKOPENKITCOMPOSITE_H
-#define _TEST_CORE_OBJECTS_MOCKOPENKITCOMPOSITE_H
+#ifndef _TEST_CORE_OBJECTS_MOCKIOPENKITOBJECT_H
+#define _TEST_CORE_OBJECTS_MOCKIOPENKITOBJECT_H
 
 #include "Types.h"
 
@@ -23,21 +23,13 @@
 
 namespace test
 {
-	class MockOpenKitComposite : public types::OpenKitComposite_t
+
+	class MockIOpenKitObject : public types::IOpenKitObject_t
 	{
 	public:
-		MockOpenKitComposite()
-		{
-		}
-
-		~MockOpenKitComposite()
-		{
-		}
-
-		MOCK_METHOD1(onChildClosed, void(const types::IOpenKitObject_sp));
-		MOCK_CONST_METHOD0(getActionId, int32_t());
 		MOCK_METHOD0(close, void());
 	};
+
 }
 
 #endif

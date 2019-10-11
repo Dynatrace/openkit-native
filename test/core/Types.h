@@ -31,7 +31,7 @@ namespace test
 		using SessionWrapper_t = core::SessionWrapper;
 		using SessionWrapper_sp = std::shared_ptr<SessionWrapper_t>;
 
-		using Utf8String_t = core::UTF8String;
+		typedef core::UTF8String Utf8String_t;
 		using Utf8String_sp = std::shared_ptr<Utf8String_t>;
 	}
 }

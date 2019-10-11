@@ -147,7 +147,7 @@ TEST_F(BeaconSendingInitialStateTest, initIsTerminatedIfShutdownRequestedWithVal
 	// given
 	auto target = BeaconSendingInitialState_t();
 
-	MockBeaconSendingContext_t mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
+	MockNiceBeaconSendingContext_t mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
 
 	ON_CALL(mockContext, isShutdownRequested())
 		.WillByDefault(testing::Return(true));
@@ -176,7 +176,7 @@ TEST_F(BeaconSendingInitialStateTest, sleepTimeIsDoubledBetweenStatusRequestRetr
 	// given
 	auto target = BeaconSendingInitialState_t();
 
-	MockBeaconSendingContext_t mockContext(mLogger);
+	MockNiceBeaconSendingContext_t mockContext(mLogger);
 
 	uint32_t callCount = 0;
 
@@ -221,7 +221,7 @@ TEST_F(BeaconSendingInitialStateTest, initialStatusRequestGivesUpWhenShutdownReq
 	// given
 	auto target = BeaconSendingInitialState_t();
 
-	MockBeaconSendingContext_t mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
+	MockNiceBeaconSendingContext_t mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
 
 	ON_CALL(mockContext, getHTTPClient())
 		.WillByDefault(testing::Return(mMockHTTPClient));
@@ -268,7 +268,7 @@ TEST_F(BeaconSendingInitialStateTest, aSuccessfulStatusResponsePerformsStateTran
 	// given
 	auto target = BeaconSendingInitialState_t();
 
-	MockBeaconSendingContext_t mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
+	MockNiceBeaconSendingContext_t mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
 
 	ON_CALL(mockContext, getHTTPClient())
 		.WillByDefault(testing::Return(mMockHTTPClient));
@@ -292,7 +292,7 @@ TEST_F(BeaconSendingInitialStateTest, aSuccessfulStatusResponsePerformsStateTran
 	// given
 	auto target = BeaconSendingInitialState_t();
 
-	MockBeaconSendingContext_t mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
+	MockNiceBeaconSendingContext_t mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
 
 	ON_CALL(mockContext, getHTTPClient())
 		.WillByDefault(testing::Return(mMockHTTPClient));
@@ -316,7 +316,7 @@ TEST_F(BeaconSendingInitialStateTest, aSuccessfulStatusResponseSetsInitCompleted
 	// given
 	auto target = BeaconSendingInitialState_t();
 
-	MockBeaconSendingContext_t mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
+	MockNiceBeaconSendingContext_t mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
 
 	ON_CALL(mockContext, getHTTPClient())
 		.WillByDefault(testing::Return(mMockHTTPClient));
@@ -340,7 +340,7 @@ TEST_F(BeaconSendingInitialStateTest, aSuccessfulStatusResponseSetsInitCompleted
 	// given
 	auto target = BeaconSendingInitialState_t();
 
-	MockBeaconSendingContext_t mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
+	MockNiceBeaconSendingContext_t mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
 
 	ON_CALL(mockContext, getHTTPClient())
 		.WillByDefault(testing::Return(mMockHTTPClient));
@@ -364,7 +364,7 @@ TEST_F(BeaconSendingInitialStateTest, reinitializeSleepsBeforeSendingStatusReque
 	// given
 	auto target = BeaconSendingInitialState_t();
 
-	MockBeaconSendingContext_t mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
+	MockNiceBeaconSendingContext_t mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
 
 	uint32_t callCount = 0;
 
@@ -521,7 +521,7 @@ TEST_F(BeaconSendingInitialStateTest, receivingTooManyRequestsResponseUsesSleepT
 		})
 	);
 
-	MockBeaconSendingContext_t mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
+	MockNiceBeaconSendingContext_t mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
 	ON_CALL(mockContext, getHTTPClient())
 		.WillByDefault(testing::Return(mMockHTTPClient));
 
@@ -554,7 +554,7 @@ TEST_F(BeaconSendingInitialStateTest, receivingTooManyRequestsResponseDisablesCa
 		})
 	);
 
-	MockBeaconSendingContext_t mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
+	MockNiceBeaconSendingContext_t mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
 	ON_CALL(mockContext, getHTTPClient())
 		.WillByDefault(testing::Return(mMockHTTPClient));
 

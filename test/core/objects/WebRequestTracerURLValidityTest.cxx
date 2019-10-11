@@ -125,7 +125,8 @@ TEST_F(WebRequestTracerURLValidityTest, aSchemeIsInvalidIfInvalidCharactersAreEn
 TEST_F(WebRequestTracerURLValidityTest, anURLIsOnlySetInConstructorIfItIsValid)
 {
 	// given
-	WebRequestTracer_t target(logger, mockParent, mockBeacon, "a1337://foo");
+	Utf8String_t url("a1337://foo");
+	WebRequestTracer_t target(logger, mockParent, mockBeacon, url);
 
 	// then
 	ASSERT_EQ(target.getURL(), "a1337://foo");
@@ -134,7 +135,8 @@ TEST_F(WebRequestTracerURLValidityTest, anURLIsOnlySetInConstructorIfItIsValid)
 TEST_F(WebRequestTracerURLValidityTest, ifURLIsInvalidTheDefaultValueIsUsed)
 {
 	// given
-	WebRequestTracer_t target(logger, mockParent, mockBeacon, "1337://foo");
+	Utf8String_t url("1337://foo");
+	WebRequestTracer_t target(logger, mockParent, mockBeacon, url);
 
 	// then
 	ASSERT_EQ(target.getURL(), "<unknown>");
@@ -143,7 +145,8 @@ TEST_F(WebRequestTracerURLValidityTest, ifURLIsInvalidTheDefaultValueIsUsed)
 TEST_F(WebRequestTracerURLValidityTest, urlStoredDoesNotContainRequestParameters)
 {
 	// given
-	WebRequestTracer_t target(logger, mockParent, mockBeacon, "https://www.google.com/foo/bar?foo=bar&asdf=jklo");
+	Utf8String_t url("https://www.google.com/foo/bar?foo=bar&asdf=jklo");
+	WebRequestTracer_t target(logger, mockParent, mockBeacon, url);
 
 	// then
 	ASSERT_EQ(target.getURL(), "https://www.google.com/foo/bar");

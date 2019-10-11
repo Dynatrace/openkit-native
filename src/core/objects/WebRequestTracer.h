@@ -61,9 +61,9 @@ namespace core
 			///
 			WebRequestTracer
 			(
-				const std::shared_ptr<openkit::ILogger> logger,
-				const std::shared_ptr<OpenKitComposite> parent,
-				const std::shared_ptr<protocol::Beacon> beacon,
+				std::shared_ptr<openkit::ILogger> logger,
+				std::shared_ptr<IOpenKitComposite> parent,
+				std::shared_ptr<protocol::Beacon> beacon,
 				const core::UTF8String& url
 			);
 
@@ -163,7 +163,7 @@ namespace core
 			///
 			/// Returns the parent object of this web request tracer.
 			///
-			std::shared_ptr<OpenKitComposite> getParent() const;
+			std::shared_ptr<IOpenKitComposite> getParent() const;
 
 		private:
 
@@ -180,7 +180,7 @@ namespace core
 			///
 			/// Parent object of this web request tracer.
 			///
-			const std::shared_ptr<OpenKitComposite> mParent;
+			const std::shared_ptr<IOpenKitComposite> mParent;
 
 			///
 			/// Mutex for synchronization

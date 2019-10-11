@@ -32,9 +32,9 @@ namespace test {
 	public:
 		MockWebRequestTracer
 		(
-			const types::ILogger_sp logger,
-			const types::OpenKitComposite_sp parent,
-			const types::Beacon_sp beacon,
+			types::ILogger_sp logger,
+			types::IOpenKitComposite_sp parent,
+			types::Beacon_sp beacon,
 			const types::Utf8String_t& url
 		)
 		: types::WebRequestTracer_t

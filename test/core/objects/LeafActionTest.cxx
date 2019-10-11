@@ -16,6 +16,7 @@
 
 #include "Types.h"
 #include "MockTypes.h"
+#include "../../api/MockTypes.h"
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
@@ -24,43 +25,33 @@
 
 using namespace test::types;
 
-class RootActionTest : public testing::Test
+class LeafActionTest : public testing::Test
 {
 protected:
 
 	MockStrictIActionCommon_sp mockActionImpl;
+	MockStrictIRootAction_sp mockRootAction;
 
 	void SetUp()
 	{
 		mockActionImpl = std::make_shared<MockStrictIActionCommon_t>();
+		mockRootAction = std::make_shared<MockStrictIRootAction_t>();
 	}
 
 	void TearDown()
 	{
 	}
 
-	RootAction_sp createAction()
+	LeafAction_sp createAction()
 	{
-		return std::make_shared<RootAction_t>(mockActionImpl);
+		return std::make_shared<LeafAction_t>(
+			mockActionImpl,
+			mockRootAction
+		);
 	}
 };
 
-TEST_F(RootActionTest, enterActionDelegatesToCommonImpl)
-{
-	// with
-	const char* actionName = "root action";
-
-	// expect
-	EXPECT_CALL(*mockActionImpl, enterAction(testing::_, actionName)).Times(testing::Exactly(1));
-
-	// given
-	auto target = createAction();
-
-	// when
-	target->enterAction(actionName);
-}
-
-TEST_F(RootActionTest, reportEventDelegatesToCommonImpl)
+TEST_F(LeafActionTest, reportEventDelegatesToCommonImpl)
 {
 	// with
 	const char* eventName = "event name";
@@ -72,14 +63,18 @@ TEST_F(RootActionTest, reportEventDelegatesToCommonImpl)
 	auto target = createAction();
 
 	// when
-	target->reportEvent(eventName);
+	auto obtained = target->reportEvent(eventName);
+
+	// then
+	ASSERT_THAT(obtained, testing::NotNull());
+	ASSERT_THAT(obtained, testing::Eq(target));
 }
 
-TEST_F(RootActionTest, reportValueIntDelegatsToCommonImpl)
+TEST_F(LeafActionTest, reportValueIntDelegatesToCommonImpl)
 {
 	// with
 	const char* valueName = "IntValue";
-	int32_t value = 42;
+	const int32_t value = 42;
 
 	// expect
 	EXPECT_CALL(*mockActionImpl, reportValueInt(valueName, value)).Times(testing::Exactly(1));
@@ -88,14 +83,18 @@ TEST_F(RootActionTest, reportValueIntDelegatsToCommonImpl)
 	auto target = createAction();
 
 	// when
-	target->reportValue(valueName, value);
+	auto obtained = target->reportValue(valueName, value);
+
+	// then
+	ASSERT_THAT(obtained, testing::NotNull());
+	ASSERT_THAT(obtained, testing::Eq(target));
 }
 
-TEST_F(RootActionTest, reportValueDoubleDelegatsToCommonImpl)
+TEST_F(LeafActionTest, reportValueDoubleDelegatesToCommonImpl)
 {
 	// with
 	const char* valueName = "DoubleValue";
-	double value = 42.1337;
+	const double value = 42.1337;
 
 	// expect
 	EXPECT_CALL(*mockActionImpl, reportValueDouble(valueName, value)).Times(testing::Exactly(1));
@@ -104,10 +103,14 @@ TEST_F(RootActionTest, reportValueDoubleDelegatsToCommonImpl)
 	auto target = createAction();
 
 	// when
-	target->reportValue(valueName, value);
+	auto obtained = target->reportValue(valueName, value);
+
+	// then
+	ASSERT_THAT(obtained, testing::NotNull());
+	ASSERT_THAT(obtained, testing::Eq(target));
 }
 
-TEST_F(RootActionTest, reportValueStringDelegatsToCommonImpl)
+TEST_F(LeafActionTest, reportValueStringDelegatesToCommonImpl)
 {
 	// with
 	const char* valueName = "StringValue";
@@ -120,10 +123,14 @@ TEST_F(RootActionTest, reportValueStringDelegatsToCommonImpl)
 	auto target = createAction();
 
 	// when
-	target->reportValue(valueName, value);
+	auto obtained = target->reportValue(valueName, value);
+
+	// then
+	ASSERT_THAT(obtained, testing::NotNull());
+	ASSERT_THAT(obtained, testing::Eq(target));
 }
 
-TEST_F(RootActionTest, reportErrorDelegatsToCommonImpl)
+TEST_F(LeafActionTest, reportErrorDelegatsToCommonImpl)
 {
 	// with
 	const char* errorName = "error name";
@@ -137,10 +144,14 @@ TEST_F(RootActionTest, reportErrorDelegatsToCommonImpl)
 	auto target = createAction();
 
 	// when
-	target->reportError(errorName, errorCode, errorReason);
+	auto obtained = target->reportError(errorName, errorCode, errorReason);
+
+	// then
+	ASSERT_THAT(obtained, testing::NotNull());
+	ASSERT_THAT(obtained, testing::Eq(target));
 }
 
-TEST_F(RootActionTest, traceWebRequestDelegatesToCommonImpl)
+TEST_F(LeafActionTest, traceWebRequestDelegatesToCommonImpl)
 {
 	// with
 	const char* url = "https::localhost:9999/1";
@@ -163,7 +174,7 @@ TEST_F(RootActionTest, traceWebRequestDelegatesToCommonImpl)
 	ASSERT_THAT(obtained, testing::Eq(tracer));
 }
 
-TEST_F(RootActionTest, leaveActionDelegatesToCommonImpl)
+TEST_F(LeafActionTest, leaveActionDelegatesToCommonImpl)
 {
 	// expect
 	EXPECT_CALL(*mockActionImpl, leaveAction()).Times(testing::Exactly(1));
@@ -172,5 +183,9 @@ TEST_F(RootActionTest, leaveActionDelegatesToCommonImpl)
 	auto target = createAction();
 
 	// when
-	target->leaveAction();
+	auto obtained = target->leaveAction();
+
+	// then
+	ASSERT_THAT(obtained, testing::NotNull());
+	ASSERT_THAT(obtained, testing::Eq(mockRootAction));
 }

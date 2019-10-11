@@ -17,7 +17,7 @@
 #ifndef _CORE_OBJECTS_OPENKITCOMPOSITE_H
 #define _CORE_OBJECTS_OPENKITCOMPOSITE_H
 
-#include "IOpenKitObject.h"
+#include "IOpenKitComposite.h"
 
 #include <list>
 #include <memory>
@@ -33,7 +33,8 @@ namespace core
 		/// It features a container to store child objects.
 		/// The container is not thread safe, thus, synchronization must be taken care of by the implementing class.
 		///
-		class OpenKitComposite : public IOpenKitObject
+		class OpenKitComposite
+			: public IOpenKitComposite
 		{
 
 		public: // functions
@@ -52,6 +53,25 @@ namespace core
 			virtual ~OpenKitComposite() {}
 
 			///
+			/// Adds the given child object to the list of children.
+			///
+			/// @param[in] childObject the child object to add.
+			///
+			void storeChildInList(std::shared_ptr<IOpenKitObject> childObject) override;
+
+			///
+			/// Removes the given child object from the list of children.
+			///
+			/// @param[in] childObject the child object to remove.
+			///
+			void removeChildFromList(std::shared_ptr<IOpenKitObject> childObject) override;
+
+			///
+			/// Returns a shallow copy of the @ref IOpenKitObject child objects
+			///
+			std::list<std::shared_ptr<IOpenKitObject>> getCopyOfChildObjects() override;
+
+			///
 			/// Abstract method to notify the composite about closing/ending of a child object.
 			///
 			/// @par
@@ -60,7 +80,7 @@ namespace core
 			///
 			/// @param[in] childObject the child object which was closed.
 			///
-			virtual void onChildClosed(const std::shared_ptr<IOpenKitObject> childObject) = 0;
+			virtual void onChildClosed(std::shared_ptr<IOpenKitObject> childObject) = 0;
 
 			///
 			/// Returns the action ID of this composite or @c 0 if the composite is not an action.
@@ -72,22 +92,6 @@ namespace core
 			virtual int32_t getActionId() const;
 
 			virtual void close() = 0;
-
-		protected: // functions
-
-			///
-			/// Adds the given child object to the list of children.
-			///
-			/// @param[in] childObject the child object to add.
-			///
-			void storeChildInList(const std::shared_ptr<IOpenKitObject> childObject);
-
-			///
-			/// Removes the given child object from the list of children.
-			///
-			/// @param[in] childObject the child object to remove.
-			///
-			void removeChildFromList(const std::shared_ptr<IOpenKitObject> childObject);
 
 		private: // members
 

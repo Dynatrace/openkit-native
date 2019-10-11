@@ -133,10 +133,12 @@ set(OPENKIT_SOURCES_CORE
 )
 
 set(OPENKIT_SOURCES_CORE_OBJECTS
-    ${CMAKE_CURRENT_LIST_DIR}/core/objects/Action.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/core/objects/Action.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/LeafAction.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/LeafAction.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/ActionCommonImpl.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/ActionCommonImpl.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/IActionCommon.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/IOpenKitComposite.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/IOpenKitObject.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/NullAction.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/NullRootAction.cxx

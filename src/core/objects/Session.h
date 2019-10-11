@@ -99,13 +99,6 @@ namespace core
 			///
 			virtual int64_t getEndTime() const;
 
-
-			///
-			/// Method to be called by the child action upon the call of leaveAction
-			/// @param[in] rootAction RootAction that was closed
-			///
-			void rootActionEnded(std::shared_ptr<RootAction> rootAction);
-
 			///
 			/// Start a session
 			///
@@ -175,9 +168,6 @@ namespace core
 
 			/// end time
 			std::atomic<int64_t> mEndTime;
-
-			/// synchronized queue of root actions of this session
-			util::SynchronizedQueue<std::shared_ptr<openkit::IRootAction>> mOpenRootActions;
 		};
 	}
 }

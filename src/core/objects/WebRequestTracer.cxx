@@ -29,9 +29,9 @@ const std::string WebRequestTracer::UNKNOWN_URL = "<unknown>";
 
 WebRequestTracer::WebRequestTracer
 (
-	const std::shared_ptr<openkit::ILogger> logger,
-	const std::shared_ptr<OpenKitComposite> parent,
-	const std::shared_ptr<protocol::Beacon> beacon,
+	std::shared_ptr<openkit::ILogger> logger,
+	std::shared_ptr<IOpenKitComposite> parent,
+	std::shared_ptr<protocol::Beacon> beacon,
 	const core::UTF8String& url
 )
 	: mLogger(logger)
@@ -234,7 +234,7 @@ bool WebRequestTracer::isStopped() const
 	return mEndTime != -1;
 }
 
-std::shared_ptr<OpenKitComposite> WebRequestTracer::getParent() const
+std::shared_ptr<IOpenKitComposite> WebRequestTracer::getParent() const
 {
 	return mParent;
 }

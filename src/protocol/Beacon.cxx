@@ -266,7 +266,7 @@ core::UTF8String Beacon::createTag(int32_t parentActionID, int32_t sequenceNumbe
 	return webRequestTag;
 }
 
-void Beacon::addAction(std::shared_ptr<core::objects::Action> action)
+void Beacon::addAction(std::shared_ptr<core::objects::IActionCommon> action)
 {
 	if (std::atomic_load(&mBeaconConfiguration)->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
 	{
@@ -277,28 +277,9 @@ void Beacon::addAction(std::shared_ptr<core::objects::Action> action)
 
 	addKeyValuePair(actionData, BEACON_KEY_ACTION_ID, action->getID());
 	addKeyValuePair(actionData, BEACON_KEY_PARENT_ACTION_ID, action->getParentID());
-	addKeyValuePair(actionData, BEACON_KEY_START_SEQUENCE_NUMBER, action->getStartSequenceNo());
+	addKeyValuePair(actionData, BEACON_KEY_START_SEQUENCE_NUMBER, action->getStartSequenceNumber());
 	addKeyValuePair(actionData, BEACON_KEY_TIME_0, getTimeSinceSessionStartTime(action->getStartTime()));
-	addKeyValuePair(actionData, BEACON_KEY_END_SEQUENCE_NUMBER, action->getEndSequenceNo());
-	addKeyValuePair(actionData, BEACON_KEY_TIME_1, action->getEndTime() - action->getStartTime());
-
-	addActionData(action->getStartTime(), actionData);
-}
-
-void Beacon::addAction(std::shared_ptr<core::objects::RootAction> action)
-{
-	if (std::atomic_load(&mBeaconConfiguration)->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
-	{
-		return;
-	}
-
-	core::UTF8String actionData = createBasicEventData(EventType::ACTION, action->getName());
-
-	addKeyValuePair(actionData, BEACON_KEY_ACTION_ID, action->getID());
-	addKeyValuePair(actionData, BEACON_KEY_PARENT_ACTION_ID, 0);
-	addKeyValuePair(actionData, BEACON_KEY_START_SEQUENCE_NUMBER, action->getStartSequenceNo());
-	addKeyValuePair(actionData, BEACON_KEY_TIME_0, getTimeSinceSessionStartTime(action->getStartTime()));
-	addKeyValuePair(actionData, BEACON_KEY_END_SEQUENCE_NUMBER, action->getEndSequenceNo());
+	addKeyValuePair(actionData, BEACON_KEY_END_SEQUENCE_NUMBER, action->getEndSequenceNumber());
 	addKeyValuePair(actionData, BEACON_KEY_TIME_1, action->getEndTime() - action->getStartTime());
 
 	addActionData(action->getStartTime(), actionData);

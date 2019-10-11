@@ -108,14 +108,9 @@ protected:
 		return std::make_shared<MockNiceSession_t>(logger);
 	}
 
-	MockNiceAction_sp createMockedAction(Beacon_sp beacon)
+	MockNiceIActionCommon_sp createMockedAction()
 	{
-		return std::make_shared<MockNiceAction_t>(logger, beacon);
-	}
-
-	MockNiceRootAction_sp createMockedRootAction(Beacon_sp beacon)
-	{
-		return std::make_shared<MockNiceRootAction_t>(logger, beacon, createMockedSession());
+		return std::make_shared<MockNiceIActionCommon_t>();
 	}
 
 	MockNicePrnGenerator_sp getMockedRandomGenerator()
@@ -475,11 +470,11 @@ TEST_F(BeaconTest, sessionIDIsValueFromSessionIDProviderOnDataCollectionLevel2)
 	EXPECT_EQ(sessionNumber, THE_ANSWER);
 }
 
-TEST_F(BeaconTest, actionNotReportedForDataCollectionLevel0_Action)
+TEST_F(BeaconTest, actionNotReportedForDataCollectionLevel0)
 {
 	// given
 	auto target = buildBeacon(DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF);
-	auto actionMock = createMockedAction(target);
+	auto actionMock = createMockedAction();
 
 	//verify
 	EXPECT_CALL(*actionMock, getID())
@@ -492,29 +487,11 @@ TEST_F(BeaconTest, actionNotReportedForDataCollectionLevel0_Action)
 	ASSERT_TRUE(target->isEmpty());
 }
 
-
-TEST_F(BeaconTest, actionNotReportedForDataCollectionLevel0_RootAction)
-{
-	//given
-	auto target = buildBeacon(DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF);
-	auto rootActionMock = createMockedRootAction(target);
-
-	//verify
-	EXPECT_CALL(*rootActionMock, getID())
-		.Times(0);
-
-	// when
-	target->addAction(rootActionMock);
-
-	//then
-	ASSERT_TRUE(target->isEmpty());
-}
-
-TEST_F(BeaconTest, actionReportedForDataCollectionLevel1_Action)
+TEST_F(BeaconTest, actionReportedForDataCollectionLevel1)
 {
 	//given
 	auto target = buildBeacon(DataCollectionLevel_t::PERFORMANCE, CrashReportingLevel_t::OFF);
-	auto actionMock = createMockedAction(target);
+	auto actionMock = createMockedAction();
 
 	//verify
 	EXPECT_CALL(*actionMock, getID())
@@ -527,29 +504,11 @@ TEST_F(BeaconTest, actionReportedForDataCollectionLevel1_Action)
 	ASSERT_FALSE(target->isEmpty());
 }
 
-
-TEST_F(BeaconTest, actionReportedForDataCollectionLevel1_RootAction)
-{
-	//given
-	auto target = buildBeacon(DataCollectionLevel_t::PERFORMANCE, CrashReportingLevel_t::OFF);
-	auto rootActionMock = createMockedRootAction(target);
-
-	//verify
-	EXPECT_CALL(*rootActionMock, getID())
-		.Times(1);
-
-	// when
-	target->addAction(rootActionMock);
-
-	//then
-	ASSERT_FALSE(target->isEmpty());
-}
-
-TEST_F(BeaconTest, actionReportedForDataCollectionLevel2_Action)
+TEST_F(BeaconTest, actionReportedForDataCollectionLevel2)
 {
 	//given
 	auto target = buildBeacon(DataCollectionLevel_t::USER_BEHAVIOR, CrashReportingLevel_t::OFF);
-	auto actionMock = createMockedAction(target);
+	auto actionMock = createMockedAction();
 
 	//verify
 	EXPECT_CALL(*actionMock, getID())
@@ -557,24 +516,6 @@ TEST_F(BeaconTest, actionReportedForDataCollectionLevel2_Action)
 
 	// when
 	target->addAction(actionMock);
-
-	//then
-	ASSERT_FALSE(target->isEmpty());
-}
-
-
-TEST_F(BeaconTest, actionReportedForDataCollectionLevel2_RootAction)
-{
-	//given
-	auto target = buildBeacon(DataCollectionLevel_t::USER_BEHAVIOR, CrashReportingLevel_t::OFF);
-	auto rootActionMock = createMockedRootAction(target);
-
-	//verify
-	EXPECT_CALL(*rootActionMock, getID())
-		.Times(1);
-
-	// when
-	target->addAction(rootActionMock);
 
 	//then
 	ASSERT_FALSE(target->isEmpty());

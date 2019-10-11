@@ -14,35 +14,38 @@
 * limitations under the License.
 */
 
-
-#ifndef _CORE_OBJECTS_ROOTACTION_H
-#define _CORE_OBJECTS_ROOTACTION_H
+#ifndef _CORE_OBJECTS_ACTION_H
+#define _CORE_OBJECTS_ACTION_H
 
 #ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wnon-virtual-dtor" // enable_shared_from_this has a public non virtual destructor throwing a false positive in this code
 #endif
 
-#include "OpenKit/IRootAction.h"
+#include "OpenKit/IAction.h"
 #include "OpenKit/ILogger.h"
-#include "protocol/Beacon.h"
-#include "core/UTF8String.h"
 #include "core/objects/IOpenKitObject.h"
 #include "core/objects/OpenKitComposite.h"
-#include "NullAction.h"
+#include "core/util/SynchronizedQueue.h"
+#include "core/UTF8String.h"
 #include "NullWebRequestTracer.h"
 #include "ActionCommonImpl.h"
 
 #include <memory>
+#include <atomic>
+
+namespace protocol
+{
+	class Beacon;
+}
 
 namespace core
 {
 	namespace objects
 	{
-		class Session;
-
+		class RootAction;
 		///
-		/// Actual implementation of the IRootAction interface.
+		/// Actual implementation of the IAction interface.
 		///
 		/// @par
 		/// It is intentional that Action does not serve as a base class for RootAction. This would result in the
@@ -52,52 +55,60 @@ namespace core
 		///
 		/// @par
 		/// This class is just a facade to the actual @ref ActionCommonImpl implementation.
-		///
-		class RootAction
-			: public openkit::IRootAction
-			, public std::enable_shared_from_this<RootAction>
+		class LeafAction
+			: public openkit::IAction
+			, public std::enable_shared_from_this<LeafAction>
 		{
 		public:
 
 			///
-			/// Create a RootAction given a beacon  and the action name
+			/// Create an action with the given action implementation and the given parent action.
 			///
 			/// @param[in] actionImpl the actual action implementation.
-			/// @param[in] session the session object keeping track of all root actions of this level
+			/// @param[in] parentAction parent action
 			///
-			RootAction
-			(
-				std::shared_ptr<IActionCommon> actionImpl
+			LeafAction(
+				std::shared_ptr<IActionCommon> actionImpl,
+				std::shared_ptr<openkit::IRootAction> parentAction
 			);
 
 			///
 			/// Destructor
 			///
-			virtual ~RootAction() {}
+			virtual ~LeafAction() {}
 
-			virtual std::shared_ptr<openkit::IAction> enterAction(const char* actionName) override;
+			std::shared_ptr<IAction> reportEvent(const char* eventName) override;
 
-			std::shared_ptr<IRootAction> reportEvent(const char* eventName) override;
+			std::shared_ptr<IAction> reportValue(const char* valueName, int32_t value) override;
 
-			std::shared_ptr<IRootAction> reportValue(const char* valueName, int32_t value) override;
+			std::shared_ptr<IAction> reportValue(const char* valueName, double value) override;
 
-			std::shared_ptr<IRootAction> reportValue(const char* valueName, double value) override;
+			std::shared_ptr<IAction> reportValue(const char* valueName, const char* value) override;
 
-			std::shared_ptr<IRootAction> reportValue(const char* valueName, const char* value) override;
-
-			std::shared_ptr<IRootAction> reportError(const char* errorName, int32_t errorCode, const char* reason) override;
+			std::shared_ptr<IAction> reportError(const char* errorName, int32_t errorCode, const char* reason) override;
 
 			std::shared_ptr<openkit::IWebRequestTracer> traceWebRequest(const char* url) override;
 
-			virtual void leaveAction() override;
+			virtual std::shared_ptr<openkit::IRootAction> leaveAction() override;
+
+			///
+			/// Returns the actual action implementation.
+			///
+			/// NOTE: Intended to be used by tests only
+			///
+			const std::shared_ptr<IActionCommon> getActionImpl();
 
 		private:
 			/// Impl object with the actual implementations for Action/RootAction
-			std::shared_ptr<IActionCommon> mActionImpl;
+			const std::shared_ptr<IActionCommon> mActionImpl;
+
+			/// parent action
+			const std::shared_ptr<openkit::IRootAction> mParentAction;
 
 		};
 	}
 }
+
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
 #endif

@@ -79,13 +79,7 @@ namespace test {
 			reportValueString(actionID, valueName, value);
 		}
 
-		void addAction(types::RootAction_sp rootAction) override
-		{
-			types::Beacon_t::addAction(rootAction);
-			mockAddAction(rootAction);
-		}
-
-		void addAction(types::Action_sp action) override
+		void addAction(types::IActionCommon_sp action)
 		{
 			types::Beacon_t::addAction(action);
 			mockAddAction(action);
@@ -162,6 +156,8 @@ namespace test {
 			)
 		);
 
+		MOCK_METHOD0(createID, int32_t());
+
 		MOCK_CONST_METHOD0(getCurrentTimestamp, int64_t(void));
 
 		MOCK_METHOD1(send,
@@ -179,15 +175,11 @@ namespace test {
 
 		MOCK_METHOD0(createSequenceNumber, int32_t());
 
-		MOCK_METHOD1(mockAddAction,
-			void(
-				types::RootAction_sp
-			)
-		);
+		MOCK_CONST_METHOD0(getSessionNumber, int32_t());
 
 		MOCK_METHOD1(mockAddAction,
 			void(
-				types::Action_sp
+				types::IActionCommon_sp
 			)
 		);
 	};

@@ -17,7 +17,7 @@
 #include "Session.h"
 #include "protocol/Beacon.h"
 #include "core/BeaconSender.h"
-#include "Action.h"
+#include "LeafAction.h"
 #include "RootAction.h"
 #include "WebRequestTracer.h"
 
@@ -35,7 +35,6 @@ Session::Session
 	, mBeaconSender(beaconSender)
 	, mBeacon(beacon)
 	, mEndTime(-1)
-	, mOpenRootActions()
 {
 }
 
@@ -62,9 +61,18 @@ std::shared_ptr<openkit::IRootAction> Session::enterAction(const char* actionNam
 	{
 		return NullRootAction::INSTANCE;
 	}
-	std::shared_ptr<openkit::IRootAction> pointer = std::make_shared<RootAction>(mLogger, mBeacon, actionNameString, shared_from_this());
-	mOpenRootActions.put(pointer);
-	return pointer;
+
+	auto rootActionImpl = std::make_shared<ActionCommonImpl>(
+		mLogger,
+		mBeacon,
+		shared_from_this(),
+		actionNameString,
+		"RootAction"
+	);
+	storeChildInList(rootActionImpl);
+
+	auto rootAction = std::make_shared<RootAction>(rootActionImpl);
+	return rootAction;
 }
 
 void Session::identifyUser(const char* userTag)
@@ -150,9 +158,11 @@ void Session::end()
 	}
 
 	// leave all Root-Actions for sanity reasons
-	while (!mOpenRootActions.isEmpty()) {
-		auto action = mOpenRootActions.get();
-		action->leaveAction();
+	auto childObjects = getCopyOfChildObjects();
+	for (auto it = childObjects.begin(); it != childObjects.end(); ++it)
+	{
+		auto childObject = *it;
+		childObject->close();
 	}
 
 	mBeacon->endSession(shared_from_this());
@@ -173,11 +183,6 @@ bool Session::isSessionEnded() const
 int64_t Session::getEndTime() const
 {
 	return mEndTime;
-}
-
-void Session::rootActionEnded(std::shared_ptr<RootAction> rootAction)
-{
-	mOpenRootActions.remove(rootAction);
 }
 
 std::shared_ptr<protocol::StatusResponse> Session::sendBeacon(std::shared_ptr<providers::IHTTPClientProvider> clientProvider)

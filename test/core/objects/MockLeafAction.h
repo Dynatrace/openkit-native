@@ -18,9 +18,7 @@
 #define _TEST_CORE_OBJECTS_MOCKACTION_H
 
 #include "Types.h"
-#include "../Types.h"
 #include "../../api/Types.h"
-#include "../../protocol/Types.h"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -29,24 +27,23 @@
 
 namespace test
 {
-	class MockAction : public types::Action_t
+	class MockLeafAction : public types::LeafAction_t
 	{
 	public:
-		MockAction
+		MockLeafAction
 		(
-			types::ILogger_sp logger,
-			types::Beacon_sp beacon
+			types::IActionCommon_sp logger,
+			types::IRootAction_sp parentAction
 		)
-		: types::Action_t
+		: types::LeafAction_t
 		(
 			logger,
-			beacon,
-			types::Utf8String_t("Mock Action")
+			parentAction
 		)
 		{
 		}
 
-		virtual ~MockAction() {}
+		virtual ~MockLeafAction() {}
 
 		MOCK_CONST_METHOD0(getID, int32_t());
 	};

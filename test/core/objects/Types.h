@@ -17,7 +17,7 @@
 #ifndef _TEST_CORE_OBJECTS_TYPES_H
 #define _TEST_CORE_OBJECTS_TYPES_H
 
-#include "core/objects/Action.h"
+#include "core/objects/LeafAction.h"
 #include "core/objects/ActionCommonImpl.h"
 #include "core/objects/IOpenKitObject.h"
 #include "core/objects/NullAction.h"
@@ -34,11 +34,17 @@ namespace test
 {
 	namespace types
 	{
-		using Action_t = core::objects::Action;
-		using Action_sp = std::shared_ptr<Action_t>;
+		using LeafAction_t = core::objects::LeafAction;
+		using LeafAction_sp = std::shared_ptr<LeafAction_t>;
 
 		using ActionCommonImpl_t = core::objects::ActionCommonImpl;
 		using ActionCommonImpl_sp = std::shared_ptr<ActionCommonImpl_t>;
+
+		using IActionCommon_t = core::objects::IActionCommon;
+		using IActionCommon_sp = std::shared_ptr<IActionCommon_t>;
+
+		using IOpenKitComposite_t = core::objects::IOpenKitComposite;
+		using IOpenKitComposite_sp = std::shared_ptr<IOpenKitComposite_t>;
 
 		using IOpenKitObject_t = core::objects::IOpenKitObject;
 		using IOpenKitObject_sp = std::shared_ptr<IOpenKitObject_t>;
