@@ -15,7 +15,7 @@
 */
 
 #include "ActionCommonImpl.h"
-#include "protocol/Beacon.h"
+#include "protocol/IBeacon.h"
 #include "core/objects/LeafAction.h"
 #include "core/objects/WebRequestTracer.h"
 
@@ -26,7 +26,7 @@ using namespace core::objects;
 ActionCommonImpl::ActionCommonImpl
 (
 	std::shared_ptr<openkit::ILogger> logger,
-	std::shared_ptr<protocol::Beacon> beacon,
+	std::shared_ptr<protocol::IBeacon> beacon,
 	std::shared_ptr<IOpenKitComposite> parent,
 	const core::UTF8String& name,
 	const std::string& actionClassName

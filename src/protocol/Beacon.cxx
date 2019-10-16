@@ -503,11 +503,11 @@ core::UTF8String Beacon::getMutableBeaconData()
 	return mutableBeaconData;
 }
 
-std::shared_ptr<protocol::StatusResponse> Beacon::send(std::shared_ptr<providers::IHTTPClientProvider> clientProvider)
+std::shared_ptr<protocol::IStatusResponse> Beacon::send(std::shared_ptr<providers::IHTTPClientProvider> clientProvider)
 {
 	std::shared_ptr<protocol::IHTTPClient> httpClient = clientProvider->createClient(mLogger, mHTTPClientConfiguration);
 
-	std::shared_ptr<protocol::StatusResponse> response = nullptr;
+	std::shared_ptr<protocol::IStatusResponse> response = nullptr;
 
 	while (true)
 	{

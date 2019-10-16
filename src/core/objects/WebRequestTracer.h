@@ -33,7 +33,7 @@
 
 namespace protocol
 {
-	class Beacon;
+	class IBeacon;
 }
 
 namespace core
@@ -63,7 +63,7 @@ namespace core
 			(
 				std::shared_ptr<openkit::ILogger> logger,
 				std::shared_ptr<IOpenKitComposite> parent,
-				std::shared_ptr<protocol::Beacon> beacon,
+				std::shared_ptr<protocol::IBeacon> beacon,
 				const core::UTF8String& url
 			);
 
@@ -188,7 +188,7 @@ namespace core
 			std::mutex mMutex;
 
 			/// @ref protocol::Beacon used to serialize the WebRequestTracer
-			const std::shared_ptr<protocol::Beacon> mBeacon;
+			const std::shared_ptr<protocol::IBeacon> mBeacon;
 
 			/// ID of the @ref core::Action or @ref core::RootAction which is the parent of the WebRequestTracer
 			const int32_t mParentActionID;

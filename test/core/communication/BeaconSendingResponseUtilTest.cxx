@@ -15,12 +15,13 @@
 */
 
 #include "Types.h"
-#include "../../protocol/NullLogger.h"
+#include "../../api/MockILogger.h"
 #include "../../protocol/Types.h"
 
 #include <gtest/gtest.h>
 #include <memory>
 
+using namespace test;
 using namespace test::types;
 
 class BeaconSendingResponseUtilTest : public testing::Test
@@ -37,17 +38,15 @@ protected:
 
 	}
 
-	///
-	/// Stub class only used to delegate the ctor arguments to protected ctor of base class.
-	///
-	class StubResponse : public Response_t
+	IStatusResponse_sp createStatusResponse(int32_t responseCode)
 	{
-	public:
-
-		StubResponse(int32_t responseCode, const ResponseHeaders& responseHeaders) :
-			Response_t(std::make_shared<NullLogger>(), responseCode, responseHeaders)
-		{}
-	};
+		return std::make_shared<StatusResponse_t>(
+			MockILogger::createNice(),
+			"",
+			responseCode,
+			IStatusResponse_t::ResponseHeaders()
+		);
+	}
 };
 
 TEST_F(BeaconSendingResponseUtilTest, isSuccessfulResponseReturnsFalseIfResponseIsNullptr)
@@ -62,7 +61,7 @@ TEST_F(BeaconSendingResponseUtilTest, isSuccessfulResponseReturnsFalseIfResponse
 TEST_F(BeaconSendingResponseUtilTest, isSuccessfulResponseReturnsFalseIfResponseIsErroneous)
 {
 	// given
-	auto response = std::make_shared<StubResponse>(400, Response_t::ResponseHeaders());
+	auto response = createStatusResponse(400);
 
 	// when
 	auto obtained = BeaconSendingResponseUtil_t::isSuccessfulResponse(response);
@@ -74,7 +73,7 @@ TEST_F(BeaconSendingResponseUtilTest, isSuccessfulResponseReturnsFalseIfResponse
 TEST_F(BeaconSendingResponseUtilTest, isSuccessfulResponseReturnsTrueIfResponseIsNotErroneous)
 {
 	// given
-	auto response = std::make_shared<StubResponse>(200, Response_t::ResponseHeaders());
+	auto response = createStatusResponse(200);
 
 	// when
 	auto obtained = BeaconSendingResponseUtil_t::isSuccessfulResponse(response);
@@ -95,7 +94,7 @@ TEST_F(BeaconSendingResponseUtilTest, isTooManyRequestsResponseReturnsFalseIfRes
 TEST_F(BeaconSendingResponseUtilTest, isTooManyRequestsResponseReturnsFalseIfResponseCodeIsNotEqualToTooManyRequestsCode)
 {
 	// given
-	auto response = std::make_shared<StubResponse>(404, Response_t::ResponseHeaders());
+	auto response = createStatusResponse(404);
 
 	// when
 	auto obtained = BeaconSendingResponseUtil_t::isTooManyRequestsResponse(response);
@@ -107,7 +106,7 @@ TEST_F(BeaconSendingResponseUtilTest, isTooManyRequestsResponseReturnsFalseIfRes
 TEST_F(BeaconSendingResponseUtilTest, isTooManyRequestsResponseReturnsTrueIfResponseCodeIndicatesTooManyRequests)
 {
 	// given
-	auto response = std::make_shared<StubResponse>(429, Response_t::ResponseHeaders());
+	auto response = createStatusResponse(429);
 
 	// when
 	auto obtained = BeaconSendingResponseUtil_t::isTooManyRequestsResponse(response);

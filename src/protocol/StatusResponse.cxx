@@ -14,6 +14,21 @@
 * limitations under the License.
 */
 
+
+#include "StatusResponse.h"
+
+#include <stdexcept>
+#include <sstream>
+#include <inttypes.h>
+
+using namespace protocol;
+
+static constexpr int32_t HTTP_BAD_REQUEST = 400;
+static constexpr int32_t HTTP_TOO_MANY_REQUESTS = 429;
+
+static constexpr char RESPONSE_KEY_RETRY_AFTER[] = "retry-after";
+static constexpr int64_t DEFAULT_RETRY_AFTER_IN_MILLISECONDS = 10L * 60L * 1000L; // 10 minutes in milliseconds
+
 constexpr char RESPONSE_KEY_CAPTURE[] = "cp";
 constexpr char RESPONSE_KEY_SEND_INTERVAL[] = "si";
 constexpr char RESPONSE_KEY_MONITOR_NAME[] = "bn";
@@ -23,21 +38,16 @@ constexpr char RESPONSE_KEY_CAPTURE_ERRORS[] = "er";
 constexpr char RESPONSE_KEY_CAPTURE_CRASHES[] = "cr";
 constexpr char RESPONSE_KEY_MULTIPLICITY[] = "mp";
 
-#include "StatusResponse.h"
-
-#include <stdexcept>
-#include <sstream>
-
-using namespace protocol;
-
 StatusResponse::StatusResponse
 (
 	std::shared_ptr<openkit::ILogger> logger,
 	const core::UTF8String& response,
 	int32_t responseCode,
-	const Response::ResponseHeaders& responseHeaders
+	const ResponseHeaders& responseHeaders
 )
-	: Response(logger, responseCode, responseHeaders)
+	: mLogger(logger)
+	, mResponseCode(responseCode)
+	, mResponseHeaders(responseHeaders)
 	, mCapture(true)
 	, mSendInterval(-1)
 	, mMonitorName()
@@ -48,6 +58,73 @@ StatusResponse::StatusResponse
 	, mMultiplicity(1)
 {
 	parseResponse(response);
+}
+
+bool StatusResponse::isSuccessfulResponse() const
+{
+	return !isErroneousResponse();
+}
+
+bool StatusResponse::isErroneousResponse() const
+{
+	return getResponseCode() >= HTTP_BAD_REQUEST;
+}
+
+bool StatusResponse::isTooManyRequestsResponse() const
+{
+	return getResponseCode() == HTTP_TOO_MANY_REQUESTS;
+}
+
+int32_t StatusResponse::getResponseCode() const
+{
+	return mResponseCode;
+}
+
+const IStatusResponse::ResponseHeaders& StatusResponse::getResponseHeaders() const
+{
+	return mResponseHeaders;
+}
+
+int64_t StatusResponse::getRetryAfterInMilliseconds() const
+{
+	auto iterator = mResponseHeaders.find(RESPONSE_KEY_RETRY_AFTER);
+	if (iterator == mResponseHeaders.end())
+	{
+		// the Retry-After response header is missing
+		mLogger->warning("%s is not available - using default value %" PRId64,
+			RESPONSE_KEY_RETRY_AFTER, DEFAULT_RETRY_AFTER_IN_MILLISECONDS);
+		return DEFAULT_RETRY_AFTER_IN_MILLISECONDS;
+	}
+
+	if (iterator->second.size() != 1)
+	{
+		// the Retry-After response header has multiple values, but only one is expected
+		mLogger->warning("%s has unexpected number of values - using default value %" PRId64,
+			RESPONSE_KEY_RETRY_AFTER, DEFAULT_RETRY_AFTER_IN_MILLISECONDS);
+		return DEFAULT_RETRY_AFTER_IN_MILLISECONDS;
+	}
+
+	auto stringValue = iterator->second.front();
+	int32_t delaySeconds;
+	try
+	{
+		delaySeconds = std::stoi(stringValue);
+	}
+	catch (const std::invalid_argument& e)
+	{
+		mLogger->error("Failed to parse %s value \"%s\" (std::invalid_argument - reason: %s) - using default value %" PRId64,
+			RESPONSE_KEY_RETRY_AFTER, stringValue.c_str(), e.what(), DEFAULT_RETRY_AFTER_IN_MILLISECONDS);
+		return DEFAULT_RETRY_AFTER_IN_MILLISECONDS;
+
+	}
+	catch (const std::out_of_range& e)
+	{
+		mLogger->error("Failed to parse %s value \"%s\" (std::out_of_range - reason: %s) - using default value %" PRId64,
+			RESPONSE_KEY_RETRY_AFTER, stringValue.c_str(), e.what(), DEFAULT_RETRY_AFTER_IN_MILLISECONDS);
+		return DEFAULT_RETRY_AFTER_IN_MILLISECONDS;
+	}
+
+	return delaySeconds * 1000L;
 }
 
 void StatusResponse::parseResponse(const core::UTF8String& response)

@@ -27,6 +27,11 @@ if(BUILD_SHARED_LIBS)
     set(SOURCES_TO_TEST ${OPENKIT_SOURCES})
 endif()
 
+set(OPENKIT_SOURCES_TEST
+    ${CMAKE_CURRENT_LIST_DIR}/DefaultValues.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/DefaultValues.h
+)
+
 set(OPENKIT_SOURCES_TEST_API
     ${CMAKE_CURRENT_LIST_DIR}/api/LogLevelTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/api/MockILogger.h
@@ -65,14 +70,12 @@ set(OPENKIT_SOURCES_TEST_CORE_OBJECTS
 
 set(OPENKIT_SOURCES_TEST_PROTOCOL
     ${CMAKE_CURRENT_LIST_DIR}/protocol/StatusResponseTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/protocol/MockBeacon.h
-    ${CMAKE_CURRENT_LIST_DIR}/protocol/MockHTTPClient.h
     ${CMAKE_CURRENT_LIST_DIR}/protocol/TestSSLTrustManager.h
     ${CMAKE_CURRENT_LIST_DIR}/protocol/HTTPResponseParserTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/protocol/BeaconTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/protocol/ResponseTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/protocol/MockStatusResponse.h
-    ${CMAKE_CURRENT_LIST_DIR}/protocol/NullLogger.h
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/mock/MockIBeacon.h
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/mock/MockIHTTPClient.h
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/mock/MockIStatusResponse.h
 )
 
 set(OPENKIT_SOURCES_TEST_PROVIDERS
@@ -144,6 +147,7 @@ set(OPENKIT_SOURCES_TEST_UTIL_JSON
 
 set(OPENKIT_SOURCES_UNITTEST
     # Test files
+    ${OPENKIT_SOURCES_TEST}
     ${OPENKIT_SOURCES_TEST_API}
     ${OPENKIT_SOURCES_TEST_CORE}
     ${OPENKIT_SOURCES_TEST_CORE_OBJECTS}

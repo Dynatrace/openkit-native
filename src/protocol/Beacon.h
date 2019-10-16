@@ -17,6 +17,7 @@
 #ifndef _PROTOCOL_BEACON_H
 #define _PROTOCOL_BEACON_H
 
+#include "IBeacon.h"
 #include "OpenKit/ILogger.h"
 #include "core/UTF8String.h"
 #include "providers/ITimingProvider.h"
@@ -28,6 +29,7 @@
 #include "core/objects/Session.h"
 #include "core/objects/WebRequestTracer.h"
 #include "core/caching/BeaconCache.h"
+#include "protocol/IStatusResponse.h"
 #include "EventType.h"
 
 #include <memory>
@@ -39,6 +41,7 @@ namespace protocol
 	/// The Beacon class holds all the beacon data and the beacon protocol implementation.
 	///
 	class Beacon
+		: public IBeacon
 	{
 	public:
 
@@ -93,13 +96,13 @@ namespace protocol
 		/// Calling this method on two different Beacon instances, might give the same result.
 		/// @returns a unique sequence number;
 		///
-		virtual int32_t createSequenceNumber();
+		int32_t createSequenceNumber() override;
 
 		///
 		/// Get the current timestamp in milliseconds by delegating to TimingProvider
 		/// @returns Current timestamp in milliseconds
 		///
-		virtual int64_t getCurrentTimestamp() const;
+		int64_t getCurrentTimestamp() const override;
 
 		///
 		/// Create a unique identifier.
@@ -107,67 +110,71 @@ namespace protocol
 		/// -Calling this method on two different Beacon instances, might give the same result.
 		/// @returns a unique identifier
 		///
-		virtual int32_t createID();
+		int32_t createID() override;
 
 		///
 		/// Create a web request tag
 		/// Web request tags can be attached as HTTP header for web request tracing.
-		/// @param[in] parentActionID The ID of the @ref core::objects::Action for which to create a web request tag.
+		/// @param[in] parentActionID The ID of the @ref core::objects::RootAction or @ref core::objects::LeafAction for
+		///   which to create a web request tag.
 		/// @param[in] sequenceNumber Sequence number of the @ref core::objects::WebRequestBase
 		/// @returns A web request tracer tag
 		///
-		virtual core::UTF8String createTag(int32_t parentActionID, int32_t sequenceNumber);
+		core::UTF8String createTag(int32_t parentActionID, int32_t sequenceNumber) override;
 
 		///
-		/// Add @ref core::objects::Action to Beacon
+		/// Add @ref core::objects::IActionCommon to Beacon
 		/// The serialized data is added to the Beacon
 		/// @param[in] action action to add to the Beacon
 		///
-		virtual void addAction(std::shared_ptr<core::objects::IActionCommon> action);
+		void addAction(std::shared_ptr<core::objects::IActionCommon> action) override;
 
 		///
 		/// Add sessionStart to Beacon
 		///
-		virtual void startSession();
+		void startSession() override;
 
 		///
 		/// Add @ref core::objects::Session to Beacon when session is ended.
 		/// @param[in] session ended session that is added to the Beacon
 		///
-		virtual void endSession(std::shared_ptr<core::objects::Session> session);
+		void endSession(std::shared_ptr<core::objects::Session> session) override;
 
 		///
 		/// Add key-value-pair to Beacon.
 		///
 		/// The serialized data is added to @ref core::caching::BeaconCache.
 		///
-		/// @param actionID The id of the @ref core::objects::Action on which this value was reported.
+		/// @param actionID The id of the @ref core::objects::RootAction or @ref core::objects::LeafAction on which
+		///   this value was reported.
 		/// @param valueName Value's name.
 		/// @param value Actual value to report.
 		///
-		virtual void reportValue(int32_t actionID, const core::UTF8String& valueName, int32_t value);
+		void reportValue(int32_t actionID, const core::UTF8String& valueName, int32_t value) override;
 
 		///
 		/// Add key-value-pair to Beacon.
 		///
 		/// The serialized data is added to @ref caching::BeaconCache.
 		///
-		/// @param actionID The id of the @ref core::objects::Action on which this value was reported.
+		/// @param actionID The id of the @ref core::objects::RootAction or @ref core::objects::LeafAction on which
+		///   this value was reported.
 		/// @param valueName Value's name.
 		/// @param value Actual value to report.
 		///
-		virtual void reportValue(int32_t actionID, const core::UTF8String& valueName, double value);
+		void reportValue(int32_t actionID, const core::UTF8String& valueName, double value) override;
 
 		///
 		/// Add key-value-pair to Beacon.
 		///
 		/// The serialized data is added to @ref caching::BeaconCache.
 		///
-		/// @param actionID The id of the @ref core::objects::Action on which this value was reported.
+		/// @param actionID The id of the @ref core::objects::RootAction or @ref core::objects::LeafAction on which
+		///   this value was reported.
 		/// @param valueName Value's name.
 		/// @param value Actual value to report.
 		///
-		virtual void reportValue(int32_t actionID, const core::UTF8String& valueName, const core::UTF8String& value);
+		void reportValue(int32_t actionID, const core::UTF8String& valueName, const core::UTF8String& value) override;
 
 		///
 		/// Add event (aka. named event) to Beacon.
@@ -177,7 +184,7 @@ namespace protocol
 		/// @param actionID The id of the @ref core::objects::Action on which this event was reported.
 		/// @param eventName Event's name.
 		///
-		virtual void reportEvent(int32_t actionID, const core::UTF8String& eventName);
+		void reportEvent(int32_t actionID, const core::UTF8String& eventName) override;
 
 		///
 		/// Add error to Beacon.
@@ -189,7 +196,13 @@ namespace protocol
 		/// @param errorCode Some error code.
 		/// @param reason Reason for that error.
 		///
-		virtual void reportError(int32_t actionID, const core::UTF8String& errorName, int32_t errorCode, const core::UTF8String& reason);
+		void reportError
+		(
+			int32_t actionID,
+			const core::UTF8String& errorName,
+			int32_t errorCode,
+			const core::UTF8String& reason
+		) override;
 
 		///
 		/// Add crash to Beacon
@@ -198,7 +211,11 @@ namespace protocol
 		/// @param[in] reason Reason for that error.
 		/// @param[in] stacktrace Crash stacktrace.
 		///
-		virtual void reportCrash(const core::UTF8String& errorName, const core::UTF8String& reason, const core::UTF8String& stacktrace);
+		void reportCrash(
+			const core::UTF8String& errorName,
+			const core::UTF8String& reason,
+			const core::UTF8String& stacktrace
+		) override;
 
 		///
 		/// Add @ref core::WebRequestTracer to Beacon
@@ -206,21 +223,28 @@ namespace protocol
 		/// @param[in] parentActionID The @ref core::objects::Action on which the web request was reported
 		/// @param[in] webRequestTracer @ref core::objects::WebRequestBase to serialize
 		///
-		virtual void addWebRequest(int32_t parentActionID, std::shared_ptr<core::objects::WebRequestTracer> webRequestTracer);
+		void addWebRequest
+		(
+			int32_t parentActionID,
+			std::shared_ptr<core::objects::WebRequestTracer> webRequestTracer
+		) override;
 
 		///
 		/// Add user identification to Beacon.
 		/// The serialized data is added to @ref core::caching::BeaconCache
 		/// @param[in] userTag User tag containing data to serialize.
 		///
-		virtual void identifyUser(const core::UTF8String& userTag);
+		void identifyUser(const core::UTF8String& userTag) override;
 
 		///
 		/// Sends the current Beacon state
 		/// @param[in] clientProvider the @ref providers::IHTTPClientProvider to use for sending
 		/// @returns the status response returned for the Beacon data
 		///
-		virtual std::shared_ptr<protocol::StatusResponse> send(std::shared_ptr<providers::IHTTPClientProvider> clientProvider);
+		std::shared_ptr<protocol::IStatusResponse> send
+		(
+			std::shared_ptr<providers::IHTTPClientProvider> clientProvider
+		) override;
 
 		///
 		/// Tests if the Beacon is empty
@@ -228,44 +252,47 @@ namespace protocol
 		/// A beacon is considered to be empty, if it does not contain any action or event data.
 		/// @returns @c true if the beacon is empty, @c false otherwise
 		///
-		bool isEmpty() const;
+		bool isEmpty() const override;
 
 		///
 		/// Clears all previously collected data for this Beacon.
 		///
 		/// This only affects the so far serialized data, which gets removed from the cache.
 		///
-		void clearData();
+		void clearData() override;
 
 		///
 		/// Returns the session number.
 		/// @returns session number
 		///
-		virtual int32_t getSessionNumber() const;
+		virtual int32_t getSessionNumber() const override;
 
 		///
 		/// Returns the device id
 		/// @returns device id
 		///
-		int64_t getDeviceID() const;
+		int64_t getDeviceID() const override;
 
 		///
 		/// Sets the beacon configuration on the Beacon
 		/// @param[in] beaconConfiguration the beacon configuration to apply to this Beacon
 		///
-		void setBeaconConfiguration(std::shared_ptr<core::configuration::BeaconConfiguration> beaconConfiguration);
+		void setBeaconConfiguration
+		(
+			std::shared_ptr<core::configuration::BeaconConfiguration> beaconConfiguration
+		) override;
 
 		///
 		/// Return the beacon configuration
 		/// @returns the beacon configuration
 		///
-		std::shared_ptr<core::configuration::BeaconConfiguration> getBeaconConfiguration() const;
+		std::shared_ptr<core::configuration::BeaconConfiguration> getBeaconConfiguration() const override;
 
 		///
 		/// Get the client IP address.
 		/// @returns The client's IP address.
 		///
-		const core::UTF8String& getClientIPAddress() const;
+		const core::UTF8String& getClientIPAddress() const override;
 
 	private:
 		///

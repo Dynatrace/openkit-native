@@ -19,7 +19,7 @@
 
 #include <memory>
 
-#include "protocol/StatusResponse.h"
+#include "protocol/IStatusResponse.h"
 #include "core/configuration/HTTPClientConfiguration.h"
 #include "core/UTF8String.h"
 
@@ -43,7 +43,7 @@ namespace protocol
 		/// sends a status check request and returns a status response
 		/// @returns a status response with the response data for the request or @c nullptr on error
 		///
-		virtual std::shared_ptr<StatusResponse> sendStatusRequest() = 0;
+		virtual std::shared_ptr<IStatusResponse> sendStatusRequest() = 0;
 
 		///
 		/// sends a beacon send request and returns a status response
@@ -51,13 +51,13 @@ namespace protocol
 		/// @param[in] beaconData the beacon payload
 		/// @returns a status response with the response data for the request or @c nullptr on error
 		///
-		virtual std::shared_ptr<StatusResponse> sendBeaconRequest(const core::UTF8String& clientIPAddress, const core::UTF8String& beaconData) = 0;
+		virtual std::shared_ptr<IStatusResponse> sendBeaconRequest(const core::UTF8String& clientIPAddress, const core::UTF8String& beaconData) = 0;
 
 		///
 		/// sends a new session request and returns a status response
 		/// @returns a status response with the response data for the request or @c nullptr on error
 		///
-		virtual std::shared_ptr<StatusResponse> sendNewSessionRequest() = 0;
+		virtual std::shared_ptr<IStatusResponse> sendNewSessionRequest() = 0;
 	};
 }
 #endif

@@ -15,50 +15,50 @@
 */
 
 #include "CustomMatchers.h"
-#include "Types.h"
-#include "MockTypes.h"
-#include "../Types.h"
-#include "../../api/Types.h"
-#include "../../protocol/NullLogger.h"
-#include "../../protocol/Types.h"
-#include "../../protocol/MockTypes.h"
+#include "MockBeaconSendingContext.h"
+#include "../../api/MockILogger.h"
+#include "../../protocol/mock/MockIHTTPClient.h"
+#include "../../protocol/mock/MockIStatusResponse.h"
+
+#include "core/UTF8String.h"
+#include "core/communication/AbstractBeaconSendingState.h"
+#include "core/communication/BeaconSendingInitialState.h"
+#include "protocol/IStatusResponse.h"
+#include "protocol/StatusResponse.h"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-using namespace test::types;
+using namespace test;
+
+using AbstractBeaconSendingState_t = core::communication::AbstractBeaconSendingState;
+using AbstractBeaconSendingState_sp = std::shared_ptr<AbstractBeaconSendingState_t>;
+using BeaconSendingInitialState_t = core::communication::BeaconSendingInitialState;
+using IStatusResponse_t = protocol::IStatusResponse;
+using MockNiceBeaconSendingContext_t = testing::NiceMock<MockBeaconSendingContext>;
+using MockNiceIHTTPClient_sp = std::shared_ptr<testing::NiceMock<MockIHTTPClient>>;
+using MockNiceILogger_sp = std::shared_ptr<testing::NiceMock<MockILogger>>;
+using StatusResponse_t = protocol::StatusResponse;
+using StatusResponse_sp = std::shared_ptr<StatusResponse_t>;
+using Utf8String_t = core::UTF8String;
 
 class BeaconSendingInitialStateTest : public testing::Test
 {
 protected:
 
-	BeaconSendingInitialStateTest()
-		: mLogger(nullptr)
-		, mMockHTTPClient(nullptr)
-	{
-	}
+	MockNiceIHTTPClient_sp mockHTTPClient;
+	MockNiceILogger_sp mockLogger;
 
 	void SetUp()
 	{
-		mLogger = std::make_shared<NullLogger>();
-		auto httpClientConfiguration = std::make_shared<HttpClientConfiguration_t>(Utf8String_t(""),0, Utf8String_t(""));
-		mMockHTTPClient = std::make_shared<MockNiceHttpClient_t>(httpClientConfiguration);
+		mockLogger = MockILogger::createNice();
+		mockHTTPClient = MockIHTTPClient::createNice();
 
-		ON_CALL(*mMockHTTPClient, sendStatusRequestRawPtrProxy())
-			.WillByDefault(testing::Invoke([&]() -> StatusResponse_sp {
-				return std::make_shared<StatusResponse_t>(mLogger, Utf8String_t(), 200, Response_t::ResponseHeaders());
-			}));
+		auto mockStatusResponse = MockIStatusResponse::createNice();
+		ON_CALL(*mockHTTPClient, sendStatusRequest())
+			.WillByDefault(testing::Return(MockIStatusResponse::createNice()));
 	}
 
-	void TearDown()
-	{
-		mLogger = nullptr;
-		mMockHTTPClient = nullptr;
-	}
-
-	std::ostringstream devNull;
-	ILogger_sp mLogger;
-	MockNiceHttpClient_sp mMockHTTPClient;
 };
 
 TEST_F(BeaconSendingInitialStateTest, initStateIsNotATerminalState)
@@ -103,10 +103,10 @@ TEST_F(BeaconSendingInitialStateTest, executeSetsLastOpenSessionBeaconSendTime)
 	// given
 	auto target = BeaconSendingInitialState_t();
 
-	MockNiceBeaconSendingContext_t mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
+	MockNiceBeaconSendingContext_t mockContext(mockLogger);//NiceMock: ensure that required calls are there but do not object about other calls
 
 	ON_CALL(mockContext, getHTTPClient())
-		.WillByDefault(testing::Return(mMockHTTPClient));
+		.WillByDefault(testing::Return(mockHTTPClient));
 	ON_CALL(mockContext, getCurrentTimestamp())
 		.WillByDefault(testing::Return(123456789L));
 	EXPECT_CALL(mockContext, isShutdownRequested())
@@ -126,7 +126,7 @@ TEST_F(BeaconSendingInitialStateTest, executeSetsLastStatusCheckTime)
 	// given
 	auto target = BeaconSendingInitialState_t();
 
-	MockNiceBeaconSendingContext_t mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
+	MockNiceBeaconSendingContext_t mockContext(mockLogger);//NiceMock: ensure that required calls are there but do not object about other calls
 
 	ON_CALL(mockContext, getCurrentTimestamp())
 		.WillByDefault(testing::Return(123456789L));
@@ -147,14 +147,14 @@ TEST_F(BeaconSendingInitialStateTest, initIsTerminatedIfShutdownRequestedWithVal
 	// given
 	auto target = BeaconSendingInitialState_t();
 
-	MockNiceBeaconSendingContext_t mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
+	MockNiceBeaconSendingContext_t mockContext(mockLogger);//NiceMock: ensure that required calls are there but do not object about other calls
 
 	ON_CALL(mockContext, isShutdownRequested())
 		.WillByDefault(testing::Return(true));
 	ON_CALL(mockContext, setNextState(testing::_))
-		.WillByDefault(testing::WithArgs<0>(testing::Invoke(&mockContext, &MockBeaconSendingContext_t::RealSetNextState)));
+		.WillByDefault(testing::WithArgs<0>(testing::Invoke(&mockContext, &MockBeaconSendingContext::RealSetNextState)));
 	ON_CALL(mockContext, isInTerminalState())
-		.WillByDefault(testing::Invoke(&mockContext, &MockBeaconSendingContext_t::RealIsInTerminalState));
+		.WillByDefault(testing::Invoke(&mockContext, &MockBeaconSendingContext::RealIsInTerminalState));
 
 	//check
 	EXPECT_CALL(mockContext, setInitCompleted(false))
@@ -176,7 +176,7 @@ TEST_F(BeaconSendingInitialStateTest, sleepTimeIsDoubledBetweenStatusRequestRetr
 	// given
 	auto target = BeaconSendingInitialState_t();
 
-	MockNiceBeaconSendingContext_t mockContext(mLogger);
+	MockNiceBeaconSendingContext_t mockContext(mockLogger);
 
 	uint32_t callCount = 0;
 
@@ -188,10 +188,10 @@ TEST_F(BeaconSendingInitialStateTest, sleepTimeIsDoubledBetweenStatusRequestRetr
 	));//should return true the 6th time
 
 	ON_CALL(mockContext, getHTTPClient())
-		.WillByDefault(testing::Return(mMockHTTPClient));
-	ON_CALL(*mMockHTTPClient, sendStatusRequestRawPtrProxy())
+		.WillByDefault(testing::Return(mockHTTPClient));
+	ON_CALL(*mockHTTPClient, sendStatusRequest())
 		.WillByDefault(testing::Invoke([&]() ->StatusResponse_sp {
-			return std::make_shared<StatusResponse_t>(mLogger, Utf8String_t(), 400, Response_t::ResponseHeaders());
+			return std::make_shared<StatusResponse_t>(mockLogger, Utf8String_t(), 400, IStatusResponse_t::ResponseHeaders());
 		}));
 
 	// check for
@@ -221,16 +221,16 @@ TEST_F(BeaconSendingInitialStateTest, initialStatusRequestGivesUpWhenShutdownReq
 	// given
 	auto target = BeaconSendingInitialState_t();
 
-	MockNiceBeaconSendingContext_t mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
+	MockNiceBeaconSendingContext_t mockContext(mockLogger);//NiceMock: ensure that required calls are there but do not object about other calls
 
 	ON_CALL(mockContext, getHTTPClient())
-		.WillByDefault(testing::Return(mMockHTTPClient));
-	ON_CALL(*mMockHTTPClient, sendStatusRequestRawPtrProxy())
+		.WillByDefault(testing::Return(mockHTTPClient));
+	ON_CALL(*mockHTTPClient, sendStatusRequest())
 		.WillByDefault(testing::Invoke([&]() -> StatusResponse_sp {
-			return std::make_shared<StatusResponse_t>(mLogger, Utf8String_t(), 400, Response_t::ResponseHeaders());
+			return std::make_shared<StatusResponse_t>(mockLogger, Utf8String_t(), 400, IStatusResponse_t::ResponseHeaders());
 		}));
 	ON_CALL(mockContext, setNextState(testing::_))
-		.WillByDefault(testing::WithArgs<0>(testing::Invoke(&mockContext, &MockBeaconSendingContext_t::RealSetNextState)));
+		.WillByDefault(testing::WithArgs<0>(testing::Invoke(&mockContext, &MockBeaconSendingContext::RealSetNextState)));
 
 	uint32_t callCount = 0;
 	//given
@@ -268,15 +268,15 @@ TEST_F(BeaconSendingInitialStateTest, aSuccessfulStatusResponsePerformsStateTran
 	// given
 	auto target = BeaconSendingInitialState_t();
 
-	MockNiceBeaconSendingContext_t mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
+	MockNiceBeaconSendingContext_t mockContext(mockLogger);//NiceMock: ensure that required calls are there but do not object about other calls
 
 	ON_CALL(mockContext, getHTTPClient())
-		.WillByDefault(testing::Return(mMockHTTPClient));
+		.WillByDefault(testing::Return(mockHTTPClient));
 	ON_CALL(mockContext, isCaptureOn())
 		.WillByDefault(testing::Return(true));
-	ON_CALL(*mMockHTTPClient, sendStatusRequestRawPtrProxy())
+	ON_CALL(*mockHTTPClient, sendStatusRequest())
 		.WillByDefault(testing::Invoke([&]() -> StatusResponse_sp {
-		return std::make_shared<StatusResponse_t>(mLogger, Utf8String_t("type=m&cp=1"), 200, Response_t::ResponseHeaders());
+		return std::make_shared<StatusResponse_t>(mockLogger, Utf8String_t("type=m&cp=1"), 200, IStatusResponse_t::ResponseHeaders());
 	}));
 
 	// verify state transition to CaptureOn state
@@ -292,15 +292,15 @@ TEST_F(BeaconSendingInitialStateTest, aSuccessfulStatusResponsePerformsStateTran
 	// given
 	auto target = BeaconSendingInitialState_t();
 
-	MockNiceBeaconSendingContext_t mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
+	MockNiceBeaconSendingContext_t mockContext(mockLogger);//NiceMock: ensure that required calls are there but do not object about other calls
 
 	ON_CALL(mockContext, getHTTPClient())
-		.WillByDefault(testing::Return(mMockHTTPClient));
+		.WillByDefault(testing::Return(mockHTTPClient));
 	ON_CALL(mockContext, isCaptureOn())
 		.WillByDefault(testing::Return(false));
-	ON_CALL(*mMockHTTPClient, sendStatusRequestRawPtrProxy())
+	ON_CALL(*mockHTTPClient, sendStatusRequest())
 		.WillByDefault(testing::Invoke([&]() -> StatusResponse_sp {
-		return std::make_shared<StatusResponse_t>(mLogger, Utf8String_t("type=m&cp=0"), 200, Response_t::ResponseHeaders());
+		return std::make_shared<StatusResponse_t>(mockLogger, Utf8String_t("type=m&cp=0"), 200, IStatusResponse_t::ResponseHeaders());
 	}));
 
 	// verify state transition to CaptureOff state
@@ -316,15 +316,15 @@ TEST_F(BeaconSendingInitialStateTest, aSuccessfulStatusResponseSetsInitCompleted
 	// given
 	auto target = BeaconSendingInitialState_t();
 
-	MockNiceBeaconSendingContext_t mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
+	MockNiceBeaconSendingContext_t mockContext(mockLogger);//NiceMock: ensure that required calls are there but do not object about other calls
 
 	ON_CALL(mockContext, getHTTPClient())
-		.WillByDefault(testing::Return(mMockHTTPClient));
+		.WillByDefault(testing::Return(mockHTTPClient));
 	ON_CALL(mockContext, isCaptureOn())
 		.WillByDefault(testing::Return(true));
-	ON_CALL(*mMockHTTPClient, sendStatusRequestRawPtrProxy())
+	ON_CALL(*mockHTTPClient, sendStatusRequest())
 		.WillByDefault(testing::Invoke([&]() -> StatusResponse_sp {
-		return std::make_shared<StatusResponse_t>(mLogger, Utf8String_t("type=m&cp=1"), 200, Response_t::ResponseHeaders());
+		return std::make_shared<StatusResponse_t>(mockLogger, Utf8String_t("type=m&cp=1"), 200, IStatusResponse_t::ResponseHeaders());
 	}));
 
 	// verify that setInitCompleted is set
@@ -340,15 +340,15 @@ TEST_F(BeaconSendingInitialStateTest, aSuccessfulStatusResponseSetsInitCompleted
 	// given
 	auto target = BeaconSendingInitialState_t();
 
-	MockNiceBeaconSendingContext_t mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
+	MockNiceBeaconSendingContext_t mockContext(mockLogger);//NiceMock: ensure that required calls are there but do not object about other calls
 
 	ON_CALL(mockContext, getHTTPClient())
-		.WillByDefault(testing::Return(mMockHTTPClient));
+		.WillByDefault(testing::Return(mockHTTPClient));
 	ON_CALL(mockContext, isCaptureOn())
 		.WillByDefault(testing::Return(false));
-	ON_CALL(*mMockHTTPClient, sendStatusRequestRawPtrProxy())
+	ON_CALL(*mockHTTPClient, sendStatusRequest())
 		.WillByDefault(testing::Invoke([&]() -> StatusResponse_sp {
-		return std::make_shared<StatusResponse_t>(mLogger, Utf8String_t("type=m&cp=0"), 200, Response_t::ResponseHeaders());
+		return std::make_shared<StatusResponse_t>(mockLogger, Utf8String_t("type=m&cp=0"), 200, IStatusResponse_t::ResponseHeaders());
 	}));
 
 	// verify that setInitCompleted is set
@@ -364,7 +364,7 @@ TEST_F(BeaconSendingInitialStateTest, reinitializeSleepsBeforeSendingStatusReque
 	// given
 	auto target = BeaconSendingInitialState_t();
 
-	MockNiceBeaconSendingContext_t mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
+	MockNiceBeaconSendingContext_t mockContext(mockLogger);//NiceMock: ensure that required calls are there but do not object about other calls
 
 	uint32_t callCount = 0;
 
@@ -376,11 +376,11 @@ TEST_F(BeaconSendingInitialStateTest, reinitializeSleepsBeforeSendingStatusReque
 		));//should return true the 49th time
 
 	ON_CALL(mockContext, getHTTPClient())
-		.WillByDefault(testing::Return(mMockHTTPClient));
-	ON_CALL(*mMockHTTPClient, sendStatusRequestRawPtrProxy())
+		.WillByDefault(testing::Return(mockHTTPClient));
+	ON_CALL(*mockHTTPClient, sendStatusRequest())
 		.WillByDefault(testing::Invoke([&]() -> StatusResponse_sp
 		{
-			return std::make_shared<StatusResponse_t>(mLogger, Utf8String_t(), 400, Response_t::ResponseHeaders());
+			return std::make_shared<StatusResponse_t>(mockLogger, Utf8String_t(), 400, IStatusResponse_t::ResponseHeaders());
 		})
 	);
 
@@ -510,20 +510,20 @@ TEST_F(BeaconSendingInitialStateTest, getStateNameReturnsCorrectStateName)
 TEST_F(BeaconSendingInitialStateTest, receivingTooManyRequestsResponseUsesSleepTimeFromResponse)
 {
 	// given
-	auto responseHeaders = Response_t::ResponseHeaders
+	auto responseHeaders = IStatusResponse_t::ResponseHeaders
 	{
 		{ "retry-after", { "1234" } }
 	};
-	ON_CALL(*mMockHTTPClient, sendStatusRequestRawPtrProxy())
+	ON_CALL(*mockHTTPClient, sendStatusRequest())
 		.WillByDefault(testing::Invoke([&]() -> StatusResponse_sp
 		{
-			return std::make_shared<StatusResponse_t>(mLogger, Utf8String_t(), 429, responseHeaders);
+			return std::make_shared<StatusResponse_t>(mockLogger, Utf8String_t(), 429, responseHeaders);
 		})
 	);
 
-	MockNiceBeaconSendingContext_t mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
+	MockNiceBeaconSendingContext_t mockContext(mockLogger);//NiceMock: ensure that required calls are there but do not object about other calls
 	ON_CALL(mockContext, getHTTPClient())
-		.WillByDefault(testing::Return(mMockHTTPClient));
+		.WillByDefault(testing::Return(mockHTTPClient));
 
 	auto target = BeaconSendingInitialState_t();
 
@@ -543,20 +543,20 @@ TEST_F(BeaconSendingInitialStateTest, receivingTooManyRequestsResponseUsesSleepT
 TEST_F(BeaconSendingInitialStateTest, receivingTooManyRequestsResponseDisablesCapturing)
 {
 	// given
-	auto responseHeaders = Response_t::ResponseHeaders
+	auto responseHeaders = IStatusResponse_t::ResponseHeaders
 	{
 		{ "retry-after", { "1234" } }
 	};
-	ON_CALL(*mMockHTTPClient, sendStatusRequestRawPtrProxy())
+	ON_CALL(*mockHTTPClient, sendStatusRequest())
 		.WillByDefault(testing::Invoke([&]() -> StatusResponse_sp
 		{
-			return std::make_shared<StatusResponse_t>(mLogger, Utf8String_t(), 429, responseHeaders);
+			return std::make_shared<StatusResponse_t>(mockLogger, Utf8String_t(), 429, responseHeaders);
 		})
 	);
 
-	MockNiceBeaconSendingContext_t mockContext(mLogger);//NiceMock: ensure that required calls are there but do not object about other calls
+	MockNiceBeaconSendingContext_t mockContext(mockLogger);//NiceMock: ensure that required calls are there but do not object about other calls
 	ON_CALL(mockContext, getHTTPClient())
-		.WillByDefault(testing::Return(mMockHTTPClient));
+		.WillByDefault(testing::Return(mockHTTPClient));
 
 	auto target = BeaconSendingInitialState_t();
 

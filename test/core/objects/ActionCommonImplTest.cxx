@@ -14,76 +14,60 @@
  * limitations under the License.
  */
 
-#include "Types.h"
-#include "MockTypes.h"
-#include "../Types.h"
-#include "../caching/Types.h"
-#include "../configuration/Types.h"
-#include "../../api/MockTypes.h"
-#include "../../protocol/MockTypes.h"
+#include "MockIOpenKitComposite.h"
+#include "MockIOpenKitObject.h"
+#include "../../api/MockILogger.h"
+#include "../../api/MockIRootAction.h"
+#include "../../protocol/mock/MockIBeacon.h"
+
+#include "OpenKit/IRootAction.h"
+#include "core/UTF8String.h"
+#include "core/objects/ActionCommonImpl.h"
+#include "core/objects/IActionCommon.h"
+#include "core/objects/LeafAction.h"
+#include "core/objects/NullAction.h"
+#include "core/objects/NullWebRequestTracer.h"
+#include "core/objects/WebRequestTracer.h"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
 #include <sstream>
 
-using namespace test::types;
+using namespace test;
+
+using ActionCommonImpl_t = core::objects::ActionCommonImpl;
+using ActionCommonImpl_sp = std::shared_ptr<ActionCommonImpl_t>;
+using IActionCommon_t = core::objects::IActionCommon;
+using IRootAction_t = openkit::IRootAction;
+using LeafAction_t = core::objects::LeafAction;
+using MockNiceILogger_sp = std::shared_ptr<testing::NiceMock<MockILogger>>;
+using MockNiceIBeacon_sp = std::shared_ptr<testing::NiceMock<MockIBeacon>>;
+using MockNiceIOpenKitComposite_t = testing::NiceMock<MockIOpenKitComposite>;
+using MockNiceIOpenKitComposite_sp = std::shared_ptr<MockNiceIOpenKitComposite_t>;
+using MockNiceIOpenKitObject_t = testing::NiceMock<MockIOpenKitObject>;
+using MockStrictIRootAction_t = testing::StrictMock<MockIRootAction>;
+using NullAction_t = core::objects::NullAction;
+using NullWebRequestTracer_t = core::objects::NullWebRequestTracer;
+using Utf8String_t = core::UTF8String;
+using WebRequestTracer_t = core::objects::WebRequestTracer;
 
 class ActionCommonImplTest : public testing::Test
 {
 protected:
+
 	MockNiceILogger_sp mockNiceLogger;
-	MockNiceBeacon_sp mockNiceBeacon;
+	MockNiceIBeacon_sp mockNiceBeacon;
 	MockNiceIOpenKitComposite_sp mockParent;
 	Utf8String_t ACTION_NAME = "TestAction";
 	int32_t ACTION_ID= 1234;
 
 	void SetUp()
 	{
-		mockNiceLogger = std::make_shared<MockNiceILogger_t>();
-		ON_CALL(*mockNiceLogger, isInfoEnabled())
-				.WillByDefault(testing::Return(true));
-		ON_CALL(*mockNiceLogger, isDebugEnabled())
-				.WillByDefault(testing::Return(true));
-
+		mockNiceLogger = MockILogger::createNice();
 		mockParent = std::make_shared<MockNiceIOpenKitComposite_t>();
 
-		auto beaconCache = std::make_shared<BeaconCache_t>(mockNiceLogger);
-		auto device = std::make_shared<Device_t>("", "", "");
-		auto sessionIdProvider = std::make_shared<DefaultSessionIdProvider_t>();
-		auto beaconCacheConfig = std::make_shared<BeaconCacheConfiguration_t>(-1, -1, -1);
-		auto beaconConfig = std::make_shared<BeaconConfiguration_t>();
-		auto trustManager = std::make_shared<SslStrictTrustManager_t>();
-
-		int64_t deviceId = 73;
-
-		auto config = std::make_shared<Configuration_t>(
-			device,
-			OpenKitType_t::Type::DYNATRACE,
-			"name",
-			"version",
-			"appId",
-			deviceId,
-			std::to_string(deviceId),
-			"",
-			sessionIdProvider,
-			trustManager,
-			beaconCacheConfig,
-			beaconConfig
-		);
-
-		auto threadIdProvider = std::make_shared<DefaultThreadIdProvider_t>();
-		auto timingProvider = std::make_shared<DefaultTimingProvider_t>();
-
-		mockNiceBeacon = std::make_shared<MockNiceBeacon_t>(
-			mockNiceLogger,
-			beaconCache,
-			config,
-			"127.0.0.1",
-			threadIdProvider,
-			timingProvider
-		);
-
+		mockNiceBeacon = MockIBeacon::createNice();
 		ON_CALL(*mockNiceBeacon, createID())
 			.WillByDefault(testing::Return(ACTION_ID));
 	}
@@ -167,7 +151,7 @@ TEST_F(ActionCommonImplTest, reportValueIntWithNullNameDoesNotReportValue)
 	stream << target->toString() << " reportValue (int): valueName must not be null or empty";
 	EXPECT_CALL(*mockNiceLogger, mockWarning(stream.str()))
 		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockNiceBeacon, reportValueInt32(testing::_, testing::_, testing::_))
+	EXPECT_CALL(*mockNiceBeacon, reportValue(testing::_, testing::_, testing::An<int32_t>()))
 		.Times(testing::Exactly(0));
 
 	// when
@@ -186,7 +170,7 @@ TEST_F(ActionCommonImplTest, reportValueIntWithEmptyNameDoesNotReportValue)
 	stream << target->toString() << " reportValue (int): valueName must not be null or empty";
 	EXPECT_CALL(*mockNiceLogger, mockWarning(stream.str()))
 		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockNiceBeacon, reportValueInt32(testing::_, testing::_, testing::_))
+	EXPECT_CALL(*mockNiceBeacon, reportValue(testing::_, testing::_, testing::An<int32_t>()))
 		.Times(testing::Exactly(0));
 
 	// when
@@ -200,8 +184,11 @@ TEST_F(ActionCommonImplTest, reportValueIntWithValidValue)
 	const int32_t value = 42;
 
 	// expect
-	EXPECT_CALL(*mockNiceBeacon, reportValueInt32(testing::Eq(ACTION_ID), testing::Eq(eventName), testing::Eq(value)))
-		.Times(testing::Exactly(1));
+	EXPECT_CALL(*mockNiceBeacon, reportValue(
+			testing::Eq(ACTION_ID),
+			testing::Eq(eventName),
+			testing::TypedEq<int32_t>(value)
+	)).Times(testing::Exactly(1));
 
 	// given
 	auto target = createAction();
@@ -222,7 +209,7 @@ TEST_F(ActionCommonImplTest, reportValueDoubleWithNullNameDoesNotReportValue)
 	stream << target->toString() << " reportValue (double): valueName must not be null or empty";
 	EXPECT_CALL(*mockNiceLogger, mockWarning(stream.str()))
 		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockNiceBeacon, reportValueDouble(testing::_, testing::_, testing::_))
+	EXPECT_CALL(*mockNiceBeacon, reportValue(testing::_, testing::_, testing::An<double>()))
 		.Times(testing::Exactly(0));
 
 	//when
@@ -241,7 +228,7 @@ TEST_F(ActionCommonImplTest, reportValueDoubleWithEmptyNameDoesNotReportValue)
 	stream << target->toString() << " reportValue (double): valueName must not be null or empty";
 	EXPECT_CALL(*mockNiceLogger, mockWarning(stream.str()))
 		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockNiceBeacon, reportValueDouble(testing::_, testing::_, testing::_))
+	EXPECT_CALL(*mockNiceBeacon, reportValue(testing::_, testing::_, testing::An<double>()))
 		.Times(testing::Exactly(0));
 
 	//when
@@ -255,8 +242,11 @@ TEST_F(ActionCommonImplTest, reportValueDoubleWithValidValue)
 	const double value = 42.1337;
 
 	// expect
-	EXPECT_CALL(*mockNiceBeacon, reportValueDouble(testing::Eq(ACTION_ID), testing::Eq(eventName), testing::Eq(value)))
-		.Times(testing::Exactly(1));
+	EXPECT_CALL(*mockNiceBeacon, reportValue(
+			testing::Eq(ACTION_ID),
+			testing::Eq(eventName),
+			testing::TypedEq<double>(value)
+	)).Times(testing::Exactly(1));
 
 	// given
 	auto target = createAction();
@@ -277,7 +267,7 @@ TEST_F(ActionCommonImplTest, reportValueStringWithNullNameDoesNotReportValue)
 	stream << target->toString() << " reportValue (string): valueName must not be null or empty";
 	EXPECT_CALL(*mockNiceLogger, mockWarning(stream.str()))
 		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockNiceBeacon, reportValueString(testing::_, testing::_, testing::_))
+	EXPECT_CALL(*mockNiceBeacon, reportValue(testing::_, testing::_, testing::An<const Utf8String_t&>()))
 		.Times(testing::Exactly(0));
 
 	//when
@@ -291,8 +281,11 @@ TEST_F(ActionCommonImplTest, reportValueStringWithValidValue)
 	const char* value = "This is a string";
 
 	// expect
-	EXPECT_CALL(*mockNiceBeacon, reportValueString(testing::Eq(ACTION_ID), testing::Eq(eventName), testing::Eq(value)))
-		.Times(testing::Exactly(1));
+	EXPECT_CALL(*mockNiceBeacon, reportValue(
+			testing::Eq(ACTION_ID),
+			testing::Eq(eventName),
+			testing::TypedEq<const Utf8String_t&>(value)
+	)).Times(testing::Exactly(1));
 
 	// given
 	auto target = createAction();
@@ -308,8 +301,11 @@ TEST_F(ActionCommonImplTest, reportValueStringWithValueNull)
 	const char* value = nullptr;
 
 	// expect
-	EXPECT_CALL(*mockNiceBeacon, reportValueString(testing::Eq(ACTION_ID), testing::Eq(eventName), testing::Eq(value)))
-		.Times(testing::Exactly(1));
+	EXPECT_CALL(*mockNiceBeacon, reportValue(
+			testing::Eq(ACTION_ID),
+			testing::Eq(eventName),
+			testing::TypedEq<const Utf8String_t&>(value)
+	)).Times(testing::Exactly(1));
 
 	// given
 	auto target = createAction();
@@ -689,7 +685,7 @@ TEST_F(ActionCommonImplTest, leavingAnActionSetsTheEndSequenceNumber)
 TEST_F(ActionCommonImplTest, leavingAnActionSerializesItself)
 {
 	// expect
-	EXPECT_CALL(*mockNiceBeacon, mockAddAction(testing::_))
+	EXPECT_CALL(*mockNiceBeacon, addAction(testing::_))
 		.Times(testing::Exactly(1));
 
 	// given
@@ -758,7 +754,7 @@ TEST_F(ActionCommonImplTest, leavingAnActionReturnsFalseIfAlreadyLeft)
 TEST_F(ActionCommonImplTest, leavingAnAlreadyLeftActionReturnsImmediately)
 {
 	// expect
-	EXPECT_CALL(*mockNiceBeacon, mockAddAction(testing::_)).Times(testing::Exactly(1));
+	EXPECT_CALL(*mockNiceBeacon, addAction(testing::_)).Times(testing::Exactly(1));
 
 	// given
 	auto target = createAction();
@@ -801,7 +797,7 @@ TEST_F(ActionCommonImplTest, leaveActionSetsEndTimeBeforeAddingToBeacon)
 
 		EXPECT_CALL(*mockNiceBeacon, getCurrentTimestamp()).Times(1); 	// set end timestamp
 		EXPECT_CALL(*mockNiceBeacon, createSequenceNumber()).Times(1); 	// set end sequence number
-		EXPECT_CALL(*mockNiceBeacon, mockAddAction(testing::_));
+		EXPECT_CALL(*mockNiceBeacon, addAction(testing::_));
 	}
 
 	// given
@@ -825,10 +821,10 @@ TEST_F(ActionCommonImplTest, leaveActionLeavesChildActionsBeforeSettingEndTime)
 
 		EXPECT_CALL(*mockNiceBeacon, getCurrentTimestamp());	// set end time on child action
 		EXPECT_CALL(*mockNiceBeacon, createSequenceNumber());	// set end sequence number on child action
-		EXPECT_CALL(*mockNiceBeacon, mockAddAction(testing::_));
+		EXPECT_CALL(*mockNiceBeacon, addAction(testing::_));
 		EXPECT_CALL(*mockNiceBeacon, getCurrentTimestamp());	// set end time on root action
 		EXPECT_CALL(*mockNiceBeacon, createSequenceNumber());	// set end sequence number on root action
-		EXPECT_CALL(*mockNiceBeacon, mockAddAction(testing::_));
+		EXPECT_CALL(*mockNiceBeacon, addAction(testing::_));
 	}
 
 	// given
@@ -873,7 +869,7 @@ TEST_F(ActionCommonImplTest, reportIntValueDoesNothingIfActionIsLeft)
 	const int32_t value = 42;
 
 	// expect
-	EXPECT_CALL(*mockNiceBeacon, reportValueInt32(testing::_, testing::_, testing::_))
+	EXPECT_CALL(*mockNiceBeacon, reportValue(testing::_, testing::_, testing::An<int32_t>()))
 		.Times(testing::Exactly(0));
 
 	//given
@@ -898,7 +894,7 @@ TEST_F(ActionCommonImplTest, reportDoubleValueDoesNothingIfActionIsLeft)
 	const double value = 42.1337;
 
 	// expect
-	EXPECT_CALL(*mockNiceBeacon, reportValueDouble(testing::_, testing::_, testing::_))
+	EXPECT_CALL(*mockNiceBeacon, reportValue(testing::_, testing::_, testing::An<double>()))
 		.Times(testing::Exactly(0));
 
 	//given
@@ -923,7 +919,7 @@ TEST_F(ActionCommonImplTest, reportStringValueDoesNothingIfActionIsLeft)
 	const char* value = "42";
 
 	// expect
-	EXPECT_CALL(*mockNiceBeacon, reportValueString(testing::_, testing::_, testing::_))
+	EXPECT_CALL(*mockNiceBeacon, reportValue(testing::_, testing::_, testing::An<const Utf8String_t&>()))
 		.Times(testing::Exactly(0));
 
 	//given
@@ -973,7 +969,7 @@ TEST_F(ActionCommonImplTest, closeActionLeavesTheAction)
 	const int32_t sequenceNumber = 42;
 
 	// expect
-	EXPECT_CALL(*mockNiceBeacon, mockAddAction(testing::_))
+	EXPECT_CALL(*mockNiceBeacon, addAction(testing::_))
 		.Times(testing::Exactly(1));
 
 	// given

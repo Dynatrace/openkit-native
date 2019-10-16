@@ -14,23 +14,74 @@
 * limitations under the License.
 */
 
-#include "Types.h"
-#include "../MockTypes.h"
-#include "../caching/Types.h"
-#include "../configuration/Types.h"
-#include "../util/Types.h"
-#include "../../api/Types.h"
-#include "../../protocol/Types.h"
-#include "../../protocol/MockTypes.h"
-#include "../../providers/Types.h"
-#include "../../providers/MockTypes.h"
+#include "MockIOpenKitObject.h"
+#include "../MockBeaconSender.h"
+#include "../../api/MockILogger.h"
+#include "../../protocol/mock/MockIBeacon.h"
+#include "../../protocol/mock/MockIHTTPClient.h"
+#include "../../protocol/mock/MockIStatusResponse.h"
+#include "../../providers/MockHTTPClientProvider.h"
+
+#include "OpenKit/ISSLTrustManager.h"
+#include "core/UTF8String.h"
+#include "core/caching/BeaconCache.h"
+#include "core/configuration/BeaconConfiguration.h"
+#include "core/configuration/BeaconCacheConfiguration.h"
+#include "core/configuration/Configuration.h"
+#include "core/configuration/Device.h"
+#include "core/configuration/OpenKitType.h"
+#include "core/objects/IOpenKitObject.h"
+#include "core/objects/NullRootAction.h"
+#include "core/objects/NullWebRequestTracer.h"
+#include "core/objects/RootAction.h"
+#include "core/objects/Session.h"
+#include "core/objects/WebRequestTracer.h"
+#include "protocol/ssl/SSLStrictTrustManager.h"
+#include "providers/DefaultTimingProvider.h"
+#include "providers/DefaultSessionIDProvider.h"
+#include "providers/ISessionIDProvider.h"
+#include "providers/ITimingProvider.h"
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
 #include <memory>
 
-using namespace test::types;
+using namespace test;
+
+using BeaconCache_t = core::caching::BeaconCache;
+using BeaconCache_sp = std::shared_ptr<BeaconCache_t>;
+using BeaconCacheConfiguration_t = core::configuration::BeaconCacheConfiguration;
+using BeaconCacheConfiguration_sp = std::shared_ptr<BeaconCacheConfiguration_t>;
+using BeaconConfiguration_t = core::configuration::BeaconConfiguration;
+using BeaconConfiguration_sp = std::shared_ptr<BeaconConfiguration_t>;
+using Configuration_t = core::configuration::Configuration;
+using Configuration_sp = std::shared_ptr<Configuration_t>;
+using Device_t = core::configuration::Device;
+using DefaultTimingProvider_t = providers::DefaultTimingProvider;
+using DefaultSessionIdProvider_t = providers::DefaultSessionIDProvider;
+using HttpClientConfiguration_t = core::configuration::HTTPClientConfiguration;
+using IOpenKitObject_t = core::objects::IOpenKitObject;
+using ISessionIdProvider_sp = std::shared_ptr<providers::ISessionIDProvider>;
+using ISslTrustManager_sp = std::shared_ptr<openkit::ISSLTrustManager>;
+using ITimingProvider_sp = std::shared_ptr<providers::ITimingProvider>;
+using MockNiceHttpClientProvider_t = testing::NiceMock<MockHTTPClientProvider>;
+using MockNiceHttpClientProvider_sp = std::shared_ptr<MockNiceHttpClientProvider_t>;
+using MockNiceIBeacon_sp = std::shared_ptr<testing::NiceMock<MockIBeacon>>;
+using MockNiceILogger_sp = std::shared_ptr<testing::NiceMock<MockILogger>>;
+using MockNiceIHTTPClient_sp = std::shared_ptr<testing::NiceMock<MockIHTTPClient>>;
+using MockStrictBeaconSender_t = testing::StrictMock<MockBeaconSender>;
+using MockStrictBeaconSender_sp = std::shared_ptr<MockStrictBeaconSender_t>;
+using MockStrictIBeacon_sp = std::shared_ptr<testing::StrictMock<MockIBeacon>>;
+using NullRootAction_t = core::objects::NullRootAction;
+using NullWebRequestTracer_t = core::objects::NullWebRequestTracer;
+using OpenKitType_t = core::configuration::OpenKitType;
+using RootAction_t = core::objects::RootAction;
+using Session_t = core::objects::Session;
+using Session_sp = std::shared_ptr<Session_t>;
+using SslStrictTrustManager_t = protocol::SSLStrictTrustManager;
+using Utf8String_t = core::UTF8String;
+using WebRequestTracer_t = core::objects::WebRequestTracer;
 
 static const char APP_ID[] = "appID";
 static const char APP_NAME[] = "appName";
@@ -38,17 +89,34 @@ static const char APP_NAME[] = "appName";
 class SessionTest : public testing::Test
 {
 protected:
+	std::ostringstream devNull;
+	MockNiceILogger_sp mockLogger;
+	ITimingProvider_sp timingProvider;
+	ISessionIdProvider_sp sessionIDProvider;
+
+	MockNiceIHTTPClient_sp mockHTTPClient;
+	ISslTrustManager_sp trustManager;
+
+	BeaconConfiguration_sp beaconConfiguration;
+	BeaconCacheConfiguration_sp beaconCacheConfiguration;
+	Configuration_sp configuration;
+	BeaconCache_sp beaconCache;
+
+	MockStrictBeaconSender_sp mockBeaconSender;
+	MockStrictIBeacon_sp mockBeaconStrict;
+	MockNiceIBeacon_sp mockBeaconNice;
+	MockNiceHttpClientProvider_sp mockHTTPClientProvider;
+
 	void SetUp()
 	{
-		logger = std::make_shared<DefaultLogger_t>(devNull, LogLevel_t::LOG_LEVEL_DEBUG);
+		mockLogger = MockILogger::createNice();
 
-		threadIDProvider = std::make_shared<DefaultThreadIdProvider_t>();
 		timingProvider = std::make_shared<DefaultTimingProvider_t>();
 		sessionIDProvider = std::make_shared<DefaultSessionIdProvider_t>();
 
 		auto httpClientConfiguration = std::make_shared<HttpClientConfiguration_t>(Utf8String_t(""), 0, Utf8String_t(""));
 		mockHTTPClientProvider = std::make_shared<MockNiceHttpClientProvider_t>();
-		mockHTTPClient = std::make_shared<MockNiceHttpClient_t>(httpClientConfiguration);
+		mockHTTPClient = MockIHTTPClient::createNice();
 
 		trustManager = std::make_shared<SslStrictTrustManager_t>();
 
@@ -73,650 +141,760 @@ protected:
 		);
 		configuration->enableCapture();
 
-		beaconCache = std::make_shared<BeaconCache_t>(logger);
+		beaconCache = std::make_shared<BeaconCache_t>(mockLogger);
 
-		mockBeaconSender = std::make_shared<MockStrictBeaconSender_t>(logger, configuration, mockHTTPClientProvider, timingProvider);
-		mockBeaconStrict = std::make_shared<MockStrictBeacon_t>(logger, beaconCache, configuration, nullptr, threadIDProvider, timingProvider);
-		mockBeaconNice = std::make_shared<MockNiceBeacon_t>(logger, beaconCache, configuration, nullptr, threadIDProvider, timingProvider);
+		mockBeaconSender = std::make_shared<MockStrictBeaconSender_t>(mockLogger, configuration, mockHTTPClientProvider, timingProvider);
+		mockBeaconStrict = MockIBeacon::createStrict();
+		mockBeaconNice = MockIBeacon::createNice();
 	}
 
 	void TearDown()
 	{
-
 	}
-public:
-	std::ostringstream devNull;
-	ILogger_sp logger;
-	IThreadIdProvider_sp threadIDProvider;
-	ITimingProvider_sp timingProvider;
-	ISessionIdProvider_sp sessionIDProvider;
 
-	MockNiceHttpClient_sp mockHTTPClient;
-	ISslTrustManager_sp trustManager;
+	Session_sp createSessionWithNiceBeacon()
+	{
+		return std::make_shared<Session_t>(
+			mockLogger,
+			mockBeaconSender,
+			mockBeaconNice
+		);
+	}
 
-	BeaconConfiguration_sp beaconConfiguration;
-	BeaconCacheConfiguration_sp beaconCacheConfiguration;
-	Configuration_sp configuration;
-	BeaconCache_sp beaconCache;
-
-	MockStrictBeaconSender_sp mockBeaconSender;
-	MockStrictBeacon_sp mockBeaconStrict;
-	MockNiceBeacon_sp mockBeaconNice;
-	MockNiceHttpClientProvider_sp mockHTTPClientProvider;
+	Session_sp createSessionWithStrictBeacon()
+ 	{
+		return std::make_shared<Session_t>(
+			mockLogger,
+			mockBeaconSender,
+			mockBeaconStrict
+		);
+	}
 };
 
-TEST_F(SessionTest, constructorReturnsValidDefaults)
+TEST_F(SessionTest, startSessionCallsBeacon)
 {
-	// test the constructor call
-	auto target = std::make_shared<Session_t>(logger, mockBeaconSender, mockBeaconNice);
+	// expect
+	EXPECT_CALL(*mockBeaconStrict, startSession())
+		.Times(1);
+	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
+		.Times(1);
 
-	// verify default values
-	ASSERT_EQ(target->getEndTime(), -1);
-	ASSERT_TRUE(target->isEmpty());
+	// given
+	auto target = createSessionWithStrictBeacon();
+
+	// when
+	target->startSession();
 }
 
-TEST_F(SessionTest, enterActionWithNullActionName)
+TEST_F(SessionTest, constructorInitializesValidDefaults)
 {
-	// create test environment
-	auto target = std::make_shared<Session_t>(logger, mockBeaconSender, mockBeaconNice);
+	// given, when
+	auto target = createSessionWithStrictBeacon();
 
-	// add/enter "null-action"
+	// then
+	ASSERT_EQ(target->getEndTime(), -1);
+}
+
+TEST_F(SessionTest, enterActionWithNullActionNameGivesNullRootActionObject)
+{
+	// expect
+	EXPECT_CALL(*mockLogger, mockWarning("Session [sn=0] enterAction: actionName must not be null or empty"))
+		.Times(1);
+
+	// given
+	auto target = createSessionWithNiceBeacon();
+
+	// when
 	auto obtained = target->enterAction(nullptr);
 
-	// we definitely got a NullRootAction instance
-	ASSERT_NE(nullptr, obtained);
-	ASSERT_NE(nullptr, std::dynamic_pointer_cast<NullRootAction_t>(obtained));
+	// then
+	ASSERT_THAT(obtained, testing::NotNull());
+	ASSERT_THAT(std::dynamic_pointer_cast<NullRootAction_t>(obtained), testing::NotNull());
 }
 
-TEST_F(SessionTest, enterActionWithEmptyActionName)
+TEST_F(SessionTest, enterActionWithEmptyActionNameGivesNullRootActionObject)
 {
-	// create test environment
-	auto target = std::make_shared<Session_t>(logger, mockBeaconSender, mockBeaconNice);
+	// expect
+	EXPECT_CALL(*mockLogger, mockWarning("Session [sn=0] enterAction: actionName must not be null or empty"))
+		.Times(1);
 
-	// add/enter "null-action"
+	// given
+	auto target = createSessionWithNiceBeacon();
+
+	// when
 	auto obtained = target->enterAction("");
 
-	// we definitely got a NullRootAction instance
-	ASSERT_NE(nullptr, obtained);
-	ASSERT_NE(nullptr, std::dynamic_pointer_cast<NullRootAction_t>(obtained));
+	// then
+	ASSERT_THAT(obtained, testing::NotNull());
+	ASSERT_THAT(std::dynamic_pointer_cast<NullRootAction_t>(obtained), testing::NotNull());
 }
 
-TEST_F(SessionTest, enterNotClosedAction)
+TEST_F(SessionTest, enterActionWitnNonEmptyNameGivesRootAction)
 {
-	// create test environment
-	auto target = std::make_shared<Session_t>(logger, mockBeaconSender, mockBeaconNice);
+	// given
+	auto target = createSessionWithNiceBeacon();
 
-	// add/enter one action
+	// when
+	auto obtained = target->enterAction("some action");
+
+	// then
+	ASSERT_THAT(obtained, testing::NotNull());
+	ASSERT_THAT(std::dynamic_pointer_cast<RootAction_t>(obtained), testing::NotNull());
+
+	// break dependency cycle: root action in child objects of session
+	obtained->leaveAction();
+}
+
+TEST_F(SessionTest, enterActionAlwaysGivesANewInstance)
+{
+	// given
+	const char* actionName = "some action";
+	auto target = createSessionWithNiceBeacon();
+
+	// when
+	auto obtainedOne = target->enterAction(actionName);
+	auto obtainedTwo = target->enterAction(actionName);
+
+	// then
+	ASSERT_THAT(obtainedOne, testing::NotNull());
+	ASSERT_THAT(obtainedTwo, testing::NotNull());
+	ASSERT_THAT(obtainedOne, testing::Ne(obtainedTwo));
+
+	// break dependency cycle: root action in child objects of session
+	obtainedOne->leaveAction();
+	obtainedTwo->leaveAction();
+}
+
+TEST_F(SessionTest, enterActionWithDifferentNameGivesDifferentInstance)
+{
+	// given
+	auto target = createSessionWithNiceBeacon();
+
+	// when
+	auto obtainedOne = target->enterAction("some action 1");
+	auto obtainedTwo = target->enterAction("some action 2");
+
+	// then
+	ASSERT_THAT(obtainedOne, testing::NotNull());
+	ASSERT_THAT(obtainedTwo, testing::NotNull());
+	ASSERT_THAT(obtainedOne, testing::Ne(obtainedTwo));
+
+	// break dependency cycle: root action in child objects of session
+	obtainedOne->leaveAction();
+	obtainedTwo->leaveAction();
+}
+
+TEST_F(SessionTest, enterActionDoesNotAddToTheBeaconCache)
+{
+	// expect
+	EXPECT_CALL(*mockBeaconStrict, getSessionNumber())
+		.Times(1); // Session toString on debug log
+	EXPECT_CALL(*mockBeaconStrict, getCurrentTimestamp())
+		.Times(1); // initialize action
+	EXPECT_CALL(*mockBeaconStrict, createSequenceNumber())
+		.Times(1); // initialize action
+	EXPECT_CALL(*mockBeaconStrict, createID())
+		.Times(1); // initialize action
+
+	// given
+	auto target = createSessionWithStrictBeacon();
+
+	// when
 	auto obtained = target->enterAction("Some action");
-	ASSERT_NE(nullptr, obtained);
 
-	// verify that (because the actions is still active) it is not in the beacon cache (thus the cache is empty)
-	ASSERT_TRUE(target->isEmpty());
-}
+	// then
+	ASSERT_THAT(obtained, testing::NotNull());
+	testing::Mock::VerifyAndClearExpectations(mockBeaconStrict.get());
 
-
-TEST_F(SessionTest, enterSingleAction)
-{
-	// create test environment
-	auto target = std::make_shared<Session_t>(logger, mockBeaconSender, mockBeaconNice);
-
-	// add/enter one action
-	auto rootAction = target->enterAction("some action");
-	rootAction->leaveAction();
-
-	// verify that the action is closed, thus moved to the beacon cache (thus the cache is no longer empty)
-	ASSERT_FALSE(target->isEmpty());
-}
-
-TEST_F(SessionTest, enterMultipleActions)
-{
-	// create test environment
-	auto target = std::make_shared<Session_t>(logger, mockBeaconSender, mockBeaconNice);
-
-	// add/enter two actions
-	auto rootAction1 = target->enterAction("some action 1");
-	rootAction1->leaveAction();
-	auto rootAction2 = target->enterAction("some action 2");
-	rootAction2->leaveAction();
-
-	// verify that the actions are closed, thus moved to the beacon cache (thus the cache is no longer empty)
-	ASSERT_FALSE(target->isEmpty());
-}
-
-TEST_F(SessionTest, enterSameActions)
-{
-	// create test environment
-	auto target = std::make_shared<Session_t>(logger, mockBeaconSender, mockBeaconNice);
-
-	// add/enter two actions
-	auto rootAction1 = target->enterAction("some action");
-	rootAction1->leaveAction();
-	auto rootAction2 = target->enterAction("some action");
-	rootAction2->leaveAction();
-
-	// verify that the actions are closed, thus moved to the beacon cache (thus the cache is no longer empty)
-	ASSERT_FALSE(target->isEmpty());
-	// verify that multiple actions with same name are possible
-	ASSERT_NE(rootAction1, rootAction2);
+	// break dependency cycle: root action in child objects of session
+	auto rootAction = std::dynamic_pointer_cast<RootAction_t>(obtained);
+	auto actionImpl = rootAction->getActionImpl();
+	target->removeChildFromList(std::dynamic_pointer_cast<IOpenKitObject_t>(actionImpl));
 }
 
 TEST_F(SessionTest, identifyUserWithNullTagDoesNothing)
 {
-	// create test environment
-	auto target = std::make_shared<Session_t>(logger, mockBeaconSender, mockBeaconStrict);
-
-	// identify a "null-user" must be possible
+	// expect
+	EXPECT_CALL(*mockLogger, mockWarning("Session [sn=0] identifyUser: userTag must not be null or empty"))
+		.Times(1);
 	EXPECT_CALL(*mockBeaconStrict, getSessionNumber())
 		.Times(1);
-	EXPECT_CALL(*mockBeaconStrict, identifyUser(testing::_))
-		.Times(0);
 
-	// verify the correct method is being called
+	// given
+	auto target = createSessionWithStrictBeacon();
+
+	// when
 	target->identifyUser(nullptr);
 }
 
 TEST_F(SessionTest, identifyUserWithEmptyTagDoesNothing)
 {
-	// create test environment
-	auto target = std::make_shared<Session_t>(logger, mockBeaconSender, mockBeaconStrict);
+	// expect
+	EXPECT_CALL(*mockLogger, mockWarning("Session [sn=0] identifyUser: userTag must not be null or empty"))
+		.Times(1);
+	EXPECT_CALL(*mockBeaconStrict, getSessionNumber())
+		.Times(1);
 
-	// identify a "null-user" must be possible
-	EXPECT_CALL(*mockBeaconStrict, getSessionNumber()).Times(1);
-	EXPECT_CALL(*mockBeaconStrict, identifyUser(testing::_))
-		.Times(0);
+	// given
+	auto target = createSessionWithStrictBeacon();
 
-	// verify the correct methods being called
+	// when
 	target->identifyUser("");
 }
 
-TEST_F(SessionTest, identifySingleUser)
+TEST_F(SessionTest, identifyUserWithNonEmptyTagReportsUser)
 {
-	// verify the correct methods being called
-	EXPECT_CALL(*mockBeaconStrict, getSessionNumber()).Times(1);
-	EXPECT_CALL(*mockBeaconStrict, identifyUser(Utf8String_t("Some user")))
-		.Times(1);
-	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
-		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockBeaconStrict, startSession())
-		.Times(testing::Exactly(1));
+	// with
+	const char* userTag = "user";
 
-	// create test environment
-	auto target = std::make_shared<Session_t>(logger, mockBeaconSender, mockBeaconStrict);
-	target->startSession();
-	// identify a single user
-	target->identifyUser("Some user");
+	// expect
+	EXPECT_CALL(*mockLogger, mockWarning(testing::_))
+		.Times(0);
+	EXPECT_CALL(*mockBeaconStrict, getSessionNumber())
+		.Times(1); // Session toString on debug log
+	EXPECT_CALL(*mockBeaconStrict, identifyUser(Utf8String_t(userTag)))
+		.Times(1);
+
+	// given
+	auto target = createSessionWithStrictBeacon();
+
+	// when
+	target->identifyUser(userTag);
 }
 
-TEST_F(SessionTest, identifyMultipleUsers)
+TEST_F(SessionTest, identifyUserMultipleTimesAlwaysCallsBeacon)
 {
-	// verify the correct methods being called
-	EXPECT_CALL(*mockBeaconStrict, getSessionNumber()).Times(3);
-	EXPECT_CALL(*mockBeaconStrict, identifyUser(Utf8String_t("Some user")))
-		.Times(1);
-	EXPECT_CALL(*mockBeaconStrict, identifyUser(Utf8String_t("Some other user")))
-		.Times(1);
-	EXPECT_CALL(*mockBeaconStrict, identifyUser(Utf8String_t("Yet another user")))
-		.Times(1);
-	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
-		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockBeaconStrict, startSession())
-		.Times(testing::Exactly(1));
+	// with
+	const char* userTag = "user";
 
-	// create test environment
-	auto target = std::make_shared<Session_t>(logger, mockBeaconSender, mockBeaconStrict);
-	target->startSession();
-
-	// identify multiple users
-	target->identifyUser("Some user");
-	target->identifyUser("Some other user");
-	target->identifyUser("Yet another user");
-}
-
-TEST_F(SessionTest, identifySameUser)
-{
-	// verify the correct methods being called
-	EXPECT_CALL(*mockBeaconStrict,getSessionNumber()).Times(2);
-	EXPECT_CALL(*mockBeaconStrict, identifyUser(Utf8String_t("Some user")))
+	// expect
+	EXPECT_CALL(*mockLogger, mockWarning(testing::_))
+		.Times(0);
+	EXPECT_CALL(*mockBeaconStrict, getSessionNumber())
+		.Times(2); // session toString in debug log
+	EXPECT_CALL(*mockBeaconStrict, identifyUser(Utf8String_t(userTag)))
 		.Times(2);
-	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
-		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockBeaconStrict, startSession())
-		.Times(testing::Exactly(1));
 
-	// create test environment
-	auto target = std::make_shared<Session_t>(logger, mockBeaconSender, mockBeaconStrict);
-	target->startSession();
+	// given
+	auto target = createSessionWithStrictBeacon();
 
-	// identify two identical users
-	target->identifyUser("Some user");
-	target->identifyUser("Some user");
+	// when
+	target->identifyUser(userTag);
+	target->identifyUser(userTag);
+}
+
+TEST_F(SessionTest, identifyUserWithDifferentUsersAlwasCallsBeacon)
+{
+	// with
+	const char* userTag1 = "user 1";
+	const char* userTag2 = "user 2";
+
+	// expect
+	EXPECT_CALL(*mockLogger, mockWarning(testing::_))
+		.Times(0);
+	EXPECT_CALL(*mockBeaconStrict, getSessionNumber())
+		.Times(2); // session toString in debug log
+	EXPECT_CALL(*mockBeaconStrict, identifyUser(Utf8String_t(userTag1)))
+		.Times(1);
+	EXPECT_CALL(*mockBeaconStrict, identifyUser(Utf8String_t(userTag2)))
+		.Times(1);
+
+	// given
+	auto target = createSessionWithStrictBeacon();
+
+	// when
+	target->identifyUser(userTag1);
+	target->identifyUser(userTag2);
 }
 
 TEST_F(SessionTest, reportingCrashWithNullErrorNameDoesNotReportAnything)
 {
-	// verify the correct methods being called
-	EXPECT_CALL(*mockBeaconStrict,getSessionNumber()).Times(1);
-	EXPECT_CALL(*mockBeaconStrict, reportCrash(testing::_, testing::_, testing::_))
-		.Times(0);
+	// with
+	const char* errorName = nullptr;
+	const char* reason = "some reason";
+	const char* stacktrace = "some stack trace";
 
-	// create test environment
-	auto target = std::make_shared<Session_t>(logger, mockBeaconSender, mockBeaconStrict);
+	// expect
+	EXPECT_CALL(*mockLogger, mockWarning("Session [sn=0] reportCrash: errorName must not be null or empty"))
+		.Times(1);
+	EXPECT_CALL(*mockBeaconStrict,getSessionNumber())
+		.Times(1); // session to string in debug log
 
-	// report a crash, passing null values
-	target->reportCrash(nullptr, "some reason", "some stack trace");
+	// given
+	auto target = createSessionWithStrictBeacon();
+
+	// when
+	target->reportCrash(errorName, reason, stacktrace);
 }
 
 TEST_F(SessionTest, reportingCrashWithEmptyErrorNameDoesNotReportAnything)
 {
-	// verify the correct methods being called
-	EXPECT_CALL(*mockBeaconStrict,getSessionNumber()).Times(1);
-	EXPECT_CALL(*mockBeaconStrict, reportCrash(testing::_, testing::_, testing::_))
-		.Times(0);
+	// with
+	const char* errorName = "";
+	const char* reason = "some reason";
+	const char* stacktrace = "some stack trace";
 
-	// create test environment
-	auto target = std::make_shared<Session_t>(logger, mockBeaconSender, mockBeaconStrict);
+	// expect
+	EXPECT_CALL(*mockLogger, mockWarning("Session [sn=0] reportCrash: errorName must not be null or empty"))
+		.Times(1);
+	EXPECT_CALL(*mockBeaconStrict,getSessionNumber())
+		.Times(1); // session to string in debug log
 
-	// report a crash, passing null values
-	target->reportCrash("", "some reason", "some stack trace");
+	// given
+	auto target = createSessionWithStrictBeacon();
+
+	// when
+	target->reportCrash(errorName, reason, stacktrace);
 }
 
 TEST_F(SessionTest, reportingCrashWithNullReasonAndStacktraceWorks)
 {
-	// verify the correct methods being called
-	EXPECT_CALL(*mockBeaconStrict,getSessionNumber()).Times(1);
-	EXPECT_CALL(*mockBeaconStrict, reportCrash(testing::_, testing::_, testing::_))
+	// with
+	const char* errorName = "errorName";
+	const char* reason = nullptr;
+	const char* stacktrace = nullptr;
+
+	// expect
+	EXPECT_CALL(*mockBeaconNice, reportCrash(testing::Eq(errorName), testing::Eq(reason), testing::Eq(stacktrace)))
 		.Times(1);
 
-	// create test environment
-	auto target = std::make_shared<Session_t>(logger, mockBeaconSender, mockBeaconStrict);
+	// given
+	auto target = createSessionWithNiceBeacon();
 
-	// report a crash, passing null values
-	target->reportCrash("errorName", nullptr, nullptr);
+	// when
+	target->reportCrash(errorName, reason, stacktrace);
 }
 
-TEST_F(SessionTest, reportSingleCrash)
+TEST_F(SessionTest, reportingCrashWithEmptyReasonAndStacktraceStringWorks)
 {
-	// verify the correct methods being called
-	EXPECT_CALL(*mockBeaconStrict,getSessionNumber()).Times(1);
-	EXPECT_CALL(*mockBeaconStrict, reportCrash(testing::_, testing::_, testing::_))
-		.Times(1);
-	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
-		.Times(1);
-	EXPECT_CALL(*mockBeaconStrict, startSession())
-		.Times(testing::Exactly(1));
+	// with
+	const char* errorName = "errorName";
+	const char* reason = "";
+	const char* stacktrace = "";
 
-	// create test environment
-	auto target = std::make_shared<Session_t>(logger, mockBeaconSender, mockBeaconStrict);
-	target->startSession();
+	// expect
+	EXPECT_CALL(*mockBeaconNice, reportCrash(testing::Eq(errorName), testing::Eq(reason), testing::Eq(stacktrace)))
+		.Times(1);
 
-	// report a single crash
-	target->reportCrash("error name", "error reason", "the stacktrace causing the error");
+	// given
+	auto target = createSessionWithNiceBeacon();
+
+	// when
+	target->reportCrash(errorName, reason, stacktrace);
 }
 
-TEST_F(SessionTest, reportMultipleCrashes)
+TEST_F(SessionTest, reportCrashWorks)
 {
-	// verify the correct methods being called
-	EXPECT_CALL(*mockBeaconStrict,getSessionNumber()).Times(2);
-	EXPECT_CALL(*mockBeaconStrict, reportCrash(testing::_, testing::_, testing::_))
+	// with
+	const char* errorName = "errorName";
+	const char* reason = "some reason";
+	const char* stacktrace = "some stacktrace";
+
+	// expect
+	EXPECT_CALL(*mockBeaconNice, reportCrash(testing::Eq(errorName), testing::Eq(reason), testing::Eq(stacktrace)))
+		.Times(1);
+
+	// given
+	auto target = createSessionWithNiceBeacon();
+
+	// when
+	target->reportCrash(errorName, reason, stacktrace);
+}
+
+TEST_F(SessionTest, reportingCrashWithSameDataMultipleTimesForwardsEachCallToBeacon)
+{
+	// with
+	const char* errorName = "errorName";
+	const char* reason = "some reason";
+	const char* stacktrace = "some stacktrace";
+
+	// expect
+	EXPECT_CALL(*mockBeaconNice, reportCrash(testing::Eq(errorName), testing::Eq(reason), testing::Eq(stacktrace)))
 		.Times(2);
-	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
+
+	// given
+	auto target = createSessionWithNiceBeacon();
+
+	// when
+	target->reportCrash(errorName, reason, stacktrace);
+	target->reportCrash(errorName, reason, stacktrace);
+}
+
+
+TEST_F(SessionTest, reportingCrashWithDifferentDataMultipleTimesForwardsEachCallToBeacon)
+{
+	// with
+	const char* errorName1 = "errorName 1";
+	const char* errorName2 = "errorName 2";
+	const char* reason1 = "some reason 1";
+	const char* reason2 = "some reason 2";
+	const char* stacktrace1 = "some stacktrace 1";
+	const char* stacktrace2 = "some stacktrace 2";
+
+	// expect
+	EXPECT_CALL(*mockBeaconNice, reportCrash(testing::Eq(errorName1), testing::Eq(reason1), testing::Eq(stacktrace1)))
 		.Times(1);
-	EXPECT_CALL(*mockBeaconStrict, startSession())
-		.Times(testing::Exactly(1));
-
-	// create test environment
-	auto target = std::make_shared<Session_t>(logger, mockBeaconSender, mockBeaconStrict);
-	target->startSession();
-
-	// report multiple crashes
-	target->reportCrash("error name 1", "error reason 1", "the stacktrace causing the error 1");
-	target->reportCrash("error name 2", "error reason 2", "the stacktrace causing the error 2");
-}
-
-TEST_F(SessionTest, reportSameCrash)
-{
-	// verify the correct methods being called
-	EXPECT_CALL(*mockBeaconStrict,getSessionNumber()).Times(2);
-	EXPECT_CALL(*mockBeaconStrict, reportCrash(testing::_, testing::_, testing::_))
-		.Times(2);
-	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
+	EXPECT_CALL(*mockBeaconNice, reportCrash(testing::Eq(errorName2), testing::Eq(reason2),testing::Eq(stacktrace2)))
 		.Times(1);
-	EXPECT_CALL(*mockBeaconStrict, startSession())
-		.Times(testing::Exactly(1));
 
-	// create test environment
-	auto target = std::make_shared<Session_t>(logger, mockBeaconSender, mockBeaconStrict);
-	target->startSession();
+	// given
+	auto target = createSessionWithNiceBeacon();
 
-	// report multiple crashes
-	target->reportCrash("error name", "error reason", "the stacktrace causing the error");
-	target->reportCrash("error name", "error reason", "the stacktrace causing the error");
+	// when
+	target->reportCrash(errorName1, reason1, stacktrace1);
+	target->reportCrash(errorName2, reason2, stacktrace2);
 }
 
-TEST_F(SessionTest, endSession)
+TEST_F(SessionTest, endSessionFinishesSessionOnBeacon)
 {
-	// verify the correct methods being called
-	EXPECT_CALL(*mockBeaconStrict,getSessionNumber()).Times(1);
-	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
-		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockBeaconStrict, getCurrentTimestamp())
-		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockBeaconStrict, startSession())
-		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockBeaconStrict, endSession(testing::_))
-		.Times(testing::Exactly(1));
+	// with
+	const int64_t timestamp = 1234;
+	ON_CALL(*mockBeaconNice, getCurrentTimestamp())
+		.WillByDefault(testing::Return(timestamp));
+
+	// expect
 	EXPECT_CALL(*mockBeaconSender, finishSession(testing::_))
-		.Times(testing::Exactly(1));
+		.Times(1);
+	EXPECT_CALL(*mockBeaconNice, endSession(testing::_))
+		.Times(1);
 
-	// create test environment
-	auto target = std::make_shared<Session_t>(logger, mockBeaconSender, mockBeaconStrict);
-	target->startSession();
+	// given
+	auto target = createSessionWithNiceBeacon();
 
-	//end the session
+	// when
 	target->end();
-	ASSERT_NE(target->getEndTime(), -1);
+
+	// then
+	ASSERT_THAT(target->getEndTime(), testing::Eq(timestamp));
 }
 
-TEST_F(SessionTest, endSessionTwice)
+TEST_F(SessionTest, endingAnAlreadyEndedSessionDoesNothing)
 {
-	// verify the correct methods being called
-	EXPECT_CALL(*mockBeaconStrict,getSessionNumber()).Times(2);
-	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
-		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockBeaconStrict, getCurrentTimestamp())
-		.Times(testing::Exactly(2));
-	EXPECT_CALL(*mockBeaconStrict, startSession())
-		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockBeaconStrict, endSession(testing::_))
-		.Times(testing::Exactly(1));
+	// with
+	const int64_t timestamp = 1234;
+	ON_CALL(*mockBeaconNice, getCurrentTimestamp())
+		.WillByDefault(testing::Return(timestamp));
+
+	// expect
 	EXPECT_CALL(*mockBeaconSender, finishSession(testing::_))
-		.Times(testing::Exactly(1));
+		.Times(1); // only first invocation of end
+	EXPECT_CALL(*mockBeaconNice, endSession(testing::_))
+		.Times(1); // only first invocation of end
 
-	// create test environment
-	auto target = std::make_shared<Session_t>(logger, mockBeaconSender, mockBeaconStrict);
-	target->startSession();
+	// given
+	auto target = createSessionWithNiceBeacon();
 
-	//try to end the same session twice
+	// when
 	target->end();
+
+	// and when
 	target->end();
 
-	//check correct session end time
-	ASSERT_NE(target->getEndTime(), -1);
+	// then
+	ASSERT_THAT(target->getEndTime(), testing::Eq(timestamp));
 }
 
-TEST_F(SessionTest, endSessionWithOpenRootActions)
+TEST_F(SessionTest, endingASessionImplicitlyClosesAllOpenChildOjects)
 {
-	// set mock behavior of HTTPClient and HTTPClientProvider
-	auto response = std::make_shared<StatusResponse_t>(logger, Utf8String_t(""), 200, Response_t::ResponseHeaders());
+	// with
+	const auto childObjectOne = MockIOpenKitObject::createStrict();
+	const auto childObjectTwo = MockIOpenKitObject::createStrict();
 
-	ON_CALL(*mockHTTPClientProvider, createClient(testing::_, testing::_))
-		.WillByDefault(testing::Return(mockHTTPClient));
-	// mock a valid status response via the HTTPClient to be sure the beacon cache is empty
-	ON_CALL(*mockHTTPClient, sendBeaconRequestRawPtrProxy(testing::_, testing::_))
-		.WillByDefault(testing::Return(response));
-	// call the real send method to ensure correct interaction with the beacon cache
-	ON_CALL(*mockBeaconStrict, send(testing::_))
-		.WillByDefault(testing::WithArgs<0>(testing::Invoke(&*mockBeaconStrict, &test::MockBeacon::RealSend)));
-
-	// verify the proper methods being called
-	EXPECT_CALL(*mockBeaconStrict, getSessionNumber())
-		.Times(5); // 2 enterAction + 1 end + 2 leaveAction
-	EXPECT_CALL(*mockBeaconStrict, createID())
-		.Times(2); // 2 enterAction
-	EXPECT_CALL(*mockBeaconStrict, createSequenceNumber())
-		.Times(testing::Exactly(4));
-	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
-		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockBeaconStrict, getCurrentTimestamp())
-		.Times(testing::Exactly(5));
-	EXPECT_CALL(*mockBeaconStrict, startSession())
-		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockBeaconStrict, endSession(testing::_))
-		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockBeaconStrict, mockAddAction(testing::_))
-		.Times(testing::Exactly(2)); // via calling end and delegating to end of on both entered root actions
+	// expect
+	EXPECT_CALL(*childObjectOne, close())
+		.Times(1);
+	EXPECT_CALL(*childObjectTwo, close())
+		.Times(1);
 	EXPECT_CALL(*mockBeaconSender, finishSession(testing::_))
-		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockBeaconStrict, send(testing::_))
-		.Times(testing::Exactly(1));
+		.Times(1);
 
+	// given
+	auto target = createSessionWithNiceBeacon();
+	target->storeChildInList(childObjectOne);
+	target->storeChildInList(childObjectTwo);
 
-	// create test environment
-	auto target = std::make_shared<Session_t>(logger, mockBeaconSender, mockBeaconStrict);
-	target->startSession();
-
-	// end the session containing open (=not left) actions
-	target->enterAction("Some action 1");
-	target->enterAction("Some action 2");
+	// when
 	target->end();
-
-	target->sendBeacon(mockHTTPClientProvider);
-	// verify that the actions if the action is still active, it is not in the beacon cache (thus cache is empty)
-	ASSERT_TRUE(target->isEmpty());
 }
 
-TEST_F(SessionTest, sendBeacon)
+TEST_F(SessionTest, sendBeaconForwardsCallToBeacon)
 {
-	// verify the proper methods being called
-	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
-		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockBeaconNice, send(testing::_))
-		.Times(testing::Exactly(1));
+	// expect
+	EXPECT_CALL(*mockBeaconStrict, send(testing::Eq(mockHTTPClientProvider)))
+		.Times(1);
 
-	// create test environment
-	auto target = std::make_shared<Session_t>(logger, mockBeaconSender, mockBeaconNice);
-	target->startSession();
+	// given
+	auto target = createSessionWithStrictBeacon();
 
-	//when
+	// when
 	target->sendBeacon(mockHTTPClientProvider);
 }
 
-TEST_F(SessionTest, clearCapturedData)
+TEST_F(SessionTest, clearCapturedDataForwardsCallToBeacon)
 {
-	//check that finishSession is called
-	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
-		.Times(testing::Exactly(1));
+	// expect
+	EXPECT_CALL(*mockBeaconStrict, clearData())
+		.Times(1);
 
-	// create test environment
-	auto target = std::make_shared<Session_t>(logger, mockBeaconSender, mockBeaconNice);
-	target->startSession();
+	// given
+	auto target = createSessionWithStrictBeacon();
 
-	// end the session containing closed actions (moved to the beacon cache)
-//	auto rootAction1 = target->enterAction("Some action 1");
-//	rootAction1->leaveAction();
-//	auto rootAction2 = target->enterAction("Some action 2");
-//	rootAction2->leaveAction();
-
-	// verify that the actions are closed, thus moved to the beacon cache (thus the cache is no longer empty)
-//	ASSERT_FALSE(target->isEmpty());
-
-	// clear the captured data
+	// when
 	target->clearCapturedData();
+}
 
-	// verify that the cached items are cleared and the cache is empty
-	ASSERT_TRUE(target->isEmpty());
+TEST_F(SessionTest, isEmptyForwardsCallToBeacon)
+{
+	// expect
+	EXPECT_CALL(*mockBeaconStrict, isEmpty())
+		.Times(1);
+
+	// given
+	auto target = createSessionWithStrictBeacon();
+
+	// when
+	target->isEmpty();
+}
+
+TEST_F(SessionTest, setBeaconConfigurationForwardsCallToBeacon)
+{
+	// expect
+	EXPECT_CALL(*mockBeaconStrict, setBeaconConfiguration(testing::Eq(beaconConfiguration)))
+		.Times(1);
+
+	// given
+	auto target = createSessionWithStrictBeacon();
+
+	// when
+	target->setBeaconConfiguration(beaconConfiguration);
+}
+
+TEST_F(SessionTest, getBeaconConfigurationForwardsCallToBeacon)
+{
+	// expect
+	EXPECT_CALL(*mockBeaconStrict, getBeaconConfiguration())
+		.Times(1);
+
+	// given
+	auto target = createSessionWithStrictBeacon();
+
+	// when
+	target->getBeaconConfiguration();
 }
 
 TEST_F(SessionTest, aNewlyConstructedSessionIsNotEnded)
 {
-	//check that finishSession is called
-	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
-		.Times(testing::Exactly(1));
-
 	//given
-	auto target = std::make_shared<Session_t>(logger, mockBeaconSender, mockBeaconNice);
-	target->startSession();
+	auto target = createSessionWithNiceBeacon();
 
-	//when, then
-	ASSERT_FALSE(target->isSessionEnded());
+	//when
+	ASSERT_THAT(target->isSessionEnded(), testing::Eq(false));
 }
 
 TEST_F(SessionTest, aSessionIsEndedIfEndIsCalled)
 {
-	//check that finishSession is called
-	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
-		.Times(testing::Exactly(1));
 	EXPECT_CALL(*mockBeaconSender, finishSession(testing::_))
-		.Times(testing::Exactly(1));
+		.Times(1);
 
-	//given
-	auto target = std::make_shared<Session_t>(logger, mockBeaconSender, mockBeaconNice);
-	target->startSession();
+	// given
+	auto target = createSessionWithNiceBeacon();
+
+	// when
 	target->end();
 
-	// then session is ended
-	ASSERT_TRUE(target->isSessionEnded());
+	// then
+	ASSERT_THAT(target->isSessionEnded(), testing::Eq(true));
 }
 
 TEST_F(SessionTest, enterActionGivesNullRootActionIfSessionIsAlreadyEnded)
 {
-	//check that finishSession is called
-	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
-		.Times(testing::Exactly(1));
+	// expect
 	EXPECT_CALL(*mockBeaconSender, finishSession(testing::_))
-		.Times(testing::Exactly(1));
+		.Times(1);
 
 	// given
-	auto target = std::make_shared<Session_t>(logger, mockBeaconSender, mockBeaconNice);
-	target->startSession();
+	auto target = createSessionWithNiceBeacon();
 	target->end();
 
-	// when entering an action on already ended session
-	auto obtained = target->enterAction("Test");
+	// when
+	auto obtained = target->enterAction("test");
 
 	// then
-	ASSERT_NE(nullptr, obtained);
-	ASSERT_NE(nullptr, std::dynamic_pointer_cast<NullRootAction_t>(obtained));
+	ASSERT_THAT(obtained, testing::NotNull());
+	ASSERT_THAT(std::dynamic_pointer_cast<NullRootAction_t>(obtained), testing::NotNull());
 }
 
 TEST_F(SessionTest, identifyUserDoesNothingIfSessionIsEnded)
 {
-	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
-		.Times(testing::Exactly(1));
+	// expect
+	EXPECT_CALL(*mockBeaconNice, identifyUser(testing::_))
+		.Times(0);
 	EXPECT_CALL(*mockBeaconSender, finishSession(testing::_))
-		.Times(testing::Exactly(1));
-	//given
-	auto target = std::make_shared<Session_t>(logger, mockBeaconSender, mockBeaconNice);
-	target->startSession();
+		.Times(1);
+
+	// given
+	auto target = createSessionWithNiceBeacon();
 	target->end();
 
-	// when trying to identify a user on an ended session
+	// when
 	target->identifyUser("Jane Smith");
-
-	// then
-	ASSERT_TRUE(target->isEmpty());
 }
 
 TEST_F(SessionTest, reportCrashDoesNothingIfSessionIsEnded)
 {
-	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
-		.Times(testing::Exactly(1));
+	// expect
+	EXPECT_CALL(*mockBeaconNice, reportCrash(testing::_, testing::_, testing::_))
+		.Times(0);
 	EXPECT_CALL(*mockBeaconSender, finishSession(testing::_))
-		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockBeaconNice, startSession())
-		.Times(testing::Exactly(1));
+		.Times(1);
 
-	//given
-	auto target = std::make_shared<Session_t>(logger, mockBeaconSender, mockBeaconNice);
-	target->startSession();
+	// given
+	auto target = createSessionWithNiceBeacon();
 	target->end();
 
-	// when trying to identify a user on an ended session
+	// when
 	target->reportCrash("errorName", "reason", "stacktrace");
+}
 
-	//then
-	ASSERT_TRUE(target->isEmpty());
+TEST_F(SessionTest, closeEndsTheSession)
+{
+	// with
+	const int64_t timestamp = 1234;
+	ON_CALL(*mockBeaconNice, getCurrentTimestamp())
+		.WillByDefault(testing::Return(timestamp));
+
+	// expect
+	EXPECT_CALL(*mockBeaconNice, endSession(testing::_))
+		.Times(1);
+	EXPECT_CALL(*mockBeaconSender, finishSession(testing::_))
+		.Times(1);
+
+	// given
+	auto target = createSessionWithNiceBeacon();
+
+	// when
+	target->close();
 }
 
 TEST_F(SessionTest, traceWebRequestWithValidUrlStringGivesAppropriateTracer)
 {
-	// given
-	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
-		.Times(testing::Exactly(1));
-
+	// with
 	const char* url = "http://example.com/pages/";
-	auto target = std::make_shared<Session_t>(logger, mockBeaconSender, mockBeaconNice);
-	target->startSession();
+
+	// given
+	auto target = createSessionWithNiceBeacon();
 
 	// when
 	auto obtained = target->traceWebRequest(url);
 
 	// then
-	ASSERT_NE(nullptr, obtained);
-	ASSERT_NE(nullptr, std::dynamic_pointer_cast<WebRequestTracer_t>(obtained));
+	ASSERT_THAT(obtained, testing::NotNull());
+	auto tracer = std::dynamic_pointer_cast<WebRequestTracer_t>(obtained);
+	ASSERT_THAT(tracer, testing::NotNull());
+	ASSERT_THAT(tracer->getURL(), testing::Eq(Utf8String_t(url)));
 
-	auto webRequestTracer = std::dynamic_pointer_cast<WebRequestTracer_t>(obtained);
-	EXPECT_TRUE(webRequestTracer->getURL().equals(url));
+	// break dependency cycle: tracer as child in session
+	target->removeChildFromList(std::dynamic_pointer_cast<IOpenKitObject_t>(obtained));
+}
+
+TEST_F(SessionTest, traceWebRequestWithValidUrlStringAddsTracerToListOfChildren)
+{
+	// with
+	const char* url = "http://example.com/pages/";
+
+	// given
+	auto target = createSessionWithNiceBeacon();
+
+	// when
+	auto obtained = target->traceWebRequest(url);
+
+	// then
+	ASSERT_THAT(obtained, testing::NotNull());
+
+	auto childObjects = target->getCopyOfChildObjects();
+	ASSERT_THAT(childObjects.size(), testing::Eq(1));
+	ASSERT_THAT(*childObjects.begin(), testing::Eq(std::dynamic_pointer_cast<IOpenKitObject_t>(obtained)));
+
+	// break dependency cycle: tracer in child list of session
+	target->removeChildFromList(std::dynamic_pointer_cast<IOpenKitObject_t>(obtained));
 }
 
 TEST_F(SessionTest, tracingANullStringWebRequestIsNotAllowed)
 {
 	// given
-	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
-		.Times(testing::Exactly(1));
-
-	auto target = std::make_shared<Session_t>(logger, mockBeaconSender, mockBeaconNice);
-	target->startSession();
+	const char* url = nullptr;
+	auto target = createSessionWithNiceBeacon();
 
 	// when
-	auto obtained = target->traceWebRequest(nullptr);
+	auto obtained = target->traceWebRequest(url);
 
 	// then
-	ASSERT_NE(nullptr, obtained);
-	ASSERT_NE(nullptr, std::dynamic_pointer_cast<NullWebRequestTracer_t>(obtained));
+	ASSERT_THAT(obtained, testing::NotNull());
+	ASSERT_THAT(std::dynamic_pointer_cast<NullWebRequestTracer_t>(obtained), testing::NotNull());
 }
 
 TEST_F(SessionTest, tracingAnEmptyStringWebRequestIsNotAllowed)
 {
 	// given
-	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
-		.Times(testing::Exactly(1));
-
-	auto target = std::make_shared<Session_t>(logger, mockBeaconSender, mockBeaconNice);
-	target->startSession();
+	const char* url = "";
+	auto target = createSessionWithNiceBeacon();
 
 	// when
-	auto obtained = target->traceWebRequest("");
+	auto obtained = target->traceWebRequest(url);
 
 	// then
-	ASSERT_NE(nullptr, obtained);
-	ASSERT_NE(nullptr, std::dynamic_pointer_cast<NullWebRequestTracer_t>(obtained));
+	ASSERT_THAT(obtained, testing::NotNull());
+	ASSERT_THAT(std::dynamic_pointer_cast<NullWebRequestTracer_t>(obtained), testing::NotNull());
 }
 
 TEST_F(SessionTest, tracingAnInvalidUrlSchemeIsNotAllowed)
 {
 	// given
-	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
-		.Times(testing::Exactly(1));
-
-	auto target = std::make_shared<Session_t>(logger, mockBeaconSender, mockBeaconNice);
-	target->startSession();
+	const char* url = "1337://fourtytwo.com";
+	auto target = createSessionWithNiceBeacon();
 
 	// when
-	auto obtained = target->traceWebRequest("1337://fourtytwo.com");
+	auto obtained = target->traceWebRequest(url);
 
 	// then
-	ASSERT_NE(nullptr, obtained);
-	ASSERT_NE(nullptr, std::dynamic_pointer_cast<NullWebRequestTracer_t>(obtained));
+	ASSERT_THAT(obtained, testing::NotNull());
+	ASSERT_THAT(std::dynamic_pointer_cast<NullWebRequestTracer_t>(obtained), testing::NotNull());
 }
 
 TEST_F(SessionTest, traceWebRequestGivesNullTracerIfSessionIsEnded)
 {
-	// given
-	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
-		.Times(testing::Exactly(1));
+	// expect
 	EXPECT_CALL(*mockBeaconSender, finishSession(testing::_))
-		.Times(testing::Exactly(1));
+		.Times(1);
 
+	// given
 	const char* url = "http://example.com/pages/";
-	auto target = std::make_shared<Session_t>(logger, mockBeaconSender, mockBeaconNice);
-	target->startSession();
+	auto target = createSessionWithNiceBeacon();
 	target->end();
 
 	// when
 	auto obtained = target->traceWebRequest(url);
 
 	// then
-	ASSERT_NE(nullptr, obtained);
-	ASSERT_NE(nullptr, std::dynamic_pointer_cast<NullWebRequestTracer_t>(obtained));
+	ASSERT_THAT(obtained, testing::NotNull());
+	ASSERT_THAT(std::dynamic_pointer_cast<NullWebRequestTracer_t>(obtained), testing::NotNull());
+}
+
+TEST_F(SessionTest, onChildCloseRemovesChildFromList)
+{
+	// given
+	const auto childObject = MockIOpenKitObject::createNice();
+	auto target = createSessionWithNiceBeacon();
+	target->storeChildInList(childObject);
+
+	auto childObjects = target->getCopyOfChildObjects();
+	ASSERT_THAT(childObjects.size(), testing::Eq(1));
+
+	// when
+	target->onChildClosed(childObject);
+
+	// then
+	childObjects = target->getCopyOfChildObjects();
+	ASSERT_THAT(childObjects.size(), testing::Eq(0));
+
 }

@@ -14,36 +14,21 @@
  * limitations under the License.
  */
 
-#ifndef _TEST_CORE_OBJECTS_MOCKIOPENKITOBJECT_H
-#define _TEST_CORE_OBJECTS_MOCKIOPENKITOBJECT_H
+#ifndef _TEST_DEFAULTVALUES_H
+#define _TEST_DEFAULTVALUES_H
 
-#include "core/objects/IOpenKitObject.h"
+#include "core/UTF8String.h"
 
-#include "gmock/gmock.h"
-
-#include <memory>
+#include <string>
 
 namespace test
 {
-
-	class MockIOpenKitObject
-		: public core::objects::IOpenKitObject
+	class DefaultValues
 	{
 	public:
-
-		static std::shared_ptr<testing::NiceMock<MockIOpenKitObject>> createNice()
-		{
-			return std::make_shared<testing::NiceMock<MockIOpenKitObject>>();
-		}
-
-		static std::shared_ptr<testing::StrictMock<MockIOpenKitObject>> createStrict()
-		{
-			return std::make_shared<testing::StrictMock<MockIOpenKitObject>>();
-		}
-
-		MOCK_METHOD0(close, void());
+		static const core::UTF8String UTF8_EMPTY_STRING;
+		static const std::string EMPTY_STRING;
 	};
-
 }
 
 #endif

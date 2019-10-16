@@ -175,9 +175,9 @@ set(OPENKIT_SOURCES_PROTOCOL
     ${CMAKE_CURRENT_LIST_DIR}/protocol/HTTPClient.h
     ${CMAKE_CURRENT_LIST_DIR}/protocol/HTTPResponseParser.cxx
     ${CMAKE_CURRENT_LIST_DIR}/protocol/HTTPResponseParser.h
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/IBeacon.h
     ${CMAKE_CURRENT_LIST_DIR}/protocol/IHTTPClient.h
-    ${CMAKE_CURRENT_LIST_DIR}/protocol/Response.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/protocol/Response.h
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/IStatusResponse.h
     ${CMAKE_CURRENT_LIST_DIR}/protocol/StatusResponse.cxx
     ${CMAKE_CURRENT_LIST_DIR}/protocol/StatusResponse.h
 )

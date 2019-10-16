@@ -23,7 +23,7 @@
 #include "providers/IHTTPClientProvider.h"
 #include "providers/ITimingProvider.h"
 #include "core/configuration/Configuration.h"
-#include "protocol/StatusResponse.h"
+#include "protocol/IStatusResponse.h"
 #include "AbstractBeaconSendingState.h"
 #include "core/objects/Session.h"
 #include "core/SessionWrapper.h"
@@ -219,7 +219,7 @@ namespace core
 			/// Handle the status response received from the server
 			/// Update the current configuration accordingly
 			///
-			void handleStatusResponse(std::shared_ptr<protocol::StatusResponse> response);
+			void handleStatusResponse(std::shared_ptr<protocol::IStatusResponse> response);
 
 			///
 			/// Clears all session data

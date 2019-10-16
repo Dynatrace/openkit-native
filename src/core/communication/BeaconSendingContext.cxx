@@ -128,7 +128,7 @@ int64_t BeaconSendingContext::getSendInterval() const
 	return mConfiguration->getSendInterval();
 }
 
-void BeaconSendingContext::handleStatusResponse(std::shared_ptr<protocol::StatusResponse> response)
+void BeaconSendingContext::handleStatusResponse(std::shared_ptr<protocol::IStatusResponse> response)
 {
 	mConfiguration->updateSettings(response);
 

@@ -47,9 +47,9 @@ namespace test
 		{
 		}
 
-		virtual types::StatusResponse_sp sendBeacon(types::IHttpClientProvider_sp clientProvider)
+		virtual types::IStatusResponse_sp sendBeacon(types::IHttpClientProvider_sp clientProvider)
 		{
-			return types::StatusResponse_sp(sendBeaconRawPtrProxy(clientProvider));
+			return types::IStatusResponse_sp(sendBeaconRawPtrProxy(clientProvider));
 		}
 
 		MOCK_METHOD1(enterAction,
@@ -61,7 +61,7 @@ namespace test
 		MOCK_METHOD0(end, void());
 
 		MOCK_METHOD1(sendBeaconRawPtrProxy,
-			types::StatusResponse_sp(
+			types::IStatusResponse_sp(
 				types::IHttpClientProvider_sp
 			)
 		);

@@ -26,7 +26,7 @@
 #include "BeaconSendingContext.h"
 #include "BeaconSendingRequestUtil.h"
 #include "BeaconSendingResponseUtil.h"
-#include "protocol/StatusResponse.h"
+#include "protocol/IStatusResponse.h"
 
 using namespace core::communication;
 
@@ -85,7 +85,7 @@ const char* BeaconSendingCaptureOffState::getStateName() const
 	return "CaptureOff";
 }
 
-void BeaconSendingCaptureOffState::handleStatusResponse(BeaconSendingContext& context, std::shared_ptr<protocol::StatusResponse> statusResponse)
+void BeaconSendingCaptureOffState::handleStatusResponse(BeaconSendingContext& context, std::shared_ptr<protocol::IStatusResponse> statusResponse)
 {
 	if (statusResponse != nullptr)
 	{

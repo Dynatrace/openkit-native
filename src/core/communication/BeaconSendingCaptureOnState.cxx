@@ -26,7 +26,7 @@
 #include "BeaconSendingContext.h"
 #include "BeaconSendingResponseUtil.h"
 
-#include "protocol/StatusResponse.h"
+#include "protocol/IStatusResponse.h"
 
 using namespace core::communication;
 
@@ -96,9 +96,9 @@ const char* BeaconSendingCaptureOnState::getStateName() const
 	return "CaptureOn";
 }
 
-std::shared_ptr<protocol::StatusResponse> BeaconSendingCaptureOnState::sendFinishedSessions(BeaconSendingContext& context)
+std::shared_ptr<protocol::IStatusResponse> BeaconSendingCaptureOnState::sendFinishedSessions(BeaconSendingContext& context)
 {
-	std::shared_ptr<protocol::StatusResponse> statusResponse = nullptr;
+	std::shared_ptr<protocol::IStatusResponse> statusResponse = nullptr;
 	// check if there's finished Sessions to be sent -> immediately send beacon(s) of finished Sessions
 	for (auto session : context.getAllFinishedAndConfiguredSessions())
 	{
@@ -122,9 +122,9 @@ std::shared_ptr<protocol::StatusResponse> BeaconSendingCaptureOnState::sendFinis
 	return statusResponse;
 }
 
-std::shared_ptr<protocol::StatusResponse> BeaconSendingCaptureOnState::sendOpenSessions(BeaconSendingContext& context)
+std::shared_ptr<protocol::IStatusResponse> BeaconSendingCaptureOnState::sendOpenSessions(BeaconSendingContext& context)
 {
-	std::shared_ptr<protocol::StatusResponse> statusResponse = nullptr;
+	std::shared_ptr<protocol::IStatusResponse> statusResponse = nullptr;
 	int64_t currentTimestamp = context.getCurrentTimestamp();
 	if (currentTimestamp <= context.getLastOpenSessionBeaconSendTime() + context.getSendInterval())
 	{
@@ -153,7 +153,7 @@ std::shared_ptr<protocol::StatusResponse> BeaconSendingCaptureOnState::sendOpenS
 	return statusResponse;
 }
 
-void BeaconSendingCaptureOnState::handleStatusResponse(BeaconSendingContext& context, std::shared_ptr<protocol::StatusResponse> statusResponse)
+void BeaconSendingCaptureOnState::handleStatusResponse(BeaconSendingContext& context, std::shared_ptr<protocol::IStatusResponse> statusResponse)
 {
 	if (statusResponse == nullptr)
 	{
@@ -167,9 +167,9 @@ void BeaconSendingCaptureOnState::handleStatusResponse(BeaconSendingContext& con
 	}
 }
 
-std::shared_ptr<protocol::StatusResponse> BeaconSendingCaptureOnState::sendNewSessionRequests(BeaconSendingContext& context)
+std::shared_ptr<protocol::IStatusResponse> BeaconSendingCaptureOnState::sendNewSessionRequests(BeaconSendingContext& context)
 {
-	std::shared_ptr<protocol::StatusResponse> statusResponse = nullptr;
+	std::shared_ptr<protocol::IStatusResponse> statusResponse = nullptr;
 	for (auto session : context.getAllNewSessions() )
 	{
 		if (!session->canSendNewSessionRequest())

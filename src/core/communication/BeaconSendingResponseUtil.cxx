@@ -18,12 +18,12 @@
 
 using namespace core::communication;
 
-bool BeaconSendingResponseUtil::isSuccessfulResponse(std::shared_ptr<protocol::Response> response)
+bool BeaconSendingResponseUtil::isSuccessfulResponse(std::shared_ptr<protocol::IStatusResponse> response)
 {
 	return response != nullptr && response->isSuccessfulResponse();
 }
 
-bool BeaconSendingResponseUtil::isTooManyRequestsResponse(std::shared_ptr<protocol::Response> response)
+bool BeaconSendingResponseUtil::isTooManyRequestsResponse(std::shared_ptr<protocol::IStatusResponse> response)
 {
 	return response != nullptr && response->isTooManyRequestsResponse();
 }

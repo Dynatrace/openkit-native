@@ -75,3 +75,8 @@ void RootAction::leaveAction()
 {
 	mActionImpl->leaveAction();
 }
+
+std::shared_ptr<IActionCommon> RootAction::getActionImpl()
+{
+	return mActionImpl;
+}

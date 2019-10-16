@@ -17,12 +17,13 @@
 #include "Types.h"
 #include "MockTypes.h"
 #include "../../api/Types.h"
-#include "../../protocol/NullLogger.h"
+#include "../../api/MockILogger.h"
 #include "../../protocol/Types.h"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
+using namespace test;
 using namespace test::types;
 
 class BeaconSendingTerminalStateTest : public testing::Test
@@ -37,7 +38,7 @@ protected:
 
 	void SetUp()
 	{
-		mLogger = std::make_shared<NullLogger>();
+		mLogger = MockILogger::createNice();
 		mTarget = std::make_shared<BeaconSendingTerminalState_t>();
 	}
 

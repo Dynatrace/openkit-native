@@ -25,7 +25,6 @@
 
 #include "OpenKit/IRootAction.h"
 #include "OpenKit/ILogger.h"
-#include "protocol/Beacon.h"
 #include "core/UTF8String.h"
 #include "core/objects/IOpenKitObject.h"
 #include "core/objects/OpenKitComposite.h"
@@ -34,6 +33,11 @@
 #include "ActionCommonImpl.h"
 
 #include <memory>
+
+namespace protocol
+{
+	class IBeacon;
+}
 
 namespace core
 {
@@ -90,6 +94,8 @@ namespace core
 			std::shared_ptr<openkit::IWebRequestTracer> traceWebRequest(const char* url) override;
 
 			virtual void leaveAction() override;
+
+			std::shared_ptr<IActionCommon> getActionImpl();
 
 		private:
 			/// Impl object with the actual implementations for Action/RootAction

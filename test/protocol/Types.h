@@ -23,7 +23,7 @@
 #include "protocol/EventType.h"
 #include "protocol/HTTPClient.h"
 #include "protocol/HTTPResponseParser.h"
-#include "protocol/Response.h"
+#include "protocol/IStatusResponse.h"
 #include "protocol/StatusResponse.h"
 
 namespace test
@@ -46,11 +46,14 @@ namespace test
 
 		using HttpResponseParser_t = protocol::HTTPResponseParser;
 
+		using IBeacon_t = protocol::IBeacon;
+		using IBeacon_sp = std::shared_ptr<IBeacon_t>;
+
 		using IHttpClient_t = protocol::IHTTPClient;
 		using IHttpClient_sp = std::shared_ptr<IHttpClient_t>;
 
-		using Response_t = protocol::Response;
-		using Response_sp = std::shared_ptr<Response_t>;
+		using IStatusResponse_t = protocol::IStatusResponse;
+		using IStatusResponse_sp = std::shared_ptr<IStatusResponse_t>;
 
 		using StatusResponse_t = protocol::StatusResponse;
 		using StatusResponse_sp = std::shared_ptr<StatusResponse_t>;

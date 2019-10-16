@@ -14,61 +14,38 @@
 * limitations under the License.
 */
 
-#include "Types.h"
-#include "MockTypes.h"
-#include "../Types.h"
-#include "../caching/Types.h"
-#include "../configuration/Types.h"
-#include "../../api/Types.h"
-#include "../../protocol/Types.h"
-#include "../../protocol/MockTypes.h"
-#include "../../providers/Types.h"
+#include "MockIOpenKitComposite.h"
+#include "../../api/MockILogger.h"
+#include "../../protocol/mock/MockIBeacon.h"
+
+#include "core/UTF8String.h"
+#include "core/objects/WebRequestTracer.h"
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-using namespace test::types;
+using namespace test;
 
-static const char* APP_ID = "appID";
-static const char* APP_NAME = "appName";
+using MockNiceILogger_sp = std::shared_ptr<testing::NiceMock<MockILogger>>;
+using MockNiceIBeacon_sp = std::shared_ptr<testing::NiceMock<MockIBeacon>>;
+using MockNiceIOpenKitComposite_sp = std::shared_ptr<testing::NiceMock<MockIOpenKitComposite>>;
+using WebRequestTracer_t = core::objects::WebRequestTracer;
+using Utf8String_t = core::UTF8String;
 
 class WebRequestTracerURLValidityTest : public testing::Test
 {
 protected:
 
+	MockNiceILogger_sp logger;
+	MockNiceIBeacon_sp mockBeacon;
+	MockNiceIOpenKitComposite_sp mockParent;
+
 	virtual void SetUp() override
 	{
-		auto threadIDProvider = std::make_shared<DefaultThreadIdProvider_t>();
-		auto timingProvider = std::make_shared<DefaultTimingProvider_t>();
-		auto sessionIDProvider = std::make_shared<DefaultSessionIdProvider_t>();
+		logger = MockILogger::createNice();
+		mockBeacon = MockIBeacon::createNice();
 
-		auto trustManager = std::make_shared<SslStrictTrustManager_t>();
-
-		auto  device = std::make_shared<Device_t>(Utf8String_t(""), Utf8String_t(""), Utf8String_t(""));
-		auto beaconConfiguration = std::make_shared<BeaconConfiguration_t>();
-		auto beaconCacheConfiguration = std::make_shared<BeaconCacheConfiguration_t>(-1, -1, -1);
-		auto configuration = std::make_shared<Configuration_t>
-		(
-			device,
-			OpenKitType_t::Type::DYNATRACE,
-			Utf8String_t(APP_NAME),
-			"",
-			APP_ID,
-			0,
-			"0",
-			"",
-			sessionIDProvider,
-			trustManager,
-			beaconCacheConfiguration,
-			beaconConfiguration
-		);
-		configuration->enableCapture();
-
-		auto beaconCache = std::make_shared<BeaconCache_t>(logger);
-
-		logger = std::make_shared<DefaultLogger_t>(devNull, LogLevel_t::LOG_LEVEL_DEBUG);
-		mockBeacon = std::make_shared<MockNiceBeacon_t>(logger, beaconCache, configuration, nullptr, threadIDProvider, timingProvider);
-		mockParent = std::make_shared<MockNiceOpenKitComposite_t>();
+		mockParent = MockIOpenKitComposite::createNice();
 		ON_CALL(*mockParent, getActionId())
 			.WillByDefault(testing::Return(42));
 	}
@@ -79,10 +56,6 @@ protected:
 		mockBeacon = nullptr;
 	}
 
-	std::ostringstream devNull;
-	ILogger_sp logger;
-	MockNiceBeacon_sp mockBeacon;
-	MockNiceOpenKitComposite_sp mockParent;
 };
 
 

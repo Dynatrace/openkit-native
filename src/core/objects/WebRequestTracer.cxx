@@ -16,7 +16,7 @@
 
 #include "WebRequestTracer.h"
 
-#include "protocol/Beacon.h"
+#include "protocol/IBeacon.h"
 
 #include <sstream>
 #include <regex>
@@ -31,7 +31,7 @@ WebRequestTracer::WebRequestTracer
 (
 	std::shared_ptr<openkit::ILogger> logger,
 	std::shared_ptr<IOpenKitComposite> parent,
-	std::shared_ptr<protocol::Beacon> beacon,
+	std::shared_ptr<protocol::IBeacon> beacon,
 	const core::UTF8String& url
 )
 	: mLogger(logger)

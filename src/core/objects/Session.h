@@ -41,7 +41,7 @@
 
 namespace protocol
 {
-	class Beacon;
+	class IBeacon;
 }
 
 namespace core {
@@ -75,7 +75,7 @@ namespace core
 			(
 				std::shared_ptr<openkit::ILogger> logger,
 				std::shared_ptr<BeaconSender> beaconSender,
-				std::shared_ptr<protocol::Beacon> beacon
+				std::shared_ptr<protocol::IBeacon> beacon
 			);
 
 			///
@@ -109,7 +109,7 @@ namespace core
 			/// @param[in] clientProvider the IHTTPClientProvider to use for sending
 			/// @returns the status response returned for the Beacon data
 			///
-			virtual std::shared_ptr<protocol::StatusResponse> sendBeacon(std::shared_ptr<providers::IHTTPClientProvider> clientProvider);
+			virtual std::shared_ptr<protocol::IStatusResponse> sendBeacon(std::shared_ptr<providers::IHTTPClientProvider> clientProvider);
 
 			///
 			/// Test if this session is empty or not
@@ -164,7 +164,7 @@ namespace core
 			std::shared_ptr<BeaconSender> mBeaconSender;
 
 			/// beacon used for serialization
-			std::shared_ptr<protocol::Beacon> mBeacon;
+			std::shared_ptr<protocol::IBeacon> mBeacon;
 
 			/// end time
 			std::atomic<int64_t> mEndTime;

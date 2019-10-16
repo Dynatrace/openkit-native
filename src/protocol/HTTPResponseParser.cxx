@@ -70,7 +70,7 @@ size_t HTTPResponseParser::responseBodyData(const char* buffer, size_t elementSi
 	return elementSize * numberOfElements;
 }
 
-const Response::ResponseHeaders& HTTPResponseParser::getResponseHeaders() const
+const IStatusResponse::ResponseHeaders& HTTPResponseParser::getResponseHeaders() const
 {
 	return mResponseHeaders;
 }
@@ -103,7 +103,7 @@ void HTTPResponseParser::stripWhitespaces(std::string& str)
 	}
 
 	end += 1;
-	
+
 	// assign final result
 	str = end > begin ? std::string(begin, end) : std::string();
 }

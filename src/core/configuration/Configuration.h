@@ -21,9 +21,9 @@
 #include "HTTPClientConfiguration.h"
 #include "OpenKitType.h"
 #include "Device.h"
-#include "protocol/StatusResponse.h"
 #include "BeaconCacheConfiguration.h"
 #include "BeaconConfiguration.h"
+#include "protocol/IStatusResponse.h"
 
 #include <memory>
 #include <atomic>
@@ -80,7 +80,7 @@ namespace core
 			/// Update settings based on a status response
 			/// @param[in] statusResponse the status response received from the server
 			///
-			void updateSettings(std::shared_ptr<protocol::StatusResponse> statusResponse);
+			void updateSettings(std::shared_ptr<protocol::IStatusResponse> statusResponse);
 
 			///
 			/// Enable capturing

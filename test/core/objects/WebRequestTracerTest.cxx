@@ -14,25 +14,27 @@
 * limitations under the License.
 */
 
-#include "Types.h"
-#include "MockTypes.h"
-#include "../Types.h"
-#include "../caching/Types.h"
-#include "../configuration/Types.h"
-#include "../util/Types.h"
-#include "../../api/Types.h"
-#include "../../api/MockTypes.h"
-#include "../../protocol/Types.h"
-#include "../../protocol/MockTypes.h"
-#include "../../providers/Types.h"
-#include "../../providers/MockTypes.h"
+#include "MockIOpenKitComposite.h"
+#include "../../api/MockILogger.h"
+#include "../../protocol/mock/MockIBeacon.h"
+
+#include "core/objects/WebRequestTracer.h"
+#include "core/UTF8String.h"
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
 #include <memory>
 
-using namespace test::types;
+using namespace test;
+
+using MockNiceIBeacon_sp = std::shared_ptr<testing::NiceMock<MockIBeacon>>;
+using MockNiceILogger_sp = std::shared_ptr<testing::NiceMock<MockILogger>>;
+using MockNiceIOpenKitComposite_sp = std::shared_ptr<testing::NiceMock<MockIOpenKitComposite>>;
+using MockStrictIBeacon_sp = std::shared_ptr<testing::StrictMock<MockIBeacon>>;
+using WebRequestTracer_t = core::objects::WebRequestTracer;
+using WebRequestTracer_sp = std::shared_ptr<WebRequestTracer_t>;
+using Utf8String_t = core::UTF8String;
 
 static const char APP_ID[] = "appID";
 static const char APP_NAME[] = "appName";
@@ -41,52 +43,20 @@ static const char TAG[] = "THE_TAG";
 class WebRequestTracerTest : public testing::Test
 {
 protected:
+
+	MockNiceILogger_sp mockLogger;
+	MockNiceIBeacon_sp mockBeaconNice;
+	MockStrictIBeacon_sp mockBeaconStrict;
+	MockNiceIOpenKitComposite_sp mockParentNice;
+
 	void SetUp()
 	{
-		logger = std::make_shared<DefaultLogger_t>(devNull, LogLevel_t::LOG_LEVEL_DEBUG);
+		mockLogger = MockILogger::createNice();
 
-		threadIDProvider = std::make_shared<DefaultThreadIdProvider_t>();
-		timingProvider = std::make_shared<DefaultTimingProvider_t>();
-		sessionIDProvider = std::make_shared<DefaultSessionIdProvider_t>();
+		mockBeaconStrict = MockIBeacon::createStrict();
+		mockBeaconNice = MockIBeacon::createNice();
 
-		auto httpClientConfiguration = std::make_shared<HttpClientConfiguration_t>(Utf8String_t(""), 0, Utf8String_t(""));
-		mockHTTPClientProvider = std::make_shared<testing::NiceMock<test::MockHTTPClientProvider>>();
-		mockHTTPClient = std::make_shared<MockNiceHttpClient_t>(httpClientConfiguration);
-
-		trustManager = std::make_shared<SslStrictTrustManager_t>();
-
-		auto device = std::make_shared<Device_t>(Utf8String_t(""), Utf8String_t(""), Utf8String_t(""));
-
-		beaconCacheConfiguration = std::make_shared<BeaconCacheConfiguration_t>(-1, -1, -1);
-		beaconConfiguration = std::make_shared<BeaconConfiguration_t>();
-		configuration = std::make_shared<Configuration_t>
-		(
-			device,
-			OpenKitType_t::Type::DYNATRACE,
-			Utf8String_t(APP_NAME),
-			"",
-			APP_ID,
-			0,
-			"0",
-			"",
-			sessionIDProvider,
-			trustManager,
-			beaconCacheConfiguration,
-			beaconConfiguration
-		);
-		configuration->enableCapture();
-
-		beaconCache = std::make_shared<BeaconCache_t>(logger);
-
-		beaconSender = std::make_shared<BeaconSender_t>(logger, configuration, mockHTTPClientProvider, timingProvider);
-		mockBeaconStrict = std::make_shared<MockStrictBeacon_t>(logger, beaconCache, configuration, nullptr, threadIDProvider, timingProvider);
-		mockBeaconNice = std::make_shared<MockNiceBeacon_t>(logger, beaconCache, configuration, nullptr, threadIDProvider, timingProvider);
-
-		auto actionCommonImpl = std::make_shared<MockNiceIActionCommon_t>();
-		auto rootAction = std::make_shared<MockIRootAction_t>();
-		action = std::make_shared<LeafAction_t>(actionCommonImpl, rootAction);
-
-		mockNiceparent = std::make_shared<MockNiceOpenKitComposite_t>();
+		mockParentNice = MockIOpenKitComposite::createNice();
 	}
 
 	void TearDown()
@@ -98,38 +68,15 @@ protected:
 		return createTracer(mockBeaconNice);
 	}
 
-	WebRequestTracer_sp createTracer(Beacon_sp beacon)
+	WebRequestTracer_sp createTracer(std::shared_ptr<MockIBeacon> beacon)
 	{
 		return std::make_shared<WebRequestTracer_t>(
-			logger,
-			mockNiceparent,
+			mockLogger,
+			mockParentNice,
 			beacon,
 			""
 		);
 	}
-
-public:
-	std::ostringstream devNull;
-	ILogger_sp logger;
-	IThreadIdProvider_sp threadIDProvider;
-	ITimingProvider_sp timingProvider;
-	ISessionIdProvider_sp sessionIDProvider;
-
-	MockNiceHttpClient_sp mockHTTPClient;
-	ISslTrustManager_sp trustManager;
-
-	BeaconConfiguration_sp beaconConfiguration;
-	BeaconCacheConfiguration_sp beaconCacheConfiguration;
-	Configuration_sp configuration;
-	BeaconCache_sp beaconCache;
-
-	BeaconSender_sp beaconSender;
-	MockStrictBeacon_sp mockBeaconStrict;
-	MockNiceBeacon_sp mockBeaconNice;
-	MockNiceHttpClientProvider_sp mockHTTPClientProvider;
-
-	LeafAction_sp action;
-	MockNiceOpenKitComposite_sp mockNiceparent;
 };
 
 
@@ -444,7 +391,7 @@ TEST_F(WebRequestTracerTest, stopWithResponseCodeCanOnlyBeExecutedOnce)
 TEST_F(WebRequestTracerTest, aNewlyCreatedWebRequestTracerDoesNotAttachToTheParent)
 {
 	// expect
-	EXPECT_CALL(*mockNiceparent, getActionId())
+	EXPECT_CALL(*mockParentNice, getActionId())
 		.Times(testing::Exactly(2));
 
 	// given, when
@@ -452,6 +399,6 @@ TEST_F(WebRequestTracerTest, aNewlyCreatedWebRequestTracerDoesNotAttachToThePare
 
 	// then
 	auto obtained = target->getParent();
-	ASSERT_THAT(mockNiceparent, testing::Eq(obtained));
+	ASSERT_THAT(mockParentNice, testing::Eq(obtained));
 
 }

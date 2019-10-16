@@ -18,7 +18,7 @@
 #define _CORE_SESSIONWRAPPER_H
 
 #include "core/objects/Session.h"
-#include "protocol/StatusResponse.h"
+#include "protocol/IStatusResponse.h"
 
 #include <memory>
 
@@ -122,7 +122,7 @@ namespace core
 		/// @param[in] httpClientProvider http client provider
 		/// @returns the status response
 		///
-		std::shared_ptr<protocol::StatusResponse> sendBeacon(std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider);
+		std::shared_ptr<protocol::IStatusResponse> sendBeacon(std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider);
 
 	private:
 

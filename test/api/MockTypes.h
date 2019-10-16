@@ -28,13 +28,6 @@ namespace test
 {
 	namespace types
 	{
-		using MockILogger_t = MockILogger;
-		using MockILogger_sp = std::shared_ptr<MockILogger_t>;
-		using MockNiceILogger_t = testing::NiceMock<MockILogger_t>;
-		using MockNiceILogger_sp = std::shared_ptr<MockNiceILogger_t>;
-		using MockStrictILogger_t = testing::StrictMock<MockILogger_t>;
-		using MockStrictILogger_sp = std::shared_ptr<MockStrictILogger_t>;
-
 		using MockIRootAction_t = MockIRootAction;
 		using MockIRootAction_sp = std::shared_ptr<MockIRootAction_t>;
 		using MockNiceIRootAction_t = testing::NiceMock<MockIRootAction_t>;

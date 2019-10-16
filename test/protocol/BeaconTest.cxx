@@ -14,8 +14,10 @@
 * limitations under the License.
 */
 
+#include "mock/MockIHTTPClient.h"
+#include "../api/MockILogger.h"
+
 #include "Types.h"
-#include "MockTypes.h"
 #include "../api/Types.h"
 #include "../core/caching/Types.h"
 #include "../core/caching/MockTypes.h"
@@ -25,7 +27,11 @@
 #include "../providers/Types.h"
 #include "../providers/MockTypes.h"
 
+using namespace test;
 using namespace test::types;
+
+using MockNiceIHTTPClient_sp = std::shared_ptr<testing::NiceMock<MockIHTTPClient>>;
+using MockNiceILogger_sp = std::shared_ptr<testing::NiceMock<MockILogger>>;
 
 static const char APP_ID[] = "appID";
 static const char APP_NAME[] = "appName";
@@ -36,14 +42,9 @@ class BeaconTest : public testing::Test
 protected:
 	void SetUp()
 	{
-		logger = std::make_shared<DefaultLogger_t>(devNull, LogLevel_t::LOG_LEVEL_DEBUG);
+		logger = MockILogger::createNice();
 		threadIDProvider = std::make_shared<DefaultThreadIdProvider_t>();
 		timingProvider = std::make_shared<DefaultTimingProvider_t>();
-		sessionIDProvider = std::make_shared<DefaultSessionIdProvider_t>();
-
-		auto httpClientConfiguration = std::make_shared<HttpClientConfiguration_t>(Utf8String_t(""), 0, Utf8String_t(""));
-		mockHTTPClientProvider = std::make_shared<MockNiceHttpClientProvider_t>();
-		mockHTTPClient = std::make_shared<MockNiceHttpClient_t>(httpClientConfiguration);
 
 		trustManager = std::make_shared<SslStrictTrustManager_t>();
 
@@ -144,21 +145,15 @@ protected:
 	}
 
 protected:
-	std::ostringstream devNull;
 	ILogger_sp logger;
 	IThreadIdProvider_sp threadIDProvider;
 	ITimingProvider_sp timingProvider;
-	ISessionIdProvider_sp sessionIDProvider;
 
-	MockNiceHttpClient_sp mockHTTPClient;
 	ISslTrustManager_sp trustManager;
 
 	Device_sp device;
 	BeaconCacheConfiguration_sp beaconCacheConfiguration;
 	IBeaconCache_sp beaconCache;
-
-	BeaconSender_sp beaconSender;
-	MockNiceHttpClientProvider_sp mockHTTPClientProvider;
 
 	MockNicePrnGenerator_sp randomGeneratorMock;
 	MockNiceSessionIdProvider_sp sessionIDProviderMock;

@@ -17,27 +17,36 @@
 #ifndef _TEST_OBJECTS_MOCKIACTIONCOMMON_H
 #define _TEST_OBJECTS_MOCKIACTIONCOMMON_H
 
-#include "Types.h"
-#include "../Types.h"
-#include "../../api/Types.h"
+#include "../../DefaultValues.h"
+
+#include "OpenKit/IAction.h"
+#include "OpenKit/IRootAction.h"
+#include "OpenKit/IWebRequestTracer.h"
+#include "core/objects/IActionCommon.h"
 
 #include "gmock/gmock.h"
 
+#include <memory>
+
 namespace test
 {
-	class MockIActionCommon : public types::IActionCommon_t
+	class MockIActionCommon
+		: public core::objects::IActionCommon
 	{
 	public:
 
 		MockIActionCommon()
 		{
-			ON_CALL(*this, getName()).WillByDefault(testing::ReturnRefOfCopy(types::Utf8String_t("")));
+			ON_CALL(*this, getName())
+				.WillByDefault(testing::ReturnRefOfCopy(DefaultValues::UTF8_EMPTY_STRING));
 		}
 
+		virtual ~MockIActionCommon() {}
+
 		MOCK_METHOD2(enterAction,
-			types::IAction_sp(
-					types::IRootAction_sp,
-					const char*
+			std::shared_ptr<openkit::IAction>(
+				std::shared_ptr<openkit::IRootAction>,
+				const char*
 			)
 		);
 
@@ -47,36 +56,21 @@ namespace test
 			)
 		);
 
-		void reportValue(const char* valueName, int32_t value) override
-		{
-			reportValueInt(valueName, value);
-		}
-
-		MOCK_METHOD2(reportValueInt,
+		MOCK_METHOD2(reportValue,
 			void(
 				const char*,
 				int32_t
 			)
 		);
 
-		void reportValue(const char* valueName, double value) override
-		{
-			reportValueDouble(valueName, value);
-		}
-
-		MOCK_METHOD2(reportValueDouble,
+		MOCK_METHOD2(reportValue,
 			void(
 				const char*,
 				double
 			)
 		);
 
-		void reportValue(const char* valueName, const char* value) override
-		{
-			reportValueString(valueName, value);
-		}
-
-		MOCK_METHOD2(reportValueString,
+		MOCK_METHOD2(reportValue,
 			void(
 				const char*,
 				const char*
@@ -92,7 +86,7 @@ namespace test
 		);
 
 		MOCK_METHOD1(traceWebRequest,
-			types::IWebRequestTracer_sp(
+			std::shared_ptr<openkit::IWebRequestTracer>(
 				const char*
 			)
 		);

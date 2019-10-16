@@ -20,9 +20,9 @@
 using namespace core::communication;
 using namespace protocol;
 
-std::shared_ptr<StatusResponse> BeaconSendingRequestUtil::sendStatusRequest(BeaconSendingContext& context, uint32_t numRetries, uint64_t initialRetryDelayInMillis)
+std::shared_ptr<IStatusResponse> BeaconSendingRequestUtil::sendStatusRequest(BeaconSendingContext& context, uint32_t numRetries, uint64_t initialRetryDelayInMillis)
 {
-	std::shared_ptr<StatusResponse> statusResponse = nullptr;
+	std::shared_ptr<IStatusResponse> statusResponse = nullptr;
 	uint64_t sleepTimeInMillis = initialRetryDelayInMillis;
 	uint32_t retry = 0;
 

@@ -18,7 +18,7 @@
 #define _CORE_COMMUNICATION_BEACONSENDINGCAPTUREOFFSTATE_H
 
 #include "AbstractBeaconSendingState.h"
-#include "protocol/StatusResponse.h"
+#include "protocol/IStatusResponse.h"
 
 #include <memory>
 #include <vector>
@@ -72,8 +72,8 @@ namespace core
 			int64_t getSleepTimeInMilliseconds() const;
 
 		private:
-			/// Handle the status response received from the server and transistion the states accordingly
-			static void handleStatusResponse(BeaconSendingContext& context, std::shared_ptr<protocol::StatusResponse> statusResponse);
+			/// Handle the status response received from the server and transition the states accordingly
+			static void handleStatusResponse(BeaconSendingContext& context, std::shared_ptr<protocol::IStatusResponse> statusResponse);
 
 			/// Sleep time in milliseconds
 			int64_t mSleepTimeInMilliseconds;

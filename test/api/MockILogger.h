@@ -18,21 +18,42 @@
 #define _TEST_API_MOCKLOGGER_H
 
 #include "OpenKit/ILogger.h"
-#include "Types.h"
-#include "../api/Types.h"
 
 #include "gmock/gmock.h"
 
 #include <stdarg.h>
 #include <sstream>
+#include <memory>
 
 namespace test
 {
-	class MockILogger : public types::ILogger_t
+	class MockILogger : public openkit::ILogger
 	{
 	public:
 
+		MockILogger()
+		{
+			ON_CALL(*this, isErrorEnabled())
+				.WillByDefault(testing::Return(true));
+			ON_CALL(*this, isWarningEnabled())
+				.WillByDefault(testing::Return(true));
+			ON_CALL(*this, isDebugEnabled())
+				.WillByDefault(testing::Return(true));
+			ON_CALL(*this, isInfoEnabled())
+				.WillByDefault(testing::Return(true));
+		}
+
 		virtual ~MockILogger() {}
+
+		static std::shared_ptr<testing::NiceMock<MockILogger>> createNice()
+		{
+			return std::make_shared<testing::NiceMock<MockILogger>>();
+		}
+
+		static std::shared_ptr<testing::StrictMock<MockILogger>> createStrict()
+		{
+			return std::make_shared<testing::StrictMock<MockILogger>>();
+		}
 
 		void log(openkit::LogLevel, const char* format, ...) override
 		{

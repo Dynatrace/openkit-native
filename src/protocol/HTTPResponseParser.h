@@ -17,7 +17,7 @@
 #ifndef _PROTOCOL_HTTPRESPONSEPARSER_H
 #define _PROTOCOL_HTTPRESPONSEPARSER_H
 
-#include "Response.h"
+#include "IStatusResponse.h"
 
 #include <string>
 #include <vector>
@@ -61,8 +61,8 @@ namespace protocol
 		///
 		/// Get the response headers.
 		/// @return Response headers parsed so far.
-		/// 
-		const Response::ResponseHeaders& getResponseHeaders() const;
+		///
+		const IStatusResponse::ResponseHeaders& getResponseHeaders() const;
 
 		///
 		/// Get the response body.
@@ -89,7 +89,7 @@ namespace protocol
 		static void stripWhitespaces(std::string& str);
 
 		/// Response headers
-		Response::ResponseHeaders mResponseHeaders;
+		IStatusResponse::ResponseHeaders mResponseHeaders;
 
 		/// Response body
 		std::string mResponseBody;

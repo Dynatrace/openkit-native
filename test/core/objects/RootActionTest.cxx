@@ -82,7 +82,8 @@ TEST_F(RootActionTest, reportValueIntDelegatsToCommonImpl)
 	int32_t value = 42;
 
 	// expect
-	EXPECT_CALL(*mockActionImpl, reportValueInt(valueName, value)).Times(testing::Exactly(1));
+	EXPECT_CALL(*mockActionImpl, reportValue(testing::Eq(valueName), testing::TypedEq<int32_t>(value)))
+		.Times(testing::Exactly(1));
 
 	// given
 	auto target = createAction();
@@ -98,7 +99,8 @@ TEST_F(RootActionTest, reportValueDoubleDelegatsToCommonImpl)
 	double value = 42.1337;
 
 	// expect
-	EXPECT_CALL(*mockActionImpl, reportValueDouble(valueName, value)).Times(testing::Exactly(1));
+	EXPECT_CALL(*mockActionImpl, reportValue(testing::Eq(valueName), testing::TypedEq<double>(value)))
+		.Times(testing::Exactly(1));
 
 	// given
 	auto target = createAction();
@@ -114,7 +116,8 @@ TEST_F(RootActionTest, reportValueStringDelegatsToCommonImpl)
 	const char* value = "string value";
 
 	// expect
-	EXPECT_CALL(*mockActionImpl, reportValueString(valueName, value)).Times(testing::Exactly(1));
+	EXPECT_CALL(*mockActionImpl, reportValue(testing::Eq(valueName), testing::TypedEq<const char*>(value)))
+		.Times(testing::Exactly(1));
 
 	// given
 	auto target = createAction();

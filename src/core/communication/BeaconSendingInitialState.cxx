@@ -28,7 +28,8 @@
 #include "BeaconSendingResponseUtil.h"
 #include "BeaconSendingContext.h"
 
-#include "protocol/StatusResponse.h"
+#include "protocol/IStatusResponse.h"
+
 using namespace core::communication;
 
 constexpr uint32_t MAX_INITIAL_STATUS_REQUEST_RETRIES = 5;
@@ -89,9 +90,9 @@ const char* BeaconSendingInitialState::getStateName() const
 	return "Initial";
 }
 
-std::shared_ptr<protocol::StatusResponse> BeaconSendingInitialState::executeStatusRequest(BeaconSendingContext& context)
+std::shared_ptr<protocol::IStatusResponse> BeaconSendingInitialState::executeStatusRequest(BeaconSendingContext& context)
 {
-	std::shared_ptr<protocol::StatusResponse> statusResponse = nullptr;
+	std::shared_ptr<protocol::IStatusResponse> statusResponse = nullptr;
 	while (!context.isShutdownRequested())
 	{
 		auto currentTimestamp = context.getCurrentTimestamp();

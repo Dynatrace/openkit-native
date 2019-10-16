@@ -18,7 +18,7 @@
 #define _CORE_COMMUNICATION_BEACONSENDINGINITIALSTATE_H
 
 #include "AbstractBeaconSendingState.h"
-#include "protocol/StatusResponse.h"
+#include "protocol/IStatusResponse.h"
 
 #include <vector>
 #include <chrono>
@@ -69,7 +69,7 @@ namespace core
 			/// @param context The state's context
 			/// @return The last received status response, which might be erroneous if shutdown has been requested.
 			///
-			std::shared_ptr<protocol::StatusResponse> executeStatusRequest(BeaconSendingContext& context);
+			std::shared_ptr<protocol::IStatusResponse> executeStatusRequest(BeaconSendingContext& context);
 
 			///
 			/// Index to re-initialize delays

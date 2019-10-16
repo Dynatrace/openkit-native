@@ -15,17 +15,20 @@
 */
 
 #include "CustomMatchers.h"
+#include "../../protocol/mock/MockIHTTPClient.h"
+
 #include "Types.h"
 #include "MockTypes.h"
 #include "../configuration/Types.h"
 #include "../objects/MockTypes.h"
 #include "../util/Types.h"
-#include "../../protocol/MockTypes.h"
+#include "../../protocol/mock/MockIStatusResponse.h"
 #include "../../providers/MockTypes.h"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
+using namespace test;
 using namespace test::types;
 
 class BeaconSendingContextTest : public testing::Test
@@ -339,7 +342,7 @@ TEST_F(BeaconSendingContextTest, testGetHTTPClient)
 TEST_F(BeaconSendingContextTest, getHTTPClientProvider)
 {
 	// given
-	auto mockClient = std::make_shared<MockStrictHttpClient_t>(mConfiguration->getHTTPClientConfiguration());
+	auto mockClient = MockIHTTPClient::createStrict();
 	auto httpClientProvider = std::make_shared<MockStrictHttpClientProvider_t>();
 	ON_CALL(*mMockHttpClientProvider, createClient(testing::_, testing::_))
 		.WillByDefault(testing::Return(mockClient));
@@ -531,7 +534,7 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseWhenCapturingIsEnabled)
 	target->finishSession(mockSessionOne);
 	target->startSession(mockSessionTwo);
 
-	auto mockStatusResponse = std::make_shared<MockNiceStatusResponse_t>();
+	auto mockStatusResponse = MockIStatusResponse::createNice();
 	ON_CALL(*mockStatusResponse, getResponseCode())
 		.WillByDefault(testing::Return(200));
 	ON_CALL(*mockStatusResponse, isCapture())
@@ -584,7 +587,7 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseWhenCapturingIsDisabled)
 	target->findSessionWrapper(mockSessionFour)->updateBeaconConfiguration(std::make_shared<BeaconConfiguration_t>());
 	target->finishSession(mockSessionFour);
 
-	auto mockStatusResponse = std::make_shared<MockNiceStatusResponse_t>();
+	auto mockStatusResponse = MockIStatusResponse::createNice();
 
 	mConfiguration->disableCapture();
 

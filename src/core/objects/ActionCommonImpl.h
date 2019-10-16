@@ -28,7 +28,6 @@
 #include "core/objects/IActionCommon.h"
 #include "core/objects/NullWebRequestTracer.h"
 #include "core/objects/OpenKitComposite.h"
-#include "protocol/Beacon.h"
 
 #include <memory>
 #include <mutex>
@@ -36,7 +35,7 @@
 
 namespace protocol
 {
-	class Beacon;
+	class IBeacon;
 }
 
 namespace core
@@ -62,7 +61,7 @@ namespace core
 			ActionCommonImpl
 			(
 				std::shared_ptr<openkit::ILogger> logger,
-				std::shared_ptr<protocol::Beacon> beacon,
+				std::shared_ptr<protocol::IBeacon> beacon,
 				std::shared_ptr<IOpenKitComposite> parent,
 				const core::UTF8String& name,
 				const std::string& actionClassName
@@ -119,7 +118,7 @@ namespace core
 			std::shared_ptr<openkit::ILogger> mLogger;
 
 			/// beacon collection and sending this session's data
-			std::shared_ptr<protocol::Beacon> mBeacon;
+			std::shared_ptr<protocol::IBeacon> mBeacon;
 
 			/// the action's parent composite
 			std::shared_ptr<IOpenKitComposite> mParent;

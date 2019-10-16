@@ -17,11 +17,17 @@
 #ifndef _TEST_PROVIDERS_MOCKHTTPCLIENTPROVIDER_H
 #define _TEST_PROVIDERS_MOCKHTTPCLIENTPROVIDER_H
 
-#include "Types.h"
-#include "../api/Types.h"
+#include "OpenKit/ILogger.h"
+#include "core/configuration/HTTPClientConfiguration.h"
+#include "providers/IHTTPClientProvider.h"
+#include "protocol/IHTTPClient.h"
+
+#include "gmock/gmock.h"
+
+#include <memory>
 
 namespace test {
-	class MockHTTPClientProvider : public types::IHttpClientProvider_t
+	class MockHTTPClientProvider : public providers::IHTTPClientProvider
 	{
 	public:
 		///
@@ -39,9 +45,9 @@ namespace test {
 		virtual void globalDestroy() override {}
 
 		MOCK_METHOD2(createClient,
-			types::IHttpClient_sp(
-				types::ILogger_sp,
-				types::HttpClientConfiguration_sp
+			std::shared_ptr<protocol::IHTTPClient>(
+				std::shared_ptr<openkit::ILogger>,
+				std::shared_ptr<core::configuration::HTTPClientConfiguration>
 			)
 		);
 	};

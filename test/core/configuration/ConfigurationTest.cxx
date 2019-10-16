@@ -17,13 +17,15 @@
 #include "Types.h"
 #include "../Types.h"
 #include "../configuration/Types.h"
+#include "../../api/Types.h"
 #include "../../providers/Types.h"
 #include "../../protocol/Types.h"
-#include "../../protocol/MockTypes.h"
+#include "../../protocol/mock/MockIStatusResponse.h"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
+using namespace test;
 using namespace test::types;
 
 class ConfigurationTest : public testing::Test
@@ -120,7 +122,7 @@ TEST_F(ConfigurationTest, capturingIsDisabledIfStatusResponseIsNull)
 TEST_F(ConfigurationTest, capturingIsEnabledFromStatusResponse)
 {
 	//given
-	auto mockResponse = std::make_shared<MockNiceStatusResponse_t>();
+	auto mockResponse = MockIStatusResponse::createNice();
 
 	//when
 	auto target = getDefaultConfiguration();
@@ -140,7 +142,7 @@ TEST_F(ConfigurationTest, capturingIsEnabledFromStatusResponse)
 TEST_F(ConfigurationTest, capturingIsDisabledFromStatusResponse)
 {
 	//given
-	auto mockResponse = std::make_shared<MockNiceStatusResponse_t>();
+	auto mockResponse = MockIStatusResponse::createNice();
 
 	//when
 	auto target = getDefaultConfiguration();

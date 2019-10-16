@@ -17,7 +17,7 @@
 #ifndef _CORE_COMMUNICATION_BEACONSENDINGRESPONSEUTIL_H
 #define _CORE_COMMUNICATION_BEACONSENDINGRESPONSEUTIL_H
 
-#include "protocol/Response.h"
+#include "protocol/IStatusResponse.h"
 
 #include <memory>
 
@@ -37,7 +37,7 @@ namespace core
 			/// @param response The given response to check whether it is successful or not.
 			/// @return @c true if response is successful, @c false otherwise.
 			///
-			static bool isSuccessfulResponse(std::shared_ptr<protocol::Response> response);
+			static bool isSuccessfulResponse(std::shared_ptr<protocol::IStatusResponse> response);
 
 			///
 			/// Test if the given {@link Response} is a "too many requests" response.
@@ -45,7 +45,7 @@ namespace core
 			/// @param response The given response to check whether it is a "too many requests" response or not.
 			/// @return @c true if response indicates too many requests, @c false otherwise.
 			///
-			static bool isTooManyRequestsResponse(std::shared_ptr<protocol::Response> response);
+			static bool isTooManyRequestsResponse(std::shared_ptr<protocol::IStatusResponse> response);
 
 		private:
 

@@ -19,6 +19,8 @@
 #include "ProtocolConstants.h"
 #include "core/util/Compressor.h"
 #include "core/util/URLEncoding.h"
+#include "protocol/IStatusResponse.h"
+#include "protocol/StatusResponse.h"
 #include "protocol/ssl/SSLStrictTrustManager.h"
 
 #include <cstdint>
@@ -73,31 +75,31 @@ HTTPClient::~HTTPClient()
 {
 }
 
-std::shared_ptr<StatusResponse> HTTPClient::sendStatusRequest()
+std::shared_ptr<IStatusResponse> HTTPClient::sendStatusRequest()
 {
 	auto response = sendRequestInternal(RequestType::STATUS, mMonitorURL, core::UTF8String(""), core::UTF8String(""), HttpMethod::GET);
 
 	return response != nullptr
-		? std::static_pointer_cast<StatusResponse>(response)
-		: std::make_shared<StatusResponse>(mLogger, core::UTF8String(), std::numeric_limits<int32_t>::max(), Response::ResponseHeaders());
+		? response
+		: std::make_shared<StatusResponse>(mLogger, core::UTF8String(), std::numeric_limits<int32_t>::max(), IStatusResponse::ResponseHeaders());
 }
 
-std::shared_ptr<StatusResponse> HTTPClient::sendBeaconRequest(const core::UTF8String& clientIPAddress, const core::UTF8String& beaconData)
+std::shared_ptr<IStatusResponse> HTTPClient::sendBeaconRequest(const core::UTF8String& clientIPAddress, const core::UTF8String& beaconData)
 {
 	auto response = sendRequestInternal(RequestType::BEACON, mMonitorURL, clientIPAddress, beaconData, HttpMethod::POST);
 
 	return response != nullptr
-		? std::static_pointer_cast<StatusResponse>(response)
-		: std::make_shared<StatusResponse>(mLogger, core::UTF8String(), std::numeric_limits<int32_t>::max(), Response::ResponseHeaders());
+		? response
+		: std::make_shared<StatusResponse>(mLogger, core::UTF8String(), std::numeric_limits<int32_t>::max(), IStatusResponse::ResponseHeaders());
 }
 
-std::shared_ptr<StatusResponse> HTTPClient::sendNewSessionRequest()
+std::shared_ptr<IStatusResponse> HTTPClient::sendNewSessionRequest()
 {
 	auto response = sendRequestInternal(RequestType::NEW_SESSION, mNewSessionURL, core::UTF8String(""), core::UTF8String(""), HttpMethod::GET);
 
 	return response != nullptr
-		? std::static_pointer_cast<StatusResponse>(response)
-		: std::make_shared<StatusResponse>(mLogger, core::UTF8String(), std::numeric_limits<int32_t>::max(), Response::ResponseHeaders());
+		? response
+		: std::make_shared<StatusResponse>(mLogger, core::UTF8String(), std::numeric_limits<int32_t>::max(), IStatusResponse::ResponseHeaders());
 }
 
 void HTTPClient::globalInit()
@@ -174,7 +176,7 @@ static size_t headerFunction(char *buffer, size_t elementSize, size_t numberOfEl
 }
 
 //TODO: stefan.eberl - use the request type or rethink design
-std::shared_ptr<Response> HTTPClient::sendRequestInternal(HTTPClient::RequestType requestType, const core::UTF8String& url, const core::UTF8String& clientIPAddress, const core::UTF8String& beaconData, const HTTPClient::HttpMethod method)
+std::shared_ptr<IStatusResponse> HTTPClient::sendRequestInternal(HTTPClient::RequestType requestType, const core::UTF8String& url, const core::UTF8String& clientIPAddress, const core::UTF8String& beaconData, const HTTPClient::HttpMethod method)
 {
 	if (mLogger->isDebugEnabled())
 	{
@@ -308,7 +310,7 @@ std::shared_ptr<Response> HTTPClient::sendRequestInternal(HTTPClient::RequestTyp
 	return HTTPClient::unknownErrorResponse(requestType);
 }
 
-std::shared_ptr<Response> HTTPClient::handleResponse(RequestType requestType, int32_t httpCode, const std::string& response, const Response::ResponseHeaders& responseHeaders)
+std::shared_ptr<IStatusResponse> HTTPClient::handleResponse(RequestType requestType, int32_t httpCode, const std::string& response, const IStatusResponse::ResponseHeaders& responseHeaders)
 {
 	if (mLogger->isDebugEnabled())
 	{
@@ -374,13 +376,13 @@ void HTTPClient::appendQueryParam(core::UTF8String& url, const char* key, const 
 	url.concatenate(core::util::URLEncoding::urlencode(value, { '_' }));
 }
 
-std::shared_ptr<Response> HTTPClient::unknownErrorResponse(RequestType requestType)
+std::shared_ptr<IStatusResponse> HTTPClient::unknownErrorResponse(RequestType requestType)
 {
 	switch (requestType) {
 	case RequestType::STATUS:
 	case RequestType::BEACON: // fallthrough
 	case RequestType::NEW_SESSION: // fallthrough
-		return std::make_shared<StatusResponse>(mLogger, core::UTF8String(), std::numeric_limits<int32_t>::max(), Response::ResponseHeaders());
+		return std::make_shared<StatusResponse>(mLogger, core::UTF8String(), std::numeric_limits<int32_t>::max(), IStatusResponse::ResponseHeaders());
 	default:
 		// should not be reached
 		return nullptr;

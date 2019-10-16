@@ -29,7 +29,7 @@ Session::Session
 (
 	std::shared_ptr<openkit::ILogger> logger,
 	std::shared_ptr<core::BeaconSender> beaconSender,
-	std::shared_ptr<protocol::Beacon> beacon
+	std::shared_ptr<protocol::IBeacon> beacon
 )
 	: mLogger(logger)
 	, mBeaconSender(beaconSender)
@@ -140,12 +140,16 @@ std::shared_ptr<openkit::IWebRequestTracer> Session::traceWebRequest(const char*
 
 	if (!isSessionEnded())
 	{
-		return std::make_shared<core::objects::WebRequestTracer>(mLogger, shared_from_this(), mBeacon, urlString);
+		auto tracer =  std::make_shared<core::objects::WebRequestTracer>(mLogger, shared_from_this(), mBeacon, urlString);
+		storeChildInList(tracer);
+
+		return tracer;
 	}
 	return NullWebRequestTracer::INSTANCE;
 }
 
-void Session::end()
+void Session::
+end()
 {
 	if (mLogger->isDebugEnabled())
 	{
@@ -185,7 +189,7 @@ int64_t Session::getEndTime() const
 	return mEndTime;
 }
 
-std::shared_ptr<protocol::StatusResponse> Session::sendBeacon(std::shared_ptr<providers::IHTTPClientProvider> clientProvider)
+std::shared_ptr<protocol::IStatusResponse> Session::sendBeacon(std::shared_ptr<providers::IHTTPClientProvider> clientProvider)
 {
 	return mBeacon->send(clientProvider);
 }

@@ -20,9 +20,10 @@
 #include "Types.h"
 #include "../Types.h"
 #include "../configuration/Types.h"
+#include "../objects/Types.h"
 #include "../util/Types.h"
+#include "../../api/Types.h"
 #include "../../protocol/Types.h"
-#include "../../protocol/MockTypes.h"
 #include "../../providers/Types.h"
 #include "../../providers/MockTypes.h"
 
