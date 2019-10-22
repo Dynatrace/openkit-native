@@ -20,6 +20,7 @@
 #include "OpenKit/ILogger.h"
 #include "IObserver.h"
 #include "IBeaconCache.h"
+#include "IBeaconCacheEvictor.h"
 #include "IBeaconCacheEvictionStrategy.h"
 #include "core/configuration/BeaconCacheConfiguration.h"
 #include "providers/ITimingProvider.h"
@@ -40,7 +41,9 @@ namespace core
 		///
 		/// Class responsible for handling an eviction thread, to ensure @ref BeaconCache stays in configured boundaries.
 		///
-		class BeaconCacheEvictor : IObserver
+		class BeaconCacheEvictor
+			: public IBeaconCacheEvictor
+			, IObserver
 		{
 		public:
 
@@ -76,20 +79,20 @@ namespace core
 			/// Starts the eviction thread.
 			/// @return @c true if the eviction thread was started, @c false if the thread was already running.
 			///
-			bool start();
+			bool start() override;
 
 			///
 			/// Stops the eviction thread with the default timeout of @ref EVICTION_THREAD_JOIN_TIMEOUT.
 			/// See also @ref stop(std::chrono::milliseconds)
 			///
-			bool stop();
+			bool stop() override;
 
 			///
 			/// Stops the eviction thread with the given @c timeout. If the timeout is reached the thread is terminated forcefully.
 			/// @param[in] timeout The number of milliseconds to join the thread.
 			/// @return @c true if stopping was successful, @c false if eviction thread is not running or could not be stopped in time.
 			///
-			bool stop(std::chrono::milliseconds timeout);
+			bool stop(std::chrono::milliseconds timeout) override;
 
 			///
 			/// Stops the eviction thread and joins.
@@ -102,12 +105,12 @@ namespace core
 			/// Checks if the eviction thread is running or not.
 			/// @return @c true if running, @c false otherwise
 			///
-			bool isAlive();
+			bool isAlive() override;
 
 			///
 			/// Update function to be notified about a new record being added.
 			///
-			void update();
+			void update() override;
 
 			///
 			/// The thread function

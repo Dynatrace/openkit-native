@@ -14,12 +14,13 @@
 * limitations under the License.
 */
 
-#include "Types.h"
-#include "../Types.h"
+#include "core/UTF8String.h"
+#include "core/caching/BeaconCacheRecord.h"
 
 #include "gtest/gtest.h"
 
-using namespace test::types;
+using BeaconCacheRecord_t = core::caching::BeaconCacheRecord;
+using Utf8String_t = core::UTF8String;
 
 class BeaconCacheRecordTest : public testing::Test
 {

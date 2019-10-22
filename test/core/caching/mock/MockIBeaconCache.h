@@ -14,29 +14,42 @@
 * limitations under the License.
 */
 
-#ifndef _TEST_CORE_CACHING_MOCKBEACONCACHE_H
-#define _TEST_CORE_CACHING_MOCKBEACONCACHE_H
+#ifndef _TEST_CORE_CACHING_MOCK_MOCKBEACONCACHE_H
+#define _TEST_CORE_CACHING_MOCK_MOCKBEACONCACHE_H
 
-#include "Types.h"
-#include "../Types.h"
+#include "core/UTF8String.h"
+#include "core/caching/IBeaconCache.h"
+#include "core/caching/IObserver.h"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
+#include <memory>
+
 namespace test
 {
-	class MockBeaconCache : public types::IBeaconCache_t
+	class MockIBeaconCache : public core::caching::IBeaconCache
 	{
 	public:
-		MockBeaconCache()
+		MockIBeaconCache()
 		{
 		}
 
-		virtual ~MockBeaconCache() {}
+		virtual ~MockIBeaconCache() {}
+
+		static std::shared_ptr<testing::NiceMock<MockIBeaconCache>> createNice()
+		{
+			return std::make_shared<testing::NiceMock<MockIBeaconCache>>();
+		}
+
+		static std::shared_ptr<testing::StrictMock<MockIBeaconCache>> createStrict()
+		{
+			return std::make_shared<testing::StrictMock<MockIBeaconCache>>();
+		}
 
 		MOCK_METHOD1(addObserver,
 			void(
-				types::IObserver_t*
+				core::caching::IObserver*
 			)
 		);
 
@@ -44,7 +57,7 @@ namespace test
 			void(
 				int32_t,
 				int64_t,
-				const types::Utf8String_t&
+				const core::UTF8String&
 			)
 		);
 
@@ -52,7 +65,7 @@ namespace test
 			void(
 				int32_t,
 				int64_t,
-				const types::Utf8String_t&
+				const core::UTF8String&
 			)
 		);
 
@@ -63,11 +76,11 @@ namespace test
 		);
 
 		MOCK_METHOD4(getNextBeaconChunk,
-			const types::Utf8String_t(
+			const core::UTF8String(
 				int32_t,
-				const types::Utf8String_t&,
+				const core::UTF8String&,
 				int32_t,
-				const types::Utf8String_t&
+				const core::UTF8String&
 			)
 		);
 

@@ -14,24 +14,37 @@
 * limitations under the License.
 */
 
-#ifndef _TEST_CORE_CACHING_MOCKOBSERVER_H
-#define _TEST_CORE_CACHING_MOCKOBSERVER_H
+#ifndef _TEST_CORE_CACHING_MOCK_MOCKOBSERVER_H
+#define _TEST_CORE_CACHING_MOCK_MOCKOBSERVER_H
 
-#include "Types.h"
+#include "core/caching/IObserver.h"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
+#include <memory>
+
 namespace test
 {
-	class MockObserver : public types::IObserver_t
+	class MockIObserver
+		: public core::caching::IObserver
 	{
 	public:
-		MockObserver()
+		MockIObserver()
 		{
 		}
 
-		virtual ~MockObserver() {}
+		virtual ~MockIObserver() {}
+
+		static std::shared_ptr<testing::NiceMock<MockIObserver>> createNice()
+		{
+			return std::make_shared<testing::NiceMock<MockIObserver>>();
+		}
+
+		static std::shared_ptr<testing::StrictMock<MockIObserver>> createStrict()
+		{
+			return std::make_shared<testing::StrictMock<MockIObserver>>();
+		}
 
 		MOCK_METHOD0(update, void());
 	};

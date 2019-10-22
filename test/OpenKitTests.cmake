@@ -114,11 +114,11 @@ set(OPENKIT_SOURCES_TEST_CORE_CACHING
     ${CMAKE_CURRENT_LIST_DIR}/core/caching/BeaconCacheRecordTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/caching/BeaconCacheEvictorTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/caching/BeaconCacheTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/core/caching/MockBeaconCache.h
-    ${CMAKE_CURRENT_LIST_DIR}/core/caching/MockBeaconCacheEvictionStrategy.h
-    ${CMAKE_CURRENT_LIST_DIR}/core/caching/MockObserver.h
     ${CMAKE_CURRENT_LIST_DIR}/core/caching/SpaceEvictionStrategyTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/caching/TimeEvictionStrategyTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/caching/mock/MockIBeaconCache.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/caching/mock/MockIBeaconCacheEvictionStrategy.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/caching/mock/MockIObserver.h
 )
 
 set(OPENKIT_SOURCES_TEST_UTIL_JSON_LEXER
@@ -150,10 +150,10 @@ set(OPENKIT_SOURCES_UNITTEST
     ${OPENKIT_SOURCES_TEST}
     ${OPENKIT_SOURCES_TEST_API}
     ${OPENKIT_SOURCES_TEST_CORE}
-    ${OPENKIT_SOURCES_TEST_CORE_OBJECTS}
+    ${OPENKIT_SOURCES_TEST_CORE_CACHING}
     ${OPENKIT_SOURCES_TEST_CORE_COMMUNICATION}
     ${OPENKIT_SOURCES_TEST_CORE_CONFIGURATION}
-    ${OPENKIT_SOURCES_TEST_CACHING}
+    ${OPENKIT_SOURCES_TEST_CORE_OBJECTS}
     ${OPENKIT_SOURCES_TEST_PROTOCOL}
     ${OPENKIT_SOURCES_TEST_PROVIDERS}
     ${OPENKIT_SOURCES_TEST_UTIL_JSON_LEXER}

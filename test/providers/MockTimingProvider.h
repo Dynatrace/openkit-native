@@ -17,10 +17,14 @@
 #ifndef _TEST_PROVIDERS_MOCKTIMINGPROVIDER_H
 #define _TEST_PROVIDERS_MOCKTIMINGPROVIDER_H
 
-#include "Types.h"
+#include "providers/ITimingProvider.h"
+
+#include "gmock/gmock.h"
+
+#include <memory>
 
 namespace test {
-	class MockTimingProvider : public types::ITimingProvider_t
+	class MockTimingProvider : public providers::ITimingProvider
 	{
 	public:
 
@@ -29,10 +33,19 @@ namespace test {
 		///
 		MockTimingProvider()
 		{
-
 		}
 
 		virtual ~MockTimingProvider() {}
+
+		static std::shared_ptr<testing::NiceMock<MockTimingProvider>> createNice()
+		{
+			return std::make_shared<testing::NiceMock<MockTimingProvider>>();
+		}
+
+		static std::shared_ptr<testing::StrictMock<MockTimingProvider>> createStrict()
+		{
+			return std::make_shared<testing::StrictMock<MockTimingProvider>>();
+		}
 
 		MOCK_METHOD0(provideTimestampInMilliseconds, int64_t());
 		MOCK_METHOD1(sleep, void(int64_t));

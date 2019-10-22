@@ -26,7 +26,7 @@
 #include "providers/ITimingProvider.h"
 #include "providers/IThreadIDProvider.h"
 #include "core/caching/IBeaconCache.h"
-#include "core/caching/BeaconCacheEvictor.h"
+#include "core/caching/IBeaconCacheEvictor.h"
 #include "core/BeaconSender.h"
 #include "NullSession.h"
 
@@ -128,7 +128,7 @@ namespace core
 			std::shared_ptr<core::BeaconSender> mBeaconSender;
 
 			/// beacon cache evictor
-			std::shared_ptr<caching::BeaconCacheEvictor> mBeaconCacheEvictor;
+			std::shared_ptr<caching::IBeaconCacheEvictor> mBeaconCacheEvictor;
 
 			/// atomic flag for shutdown state
 			std::atomic<int32_t> mIsShutdown;

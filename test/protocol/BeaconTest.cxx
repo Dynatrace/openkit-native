@@ -16,11 +16,13 @@
 
 #include "mock/MockIHTTPClient.h"
 #include "../api/MockILogger.h"
+#include "../core/caching/mock/MockIBeaconCache.h"
+
+#include "core/caching/BeaconCache.h"
+#include "core/caching/IBeaconCache.h"
 
 #include "Types.h"
 #include "../api/Types.h"
-#include "../core/caching/Types.h"
-#include "../core/caching/MockTypes.h"
 #include "../core/objects/Types.h"
 #include "../core/objects/MockTypes.h"
 #include "../core/util/Types.h"
@@ -30,6 +32,8 @@
 using namespace test;
 using namespace test::types;
 
+using BeaconCache_t = core::caching::BeaconCache;
+using IBeaconCache_sp = std::shared_ptr<core::caching::IBeaconCache>;
 using MockNiceIHTTPClient_sp = std::shared_ptr<testing::NiceMock<MockIHTTPClient>>;
 using MockNiceILogger_sp = std::shared_ptr<testing::NiceMock<MockILogger>>;
 
@@ -995,7 +999,7 @@ TEST_F(BeaconTest, invalidClientIPIsConvertedToEmptyString)
 TEST_F(BeaconTest, useInternalBeaconIdForAccessingBeaconCacheWhenSessionNumberReportingDisabled)
 {
 	// given
-	auto mockBeaconCache = std::make_shared<MockNiceBeaconCache_t>();
+	auto mockBeaconCache = MockIBeaconCache::createNice();
 	beaconCache = mockBeaconCache;
 
 	int32_t beaconId = 73;

@@ -59,6 +59,7 @@ set(OPENKIT_SOURCES_CORE_CACHING
     ${CMAKE_CURRENT_LIST_DIR}/core/caching/BeaconCacheRecord.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/caching/BeaconCacheRecord.h
     ${CMAKE_CURRENT_LIST_DIR}/core/caching/IBeaconCache.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/caching/IBeaconCacheEvictor.h
     ${CMAKE_CURRENT_LIST_DIR}/core/caching/IObserver.h
     ${CMAKE_CURRENT_LIST_DIR}/core/caching/SpaceEvictionStrategy.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/caching/SpaceEvictionStrategy.h

@@ -20,6 +20,7 @@
 #include "providers/DefaultTimingProvider.h"
 #include "providers/DefaultThreadIDProvider.h"
 #include "core/caching/BeaconCache.h"
+#include "core/caching/BeaconCacheEvictor.h"
 
 #include <inttypes.h> // for PRId64 macro
 

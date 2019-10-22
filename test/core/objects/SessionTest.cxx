@@ -24,7 +24,6 @@
 
 #include "OpenKit/ISSLTrustManager.h"
 #include "core/UTF8String.h"
-#include "core/caching/BeaconCache.h"
 #include "core/configuration/BeaconConfiguration.h"
 #include "core/configuration/BeaconCacheConfiguration.h"
 #include "core/configuration/Configuration.h"
@@ -49,8 +48,6 @@
 
 using namespace test;
 
-using BeaconCache_t = core::caching::BeaconCache;
-using BeaconCache_sp = std::shared_ptr<BeaconCache_t>;
 using BeaconCacheConfiguration_t = core::configuration::BeaconCacheConfiguration;
 using BeaconCacheConfiguration_sp = std::shared_ptr<BeaconCacheConfiguration_t>;
 using BeaconConfiguration_t = core::configuration::BeaconConfiguration;
@@ -89,18 +86,15 @@ static const char APP_NAME[] = "appName";
 class SessionTest : public testing::Test
 {
 protected:
-	std::ostringstream devNull;
 	MockNiceILogger_sp mockLogger;
 	ITimingProvider_sp timingProvider;
 	ISessionIdProvider_sp sessionIDProvider;
 
-	MockNiceIHTTPClient_sp mockHTTPClient;
 	ISslTrustManager_sp trustManager;
 
 	BeaconConfiguration_sp beaconConfiguration;
 	BeaconCacheConfiguration_sp beaconCacheConfiguration;
 	Configuration_sp configuration;
-	BeaconCache_sp beaconCache;
 
 	MockStrictBeaconSender_sp mockBeaconSender;
 	MockStrictIBeacon_sp mockBeaconStrict;
@@ -116,7 +110,6 @@ protected:
 
 		auto httpClientConfiguration = std::make_shared<HttpClientConfiguration_t>(Utf8String_t(""), 0, Utf8String_t(""));
 		mockHTTPClientProvider = std::make_shared<MockNiceHttpClientProvider_t>();
-		mockHTTPClient = MockIHTTPClient::createNice();
 
 		trustManager = std::make_shared<SslStrictTrustManager_t>();
 
@@ -140,8 +133,6 @@ protected:
 			beaconConfiguration
 		);
 		configuration->enableCapture();
-
-		beaconCache = std::make_shared<BeaconCache_t>(mockLogger);
 
 		mockBeaconSender = std::make_shared<MockStrictBeaconSender_t>(mockLogger, configuration, mockHTTPClientProvider, timingProvider);
 		mockBeaconStrict = MockIBeacon::createStrict();

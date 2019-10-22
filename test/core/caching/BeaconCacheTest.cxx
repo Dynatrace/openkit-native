@@ -14,34 +14,43 @@
 * limitations under the License.
 */
 
-#include "Types.h"
-#include "MockTypes.h"
-#include "../Types.h"
-#include "../util/Types.h"
+#include "../../api/MockILogger.h"
+#include "mock/MockIObserver.h"
+
+#include "core/UTF8String.h"
+#include "core/caching/BeaconCache.h"
+#include "core/caching/BeaconCacheRecord.h"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
 #include <algorithm>
 
-using namespace test::types;
+using namespace test;
+
+using BeaconCache_t = core::caching::BeaconCache;
+using BeaconCacheRecord_t = core::caching::BeaconCacheRecord;
+using MockNiceILogger_sp = std::shared_ptr<testing::NiceMock<MockILogger>>;
+using MockNiceIObserver_t = testing::NiceMock<MockIObserver>;
+using MockStrictIObserver_t = testing::StrictMock<MockIObserver>;
+using Utf8String_t = core::UTF8String;
 
 class BeaconCacheTest : public testing::Test
 {
 protected:
+
+	MockNiceILogger_sp mockLogger;
+
 	void SetUp()
 	{
-		mLogger = std::make_shared<DefaultLogger_t>(devNull, LogLevel_t::LOG_LEVEL_DEBUG);
+		mockLogger = MockILogger::createNice();
 	}
-
-	std::ostringstream devNull;
-	ILogger_sp mLogger;
 };
 
 TEST_F(BeaconCacheTest, aDefaultConstructedCacheDoesNotContainBeacons)
 {
 	// given
-	BeaconCache_t target(mLogger);
+	BeaconCache_t target(mockLogger);
 
 	// then
 	ASSERT_TRUE(target.getBeaconIDs().empty());
@@ -51,7 +60,7 @@ TEST_F(BeaconCacheTest, aDefaultConstructedCacheDoesNotContainBeacons)
 TEST_F(BeaconCacheTest, addEventDataAddsBeaconIdToCache)
 {
 	// given
-	 BeaconCache_t target(mLogger);
+	 BeaconCache_t target(mockLogger);
 
 	// when adding beacon with id 1
 	target.addEventData(1, 1000L, "a");
@@ -78,7 +87,7 @@ TEST_F(BeaconCacheTest, addEventDataAddsBeaconIdToCache)
 TEST_F(BeaconCacheTest, addEventDataAddsDataToAlreadyExistingBeaconId)
 {
 	// given
-	 BeaconCache_t target(mLogger);
+	 BeaconCache_t target(mockLogger);
 
 	// when adding beacon with id 1
 	target.addEventData(1, 1000L, "a");
@@ -97,14 +106,14 @@ TEST_F(BeaconCacheTest, addEventDataAddsDataToAlreadyExistingBeaconId)
 	ASSERT_EQ(target.getBeaconIDs().count(1), 1);
 	ASSERT_EQ(target.getEvents(1).size(), 2);
 	auto v = target.getEvents(1);
-	ASSERT_TRUE(std::find(v.begin(), v.end(), core::UTF8String("a")) != v.end());
-	ASSERT_TRUE(std::find(v.begin(), v.end(), core::UTF8String("bc")) != v.end());
+	ASSERT_TRUE(std::find(v.begin(), v.end(), Utf8String_t("a")) != v.end());
+	ASSERT_TRUE(std::find(v.begin(), v.end(), Utf8String_t("bc")) != v.end());
 }
 
 TEST_F(BeaconCacheTest, addEventDataIncreasesCacheSize)
 {
 	// given
-	 BeaconCache_t target(mLogger);
+	 BeaconCache_t target(mockLogger);
 
 	// when adding some data
 	target.addEventData(1, 1000L, "a");
@@ -112,14 +121,14 @@ TEST_F(BeaconCacheTest, addEventDataIncreasesCacheSize)
 	target.addEventData(1, 1000L, "iii");
 
 	// then
-	ASSERT_EQ(target.getNumBytesInCache(), BeaconCacheRecord(1000L, "a").getDataSizeInBytes() +	BeaconCacheRecord(1000L, "z").getDataSizeInBytes() + BeaconCacheRecord(1000L, "iii").getDataSizeInBytes());
+	ASSERT_EQ(target.getNumBytesInCache(), BeaconCacheRecord_t(1000L, "a").getDataSizeInBytes() +	BeaconCacheRecord_t(1000L, "z").getDataSizeInBytes() + BeaconCacheRecord_t(1000L, "iii").getDataSizeInBytes());
 }
 
 TEST_F(BeaconCacheTest, addEventDataNotifiesObserver)
 {
 	// given
-	BeaconCache_t target(mLogger);
-	MockNiceObserver_t observer;
+	BeaconCache_t target(mockLogger);
+	MockNiceIObserver_t observer;
 
 	target.addObserver(&observer);
 
@@ -138,7 +147,7 @@ TEST_F(BeaconCacheTest, addEventDataNotifiesObserver)
 TEST_F(BeaconCacheTest, addActionDataAddsBeaconIdToCache)
 {
 	// given
-	BeaconCache_t target(mLogger);
+	BeaconCache_t target(mockLogger);
 
 	// when adding beacon with id 1
 	target.addActionData(1, 1000L, "a");
@@ -165,7 +174,7 @@ TEST_F(BeaconCacheTest, addActionDataAddsBeaconIdToCache)
 TEST_F(BeaconCacheTest, addActionDataAddsDataToAlreadyExistingBeaconId)
 {
 	// given
-	BeaconCache_t target(mLogger);
+	BeaconCache_t target(mockLogger);
 
 	// when adding beacon with id 1
 	target.addActionData(1, 1000L, "a");
@@ -184,14 +193,14 @@ TEST_F(BeaconCacheTest, addActionDataAddsDataToAlreadyExistingBeaconId)
 	ASSERT_EQ(target.getBeaconIDs().count(1), 1);
 	ASSERT_EQ(target.getActions(1).size(), 2);
 	auto v = target.getActions(1);
-	ASSERT_TRUE(std::find(v.begin(), v.end(), core::UTF8String("a")) != v.end());
-	ASSERT_TRUE(std::find(v.begin(), v.end(), core::UTF8String("bc")) != v.end());
+	ASSERT_TRUE(std::find(v.begin(), v.end(), Utf8String_t("a")) != v.end());
+	ASSERT_TRUE(std::find(v.begin(), v.end(), Utf8String_t("bc")) != v.end());
 }
 
 TEST_F(BeaconCacheTest, addActionDataIncreasesCacheSize)
 {
 	// given
-	BeaconCache_t target(mLogger);
+	BeaconCache_t target(mockLogger);
 
 	// when adding some data
 	target.addActionData(1, 1000L, "a");
@@ -199,14 +208,14 @@ TEST_F(BeaconCacheTest, addActionDataIncreasesCacheSize)
 	target.addActionData(1, 1000L, "iii");
 
 	// then
-	ASSERT_EQ(target.getNumBytesInCache(), BeaconCacheRecord(1000L, "a").getDataSizeInBytes() + BeaconCacheRecord(1000L, "z").getDataSizeInBytes() + BeaconCacheRecord(1000L, "iii").getDataSizeInBytes());
+	ASSERT_EQ(target.getNumBytesInCache(), BeaconCacheRecord_t(1000L, "a").getDataSizeInBytes() + BeaconCacheRecord_t(1000L, "z").getDataSizeInBytes() + BeaconCacheRecord_t(1000L, "iii").getDataSizeInBytes());
 }
 
 TEST_F(BeaconCacheTest, addActionDataNotifiesObserver)
 {
 	// given
-	BeaconCache_t target(mLogger);
-	MockNiceObserver_t observer;
+	BeaconCache_t target(mockLogger);
+	MockNiceIObserver_t observer;
 
 	target.addObserver(&observer);
 
@@ -225,7 +234,7 @@ TEST_F(BeaconCacheTest, addActionDataNotifiesObserver)
 TEST_F(BeaconCacheTest, deleteCacheEntryRemovesTheGivenBeacon)
 {
 	// given
-	BeaconCache_t target(mLogger);
+	BeaconCache_t target(mockLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addActionData(42, 1000L, "z");
 	target.addEventData(1, 1000L, "iii");
@@ -247,7 +256,7 @@ TEST_F(BeaconCacheTest, deleteCacheEntryRemovesTheGivenBeacon)
 TEST_F(BeaconCacheTest, deleteCacheEntryDecrementsCacheSize)
 {
 	// given
-	BeaconCache_t target(mLogger);
+	BeaconCache_t target(mockLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addActionData(42, 1000L, "z");
 	target.addEventData(1, 1000L, "iii");
@@ -256,17 +265,17 @@ TEST_F(BeaconCacheTest, deleteCacheEntryDecrementsCacheSize)
 	target.deleteCacheEntry(42);
 
 	// then
-	ASSERT_EQ(target.getNumBytesInCache(), BeaconCacheRecord(1000L, "a").getDataSizeInBytes() + BeaconCacheRecord(1000L, "iii").getDataSizeInBytes());
+	ASSERT_EQ(target.getNumBytesInCache(), BeaconCacheRecord_t(1000L, "a").getDataSizeInBytes() + BeaconCacheRecord_t(1000L, "iii").getDataSizeInBytes());
 }
 
 TEST_F(BeaconCacheTest, deleteCacheEntryDoesNotNotifyObservers)
 {
 	// given
-	BeaconCache_t target(mLogger);
+	BeaconCache_t target(mockLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addActionData(42, 1000L, "z");
 	target.addEventData(1, 1000L, "iii");
-	testing::StrictMock<test::MockObserver> observer;
+	MockStrictIObserver_t observer;
 
 	target.addObserver(&observer);
 
@@ -280,15 +289,15 @@ TEST_F(BeaconCacheTest, deleteCacheEntryDoesNotNotifyObservers)
 TEST_F(BeaconCacheTest, deleteCacheEntriesDoesNothingIfGivenBeaconIDIsNotInCache)
 {
 	// given
-	BeaconCache_t target(mLogger);
+	BeaconCache_t target(mockLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addActionData(42, 1000L, "z");
 	target.addEventData(1, 1000L, "iii");
-	testing::StrictMock<test::MockObserver> observer;
+	MockStrictIObserver_t observer;
 
 	target.addObserver(&observer);
 
-	int64_t cachedSize = target.getNumBytesInCache();
+	auto cachedSize = target.getNumBytesInCache();
 
 	// when
 	target.deleteCacheEntry(666);
@@ -303,13 +312,13 @@ TEST_F(BeaconCacheTest, deleteCacheEntriesDoesNothingIfGivenBeaconIDIsNotInCache
 TEST_F(BeaconCacheTest, getNextBeaconChunkReturnsNullIfGivenBeaconIDDoesNotExist)
 {
 	// given
-	BeaconCache_t target(mLogger);
+	BeaconCache_t target(mockLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addActionData(42, 1000L, "z");
 	target.addEventData(1, 1000L, "iii");
 
 	// when
-	core::UTF8String obtained = target.getNextBeaconChunk(666, "", 1024, "&");
+	auto obtained = target.getNextBeaconChunk(666, "", 1024, "&");
 
 	// then
 	ASSERT_TRUE(obtained.empty());
@@ -318,7 +327,7 @@ TEST_F(BeaconCacheTest, getNextBeaconChunkReturnsNullIfGivenBeaconIDDoesNotExist
 TEST_F(BeaconCacheTest, getNextBeaconChunkCopiesDataForSending)
 {
 	// given
-	BeaconCache_t target(mLogger);
+	BeaconCache_t target(mockLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addActionData(1, 1001L, "iii");
 	target.addActionData(42, 2000L, "z");
@@ -326,7 +335,7 @@ TEST_F(BeaconCacheTest, getNextBeaconChunkCopiesDataForSending)
 	target.addEventData(1, 1001L, "jjj");
 
 	// when
-	Utf8String_t obtained = target.getNextBeaconChunk(1, "prefix", 0, "&");
+	auto obtained = target.getNextBeaconChunk(1, "prefix", 0, "&");
 
 	// then
 	ASSERT_TRUE(obtained.equals("prefix"));
@@ -351,7 +360,7 @@ TEST_F(BeaconCacheTest, getNextBeaconChunkCopiesDataForSending)
 TEST_F(BeaconCacheTest, getNextBeaconChunkDecreasesBeaconCacheSize)
 {
 	// given
-	BeaconCache_t target(mLogger);
+	BeaconCache_t target(mockLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addActionData(1, 1001L, "iii");
 	target.addActionData(42, 2000L, "z");
@@ -362,13 +371,13 @@ TEST_F(BeaconCacheTest, getNextBeaconChunkDecreasesBeaconCacheSize)
 	target.getNextBeaconChunk(1, "prefix", 0, "&");
 
 	// cache stats are also adjusted
-	ASSERT_EQ(target.getNumBytesInCache(), BeaconCacheRecord(2000L, "z").getDataSizeInBytes());
+	ASSERT_EQ(target.getNumBytesInCache(), BeaconCacheRecord_t(2000L, "z").getDataSizeInBytes());
 }
 
 TEST_F(BeaconCacheTest, getNextBeaconChunkRetrievesNextChunk)
 {
 	// given
-	BeaconCache_t target(mLogger);
+	BeaconCache_t target(mockLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addActionData(1, 1001L, "iii");
 	target.addActionData(42, 2000L, "z");
@@ -376,7 +385,7 @@ TEST_F(BeaconCacheTest, getNextBeaconChunkRetrievesNextChunk)
 	target.addEventData(1, 1001L, "jjj");
 
 	// when
-	Utf8String_t obtained = target.getNextBeaconChunk(1, "prefix", 10, "&");
+	auto obtained = target.getNextBeaconChunk(1, "prefix", 10, "&");
 
 	// then
 	ASSERT_TRUE(obtained.equals("prefix&b&jjj"));
@@ -402,7 +411,7 @@ TEST_F(BeaconCacheTest, getNextBeaconChunkRetrievesNextChunk)
 TEST_F(BeaconCacheTest, removeChunkedDataClearsAlreadyRetrievedChunks)
 {
 	// given
-	BeaconCache_t target(mLogger);
+	BeaconCache_t target(mockLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addActionData(1, 1001L, "iii");
 	target.addActionData(42, 2000L, "z");
@@ -410,7 +419,7 @@ TEST_F(BeaconCacheTest, removeChunkedDataClearsAlreadyRetrievedChunks)
 	target.addEventData(1, 1001L, "jjj");
 
 	// when retrieving the first chunk and removing retrieved chunks
-	Utf8String_t obtained = target.getNextBeaconChunk(1, "prefix", 10, "&");
+	auto obtained = target.getNextBeaconChunk(1, "prefix", 10, "&");
 	target.removeChunkedData(1);
 
 	// then
@@ -439,7 +448,7 @@ TEST_F(BeaconCacheTest, removeChunkedDataClearsAlreadyRetrievedChunks)
 TEST_F(BeaconCacheTest, removeChunkedDataDoesNothingIfCalledWithNonExistingBeaconID)
 {
 	// given
-	BeaconCache_t target(mLogger);
+	BeaconCache_t target(mockLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addActionData(1, 1001L, "iii");
 	target.addActionData(42, 2000L, "z");
@@ -447,7 +456,7 @@ TEST_F(BeaconCacheTest, removeChunkedDataDoesNothingIfCalledWithNonExistingBeaco
 	target.addEventData(1, 1001L, "jjj");
 
 	// when retrieving the first chunk and removing retrieved chunks
-	Utf8String_t obtained = target.getNextBeaconChunk(1, "prefix", 10, "&");
+	auto obtained = target.getNextBeaconChunk(1, "prefix", 10, "&");
 	target.removeChunkedData(2);
 
 	// then
@@ -471,7 +480,7 @@ TEST_F(BeaconCacheTest, removeChunkedDataDoesNothingIfCalledWithNonExistingBeaco
 TEST_F(BeaconCacheTest, resetChunkedRestoresData)
 {
 	// given
-	BeaconCache_t target(mLogger);
+	BeaconCache_t target(mockLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addActionData(1, 1001L, "iii");
 	target.addEventData(1, 1000L, "b");
@@ -512,7 +521,7 @@ TEST_F(BeaconCacheTest, resetChunkedRestoresData)
 TEST_F(BeaconCacheTest, resetChunkedRestoresCacheSize)
 {
 	// given
-	BeaconCache_t target(mLogger);
+	BeaconCache_t target(mockLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addActionData(1, 1001L, "iii");
 	target.addEventData(1, 1000L, "b");
@@ -535,7 +544,7 @@ TEST_F(BeaconCacheTest, resetChunkedRestoresCacheSize)
 TEST_F(BeaconCacheTest, resetChunkedNotifiesObservers)
 {
 	// given
-	BeaconCache_t target(mLogger);
+	BeaconCache_t target(mockLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addActionData(1, 1001L, "iii");
 	target.addEventData(1, 1000L, "b");
@@ -548,7 +557,7 @@ TEST_F(BeaconCacheTest, resetChunkedNotifiesObservers)
 	target.addActionData(1, 6666L, "123");
 	target.addEventData(1, 6666L, "987");
 
-	testing::NiceMock<test::MockObserver> observer;
+	MockNiceIObserver_t observer;
 	target.addObserver(&observer);
 
 	// and when resetting the previously copied data
@@ -560,7 +569,7 @@ TEST_F(BeaconCacheTest, resetChunkedNotifiesObservers)
 TEST_F(BeaconCacheTest, resetChunkedDoesNothingIfEntryDoesNotExist)
 {
 	// given
-	BeaconCache_t target(mLogger);
+	BeaconCache_t target(mockLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addActionData(1, 1001L, "iii");
 	target.addEventData(1, 1000L, "b");
@@ -573,7 +582,7 @@ TEST_F(BeaconCacheTest, resetChunkedDoesNothingIfEntryDoesNotExist)
 	target.addActionData(1, 6666L, "123");
 	target.addEventData(1, 6666L, "987");
 
-	testing::StrictMock<test::MockObserver> observer;
+	MockStrictIObserver_t observer;
 	target.addObserver(&observer);
 
 	// resetting not existing data
@@ -586,14 +595,14 @@ TEST_F(BeaconCacheTest, resetChunkedDoesNothingIfEntryDoesNotExist)
 TEST_F(BeaconCacheTest, evictRecordsByAgeDoesNothingAndReturnsZeroIfBeaconIDDoesNotExist)
 {
 	// given
-	BeaconCache_t target(mLogger);
+	BeaconCache_t target(mockLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addActionData(1, 1001L, "iii");
 	target.addEventData(1, 1000L, "b");
 	target.addEventData(1, 1001L, "jjj");
 
 	// when
-	uint32_t obtained = target.evictRecordsByAge(666, 0);
+	auto obtained = target.evictRecordsByAge(666, 0);
 
 	// then
 	ASSERT_EQ(obtained, 0);
@@ -602,14 +611,14 @@ TEST_F(BeaconCacheTest, evictRecordsByAgeDoesNothingAndReturnsZeroIfBeaconIDDoes
 TEST_F(BeaconCacheTest, evictRecordsByAge)
 {
 	// given
-	BeaconCache_t target(mLogger);
+	BeaconCache_t target(mockLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addActionData(1, 1001L, "iii");
 	target.addEventData(1, 1000L, "b");
 	target.addEventData(1, 1001L, "jjj");
 
 	// when
-	uint32_t obtained = target.evictRecordsByAge(1, 1001);
+	auto obtained = target.evictRecordsByAge(1, 1001);
 
 	// then
 	ASSERT_EQ(obtained, 2);
@@ -618,14 +627,14 @@ TEST_F(BeaconCacheTest, evictRecordsByAge)
 TEST_F(BeaconCacheTest, evictRecordsByNumberDoesNothingAndReturnsZeroIfBeaconIDDoesNotExist)
 {
 	// given
-	BeaconCache_t target(mLogger);
+	BeaconCache_t target(mockLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addActionData(1, 1001L, "iii");
 	target.addEventData(1, 1000L, "b");
 	target.addEventData(1, 1001L, "jjj");
 
 	// when
-	uint32_t obtained = target.evictRecordsByNumber(666, 100);
+	auto obtained = target.evictRecordsByNumber(666, 100);
 
 	// then
 	ASSERT_EQ(obtained, 0);
@@ -634,14 +643,14 @@ TEST_F(BeaconCacheTest, evictRecordsByNumberDoesNothingAndReturnsZeroIfBeaconIDD
 TEST_F(BeaconCacheTest, evictRecordsByNumber)
 {
 	// given
-	BeaconCache_t target(mLogger);
+	BeaconCache_t target(mockLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addActionData(1, 1001L, "iii");
 	target.addEventData(1, 1000L, "b");
 	target.addEventData(1, 1001L, "jjj");
 
 	// when
-	uint32_t obtained = target.evictRecordsByNumber(1, 2);
+	auto obtained = target.evictRecordsByNumber(1, 2);
 
 	// then
 	ASSERT_EQ(obtained, 2);
@@ -650,7 +659,7 @@ TEST_F(BeaconCacheTest, evictRecordsByNumber)
 TEST_F(BeaconCacheTest, isEmptyGivesTrueIfBeaconDoesNotExistInCache)
 {
 	// given
-	BeaconCache_t target(mLogger);
+	BeaconCache_t target(mockLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addActionData(1, 1001L, "iii");
 	target.addEventData(1, 1000L, "b");
@@ -663,7 +672,7 @@ TEST_F(BeaconCacheTest, isEmptyGivesTrueIfBeaconDoesNotExistInCache)
 TEST_F(BeaconCacheTest, isEmptyGivesFalseIfBeaconDataSizeIsNotEqualToZero)
 {
 	// given
-	BeaconCache_t target(mLogger);
+	BeaconCache_t target(mockLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addEventData(1, 1000L, "b");
 
@@ -674,7 +683,7 @@ TEST_F(BeaconCacheTest, isEmptyGivesFalseIfBeaconDataSizeIsNotEqualToZero)
 TEST_F(BeaconCacheTest, isEmptyGivesTrueIfBeaconDoesNotContainActiveData)
 {
 	// given
-	BeaconCache_t target(mLogger);
+	BeaconCache_t target(mockLogger);
 	target.addActionData(1, 1000L, "a");
 	target.addEventData(1, 1000L, "b");
 
