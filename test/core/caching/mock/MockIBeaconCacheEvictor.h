@@ -17,7 +17,7 @@
 #ifndef _TEST_CORE_CACHING_MOCK_MOCKIBEACONCACHEEVICTOR_H
 #define _TEST_CORE_CACHING_MOCK_MOCKIBEACONCACHEEVICTOR_H
 
-#include "core/caching/IBeaconcacheEvictor"
+#include "core/caching/IBeaconCacheEvictor.h"
 
 #include "gmock/gmock.h"
 
@@ -31,7 +31,7 @@ namespace test
 	{
 	public:
 
-		virtual ~MockIBeaconCacheEvictor() {}
+		~MockIBeaconCacheEvictor() override = default;
 
 		static std::shared_ptr<testing::NiceMock<MockIBeaconCacheEvictor>> createNice()
 		{
@@ -40,7 +40,7 @@ namespace test
 
 		static std::shared_ptr<testing::StrictMock<MockIBeaconCacheEvictor>> createStrict()
 		{
-			returns td::make_shared<testing::StrictMock<MockIBeaconCacheEvictor>>();
+			return std::make_shared<testing::StrictMock<MockIBeaconCacheEvictor>>();
 		}
 
 		MOCK_METHOD0(isAlive, bool());

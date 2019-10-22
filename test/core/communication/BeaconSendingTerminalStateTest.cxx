@@ -17,7 +17,7 @@
 #include "Types.h"
 #include "MockTypes.h"
 #include "../../api/Types.h"
-#include "../../api/MockILogger.h"
+#include "../../api/mock/MockILogger.h"
 #include "../../protocol/Types.h"
 
 #include "gtest/gtest.h"

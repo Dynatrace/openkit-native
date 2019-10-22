@@ -14,15 +14,22 @@
 * limitations under the License.
 */
 
-#include "Types.h"
-#include "../api/Types.h"
-#include "../core/Types.h"
-#include "../core/util/Types.h"
+#include "core/UTF8String.h"
+#include "protocol/IStatusResponse.h"
+#include "protocol/StatusResponse.h"
+
+#include "../api/mock/MockILogger.h"
+
+#include "gtest/gtest.h"
 
 #include <cstdint>
-#include <gtest/gtest.h>
 
-using namespace test::types;
+using namespace test;
+
+using IStatusResponse_t = protocol::IStatusResponse;
+using MockNiceILogger_sp = std::shared_ptr<testing::NiceMock<MockILogger>>;
+using StatusResponse_t = protocol::StatusResponse;
+using Utf8String_t = core::UTF8String;
 
 static constexpr char RESPONSE_KEY_RETRY_AFTER[] = "retry-after";
 static constexpr int64_t DEFAULT_RETRY_AFTER_IN_MILLISECONDS = 10L * 60L * 1000L;
@@ -30,18 +37,12 @@ static constexpr int64_t DEFAULT_RETRY_AFTER_IN_MILLISECONDS = 10L * 60L * 1000L
 class StatusResponseTest : public testing::Test
 {
 protected:
+	MockNiceILogger_sp logger;
+
 	void SetUp()
 	{
-		logger = std::make_shared<DefaultLogger_t>(devNull, LogLevel_t::LOG_LEVEL_DEBUG);
+		logger = MockILogger::createNice();
 	}
-
-	void TearDown()
-	{
-
-	}
-
-	std::ostringstream devNull;
-	ILogger_sp logger;
 };
 
 TEST_F(StatusResponseTest, isSuccessfulResponseGivesTrueForResponseCodesLessThan400)

@@ -16,11 +16,11 @@
 
 #include "MockIOpenKitObject.h"
 #include "../MockBeaconSender.h"
-#include "../../api/MockILogger.h"
+#include "../../api/mock/MockILogger.h"
 #include "../../protocol/mock/MockIBeacon.h"
 #include "../../protocol/mock/MockIHTTPClient.h"
 #include "../../protocol/mock/MockIStatusResponse.h"
-#include "../../providers/MockHTTPClientProvider.h"
+#include "../../providers/mock/MockIHTTPClientProvider.h"
 
 #include "OpenKit/ISSLTrustManager.h"
 #include "core/UTF8String.h"
@@ -62,7 +62,7 @@ using IOpenKitObject_t = core::objects::IOpenKitObject;
 using ISessionIdProvider_sp = std::shared_ptr<providers::ISessionIDProvider>;
 using ISslTrustManager_sp = std::shared_ptr<openkit::ISSLTrustManager>;
 using ITimingProvider_sp = std::shared_ptr<providers::ITimingProvider>;
-using MockNiceHttpClientProvider_t = testing::NiceMock<MockHTTPClientProvider>;
+using MockNiceHttpClientProvider_t = testing::NiceMock<MockIHTTPClientProvider>;
 using MockNiceHttpClientProvider_sp = std::shared_ptr<MockNiceHttpClientProvider_t>;
 using MockNiceIBeacon_sp = std::shared_ptr<testing::NiceMock<MockIBeacon>>;
 using MockNiceILogger_sp = std::shared_ptr<testing::NiceMock<MockILogger>>;
@@ -546,7 +546,7 @@ TEST_F(SessionTest, endSessionFinishesSessionOnBeacon)
 	// expect
 	EXPECT_CALL(*mockBeaconSender, finishSession(testing::_))
 		.Times(1);
-	EXPECT_CALL(*mockBeaconNice, endSession(testing::_))
+	EXPECT_CALL(*mockBeaconNice, endSession())
 		.Times(1);
 
 	// given
@@ -569,7 +569,7 @@ TEST_F(SessionTest, endingAnAlreadyEndedSessionDoesNothing)
 	// expect
 	EXPECT_CALL(*mockBeaconSender, finishSession(testing::_))
 		.Times(1); // only first invocation of end
-	EXPECT_CALL(*mockBeaconNice, endSession(testing::_))
+	EXPECT_CALL(*mockBeaconNice, endSession())
 		.Times(1); // only first invocation of end
 
 	// given
@@ -755,7 +755,7 @@ TEST_F(SessionTest, closeEndsTheSession)
 		.WillByDefault(testing::Return(timestamp));
 
 	// expect
-	EXPECT_CALL(*mockBeaconNice, endSession(testing::_))
+	EXPECT_CALL(*mockBeaconNice, endSession())
 		.Times(1);
 	EXPECT_CALL(*mockBeaconSender, finishSession(testing::_))
 		.Times(1);

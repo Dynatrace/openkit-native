@@ -14,8 +14,8 @@
 * limitations under the License.
 */
 
-#ifndef _TEST_PROVIDERS_MOCKTIMINGPROVIDER_H
-#define _TEST_PROVIDERS_MOCKTIMINGPROVIDER_H
+#ifndef _TEST_PROVIDERS_MOCK_MOCKITIMINGPROVIDER_H
+#define _TEST_PROVIDERS_MOCK_MOCKITIMINGPROVIDER_H
 
 #include "providers/ITimingProvider.h"
 
@@ -24,27 +24,27 @@
 #include <memory>
 
 namespace test {
-	class MockTimingProvider : public providers::ITimingProvider
+	class MockITimingProvider : public providers::ITimingProvider
 	{
 	public:
 
 		///
 		/// Default constructor
 		///
-		MockTimingProvider()
+		MockITimingProvider()
 		{
 		}
 
-		virtual ~MockTimingProvider() {}
+		virtual ~MockITimingProvider() {}
 
-		static std::shared_ptr<testing::NiceMock<MockTimingProvider>> createNice()
+		static std::shared_ptr<testing::NiceMock<MockITimingProvider>> createNice()
 		{
-			return std::make_shared<testing::NiceMock<MockTimingProvider>>();
+			return std::make_shared<testing::NiceMock<MockITimingProvider>>();
 		}
 
-		static std::shared_ptr<testing::StrictMock<MockTimingProvider>> createStrict()
+		static std::shared_ptr<testing::StrictMock<MockITimingProvider>> createStrict()
 		{
-			return std::make_shared<testing::StrictMock<MockTimingProvider>>();
+			return std::make_shared<testing::StrictMock<MockITimingProvider>>();
 		}
 
 		MOCK_METHOD0(provideTimestampInMilliseconds, int64_t());

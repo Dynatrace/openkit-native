@@ -14,12 +14,13 @@
 * limitations under the License.
 */
 
-#include "Types.h"
+#include "providers/DefaultThreadIDProvider.h"
 
-#include <gtest/gtest.h>
+#include "gtest/gtest.h"
+
 #include <thread>
 
-using namespace test::types;
+using DefaultThreadIdProvider_t = providers::DefaultThreadIDProvider;
 
 class DefaultThreadIDProviderTest : public testing::Test
 {
@@ -70,7 +71,7 @@ TEST_F(DefaultThreadIDProviderTest, convertNativeThreadIDToPositiveIntegerVerify
 	//given
 	int64_t testLongValue = (uint64_t)1 << 63;//single bit set, xor leads to negative value with most significant bit set
 
-									//when
+	//when
 	int32_t result = DefaultThreadIdProvider_t::convertNativeThreadIDToPositiveInteger(testLongValue);
 
 	//verify

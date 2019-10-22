@@ -14,8 +14,8 @@
 * limitations under the License.
 */
 
-#ifndef _TEST_CORE_CACHING_MOCK_MOCKOBSERVER_H
-#define _TEST_CORE_CACHING_MOCK_MOCKOBSERVER_H
+#ifndef _TEST_CORE_CACHING_MOCK_MOCKIOBSERVER_H
+#define _TEST_CORE_CACHING_MOCK_MOCKIOBSERVER_H
 
 #include "core/caching/IObserver.h"
 

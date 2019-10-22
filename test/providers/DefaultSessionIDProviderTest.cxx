@@ -14,12 +14,11 @@
 * limitations under the License.
 */
 
-#include "Types.h"
+#include "providers/DefaultSessionIDProvider.h"
 
-#include <gtest/gtest.h>
+#include "gtest/gtest.h"
 
-using namespace test::types;
-
+using DefaultSessionIdProvider_t = providers::DefaultSessionIDProvider;
 
 class DefaultSessionIDProviderTest : public testing::Test
 {

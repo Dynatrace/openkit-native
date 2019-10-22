@@ -136,9 +136,8 @@ namespace protocol
 
 		///
 		/// Add @ref core::objects::Session to Beacon when session is ended.
-		/// @param[in] session ended session that is added to the Beacon
 		///
-		void endSession(std::shared_ptr<core::objects::Session> session) override;
+		void endSession() override;
 
 		///
 		/// Add key-value-pair to Beacon.
@@ -338,6 +337,14 @@ namespace protocol
 		/// @returns the serialization data including the new key value pair
 		///
 		void addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, const core::UTF8String& value);
+
+		///
+		/// Serialization helper method for adding key/value pairs with string values in case the given value is not empty
+		/// @param s reference to string containing serialized data
+		/// @param key  key to append to string
+		/// @param value the string value to add
+		///
+		void addKeyValuePairIfNotEmpty(core::UTF8String& s, const core::UTF8String& key, const core::UTF8String & value);
 
 		///
 		/// Serialization helper method for adding key/value pairs with int32 values

@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-#include "../../api/MockILogger.h"
+#include "../../api/mock/MockILogger.h"
 #include "mock/MockIObserver.h"
 
 #include "core/UTF8String.h"

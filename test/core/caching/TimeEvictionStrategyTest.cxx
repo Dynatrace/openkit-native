@@ -15,8 +15,8 @@
 */
 
 #include "mock/MockIBeaconCache.h"
-#include "../../api/MockILogger.h"
-#include "../../providers/MockTimingProvider.h"
+#include "../../api/mock/MockILogger.h"
+#include "../../providers/mock/MockITimingProvider.h"
 
 #include "core/caching/TimeEvictionStrategy.h"
 #include "core/configuration/BeaconConfiguration.h"
@@ -31,10 +31,10 @@ using namespace test;
 using BeaconCacheConfiguration_t = core::configuration::BeaconCacheConfiguration;
 using MockNiceIBeaconCache_sp = std::shared_ptr<testing::NiceMock<MockIBeaconCache>>;
 using MockNiceILogger_sp = std::shared_ptr<testing::NiceMock<MockILogger>>;
-using MockNiceITimingProvider_sp = std::shared_ptr<testing::NiceMock<MockTimingProvider>>;
+using MockNiceITimingProvider_sp = std::shared_ptr<testing::NiceMock<MockITimingProvider>>;
 using MockStrictIBeaconCache_sp = std::shared_ptr<testing::StrictMock<MockIBeaconCache>>;
 using MockStrictILogger_sp = std::shared_ptr<testing::StrictMock<MockILogger>>;
-using MockStrictITimingProvider_sp = std::shared_ptr<testing::StrictMock<MockTimingProvider>>;
+using MockStrictITimingProvider_sp = std::shared_ptr<testing::StrictMock<MockITimingProvider>>;
 using TimeEvictionStrategy_t = core::caching::TimeEvictionStrategy;
 
 // To mock a change in the isAlive() method we need to create a dummy mock class holding the mocked isAlive method.
@@ -66,11 +66,11 @@ protected:
 	{
 		mockLoggerNice = MockILogger::createNice();
 		mockBeaconCacheNice = MockIBeaconCache::createNice();
-		mockTimingProviderNice = MockTimingProvider::createNice();
+		mockTimingProviderNice = MockITimingProvider::createNice();
 
 		mockLoggerStrict = MockILogger::createStrict();
 		mockBeaconCacheStrict = MockIBeaconCache::createStrict();
-		mockTimingProviderStrict = MockTimingProvider::createStrict();
+		mockTimingProviderStrict = MockITimingProvider::createStrict();
 	}
 
 public:

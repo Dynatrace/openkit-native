@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef _TEST_API_MOCKLOGGER_H
-#define _TEST_API_MOCKLOGGER_H
+#ifndef _TEST_API_MOCK_MOCKILOGGER_H
+#define _TEST_API_MOCK_MOCKILOGGER_H
 
 #include "OpenKit/ILogger.h"
 

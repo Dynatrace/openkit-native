@@ -15,7 +15,7 @@
 */
 
 #include "MockIOpenKitComposite.h"
-#include "../../api/MockILogger.h"
+#include "../../api/mock/MockILogger.h"
 #include "../../protocol/mock/MockIBeacon.h"
 
 #include "core/objects/WebRequestTracer.h"

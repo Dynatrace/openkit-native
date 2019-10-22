@@ -92,7 +92,7 @@ namespace protocol
 		/// Add @ref core::objects::Session to Beacon when session is ended.
 		/// @param[in] session ended session that is added to the Beacon
 		///
-		virtual void endSession(std::shared_ptr<core::objects::Session> session) = 0;
+		virtual void endSession() = 0;
 
 		///
 		/// Add key-value-pair to Beacon.

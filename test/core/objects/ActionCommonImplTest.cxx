@@ -16,8 +16,8 @@
 
 #include "MockIOpenKitComposite.h"
 #include "MockIOpenKitObject.h"
-#include "../../api/MockILogger.h"
-#include "../../api/MockIRootAction.h"
+#include "../../api/mock/MockILogger.h"
+#include "../../api/mock/MockIRootAction.h"
 #include "../../protocol/mock/MockIBeacon.h"
 
 #include "OpenKit/IRootAction.h"

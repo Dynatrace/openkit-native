@@ -14,27 +14,37 @@
  * limitations under the License.
  */
 
-#ifndef _TEST_API_MOCKTYPES_H
-#define _TEST_API_MOCKTYPES_H
+#ifndef _TEST_API_MOCK_MOCKISSLTRUSTMANAGER_H
+#define _TEST_API_MOCK_MOCKISSLTRUSTMANAGER_H
 
-#include "MockIRootAction.h"
-#include "MockILogger.h"
+#include "OpenKit/ISSLTrustManager.h"
 
+#include "curl/curl.h"
 #include "gmock/gmock.h"
 
 #include <memory>
 
 namespace test
 {
-	namespace types
+	class MockISslTrustManager
+		: public openkit::ISSLTrustManager
 	{
-		using MockIRootAction_t = MockIRootAction;
-		using MockIRootAction_sp = std::shared_ptr<MockIRootAction_t>;
-		using MockNiceIRootAction_t = testing::NiceMock<MockIRootAction_t>;
-		using MockNiceIRootAction_sp = std::shared_ptr<MockNiceIRootAction_t>;
-		using MockStrictIRootAction_t = testing::StrictMock<MockIRootAction_t>;
-		using MockStrictIRootAction_sp = std::shared_ptr<MockStrictIRootAction_t>;
-	}
+	public:
+
+		virtual ~MockISslTrustManager() {}
+
+		static std::shared_ptr<testing::NiceMock<MockISslTrustManager>> createNice()
+		{
+			return std::make_shared<testing::NiceMock<MockISslTrustManager>>();
+		}
+
+		static std::shared_ptr<testing::StrictMock<MockISslTrustManager>> createStrict()
+		{
+			return std::make_shared<testing::StrictMock<MockISslTrustManager>>();
+		}
+
+		MOCK_METHOD1(applyTrustManager, void(CURL*));
+	};
 }
 
 #endif

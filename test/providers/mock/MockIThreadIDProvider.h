@@ -14,51 +14,35 @@
  * limitations under the License.
  */
 
-#ifndef _TEST_OBJECTS_MOCKIWEBREQUESTTRACER_H
-#define _TEST_OBJECTS_MOCKIWEBREQUESTTRACER_H
+#ifndef _TEST_PROVIDERS_MOCK_MOCKITHREADIDPROVIDER_H
+#define _TEST_PROVIDERS_MOCK_MOCKITHREADIDPROVIDER_H
 
-#include "Types.h"
+#include "providers/IThreadIDProvider.h"
 
 #include "gmock/gmock.h"
 
+#include <memory>
+
 namespace test
 {
-	class MockIWebRequestTracer : public types::IWebRequestTracer_t
+	class MockIThreadIDProvider
+		: public providers::IThreadIDProvider
 	{
 	public:
 
-		virtual ~MockIWebRequestTracer() {}
+		~MockIThreadIDProvider() override = default;
 
-		MOCK_CONST_METHOD0(getTag, const char*());
+		static std::shared_ptr<testing::NiceMock<MockIThreadIDProvider>> createNice()
+		{
+			return std::make_shared<testing::NiceMock<MockIThreadIDProvider>>();
+		}
 
-		MOCK_METHOD1(setResponseCode,
-			types::IWebRequestTracer_sp(
-				int32_t
-			)
-		);
+		static std::shared_ptr<testing::StrictMock<MockIThreadIDProvider>> createStrict()
+		{
+			return std::make_shared<testing::StrictMock<MockIThreadIDProvider>>();
+		}
 
-		MOCK_METHOD1(setBytesSent,
-			types::IWebRequestTracer_sp(
-				int32_t
-			)
-		);
-
-
-		MOCK_METHOD1(setBytesReceived,
-			types::IWebRequestTracer_sp(
-				int32_t
-			)
-		);
-
-		MOCK_METHOD0(start, types::IWebRequestTracer_sp());
-
-		MOCK_METHOD0(stop, void());
-
-		MOCK_METHOD1(stop,
-			void(
-				int32_t
-			)
-		);
+		MOCK_METHOD0(getThreadID, int32_t());
 	};
 }
 

@@ -14,8 +14,8 @@
 * limitations under the License.
 */
 
-#ifndef _TEST_PROVIDERS_MOCKHTTPCLIENTPROVIDER_H
-#define _TEST_PROVIDERS_MOCKHTTPCLIENTPROVIDER_H
+#ifndef _TEST_PROVIDERS_MOCK_MOCKIHTTPCLIENTPROVIDER_H
+#define _TEST_PROVIDERS_MOCK_MOCKIHTTPCLIENTPROVIDER_H
 
 #include "OpenKit/ILogger.h"
 #include "core/configuration/HTTPClientConfiguration.h"
@@ -27,22 +27,35 @@
 #include <memory>
 
 namespace test {
-	class MockHTTPClientProvider : public providers::IHTTPClientProvider
+	class MockIHTTPClientProvider
+		: public providers::IHTTPClientProvider
 	{
 	public:
 		///
 		/// Default constructor
 		///
-		MockHTTPClientProvider()
+		MockIHTTPClientProvider()
 		{
-
+			ON_CALL(*this, createClient(testing::_, testing::_))
+				.WillByDefault(testing::Return(nullptr));
 		}
 
-		virtual ~MockHTTPClientProvider() {}
+		virtual ~MockIHTTPClientProvider() {}
+
+		static std::shared_ptr<testing::NiceMock<MockIHTTPClientProvider>> createNice()
+		{
+			return std::make_shared<testing::NiceMock<MockIHTTPClientProvider>>();
+		}
+
+		static std::shared_ptr<testing::StrictMock<MockIHTTPClientProvider>> createStrict()
+		{
+			return std::make_shared<testing::StrictMock<MockIHTTPClientProvider>>();
+		}
 
 		virtual void globalInit() override {}
 
 		virtual void globalDestroy() override {}
+
 
 		MOCK_METHOD2(createClient,
 			std::shared_ptr<protocol::IHTTPClient>(

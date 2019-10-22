@@ -14,69 +14,71 @@
  * limitations under the License.
  */
 
-#ifndef _TEST_OBJECTS_MOCKIROOTACTION_H
-#define _TEST_OBJECTS_MOCKIROOTACTION_H
+#ifndef _TEST_API_MOCK_MOCKIROOTACTION_H
+#define _TEST_API_MOCK_MOCKIROOTACTION_H
 
-#include "Types.h"
+#include "OpenKit/IRootAction.h"
+#include "OpenKit/IAction.h"
+#include "OpenKit/IWebRequestTracer.h"
 
 #include "gmock/gmock.h"
 
+#include <memory>
+
 namespace test
 {
-	class MockIRootAction : public types::IRootAction_t
+	class MockIRootAction
+		: public openkit::IRootAction
 	{
 	public:
 
+		virtual ~MockIRootAction() {}
+
+		static std::shared_ptr<testing::NiceMock<MockIRootAction>> createNice()
+		{
+			return std::make_shared<testing::NiceMock<MockIRootAction>>();
+		}
+
+		static std::shared_ptr<testing::StrictMock<MockIRootAction>> createStrict()
+		{
+			return std::make_shared<testing::StrictMock<MockIRootAction>>();
+		}
+
 		MOCK_METHOD1(enterAction,
-			types::IAction_sp(
+			std::shared_ptr<openkit::IAction>(
 				const char*
 			)
 		);
 
 		MOCK_METHOD1(reportEvent,
-			types::IRootAction_sp(
+			std::shared_ptr<openkit::IRootAction>(
 				const char*
 			)
 		);
 
-		types::IRootAction_sp reportValue(const char* valueName, int32_t value)
-		{
-			return reportValueInt(valueName, value);
-		}
-
-		MOCK_METHOD2(reportValueInt,
-			types::IRootAction_sp(
+		MOCK_METHOD2(reportValue,
+			std::shared_ptr<openkit::IRootAction>(
 				const char*,
 				int32_t
 			)
 		);
 
-		types::IRootAction_sp reportValue(const char* valueName, double value)
-		{
-			return reportValueString(valueName, value);
-		}
-
-		MOCK_METHOD2(reportValueString,
-			types::IRootAction_sp(
+		MOCK_METHOD2(reportValue,
+			std::shared_ptr<openkit::IRootAction>(
 				const char*,
 				double
 			)
 		);
 
-		types::IRootAction_sp reportValue(const char* valueName, const char* value)
-		{
-			return reportValueString(valueName, value);
-		}
-
-		MOCK_METHOD2(reportValueString,
-			types::IRootAction_sp(
+		MOCK_METHOD2(reportValue,
+			std::shared_ptr<openkit::IRootAction>(
 				const char*,
 				const char*
 			)
 		);
 
 		MOCK_METHOD3(reportError,
-			types::IRootAction_sp(
+			std::shared_ptr<openkit::IRootAction>(
 				const char*,
 				int32_t,
 				const char*
@@ -84,7 +86,7 @@ namespace test
 		);
 
 		MOCK_METHOD1(traceWebRequest,
-			types::IWebRequestTracer_sp(
+			std::shared_ptr<openkit::IWebRequestTracer>(
 				const char*
 			)
 		);

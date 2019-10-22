@@ -42,7 +42,6 @@ namespace core
 			///
 			virtual bool isAlive() = 0;
 
-
 			///
 			/// Starts the eviction thread.
 			/// @return @c true if the eviction thread was started, @c false if the thread was already running.

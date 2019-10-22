@@ -119,11 +119,8 @@ core::UTF8String Beacon::createImmutableBeaconData()
 	addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_OPENKIT_VERSION, protocol::OPENKIT_VERSION);
 	addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_APPLICATION_ID, mConfiguration->getApplicationID());
 	addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_APPLICATION_NAME, mConfiguration->getApplicationName());
-	auto applicationVersion = mConfiguration->getApplicationVersion();
-	if (!applicationVersion.empty())
-	{
-		addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_APPLICATION_VERSION, applicationVersion);
-	}
+	addKeyValuePairIfNotEmpty(basicBeaconData, protocol::BEACON_KEY_APPLICATION_VERSION, mConfiguration->getApplicationVersion());
+
 	addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_PLATFORM_TYPE, PLATFORM_TYPE_OPENKIT);
 	addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_AGENT_TECHNOLOGY_TYPE, AGENT_TECHNOLOGY_TYPE);
 
@@ -133,21 +130,10 @@ core::UTF8String Beacon::createImmutableBeaconData()
 	addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_CLIENT_IP_ADDRESS, mClientIPAddress);
 
 	// platform information
-	auto deviceOS = mConfiguration->getDevice()->getOperatingSystem();
-	if (!deviceOS.empty())
-	{
-		addKeyValuePair(basicBeaconData, BEACON_KEY_DEVICE_OS, deviceOS);
-	}
-	auto deviceManufacturer = mConfiguration->getDevice()->getManufacturer();
-	if (!deviceManufacturer.empty())
-	{
-		addKeyValuePair(basicBeaconData, BEACON_KEY_DEVICE_MANUFACTURER, deviceManufacturer);
-	}
-	auto deviceModel = mConfiguration->getDevice()->getModelID();
-	if (!deviceModel.empty())
-	{
-		addKeyValuePair(basicBeaconData, BEACON_KEY_DEVICE_MODEL, deviceModel);
-	}
+	auto device = mConfiguration->getDevice();
+	addKeyValuePairIfNotEmpty(basicBeaconData, BEACON_KEY_DEVICE_OS, device->getOperatingSystem());
+	addKeyValuePairIfNotEmpty(basicBeaconData, BEACON_KEY_DEVICE_MANUFACTURER, device->getManufacturer());
+	addKeyValuePairIfNotEmpty(basicBeaconData, BEACON_KEY_DEVICE_MODEL, device->getModelID());
 
 	auto beaconConfiguration = mConfiguration->getBeaconConfiguration();
 	addKeyValuePair(basicBeaconData, BEACON_KEY_DATA_COLLECTION_LEVEL, (int32_t)beaconConfiguration->getDataCollectionLevel());
@@ -205,6 +191,14 @@ void Beacon::addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, c
 {
 	appendKey(s, key);
 	s.concatenate(core::util::URLEncoding::urlencode(value, { '_' }));
+}
+
+void Beacon::addKeyValuePairIfNotEmpty(core::UTF8String& s, const core::UTF8String& key, const core::UTF8String& value)
+{
+	if(value.getStringLength() > 0)
+	{
+		addKeyValuePair(s, key, value);
+	}
 }
 
 void Beacon::addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, int32_t value)
@@ -304,7 +298,7 @@ void Beacon::startSession()
 	addEventData(mSessionStartTime, eventData);
 }
 
-void Beacon::endSession(std::shared_ptr<core::objects::Session> session)
+void Beacon::endSession()
 {
 	if (std::atomic_load(&mBeaconConfiguration)->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
 	{
@@ -313,11 +307,12 @@ void Beacon::endSession(std::shared_ptr<core::objects::Session> session)
 
 	core::UTF8String eventData = createBasicEventData(EventType::SESSION_END, nullptr);
 
+	auto endTime = getCurrentTimestamp();
 	addKeyValuePair(eventData, BEACON_KEY_PARENT_ACTION_ID, 0);
 	addKeyValuePair(eventData, BEACON_KEY_START_SEQUENCE_NUMBER, createSequenceNumber());
-	addKeyValuePair(eventData, BEACON_KEY_TIME_0, getTimeSinceSessionStartTime(session->getEndTime()));
+	addKeyValuePair(eventData, BEACON_KEY_TIME_0, getTimeSinceSessionStartTime(endTime));
 
-	addEventData(session->getEndTime(), eventData);
+	addEventData(endTime, eventData);
 }
 
 void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, int32_t value)
@@ -359,7 +354,7 @@ void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, co
 	uint64_t eventTimestamp;
 	core::UTF8String eventData = buildEvent(EventType::VALUE_STRING, valueName, actionID, eventTimestamp);
 
-	addKeyValuePair(eventData, BEACON_KEY_VALUE, value);
+	addKeyValuePairIfNotEmpty(eventData, BEACON_KEY_VALUE, value);
 
 	addEventData(eventTimestamp, eventData);
 }
@@ -395,10 +390,7 @@ void Beacon::reportError(int32_t actionID, const core::UTF8String& errorName, in
 	addKeyValuePair(eventData, BEACON_KEY_START_SEQUENCE_NUMBER, createSequenceNumber());
 	addKeyValuePair(eventData, BEACON_KEY_TIME_0, getTimeSinceSessionStartTime(timestamp));
 	addKeyValuePair(eventData, BEACON_KEY_ERROR_CODE, errorCode);
-	if (reason != nullptr)
-	{
-		addKeyValuePair(eventData, BEACON_KEY_ERROR_REASON, reason);
-	}
+	addKeyValuePairIfNotEmpty(eventData, BEACON_KEY_ERROR_REASON, reason);
 
 	addEventData(timestamp, eventData);
 }
@@ -422,8 +414,8 @@ void Beacon::reportCrash(const core::UTF8String& errorName, const core::UTF8Stri
 	addKeyValuePair(eventData, BEACON_KEY_PARENT_ACTION_ID, 0);                                  // no parent action
 	addKeyValuePair(eventData, BEACON_KEY_START_SEQUENCE_NUMBER, createSequenceNumber());
 	addKeyValuePair(eventData, BEACON_KEY_TIME_0, getTimeSinceSessionStartTime(timestamp));
-	addKeyValuePair(eventData, BEACON_KEY_ERROR_REASON, reason);
-	addKeyValuePair(eventData, BEACON_KEY_ERROR_STACKTRACE, stacktrace);
+	addKeyValuePairIfNotEmpty(eventData, BEACON_KEY_ERROR_REASON, reason);
+	addKeyValuePairIfNotEmpty(eventData, BEACON_KEY_ERROR_STACKTRACE, stacktrace);
 
 	addEventData(timestamp, eventData);
 }

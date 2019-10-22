@@ -15,7 +15,7 @@
 */
 
 #include "CustomMatchers.h"
-#include "../../api/MockILogger.h"
+#include "../../api/mock/MockILogger.h"
 #include "../../protocol/mock/MockIHTTPClient.h"
 #include "../../protocol/mock/MockIStatusResponse.h"
 

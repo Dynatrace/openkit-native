@@ -17,6 +17,9 @@
 #ifndef _TEST_CORE_COMMUNICATION_MOCKBEACONSENDINGCONTEXT_H
 #define _TEST_CORE_COMMUNICATION_MOCKBEACONSENDINGCONTEXT_H
 
+#include "../../providers/mock/MockIHTTPClientProvider.h"
+#include "../../providers/mock/MockITimingProvider.h"
+
 #include "Types.h"
 #include "../Types.h"
 #include "../configuration/Types.h"
@@ -25,7 +28,6 @@
 #include "../../api/Types.h"
 #include "../../protocol/Types.h"
 #include "../../providers/Types.h"
-#include "../../providers/MockTypes.h"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -43,8 +45,8 @@ class MockBeaconSendingContext : public types::BeaconSendingContext_t
 		: types::BeaconSendingContext_t
 		(
 			logger,
-			std::make_shared<types::MockHttpClientProvider_t>(),
-			std::make_shared<types::MockTimingProvider_t>(),
+			MockIHTTPClientProvider::createNice(),
+			MockITimingProvider::createNice(),
 			std::make_shared<types::Configuration_t>
 			(
 				std::make_shared<types::Device_t>("", "", ""),

@@ -34,11 +34,11 @@ set(OPENKIT_SOURCES_TEST
 
 set(OPENKIT_SOURCES_TEST_API
     ${CMAKE_CURRENT_LIST_DIR}/api/LogLevelTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/api/MockILogger.h
-    ${CMAKE_CURRENT_LIST_DIR}/api/MockIRootAction.h
-    ${CMAKE_CURRENT_LIST_DIR}/api/MockIWebRequestTracer.h
-    ${CMAKE_CURRENT_LIST_DIR}/api/MockTypes.h
     ${CMAKE_CURRENT_LIST_DIR}/api/OpenKitBuilderTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/api/mock/MockILogger.h
+    ${CMAKE_CURRENT_LIST_DIR}/api/mock/MockIRootAction.h
+    ${CMAKE_CURRENT_LIST_DIR}/api/mock/MockISslTrustManager.h
+    ${CMAKE_CURRENT_LIST_DIR}/api/mock/MockIWebRequestTracer.h
 )
 
 set(OPENKIT_SOURCES_TEST_CORE
@@ -70,9 +70,9 @@ set(OPENKIT_SOURCES_TEST_CORE_OBJECTS
 
 set(OPENKIT_SOURCES_TEST_PROTOCOL
     ${CMAKE_CURRENT_LIST_DIR}/protocol/StatusResponseTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/protocol/TestSSLTrustManager.h
     ${CMAKE_CURRENT_LIST_DIR}/protocol/HTTPResponseParserTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/protocol/BeaconTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/builder/TestBeaconBuilder.h
     ${CMAKE_CURRENT_LIST_DIR}/protocol/mock/MockIBeacon.h
     ${CMAKE_CURRENT_LIST_DIR}/protocol/mock/MockIHTTPClient.h
     ${CMAKE_CURRENT_LIST_DIR}/protocol/mock/MockIStatusResponse.h
@@ -82,10 +82,11 @@ set(OPENKIT_SOURCES_TEST_PROVIDERS
     ${CMAKE_CURRENT_LIST_DIR}/providers/DefaultPRNGeneratorTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/providers/DefaultSessionIDProviderTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/providers/DefaultThreadIDProviderTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/providers/MockHTTPClientProvider.h
-    ${CMAKE_CURRENT_LIST_DIR}/providers/MockPRNGenerator.h
-    ${CMAKE_CURRENT_LIST_DIR}/providers/MockSessionIDProvider.h
-    ${CMAKE_CURRENT_LIST_DIR}/providers/MockTimingProvider.h
+    ${CMAKE_CURRENT_LIST_DIR}/providers/mock/MockIHTTPClientProvider.h
+    ${CMAKE_CURRENT_LIST_DIR}/providers/mock/MockIPRNGenerator.h
+    ${CMAKE_CURRENT_LIST_DIR}/providers/mock/MockISessionIDProvider.h
+    ${CMAKE_CURRENT_LIST_DIR}/providers/mock/MockIThreadIDProvider.h
+    ${CMAKE_CURRENT_LIST_DIR}/providers/mock/MockITimingProvider.h
 )
 
 set(OPENKIT_SOURCES_TEST_CORE_COMMUNICATION
@@ -118,6 +119,7 @@ set(OPENKIT_SOURCES_TEST_CORE_CACHING
     ${CMAKE_CURRENT_LIST_DIR}/core/caching/TimeEvictionStrategyTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/caching/mock/MockIBeaconCache.h
     ${CMAKE_CURRENT_LIST_DIR}/core/caching/mock/MockIBeaconCacheEvictionStrategy.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/caching/mock/MockIBeaconCacheEvictor.h
     ${CMAKE_CURRENT_LIST_DIR}/core/caching/mock/MockIObserver.h
 )
 

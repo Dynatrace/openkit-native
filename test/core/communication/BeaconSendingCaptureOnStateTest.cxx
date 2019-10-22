@@ -17,8 +17,9 @@
 #include "CustomMatchers.h"
 #include "MockBeaconSendingContext.h"
 #include "../objects/MockSession.h"
-#include "../../api/MockILogger.h"
+#include "../../api/mock/MockILogger.h"
 #include "../../protocol/mock/MockIHTTPClient.h"
+#include "../../providers/mock/MockIHTTPClientProvider.h"
 
 #include "core/objects/Session.h"
 
@@ -29,6 +30,7 @@ using namespace test;
 using namespace test::types;
 
 using MockNiceIHTTPClient_sp = std::shared_ptr<testing::NiceMock<MockIHTTPClient>>;
+using MockNiceIHTTPClientProvider_sp = std::shared_ptr<testing::NiceMock<MockIHTTPClientProvider>>;
 using MockNiceILogger_sp = std::shared_ptr<testing::NiceMock<MockILogger>>;
 using MockNiceSession_t = testing::NiceMock<MockSession>;
 using MockNiceSession_sp = std::shared_ptr<MockNiceSession_t>;
@@ -45,7 +47,7 @@ protected:
 	MockNiceSession_sp mMockSession2Open;
 	MockNiceSession_sp mMockSession3Finished;
 	MockNiceSession_sp mMockSession4Finished;
-	MockNiceHttpClientProvider_sp mMockHttpClientProvider;
+	MockNiceIHTTPClientProvider_sp mMockHttpClientProvider;
 	MockNiceIHTTPClient_sp mMockHttpClient;
 
 	void SetUp()
@@ -85,7 +87,7 @@ protected:
 
 		mMockHttpClient = MockIHTTPClient::createNice();
 
-		mMockHttpClientProvider = std::make_shared<MockNiceHttpClientProvider_t>();
+		mMockHttpClientProvider = MockIHTTPClientProvider::createNice();
 		ON_CALL(*mMockContext, getHTTPClientProvider())
 			.WillByDefault(testing::Return(mMockHttpClientProvider));
 		ON_CALL(*mMockHttpClientProvider, createClient(testing::_, testing::_))

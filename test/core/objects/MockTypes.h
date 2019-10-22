@@ -20,7 +20,7 @@
 #include "MockLeafAction.h"
 #include "MockIActionCommon.h"
 #include "MockIOpenKitObject.h"
-#include "../../api/MockIWebRequestTracer.h"
+#include "../../api/mock/MockIWebRequestTracer.h"
 #include "MockIOpenKitComposite.h"
 #include "MockRootAction.h"
 #include "MockSession.h"

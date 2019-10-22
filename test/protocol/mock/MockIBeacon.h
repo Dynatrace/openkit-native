@@ -82,11 +82,7 @@ namespace test
 
 		MOCK_METHOD0(startSession, void());
 
-		MOCK_METHOD1(endSession,
-			void(
-				std::shared_ptr<core::objects::Session> /* session */
-			)
-		);
+		MOCK_METHOD0(endSession, void());
 
 		MOCK_METHOD3(reportValue,
 			void(

@@ -14,11 +14,12 @@
 * limitations under the License.
 */
 
+#include "mock/MockISslTrustManager.h"
+
 #include "Types.h"
 #include "../core/configuration/Types.h"
 #include "../core/util/Types.h"
 #include "../protocol/Types.h"
-#include "../protocol/TestSSLTrustManager.h"
 
 #include "core/util/StringUtil.h"
 #include "OpenKit/OpenKitConstants.h"
@@ -29,7 +30,10 @@
 #include <stdint.h>
 #include <memory>
 
+using namespace test;
 using namespace test::types;
+
+using MockNiceISslTrustManager_sp = std::shared_ptr<testing::NiceMock<MockISslTrustManager>>;
 
 class OpenKitBuilderTest : public testing::Test
 {
@@ -37,13 +41,13 @@ protected:
 
 	void SetUp()
 	{
-		testSSLTrustManager = std::make_shared<test::TestSSLTrustManager>();
+		mockTrustManager = MockISslTrustManager::createNice();
 	}
 
 	static constexpr const char* DEFAULT_ENDPOINT_URL = "https://localhost:12345";
 	static constexpr const char* DEFAULT_APPLICATION_ID = "asdf123";
 	static constexpr int64_t DEFAULT_DEVICE_ID = 123L;
-	ISslTrustManager_sp testSSLTrustManager;
+	MockNiceISslTrustManager_sp mockTrustManager;
 	static constexpr const char* TEST_APPLICATION_VERSION = "1.2.3.4";
 	static constexpr const char* TEST_OPERATING_SYSTEM = "Some OS";
 	static constexpr const char* TEST_MANUFACTURER = "ACME";
@@ -202,39 +206,39 @@ TEST_F(OpenKitBuilderTest, applicationNameIsSetCorrectlyForAppMon)
 TEST_F(OpenKitBuilderTest, canOverrideTrustManagerForAppMon)
 {
 	auto configuration = AppMonOpenKitBuilder_t(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
-		.withTrustManager(testSSLTrustManager)
+		.withTrustManager(mockTrustManager)
 		.buildConfiguration();
 
-	ASSERT_EQ(configuration->getHTTPClientConfiguration()->getSSLTrustManager(), testSSLTrustManager);
+	ASSERT_EQ(configuration->getHTTPClientConfiguration()->getSSLTrustManager(), mockTrustManager);
 }
 
 TEST_F(OpenKitBuilderTest, cannotOverrideNullTrustManagerForAppMon)
 {
 	auto configuration = AppMonOpenKitBuilder_t(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
-		.withTrustManager(testSSLTrustManager) // first call, set a known & valid trust manager
+		.withTrustManager(mockTrustManager) // first call, set a known & valid trust manager
 		.withTrustManager(nullptr)
 		.buildConfiguration();
 
-	ASSERT_EQ(configuration->getHTTPClientConfiguration()->getSSLTrustManager(), testSSLTrustManager);
+	ASSERT_EQ(configuration->getHTTPClientConfiguration()->getSSLTrustManager(), mockTrustManager);
 }
 
 TEST_F(OpenKitBuilderTest, canOverrideTrustManagerForDynatrace)
 {
 	auto configuration = DynatraceOpenKitBuilder_t(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
-		.withTrustManager(testSSLTrustManager)
+		.withTrustManager(mockTrustManager)
 		.buildConfiguration();
 
-	ASSERT_EQ(configuration->getHTTPClientConfiguration()->getSSLTrustManager(), testSSLTrustManager);
+	ASSERT_EQ(configuration->getHTTPClientConfiguration()->getSSLTrustManager(), mockTrustManager);
 }
 
 TEST_F(OpenKitBuilderTest, cannotOverrideNullTrustManagerForDynatrace)
 {
 	auto configuration = DynatraceOpenKitBuilder_t(DEFAULT_ENDPOINT_URL, DEFAULT_APPLICATION_ID, DEFAULT_DEVICE_ID)
-		.withTrustManager(testSSLTrustManager) // first call, set a known & valid trust manager
+		.withTrustManager(mockTrustManager) // first call, set a known & valid trust manager
 		.withTrustManager(nullptr)
 		.buildConfiguration();
 
-	ASSERT_EQ(configuration->getHTTPClientConfiguration()->getSSLTrustManager(), testSSLTrustManager);
+	ASSERT_EQ(configuration->getHTTPClientConfiguration()->getSSLTrustManager(), mockTrustManager);
 }
 
 TEST_F(OpenKitBuilderTest, canSetApplicationVersionForAppMon)

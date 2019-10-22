@@ -14,16 +14,23 @@
 * limitations under the License.
 */
 
-#include "Types.h"
-#include "MockTypes.h"
-#include "../../api/MockTypes.h"
+#include "MockIActionCommon.h"
+#include "../../api/mock/MockIRootAction.h"
+#include "../../api/mock/MockIWebRequestTracer.h"
 
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
+#include "core/objects/LeafAction.h"
+
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
 
 #include <memory>
 
-using namespace test::types;
+using namespace test;
+
+using LeafAction_t = core::objects::LeafAction;
+using LeafAction_sp = std::shared_ptr<LeafAction_t>;
+using MockStrictIActionCommon_sp = std::shared_ptr<testing::StrictMock<MockIActionCommon>>;
+using MockStrictIRootAction_sp = std::shared_ptr<testing::StrictMock<MockIRootAction>>;
 
 class LeafActionTest : public testing::Test
 {
@@ -34,8 +41,8 @@ protected:
 
 	void SetUp()
 	{
-		mockActionImpl = std::make_shared<MockStrictIActionCommon_t>();
-		mockRootAction = std::make_shared<MockStrictIRootAction_t>();
+		mockActionImpl = MockIActionCommon::createStrict();
+		mockRootAction = MockIRootAction::createStrict();
 	}
 
 	void TearDown()
@@ -158,7 +165,7 @@ TEST_F(LeafActionTest, traceWebRequestDelegatesToCommonImpl)
 {
 	// with
 	const char* url = "https::localhost:9999/1";
-	auto tracer = std::make_shared<MockStrictIWebRequestTracer_t>();
+	auto tracer = MockIWebRequestTracer::createStrict();
 
 	// expect
 	EXPECT_CALL(*mockActionImpl, traceWebRequest(url)).Times(testing::Exactly(1));

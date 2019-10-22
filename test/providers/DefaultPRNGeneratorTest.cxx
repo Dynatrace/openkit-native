@@ -14,12 +14,13 @@
 * limitations under the License.
 */
 
-#include "Types.h"
+#include "providers/DefaultPRNGenerator.h"
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-using namespace test::types;
+
+using DefaultPrnGenerator_t = providers::DefaultPRNGenerator;
 
 class DefaultPRNGeneratorTest : public testing::Test
 {

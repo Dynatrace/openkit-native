@@ -14,8 +14,8 @@
 * limitations under the License.
 */
 
-#ifndef _TEST_CORE_CACHING_MOCK_MOCKBEACONCACHE_H
-#define _TEST_CORE_CACHING_MOCK_MOCKBEACONCACHE_H
+#ifndef _TEST_CORE_CACHING_MOCK_MOCKIBEACONCACHE_H
+#define _TEST_CORE_CACHING_MOCK_MOCKIBEACONCACHE_H
 
 #include "core/UTF8String.h"
 #include "core/caching/IBeaconCache.h"

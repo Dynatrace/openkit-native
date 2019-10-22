@@ -15,7 +15,7 @@
 */
 
 #include "mock/MockIBeaconCache.h"
-#include "../../api/MockILogger.h"
+#include "../../api/mock/MockILogger.h"
 
 #include "core/caching/SpaceEvictionStrategy.h"
 #include "core/configuration/BeaconConfiguration.h"

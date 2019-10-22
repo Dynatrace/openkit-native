@@ -23,6 +23,7 @@
 #include "OpenKit/IRootAction.h"
 #include "OpenKit/IWebRequestTracer.h"
 #include "core/objects/IActionCommon.h"
+#include "core/objects/IOpenKitObject.h"
 
 #include "gmock/gmock.h"
 
@@ -38,10 +39,20 @@ namespace test
 		MockIActionCommon()
 		{
 			ON_CALL(*this, getName())
-				.WillByDefault(testing::ReturnRefOfCopy(DefaultValues::UTF8_EMPTY_STRING));
+					.WillByDefault(testing::ReturnRefOfCopy(DefaultValues::UTF8_EMPTY_STRING));
 		}
 
-		virtual ~MockIActionCommon() {}
+		~MockIActionCommon() override = default;
+
+		static std::shared_ptr<testing::NiceMock<MockIActionCommon>> createNice()
+		{
+			return std::make_shared<testing::NiceMock<MockIActionCommon>>();
+		}
+
+		static std::shared_ptr<testing::StrictMock<MockIActionCommon>> createStrict()
+		{
+			return std::make_shared<testing::StrictMock<MockIActionCommon>>();
+		}
 
 		MOCK_METHOD2(enterAction,
 			std::shared_ptr<openkit::IAction>(
@@ -111,7 +122,7 @@ namespace test
 
 		MOCK_METHOD1(onChildClosed,
 			void(
-				types::IOpenKitObject_sp
+				std::shared_ptr<core::objects::IOpenKitObject>
 			)
 		);
 

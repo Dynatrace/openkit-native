@@ -14,30 +14,42 @@
 * limitations under the License.
 */
 
-#ifndef _TEST_PROVIDERS_MOCKSESSIONIDPROVIDER_H
-#define _TEST_PROVIDERS_MOCKSESSIONIDPROVIDER_H
+#ifndef _TEST_PROVIDERS_MOCK_MOCKIPRNGENERATOR_H
+#define _TEST_PROVIDERS_MOCK_MOCKIPRNGENERATOR_H
 
-#include "Types.h"
+#include "providers/IPRNGenerator.h"
 
-#include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
+#include <memory>
+
 namespace test {
-	class MockSessionIDProvider : public types::ISessionIdProvider_t
+	class MockIPRNGenerator
+		: public providers::IPRNGenerator
 	{
 	public:
 
 		///
 		/// Default constructor
 		///
-		MockSessionIDProvider()
+		MockIPRNGenerator()
 		{
 		}
 
-		virtual ~MockSessionIDProvider() {}
+		virtual ~MockIPRNGenerator() {}
 
-		MOCK_METHOD0(getNextSessionID, int32_t());
+		static std::shared_ptr<testing::NiceMock<MockIPRNGenerator>> createNice()
+		{
+			return std::make_shared<testing::NiceMock<MockIPRNGenerator>>();
+		}
 
+		static std::shared_ptr<testing::StrictMock<MockIPRNGenerator>> createStrict()
+		{
+			return std::make_shared<testing::StrictMock<MockIPRNGenerator>>();
+		}
+
+		MOCK_METHOD1(nextInt32, int32_t(int32_t));
+		MOCK_METHOD1(nextInt64, int64_t(int64_t));
 	};
 }
 

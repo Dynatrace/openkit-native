@@ -148,8 +148,7 @@ std::shared_ptr<openkit::IWebRequestTracer> Session::traceWebRequest(const char*
 	return NullWebRequestTracer::INSTANCE;
 }
 
-void Session::
-end()
+void Session::end()
 {
 	if (mLogger->isDebugEnabled())
 	{
@@ -169,7 +168,7 @@ end()
 		childObject->close();
 	}
 
-	mBeacon->endSession(shared_from_this());
+	mBeacon->endSession();
 
 	mBeaconSender->finishSession(shared_from_this());
 }
