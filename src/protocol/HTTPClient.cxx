@@ -44,7 +44,7 @@ using namespace base::util;
 HTTPClient::HTTPClient
 (
 	std::shared_ptr<openkit::ILogger> logger,
-	const std::shared_ptr<core::configuration::HTTPClientConfiguration> configuration
+	const std::shared_ptr<core::configuration::IHTTPClientConfiguration> configuration
 )
 	: mLogger(logger)
 	, mCurl(nullptr)

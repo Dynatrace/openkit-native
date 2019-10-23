@@ -15,21 +15,17 @@
 */
 
 #include "BeaconConfiguration.h"
+#include "ConfigurationDefaults.h"
 
 using namespace core::configuration;
-
-const int32_t BeaconConfiguration::DEFAULT_MULTIPLICITY = 1;
-const openkit::DataCollectionLevel BeaconConfiguration::DEFAULT_DATA_COLLECTION_LEVEL = openkit::DataCollectionLevel::USER_BEHAVIOR;
-const openkit::CrashReportingLevel BeaconConfiguration::DEFAULT_CRASH_REPORTING_LEVEL = openkit::CrashReportingLevel::OPT_IN_CRASHES;
 
 BeaconConfiguration::BeaconConfiguration()
 	: BeaconConfiguration(DEFAULT_MULTIPLICITY, DEFAULT_DATA_COLLECTION_LEVEL, DEFAULT_CRASH_REPORTING_LEVEL)
 {
-
 }
 
 BeaconConfiguration::BeaconConfiguration(int32_t mulitplicity, openkit::DataCollectionLevel dataLevel, openkit::CrashReportingLevel crashLevel)
-	: mMulitplicity(mulitplicity)
+	: mMultiplicity(mulitplicity)
 	, mDataCollectionLevel(dataLevel)
 	, mCrashReportingLevel(crashLevel)
 {
@@ -48,5 +44,5 @@ openkit::CrashReportingLevel BeaconConfiguration::getCrashReportingLevel() const
 
 int32_t BeaconConfiguration::getMultiplicity() const
 {
-	return mMulitplicity;
+	return mMultiplicity;
 }

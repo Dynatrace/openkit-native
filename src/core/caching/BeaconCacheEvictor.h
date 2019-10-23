@@ -22,7 +22,7 @@
 #include "IBeaconCache.h"
 #include "IBeaconCacheEvictor.h"
 #include "IBeaconCacheEvictionStrategy.h"
-#include "core/configuration/BeaconCacheConfiguration.h"
+#include "core/configuration/IBeaconCacheConfiguration.h"
 #include "providers/ITimingProvider.h"
 
 #include <cstdint>
@@ -58,7 +58,7 @@ namespace core
 			(
 				std::shared_ptr<openkit::ILogger> logger,
 				std::shared_ptr<IBeaconCache> beaconCache,
-				std::shared_ptr<configuration::BeaconCacheConfiguration> configuration,
+				std::shared_ptr<configuration::IBeaconCacheConfiguration> configuration,
 				std::shared_ptr<providers::ITimingProvider> timingProvider
 			);
 

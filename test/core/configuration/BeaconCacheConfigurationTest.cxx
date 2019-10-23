@@ -14,22 +14,14 @@
 * limitations under the License.
 */
 
-#include "Types.h"
+#include "core/configuration/BeaconCacheConfiguration.h"
 
 #include "gtest/gtest.h"
 
-using namespace test::types;
+using BeaconCacheConfiguration_t = core::configuration::BeaconCacheConfiguration;
 
 class BeaconCacheConfigurationTest : public testing::Test
 {
-protected:
-	void SetUp()
-	{
-	}
-
-	void TearDown()
-	{
-	}
 };
 
 TEST_F(BeaconCacheConfigurationTest, getMaxRecordAge)

@@ -26,7 +26,7 @@ namespace core
 {
 	namespace configuration
 	{
-		class BeaconConfiguration;
+		class IBeaconConfiguration;
 	}
 }
 
@@ -50,13 +50,13 @@ namespace core
 		/// Besides updating the beacon configuration this also sets the @ref beaconConfigurationSet to  @c true.
 		/// @param[in] beaconConfiguration the beacon configuration to update the session with
 		///
-		void updateBeaconConfiguration(std::shared_ptr<core::configuration::BeaconConfiguration> beaconConfiguration);
+		void updateBeaconConfiguration(std::shared_ptr<core::configuration::IBeaconConfiguration> beaconConfiguration);
 
 		///
 		/// Returns the beacon configuration
 		/// @returns the current beacon configuration
 		///
-		std::shared_ptr<core::configuration::BeaconConfiguration> getBeaconConfiguration() const;
+		std::shared_ptr<core::configuration::IBeaconConfiguration> getBeaconConfiguration() const;
 
 		///
 		/// Returns a flag if the beacon configuration of the session has been set at least once
@@ -130,7 +130,7 @@ namespace core
 		std::shared_ptr<core::objects::Session> mWrappedSession;
 
 		/// the beacon configuration used by the session
-		std::shared_ptr<configuration::BeaconConfiguration> mBeaconConfiguration;
+		std::shared_ptr<configuration::IBeaconConfiguration> mBeaconConfiguration;
 
 		/// atomic flag if the beacon configuration has been set
 		std::atomic<bool> mIsBeaconConfigurationSet;

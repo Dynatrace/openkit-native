@@ -25,7 +25,7 @@
 #include "AbstractBeaconSendingState.h"
 #include "BeaconSendingContext.h"
 #include "BeaconSendingResponseUtil.h"
-
+#include "core/configuration/BeaconConfiguration.h"
 #include "protocol/IStatusResponse.h"
 
 using namespace core::communication;

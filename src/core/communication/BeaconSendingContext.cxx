@@ -119,7 +119,7 @@ std::shared_ptr<providers::IHTTPClientProvider> BeaconSendingContext::getHTTPCli
 
 std::shared_ptr<protocol::IHTTPClient> BeaconSendingContext::getHTTPClient()
 {
-	std::shared_ptr<configuration::HTTPClientConfiguration> httpClientConfig = mConfiguration->getHTTPClientConfiguration();
+	auto httpClientConfig = mConfiguration->getHTTPClientConfiguration();
 	return mHTTPClientProvider->createClient(mLogger, httpClientConfig);
 }
 

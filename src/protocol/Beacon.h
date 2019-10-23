@@ -24,7 +24,8 @@
 #include "providers/IThreadIDProvider.h"
 #include "providers/IPRNGenerator.h"
 #include "core/configuration/Configuration.h"
-#include "core/configuration/HTTPClientConfiguration.h"
+#include "core/configuration/IBeaconConfiguration.h"
+#include "core/configuration/IHTTPClientConfiguration.h"
 #include "core/objects/IActionCommon.h"
 #include "core/objects/Session.h"
 #include "core/objects/WebRequestTracer.h"
@@ -278,14 +279,14 @@ namespace protocol
 		///
 		void setBeaconConfiguration
 		(
-			std::shared_ptr<core::configuration::BeaconConfiguration> beaconConfiguration
+			std::shared_ptr<core::configuration::IBeaconConfiguration> beaconConfiguration
 		) override;
 
 		///
 		/// Return the beacon configuration
 		/// @returns the beacon configuration
 		///
-		std::shared_ptr<core::configuration::BeaconConfiguration> getBeaconConfiguration() const override;
+		std::shared_ptr<core::configuration::IBeaconConfiguration> getBeaconConfiguration() const override;
 
 		///
 		/// Get the client IP address.
@@ -453,10 +454,10 @@ namespace protocol
 		std::shared_ptr<core::caching::IBeaconCache> mBeaconCache;
 
 		/// HTTP client configuration
-		std::shared_ptr<core::configuration::HTTPClientConfiguration> mHTTPClientConfiguration;
+		std::shared_ptr<core::configuration::IHTTPClientConfiguration> mHTTPClientConfiguration;
 
 		/// beacon configuration
-		std::shared_ptr<core::configuration::BeaconConfiguration> mBeaconConfiguration;
+		std::shared_ptr<core::configuration::IBeaconConfiguration> mBeaconConfiguration;
 
 		/// device id
 		int64_t mDeviceID;

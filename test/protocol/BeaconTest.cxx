@@ -19,6 +19,8 @@
 #include "../api/mock/MockILogger.h"
 #include "../api/mock/MockISslTrustManager.h"
 #include "../core/caching/mock/MockIBeaconCache.h"
+#include "../core/configuration/mock/MockIBeaconCacheConfiguration.h"
+#include "../core/configuration/mock/MockIBeaconConfiguration.h"
 #include "../core/objects/MockIActionCommon.h"
 #include "../core/objects/MockIOpenKitComposite.h"
 #include "../core/objects/MockSession.h"
@@ -34,9 +36,8 @@
 #include "OpenKit/DataCollectionLevel.h"
 #include "core/UTF8String.h"
 #include "core/caching/BeaconCache.h"
-#include "core/configuration/BeaconCacheConfiguration.h"
-#include "core/configuration/BeaconConfiguration.h"
 #include "core/configuration/Configuration.h"
+#include "core/configuration/ConfigurationDefaults.h"
 #include "core/configuration/Device.h"
 #include "core/configuration/OpenKitType.h"
 #include "core/objects/WebRequestTracer.h"
@@ -53,8 +54,6 @@ using Beacon_t = protocol::Beacon;
 using Beacon_sp = std::shared_ptr<Beacon_t>;
 using BeaconBuilder_sp = std::shared_ptr<TestBeaconBuilder>;
 using BeaconCache_t = core::caching::BeaconCache;
-using BeaconCacheConfiguration_t = core::configuration::BeaconCacheConfiguration;
-using BeaconConfiguration_t = core::configuration::BeaconConfiguration;
 using Configuration_t = core::configuration::Configuration;
 using Configuration_sp = std::shared_ptr<Configuration_t>;
 using CrashReportingLevel_t = openkit::CrashReportingLevel;
@@ -86,16 +85,6 @@ constexpr int64_t DEVICE_ID = 456;
 constexpr int32_t THREAD_ID = 1234567;
 constexpr int32_t SESSION_ID = 73;
 constexpr char TRACER_URL[] = "https://localhost";
-
-MATCHER_P(EqualTo, string, "")
-{
-	if (arg.equals(string))
-	{
-		return true;
-	}
-
-	return false;
-}
 
 class BeaconTest : public testing::Test
 {
@@ -134,7 +123,10 @@ protected:
 
 	BeaconBuilder_sp createBeacon()
 	{
-		return createBeacon(BeaconConfiguration_t::DEFAULT_DATA_COLLECTION_LEVEL, BeaconConfiguration_t::DEFAULT_CRASH_REPORTING_LEVEL);
+		return createBeacon(
+			core::configuration::DEFAULT_DATA_COLLECTION_LEVEL,
+			core::configuration::DEFAULT_CRASH_REPORTING_LEVEL
+		);
 	}
 
 	BeaconBuilder_sp createBeacon(DataCollectionLevel_t dl, CrashReportingLevel_t cl)
@@ -145,8 +137,11 @@ protected:
 	BeaconBuilder_sp createBeacon(DataCollectionLevel_t dl, CrashReportingLevel_t cl, int64_t deviceID, const Utf8String_t& appID)
 	{
 		auto device = std::make_shared<Device_t>(Utf8String_t(""), Utf8String_t(""), Utf8String_t(""));
-		auto beaconConfiguration = std::make_shared<BeaconConfiguration_t>(BeaconConfiguration_t::DEFAULT_MULTIPLICITY, dl, cl);
-		auto beaconCacheConfiguration = std::make_shared<BeaconCacheConfiguration_t>(-1, -1, -1);
+		auto beaconConfiguration = MockIBeaconConfiguration::createNice();
+		ON_CALL(*beaconConfiguration, getCrashReportingLevel())
+			.WillByDefault(testing::Return(cl));
+		ON_CALL(*beaconConfiguration, getDataCollectionLevel())
+			.WillByDefault(testing::Return(dl));
 
 		configuration = std::make_shared<Configuration_t>(
 			device,
@@ -159,7 +154,7 @@ protected:
 			"",
 			mockSessionIDProvider,
 			MockISslTrustManager::createNice(),
-			beaconCacheConfiguration,
+			MockIBeaconCacheConfiguration::createNice(),
 			beaconConfiguration
 		);
 		configuration->enableCapture();

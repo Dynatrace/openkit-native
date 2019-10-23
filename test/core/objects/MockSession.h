@@ -74,11 +74,11 @@ namespace test
 
 		MOCK_METHOD1(setBeaconConfiguration,
 			void(
-				types::BeaconConfiguration_sp
+				std::shared_ptr<core::configuration::IBeaconConfiguration>
 			)
 		);
 
-		MOCK_CONST_METHOD0(getBeaconConfiguration, types::BeaconConfiguration_sp());
+		MOCK_CONST_METHOD0(getBeaconConfiguration, std::shared_ptr<core::configuration::IBeaconConfiguration>());
 	};
 }
 

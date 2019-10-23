@@ -16,16 +16,18 @@
 
 #include "MockIOpenKitObject.h"
 #include "../MockBeaconSender.h"
+#include "../configuration/mock/MockIBeaconCacheConfiguration.h"
+#include "../configuration/mock/MockIBeaconConfiguration.h"
 #include "../../api/mock/MockILogger.h"
+#include "../../api/mock/MockISslTrustManager.h"
 #include "../../protocol/mock/MockIBeacon.h"
 #include "../../protocol/mock/MockIHTTPClient.h"
 #include "../../protocol/mock/MockIStatusResponse.h"
 #include "../../providers/mock/MockIHTTPClientProvider.h"
+#include "../../providers/mock/MockISessionIDProvider.h"
+#include "../../providers/mock/MockITimingProvider.h"
 
-#include "OpenKit/ISSLTrustManager.h"
 #include "core/UTF8String.h"
-#include "core/configuration/BeaconConfiguration.h"
-#include "core/configuration/BeaconCacheConfiguration.h"
 #include "core/configuration/Configuration.h"
 #include "core/configuration/Device.h"
 #include "core/configuration/OpenKitType.h"
@@ -35,11 +37,6 @@
 #include "core/objects/RootAction.h"
 #include "core/objects/Session.h"
 #include "core/objects/WebRequestTracer.h"
-#include "protocol/ssl/SSLStrictTrustManager.h"
-#include "providers/DefaultTimingProvider.h"
-#include "providers/DefaultSessionIDProvider.h"
-#include "providers/ISessionIDProvider.h"
-#include "providers/ITimingProvider.h"
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
@@ -48,22 +45,11 @@
 
 using namespace test;
 
-using BeaconCacheConfiguration_t = core::configuration::BeaconCacheConfiguration;
-using BeaconCacheConfiguration_sp = std::shared_ptr<BeaconCacheConfiguration_t>;
-using BeaconConfiguration_t = core::configuration::BeaconConfiguration;
-using BeaconConfiguration_sp = std::shared_ptr<BeaconConfiguration_t>;
 using Configuration_t = core::configuration::Configuration;
 using Configuration_sp = std::shared_ptr<Configuration_t>;
 using Device_t = core::configuration::Device;
-using DefaultTimingProvider_t = providers::DefaultTimingProvider;
-using DefaultSessionIdProvider_t = providers::DefaultSessionIDProvider;
-using HttpClientConfiguration_t = core::configuration::HTTPClientConfiguration;
 using IOpenKitObject_t = core::objects::IOpenKitObject;
-using ISessionIdProvider_sp = std::shared_ptr<providers::ISessionIDProvider>;
-using ISslTrustManager_sp = std::shared_ptr<openkit::ISSLTrustManager>;
-using ITimingProvider_sp = std::shared_ptr<providers::ITimingProvider>;
-using MockNiceHttpClientProvider_t = testing::NiceMock<MockIHTTPClientProvider>;
-using MockNiceHttpClientProvider_sp = std::shared_ptr<MockNiceHttpClientProvider_t>;
+using MockNiceIHTTPClientProvider_sp = std::shared_ptr<testing::NiceMock<MockIHTTPClientProvider>>;
 using MockNiceIBeacon_sp = std::shared_ptr<testing::NiceMock<MockIBeacon>>;
 using MockNiceILogger_sp = std::shared_ptr<testing::NiceMock<MockILogger>>;
 using MockNiceIHTTPClient_sp = std::shared_ptr<testing::NiceMock<MockIHTTPClient>>;
@@ -76,7 +62,6 @@ using OpenKitType_t = core::configuration::OpenKitType;
 using RootAction_t = core::objects::RootAction;
 using Session_t = core::objects::Session;
 using Session_sp = std::shared_ptr<Session_t>;
-using SslStrictTrustManager_t = protocol::SSLStrictTrustManager;
 using Utf8String_t = core::UTF8String;
 using WebRequestTracer_t = core::objects::WebRequestTracer;
 
@@ -87,36 +72,22 @@ class SessionTest : public testing::Test
 {
 protected:
 	MockNiceILogger_sp mockLogger;
-	ITimingProvider_sp timingProvider;
-	ISessionIdProvider_sp sessionIDProvider;
 
-	ISslTrustManager_sp trustManager;
-
-	BeaconConfiguration_sp beaconConfiguration;
-	BeaconCacheConfiguration_sp beaconCacheConfiguration;
 	Configuration_sp configuration;
 
 	MockStrictBeaconSender_sp mockBeaconSender;
 	MockStrictIBeacon_sp mockBeaconStrict;
 	MockNiceIBeacon_sp mockBeaconNice;
-	MockNiceHttpClientProvider_sp mockHTTPClientProvider;
+	MockNiceIHTTPClientProvider_sp mockHTTPClientProvider;
 
 	void SetUp()
 	{
 		mockLogger = MockILogger::createNice();
 
-		timingProvider = std::make_shared<DefaultTimingProvider_t>();
-		sessionIDProvider = std::make_shared<DefaultSessionIdProvider_t>();
-
-		auto httpClientConfiguration = std::make_shared<HttpClientConfiguration_t>(Utf8String_t(""), 0, Utf8String_t(""));
-		mockHTTPClientProvider = std::make_shared<MockNiceHttpClientProvider_t>();
-
-		trustManager = std::make_shared<SslStrictTrustManager_t>();
+		mockHTTPClientProvider = MockIHTTPClientProvider::createNice();
 
 		auto device = std::make_shared<Device_t>(Utf8String_t(""), Utf8String_t(""), Utf8String_t(""));
 
-		beaconCacheConfiguration = std::make_shared<BeaconCacheConfiguration_t>(-1, -1, -1);
-		beaconConfiguration = std::make_shared<BeaconConfiguration_t>();
 		configuration = std::make_shared<Configuration_t>
 		(
 			device,
@@ -127,20 +98,21 @@ protected:
 			0,
 			"0",
 			"",
-			sessionIDProvider,
-			trustManager,
-			beaconCacheConfiguration,
-			beaconConfiguration
+			MockISessionIDProvider::createNice(),
+			MockISslTrustManager::createNice(),
+			MockIBeaconCacheConfiguration::createNice(),
+			MockIBeaconConfiguration::createNice()
 		);
 		configuration->enableCapture();
 
-		mockBeaconSender = std::make_shared<MockStrictBeaconSender_t>(mockLogger, configuration, mockHTTPClientProvider, timingProvider);
+		mockBeaconSender = std::make_shared<MockStrictBeaconSender_t>(
+			mockLogger,
+			configuration,
+			mockHTTPClientProvider,
+			MockITimingProvider::createNice()
+		);
 		mockBeaconStrict = MockIBeacon::createStrict();
 		mockBeaconNice = MockIBeacon::createNice();
-	}
-
-	void TearDown()
-	{
 	}
 
 	Session_sp createSessionWithNiceBeacon()
@@ -649,15 +621,18 @@ TEST_F(SessionTest, isEmptyForwardsCallToBeacon)
 
 TEST_F(SessionTest, setBeaconConfigurationForwardsCallToBeacon)
 {
+	// with
+	auto mockBeaconConfig = MockIBeaconConfiguration::createStrict();
+
 	// expect
-	EXPECT_CALL(*mockBeaconStrict, setBeaconConfiguration(testing::Eq(beaconConfiguration)))
+	EXPECT_CALL(*mockBeaconStrict, setBeaconConfiguration(testing::Eq(mockBeaconConfig)))
 		.Times(1);
 
 	// given
 	auto target = createSessionWithStrictBeacon();
 
 	// when
-	target->setBeaconConfiguration(beaconConfiguration);
+	target->setBeaconConfiguration(mockBeaconConfig);
 }
 
 TEST_F(SessionTest, getBeaconConfigurationForwardsCallToBeacon)

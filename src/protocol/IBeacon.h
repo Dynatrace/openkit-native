@@ -19,7 +19,8 @@
 
 #include "IStatusResponse.h"
 #include "core/UTF8String.h"
-#include "core/configuration/BeaconConfiguration.h"
+#include "core/configuration/IBeaconConfiguration.h"
+#include "core/objects/LeafAction.h"
 #include "core/objects/RootAction.h"
 #include "core/objects/Session.h"
 
@@ -216,13 +217,13 @@ namespace protocol
 		/// Sets the beacon configuration on the Beacon
 		/// @param[in] beaconConfiguration the beacon configuration to apply to this Beacon
 		///
-		virtual void setBeaconConfiguration(std::shared_ptr<core::configuration::BeaconConfiguration> beaconConfiguration) = 0;
+		virtual void setBeaconConfiguration(std::shared_ptr<core::configuration::IBeaconConfiguration> beaconConfiguration) = 0;
 
 		///
 		/// Return the beacon configuration
 		/// @returns the beacon configuration
 		///
-		virtual std::shared_ptr<core::configuration::BeaconConfiguration> getBeaconConfiguration() const = 0;
+		virtual std::shared_ptr<core::configuration::IBeaconConfiguration> getBeaconConfiguration() const = 0;
 
 		///
 		/// Get the client IP address.

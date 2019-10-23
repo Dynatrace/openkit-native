@@ -39,8 +39,8 @@ Configuration::Configuration
 	const core::UTF8String& endpointURL,
 	std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider,
 	std::shared_ptr<openkit::ISSLTrustManager> sslTrustManager,
-	std::shared_ptr<BeaconCacheConfiguration> beaconCacheConfiguration,
-	std::shared_ptr<BeaconConfiguration> beaconConfiguration
+	std::shared_ptr<IBeaconCacheConfiguration> beaconCacheConfiguration,
+	std::shared_ptr<IBeaconConfiguration> beaconConfiguration
 )
 	: mHTTPClientConfiguration
 	(
@@ -72,7 +72,7 @@ Configuration::Configuration
 {
 }
 
-std::shared_ptr<HTTPClientConfiguration> Configuration::getHTTPClientConfiguration() const
+std::shared_ptr<IHTTPClientConfiguration> Configuration::getHTTPClientConfiguration() const
 {
 	return mHTTPClientConfiguration;
 }
@@ -233,12 +233,12 @@ std::shared_ptr<Device> Configuration::getDevice() const
 	return mDevice;
 }
 
-std::shared_ptr<BeaconCacheConfiguration> Configuration::getBeaconCacheConfiguration() const
+std::shared_ptr<IBeaconCacheConfiguration> Configuration::getBeaconCacheConfiguration() const
 {
 	return mBeaconCacheConfiguration;
 }
 
-std::shared_ptr<BeaconConfiguration> Configuration::getBeaconConfiguration() const
+std::shared_ptr<IBeaconConfiguration> Configuration::getBeaconConfiguration() const
 {
 	return mBeaconConfiguration;
 }

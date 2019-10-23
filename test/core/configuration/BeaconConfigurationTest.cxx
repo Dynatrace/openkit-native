@@ -14,13 +14,17 @@
 * limitations under the License.
 */
 
-#include "Types.h"
-#include "../../api/Types.h"
+#include "OpenKit/CrashReportingLevel.h"
+#include "OpenKit/DataCollectionLevel.h"
+#include "core/configuration/BeaconConfiguration.h"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-using namespace test::types;
+
+using BeaconConfiguration_t = core::configuration::BeaconConfiguration;
+using CrashReportingLevel_t = openkit::CrashReportingLevel;
+using DataCollectionLevel_t = openkit::DataCollectionLevel;
 
 class BeaconConfigurationTest : public testing::Test
 {

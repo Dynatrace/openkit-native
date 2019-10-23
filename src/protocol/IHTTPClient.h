@@ -17,11 +17,10 @@
 #ifndef _PROTOCOL_IHTTPCLIENT_H
 #define _PROTOCOL_IHTTPCLIENT_H
 
-#include <memory>
-
-#include "protocol/IStatusResponse.h"
-#include "core/configuration/HTTPClientConfiguration.h"
 #include "core/UTF8String.h"
+#include "protocol/IStatusResponse.h"
+
+#include <memory>
 
 namespace protocol
 {

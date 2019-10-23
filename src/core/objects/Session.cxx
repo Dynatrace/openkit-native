@@ -215,12 +215,12 @@ const std::string Session::toString() const
 	return ss.str();
 }
 
-void Session::setBeaconConfiguration(std::shared_ptr<core::configuration::BeaconConfiguration> beaconConfiguration)
+void Session::setBeaconConfiguration(std::shared_ptr<core::configuration::IBeaconConfiguration> beaconConfiguration)
 {
 	mBeacon->setBeaconConfiguration(beaconConfiguration);
 }
 
-std::shared_ptr<core::configuration::BeaconConfiguration> Session::getBeaconConfiguration() const
+std::shared_ptr<core::configuration::IBeaconConfiguration> Session::getBeaconConfiguration() const
 {
 	return mBeacon->getBeaconConfiguration();
 }

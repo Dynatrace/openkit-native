@@ -20,7 +20,7 @@
 #include "OpenKit/ILogger.h"
 #include "IBeaconCache.h"
 #include "IBeaconCacheEvictionStrategy.h"
-#include "core/configuration/BeaconCacheConfiguration.h"
+#include "core/configuration/IBeaconCacheConfiguration.h"
 
 #include <memory>
 #include <functional>
@@ -49,7 +49,7 @@ namespace core
 			(
 				std::shared_ptr<openkit::ILogger> logger,
 				std::shared_ptr<IBeaconCache> beaconCache,
-				std::shared_ptr<configuration::BeaconCacheConfiguration> configuration,
+				std::shared_ptr<configuration::IBeaconCacheConfiguration> configuration,
 				std::function<bool()> isAlive
 			);
 
@@ -107,7 +107,7 @@ namespace core
 			std::shared_ptr<IBeaconCache> mBeaconCache;
 
 			/// The configuration providing the boundary settings for this strategy.
-			std::shared_ptr<configuration::BeaconCacheConfiguration> mConfiguration;
+			std::shared_ptr<configuration::IBeaconCacheConfiguration> mConfiguration;
 
 			/// Function to check whether the eviction thread is running or not
 			std::function<bool()> mIsAliveFunction;

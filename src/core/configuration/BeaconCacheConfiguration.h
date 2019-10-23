@@ -17,8 +17,9 @@
 #ifndef _CORE_CONFIGURATION_BEACONCACHECONFIGURATION_H
 #define _CORE_CONFIGURATION_BEACONCACHECONFIGURATION_H
 
+#include "IBeaconCacheConfiguration.h"
+
 #include <cstdint>
-#include <chrono>
 
 namespace core
 {
@@ -28,6 +29,7 @@ namespace core
 		/// Configuration for beacon cache.
 		///
 		class BeaconCacheConfiguration
+			: public IBeaconCacheConfiguration
 		{
 		public:
 			///
@@ -41,18 +43,18 @@ namespace core
 			///
 			/// Get maximum record age.
 			///
-			int64_t getMaxRecordAge() const;
+			int64_t getMaxRecordAge() const override;
 
 			///
 			/// Get lower memory limit for the cache.
 			///
-			int64_t getCacheSizeLowerBound() const;
+			int64_t getCacheSizeLowerBound() const override;
 
 
 			///
 			/// Get upper memory limit for the cache.
 			///
-			int64_t getCacheSizeUpperBound() const;
+			int64_t getCacheSizeUpperBound() const override;
 
 		private:
 			/// maximum record age
@@ -63,17 +65,6 @@ namespace core
 
 			/// upper memory limit for the cache
 			int64_t mCacheSizeUpperBound;
-
-		public:
-
-			//default value for maximum record age
-			static const std::chrono::milliseconds DEFAULT_MAX_RECORD_AGE_IN_MILLIS;
-
-			//default value for upper memory boundary
-			static const int64_t DEFAULT_UPPER_MEMORY_BOUNDARY_IN_BYTES;
-
-			//default value for lower memory boundary
-			static const int64_t DEFAULT_LOWER_MEMORY_BOUNDARY_IN_BYTES;
 		};
 	}
 }

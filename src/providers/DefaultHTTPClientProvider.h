@@ -17,9 +17,8 @@
 #ifndef _PROVIDERS_DEFAULTHTTPCLIENTPROVIDER_H
 #define _PROVIDERS_DEFAULTHTTPCLIENTPROVIDER_H
 
+#include "core/configuration/IHTTPClientConfiguration.h"
 #include "providers/IHTTPClientProvider.h"
-
-#include "core/configuration/HTTPClientConfiguration.h"
 
 namespace providers
 {
@@ -29,7 +28,10 @@ namespace providers
 	class DefaultHTTPClientProvider : public IHTTPClientProvider
 	{
 	public:
-		virtual std::shared_ptr<protocol::IHTTPClient> createClient(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<core::configuration::HTTPClientConfiguration> configuration) override;
+		virtual std::shared_ptr<protocol::IHTTPClient> createClient(
+			std::shared_ptr<openkit::ILogger> logger,
+			std::shared_ptr<core::configuration::IHTTPClientConfiguration> configuration
+		) override;
 
 		virtual void globalInit() override;
 

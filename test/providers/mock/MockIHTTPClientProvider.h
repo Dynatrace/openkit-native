@@ -18,7 +18,7 @@
 #define _TEST_PROVIDERS_MOCK_MOCKIHTTPCLIENTPROVIDER_H
 
 #include "OpenKit/ILogger.h"
-#include "core/configuration/HTTPClientConfiguration.h"
+#include "core/configuration/IHTTPClientConfiguration.h"
 #include "providers/IHTTPClientProvider.h"
 #include "protocol/IHTTPClient.h"
 
@@ -60,7 +60,7 @@ namespace test {
 		MOCK_METHOD2(createClient,
 			std::shared_ptr<protocol::IHTTPClient>(
 				std::shared_ptr<openkit::ILogger>,
-				std::shared_ptr<core::configuration::HTTPClientConfiguration>
+				std::shared_ptr<core::configuration::IHTTPClientConfiguration>
 			)
 		);
 	};

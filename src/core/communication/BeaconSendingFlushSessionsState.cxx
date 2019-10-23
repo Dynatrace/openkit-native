@@ -15,16 +15,15 @@
 */
 
 #include "BeaconSendingFlushSessionsState.h"
-
-#include <chrono>
-#include <algorithm>
-#include <memory>
-
-#include "BeaconSendingFlushSessionsState.h"
 #include "AbstractBeaconSendingState.h"
 #include "BeaconSendingContext.h"
 #include "BeaconSendingTerminalState.h"
 #include "BeaconSendingResponseUtil.h"
+#include "core/configuration/BeaconConfiguration.h"
+
+#include <chrono>
+#include <algorithm>
+#include <memory>
 
 using namespace core::communication;
 

@@ -18,6 +18,8 @@
 #include "../../api/mock/MockILogger.h"
 #include "../../api/mock/MockISslTrustManager.h"
 #include "../../core/communication/MockAbstractBeaconSendingState.h"
+#include "../../core/configuration/mock/MockIBeaconCacheConfiguration.h"
+#include "../../core/configuration/mock/MockIBeaconConfiguration.h"
 #include "../../core/objects/MockSession.h"
 #include "../../protocol/mock/MockIHTTPClient.h"
 #include "../../protocol/mock/MockIStatusResponse.h"
@@ -26,9 +28,6 @@
 #include "../../providers/mock/MockITimingProvider.h"
 
 #include "core/UTF8String.h"
-#include "core/communication/BeaconSendingContext.h"
-#include "core/configuration/BeaconConfiguration.h"
-#include "core/configuration/BeaconCacheConfiguration.h"
 #include "core/configuration/Configuration.h"
 #include "core/configuration/Device.h"
 #include "core/configuration/OpenKitType.h"
@@ -38,8 +37,6 @@
 
 using namespace test;
 
-using BeaconConfiguration_t = core::configuration::BeaconConfiguration;
-using BeaconCacheConfiguration_t = core::configuration::BeaconCacheConfiguration;
 using BeaconSendingContext_t = core::communication::BeaconSendingContext;
 using Configuration_t = core::configuration::Configuration;
 using Configuration_sp = std::shared_ptr<Configuration_t>;
@@ -68,8 +65,6 @@ protected:
 	void SetUp()
 	{
 		mockLogger = MockILogger::createNice();
-		auto beaconCacheConfig = std::make_shared<BeaconCacheConfiguration_t>(-1, -1, -1);
-		auto beaconConfig = std::make_shared<BeaconConfiguration_t>();
 		mConfiguration = std::make_shared<Configuration_t>
 		(
 			std::make_shared<Device_t>("", "", ""),
@@ -82,8 +77,8 @@ protected:
 			Utf8String_t(""),
 			MockISessionIDProvider::createNice(),
 			MockISslTrustManager::createNice(),
-			beaconCacheConfig,
-			beaconConfig
+			MockIBeaconCacheConfiguration::createNice(),
+			MockIBeaconConfiguration::createNice()
 		);
 		mMockHttpClientProvider = MockIHTTPClientProvider::createNice();
 		mMockTimingProvider = MockITimingProvider::createNice();
@@ -479,10 +474,10 @@ TEST_F(BeaconSendingContextTest, finishingASessionMovesSessionToFinishedSessions
 	target->startSession(mockSessionTwo);
 
 	auto sessionWrapper1 = target->findSessionWrapper(mockSessionOne);
-	sessionWrapper1->updateBeaconConfiguration(std::make_shared<BeaconConfiguration_t>());
+	sessionWrapper1->updateBeaconConfiguration(MockIBeaconConfiguration::createNice());
 
 	auto sessionWrapper2 = target->findSessionWrapper(mockSessionTwo);
-	sessionWrapper2->updateBeaconConfiguration(std::make_shared<BeaconConfiguration_t>());
+	sessionWrapper2->updateBeaconConfiguration(MockIBeaconConfiguration::createNice());
 
 	// when finishing the first session
 	target->finishSession(mockSessionOne);
@@ -588,14 +583,14 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseWhenCapturingIsDisabled)
 		.Times(testing::Exactly(1));
 
 	target->startSession(mockSessionOne);
-	target->findSessionWrapper(mockSessionOne)->updateBeaconConfiguration(std::make_shared<BeaconConfiguration_t>());
+	target->findSessionWrapper(mockSessionOne)->updateBeaconConfiguration(MockIBeaconConfiguration::createNice());
 	target->finishSession(mockSessionOne);
 	target->startSession(mockSessionTwo);
-	target->findSessionWrapper(mockSessionTwo)->updateBeaconConfiguration(std::make_shared<BeaconConfiguration_t>());
+	target->findSessionWrapper(mockSessionTwo)->updateBeaconConfiguration(MockIBeaconConfiguration::createNice());
 	target->startSession(mockSessionThree);
-	target->findSessionWrapper(mockSessionThree)->updateBeaconConfiguration(std::make_shared<BeaconConfiguration_t>());
+	target->findSessionWrapper(mockSessionThree)->updateBeaconConfiguration(MockIBeaconConfiguration::createNice());
 	target->startSession(mockSessionFour);
-	target->findSessionWrapper(mockSessionFour)->updateBeaconConfiguration(std::make_shared<BeaconConfiguration_t>());
+	target->findSessionWrapper(mockSessionFour)->updateBeaconConfiguration(MockIBeaconConfiguration::createNice());
 	target->finishSession(mockSessionFour);
 
 	auto mockStatusResponse = MockIStatusResponse::createNice();
@@ -706,7 +701,7 @@ TEST_F(BeaconSendingContextTest, afterASessionHasBeenConfiguredItsOpenAndConfigu
 	ASSERT_EQ(target->getAllFinishedAndConfiguredSessions().size(), 0);
 
 	// when
-	target->findSessionWrapper(mockSessionOne)->updateBeaconConfiguration(std::make_shared<BeaconConfiguration_t>());
+	target->findSessionWrapper(mockSessionOne)->updateBeaconConfiguration(MockIBeaconConfiguration::createNice());
 
 	// then
 	ASSERT_EQ(target->getAllNewSessions().size(), 1);
@@ -714,7 +709,7 @@ TEST_F(BeaconSendingContextTest, afterASessionHasBeenConfiguredItsOpenAndConfigu
 	ASSERT_EQ(target->getAllFinishedAndConfiguredSessions().size(), 0);
 
 	// when
-	target->findSessionWrapper(mockSessionTwo)->updateBeaconConfiguration(std::make_shared<BeaconConfiguration_t>());
+	target->findSessionWrapper(mockSessionTwo)->updateBeaconConfiguration(MockIBeaconConfiguration::createNice());
 
 	// then
 	ASSERT_EQ(target->getAllNewSessions().size(), 0);
@@ -740,7 +735,7 @@ TEST_F(BeaconSendingContextTest, afterAFinishedSessionHasBeenConfiguredItsFinish
 	ASSERT_EQ(target->getAllFinishedAndConfiguredSessions().size(), 0);
 
 	// when
-	target->findSessionWrapper(mockSessionOne)->updateBeaconConfiguration(std::make_shared<BeaconConfiguration_t>());
+	target->findSessionWrapper(mockSessionOne)->updateBeaconConfiguration(MockIBeaconConfiguration::createNice());
 	target->finishSession(mockSessionOne);
 
 	// then
@@ -749,7 +744,7 @@ TEST_F(BeaconSendingContextTest, afterAFinishedSessionHasBeenConfiguredItsFinish
 	ASSERT_EQ(target->getAllFinishedAndConfiguredSessions().size(), 1);
 
 	// when
-	target->findSessionWrapper(mockSessionTwo)->updateBeaconConfiguration(std::make_shared<BeaconConfiguration_t>());
+	target->findSessionWrapper(mockSessionTwo)->updateBeaconConfiguration(MockIBeaconConfiguration::createNice());
 	target->finishSession(mockSessionTwo);
 
 	// then

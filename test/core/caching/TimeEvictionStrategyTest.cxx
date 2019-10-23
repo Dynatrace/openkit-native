@@ -15,6 +15,7 @@
 */
 
 #include "mock/MockIBeaconCache.h"
+#include "../configuration/mock/MockIBeaconCacheConfiguration.h"
 #include "../../api/mock/MockILogger.h"
 #include "../../providers/mock/MockITimingProvider.h"
 
@@ -28,8 +29,8 @@
 
 using namespace test;
 
-using BeaconCacheConfiguration_t = core::configuration::BeaconCacheConfiguration;
 using MockNiceIBeaconCache_sp = std::shared_ptr<testing::NiceMock<MockIBeaconCache>>;
+using MockNiceIBeaconCacheConfiguration_sp = std::shared_ptr<testing::NiceMock<MockIBeaconCacheConfiguration>>;
 using MockNiceILogger_sp = std::shared_ptr<testing::NiceMock<MockILogger>>;
 using MockNiceITimingProvider_sp = std::shared_ptr<testing::NiceMock<MockITimingProvider>>;
 using MockStrictIBeaconCache_sp = std::shared_ptr<testing::StrictMock<MockIBeaconCache>>;
@@ -73,18 +74,32 @@ protected:
 		mockTimingProviderStrict = MockITimingProvider::createStrict();
 	}
 
+	MockNiceIBeaconCacheConfiguration_sp createBeaconCacheConfig(int32_t maxAge, int32_t lowerBound, int32_t upperBound)
+	{
+		auto config = MockIBeaconCacheConfiguration::createNice();
+		ON_CALL(*config, getMaxRecordAge())
+			.WillByDefault(testing::Return(maxAge));
+		ON_CALL(*config, getCacheSizeLowerBound())
+			.WillByDefault(testing::Return(lowerBound));
+		ON_CALL(*config, getCacheSizeUpperBound())
+			.WillByDefault(testing::Return(upperBound));
+
+		return config;
+	}
+
 public:
 
 	bool mockedIsAliveFunctionAlwaysTrue()
 	{
 		return true;
 	}
+
 };
 
 TEST_F(TimeEvictionStrategyTest, theInitialLastRunTimestampIsMinusOne)
 {
 	// given
-	auto configuration = std::make_shared<BeaconCacheConfiguration_t>(-1L, 1000L, 2000L);
+	auto configuration = createBeaconCacheConfig(-1L, 1000L, 2000L);
 	TimeEvictionStrategy_t target(
 		mockLoggerNice,
 		mockBeaconCacheNice,
@@ -100,7 +115,7 @@ TEST_F(TimeEvictionStrategyTest, theInitialLastRunTimestampIsMinusOne)
 TEST_F(TimeEvictionStrategyTest, theStrategyIsDisabledIfBeaconMaxAgeIsSetToLessThanZero)
 {
 	// given
-	auto configuration = std::make_shared<BeaconCacheConfiguration_t>(-1L, 1000L, 2000L);
+	auto configuration = createBeaconCacheConfig(-1L, 1000L, 2000L);
 	TimeEvictionStrategy_t target(
 		mockLoggerStrict,
 		mockBeaconCacheStrict,
@@ -116,7 +131,7 @@ TEST_F(TimeEvictionStrategyTest, theStrategyIsDisabledIfBeaconMaxAgeIsSetToLessT
 TEST_F(TimeEvictionStrategyTest, theStrategyIsDisabledIfBeaconMaxAgeIsSetToZero)
 {
 	// given (use StrictMocks to verify that no mock interactions were made)
-	auto configuration = std::make_shared<BeaconCacheConfiguration_t>(0L, 1000L, 2000L);
+	auto configuration = createBeaconCacheConfig(0L, 1000L, 2000L);
 	TimeEvictionStrategy_t target(
 		mockLoggerStrict,
 		mockBeaconCacheStrict,
@@ -132,7 +147,7 @@ TEST_F(TimeEvictionStrategyTest, theStrategyIsDisabledIfBeaconMaxAgeIsSetToZero)
 TEST_F(TimeEvictionStrategyTest, theStrategyIsNotDisabledIFMaxRecordAgeIsGreaterThanZero)
 {
 	// given
-	auto configuration = std::make_shared<BeaconCacheConfiguration_t>(1L, 1000L, 2000L);
+	auto configuration = createBeaconCacheConfig(1L, 1000L, 2000L);
 	TimeEvictionStrategy_t target(
 		mockLoggerStrict,
 		mockBeaconCacheStrict,
@@ -148,7 +163,7 @@ TEST_F(TimeEvictionStrategyTest, theStrategyIsNotDisabledIFMaxRecordAgeIsGreater
 TEST_F(TimeEvictionStrategyTest, shouldRunGivesFalseIfLastRunIsLessThanMaxAgeMillisecondsAgo)
 {
 	// given
-	auto configuration = std::make_shared<BeaconCacheConfiguration_t>(1000L, 1000L, 2000L);
+	auto configuration = createBeaconCacheConfig(1000L, 1000L, 2000L);
 	TimeEvictionStrategy_t target(
 		mockLoggerNice,
 		mockBeaconCacheNice,
@@ -168,7 +183,7 @@ TEST_F(TimeEvictionStrategyTest, shouldRunGivesFalseIfLastRunIsLessThanMaxAgeMil
 TEST_F(TimeEvictionStrategyTest, shouldRunGivesTrueIfLastRunIsExactlyMaxAgeMillisecondsAgo)
 {
 	// given
-	auto configuration = std::make_shared<BeaconCacheConfiguration_t>(1000L, 1000L, 2000L);
+	auto configuration = createBeaconCacheConfig(1000L, 1000L, 2000L);
 	TimeEvictionStrategy_t target(
 		mockLoggerNice,
 		mockBeaconCacheNice,
@@ -188,7 +203,7 @@ TEST_F(TimeEvictionStrategyTest, shouldRunGivesTrueIfLastRunIsExactlyMaxAgeMilli
 TEST_F(TimeEvictionStrategyTest, shouldRunGivesTrueIfLastRunIsMoreThanMaxAgeMillisecondsAgo)
 {
 	// given
-	auto configuration = std::make_shared<BeaconCacheConfiguration_t>(1000L, 1000L, 2000L);
+	auto configuration = createBeaconCacheConfig(1000L, 1000L, 2000L);
 	TimeEvictionStrategy_t target(
 		mockLoggerNice,
 		mockBeaconCacheNice,
@@ -214,7 +229,7 @@ TEST_F(TimeEvictionStrategyTest, executeEvictionLogsAMessageOnceAndReturnsIfStra
 		.Times(1);
 
 	// given
-	auto configuration = std::make_shared<BeaconCacheConfiguration_t>(0L, 1000L, 2000L);
+	auto configuration = createBeaconCacheConfig(0L, 1000L, 2000L);
 	TimeEvictionStrategy_t target(
 		mockLoggerStrict,
 		mockBeaconCacheStrict,
@@ -235,7 +250,7 @@ TEST_F(TimeEvictionStrategyTest, executeEvictionDoesNotLogIfStrategyIsDisabledAn
 		.WillByDefault(testing::Return(false));
 
 	// given
-	auto configuration = std::make_shared<BeaconCacheConfiguration_t>(0L, 1000L, 2000L);
+	auto configuration = createBeaconCacheConfig(0L, 1000L, 2000L);
 	TimeEvictionStrategy_t target(
 		mockLoggerStrict,
 		mockBeaconCacheStrict,
@@ -262,7 +277,7 @@ TEST_F(TimeEvictionStrategyTest, executeEvictionDoesNotLogIfStrategyIsDisabledAn
 TEST_F(TimeEvictionStrategyTest, lastRuntimeStampIsAdjustedDuringFirstExecution)
 {
 	// given
-	auto configuration = std::make_shared<BeaconCacheConfiguration_t>(1000L, 1000L, 2000L);
+	auto configuration = createBeaconCacheConfig(1000L, 1000L, 2000L);
 	TimeEvictionStrategy_t target(
 		mockLoggerNice,
 		mockBeaconCacheNice,
@@ -292,7 +307,7 @@ TEST_F(TimeEvictionStrategyTest, lastRuntimeStampIsAdjustedDuringFirstExecution)
 TEST_F(TimeEvictionStrategyTest, executeEvictionStopsIfNoBeaconIdsAreAvailableInCache)
 {
 	// given
-	auto configuration = std::make_shared<BeaconCacheConfiguration_t>(1000L, 1000L, 2000L);
+	auto configuration = createBeaconCacheConfig(1000L, 1000L, 2000L);
 	TimeEvictionStrategy_t target(
 		mockLoggerNice,
 		mockBeaconCacheStrict,
@@ -319,7 +334,7 @@ TEST_F(TimeEvictionStrategyTest, executeEvictionStopsIfNoBeaconIdsAreAvailableIn
 TEST_F(TimeEvictionStrategyTest, executeEvictionCallsEvictionForEachBeaconSeparately)
 {
 	// given
-	auto configuration = std::make_shared<BeaconCacheConfiguration_t>(1000L, 1000L, 2000L);
+	auto configuration = createBeaconCacheConfig(1000L, 1000L, 2000L);
 	TimeEvictionStrategy_t target(
 		mockLoggerNice,
 		mockBeaconCacheStrict,
@@ -360,7 +375,7 @@ TEST_F(TimeEvictionStrategyTest, executeEvictionLogsTheNumberOfRecordsRemoved)
 		.Times(1);
 
 	// given
-	auto configuration = std::make_shared<BeaconCacheConfiguration_t>(1000L, 1000L, 2000L);
+	auto configuration = createBeaconCacheConfig(1000L, 1000L, 2000L);
 	TimeEvictionStrategy_t target(
 		mockLoggerStrict,
 		mockBeaconCacheNice,
@@ -387,7 +402,7 @@ TEST_F(TimeEvictionStrategyTest, executeEvictionLogsTheNumberOfRecordsRemoved)
 TEST_F(TimeEvictionStrategyTest, executeEvictionIsStoppedIfThreadGetsInterrupted)
 {
 	// given
-	auto configuration = std::make_shared<BeaconCacheConfiguration_t>(1000L, 1000L, 2000L);
+	auto configuration = createBeaconCacheConfig(1000L, 1000L, 2000L);
 	auto mockIsAlive = std::make_shared<testing::NiceMock<MockIsAlive>>();
 	TimeEvictionStrategy_t target(
 		mockLoggerNice,

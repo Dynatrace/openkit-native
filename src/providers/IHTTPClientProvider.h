@@ -22,7 +22,7 @@
 #include <memory>
 
 #include "OpenKit/ILogger.h"
-#include "core/configuration/HTTPClientConfiguration.h"
+#include "core/configuration/IHTTPClientConfiguration.h"
 
 namespace providers
 {
@@ -43,7 +43,10 @@ namespace providers
 		/// @param[in] logger to write traces to
 		/// @param[in] configuration configuration parameters for the HTTP connection
 		///
-		virtual std::shared_ptr<protocol::IHTTPClient> createClient(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<core::configuration::HTTPClientConfiguration> configuration) = 0;
+		virtual std::shared_ptr<protocol::IHTTPClient> createClient(
+			std::shared_ptr<openkit::ILogger> logger,
+			std::shared_ptr<core::configuration::IHTTPClientConfiguration> configuration
+		) = 0;
 
 		///
 		/// Global initialization method.

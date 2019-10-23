@@ -15,12 +15,16 @@
 */
 
 #include "DefaultHTTPClientProvider.h"
+#include "protocol/HTTPClient.h"
 
 using namespace providers;
 
-std::shared_ptr<protocol::IHTTPClient> DefaultHTTPClientProvider::createClient(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<core::configuration::HTTPClientConfiguration> configuration)
+std::shared_ptr<protocol::IHTTPClient> DefaultHTTPClientProvider::createClient(
+	std::shared_ptr<openkit::ILogger> logger,
+	std::shared_ptr<core::configuration::IHTTPClientConfiguration> configuration
+)
 {
-	return std::shared_ptr<protocol::IHTTPClient>(new protocol::HTTPClient(logger, configuration));
+	return std::make_shared<protocol::HTTPClient>(logger, configuration);
 }
 
 void DefaultHTTPClientProvider::globalInit()

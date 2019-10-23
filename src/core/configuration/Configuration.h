@@ -18,11 +18,11 @@
 #define _CORE_CONFIGURATION_CONFIGURATION_H
 
 #include "providers/ISessionIDProvider.h"
-#include "HTTPClientConfiguration.h"
+#include "IHTTPClientConfiguration.h"
 #include "OpenKitType.h"
 #include "Device.h"
-#include "BeaconCacheConfiguration.h"
-#include "BeaconConfiguration.h"
+#include "IBeaconCacheConfiguration.h"
+#include "IBeaconConfiguration.h"
 #include "protocol/IStatusResponse.h"
 
 #include <memory>
@@ -64,8 +64,8 @@ namespace core
 				const core::UTF8String& endpointURL,
 				std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider,
 				std::shared_ptr<openkit::ISSLTrustManager> sslTrustManager,
-				std::shared_ptr<BeaconCacheConfiguration> beaconCacheConfiguration,
-				std::shared_ptr<BeaconConfiguration> beaconConfiguration
+				std::shared_ptr<IBeaconCacheConfiguration> beaconCacheConfiguration,
+				std::shared_ptr<IBeaconConfiguration> beaconConfiguration
 			);
 
 			virtual ~Configuration() {}
@@ -74,7 +74,7 @@ namespace core
 			/// Return the  HTTPClientConfiguration to use when constructing a  HTTPClient
 			/// @returns the  HTTPClientConfiguration stored in the  Configuration
 			///
-			std::shared_ptr<HTTPClientConfiguration> getHTTPClientConfiguration() const;
+			std::shared_ptr<IHTTPClientConfiguration> getHTTPClientConfiguration() const;
 
 			///
 			/// Update settings based on a status response
@@ -192,17 +192,17 @@ namespace core
 			/// Returns the beacon cache configuration
 			/// @returns the beacon cache configuration
 			///
-			std::shared_ptr<configuration::BeaconCacheConfiguration> getBeaconCacheConfiguration() const;
+			std::shared_ptr<configuration::IBeaconCacheConfiguration> getBeaconCacheConfiguration() const;
 
 			///
 			/// Return the beacon configuration
 			/// @returns the beacon configuration
 			///
-			std::shared_ptr<configuration::BeaconConfiguration> getBeaconConfiguration() const;
+			std::shared_ptr<configuration::IBeaconConfiguration> getBeaconConfiguration() const;
 
 		private:
 			/// HTTP client configuration
-			std::shared_ptr<HTTPClientConfiguration> mHTTPClientConfiguration;
+			std::shared_ptr<IHTTPClientConfiguration> mHTTPClientConfiguration;
 
 			/// session ID provider
 			std::shared_ptr<providers::ISessionIDProvider> mSessionIDProvider;
@@ -250,10 +250,10 @@ namespace core
 			std::shared_ptr<configuration::Device> mDevice;
 
 			/// configuration options for the beacon caching
-			std::shared_ptr<configuration::BeaconCacheConfiguration> mBeaconCacheConfiguration;
+			std::shared_ptr<configuration::IBeaconCacheConfiguration> mBeaconCacheConfiguration;
 
 			/// configuration options for @ref protocol::Beacon
-			std::shared_ptr<configuration::BeaconConfiguration> mBeaconConfiguration;
+			std::shared_ptr<configuration::IBeaconConfiguration> mBeaconConfiguration;
 		};
 	}
 }

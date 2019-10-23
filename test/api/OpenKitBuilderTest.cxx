@@ -21,6 +21,7 @@
 #include "../core/util/Types.h"
 #include "../protocol/Types.h"
 
+#include "core/configuration/ConfigurationDefaults.h"
 #include "core/util/StringUtil.h"
 #include "OpenKit/OpenKitConstants.h"
 
@@ -83,13 +84,13 @@ TEST_F(OpenKitBuilderTest, defaultsAreSetForAppMon)
 
 	auto beaconCacheConfiguration = configuration->getBeaconCacheConfiguration();
 	ASSERT_TRUE(beaconCacheConfiguration != nullptr);
-	ASSERT_EQ(beaconCacheConfiguration->getMaxRecordAge(), BeaconCacheConfiguration_t::DEFAULT_MAX_RECORD_AGE_IN_MILLIS.count());
-	ASSERT_EQ(beaconCacheConfiguration->getCacheSizeUpperBound(), BeaconCacheConfiguration_t::DEFAULT_UPPER_MEMORY_BOUNDARY_IN_BYTES);
-	ASSERT_EQ(beaconCacheConfiguration->getCacheSizeLowerBound(), BeaconCacheConfiguration_t::DEFAULT_LOWER_MEMORY_BOUNDARY_IN_BYTES);
+	ASSERT_EQ(beaconCacheConfiguration->getMaxRecordAge(), core::configuration::DEFAULT_MAX_RECORD_AGE_IN_MILLIS.count());
+	ASSERT_EQ(beaconCacheConfiguration->getCacheSizeUpperBound(), core::configuration::DEFAULT_UPPER_MEMORY_BOUNDARY_IN_BYTES);
+	ASSERT_EQ(beaconCacheConfiguration->getCacheSizeLowerBound(), core::configuration::DEFAULT_LOWER_MEMORY_BOUNDARY_IN_BYTES);
 
 	auto beaconConfiguration = configuration->getBeaconConfiguration();
-	ASSERT_EQ(beaconConfiguration->getDataCollectionLevel(), BeaconConfiguration_t::DEFAULT_DATA_COLLECTION_LEVEL);
-	ASSERT_EQ(beaconConfiguration->getCrashReportingLevel(), BeaconConfiguration_t::DEFAULT_CRASH_REPORTING_LEVEL);
+	ASSERT_EQ(beaconConfiguration->getDataCollectionLevel(), core::configuration::DEFAULT_DATA_COLLECTION_LEVEL);
+	ASSERT_EQ(beaconConfiguration->getCrashReportingLevel(), core::configuration::DEFAULT_CRASH_REPORTING_LEVEL);
 }
 
 TEST_F(OpenKitBuilderTest, appMonOpenKitBuilderTakesStringDeviceID)
@@ -149,9 +150,9 @@ TEST_F(OpenKitBuilderTest, defaultsAreSetForDynatrace)
 
 	auto beaconCacheConfiguration = configuration->getBeaconCacheConfiguration();
 	ASSERT_TRUE(beaconCacheConfiguration != nullptr);
-	ASSERT_EQ(beaconCacheConfiguration->getMaxRecordAge(), BeaconCacheConfiguration_t::DEFAULT_MAX_RECORD_AGE_IN_MILLIS.count());
-	ASSERT_EQ(beaconCacheConfiguration->getCacheSizeUpperBound(), BeaconCacheConfiguration_t::DEFAULT_UPPER_MEMORY_BOUNDARY_IN_BYTES);
-	ASSERT_EQ(beaconCacheConfiguration->getCacheSizeLowerBound(), BeaconCacheConfiguration_t::DEFAULT_LOWER_MEMORY_BOUNDARY_IN_BYTES);
+	ASSERT_EQ(beaconCacheConfiguration->getMaxRecordAge(), core::configuration::DEFAULT_MAX_RECORD_AGE_IN_MILLIS.count());
+	ASSERT_EQ(beaconCacheConfiguration->getCacheSizeUpperBound(), core::configuration::DEFAULT_UPPER_MEMORY_BOUNDARY_IN_BYTES);
+	ASSERT_EQ(beaconCacheConfiguration->getCacheSizeLowerBound(), core::configuration::DEFAULT_LOWER_MEMORY_BOUNDARY_IN_BYTES);
 }
 
 TEST_F(OpenKitBuilderTest, dynatraceOpenKitBuilderTakesStringDeviceId)

@@ -22,6 +22,8 @@
 #include "../../protocol/Types.h"
 #include "../../protocol/mock/MockIStatusResponse.h"
 
+#include "core/configuration/ConfigurationDefaults.h"
+
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
@@ -175,13 +177,13 @@ TEST_F(ConfigurationTest, tenantURLisSetCorrectly)
 TEST_F(ConfigurationTest, defaultDataCollectionLevelIsDefaultValueFromBeaconConfiguration)
 {
 	auto target = getDefaultConfiguration();
-	ASSERT_EQ(target->getBeaconConfiguration()->getDataCollectionLevel(), BeaconConfiguration_t::DEFAULT_DATA_COLLECTION_LEVEL);
+	ASSERT_EQ(target->getBeaconConfiguration()->getDataCollectionLevel(), core::configuration::DEFAULT_DATA_COLLECTION_LEVEL);
 }
 
 TEST_F(ConfigurationTest, defaultCrashReportingLevelIsDefaultValueFromBeaconConfiguration)
 {
 	auto target = getDefaultConfiguration();
-	ASSERT_EQ(target->getBeaconConfiguration()->getCrashReportingLevel(), BeaconConfiguration_t::DEFAULT_CRASH_REPORTING_LEVEL);
+	ASSERT_EQ(target->getBeaconConfiguration()->getCrashReportingLevel(), core::configuration::DEFAULT_CRASH_REPORTING_LEVEL);
 }
 
 TEST_F(ConfigurationTest, getApplicationID)

@@ -95,10 +95,14 @@ set(OPENKIT_SOURCES_CORE_CONFIGURATION
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/BeaconConfiguration.h
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/Configuration.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/Configuration.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/configuration/ConfigurationDefaults.h
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/Device.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/Device.h
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/HTTPClientConfiguration.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/HTTPClientConfiguration.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/configuration/IBeaconCacheConfiguration.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/configuration/IBeaconConfiguration.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/configuration/IHTTPClientConfiguration.h
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/OpenKitType.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/OpenKitType.h
 )

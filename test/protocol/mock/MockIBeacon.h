@@ -20,7 +20,7 @@
 #include "../../DefaultValues.h"
 #include "protocol/IBeacon.h"
 #include "protocol/IStatusResponse.h"
-#include "core/configuration/BeaconConfiguration.h"
+#include "core/configuration/IBeaconConfiguration.h"
 #include "core/objects/IActionCommon.h"
 #include "core/objects/Session.h"
 #include "core/objects/WebRequestTracer.h"
@@ -161,11 +161,11 @@ namespace test
 
 		MOCK_METHOD1(setBeaconConfiguration,
 			void(
-				std::shared_ptr<core::configuration::BeaconConfiguration> beaconConfiguration /* beaconConfiguration */
+				std::shared_ptr<core::configuration::IBeaconConfiguration> beaconConfiguration /* beaconConfiguration */
 			)
 		);
 
-		MOCK_CONST_METHOD0(getBeaconConfiguration, std::shared_ptr<core::configuration::BeaconConfiguration>());
+		MOCK_CONST_METHOD0(getBeaconConfiguration, std::shared_ptr<core::configuration::IBeaconConfiguration>());
 
 		MOCK_CONST_METHOD0(getClientIPAddress, core::UTF8String&());
 	};

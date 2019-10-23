@@ -33,13 +33,13 @@ SessionWrapper::SessionWrapper
 {
 }
 
-void SessionWrapper::updateBeaconConfiguration(std::shared_ptr<core::configuration::BeaconConfiguration> beaconConfiguration)
+void SessionWrapper::updateBeaconConfiguration(std::shared_ptr<core::configuration::IBeaconConfiguration> beaconConfiguration)
 {
 	mWrappedSession->setBeaconConfiguration(beaconConfiguration);
 	mIsBeaconConfigurationSet = true;
 }
 
-std::shared_ptr<core::configuration::BeaconConfiguration> SessionWrapper::getBeaconConfiguration() const
+std::shared_ptr<core::configuration::IBeaconConfiguration> SessionWrapper::getBeaconConfiguration() const
 {
 	return mWrappedSession->getBeaconConfiguration();
 }

@@ -17,12 +17,12 @@
 #ifndef _CONFIGURATION_OBJECTS_HTTPCLIENTCONFIGURATION_H
 #define _CONFIGURATION_OBJECTS_HTTPCLIENTCONFIGURATION_H
 
+#include "IHTTPClientConfiguration.h"
 #include "OpenKit/ISSLTrustManager.h"
+#include "core/UTF8String.h"
 
 #include <memory>
 
-#include "core/UTF8String.h"
-#include "protocol/ssl/SSLBlindTrustManager.h"
 
 namespace core
 {
@@ -32,6 +32,7 @@ namespace core
 		/// The HTTPClientConfiguration holds all http client related settings
 		///
 		class HTTPClientConfiguration
+			: public IHTTPClientConfiguration
 		{
 		public:
 			///
@@ -53,25 +54,25 @@ namespace core
 			/// Returns the base url for the http client
 			/// @returns the base url
 			///
-			const core::UTF8String& getBaseURL() const;
+			const core::UTF8String& getBaseURL() const override;
 
 			///
 			/// Returns the server id to be used for the http client
 			/// @returns the server id
 			///
-			int32_t getServerID() const;
+			int32_t getServerID() const override;
 
 			///
 			/// The application id for the http client
 			/// @returns the application id
 			///
-			const core::UTF8String& getApplicationID() const;
+			const core::UTF8String& getApplicationID() const override;
 
 			///
 			/// Returns the trust manager which defines how trust in SSL shall be handled
 			/// @returns the trust manager which defines how trust in SSL shall be handled
 			///
-			std::shared_ptr<openkit::ISSLTrustManager> getSSLTrustManager() const;
+			std::shared_ptr<openkit::ISSLTrustManager> getSSLTrustManager() const override;
 
 		private:
 			/// the beacon URL

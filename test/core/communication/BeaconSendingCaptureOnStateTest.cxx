@@ -14,21 +14,38 @@
 * limitations under the License.
 */
 
+#include <OpenKit/DataCollectionLevel.h>
 #include "CustomMatchers.h"
 #include "MockBeaconSendingContext.h"
+#include "../configuration/mock/MockIBeaconConfiguration.h"
 #include "../objects/MockSession.h"
 #include "../../api/mock/MockILogger.h"
 #include "../../protocol/mock/MockIHTTPClient.h"
 #include "../../providers/mock/MockIHTTPClientProvider.h"
 
+#include "core/SessionWrapper.h"
+#include "core/communication/AbstractBeaconSendingState.h"
+#include "core/communication/BeaconSendingCaptureOffState.h"
+#include "core/communication/BeaconSendingCaptureOnState.h"
+#include "core/configuration/IBeaconConfiguration.h"
+#include "core/configuration/ConfigurationDefaults.h"
 #include "core/objects/Session.h"
+#include "protocol/StatusResponse.h"
+#include "protocol/IStatusResponse.h"
+#include "providers/IHTTPClientProvider.h"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
 using namespace test;
-using namespace test::types;
 
+using AbstractBeaconSendingState_t = core::communication::AbstractBeaconSendingState;
+using AbstractBeaconSendingState_sp = std::shared_ptr<AbstractBeaconSendingState_t>;
+using BeaconSendingCaptureOffState_t = core::communication::BeaconSendingCaptureOffState;
+using BeaconSendingCaptureOnState_t = core::communication::BeaconSendingCaptureOnState;
+using IBeaconConfiguration_sp = std::shared_ptr<core::configuration::IBeaconConfiguration>;
+using IHttpClientProvider_sp = std::shared_ptr<providers::IHTTPClientProvider>;
+using IStatusResponse_t = protocol::IStatusResponse;
 using MockNiceIHTTPClient_sp = std::shared_ptr<testing::NiceMock<MockIHTTPClient>>;
 using MockNiceIHTTPClientProvider_sp = std::shared_ptr<testing::NiceMock<MockIHTTPClientProvider>>;
 using MockNiceILogger_sp = std::shared_ptr<testing::NiceMock<MockILogger>>;
@@ -36,6 +53,10 @@ using MockNiceSession_t = testing::NiceMock<MockSession>;
 using MockNiceSession_sp = std::shared_ptr<MockNiceSession_t>;
 using MockNiceBeaconSendingContext_t = testing::NiceMock<MockBeaconSendingContext>;
 using MockNiceBeaconSendingContext_sp = std::shared_ptr<MockNiceBeaconSendingContext_t>;
+using SessionWrapper_t = core::SessionWrapper;
+using SessionWrapper_sp = std::shared_ptr<SessionWrapper_t>;
+using StatusResponse_t = protocol::StatusResponse;
+using StatusResponse_sp = std::shared_ptr<StatusResponse_t>;
 
 class BeaconSendingCaptureOnStateTest : public testing::Test
 {
@@ -50,6 +71,8 @@ protected:
 	MockNiceIHTTPClientProvider_sp mMockHttpClientProvider;
 	MockNiceIHTTPClient_sp mMockHttpClient;
 
+	StatusResponse_sp statusResponseSuccess;
+
 	void SetUp()
 	{
 		mLogger = MockILogger::createNice();
@@ -57,16 +80,14 @@ protected:
 		mMockSession2Open = std::make_shared<MockNiceSession_t>(mLogger);
 		mMockSession3Finished = std::make_shared<MockNiceSession_t>(mLogger);
 		mMockSession4Finished = std::make_shared<MockNiceSession_t>(mLogger);
+
+		statusResponseSuccess = createStatusResponse(200);
+		auto statusResponseNotFound = createStatusResponse(404);
+
 		ON_CALL(*mMockSession1Open, sendBeaconRawPtrProxy(testing::_))
-			.WillByDefault(testing::Invoke([&](IHttpClientProvider_sp) -> StatusResponse_sp
-			{
-				return std::make_shared<StatusResponse_t>(mLogger, "", 200, IStatusResponse_t::ResponseHeaders());
-			}));
+			.WillByDefault(testing::Return(statusResponseSuccess));
 		ON_CALL(*mMockSession2Open, sendBeaconRawPtrProxy(testing::_))
-			.WillByDefault(testing::Invoke([&](IHttpClientProvider_sp) -> StatusResponse_sp
-			{
-				return std::make_shared<StatusResponse_t>(mLogger, "", 404, IStatusResponse_t::ResponseHeaders());
-			}));
+			.WillByDefault(testing::Return(statusResponseNotFound));
 
 		mMockContext = std::make_shared<MockNiceBeaconSendingContext_t>(mLogger);
 		ON_CALL(*mMockContext, isShutdownRequested())
@@ -96,29 +117,21 @@ protected:
 		ON_CALL(*mMockContext, getHTTPClient())
 			.WillByDefault(testing::Return(mMockHttpClient));
 
-		// testing::Return stores the result of the call as default value
-		// this means that the instance of the StatusReponse* is returned as unique_ptr multiple times
-		// when deleting the instance the second time the test would crash
-		// using a lambda resolves this issue by creating new instances
 		ON_CALL(*mMockHttpClient, sendStatusRequest())
-			.WillByDefault(testing::Invoke([this]() -> StatusResponse_sp
-			{
-				return std::make_shared<StatusResponse_t>(mLogger, "", 200, IStatusResponse_t::ResponseHeaders());
-			}));
+			.WillByDefault(testing::Return(statusResponseSuccess));
 		ON_CALL(*mMockHttpClient, sendNewSessionRequest())
-			.WillByDefault(testing::Invoke([this]() -> StatusResponse_sp
-			{
-				return std::make_shared<StatusResponse_t>(mLogger, "", 200, IStatusResponse_t::ResponseHeaders());
-			}));
+			.WillByDefault(testing::Return(statusResponseSuccess));
 
+
+		auto mockBeaconConfig = MockIBeaconConfiguration::createNice();
 		ON_CALL(*mMockSession1Open, getBeaconConfiguration())
-			.WillByDefault(testing::Return(std::make_shared<BeaconConfiguration_t>()));
+			.WillByDefault(testing::Return(mockBeaconConfig));
 		ON_CALL(*mMockSession2Open, getBeaconConfiguration())
-			.WillByDefault(testing::Return(std::make_shared<BeaconConfiguration_t>()));
+			.WillByDefault(testing::Return(mockBeaconConfig));
 		ON_CALL(*mMockSession3Finished, getBeaconConfiguration())
-			.WillByDefault(testing::Return(std::make_shared<BeaconConfiguration_t>()));
+			.WillByDefault(testing::Return(mockBeaconConfig));
 		ON_CALL(*mMockSession4Finished, getBeaconConfiguration())
-			.WillByDefault(testing::Return(std::make_shared<BeaconConfiguration_t>()));
+			.WillByDefault(testing::Return(mockBeaconConfig));
 
 		mMockContext->startSession(mMockSession1Open);
 		mMockContext->startSession(mMockSession2Open);
@@ -126,6 +139,11 @@ protected:
 		mMockContext->finishSession(mMockSession3Finished);
 		mMockContext->startSession(mMockSession4Finished);
 		mMockContext->finishSession(mMockSession4Finished);
+	}
+
+	StatusResponse_sp createStatusResponse(int32_t responseCode)
+	{
+		return std::make_shared<StatusResponse_t>(mLogger, "", responseCode, IStatusResponse_t::ResponseHeaders());
 	}
 };
 
@@ -184,23 +202,13 @@ TEST_F(BeaconSendingCaptureOnStateTest, aBeaconSendingCaptureOnStateContinuesWit
 	auto target = BeaconSendingCaptureOnState_t();
 
 	ON_CALL(*mMockSession3Finished, sendBeaconRawPtrProxy(testing::_))
-		.WillByDefault(testing::Invoke([&](IHttpClientProvider_sp) -> StatusResponse_sp {
-			return std::make_shared<StatusResponse_t>(mLogger, "", 400, IStatusResponse_t::ResponseHeaders());
-		}));
+		.WillByDefault(testing::Return(createStatusResponse(400)));
 	ON_CALL(*mMockSession4Finished, sendBeaconRawPtrProxy(testing::_))
-		.WillByDefault(testing::Invoke([&](IHttpClientProvider_sp) -> StatusResponse_sp {
-			return std::make_shared<StatusResponse_t>(mLogger, "", 200, IStatusResponse_t::ResponseHeaders());
-		}));
+		.WillByDefault(testing::Return(statusResponseSuccess));
 	ON_CALL(*mMockSession1Open, sendBeaconRawPtrProxy(testing::_))
-		.WillByDefault(testing::Invoke([&](IHttpClientProvider_sp) -> StatusResponse_sp
-		{
-			return std::make_shared<StatusResponse_t>(mLogger, "", 200, IStatusResponse_t::ResponseHeaders());
-		}));
+		.WillByDefault(testing::Return(statusResponseSuccess));
 	ON_CALL(*mMockSession2Open, sendBeaconRawPtrProxy(testing::_))
-		.WillByDefault(testing::Invoke([&](IHttpClientProvider_sp) -> StatusResponse_sp
-		{
-			return std::make_shared<StatusResponse_t>(mLogger, "", 200, IStatusResponse_t::ResponseHeaders());
-		}));
+		.WillByDefault(testing::Return(statusResponseSuccess));
 	ON_CALL(*mMockContext, isCaptureOn())
 		.WillByDefault(testing::Return(true));
 	ON_CALL(*mMockSession3Finished, isEmpty())
@@ -283,7 +291,7 @@ TEST_F(BeaconSendingCaptureOnStateTest, newSessionRequestsAreMadeForAllNewSessio
 				responses.erase(responses.begin());
 				return nextResponse;
 			}
-			return std::make_shared<StatusResponse_t>(mLogger, "", 400, IStatusResponse_t::ResponseHeaders());
+			return createStatusResponse(400);
 		}));
 
 	//only return the two new sessions for the new session request
@@ -291,15 +299,15 @@ TEST_F(BeaconSendingCaptureOnStateTest, newSessionRequestsAreMadeForAllNewSessio
 		.WillByDefault(testing::Return(newSessions));
 
 	/// capture the beacon configuration set by the sendNewSessionRequests(...) method
-	BeaconConfiguration_sp capturedBeaconConfigurationForSession1;
-	BeaconConfiguration_sp capturedBeaconConfigurationForSession2;
+	IBeaconConfiguration_sp capturedBeaconConfigurationForSession1;
+	IBeaconConfiguration_sp capturedBeaconConfigurationForSession2;
 
 	ON_CALL(*mMockSession1Open, setBeaconConfiguration(testing::_))
-		.WillByDefault(testing::WithArgs<0>(testing::Invoke([&capturedBeaconConfigurationForSession1](BeaconConfiguration_sp beaconConfig) {
+		.WillByDefault(testing::WithArgs<0>(testing::Invoke([&capturedBeaconConfigurationForSession1](IBeaconConfiguration_sp beaconConfig) {
 		capturedBeaconConfigurationForSession1 = beaconConfig;
 	})));
 	ON_CALL(*mMockSession2Open, setBeaconConfiguration(testing::_))
-		.WillByDefault(testing::WithArgs<0>(testing::Invoke([&capturedBeaconConfigurationForSession2](BeaconConfiguration_sp beaconConfig) {
+		.WillByDefault(testing::WithArgs<0>(testing::Invoke([&capturedBeaconConfigurationForSession2](IBeaconConfiguration_sp beaconConfig) {
 		capturedBeaconConfigurationForSession2 = beaconConfig;
 	})));
 
@@ -307,12 +315,12 @@ TEST_F(BeaconSendingCaptureOnStateTest, newSessionRequestsAreMadeForAllNewSessio
 	target.execute(*mMockContext);
 
 	ASSERT_EQ(capturedBeaconConfigurationForSession1->getMultiplicity(), 5);
-	ASSERT_EQ(capturedBeaconConfigurationForSession1->getDataCollectionLevel(), BeaconConfiguration_t::DEFAULT_DATA_COLLECTION_LEVEL);
-	ASSERT_EQ(capturedBeaconConfigurationForSession1->getCrashReportingLevel(), BeaconConfiguration_t::DEFAULT_CRASH_REPORTING_LEVEL);
+	ASSERT_EQ(capturedBeaconConfigurationForSession1->getDataCollectionLevel(), core::configuration::DEFAULT_DATA_COLLECTION_LEVEL);
+	ASSERT_EQ(capturedBeaconConfigurationForSession1->getCrashReportingLevel(), core::configuration::DEFAULT_CRASH_REPORTING_LEVEL);
 
 	ASSERT_EQ(capturedBeaconConfigurationForSession2->getMultiplicity(), 3);
-	ASSERT_EQ(capturedBeaconConfigurationForSession2->getDataCollectionLevel(), BeaconConfiguration_t::DEFAULT_DATA_COLLECTION_LEVEL);
-	ASSERT_EQ(capturedBeaconConfigurationForSession2->getCrashReportingLevel(), BeaconConfiguration_t::DEFAULT_CRASH_REPORTING_LEVEL);
+	ASSERT_EQ(capturedBeaconConfigurationForSession2->getDataCollectionLevel(), core::configuration::DEFAULT_DATA_COLLECTION_LEVEL);
+	ASSERT_EQ(capturedBeaconConfigurationForSession2->getCrashReportingLevel(), core::configuration::DEFAULT_CRASH_REPORTING_LEVEL);
 }
 
 // Expectation: Given enough failed new session requests the beacon configuration created by the method
@@ -338,7 +346,7 @@ TEST_F(BeaconSendingCaptureOnStateTest, multiplicityIsSetToZeroIfNoFurtherNewSes
 			}
 			else
 			{
-				return std::make_shared<StatusResponse_t>(mLogger, "", 400, IStatusResponse_t::ResponseHeaders());
+				return createStatusResponse(400);
 			}
 		}));
 
@@ -363,15 +371,15 @@ TEST_F(BeaconSendingCaptureOnStateTest, multiplicityIsSetToZeroIfNoFurtherNewSes
 		.WillByDefault(testing::Return(newSessions));
 
 	/// capture the beacon configuration set by the sendNewSessionRequests(...) method
-	BeaconConfiguration_sp capturedBeaconConfigurationForSession1;
-	BeaconConfiguration_sp capturedBeaconConfigurationForSession2;
+	IBeaconConfiguration_sp capturedBeaconConfigurationForSession1;
+	IBeaconConfiguration_sp capturedBeaconConfigurationForSession2;
 
 	ON_CALL(*mMockSession1Open, setBeaconConfiguration(testing::_))
-		.WillByDefault(testing::WithArgs<0>(testing::Invoke([&capturedBeaconConfigurationForSession1](BeaconConfiguration_sp beaconConfig) {
+		.WillByDefault(testing::WithArgs<0>(testing::Invoke([&capturedBeaconConfigurationForSession1](IBeaconConfiguration_sp beaconConfig) {
 			capturedBeaconConfigurationForSession1 = beaconConfig;
 			})));
 	ON_CALL(*mMockSession2Open, setBeaconConfiguration(testing::_))
-		.WillByDefault(testing::WithArgs<0>(testing::Invoke([&capturedBeaconConfigurationForSession2](BeaconConfiguration_sp beaconConfig) {
+		.WillByDefault(testing::WithArgs<0>(testing::Invoke([&capturedBeaconConfigurationForSession2](IBeaconConfiguration_sp beaconConfig) {
 		capturedBeaconConfigurationForSession2 = beaconConfig;
 	})));
 
@@ -394,12 +402,12 @@ TEST_F(BeaconSendingCaptureOnStateTest, multiplicityIsSetToZeroIfNoFurtherNewSes
 	target.execute(*mMockContext);
 
 	ASSERT_EQ(capturedBeaconConfigurationForSession1->getMultiplicity(), 0);
-	ASSERT_EQ(capturedBeaconConfigurationForSession1->getDataCollectionLevel(), BeaconConfiguration_t::DEFAULT_DATA_COLLECTION_LEVEL);
-	ASSERT_EQ(capturedBeaconConfigurationForSession1->getCrashReportingLevel(), BeaconConfiguration_t::DEFAULT_CRASH_REPORTING_LEVEL);
+	ASSERT_EQ(capturedBeaconConfigurationForSession1->getDataCollectionLevel(), core::configuration::DEFAULT_DATA_COLLECTION_LEVEL);
+	ASSERT_EQ(capturedBeaconConfigurationForSession1->getCrashReportingLevel(), core::configuration::DEFAULT_CRASH_REPORTING_LEVEL);
 
 	ASSERT_EQ(capturedBeaconConfigurationForSession2->getMultiplicity(), 0);
-	ASSERT_EQ(capturedBeaconConfigurationForSession2->getDataCollectionLevel(), BeaconConfiguration_t::DEFAULT_DATA_COLLECTION_LEVEL);
-	ASSERT_EQ(capturedBeaconConfigurationForSession2->getCrashReportingLevel(), BeaconConfiguration_t::DEFAULT_CRASH_REPORTING_LEVEL);
+	ASSERT_EQ(capturedBeaconConfigurationForSession2->getDataCollectionLevel(), core::configuration::DEFAULT_DATA_COLLECTION_LEVEL);
+	ASSERT_EQ(capturedBeaconConfigurationForSession2->getCrashReportingLevel(), core::configuration::DEFAULT_CRASH_REPORTING_LEVEL);
 }
 
 TEST_F(BeaconSendingCaptureOnStateTest, newSessionRequestsAreAbortedWhenTooManyRequestsResponseIsReceived)
@@ -431,7 +439,7 @@ TEST_F(BeaconSendingCaptureOnStateTest, newSessionRequestsAreAbortedWhenTooManyR
 				responses.erase(responses.begin());
 				return nextResponse;
 			}
-			return std::make_shared<StatusResponse_t>(mLogger, "", 200, IStatusResponse_t::ResponseHeaders());
+			return statusResponseSuccess;
 		}));
 
 	//only return the two new sessions for the new session request
@@ -439,15 +447,15 @@ TEST_F(BeaconSendingCaptureOnStateTest, newSessionRequestsAreAbortedWhenTooManyR
 		.WillByDefault(testing::Return(newSessions));
 
 	/// capture the beacon configuration set by the sendNewSessionRequests(...) method
-	BeaconConfiguration_sp capturedBeaconConfigurationForSession1;
-	BeaconConfiguration_sp capturedBeaconConfigurationForSession2;
+	IBeaconConfiguration_sp capturedBeaconConfigurationForSession1;
+	IBeaconConfiguration_sp capturedBeaconConfigurationForSession2;
 
 	ON_CALL(*mMockSession1Open, setBeaconConfiguration(testing::_))
-		.WillByDefault(testing::WithArgs<0>(testing::Invoke([&](BeaconConfiguration_sp beaconConfig) {
+		.WillByDefault(testing::WithArgs<0>(testing::Invoke([&](IBeaconConfiguration_sp beaconConfig) {
 		capturedBeaconConfigurationForSession1 = beaconConfig;
 	})));
 	ON_CALL(*mMockSession2Open, setBeaconConfiguration(testing::_))
-		.WillByDefault(testing::WithArgs<0>(testing::Invoke([&](BeaconConfiguration_sp beaconConfig) {
+		.WillByDefault(testing::WithArgs<0>(testing::Invoke([&](IBeaconConfiguration_sp beaconConfig) {
 		capturedBeaconConfigurationForSession2 = beaconConfig;
 	})));
 
@@ -476,9 +484,9 @@ TEST_F(BeaconSendingCaptureOnStateTest, finishedSessionsAreSent)
 	auto target = BeaconSendingCaptureOnState_t();
 
 	auto sessionWrapper1 = std::make_shared<SessionWrapper_t>(mMockSession3Finished);
-	sessionWrapper1->updateBeaconConfiguration(std::make_shared<BeaconConfiguration_t>());
+	sessionWrapper1->updateBeaconConfiguration(MockIBeaconConfiguration::createNice());
 	auto sessionWrapper2 = std::make_shared<SessionWrapper_t>(mMockSession4Finished);
-	sessionWrapper2->updateBeaconConfiguration(std::make_shared<BeaconConfiguration_t>());
+	sessionWrapper2->updateBeaconConfiguration(MockIBeaconConfiguration::createNice());
 	std::vector<SessionWrapper_sp> finishedSessions = { sessionWrapper1, sessionWrapper2 };
 
 	//only return the two new sessions for the new session request
@@ -492,17 +500,9 @@ TEST_F(BeaconSendingCaptureOnStateTest, finishedSessionsAreSent)
 		.WillByDefault(testing::Return(true));
 
 	ON_CALL(*mMockSession3Finished, sendBeaconRawPtrProxy(testing::_))
-		.WillByDefault(testing::Invoke([&](IHttpClientProvider_sp) -> StatusResponse_sp
-		{
-			return std::make_shared<StatusResponse_t>(mLogger, "", 200, IStatusResponse_t::ResponseHeaders());
-		})
-	);
+		.WillByDefault(testing::Return(statusResponseSuccess));
 	ON_CALL(*mMockSession4Finished, sendBeaconRawPtrProxy(testing::_))
-		.WillByDefault(testing::Invoke([&](IHttpClientProvider_sp) -> StatusResponse_sp
-		{
-			return std::make_shared<StatusResponse_t>(mLogger, "", 200, IStatusResponse_t::ResponseHeaders());
-		})
-	);
+		.WillByDefault(testing::Return(statusResponseSuccess));
 
 	EXPECT_CALL(*mMockSession3Finished, sendBeaconRawPtrProxy(testing::_))
 		.Times(testing::Exactly(1));
@@ -525,9 +525,9 @@ TEST_F(BeaconSendingCaptureOnStateTest, unsuccessfulFinishedSessionsAreNotRemove
 	auto target = BeaconSendingCaptureOnState_t();
 
 	auto sessionWrapper1 = std::make_shared<SessionWrapper_t>(mMockSession3Finished);
-	sessionWrapper1->updateBeaconConfiguration(std::make_shared<BeaconConfiguration_t>());
+	sessionWrapper1->updateBeaconConfiguration(MockIBeaconConfiguration::createNice());
 	auto sessionWrapper2 = std::make_shared<SessionWrapper_t>(mMockSession4Finished);
-	sessionWrapper2->updateBeaconConfiguration(std::make_shared<BeaconConfiguration_t>());
+	sessionWrapper2->updateBeaconConfiguration(MockIBeaconConfiguration::createNice());
 	std::vector<SessionWrapper_sp> finishedSessions = { sessionWrapper1, sessionWrapper2 };
 
 	//only return the two new sessions for the new session request
@@ -541,17 +541,9 @@ TEST_F(BeaconSendingCaptureOnStateTest, unsuccessfulFinishedSessionsAreNotRemove
 		.WillByDefault(testing::Return(true));
 
 	ON_CALL(*mMockSession3Finished, sendBeaconRawPtrProxy(testing::_))
-		.WillByDefault(testing::Invoke([&](IHttpClientProvider_sp) -> StatusResponse_sp
-		{
-			return std::make_shared<StatusResponse_t>(mLogger, Utf8String_t(), 400, IStatusResponse_t::ResponseHeaders());
-		})
-	);
+		.WillByDefault(testing::Return(createStatusResponse(400)));
 	ON_CALL(*mMockSession4Finished, sendBeaconRawPtrProxy(testing::_))
-		.WillByDefault(testing::Invoke([&](IHttpClientProvider_sp) -> StatusResponse_sp
-		{
-			return std::make_shared<StatusResponse_t>(mLogger, Utf8String_t(), 400, IStatusResponse_t::ResponseHeaders());
-		})
-	);
+		.WillByDefault(testing::Return(createStatusResponse(400)));
 
 	EXPECT_CALL(*mMockContext, getAllFinishedAndConfiguredSessions())
 		.Times(testing::Exactly(1));
@@ -568,9 +560,9 @@ TEST_F(BeaconSendingCaptureOnStateTest, sendingFinishedSessionsIsAbortedImmediat
 	auto target = BeaconSendingCaptureOnState_t();
 
 	auto sessionWrapper1 = std::make_shared<SessionWrapper_t>(mMockSession3Finished);
-	sessionWrapper1->updateBeaconConfiguration(std::make_shared<BeaconConfiguration_t>());
+	sessionWrapper1->updateBeaconConfiguration(MockIBeaconConfiguration::createNice());
 	auto sessionWrapper2 = std::make_shared<SessionWrapper_t>(mMockSession4Finished);
-	sessionWrapper2->updateBeaconConfiguration(std::make_shared<BeaconConfiguration_t>());
+	sessionWrapper2->updateBeaconConfiguration(MockIBeaconConfiguration::createNice());
 	std::vector<SessionWrapper_sp> finishedSessions = { sessionWrapper1, sessionWrapper2 };
 
 	//only return the two new sessions for the new session request
@@ -592,9 +584,7 @@ TEST_F(BeaconSendingCaptureOnStateTest, sendingFinishedSessionsIsAbortedImmediat
 			return std::make_shared<StatusResponse_t>(mLogger, "", 429, responseHeaders);
 		}));
 	ON_CALL(*mMockSession4Finished, sendBeaconRawPtrProxy(testing::_))
-		.WillByDefault(testing::Invoke([&](IHttpClientProvider_sp) -> StatusResponse_sp {
-			return std::make_shared<StatusResponse_t>(mLogger, "", 200, IStatusResponse_t::ResponseHeaders());
-		}));
+		.WillByDefault(testing::Return(statusResponseSuccess));
 
 	EXPECT_CALL(*mMockSession3Finished, sendBeaconRawPtrProxy(testing::_))
 		.Times(testing::Exactly(1));
@@ -628,10 +618,14 @@ TEST_F(BeaconSendingCaptureOnStateTest, openSessionsAreSentIfSendIntervalIsExcee
 	// given
 	auto target = BeaconSendingCaptureOnState_t();
 
+	auto mockBeaconConfig = MockIBeaconConfiguration::createNice();
+	ON_CALL(*mockBeaconConfig, getMultiplicity())
+		.WillByDefault(testing::Return(2));
+
 	auto sessionWrapper1 = std::make_shared<SessionWrapper_t>(mMockSession1Open);
-	sessionWrapper1->updateBeaconConfiguration(std::make_shared<BeaconConfiguration_t>(2, DataCollectionLevel_t::USER_BEHAVIOR, openkit::CrashReportingLevel::OPT_IN_CRASHES));
+	sessionWrapper1->updateBeaconConfiguration(mockBeaconConfig);
 	auto sessionWrapper2 = std::make_shared<SessionWrapper_t>(mMockSession2Open);
-	sessionWrapper2->updateBeaconConfiguration(std::make_shared<BeaconConfiguration_t>(2, DataCollectionLevel_t::USER_BEHAVIOR, openkit::CrashReportingLevel::OPT_IN_CRASHES));
+	sessionWrapper2->updateBeaconConfiguration(mockBeaconConfig);
 	std::vector<SessionWrapper_sp> openSessions = { sessionWrapper1, sessionWrapper2 };
 
 	//only return the two new sessions for the new session request
@@ -707,10 +701,14 @@ TEST_F(BeaconSendingCaptureOnStateTest, sendingOpenSessionsIsAbortedImmediatelyW
 	// given
 	auto target = BeaconSendingCaptureOnState_t();
 
+	auto mockBeaconConfig = MockIBeaconConfiguration::createNice();
+	ON_CALL(*mockBeaconConfig, getMultiplicity())
+		.WillByDefault(testing::Return(2));
+
 	auto sessionWrapper1 = std::make_shared<SessionWrapper_t>(mMockSession1Open);
-	sessionWrapper1->updateBeaconConfiguration(std::make_shared<BeaconConfiguration_t>(2, DataCollectionLevel_t::USER_BEHAVIOR, openkit::CrashReportingLevel::OPT_IN_CRASHES));
+	sessionWrapper1->updateBeaconConfiguration(mockBeaconConfig);
 	auto sessionWrapper2 = std::make_shared<SessionWrapper_t>(mMockSession2Open);
-	sessionWrapper2->updateBeaconConfiguration(std::make_shared<BeaconConfiguration_t>(2, DataCollectionLevel_t::USER_BEHAVIOR, openkit::CrashReportingLevel::OPT_IN_CRASHES));
+	sessionWrapper2->updateBeaconConfiguration(mockBeaconConfig);
 	std::vector<SessionWrapper_sp> openSessions = { sessionWrapper1, sessionWrapper2 };
 
 	//only return the two new sessions for the new session request
@@ -733,10 +731,7 @@ TEST_F(BeaconSendingCaptureOnStateTest, sendingOpenSessionsIsAbortedImmediatelyW
 		return std::make_shared<StatusResponse_t>(mLogger, "", 429, responseHeaders);
 	}));
 	ON_CALL(*mMockSession2Open, sendBeaconRawPtrProxy(testing::_))
-		.WillByDefault(testing::Invoke([&](IHttpClientProvider_sp) -> StatusResponse_sp
-	{
-		return std::make_shared<StatusResponse_t>(mLogger, core::UTF8String(), 200, IStatusResponse_t::ResponseHeaders());
-	}));
+		.WillByDefault(testing::Return(statusResponseSuccess));
 
 	ON_CALL(*mMockContext, getCurrentTimestamp())
 		.WillByDefault(testing::Return(100));
@@ -768,13 +763,17 @@ TEST_F(BeaconSendingCaptureOnStateTest, nothingIsSentIfStateIsInterruptedDuringS
 	// given
 	auto target = BeaconSendingCaptureOnState_t();
 
-	auto sessionWrapper1 = std::make_shared<SessionWrapper_t>(mMockSession1Open);
+	auto mockBeaconConfig = MockIBeaconConfiguration::createNice();
+	ON_CALL(*mockBeaconConfig, getMultiplicity())
+		.WillByDefault(testing::Return(2));
+
+		auto sessionWrapper1 = std::make_shared<SessionWrapper_t>(mMockSession1Open);
 	std::vector<SessionWrapper_sp> newSessions = { sessionWrapper1 };
 	auto sessionWrapper2 = std::make_shared<SessionWrapper_t>(mMockSession2Open);
-	sessionWrapper2->updateBeaconConfiguration(std::make_shared<BeaconConfiguration_t>(2, DataCollectionLevel_t::USER_BEHAVIOR, openkit::CrashReportingLevel::OPT_IN_CRASHES));
+	sessionWrapper2->updateBeaconConfiguration(mockBeaconConfig);
 	std::vector<SessionWrapper_sp> openSessions = { sessionWrapper2 };
 	auto sessionWrapper3 = std::make_shared<SessionWrapper_t>(mMockSession3Finished);
-	sessionWrapper3->updateBeaconConfiguration(std::make_shared<BeaconConfiguration_t>());
+	sessionWrapper3->updateBeaconConfiguration(MockIBeaconConfiguration::createNice());
 	std::vector<SessionWrapper_sp> finishedSessions = { sessionWrapper3 };
 
 	//only return the two new sessions for the new session request
@@ -796,20 +795,11 @@ TEST_F(BeaconSendingCaptureOnStateTest, nothingIsSentIfStateIsInterruptedDuringS
 		.WillByDefault(testing::Return(true));
 
 	ON_CALL(*mMockSession1Open, sendBeaconRawPtrProxy(testing::_))
-		.WillByDefault(testing::Invoke([&](IHttpClientProvider_sp) -> StatusResponse_sp
-	{
-		return std::make_shared<StatusResponse_t>(mLogger, core::UTF8String(), 200, IStatusResponse_t::ResponseHeaders());
-	}));
+		.WillByDefault(testing::Return(statusResponseSuccess));
 	ON_CALL(*mMockSession2Open, sendBeaconRawPtrProxy(testing::_))
-		.WillByDefault(testing::Invoke([&](IHttpClientProvider_sp) -> StatusResponse_sp
-	{
-		return std::make_shared<StatusResponse_t>(mLogger, core::UTF8String(), 200, IStatusResponse_t::ResponseHeaders());
-	}));
+		.WillByDefault(testing::Return(statusResponseSuccess));
 	ON_CALL(*mMockSession3Finished, sendBeaconRawPtrProxy(testing::_))
-		.WillByDefault(testing::Invoke([&](IHttpClientProvider_sp) -> StatusResponse_sp
-	{
-		return std::make_shared<StatusResponse_t>(mLogger, core::UTF8String(), 200, IStatusResponse_t::ResponseHeaders());
-	}));
+		.WillByDefault(testing::Return(statusResponseSuccess));
 
 	EXPECT_CALL(*mMockHttpClient, sendNewSessionRequest())
 		.Times(testing::Exactly(0));

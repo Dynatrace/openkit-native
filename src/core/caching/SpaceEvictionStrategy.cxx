@@ -24,7 +24,7 @@ SpaceEvictionStrategy::SpaceEvictionStrategy
 (
 	std::shared_ptr<openkit::ILogger> logger,
 	std::shared_ptr<IBeaconCache> beaconCache,
-	std::shared_ptr<core::configuration::BeaconCacheConfiguration> configuration,
+	std::shared_ptr<core::configuration::IBeaconCacheConfiguration> configuration,
 	std::function<bool()> isAlive
 )
 	: mLogger(logger)

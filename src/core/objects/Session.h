@@ -28,13 +28,12 @@
 #include "NullRootAction.h"
 
 #include "core/UTF8String.h"
-#include "core/configuration/BeaconConfiguration.h"
+#include "core/configuration/IBeaconConfiguration.h"
 #include "core/objects/IOpenKitObject.h"
 #include "core/objects/OpenKitComposite.h"
 #include "core/util/SynchronizedQueue.h"
 #include "providers/IHTTPClientProvider.h"
 #include "providers/IHTTPClientProvider.h"
-#include "core/configuration/BeaconConfiguration.h"
 
 #include <memory>
 #include <atomic>
@@ -137,13 +136,13 @@ namespace core
 			/// Sets the beacon configuration
 			/// @param[in] beaconConfiguration the beacon configuration to apply to the Beacon
 			///
-			virtual void setBeaconConfiguration(std::shared_ptr<configuration::BeaconConfiguration> beaconConfiguration);
+			virtual void setBeaconConfiguration(std::shared_ptr<configuration::IBeaconConfiguration> beaconConfiguration);
 
 			///
 			/// Returns the beacon configuration
 			/// @returns the beacon configuration
 			///
-			virtual std::shared_ptr<configuration::BeaconConfiguration> getBeaconConfiguration() const;
+			virtual std::shared_ptr<configuration::IBeaconConfiguration> getBeaconConfiguration() const;
 
 			void onChildClosed(std::shared_ptr<IOpenKitObject> childObject) override;
 

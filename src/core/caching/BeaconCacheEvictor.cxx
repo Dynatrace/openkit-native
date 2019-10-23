@@ -28,7 +28,7 @@ BeaconCacheEvictor::BeaconCacheEvictor
 (
 	std::shared_ptr<openkit::ILogger> logger,
 	std::shared_ptr<IBeaconCache> beaconCache,
-	std::shared_ptr<core::configuration::BeaconCacheConfiguration> configuration,
+	std::shared_ptr<core::configuration::IBeaconCacheConfiguration> configuration,
 	std::shared_ptr<providers::ITimingProvider> timingProvider
 )
 : BeaconCacheEvictor

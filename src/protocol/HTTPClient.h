@@ -17,13 +17,15 @@
 #ifndef _PROTOCOL_HTTPCLIENT_H
 #define _PROTOCOL_HTTPCLIENT_H
 
+#include "OpenKit/ILogger.h"
+#include "OpenKit/ISSLTrustManager.h"
+#include "core/configuration/IHTTPClientConfiguration.h"
+#include "protocol/IHTTPClient.h"
+
+#include "curl/curl.h"
+
 #include <vector>
 #include <string.h>
-
-#include "OpenKit/ILogger.h"
-#include "protocol/IHTTPClient.h"
-#include "OpenKit/ISSLTrustManager.h"
-#include "curl/curl.h"
 
 namespace protocol
 {
@@ -63,7 +65,7 @@ namespace protocol
 		HTTPClient
 		(
 			std::shared_ptr<openkit::ILogger> logger,
-			std::shared_ptr<core::configuration::HTTPClientConfiguration> configuration
+			std::shared_ptr<core::configuration::IHTTPClientConfiguration> configuration
 		);
 
 		///

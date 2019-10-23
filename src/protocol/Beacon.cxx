@@ -575,12 +575,12 @@ int64_t Beacon::getDeviceID() const
 	return mDeviceID;
 }
 
-void Beacon::setBeaconConfiguration(std::shared_ptr<core::configuration::BeaconConfiguration> beaconConfiguration)
+void Beacon::setBeaconConfiguration(std::shared_ptr<core::configuration::IBeaconConfiguration> beaconConfiguration)
 {
 	std::atomic_store(&mBeaconConfiguration, beaconConfiguration);
 }
 
-std::shared_ptr<core::configuration::BeaconConfiguration> Beacon::getBeaconConfiguration() const
+std::shared_ptr<core::configuration::IBeaconConfiguration> Beacon::getBeaconConfiguration() const
 {
 	return std::atomic_load(&mBeaconConfiguration);
 }

@@ -108,6 +108,9 @@ set(OPENKIT_SOURCES_TEST_CORE_CONFIGURATION
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/BeaconConfigurationTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/BeaconCacheConfigurationTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/ConfigurationTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/configuration/mock/MockIBeaconCacheConfiguration.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/configuration/mock/MockIBeaconConfiguration.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/configuration/mock/MockIHTTPClientConfiguration.h
 )
 
 set(OPENKIT_SOURCES_TEST_CORE_CACHING
