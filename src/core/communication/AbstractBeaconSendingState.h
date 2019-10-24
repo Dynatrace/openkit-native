@@ -17,14 +17,16 @@
 #ifndef _CORE_COMMUNICATION_ABSTRACTBEACONSENDINGSTATE_H
 #define _CORE_COMMUNICATION_ABSTRACTBEACONSENDINGSTATE_H
 
-#include <memory>
+#include "IBeaconSendingState.h"
 
-#include "core/UTF8String.h"
+#include <memory>
 
 namespace core
 {
 	namespace communication
 	{
+		class IBeaconSendingContext;
+
 		/// forward declaration of class BeaconSendingContext
 		class BeaconSendingContext;
 
@@ -32,19 +34,9 @@ namespace core
 		/// Abstract class for all beacon sending states
 		///
 		class AbstractBeaconSendingState
+			: public IBeaconSendingState
 		{
 		public:
-			/// This is pseudo runtime type information used in the tests
-			enum class StateType
-			{
-				BEACON_SENDING_INIT_STATE,
-				BEACON_SENDING_CAPTURE_ON_STATE,
-				BEACON_SENDING_CAPTURE_OFF_STATE,
-				BEACON_SENDING_FLUSH_SESSIONS_STATE,
-				BEACON_SENDING_TERMINAL_STATE,
-				BEACON_SENDING_COUNT
-			};
-
 			///
 			/// Constructor
 			///
@@ -53,7 +45,7 @@ namespace core
 			///
 			/// Destructor
 			///
-			virtual	~AbstractBeaconSendingState();
+			~AbstractBeaconSendingState() override {}
 
 
 			///
@@ -62,38 +54,38 @@ namespace core
 			/// In case shutdown was requested, a state transition is performed by this method to the @ref AbstractBeaconSendingState returned by @ref AbstractBeaconSendingState::getShutdownState().
 			/// @param[in] context the @ref BeaconSendingContext that takes care of state transitions
 			///
-			virtual void execute(BeaconSendingContext& context);
+			void execute(IBeaconSendingContext& context) override;
 
 			///
 			/// Get an instance of the {@ref AbstractBeaconSendingState} to which a transition is made upon shutdown request.
 			/// @returns the follow-up state taking care of the shutdown
 			///
-			virtual std::shared_ptr<AbstractBeaconSendingState> getShutdownState() = 0;
+			std::shared_ptr<IBeaconSendingState> getShutdownState() override = 0;
 
 			///
 			/// Returns @c true if this state is a terminal state, @c false otherwise.
 			/// @returns @c true if this state is a terminal state, @c false otherwise.
 			///
-			virtual bool isTerminalState() const;
+			bool isTerminalState() const override;
 
 			///
 			/// Returns the enum for the state
 			/// @returns the enum for the state
 			///
-			StateType getStateType() const;
+			StateType getStateType() const override;
 
 			///
 			/// Returns the name of the state
 			/// @returns the name of the state
 			///
-			virtual const char* getStateName() const = 0;
+			const char* getStateName() const override = 0;
 
 		protected:
 			///
 			/// Execute the state - real state execution - has to overriden by subclas
 			/// @param context the @see BeaconSendingContext that takes care of state transitions
 			///
-			virtual void doExecute(BeaconSendingContext& context) = 0;
+			virtual void doExecute(IBeaconSendingContext& context) = 0;
 
 		private:
 			/// state type

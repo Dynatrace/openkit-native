@@ -14,56 +14,70 @@
 * limitations under the License.
 */
 
-#include "MockTypes.h"
-#include "../configuration/Types.h"
-#include "../../providers/Types.h"
+#include "mock/MockAbstractBeaconSendingState.h"
+#include "mock/MockIBeaconSendingContext.h"
+#include "mock/MockIBeaconSendingState.h"
+
+#include "core/communication/AbstractBeaconSendingState.h"
+#include "core/communication/IBeaconSendingContext.h"
+#include "core/communication/IBeaconSendingState.h"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-using namespace test::types;
+using namespace test;
+
 
 class AbstractBeaconSendingStateTest : public testing::Test
 {
-protected:
-	AbstractBeaconSendingStateTest()
-		: mLogger(nullptr)
-	{
-	}
-
-	void SetUp()
-	{
-		mLogger = std::make_shared<DefaultLogger_t>(devNull, LogLevel_t::LOG_LEVEL_DEBUG);
-	}
-
-	void TearDown()
-	{
-		mLogger = nullptr;
-	}
-
-	std::ostringstream devNull;
-	ILogger_sp mLogger;
-
 };
 
-TEST_F(AbstractBeaconSendingStateTest,  aTestBeaconSendingStateExecutes)
+TEST_F(AbstractBeaconSendingStateTest, aTestBeaconSendingStateExecutes)
 {
-	MockNiceAbstractBeaconSendingState_t mockState;
-	MockStrictBeaconSendingContext_t mockContext(mLogger);//StrictMock ensure that  all additional calls on context result in failure
+	// with
+	auto mockContext = MockIBeaconSendingContext::createStrict();
 
-	ON_CALL(mockState, execute(testing::_))
-		.WillByDefault(testing::WithArgs<0>(testing::Invoke(&mockState, &MockAbstractBeaconSendingState_t::RealExecute)));
+	// expect
+	EXPECT_CALL(*mockContext, isShutdownRequested())
+		.WillRepeatedly(testing::Return(false));
 
-	// verify doExecute was called
-	EXPECT_CALL(mockState, doExecute(testing::_))
-		.Times(::testing::AtLeast(1));
-	// also verify that shutdown requested is queried, but nothing else
-	EXPECT_CALL(mockContext, isShutdownRequested())
-		.Times(::testing::Exactly(1));
+	// given
+	auto target = MockAbstractBeaconSendingState::createStrict();
 
-	// when calling execute
-	mockState.execute(mockContext);
+	// expect
+	EXPECT_CALL(*target, doExecute(testing::Ref(*mockContext)))
+		.Times(1);
+
+	// when
+	target->execute(*mockContext);
+
 }
 
+TEST_F(AbstractBeaconSendingStateTest, aTestBeaconSendingSetsNextStateAsShutdownState)
+{
+	// with
+	auto mockShutdownState = MockIBeaconSendingState::createNice();
+	auto mockContext = MockIBeaconSendingContext::createStrict();
+
+	// expect
+	EXPECT_CALL(*mockContext, isShutdownRequested())
+		.Times(testing::Exactly(1))
+		.WillOnce(testing::Return(true));
+	EXPECT_CALL(*mockContext, setNextState(testing::Eq(mockShutdownState)))
+		.Times(1);
+
+	// given
+	auto target = MockAbstractBeaconSendingState::createStrict();
+
+	// expect
+	EXPECT_CALL(*target, getShutdownState())
+		.Times(testing::Exactly(1))
+		.WillOnce(testing::Return(mockShutdownState));
+	EXPECT_CALL(*target, doExecute(testing::_))
+		.Times(1);
+
+	// when
+	target->execute(*mockContext);
+}
 
 

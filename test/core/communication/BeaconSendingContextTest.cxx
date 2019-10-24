@@ -15,9 +15,9 @@
 */
 
 #include "CustomMatchers.h"
+#include "mock/MockIBeaconSendingState.h"
 #include "../../api/mock/MockILogger.h"
 #include "../../api/mock/MockISslTrustManager.h"
-#include "../../core/communication/MockAbstractBeaconSendingState.h"
 #include "../../core/configuration/mock/MockIBeaconCacheConfiguration.h"
 #include "../../core/configuration/mock/MockIBeaconConfiguration.h"
 #include "../../core/objects/MockSession.h"
@@ -27,7 +27,8 @@
 #include "../../providers/mock/MockISessionIDProvider.h"
 #include "../../providers/mock/MockITimingProvider.h"
 
-#include "core/UTF8String.h"
+#include "core/communication/BeaconSendingContext.h"
+#include "core/communication/IBeaconSendingState.h"
 #include "core/configuration/Configuration.h"
 #include "core/configuration/Device.h"
 #include "core/configuration/OpenKitType.h"
@@ -38,94 +39,106 @@
 using namespace test;
 
 using BeaconSendingContext_t = core::communication::BeaconSendingContext;
+using BeaconSendingContext_sp = std::shared_ptr<BeaconSendingContext_t>;
 using Configuration_t = core::configuration::Configuration;
 using Configuration_sp = std::shared_ptr<Configuration_t>;
 using Device_t = core::configuration::Device;
+using IBeaconSendingState_t = core::communication::IBeaconSendingState;
+using IBeaconSendingState_up = std::unique_ptr<IBeaconSendingState_t>;
 using MockNiceILogger_sp = std::shared_ptr<testing::NiceMock<MockILogger>>;
 using MockNiceIHTTPClientProvider_sp = std::shared_ptr<testing::NiceMock<MockIHTTPClientProvider>>;
 using MockNiceITimingProvider_sp = std::shared_ptr<testing::NiceMock<MockITimingProvider>>;
 using MockNiceSession_t = testing::NiceMock<MockSession>;
 using MockStrictSession_t = testing::StrictMock<MockSession>;
-using MockStrictAbstractBeaconSendingState_t = testing::StrictMock<MockAbstractBeaconSendingState>;
-using MockStrictAbstractBeaconSendingState_sp = std::shared_ptr<MockStrictAbstractBeaconSendingState_t>;
+using MockStrictIBeaconSendingState_sp = std::shared_ptr<testing::StrictMock<MockIBeaconSendingState>>;
 using OpenKitType_t = core::configuration::OpenKitType;
-using Utf8String_t = core::UTF8String;
 
 class BeaconSendingContextTest : public testing::Test
 {
 protected:
 
 	MockNiceILogger_sp mockLogger;
-	Configuration_sp mConfiguration;
-	MockNiceIHTTPClientProvider_sp mMockHttpClientProvider;
-	MockNiceITimingProvider_sp mMockTimingProvider;
-	MockStrictAbstractBeaconSendingState_sp mMockState;
+	Configuration_sp mockConfiguration;
+	MockNiceIHTTPClientProvider_sp mockHTTPClientProvider;
+	MockNiceITimingProvider_sp mockTimingProvider;
 
 
 	void SetUp()
 	{
 		mockLogger = MockILogger::createNice();
-		mConfiguration = std::make_shared<Configuration_t>
-		(
+		mockConfiguration = std::make_shared<Configuration_t>(
 			std::make_shared<Device_t>("", "", ""),
 			OpenKitType_t::Type::DYNATRACE,
-			Utf8String_t(""),
-			Utf8String_t(""),
-			Utf8String_t(""),
+			"",
+			"",
+			"",
 			1,
 			"1",
-			Utf8String_t(""),
+			"",
 			MockISessionIDProvider::createNice(),
 			MockISslTrustManager::createNice(),
 			MockIBeaconCacheConfiguration::createNice(),
 			MockIBeaconConfiguration::createNice()
 		);
-		mMockHttpClientProvider = MockIHTTPClientProvider::createNice();
-		mMockTimingProvider = MockITimingProvider::createNice();
-		mMockState = std::make_shared<MockStrictAbstractBeaconSendingState_t>();
+		mockHTTPClientProvider = MockIHTTPClientProvider::createNice();
+		mockTimingProvider = MockITimingProvider::createNice();
 	}
 
-	void TearDown()
+	BeaconSendingContext_sp createBeaconSendingContext()
 	{
-		mConfiguration = nullptr;
-		mMockHttpClientProvider = nullptr;
-		mMockTimingProvider = nullptr;
-		mMockState = nullptr;
+		return std::make_shared<BeaconSendingContext_t>(
+			mockLogger,
+			mockHTTPClientProvider,
+			mockTimingProvider,
+			mockConfiguration
+		);
 	}
 };
 
 TEST_F(BeaconSendingContextTest, currentStateIsInitializedAccordingly)
 {
 	// given
-	auto target = std::make_shared<BeaconSendingContext_t>(mockLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration);
+	auto target = createBeaconSendingContext();
+
+	// when
+	auto obtained = target->getCurrentState();
 
 	// then
-	ASSERT_NE(target->getCurrentState(), nullptr);
-	EXPECT_THAT(target->getCurrentState(), IsABeaconSendingInitState());
+	ASSERT_THAT(obtained, testing::NotNull());
+	ASSERT_THAT(obtained, IsABeaconSendingInitState());
 }
 
 TEST_F(BeaconSendingContextTest, setCurrentStateChangesState)
 {
 	// given
-	auto target = std::make_shared<BeaconSendingContext_t>(mockLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration);
+	auto mockState = MockIBeaconSendingState::createStrict();
+	auto target = createBeaconSendingContext();
 
 	// when
-	target->setNextState(mMockState);
+	target->setNextState(mockState);
 
 	// then
-	ASSERT_NE(target->getCurrentState(), nullptr);
-	ASSERT_EQ(target->getNextState(), mMockState);
+	ASSERT_THAT(target->getCurrentState(), testing::NotNull());
+	ASSERT_THAT(target->getNextState(), testing::Eq(mockState));
 }
 
 TEST_F(BeaconSendingContextTest, executeCurrentStateCallsExecuteOnCurrentState)
 {
-	// given
-	auto initMockState = new testing::StrictMock<MockAbstractBeaconSendingState>();
-	auto target = std::make_shared<BeaconSendingContext_t>(mockLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration, std::unique_ptr<testing::StrictMock<test::MockAbstractBeaconSendingState>>(initMockState));
+	// with
+	auto mockState = new MockIBeaconSendingState();
 
-	// then
-	EXPECT_CALL(*initMockState, execute(testing::_))
+	// expect
+	EXPECT_CALL(*mockState, execute(testing::_))
 		.Times(testing::Exactly(1));
+
+	// given
+	auto target = std::make_shared<BeaconSendingContext_t>(
+		mockLogger,
+		mockHTTPClientProvider,
+		mockTimingProvider,
+		mockConfiguration,
+		std::unique_ptr<IBeaconSendingState_t>(mockState)
+	);
 
 	// when
 	target->executeCurrentState();
@@ -134,11 +147,11 @@ TEST_F(BeaconSendingContextTest, executeCurrentStateCallsExecuteOnCurrentState)
 TEST_F(BeaconSendingContextTest, initCompleteSuccessAndWait)
 {
 	// given
-	auto target = std::make_shared<BeaconSendingContext_t>(mockLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration);
+	auto target = createBeaconSendingContext();
 	target->setInitCompleted(true);
 
 	// when
-	bool obtained = target->waitForInit();
+	auto obtained = target->waitForInit();
 
 	// then
 	ASSERT_TRUE(obtained);
@@ -147,23 +160,20 @@ TEST_F(BeaconSendingContextTest, initCompleteSuccessAndWait)
 TEST_F(BeaconSendingContextTest, requestShutdown)
 {
 	// given
-	auto target = std::make_shared<BeaconSendingContext_t>(mockLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration);
-
-	bool obtained = target->isShutdownRequested();
-	ASSERT_FALSE(obtained);
+	auto target = createBeaconSendingContext();
+	ASSERT_THAT(target->isShutdownRequested(), testing::Eq(false));
 
 	// when
 	target->requestShutdown();
 
 	// then
-	obtained = target->isShutdownRequested();
-	ASSERT_TRUE(obtained);
+	ASSERT_THAT(target->isShutdownRequested(), testing::Eq(true));
 }
 
 TEST_F(BeaconSendingContextTest, initCompleteFailureAndWait)
 {
 	// given
-	auto target = std::make_shared<BeaconSendingContext_t>(mockLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration);
+	auto target = createBeaconSendingContext();
 	target->setInitCompleted(false);
 
 	// when
@@ -176,7 +186,7 @@ TEST_F(BeaconSendingContextTest, initCompleteFailureAndWait)
 TEST_F(BeaconSendingContextTest, waitForInitCompleteTimeout)
 {
 	// given
-	auto target = std::make_shared<BeaconSendingContext_t>(mockLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration);
+	auto target = createBeaconSendingContext();
 
 	// when init complete was never set and timeout will be reached
 	bool obtained = target->waitForInit(1);
@@ -188,7 +198,7 @@ TEST_F(BeaconSendingContextTest, waitForInitCompleteTimeout)
 TEST_F(BeaconSendingContextTest, waitForInitCompleteWhenInitCompletedSuccessfully)
 {
 	// given
-	auto target = std::make_shared<BeaconSendingContext_t>(mockLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration);
+	auto target = createBeaconSendingContext();
 	target->setInitCompleted(true);
 
 	// when init complete was never set and timeout will be reached
@@ -201,7 +211,7 @@ TEST_F(BeaconSendingContextTest, waitForInitCompleteWhenInitCompletedSuccessfull
 TEST_F(BeaconSendingContextTest, waitForInitCompleteWhenInitCompletedNotSuccessfully)
 {
 	// given
-	auto target = std::make_shared<BeaconSendingContext_t>(mockLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration);
+	auto target =createBeaconSendingContext();
 	target->setInitCompleted(false);
 
 	// when init complete was never set and timeout will be reached
@@ -214,7 +224,7 @@ TEST_F(BeaconSendingContextTest, waitForInitCompleteWhenInitCompletedNotSuccessf
 TEST_F(BeaconSendingContextTest, aDefaultConstructedContextIsNotInitialized)
 {
 	// given
-	auto target = std::make_shared<BeaconSendingContext_t>(mockLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration);
+	auto target = createBeaconSendingContext();
 
 	// that
 	ASSERT_FALSE(target->isInitialized());
@@ -223,7 +233,7 @@ TEST_F(BeaconSendingContextTest, aDefaultConstructedContextIsNotInitialized)
 TEST_F(BeaconSendingContextTest, successfullyInitializedContextIsInitialized)
 {
 	// given
-	auto target = std::make_shared<BeaconSendingContext_t>(mockLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration);
+	auto target = createBeaconSendingContext();
 
 	// when initialized
 	target->setInitCompleted(true);
@@ -234,51 +244,38 @@ TEST_F(BeaconSendingContextTest, successfullyInitializedContextIsInitialized)
 
 TEST_F(BeaconSendingContextTest, isInTerminalStateChecksCurrentState)
 {
-	// given
-	auto target = std::make_shared<BeaconSendingContext_t>(mockLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration);
-	auto nonTerminalState = std::make_shared<MockStrictAbstractBeaconSendingState_t>();
-	ON_CALL(*nonTerminalState, isTerminalState())
-		.WillByDefault(testing::Return(false));
-	auto terminalState = std::make_shared<MockStrictAbstractBeaconSendingState_t>();
+	// with
+	auto terminalState = MockIBeaconSendingState::createStrict();
 	ON_CALL(*terminalState, isTerminalState())
 		.WillByDefault(testing::Return(true));
 
-	// when non-terminal state is current state
-	target->setNextState(nonTerminalState);
+	// given
+	auto target = createBeaconSendingContext();
 
-	// verify interactions with mock
-	EXPECT_CALL(*nonTerminalState, isTerminalState())
-		.Times(testing::Exactly(1));
+	ASSERT_THAT(target->isInTerminalState(), testing::Eq(false));
+	ASSERT_THAT(target->getCurrentState(), IsABeaconSendingInitState());
 
-	// then
-	auto nextState = target->getNextState();
-	ASSERT_FALSE(nextState->isTerminalState());
-
-	// and when terminal state is current state
+	// when
 	target->setNextState(terminalState);
 
-	// verify interactions with mock
-	EXPECT_CALL(*terminalState, isTerminalState())
-		.Times(testing::Exactly(1));
-
 	// then
-	nextState = target->getNextState();
-	ASSERT_TRUE(nextState->isTerminalState());
+	ASSERT_THAT(target->isInTerminalState(), testing::Eq(false));
+	ASSERT_THAT(target->getCurrentState(), IsABeaconSendingInitState());
 }
 
 TEST_F(BeaconSendingContextTest, isCaptureOnReturnsValueFromConfiguration)
 {
 	// given
-	auto target = std::make_shared<BeaconSendingContext_t>(mockLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration);
+	auto target = createBeaconSendingContext();
 
 	// when capturing is enabled
-	mConfiguration->enableCapture();
+	mockConfiguration->enableCapture();
 
 	// then
 	ASSERT_TRUE(target->isCaptureOn());
 
 	// and when capturing is disabled
-	mConfiguration->disableCapture();
+	mockConfiguration->disableCapture();
 
 	// then
 	ASSERT_FALSE(target->isCaptureOn());
@@ -287,7 +284,7 @@ TEST_F(BeaconSendingContextTest, isCaptureOnReturnsValueFromConfiguration)
 TEST_F(BeaconSendingContextTest, setAndGetLastOpenSessionBeaconSendTime)
 {
 	// given
-	auto target = std::make_shared<BeaconSendingContext_t>(mockLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration);
+	auto target = createBeaconSendingContext();
 
 	// when
 	target->setLastOpenSessionBeaconSendTime(1234L);
@@ -305,7 +302,7 @@ TEST_F(BeaconSendingContextTest, setAndGetLastOpenSessionBeaconSendTime)
 TEST_F(BeaconSendingContextTest, setAndGetLastStatusCheckTime)
 {
 	// given
-	auto target = std::make_shared<BeaconSendingContext_t>(mockLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration);
+	auto target = createBeaconSendingContext();
 
 	// when
 	target->setLastStatusCheckTime(1234L);
@@ -323,8 +320,8 @@ TEST_F(BeaconSendingContextTest, setAndGetLastStatusCheckTime)
 TEST_F(BeaconSendingContextTest, getSendIntervalRetrievesItFromConfiguration)
 {
 	// given
-	auto target = std::make_shared<BeaconSendingContext_t>(mockLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration);
-	mConfiguration->setSendInterval(1234L);
+	auto target = createBeaconSendingContext();
+	mockConfiguration->setSendInterval(1234L);
 
 	// when
 	int64_t obtained = target->getSendInterval();
@@ -333,66 +330,65 @@ TEST_F(BeaconSendingContextTest, getSendIntervalRetrievesItFromConfiguration)
 	ASSERT_EQ(obtained, 1234L);
 }
 
-TEST_F(BeaconSendingContextTest, testGetHTTPClient)
+TEST_F(BeaconSendingContextTest, getHTTPClientProvider)
 {
 	// given
-	auto target = std::make_shared<BeaconSendingContext_t>(mockLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration);
+	auto target = createBeaconSendingContext();
 
 	// when
 	auto obtained = target->getHTTPClientProvider();
 
 	// then
-	ASSERT_EQ(obtained, mMockHttpClientProvider);
+	ASSERT_EQ(obtained, mockHTTPClientProvider);
 }
 
-TEST_F(BeaconSendingContextTest, getHTTPClientProvider)
+TEST_F(BeaconSendingContextTest, getHTTPClient)
 {
 	// given
 	auto mockClient = MockIHTTPClient::createStrict();
 	auto httpClientProvider = MockIHTTPClientProvider::createStrict();
-	ON_CALL(*mMockHttpClientProvider, createClient(testing::_, testing::_))
-		.WillByDefault(testing::Return(mockClient));
-	auto target = std::make_shared<BeaconSendingContext_t>(mockLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration);
+	EXPECT_CALL(*httpClientProvider, createClient(testing::_, testing::_))
+		.Times(testing::Exactly(1))
+		.WillOnce(testing::Return(mockClient));
+
+	auto target = std::make_shared<BeaconSendingContext_t>(mockLogger, httpClientProvider, mockTimingProvider, mockConfiguration);
 
 	// when
 	auto obtained = target->getHTTPClient();
 
 	// then
-	ASSERT_NE(obtained, nullptr);
-	ASSERT_EQ(obtained, mockClient);
-
+	ASSERT_THAT(obtained, testing::NotNull());
+	ASSERT_THAT(obtained, testing::Eq(mockClient));
 }
 
 TEST_F(BeaconSendingContextTest, getCurrentTimestamp)
 {
-	// given
+	// with
+	int64_t timestamp = 1234567890;
 	auto timingProvider = MockITimingProvider::createStrict();
-	ON_CALL(*timingProvider, provideTimestampInMilliseconds())
-		.WillByDefault(testing::Return(1234567890L));
-	auto target = std::make_shared<BeaconSendingContext_t>(mockLogger, mMockHttpClientProvider, timingProvider, mConfiguration);
 
-	// then
+	// expect
 	EXPECT_CALL(*timingProvider, provideTimestampInMilliseconds())
-		.Times(testing::Exactly(1));
+		.Times(testing::Exactly(1))
+		.WillOnce(testing::Return(timestamp));
+
+	// given
+	auto target = std::make_shared<BeaconSendingContext_t>(mockLogger, mockHTTPClientProvider, timingProvider, mockConfiguration);
 
 	// when
 	auto obtained = target->getCurrentTimestamp();
 
 	// then
-	ASSERT_EQ(obtained, 1234567890L);
+	ASSERT_THAT(obtained, testing::Eq(timestamp));
 }
 
 TEST_F(BeaconSendingContextTest, sleepDefaultTime)
 {
-	// given
+	// with
 	auto timingProvider = MockITimingProvider::createStrict();
-	ON_CALL(*timingProvider, provideTimestampInMilliseconds())
-		.WillByDefault(testing::Return(1234567890L));
-	auto target = std::make_shared<BeaconSendingContext_t>(mockLogger, mMockHttpClientProvider, timingProvider, mConfiguration);
 
-	// then
-	EXPECT_CALL(*timingProvider, sleep(BeaconSendingContext_t::DEFAULT_SLEEP_TIME_MILLISECONDS.count()))
-		.Times(testing::Exactly(0));
+	// given
+	auto target = std::make_shared<BeaconSendingContext_t>(mockLogger, mockHTTPClientProvider, timingProvider, mockConfiguration);
 
 	// when
 	auto start = std::chrono::system_clock::now();
@@ -405,15 +401,13 @@ TEST_F(BeaconSendingContextTest, sleepDefaultTime)
 
 TEST_F(BeaconSendingContextTest, sleepWithGivenTime)
 {
-	// given
+	// with
 	auto timingProvider = MockITimingProvider::createStrict();
 	ON_CALL(*timingProvider, provideTimestampInMilliseconds())
 		.WillByDefault(testing::Return(1234567890L));
-	auto target = std::make_shared<BeaconSendingContext_t>(mockLogger, mMockHttpClientProvider, timingProvider, mConfiguration);
 
-	// then
-	EXPECT_CALL(*timingProvider, sleep(1234L))
-		.Times(testing::Exactly(0));
+	// given
+	auto target = std::make_shared<BeaconSendingContext_t>(mockLogger, mockHTTPClientProvider, timingProvider, mockConfiguration);
 
 	// when
 	auto start = std::chrono::system_clock::now();
@@ -427,7 +421,7 @@ TEST_F(BeaconSendingContextTest, sleepWithGivenTime)
 TEST_F(BeaconSendingContextTest, aDefaultConstructedContextDoesNotStoreAnySessions)
 {
 	// given
-	auto target = std::make_shared<BeaconSendingContext_t>(mockLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration);
+	auto target = createBeaconSendingContext();
 
 	// then
 	ASSERT_TRUE(target->getAllNewSessions().empty());
@@ -438,7 +432,7 @@ TEST_F(BeaconSendingContextTest, aDefaultConstructedContextDoesNotStoreAnySessio
 TEST_F(BeaconSendingContextTest, startingASessionAddsTheSessionToOpenSessions)
 {
 	// given
-	auto target = std::make_shared<BeaconSendingContext_t>(mockLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration);
+	auto target = createBeaconSendingContext();
 	auto mockSessionOne = std::make_shared<MockNiceSession_t>(mockLogger);
 	auto mockSessionTwo = std::make_shared<MockNiceSession_t>(mockLogger);
 
@@ -466,7 +460,7 @@ TEST_F(BeaconSendingContextTest, startingASessionAddsTheSessionToOpenSessions)
 TEST_F(BeaconSendingContextTest, finishingASessionMovesSessionToFinishedSessions)
 {
 	// given
-	auto target = std::make_shared<BeaconSendingContext_t>(mockLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration);
+	auto target = createBeaconSendingContext();
 	auto mockSessionOne = std::make_shared<MockNiceSession_t>(mockLogger);
 	auto mockSessionTwo = std::make_shared<MockNiceSession_t>(mockLogger);
 
@@ -503,7 +497,7 @@ TEST_F(BeaconSendingContextTest, finishingASessionMovesSessionToFinishedSessions
 TEST_F(BeaconSendingContextTest, finishingASessionThatHasNotBeenStartedBeforeIsNotAddedToInternalList)
 {
 	// given
-	auto target = std::make_shared<BeaconSendingContext_t>(mockLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration);
+	auto target = createBeaconSendingContext();
 	auto mockSession = std::make_shared<MockNiceSession_t>(mockLogger);
 
 	// when the session is not started, but immediately finished
@@ -518,7 +512,7 @@ TEST_F(BeaconSendingContextTest, finishingASessionThatHasNotBeenStartedBeforeIsN
 TEST_F(BeaconSendingContextTest, getNextFinishedSessionReturnsEmptyListIfThereAreNoFinishedSessions)
 {
 	// given
-	auto target = std::make_shared<BeaconSendingContext_t>(mockLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration);
+	auto target = createBeaconSendingContext();
 
 	// when
 	auto finishedSessions = target->getAllFinishedAndConfiguredSessions();
@@ -531,8 +525,8 @@ TEST_F(BeaconSendingContextTest, getNextFinishedSessionReturnsEmptyListIfThereAr
 TEST_F(BeaconSendingContextTest, handleStatusResponseWhenCapturingIsEnabled)
 {
 	// given
-	mConfiguration->enableCapture();
-	auto target = std::make_shared<BeaconSendingContext_t>(mockLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration);
+	mockConfiguration->enableCapture();
+	auto target = createBeaconSendingContext();
 	auto mockSessionOne = std::make_shared<MockStrictSession_t>(mockLogger);
 	auto mockSessionTwo = std::make_shared<MockStrictSession_t>(mockLogger);
 
@@ -567,7 +561,7 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseWhenCapturingIsEnabled)
 TEST_F(BeaconSendingContextTest, handleStatusResponseWhenCapturingIsDisabled)
 {
 	// given
-	auto target = std::make_shared<BeaconSendingContext_t>(mockLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration);
+	auto target = createBeaconSendingContext();
 	auto mockSessionOne = std::make_shared<MockStrictSession_t>(mockLogger);
 	auto mockSessionTwo = std::make_shared<MockStrictSession_t>(mockLogger);
 	auto mockSessionThree = std::make_shared<MockStrictSession_t>(mockLogger);
@@ -595,7 +589,7 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseWhenCapturingIsDisabled)
 
 	auto mockStatusResponse = MockIStatusResponse::createNice();
 
-	mConfiguration->disableCapture();
+	mockConfiguration->disableCapture();
 
 	// verify
 	EXPECT_CALL(*mockSessionOne, clearCapturedData())
@@ -634,7 +628,7 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseWhenCapturingIsDisabled)
 TEST_F(BeaconSendingContextTest, whenStartingASessionTheSessionIsConsideredAsNew)
 {
 	// given
-	auto target = std::make_shared<BeaconSendingContext_t>(mockLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration);
+	auto target = createBeaconSendingContext();
 
 	auto mockSessionOne = std::make_shared<MockNiceSession_t>(mockLogger);
 	auto mockSessionTwo = std::make_shared<MockNiceSession_t>(mockLogger);
@@ -659,7 +653,7 @@ TEST_F(BeaconSendingContextTest, whenStartingASessionTheSessionIsConsideredAsNew
 TEST_F(BeaconSendingContextTest, finishingANewSessionStillLeavesItNew)
 {
 	// given
-	auto target = std::make_shared<BeaconSendingContext_t>(mockLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration);
+	auto target = createBeaconSendingContext();
 
 	auto mockSessionOne = std::make_shared<MockNiceSession_t>(mockLogger);
 	auto mockSessionTwo = std::make_shared<MockNiceSession_t>(mockLogger);
@@ -686,7 +680,7 @@ TEST_F(BeaconSendingContextTest, finishingANewSessionStillLeavesItNew)
 TEST_F(BeaconSendingContextTest, afterASessionHasBeenConfiguredItsOpenAndConfigured)
 {
 	// given
-	auto target = std::make_shared<BeaconSendingContext_t>(mockLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration);
+	auto target = createBeaconSendingContext();
 
 	auto mockSessionOne = std::make_shared<MockNiceSession_t>(mockLogger);
 	auto mockSessionTwo = std::make_shared<MockNiceSession_t>(mockLogger);
@@ -720,7 +714,7 @@ TEST_F(BeaconSendingContextTest, afterASessionHasBeenConfiguredItsOpenAndConfigu
 TEST_F(BeaconSendingContextTest, afterAFinishedSessionHasBeenConfiguredItsFinishedAndConfigured)
 {
 	// given
-	auto target = std::make_shared<BeaconSendingContext_t>(mockLogger, mMockHttpClientProvider, mMockTimingProvider, mConfiguration);
+	auto target = createBeaconSendingContext();
 
 	auto mockSessionOne = std::make_shared<MockNiceSession_t>(mockLogger);
 	auto mockSessionTwo = std::make_shared<MockNiceSession_t>(mockLogger);

@@ -19,7 +19,7 @@
 
 #include <memory>
 
-#include "BeaconSendingContext.h"
+#include "IBeaconSendingContext.h"
 #include  "protocol/IStatusResponse.h"
 
 namespace core
@@ -39,7 +39,7 @@ namespace core
 			/// @param[in] numRetries number of retries when failing
 			/// @param[in] initialRetryDelayInMillis if retries are necesarry this in the initial time to sleep between two retries, it is doubled every time
 			///
-			static std::shared_ptr<protocol::IStatusResponse> sendStatusRequest(BeaconSendingContext& context, uint32_t numRetries, uint64_t initialRetryDelayInMillis);
+			static std::shared_ptr<protocol::IStatusResponse> sendStatusRequest(IBeaconSendingContext& context, uint32_t numRetries, uint64_t initialRetryDelayInMillis);
 
 		private:
 

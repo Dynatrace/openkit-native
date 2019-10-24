@@ -18,6 +18,7 @@
 #define _CORE_COMMUNICATION_BEACONSENDINGFLUSHSESSIONSTATE_H
 
 #include "AbstractBeaconSendingState.h"
+#include "IBeaconSendingContext.h"
 
 #include <vector>
 #include <chrono>
@@ -32,7 +33,8 @@ namespace core
 		/// Transition to:
 		///   - @ref BeaconSendingTerminalState
 		///
-		class BeaconSendingFlushSessionsState : public AbstractBeaconSendingState
+		class BeaconSendingFlushSessionsState
+			: public AbstractBeaconSendingState
 		{
 		public:
 			///
@@ -44,16 +46,13 @@ namespace core
 			/// Destructor
 			///
 
-			virtual ~BeaconSendingFlushSessionsState() {}
+			~BeaconSendingFlushSessionsState() override {}
 
-			virtual void doExecute(BeaconSendingContext& context) override;
+			 void doExecute(IBeaconSendingContext& context) override;
 
-			virtual std::shared_ptr<AbstractBeaconSendingState> getShutdownState() override;
+			std::shared_ptr<IBeaconSendingState> getShutdownState() override;
 
-			virtual const char* getStateName() const override;
-
-		private:
-
+			const char* getStateName() const override;
 		};
 	}
 }

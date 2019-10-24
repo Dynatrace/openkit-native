@@ -31,12 +31,11 @@
 using namespace core::communication;
 
 BeaconSendingCaptureOnState::BeaconSendingCaptureOnState()
-	: AbstractBeaconSendingState(AbstractBeaconSendingState::StateType::BEACON_SENDING_CAPTURE_ON_STATE)
+	: AbstractBeaconSendingState(IBeaconSendingState::StateType::BEACON_SENDING_CAPTURE_ON_STATE)
 {
-
 }
 
-void BeaconSendingCaptureOnState::doExecute(BeaconSendingContext& context)
+void BeaconSendingCaptureOnState::doExecute(IBeaconSendingContext& context)
 {
 	context.sleep();
 	if (context.isShutdownRequested())
@@ -51,7 +50,10 @@ void BeaconSendingCaptureOnState::doExecute(BeaconSendingContext& context)
 	if (BeaconSendingResponseUtil::isTooManyRequestsResponse(newSessionsResponse))
 	{
 		// server is currently overloaded, temporarily switch to capture off
-		context.setNextState(std::make_shared<BeaconSendingCaptureOffState>(newSessionsResponse->getRetryAfterInMilliseconds()));
+		auto captureOffState = std::make_shared<BeaconSendingCaptureOffState>(
+				newSessionsResponse->getRetryAfterInMilliseconds()
+		);
+		context.setNextState(captureOffState);
 		return;
 	}
 
@@ -60,7 +62,10 @@ void BeaconSendingCaptureOnState::doExecute(BeaconSendingContext& context)
 	if (BeaconSendingResponseUtil::isTooManyRequestsResponse(finishedSessionsResponse))
 	{
 		// server is currently overloaded, temporarily switch to capture off
-		context.setNextState(std::make_shared<BeaconSendingCaptureOffState>(finishedSessionsResponse->getRetryAfterInMilliseconds()));
+		auto captureOffState = std::make_shared<BeaconSendingCaptureOffState>(
+			finishedSessionsResponse->getRetryAfterInMilliseconds()
+		);
+		context.setNextState(captureOffState);
 		return;
 	}
 
@@ -69,7 +74,10 @@ void BeaconSendingCaptureOnState::doExecute(BeaconSendingContext& context)
 	if (BeaconSendingResponseUtil::isTooManyRequestsResponse(openSessionsResponse))
 	{
 		// server is currently overloaded, temporarily switch to capture off
-		context.setNextState(std::make_shared<BeaconSendingCaptureOffState>(openSessionsResponse->getRetryAfterInMilliseconds()));
+		auto captureOffState = std::make_shared<BeaconSendingCaptureOffState>(
+			openSessionsResponse->getRetryAfterInMilliseconds()
+		);
+		context.setNextState(captureOffState);
 		return;
 	}
 
@@ -86,9 +94,9 @@ void BeaconSendingCaptureOnState::doExecute(BeaconSendingContext& context)
 	handleStatusResponse(context, lastStatusResponse);
 }
 
-std::shared_ptr<AbstractBeaconSendingState> BeaconSendingCaptureOnState::getShutdownState()
+std::shared_ptr<IBeaconSendingState> BeaconSendingCaptureOnState::getShutdownState()
 {
-	return std::shared_ptr<AbstractBeaconSendingState>(new BeaconSendingFlushSessionsState());
+	return std::make_shared<BeaconSendingFlushSessionsState>();
 }
 
 const char* BeaconSendingCaptureOnState::getStateName() const
@@ -96,7 +104,9 @@ const char* BeaconSendingCaptureOnState::getStateName() const
 	return "CaptureOn";
 }
 
-std::shared_ptr<protocol::IStatusResponse> BeaconSendingCaptureOnState::sendFinishedSessions(BeaconSendingContext& context)
+std::shared_ptr<protocol::IStatusResponse> BeaconSendingCaptureOnState::sendFinishedSessions(
+	IBeaconSendingContext& context
+)
 {
 	std::shared_ptr<protocol::IStatusResponse> statusResponse = nullptr;
 	// check if there's finished Sessions to be sent -> immediately send beacon(s) of finished Sessions
@@ -122,7 +132,7 @@ std::shared_ptr<protocol::IStatusResponse> BeaconSendingCaptureOnState::sendFini
 	return statusResponse;
 }
 
-std::shared_ptr<protocol::IStatusResponse> BeaconSendingCaptureOnState::sendOpenSessions(BeaconSendingContext& context)
+std::shared_ptr<protocol::IStatusResponse> BeaconSendingCaptureOnState::sendOpenSessions(IBeaconSendingContext& context)
 {
 	std::shared_ptr<protocol::IStatusResponse> statusResponse = nullptr;
 	int64_t currentTimestamp = context.getCurrentTimestamp();
@@ -153,7 +163,10 @@ std::shared_ptr<protocol::IStatusResponse> BeaconSendingCaptureOnState::sendOpen
 	return statusResponse;
 }
 
-void BeaconSendingCaptureOnState::handleStatusResponse(BeaconSendingContext& context, std::shared_ptr<protocol::IStatusResponse> statusResponse)
+void BeaconSendingCaptureOnState::handleStatusResponse(
+	IBeaconSendingContext& context,
+	std::shared_ptr<protocol::IStatusResponse> statusResponse
+)
 {
 	if (statusResponse == nullptr)
 	{
@@ -163,11 +176,14 @@ void BeaconSendingCaptureOnState::handleStatusResponse(BeaconSendingContext& con
 	context.handleStatusResponse(statusResponse);
 	if (!context.isCaptureOn()) {
 		// capturing is turned off -> make state transition
-		context.setNextState(std::shared_ptr<AbstractBeaconSendingState>(new BeaconSendingCaptureOffState()));
+		auto captureOffState = std::make_shared<BeaconSendingCaptureOffState>();
+		context.setNextState(captureOffState);
 	}
 }
 
-std::shared_ptr<protocol::IStatusResponse> BeaconSendingCaptureOnState::sendNewSessionRequests(BeaconSendingContext& context)
+std::shared_ptr<protocol::IStatusResponse> BeaconSendingCaptureOnState::sendNewSessionRequests(
+	IBeaconSendingContext& context
+)
 {
 	std::shared_ptr<protocol::IStatusResponse> statusResponse = nullptr;
 	for (auto session : context.getAllNewSessions() )
@@ -176,7 +192,11 @@ std::shared_ptr<protocol::IStatusResponse> BeaconSendingCaptureOnState::sendNewS
 		{
 			// already exceeded the maximum number of session requests, disable any further data collecting
 			auto beaconConfiguration = session->getBeaconConfiguration();
-			auto newBeaconConfiguration = std::make_shared<configuration::BeaconConfiguration>(0, beaconConfiguration->getDataCollectionLevel(), beaconConfiguration->getCrashReportingLevel());
+			auto newBeaconConfiguration = std::make_shared<configuration::BeaconConfiguration>(
+				0,
+				beaconConfiguration->getDataCollectionLevel(),
+				beaconConfiguration->getCrashReportingLevel()
+			);
 			session->updateBeaconConfiguration(newBeaconConfiguration);
 			continue;
 		}
@@ -185,7 +205,11 @@ std::shared_ptr<protocol::IStatusResponse> BeaconSendingCaptureOnState::sendNewS
 		if (BeaconSendingResponseUtil::isSuccessfulResponse(statusResponse))
 		{
 			auto beaconConfiguration = session->getBeaconConfiguration();
-			auto newBeaconConfiguration = std::make_shared<configuration::BeaconConfiguration>(statusResponse->getMultiplicity(), beaconConfiguration->getDataCollectionLevel(), beaconConfiguration->getCrashReportingLevel());
+			auto newBeaconConfiguration = std::make_shared<configuration::BeaconConfiguration>(
+				statusResponse->getMultiplicity(),
+				beaconConfiguration->getDataCollectionLevel(),
+				beaconConfiguration->getCrashReportingLevel()
+			);
 			session->updateBeaconConfiguration(newBeaconConfiguration);
 		}
 		else if (BeaconSendingResponseUtil::isTooManyRequestsResponse(statusResponse))

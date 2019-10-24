@@ -17,16 +17,17 @@
 #ifndef _CORE_COMMUNICATION_BEACONSENDINGCONTEXT_H
 #define _CORE_COMMUNICATION_BEACONSENDINGCONTEXT_H
 
+#include "IBeaconSendingContext.h"
+#include "IBeaconSendingState.h"
 #include "OpenKit/ILogger.h"
+#include "core/SessionWrapper.h"
+#include "core/configuration/Configuration.h"
+#include "core/objects/Session.h"
 #include "core/util/CountDownLatch.h"
 #include "core/util/SynchronizedQueue.h"
+#include "protocol/IStatusResponse.h"
 #include "providers/IHTTPClientProvider.h"
 #include "providers/ITimingProvider.h"
-#include "core/configuration/Configuration.h"
-#include "protocol/IStatusResponse.h"
-#include "AbstractBeaconSendingState.h"
-#include "core/objects/Session.h"
-#include "core/SessionWrapper.h"
 
 #include <atomic>
 #include <memory>
@@ -42,6 +43,7 @@ namespace core
 		/// State context for beacon sending states.
 		///
 		class BeaconSendingContext
+			: public IBeaconSendingContext
 		{
 		public:
 			///
@@ -73,32 +75,32 @@ namespace core
 				std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
 				std::shared_ptr<providers::ITimingProvider> timingProvider,
 				std::shared_ptr<core::configuration::Configuration> configuration,
-				std::unique_ptr<AbstractBeaconSendingState> initialState
+				std::unique_ptr<IBeaconSendingState> initialState
 			);
 
-			virtual ~BeaconSendingContext() {}
+			~BeaconSendingContext() override {}
 
 			///
 			/// Executes the current state
 			///
-			void executeCurrentState();
+			void executeCurrentState() override ;
 
 			///
 			/// Request shutdown
 			///
-			virtual void requestShutdown();
+			void requestShutdown() override;
 
 			///
 			/// Return a flag if shutdown was requested
 			/// @returns @c true if shutdown was requested, @c false if not
 			///
-			virtual bool isShutdownRequested() const;
+			bool isShutdownRequested() const override;
 
 			///
 			/// Blocking method waiting until initialization finished
 			/// @return @c true if initialization succeeded, @c false if initialization failed
 			///
-			bool waitForInit();
+			bool waitForInit() override ;
 
 			///
 			/// Wait until OpenKit has been fully initialized or timeout expired.
@@ -106,125 +108,125 @@ namespace core
 			/// @param[in] timeoutMillis The maximum number of milliseconds to wait for initialization being completed.
 			/// @return @c true if OpenKit is fully initialized, @c false if OpenKit init got interrupted or time to wait expired
 			///
-			bool waitForInit(int64_t timeoutMillis);
+			bool waitForInit(int64_t timeoutMillis) override ;
 
 			///
 			/// Complete OpenKit initialization
 			/// NOTE: This will wake up every caller waiting in the @c #waitForInit() method.
 			/// @param[in] success @c true if OpenKit was successfully initialized, @c false if it was interrupted
 			///
-			virtual void setInitCompleted(bool success);
+			void setInitCompleted(bool success) override;
 
 			///
 			/// Get a boolean indicating whether OpenKit is initialized or not.
 			/// @returns @c true  if OpenKit is initialized, @c false otherwise.
 			///
-			bool isInitialized() const;
+			bool isInitialized() const override;
 
 			///
 			/// Return a flag if the current state of this context is a terminal state
 			/// @returns @c true if the current state is a terminal state
 			///
-			virtual bool isInTerminalState() const;
+			bool isInTerminalState() const override;
 
 			///
 			/// Returns a flag if capturing is enabled
 			/// @returns @c true if capturing is enabled, @c false if capturing is disabled
 			///
-			virtual bool isCaptureOn() const;
+			bool isCaptureOn() const override;
 
 			///
 			/// Gets the current state.
 			/// @returns the current state
 			///
-			std::shared_ptr<AbstractBeaconSendingState> getCurrentState() const;
+			std::shared_ptr<IBeaconSendingState> getCurrentState() const override;
 
 			///
 			/// Register a state following the current state once the current state finished
-			/// @param nextState instance of the  AbstractBeaconSendingState that follows after the current state
+			/// @param nextState instance of the  IBeaconSendingState that follows after the current state
 			///
-			virtual void setNextState(std::shared_ptr<AbstractBeaconSendingState> nextState);
+			void setNextState(std::shared_ptr<IBeaconSendingState> nextState) override;
 
 			///
 			/// Return the next state for testing purposes
 			/// @returns the next state
 			///
-			std::shared_ptr<AbstractBeaconSendingState> getNextState();
+			std::shared_ptr<IBeaconSendingState> getNextState() override;
 
 			///
 			/// Gets the HTTP client provider.
 			/// @return a class responsible for retrieving an instance of @ref protocol::IHTTPClient.
 			///
-			virtual std::shared_ptr<providers::IHTTPClientProvider> getHTTPClientProvider();
+			std::shared_ptr<providers::IHTTPClientProvider> getHTTPClientProvider() override;
 
 			///
 			/// Returns the  HTTPClient created by the current BeaconSendingContext
 			/// @returns a shared pointer to the HTTPClient created by the BeaconSendingContext
 			///
-			virtual std::shared_ptr<protocol::IHTTPClient> getHTTPClient();
+			std::shared_ptr<protocol::IHTTPClient> getHTTPClient() override;
 
 			///
 			/// Get current timestamp
 			/// @returns current timestamp
 			///
-			virtual int64_t getCurrentTimestamp() const;
+			int64_t getCurrentTimestamp() const override;
 
 			///
 			/// Sleep some time (@ref DEFAULT_SLEEP_TIME_MILLISECONDS}
 			///
-			virtual void sleep();
+			void sleep() override;
 
 			///
 			/// Sleep for a given amount of time
 			/// @param[in] ms number of milliseconds
 			///
-			virtual void sleep(int64_t ms);
+			void sleep(int64_t ms) override;
 
 			///
 			/// Get timestamp when open sessions were sent last
 			/// @returns timestamp of last sending of open session
 			///
-			virtual int64_t getLastOpenSessionBeaconSendTime() const;
+			int64_t getLastOpenSessionBeaconSendTime() const override;
 
 			///
 			/// Set timestamp when open sessions were sent last
 			/// @param[in] timestamp of last sendinf of open session
 			///
-			virtual void setLastOpenSessionBeaconSendTime(int64_t timestamp);
+			void setLastOpenSessionBeaconSendTime(int64_t timestamp) override;
 
 			///
 			/// Get timestamp when last status check was performed
 			/// @returns timestamp of last status check
 			///
-			int64_t getLastStatusCheckTime() const;
+			int64_t getLastStatusCheckTime() const override;
 
 			///
 			/// Set timestamp when last status check was performed
 			/// @param[in] lastStatusCheckTime timestamp of last status check
 			///
-			virtual void setLastStatusCheckTime(int64_t lastStatusCheckTime);
+			void setLastStatusCheckTime(int64_t lastStatusCheckTime) override;
 
 			///
 			/// Get the send interval for open sessions.
 			/// @return the send interval for open sessions
 			///
-			virtual int64_t getSendInterval() const;
+			int64_t getSendInterval() const override;
 
 			///
 			/// Disable data capturing.
 			///
-			virtual void disableCapture();
+			void disableCapture() override;
 
 			///
 			/// Handle the status response received from the server
 			/// Update the current configuration accordingly
 			///
-			void handleStatusResponse(std::shared_ptr<protocol::IStatusResponse> response);
+			void handleStatusResponse(std::shared_ptr<protocol::IStatusResponse> response) override;
 
 			///
 			/// Clears all session data
 			///
-			void clearAllSessionData();
+			void clearAllSessionData() override;
 
 			///
 			/// Get all sessions that are considered new.
@@ -232,26 +234,26 @@ namespace core
 			/// The returned list is a snapshot and might change during traversal.
 			/// @returns a shallow copy of all new sessions.
 			///
-			virtual std::vector<std::shared_ptr<core::SessionWrapper>> getAllNewSessions();
+			std::vector<std::shared_ptr<core::SessionWrapper>> getAllNewSessions() override;
 
 			///
 			/// Gets all open and configured sessions.
 			/// @return a shallow copy of all open sessions.
 			///
-			virtual std::vector<std::shared_ptr<core::SessionWrapper>> getAllOpenAndConfiguredSessions();
+			std::vector<std::shared_ptr<core::SessionWrapper>> getAllOpenAndConfiguredSessions() override;
 
 			///
 			/// Get a list of all sessions that have been configured and are currently finished
 			/// @returns a shallow copy of all finished and configured sessions.
 			///
-			virtual std::vector<std::shared_ptr<core::SessionWrapper>> getAllFinishedAndConfiguredSessions();
+			std::vector<std::shared_ptr<core::SessionWrapper>> getAllFinishedAndConfiguredSessions() override;
 
 			///
 			/// Start a new session.
 			/// This add the @c session to the internal container of open sessions.
 			/// @param[in] session The new session to start.
 			///
-			virtual void startSession(std::shared_ptr<core::objects::Session> session);
+			void startSession(std::shared_ptr<core::objects::Session> session) override;
 
 			///
 			/// Finish a session which has been started previously using startSession(std::shared_ptr<core::objects::Session>)
@@ -259,19 +261,13 @@ namespace core
 			/// otherwise it's removed from the container storing open sessions and added to the finished session container.
 			/// @param[in] session The session to finish.
 			///
-			virtual void finishSession(std::shared_ptr<core::objects::Session> session);
-
-			///
-			/// Return the currently used Configuration
-			/// @return configuration instance
-			///
-			const std::shared_ptr<core::configuration::Configuration> getConfiguration() const;
+			void finishSession(std::shared_ptr<core::objects::Session> session) override;
 
 			///
 			/// Returns the type of state
-			/// @returns type of state as defined in AbstractBeaconSendingState
+			/// @returns type of state as defined inIBeaconSendingState
 			///
-			AbstractBeaconSendingState::StateType getCurrentStateType() const;
+			IBeaconSendingState::StateType getCurrentStateType() const override;
 
 			///
 			/// Default sleep time in milliseconds (used by @ref sleep()).
@@ -290,17 +286,17 @@ namespace core
 			/// @param[in] sessionWrapper
 			/// @returns @c true if @c sessionWrapper was found in the session wrapper list and was removed successfully, @c false otherwise
 			///
-			virtual bool removeSession(std::shared_ptr<core::SessionWrapper> sessionWrapper);
+			bool removeSession(std::shared_ptr<core::SessionWrapper> sessionWrapper) override;
 
 		private:
 			/// Logger to write traces to
 			std::shared_ptr<openkit::ILogger> mLogger;
 
-			/// instance of AbstractBeaconSendingState with the current state
-			std::shared_ptr<AbstractBeaconSendingState> mCurrentState;
+			/// instance of IBeaconSendingState with the current state
+			std::shared_ptr<IBeaconSendingState> mCurrentState;
 
-			/// instance of AbstractBeaconSendingState with the following state
-			std::shared_ptr<AbstractBeaconSendingState> mNextState;
+			/// instance of IBeaconSendingState with the following state
+			std::shared_ptr<IBeaconSendingState> mNextState;
 
 			/// Boolean indicating shutdown flag.
 			bool mShutdown;

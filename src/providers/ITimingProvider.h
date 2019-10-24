@@ -34,12 +34,6 @@ namespace providers
 		/// @returns the current timestamp
 		///
 		virtual int64_t provideTimestampInMilliseconds() = 0;
-
-		///
-		/// Sleep given amount of milliseconds.
-		/// @param[in] milliseconds amount of milliseconds to sleep
-		///
-		virtual void sleep(int64_t milliseconds) = 0;
 	};
 }
 

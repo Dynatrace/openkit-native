@@ -17,15 +17,15 @@
 #ifndef CORE_BEACONSENDER_H
 #define CORE_BEACONSENDER_H
 
-#include <memory>
-#include <future>
-
-#include "communication/BeaconSendingContext.h"
+#include "OpenKit/ILogger.h"
+#include "communication/IBeaconSendingContext.h"
 #include "configuration/Configuration.h"
+#include "core/objects/Session.h"
 #include "providers/IHTTPClientProvider.h"
 #include "providers/ITimingProvider.h"
 
-#include "core/objects/Session.h"
+#include <memory>
+#include <future>
 
 namespace core
 {
@@ -105,7 +105,7 @@ namespace core
 		std::shared_ptr<openkit::ILogger> mLogger;
 
 		/// Beacon sending context managing the state transitions and shutdown
-		std::shared_ptr<communication::BeaconSendingContext> mBeaconSendingContext;
+		std::shared_ptr<communication::IBeaconSendingContext> mBeaconSendingContext;
 
 		/// thread instance running the beacon sending state machine
 		std::future<bool> mSendingThread;

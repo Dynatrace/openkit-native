@@ -20,7 +20,7 @@ using namespace core::communication;
 
 bool BeaconSendingResponseUtil::isSuccessfulResponse(std::shared_ptr<protocol::IStatusResponse> response)
 {
-	return response != nullptr && response->isSuccessfulResponse();
+	return response != nullptr && !response->isErroneousResponse();
 }
 
 bool BeaconSendingResponseUtil::isTooManyRequestsResponse(std::shared_ptr<protocol::IStatusResponse> response)

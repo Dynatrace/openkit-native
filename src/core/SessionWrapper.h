@@ -46,17 +46,22 @@ namespace core
 		SessionWrapper(std::shared_ptr<core::objects::Session> session);
 
 		///
+		/// Destructor
+		///
+		virtual ~SessionWrapper() {}
+
+		///
 		/// Updates the @ref core::configuration::BeaconConfiguration in the wrapped session.
 		/// Besides updating the beacon configuration this also sets the @ref beaconConfigurationSet to  @c true.
 		/// @param[in] beaconConfiguration the beacon configuration to update the session with
 		///
-		void updateBeaconConfiguration(std::shared_ptr<core::configuration::IBeaconConfiguration> beaconConfiguration);
+		virtual void updateBeaconConfiguration(std::shared_ptr<core::configuration::IBeaconConfiguration> beaconConfiguration);
 
 		///
 		/// Returns the beacon configuration
 		/// @returns the current beacon configuration
 		///
-		std::shared_ptr<core::configuration::IBeaconConfiguration> getBeaconConfiguration() const;
+		virtual std::shared_ptr<core::configuration::IBeaconConfiguration> getBeaconConfiguration() const;
 
 		///
 		/// Returns a flag if the beacon configuration of the session has been set at least once
@@ -80,19 +85,19 @@ namespace core
 		///
 		/// Will be called each time a new session request was made for a session.
 		///
-		void decreaseNumberOfNewSessionRequests();
+		virtual void decreaseNumberOfNewSessionRequests();
 
 		///
 		/// Get a flag indicating whether new session request can be sent, or not.
 		/// @returns @c true if the new session request can be sent, @c false otherwise.
 		///
-		bool canSendNewSessionRequest() const;
+		virtual bool canSendNewSessionRequest() const;
 
 		///
 		/// Test if the Session is empty.
 		/// @returns flag if the wrapped session indicates that data is present
 		///
-		bool isEmpty() const;
+		virtual bool isEmpty() const;
 
 		///
 		/// Ends the session
@@ -110,19 +115,19 @@ namespace core
 		/// If the multiplicity is greater 0 sending is allowed
 		/// @returns @c true if beacon data may be send, @c false otherwise
 		///
-		bool isDataSendingAllowed() const;
+		virtual bool isDataSendingAllowed() const;
 
 		///
 		/// Clear the sessions data
 		///
-		void clearCapturedData();
+		virtual void clearCapturedData();
 
 		///
 		/// Send beacon forward call
 		/// @param[in] httpClientProvider http client provider
 		/// @returns the status response
 		///
-		std::shared_ptr<protocol::IStatusResponse> sendBeacon(std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider);
+		virtual std::shared_ptr<protocol::IStatusResponse> sendBeacon(std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider);
 
 	private:
 

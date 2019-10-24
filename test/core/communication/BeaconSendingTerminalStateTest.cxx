@@ -14,78 +14,74 @@
 * limitations under the License.
 */
 
-#include "Types.h"
-#include "MockTypes.h"
-#include "../../api/Types.h"
-#include "../../api/mock/MockILogger.h"
-#include "../../protocol/Types.h"
+#include "core/communication/BeaconSendingTerminalState.h"
+
+#include "mock/MockIBeaconSendingContext.h"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
 using namespace test;
-using namespace test::types;
+
+using BeaconSendingTerminalState_t = core::communication::BeaconSendingTerminalState;
 
 class BeaconSendingTerminalStateTest : public testing::Test
 {
-protected:
-
-	BeaconSendingTerminalStateTest()
-		: mLogger(nullptr)
-		, mTarget(nullptr)
-	{
-	}
-
-	void SetUp()
-	{
-		mLogger = MockILogger::createNice();
-		mTarget = std::make_shared<BeaconSendingTerminalState_t>();
-	}
-
-	void TearDown()
-	{
-		mLogger = nullptr;
-		mTarget = nullptr;
-	}
-
-	ILogger_sp mLogger;
-	BeaconSendingTerminalState_sp mTarget;
 };
 
 TEST_F(BeaconSendingTerminalStateTest, isTerminalStateIsTrueForTheTerminalState)
-{
-	EXPECT_TRUE(mTarget->isTerminalState());
-}
-
-TEST_F(BeaconSendingTerminalStateTest, theShutdownStateIsNeverTheSameReference)
-{
-	AbstractBeaconSendingState_sp obtained = mTarget->getShutdownState();
-
-	ASSERT_NE(obtained, nullptr);
-	EXPECT_NE(mTarget.get(), obtained.get());
-}
-
-TEST_F(BeaconSendingTerminalStateTest, executeRequestsShutdown)
-{
-	MockStrictBeaconSendingContext_t mockContext(mLogger);//StrictMock ensure that  all additional calls on context result in failure
-
-	EXPECT_CALL(mockContext, requestShutdown())
-		.Times(::testing::Exactly(1));
-
-	EXPECT_CALL(mockContext, isShutdownRequested())
-		.Times(::testing::Exactly(1));
-
-	mTarget->execute(mockContext);
-}
-
-TEST_F(BeaconSendingTerminalStateTest, ToStringReturnsCorrectStateName)
 {
 	// given
 	BeaconSendingTerminalState_t target;
 
 	// when
-	auto stateName = target.getStateName();
+	auto obtained = target.isTerminalState();
 
 	// then
-	ASSERT_STREQ(stateName, "Terminal");
+	ASSERT_THAT(obtained, testing::Eq(true));
+}
+
+TEST_F(BeaconSendingTerminalStateTest, theShutdownStateIsNeverTheSameReference)
+{
+	// given
+	auto target = std::make_shared<BeaconSendingTerminalState_t>();
+
+	//
+	auto obtained = target->getShutdownState();
+
+	// then
+	ASSERT_THAT(obtained, testing::NotNull());
+	ASSERT_THAT(obtained.get(), testing::Ne(target.get()));
+}
+
+
+TEST_F(BeaconSendingTerminalStateTest, getStateNameReturnsTheStateName)
+{
+	// given
+	BeaconSendingTerminalState_t target;
+
+	// when
+	auto obtained = target.getStateName();
+
+	// then
+	ASSERT_THAT(obtained, testing::StrEq("Terminal"));
+}
+
+TEST_F(BeaconSendingTerminalStateTest, executeRequestsShutdown)
+{
+	// with
+	auto mockContext = MockIBeaconSendingContext::createStrict();
+
+	// expect
+	EXPECT_CALL(*mockContext, requestShutdown())
+		.Times(::testing::Exactly(1));
+
+	EXPECT_CALL(*mockContext, isShutdownRequested())
+		.Times(::testing::Exactly(1));
+
+	// given
+	BeaconSendingTerminalState_t target;
+
+	// when
+	target.execute(*mockContext);
 }

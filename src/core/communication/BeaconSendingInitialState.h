@@ -18,6 +18,7 @@
 #define _CORE_COMMUNICATION_BEACONSENDINGINITIALSTATE_H
 
 #include "AbstractBeaconSendingState.h"
+#include "IBeaconSendingContext.h"
 #include "protocol/IStatusResponse.h"
 
 #include <vector>
@@ -37,7 +38,8 @@ namespace core
 		///   - @ref BeaconSendingCaptureOnState if initial status request succeeded and capturing is enabled.
 		///   - @ref BeaconSendingCaptureOffState if initial status request succeeded and capturing is disabled.
 		///
-		class BeaconSendingInitialState : public AbstractBeaconSendingState
+		class BeaconSendingInitialState
+			: public AbstractBeaconSendingState
 		{
 		public:
 			///
@@ -48,13 +50,13 @@ namespace core
 			///
 			/// Destructor
 			///
-			virtual ~BeaconSendingInitialState() {}
+			~BeaconSendingInitialState() override {}
 
-			virtual void doExecute(BeaconSendingContext& context) override;
+			void doExecute(IBeaconSendingContext& context) override;
 
-			virtual std::shared_ptr<AbstractBeaconSendingState> getShutdownState() override;
+			std::shared_ptr<IBeaconSendingState> getShutdownState() override;
 
-			virtual const char* getStateName() const override;
+			const char* getStateName() const override;
 
 			/// The initial delay which is later on doubled between one unsuccessful attempt and the next retry
 			static const std::chrono::milliseconds INITIAL_RETRY_SLEEP_TIME_MILLISECONDS;
@@ -69,7 +71,7 @@ namespace core
 			/// @param context The state's context
 			/// @return The last received status response, which might be erroneous if shutdown has been requested.
 			///
-			std::shared_ptr<protocol::IStatusResponse> executeStatusRequest(BeaconSendingContext& context);
+			std::shared_ptr<protocol::IStatusResponse> executeStatusRequest(IBeaconSendingContext& context);
 
 			///
 			/// Index to re-initialize delays

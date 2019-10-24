@@ -45,31 +45,31 @@ protected:
 	}
 };
 
-TEST_F(StatusResponseTest, isSuccessfulResponseGivesTrueForResponseCodesLessThan400)
+TEST_F(StatusResponseTest, isErroneousResponseGivesFlaseForResponseCodesLessThan400)
 {
 	// given
 	auto target = StatusResponse_t(logger, "", 399, IStatusResponse_t::ResponseHeaders());
 
 	// then
-	ASSERT_TRUE(target.isSuccessfulResponse());
+	ASSERT_THAT(target.isErroneousResponse(), testing::Eq(false));
 }
 
-TEST_F(StatusResponseTest, isSuccessfulResponseGivesFalseForResponseCodesEqualTo400)
+TEST_F(StatusResponseTest, isErroneousResponseGivesTrueForResponseCodesEqualTo400)
 {
 	// given
 	auto target = StatusResponse_t(logger, "", 400, IStatusResponse_t::ResponseHeaders());
 
 	// then
-	ASSERT_FALSE(target.isSuccessfulResponse());
+	ASSERT_THAT(target.isErroneousResponse(), testing::Eq(true));
 }
 
-TEST_F(StatusResponseTest, isSuccessfulResponseGivesFalseForResponseCodesGreaterThan400)
+TEST_F(StatusResponseTest, isErroneousResponseGivesTrueForResponseCodesGreaterThan400)
 {
 	// given
 	auto target = StatusResponse_t(logger, "", 401, IStatusResponse_t::ResponseHeaders());
 
 	// then
-	ASSERT_FALSE(target.isSuccessfulResponse());
+	ASSERT_THAT(target.isErroneousResponse(), testing::Eq(true));
 }
 
 TEST_F(StatusResponseTest, isErroneousResponseGivesTrueForErrorCodeEqualTo400)

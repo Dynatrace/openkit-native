@@ -14,21 +14,20 @@
 * limitations under the License.
 */
 
+
+#include "AbstractBeaconSendingState.h"
+#include "BeaconSendingCaptureOnState.h"
+#include "BeaconSendingCaptureOffState.h"
+#include "BeaconSendingContext.h"
 #include "BeaconSendingInitialState.h"
+#include "BeaconSendingRequestUtil.h"
+#include "BeaconSendingResponseUtil.h"
+#include "BeaconSendingTerminalState.h"
+#include "protocol/IStatusResponse.h"
 
 #include <chrono>
 #include <algorithm>
 #include <memory>
-
-#include "BeaconSendingTerminalState.h"
-#include "BeaconSendingCaptureOnState.h"
-#include "BeaconSendingCaptureOffState.h"
-#include "AbstractBeaconSendingState.h"
-#include "BeaconSendingRequestUtil.h"
-#include "BeaconSendingResponseUtil.h"
-#include "BeaconSendingContext.h"
-
-#include "protocol/IStatusResponse.h"
 
 using namespace core::communication;
 
@@ -46,14 +45,14 @@ const std::vector<std::chrono::milliseconds> BeaconSendingInitialState::REINIT_D
 const std::chrono::milliseconds BeaconSendingInitialState::INITIAL_RETRY_SLEEP_TIME_MILLISECONDS(std::chrono::seconds(1));
 
 BeaconSendingInitialState::BeaconSendingInitialState()
-	: AbstractBeaconSendingState(AbstractBeaconSendingState::StateType::BEACON_SENDING_INIT_STATE)
+	: AbstractBeaconSendingState(IBeaconSendingState::StateType::BEACON_SENDING_INIT_STATE)
 	, mReinitializeDelayIndex(0)
 
 {
 
 }
 
-void BeaconSendingInitialState::doExecute(BeaconSendingContext& context)
+void BeaconSendingInitialState::doExecute(IBeaconSendingContext& context)
 {
 	/// execute the status request until we get a response
 	auto statusResponse = executeStatusRequest(context);
@@ -80,9 +79,9 @@ void BeaconSendingInitialState::doExecute(BeaconSendingContext& context)
 	}
 }
 
-std::shared_ptr<AbstractBeaconSendingState> BeaconSendingInitialState::getShutdownState()
+std::shared_ptr<IBeaconSendingState> BeaconSendingInitialState::getShutdownState()
 {
-	return std::shared_ptr<AbstractBeaconSendingState>(new BeaconSendingTerminalState());
+	return std::make_shared<BeaconSendingTerminalState>();
 }
 
 const char* BeaconSendingInitialState::getStateName() const
@@ -90,7 +89,9 @@ const char* BeaconSendingInitialState::getStateName() const
 	return "Initial";
 }
 
-std::shared_ptr<protocol::IStatusResponse> BeaconSendingInitialState::executeStatusRequest(BeaconSendingContext& context)
+std::shared_ptr<protocol::IStatusResponse> BeaconSendingInitialState::executeStatusRequest(
+	IBeaconSendingContext& context
+)
 {
 	std::shared_ptr<protocol::IStatusResponse> statusResponse = nullptr;
 	while (!context.isShutdownRequested())
@@ -99,7 +100,11 @@ std::shared_ptr<protocol::IStatusResponse> BeaconSendingInitialState::executeSta
 		context.setLastOpenSessionBeaconSendTime(currentTimestamp);
 		context.setLastStatusCheckTime(currentTimestamp);
 
-		statusResponse = BeaconSendingRequestUtil::sendStatusRequest(context, MAX_INITIAL_STATUS_REQUEST_RETRIES, INITIAL_RETRY_SLEEP_TIME_MILLISECONDS.count());
+		statusResponse = BeaconSendingRequestUtil::sendStatusRequest(
+			context,
+			MAX_INITIAL_STATUS_REQUEST_RETRIES,
+			INITIAL_RETRY_SLEEP_TIME_MILLISECONDS.count()
+		);
 		if (BeaconSendingResponseUtil::isSuccessfulResponse(statusResponse))
 		{
 			// successful status response was received
@@ -119,7 +124,10 @@ std::shared_ptr<protocol::IStatusResponse> BeaconSendingInitialState::executeSta
 		// status request needs to be sent again after some delay
 		context.sleep(sleepTime);
 
-		mReinitializeDelayIndex = std::min(mReinitializeDelayIndex + 1, uint32_t(REINIT_DELAY_MILLISECONDS.size() - 1)); // ensure no out of bounds
+		mReinitializeDelayIndex = std::min(
+			mReinitializeDelayIndex + 1,
+			uint32_t(REINIT_DELAY_MILLISECONDS.size() - 1)
+		); // ensure no out of bounds
 	}
 
 	return statusResponse;

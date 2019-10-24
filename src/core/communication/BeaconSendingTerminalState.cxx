@@ -20,24 +20,18 @@
 using namespace core::communication;
 
 BeaconSendingTerminalState::BeaconSendingTerminalState()
-	: AbstractBeaconSendingState(AbstractBeaconSendingState::StateType::BEACON_SENDING_TERMINAL_STATE)
+	: AbstractBeaconSendingState(IBeaconSendingState::StateType::BEACON_SENDING_TERMINAL_STATE)
 {
-
 }
 
-BeaconSendingTerminalState::~BeaconSendingTerminalState()
-{
-
-}
-
-void BeaconSendingTerminalState::doExecute(BeaconSendingContext& context)
+void BeaconSendingTerminalState::doExecute(IBeaconSendingContext& context)
 {
 	context.requestShutdown();
 }
 
-std::shared_ptr<AbstractBeaconSendingState> BeaconSendingTerminalState::getShutdownState()
+std::shared_ptr<IBeaconSendingState> BeaconSendingTerminalState::getShutdownState()
 {
-	return std::shared_ptr<AbstractBeaconSendingState>(new BeaconSendingTerminalState());
+	return std::make_shared<BeaconSendingTerminalState>();
 }
 
 const char* BeaconSendingTerminalState::getStateName() const

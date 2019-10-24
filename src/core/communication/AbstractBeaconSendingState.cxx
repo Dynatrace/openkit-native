@@ -15,21 +15,16 @@
 */
 
 #include "AbstractBeaconSendingState.h"
-#include "BeaconSendingContext.h"
+#include "IBeaconSendingContext.h"
 
 using namespace core::communication;
 
 AbstractBeaconSendingState::AbstractBeaconSendingState(StateType type)
 	: mStateType(type)
 {
-
 }
 
-AbstractBeaconSendingState::~AbstractBeaconSendingState()
-{
-}
-
-void AbstractBeaconSendingState::execute(BeaconSendingContext& context)
+void AbstractBeaconSendingState::execute(IBeaconSendingContext& context)
 {
 	doExecute(context);
 
@@ -46,5 +41,5 @@ AbstractBeaconSendingState::StateType AbstractBeaconSendingState::getStateType()
 
 bool AbstractBeaconSendingState::isTerminalState() const
 {
-	return mStateType == AbstractBeaconSendingState::StateType::BEACON_SENDING_TERMINAL_STATE;
+	return mStateType == IBeaconSendingState::StateType::BEACON_SENDING_TERMINAL_STATE;
 }

@@ -48,7 +48,6 @@ namespace test {
 		}
 
 		MOCK_METHOD0(provideTimestampInMilliseconds, int64_t());
-		MOCK_METHOD1(sleep, void(int64_t));
 	};
 }
 

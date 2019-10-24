@@ -33,8 +33,3 @@ int64_t DefaultTimingProvider::provideTimestampInMilliseconds()
 
 	return ms.count();
 }
-
-void DefaultTimingProvider::sleep(int64_t milliseconds)
-{
-	std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
-}

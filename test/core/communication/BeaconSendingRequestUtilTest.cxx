@@ -14,8 +14,7 @@
 * limitations under the License.
 */
 
-#include "MockBeaconSendingContext.h"
-#include "../../api/mock/MockILogger.h"
+#include "mock/MockIBeaconSendingContext.h"
 #include "../../protocol/mock/MockIHTTPClient.h"
 #include "../../protocol/mock/MockIStatusResponse.h"
 
@@ -30,9 +29,9 @@ using namespace test;
 
 using BeaconSendingRequestUtil_t = core::communication::BeaconSendingRequestUtil;
 using IStatusResponse_t = protocol::IStatusResponse;
-using MockNiceBeaconSendingContext_t = testing::NiceMock<MockBeaconSendingContext>;
-using MockNiceBeaconSendingContext_sp = std::shared_ptr<MockNiceBeaconSendingContext_t>;
-using MockNiceILogger_sp = std::shared_ptr<testing::NiceMock<MockILogger>>;
+using MockNiceIBeaconSendingContext_sp = std::shared_ptr<testing::NiceMock<MockIBeaconSendingContext>>;
+using MockNiceIStatusResponse_sp = std::shared_ptr<testing::NiceMock<MockIStatusResponse>>;
+using MockStrictIBeaconSendingContext_sp = std::shared_ptr<testing::StrictMock<MockIBeaconSendingContext>>;
 using MockStrictIHTTPClient_sp = std::shared_ptr<testing::StrictMock<MockIHTTPClient>>;
 using StatusResponse_t = protocol::StatusResponse;
 using StatusResponse_sp = std::shared_ptr<StatusResponse_t>;
@@ -41,183 +40,179 @@ class BeaconSendingRequestUtilTest : public testing::Test
 {
 protected:
 
-	MockNiceBeaconSendingContext_sp mockContext;
-	MockNiceILogger_sp mockLogger;
+	MockNiceIBeaconSendingContext_sp mockContextNice;
+	MockStrictIBeaconSendingContext_sp mockContextStrict;
 	MockStrictIHTTPClient_sp mockHTTPClient;
+	MockNiceIStatusResponse_sp mockStatusResponse;
 
 	virtual void SetUp() override
 	{
-		mockLogger = MockILogger::createNice();
+		mockStatusResponse = MockIStatusResponse::createNice();
 
 		mockHTTPClient = MockIHTTPClient::createStrict();
 		ON_CALL(*mockHTTPClient, sendStatusRequest())
-			.WillByDefault(testing::Return(MockIStatusResponse::createNice()));
+			.WillByDefault(testing::Return(mockStatusResponse));
 
-		mockContext = std::make_shared<MockNiceBeaconSendingContext_t>(mockLogger);
-		ON_CALL(*mockContext, getHTTPClient())
+		mockContextNice = MockIBeaconSendingContext::createNice();
+		ON_CALL(*mockContextNice, getHTTPClient())
 			.WillByDefault(testing::Return(mockHTTPClient));
 
+		mockContextStrict = MockIBeaconSendingContext::createStrict();
+		ON_CALL(*mockContextStrict, getHTTPClient())
+			.WillByDefault(testing::Return(mockHTTPClient));
 	}
 };
 
 TEST_F(BeaconSendingRequestUtilTest, sendStatusRequestIsAbortedWhenShutdownIsRequested)
 {
-	// given
-	ON_CALL(*mockHTTPClient, sendStatusRequest())
-		.WillByDefault(testing::Invoke([&]() ->  StatusResponse_sp
-		{
-			return std::make_shared<StatusResponse_t>(mockLogger, "", 400, IStatusResponse_t::ResponseHeaders());
-		})
-	);
+	// with
+	ON_CALL(*mockStatusResponse, getResponseCode())
+		.WillByDefault(testing::Return(400));
+	ON_CALL(*mockStatusResponse, isErroneousResponse())
+		.WillByDefault(testing::Return(true));
 
-	// verify
-	EXPECT_CALL(*mockContext, isShutdownRequested())
-		.WillOnce(::testing::Return(false))
-		.WillRepeatedly(::testing::Return(true));
-	EXPECT_CALL(*mockContext, getHTTPClient())
-		.Times(::testing::Exactly(1));
+	// expect
+	EXPECT_CALL(*mockContextStrict, isShutdownRequested())
+		.Times(testing::Exactly(2))
+		.WillOnce(testing::Return(false))
+		.WillOnce(testing::Return(true));
+	EXPECT_CALL(*mockContextStrict, getHTTPClient())
+		.Times(1);
+	EXPECT_CALL(*mockContextStrict, sleep(testing::_))
+		.Times(1);
+
 	EXPECT_CALL(*mockHTTPClient, sendStatusRequest())
-		.Times(::testing::Exactly(1));
+		.Times(1);
 
-	// when
-	auto obtained = BeaconSendingRequestUtil_t::sendStatusRequest(*mockContext, 5, 1000L);
+	// given, when
+	auto obtained = BeaconSendingRequestUtil_t::sendStatusRequest(*mockContextStrict, 5, 1000L);
 
 	// then
-	ASSERT_NE(nullptr, obtained);
+	ASSERT_THAT(obtained, testing::Eq(mockStatusResponse));
 }
 
 TEST_F(BeaconSendingRequestUtilTest, sendStatusRequestIsAbortedIfTheNumberOfRetriesIsExceeded)
 {
-	// given
-	ON_CALL(*mockHTTPClient, sendStatusRequest())
-		.WillByDefault(testing::Invoke([&]() ->  StatusResponse_sp
-		{
-			return std::make_shared<StatusResponse_t>(mockLogger, "", 400, IStatusResponse_t::ResponseHeaders());
-		})
-	);
-	ON_CALL(*mockContext, isShutdownRequested())
+	// with
+	ON_CALL(*mockStatusResponse, getResponseCode())
+		.WillByDefault(testing::Return(400));
+	ON_CALL(*mockStatusResponse, isErroneousResponse())
+		.WillByDefault(testing::Return(true));
+	ON_CALL(*mockContextNice, isShutdownRequested())
 		.WillByDefault(testing::Return(false));
 
-	// verify
-	EXPECT_CALL(*mockContext, getHTTPClient())
-		.Times(::testing::Exactly(4));
-	EXPECT_CALL(*mockContext, sleep(testing::_))
-		.Times(::testing::Exactly(3));
-	EXPECT_CALL(*mockHTTPClient, sendStatusRequest())
-		.Times(::testing::Exactly(4));
+	// expect
+	EXPECT_CALL(*mockContextNice, getHTTPClient())
+		.Times(4);
+	EXPECT_CALL(*mockContextNice, sleep(testing::_))
+		.Times(3);
 
-	// when
-	auto obtained = BeaconSendingRequestUtil_t::sendStatusRequest(*mockContext, 3, 1000L);
+	EXPECT_CALL(*mockHTTPClient, sendStatusRequest())
+		.Times(4);
+
+	// given, when
+	auto obtained = BeaconSendingRequestUtil_t::sendStatusRequest(*mockContextNice, 3, 1000L);
 
 	// then
-	ASSERT_NE(nullptr, obtained);
+	ASSERT_THAT(obtained, testing::Eq(mockStatusResponse));
 }
 
 TEST_F(BeaconSendingRequestUtilTest, sendStatusRequestIsDoneWhenHttpClientReturnsASuccessfulResponse)
 {
-	// given
-	ON_CALL(*mockHTTPClient, sendStatusRequest())
-		.WillByDefault(testing::Invoke([&]() ->  StatusResponse_sp
-		{
-			return std::make_shared<StatusResponse_t>(mockLogger, "", 200, IStatusResponse_t::ResponseHeaders());
-		})
-	);
-	ON_CALL(*mockContext, isShutdownRequested())
-		.WillByDefault(testing::Return(false));
-
-	// verify
-	EXPECT_CALL(*mockContext, getHTTPClient())
+	// expect
+	EXPECT_CALL(*mockContextStrict, isShutdownRequested())
+		.Times(1)
+		.WillRepeatedly(testing::Return(false));
+	EXPECT_CALL(*mockContextStrict, getHTTPClient())
 		.Times(::testing::Exactly(1));
-	EXPECT_CALL(*mockContext, sleep(testing::AnyOf(1000L, 2000L, 4000L)))
-		.Times(::testing::Exactly(0));
 	EXPECT_CALL(*mockHTTPClient, sendStatusRequest())
 		.Times(::testing::Exactly(1));
 
-	// when
-	auto obtained = BeaconSendingRequestUtil_t::sendStatusRequest(*mockContext, 3, 1000L);
+	// given, when
+	auto obtained =  BeaconSendingRequestUtil_t::sendStatusRequest(*mockContextStrict, 3, 1000L);
 
 	// then
-	ASSERT_NE(nullptr, obtained);
+	ASSERT_THAT(obtained, testing::Eq(mockStatusResponse));
 }
 
 TEST_F(BeaconSendingRequestUtilTest, sleepTimeIsDoubledBetweenConsecutiveRetries)
 {
-	// given
-	ON_CALL(*mockHTTPClient, sendStatusRequest())
-		.WillByDefault(testing::Invoke([&]() ->  StatusResponse_sp
-		{
-			return std::make_shared<StatusResponse_t>(mockLogger, "", 400, IStatusResponse_t::ResponseHeaders());
-		})
-	);
-	ON_CALL(*mockContext, isShutdownRequested())
+	// with
+	ON_CALL(*mockStatusResponse, getResponseCode())
+		.WillByDefault(testing::Return(400));
+	ON_CALL(*mockStatusResponse, isErroneousResponse())
+		.WillByDefault(testing::Return(true));
+	ON_CALL(*mockContextNice, isShutdownRequested())
 		.WillByDefault(testing::Return(false));
 
-	// verify
+	// expect
 	{
-		testing::InSequence dummy;
-		EXPECT_CALL(*mockContext, sleep(1000L));
-		EXPECT_CALL(*mockContext, sleep(2000L));
-		EXPECT_CALL(*mockContext, sleep(4000L));
-		EXPECT_CALL(*mockContext, sleep(8000L));
-		EXPECT_CALL(*mockContext, sleep(16000L));
+		testing::InSequence s;
+		EXPECT_CALL(*mockContextNice, sleep(1000L));
+		EXPECT_CALL(*mockContextNice, sleep(2000L));
+		EXPECT_CALL(*mockContextNice, sleep(4000L));
+		EXPECT_CALL(*mockContextNice, sleep(8000L));
+		EXPECT_CALL(*mockContextNice, sleep(16000L));
 	}
 
 	EXPECT_CALL(*mockHTTPClient, sendStatusRequest())
-		.Times(::testing::Exactly(6));
+		.Times((6));
+	EXPECT_CALL(*mockContextNice, getHTTPClient())
+		.Times(6);
 
-	// when
-	auto obtained = BeaconSendingRequestUtil_t::sendStatusRequest(*mockContext, 5, 1000L);
+	// given, when
+	auto obtained = BeaconSendingRequestUtil_t::sendStatusRequest(*mockContextNice, 5, 1000L);
 
 	// then
-	ASSERT_NE(nullptr, obtained);
+	ASSERT_THAT(obtained, testing::Eq(mockStatusResponse));
 }
 
 TEST_F(BeaconSendingRequestUtilTest, sendStatusRequestHandlesNullResponsesSameAsErroneousResponses)
 {
-	// given
-	ON_CALL(*mockHTTPClient, sendStatusRequest())
-		.WillByDefault(testing::Invoke([&]() ->  StatusResponse_sp { return nullptr; }));
-	ON_CALL(*mockContext, isShutdownRequested())
+	// with
+	ON_CALL(*mockContextNice, isShutdownRequested())
 		.WillByDefault(testing::Return(false));
+	ON_CALL(*mockHTTPClient, sendStatusRequest())
+		.WillByDefault(testing::Return(nullptr));
 
-	// verify
-	EXPECT_CALL(*mockContext, getHTTPClient())
+	// expect
+	EXPECT_CALL(*mockContextNice, getHTTPClient())
 		.Times(::testing::Exactly(4));
-	EXPECT_CALL(*mockContext, sleep(testing::_))
+	EXPECT_CALL(*mockContextNice, sleep(testing::_))
 		.Times(::testing::Exactly(3));
 	EXPECT_CALL(*mockHTTPClient, sendStatusRequest())
 		.Times(::testing::Exactly(4));
 
-	// when
-	auto obtained = BeaconSendingRequestUtil_t::sendStatusRequest(*mockContext, 3, 1000L);
+	// given, when
+	auto obtained = BeaconSendingRequestUtil_t::sendStatusRequest(*mockContextNice, 3, 1000L);
 
 	// then
-	ASSERT_EQ(nullptr, obtained);
+	ASSERT_THAT(obtained, testing::IsNull());
 }
 
 TEST_F(BeaconSendingRequestUtilTest, sendStatusRequestReturnsTooManyRequestsResponseImmediately)
 {
-	// given
-	ON_CALL(*mockHTTPClient, sendStatusRequest())
-		.WillByDefault(testing::Invoke([&]() ->  StatusResponse_sp
-		{
-			return std::make_shared<StatusResponse_t>(mockLogger, "", 429, IStatusResponse_t::ResponseHeaders());
-		})
-	);
-	ON_CALL(*mockContext, isShutdownRequested())
+	// with
+	ON_CALL(*mockStatusResponse, getResponseCode())
+		.WillByDefault(testing::Return(429));
+	ON_CALL(*mockStatusResponse, isTooManyRequestsResponse())
+			.WillByDefault(testing::Return(true));
+	ON_CALL(*mockStatusResponse, isErroneousResponse())
+		.WillByDefault(testing::Return(true));
+	ON_CALL(*mockContextNice, isShutdownRequested())
 		.WillByDefault(testing::Return(false));
 
-	// verify
-	EXPECT_CALL(*mockContext, getHTTPClient())
+	// expect
+	EXPECT_CALL(*mockContextNice, getHTTPClient())
 		.Times(::testing::Exactly(1));
-	EXPECT_CALL(*mockContext, sleep(testing::_))
+	EXPECT_CALL(*mockContextNice, sleep(testing::_))
 		.Times(::testing::Exactly(0));
 	EXPECT_CALL(*mockHTTPClient, sendStatusRequest())
 		.Times(::testing::Exactly(1));
 
-	// when
-	auto obtained = BeaconSendingRequestUtil_t::sendStatusRequest(*mockContext, 5, 1000L);
+	// given, when
+	 auto obtained = BeaconSendingRequestUtil_t::sendStatusRequest(*mockContextNice, 3, 1000L);
 
-	// then
-	ASSERT_NE(nullptr, obtained);
+	 // then
+	 ASSERT_THAT(obtained, testing::Eq(mockStatusResponse));
 }

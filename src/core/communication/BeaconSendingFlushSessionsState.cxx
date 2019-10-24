@@ -14,11 +14,11 @@
 * limitations under the License.
 */
 
-#include "BeaconSendingFlushSessionsState.h"
 #include "AbstractBeaconSendingState.h"
 #include "BeaconSendingContext.h"
-#include "BeaconSendingTerminalState.h"
+#include "BeaconSendingFlushSessionsState.h"
 #include "BeaconSendingResponseUtil.h"
+#include "BeaconSendingTerminalState.h"
 #include "core/configuration/BeaconConfiguration.h"
 
 #include <chrono>
@@ -28,17 +28,21 @@
 using namespace core::communication;
 
 BeaconSendingFlushSessionsState::BeaconSendingFlushSessionsState()
-	: AbstractBeaconSendingState(AbstractBeaconSendingState::StateType::BEACON_SENDING_FLUSH_SESSIONS_STATE)
+	: AbstractBeaconSendingState(IBeaconSendingState::StateType::BEACON_SENDING_FLUSH_SESSIONS_STATE)
 {
 }
 
-void BeaconSendingFlushSessionsState::doExecute(BeaconSendingContext& context)
+void BeaconSendingFlushSessionsState::doExecute(IBeaconSendingContext& context)
 {
 	// first get all sessions that do not have any multiplicity set -> and move them to open sessions
 	for (auto newSession : context.getAllNewSessions())
 	{
-		auto beaconConfiguration = newSession->getWrappedSession()->getBeaconConfiguration();
-		auto updatedBeaconConfiguration = std::make_shared<configuration::BeaconConfiguration>(1, beaconConfiguration->getDataCollectionLevel(), beaconConfiguration->getCrashReportingLevel());
+		auto beaconConfiguration = newSession->getBeaconConfiguration();
+		auto updatedBeaconConfiguration = std::make_shared<configuration::BeaconConfiguration>(
+			1,
+			beaconConfiguration->getDataCollectionLevel(),
+			beaconConfiguration->getCrashReportingLevel()
+		);
 		newSession->updateBeaconConfiguration(updatedBeaconConfiguration);
 	}
 
@@ -65,12 +69,13 @@ void BeaconSendingFlushSessionsState::doExecute(BeaconSendingContext& context)
 	}
 
 	// make last state transition to terminal state
-	context.setNextState(std::shared_ptr<AbstractBeaconSendingState>(new BeaconSendingTerminalState()));
+	auto initState = std::make_shared<BeaconSendingTerminalState>();
+	context.setNextState(initState);
 }
 
-std::shared_ptr<AbstractBeaconSendingState> BeaconSendingFlushSessionsState::getShutdownState()
+std::shared_ptr<IBeaconSendingState> BeaconSendingFlushSessionsState::getShutdownState()
 {
-	return std::shared_ptr<AbstractBeaconSendingState>(new BeaconSendingTerminalState());
+	return std::make_shared<BeaconSendingTerminalState>();
 }
 
 const char* BeaconSendingFlushSessionsState::getStateName() const

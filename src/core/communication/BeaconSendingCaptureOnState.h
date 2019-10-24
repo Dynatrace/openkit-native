@@ -18,6 +18,7 @@
 #define _CORE_COMMUNICATION_BEACONSENDINGCAPTUREONSTATE_H
 
 #include "AbstractBeaconSendingState.h"
+#include "IBeaconSendingContext.h"
 #include "protocol/IStatusResponse.h"
 
 #include <memory>
@@ -35,7 +36,8 @@ namespace core
 		///   - @ref BeaconSendingCaptureOffState if capturing is turned off
 		///   - @ref BeaconSendingFlushSessionsState on shutdown
 		///
-		class BeaconSendingCaptureOnState : public AbstractBeaconSendingState
+		class BeaconSendingCaptureOnState
+			: public AbstractBeaconSendingState
 		{
 		public:
 			///
@@ -46,39 +48,44 @@ namespace core
 			///
 			/// Destructor
 			///
-			virtual ~BeaconSendingCaptureOnState() {}
+			~BeaconSendingCaptureOnState() override {}
 
-			virtual void doExecute(BeaconSendingContext& context) override;
+			void doExecute(IBeaconSendingContext& context) override;
 
-			virtual std::shared_ptr<AbstractBeaconSendingState> getShutdownState() override;
+			std::shared_ptr<IBeaconSendingState> getShutdownState() override;
 
-			virtual const char* getStateName() const override;
+			const char* getStateName() const override;
 
 		private:
 			///
 			/// Send all sessions which have been finished previously.
 			/// @param[in] context the state context
 			///
-			std::shared_ptr<protocol::IStatusResponse> sendFinishedSessions(BeaconSendingContext& context);
+			std::shared_ptr<protocol::IStatusResponse> sendFinishedSessions(IBeaconSendingContext& context);
 
 			///
 			/// Check if the send interval (configured by server) has expired and start to send open sessions if it has expired.
 			/// @param[in] context the state context
 			///
-			std::shared_ptr<protocol::IStatusResponse> sendOpenSessions(BeaconSendingContext& context);
+			std::shared_ptr<protocol::IStatusResponse> sendOpenSessions(IBeaconSendingContext& context);
 
 			///
-			/// Handle the status response received from the server and transistion the states accordingly
+			/// Handle the status response received from the server and transition the states accordingly
 			/// @param[in] beacon sending context
 			/// @param[in] response to process
 			///
-			static void handleStatusResponse(BeaconSendingContext& context, std::shared_ptr<protocol::IStatusResponse> statusResponse);
+			static void handleStatusResponse(
+				IBeaconSendingContext& context,
+				std::shared_ptr<protocol::IStatusResponse> statusResponse
+			);
 
 			///
 			/// Check if new sessions are allowed to report data
 			/// @param[in] context beacon sending context
 			///
-			std::shared_ptr<protocol::IStatusResponse> sendNewSessionRequests(BeaconSendingContext& context);
+			std::shared_ptr<protocol::IStatusResponse> sendNewSessionRequests(
+				IBeaconSendingContext& context
+			);
 		};
 	}
 }

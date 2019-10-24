@@ -60,11 +60,6 @@ StatusResponse::StatusResponse
 	parseResponse(response);
 }
 
-bool StatusResponse::isSuccessfulResponse() const
-{
-	return !isErroneousResponse();
-}
-
 bool StatusResponse::isErroneousResponse() const
 {
 	return getResponseCode() >= HTTP_BAD_REQUEST;

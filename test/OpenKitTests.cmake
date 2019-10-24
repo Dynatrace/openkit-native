@@ -100,8 +100,9 @@ set(OPENKIT_SOURCES_TEST_CORE_COMMUNICATION
     ${CMAKE_CURRENT_LIST_DIR}/core/communication/BeaconSendingResponseUtilTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/communication/BeaconSendingTerminalStateTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/communication/CustomMatchers.h
-    ${CMAKE_CURRENT_LIST_DIR}/core/communication/MockAbstractBeaconSendingState.h
-    ${CMAKE_CURRENT_LIST_DIR}/core/communication/MockBeaconSendingContext.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/communication/mock/MockAbstractBeaconSendingState.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/communication/mock/MockIBeaconSendingContext.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/communication/mock/MockIBeaconSendingState.h
 )
 
 set(OPENKIT_SOURCES_TEST_CORE_CONFIGURATION

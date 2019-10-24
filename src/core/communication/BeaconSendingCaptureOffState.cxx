@@ -14,19 +14,17 @@
 * limitations under the License.
 */
 
-#include "BeaconSendingCaptureOffState.h"
-
-#include <chrono>
-#include <algorithm>
-#include <memory>
-
-#include "BeaconSendingFlushSessionsState.h"
-#include "BeaconSendingCaptureOnState.h"
 #include "AbstractBeaconSendingState.h"
+#include "BeaconSendingCaptureOffState.h"
+#include "BeaconSendingCaptureOnState.h"
 #include "BeaconSendingContext.h"
+#include "BeaconSendingFlushSessionsState.h"
 #include "BeaconSendingRequestUtil.h"
 #include "BeaconSendingResponseUtil.h"
 #include "protocol/IStatusResponse.h"
+
+#include <chrono>
+#include <algorithm>
 
 using namespace core::communication;
 
@@ -44,12 +42,12 @@ BeaconSendingCaptureOffState::BeaconSendingCaptureOffState()
 }
 
 BeaconSendingCaptureOffState::BeaconSendingCaptureOffState(int64_t sleepTimeInMilliseconds)
-	: AbstractBeaconSendingState(AbstractBeaconSendingState::StateType::BEACON_SENDING_CAPTURE_OFF_STATE)
+	: AbstractBeaconSendingState(IBeaconSendingState::StateType::BEACON_SENDING_CAPTURE_OFF_STATE)
 	, mSleepTimeInMilliseconds(sleepTimeInMilliseconds)
 {
 }
 
-void BeaconSendingCaptureOffState::doExecute(BeaconSendingContext& context)
+void BeaconSendingCaptureOffState::doExecute(IBeaconSendingContext& context)
 {
 	// disable capturing - avoid collecting further data
 	context.disableCapture();
@@ -68,16 +66,20 @@ void BeaconSendingCaptureOffState::doExecute(BeaconSendingContext& context)
 			return;
 		}
 	}
-	auto statusResponse = BeaconSendingRequestUtil::sendStatusRequest(context, STATUS_REQUEST_RETRIES, INITIAL_RETRY_SLEEP_TIME_MILLISECONDS.count());
+	auto statusResponse = BeaconSendingRequestUtil::sendStatusRequest(
+		context,
+		STATUS_REQUEST_RETRIES,
+		INITIAL_RETRY_SLEEP_TIME_MILLISECONDS.count()
+	);
 	handleStatusResponse(context, statusResponse);
 
 	// update the last status check time in any case
 	context.setLastStatusCheckTime(currentTime);
 }
 
-std::shared_ptr<AbstractBeaconSendingState> BeaconSendingCaptureOffState::getShutdownState()
+std::shared_ptr<IBeaconSendingState> BeaconSendingCaptureOffState::getShutdownState()
 {
-	return std::shared_ptr<AbstractBeaconSendingState>(new BeaconSendingFlushSessionsState());
+	return std::make_shared<BeaconSendingFlushSessionsState>();
 }
 
 const char* BeaconSendingCaptureOffState::getStateName() const
@@ -85,7 +87,10 @@ const char* BeaconSendingCaptureOffState::getStateName() const
 	return "CaptureOff";
 }
 
-void BeaconSendingCaptureOffState::handleStatusResponse(BeaconSendingContext& context, std::shared_ptr<protocol::IStatusResponse> statusResponse)
+void BeaconSendingCaptureOffState::handleStatusResponse(
+	IBeaconSendingContext& context,
+	std::shared_ptr<protocol::IStatusResponse> statusResponse
+)
 {
 	if (statusResponse != nullptr)
 	{
@@ -102,7 +107,8 @@ void BeaconSendingCaptureOffState::handleStatusResponse(BeaconSendingContext& co
 	else if (BeaconSendingResponseUtil::isSuccessfulResponse(statusResponse) && context.isCaptureOn())
 	{
 		// capturing is re-enabled again, but only if we received a response from the server
-		context.setNextState(std::shared_ptr<AbstractBeaconSendingState>(new BeaconSendingCaptureOnState()));
+		auto captureOnState = std::make_shared<BeaconSendingCaptureOnState>();
+		context.setNextState(captureOnState);
 	}
 }
 

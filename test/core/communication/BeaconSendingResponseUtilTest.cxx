@@ -14,39 +14,19 @@
 * limitations under the License.
 */
 
-#include "Types.h"
-#include "../../api/mock/MockILogger.h"
-#include "../../protocol/Types.h"
+#include "../../protocol/mock/MockIStatusResponse.h"
+
+#include "core/communication/BeaconSendingResponseUtil.h"
 
 #include <gtest/gtest.h>
 #include <memory>
 
 using namespace test;
-using namespace test::types;
+
+using BeaconSendingResponseUtil_t = core::communication::BeaconSendingResponseUtil;
 
 class BeaconSendingResponseUtilTest : public testing::Test
 {
-protected:
-
-	virtual void SetUp() override
-	{
-
-	}
-
-	virtual void TearDown() override
-	{
-
-	}
-
-	IStatusResponse_sp createStatusResponse(int32_t responseCode)
-	{
-		return std::make_shared<StatusResponse_t>(
-			MockILogger::createNice(),
-			"",
-			responseCode,
-			IStatusResponse_t::ResponseHeaders()
-		);
-	}
 };
 
 TEST_F(BeaconSendingResponseUtilTest, isSuccessfulResponseReturnsFalseIfResponseIsNullptr)
@@ -61,7 +41,12 @@ TEST_F(BeaconSendingResponseUtilTest, isSuccessfulResponseReturnsFalseIfResponse
 TEST_F(BeaconSendingResponseUtilTest, isSuccessfulResponseReturnsFalseIfResponseIsErroneous)
 {
 	// given
-	auto response = createStatusResponse(400);
+	auto response = MockIStatusResponse::createStrict();
+
+	// expect
+	EXPECT_CALL(*response, isErroneousResponse())
+		.Times(testing::Exactly(1))
+		.WillOnce(testing::Return(true));
 
 	// when
 	auto obtained = BeaconSendingResponseUtil_t::isSuccessfulResponse(response);
@@ -73,7 +58,12 @@ TEST_F(BeaconSendingResponseUtilTest, isSuccessfulResponseReturnsFalseIfResponse
 TEST_F(BeaconSendingResponseUtilTest, isSuccessfulResponseReturnsTrueIfResponseIsNotErroneous)
 {
 	// given
-	auto response = createStatusResponse(200);
+	auto response = MockIStatusResponse::createStrict();
+
+	// expect
+	EXPECT_CALL(*response, isErroneousResponse())
+		.Times(testing::Exactly(1))
+		.WillOnce(testing::Return(false));
 
 	// when
 	auto obtained = BeaconSendingResponseUtil_t::isSuccessfulResponse(response);
@@ -91,10 +81,15 @@ TEST_F(BeaconSendingResponseUtilTest, isTooManyRequestsResponseReturnsFalseIfRes
 	ASSERT_FALSE(obtained);
 }
 
-TEST_F(BeaconSendingResponseUtilTest, isTooManyRequestsResponseReturnsFalseIfResponseCodeIsNotEqualToTooManyRequestsCode)
+TEST_F(BeaconSendingResponseUtilTest, isTooManyRequestsResponseReturnsFalseIfResponseHasIsToTooManyRequestsResponseFalse)
 {
 	// given
-	auto response = createStatusResponse(404);
+	auto response = MockIStatusResponse::createStrict();
+
+	// expect
+	EXPECT_CALL(*response, isTooManyRequestsResponse())
+		.Times(testing::Exactly(1))
+		.WillOnce(testing::Return(false));
 
 	// when
 	auto obtained = BeaconSendingResponseUtil_t::isTooManyRequestsResponse(response);
@@ -103,10 +98,15 @@ TEST_F(BeaconSendingResponseUtilTest, isTooManyRequestsResponseReturnsFalseIfRes
 	ASSERT_FALSE(obtained);
 }
 
-TEST_F(BeaconSendingResponseUtilTest, isTooManyRequestsResponseReturnsTrueIfResponseCodeIndicatesTooManyRequests)
+TEST_F(BeaconSendingResponseUtilTest, isTooManyRequestsResponseReturnsFalseIfResponseHasIsToTooManyRequestsResponseTrue)
 {
 	// given
-	auto response = createStatusResponse(429);
+	auto response = MockIStatusResponse::createStrict();
+
+	// expect
+	EXPECT_CALL(*response, isTooManyRequestsResponse())
+		.Times(testing::Exactly(1))
+		.WillOnce(testing::Return(true));
 
 	// when
 	auto obtained = BeaconSendingResponseUtil_t::isTooManyRequestsResponse(response);

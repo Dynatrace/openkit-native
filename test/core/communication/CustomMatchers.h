@@ -17,7 +17,7 @@
 #ifndef _TEST_COMMUNICATION_CUSTOMMATCHERS_H
 #define _TEST_COMMUNICATION_CUSTOMMATCHERS_H
 
-#include "Types.h"
+#include "core/communication/IBeaconSendingState.h"
 
 #include "gmock/gmock.h"
 
@@ -32,7 +32,7 @@ auto as_integer(Enumeration const value)
 /// Checks if the argument (of type @ref AbstractBeaconSendingState) is of StateType BEACON_SENDING_INIT_STATE
 MATCHER(IsABeaconSendingInitState, "")
 {
-	if (arg->getStateType() == test::types::AbstractBeaconSendingState_t::StateType::BEACON_SENDING_INIT_STATE)
+	if (arg->getStateType() == core::communication::IBeaconSendingState::StateType::BEACON_SENDING_INIT_STATE)
 	{
 		return true;
 	}
@@ -44,7 +44,7 @@ MATCHER(IsABeaconSendingInitState, "")
 /// Checks if the argument (of type @ref AbstractBeaconSendingState) is of StateType BEACON_SENDING_CAPTURE_ON_STATE
 MATCHER(IsABeaconSendingCaptureOnState, "")
 {
-	if (arg->getStateType() == test::types::AbstractBeaconSendingState_t::StateType::BEACON_SENDING_CAPTURE_ON_STATE)
+	if (arg->getStateType() == core::communication::IBeaconSendingState::StateType::BEACON_SENDING_CAPTURE_ON_STATE)
 	{
 		return true;
 	}
@@ -56,7 +56,7 @@ MATCHER(IsABeaconSendingCaptureOnState, "")
 /// Checks if the argument (of type @ref AbstractBeaconSendingState) is of StateType BEACON_SENDING_CAPTURE_OFF_STATE
 MATCHER(IsABeaconSendingCaptureOffState, "")
 {
-	if (arg->getStateType() == test::types::AbstractBeaconSendingState_t::StateType::BEACON_SENDING_CAPTURE_OFF_STATE)
+	if (arg->getStateType() == core::communication::IBeaconSendingState::StateType::BEACON_SENDING_CAPTURE_OFF_STATE)
 	{
 		return true;
 	}
@@ -68,7 +68,7 @@ MATCHER(IsABeaconSendingCaptureOffState, "")
 /// Checks if the argument (of type @ref AbstractBeaconSendingState) is of StateType BEACON_SENDING_FLUSH_SESSIONS_STATE
 MATCHER(IsABeaconSendingFlushSessionsState, "")
 {
-	if (arg->getStateType() == test::types::AbstractBeaconSendingState_t::StateType::BEACON_SENDING_FLUSH_SESSIONS_STATE)
+	if (arg->getStateType() == core::communication::IBeaconSendingState::StateType::BEACON_SENDING_FLUSH_SESSIONS_STATE)
 	{
 		return true;
 	}
@@ -80,7 +80,7 @@ MATCHER(IsABeaconSendingFlushSessionsState, "")
 /// Checks if the argument (of type @ref AbstractBeaconSendingState) is of StateType BEACON_SENDING_TERMINAL_STATE
 MATCHER(IsABeaconSendingTerminalState, "")
 {
-	if (arg->getStateType() == test::types::AbstractBeaconSendingState_t::StateType::BEACON_SENDING_TERMINAL_STATE)
+	if (arg->getStateType() == core::communication::IBeaconSendingState::StateType::BEACON_SENDING_TERMINAL_STATE)
 	{
 		return true;
 	}

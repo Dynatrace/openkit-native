@@ -39,8 +39,8 @@ namespace test
 				.WillByDefault(testing::ReturnRefOfCopy(protocol::IStatusResponse::ResponseHeaders()));
 			ON_CALL(*this, getResponseCode())
 				.WillByDefault(testing::Return(200));
-			ON_CALL(*this, isSuccessfulResponse())
-				.WillByDefault(testing::Return(true));
+			ON_CALL(*this, isErroneousResponse())
+				.WillByDefault(testing::Return(false));
 		}
 
 		///
@@ -73,8 +73,6 @@ namespace test
 		MOCK_CONST_METHOD0(isCaptureCrashes, bool());
 
 		MOCK_CONST_METHOD0(getMultiplicity, int32_t());
-
-		MOCK_CONST_METHOD0(isSuccessfulResponse, bool());
 
 		MOCK_CONST_METHOD0(isErroneousResponse, bool());
 

@@ -55,13 +55,6 @@ namespace protocol
 		virtual ~StatusResponse() {}
 
 		///
-		/// Return a boolean indicating whether this is a successful response or not.
-		/// @remarks A response is considered to be successful, if the getResponseCode() returns < 400.
-		/// @return @c true if this response is successful, @c false otherwise.
-		///
-		bool isSuccessfulResponse() const override;
-
-		///
 		/// Return a boolean indicating whether this is an erroneous response or not.
 		/// @remarks A response is considered to be erroneous, if the getResponseCode() returns >= 400.
 		/// @return @c true if this response is erroneous, @c false otherwise.

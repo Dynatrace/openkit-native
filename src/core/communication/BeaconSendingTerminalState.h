@@ -18,6 +18,7 @@
 #define _CORE_COMMUNICATION_BEACONSENDINGTERMINALSTATE_H
 
 #include "AbstractBeaconSendingState.h"
+#include "IBeaconSendingContext.h"
 
 namespace core
 {
@@ -26,7 +27,8 @@ namespace core
 		///
 		/// Terminal state once beacon sending is finished and shutdown is requested.
 		///
-		class BeaconSendingTerminalState : public AbstractBeaconSendingState
+		class BeaconSendingTerminalState
+			: public AbstractBeaconSendingState
 		{
 		public:
 			///
@@ -37,13 +39,13 @@ namespace core
 			///
 			/// Destructor
 			///
-			virtual ~BeaconSendingTerminalState();
+			~BeaconSendingTerminalState() override {}
 
-			virtual void doExecute(BeaconSendingContext& context) override;
+			void doExecute(IBeaconSendingContext& context) override;
 
-			virtual std::shared_ptr<AbstractBeaconSendingState> getShutdownState() override;
+			std::shared_ptr<IBeaconSendingState> getShutdownState() override;
 
-			virtual const char* getStateName() const override;
+			const char* getStateName() const override;
 
 		};
 	}

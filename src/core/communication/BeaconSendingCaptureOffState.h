@@ -18,6 +18,7 @@
 #define _CORE_COMMUNICATION_BEACONSENDINGCAPTUREOFFSTATE_H
 
 #include "AbstractBeaconSendingState.h"
+#include "IBeaconSendingContext.h"
 #include "protocol/IStatusResponse.h"
 
 #include <memory>
@@ -36,7 +37,8 @@ namespace core
 		///   - @ref BeaconSendingCaptureOnState if capturing is re-enabled
 		///   - @ref BeaconSendingFlushSessionsState on shutdown
 		///
-		class BeaconSendingCaptureOffState : public AbstractBeaconSendingState
+		class BeaconSendingCaptureOffState
+			: public AbstractBeaconSendingState
 		{
 		public:
 			///
@@ -48,18 +50,18 @@ namespace core
 			/// Create CaptureOff state with explicitly set sleep time.
 			/// @param sleepTimeInMilliseconds The number of milliseconds to sleep.
 			///
-			BeaconSendingCaptureOffState(int64_t sleepTimeInMilliseconds);
+			explicit BeaconSendingCaptureOffState(int64_t sleepTimeInMilliseconds);
 
 			///
 			/// Destructor
 			///
-			virtual ~BeaconSendingCaptureOffState() {}
+			~BeaconSendingCaptureOffState() override {}
 
-			virtual void doExecute(BeaconSendingContext& context) override;
+			void doExecute(IBeaconSendingContext& context) override;
 
-			virtual std::shared_ptr<AbstractBeaconSendingState> getShutdownState() override;
+			std::shared_ptr<IBeaconSendingState> getShutdownState() override;
 
-			virtual const char* getStateName() const override;
+			const char* getStateName() const override;
 
 			/// The initial delay which is later on doubled between one unsuccessful attempt and the next retry
 			static const std::chrono::milliseconds INITIAL_RETRY_SLEEP_TIME_MILLISECONDS;
@@ -73,7 +75,7 @@ namespace core
 
 		private:
 			/// Handle the status response received from the server and transition the states accordingly
-			static void handleStatusResponse(BeaconSendingContext& context, std::shared_ptr<protocol::IStatusResponse> statusResponse);
+			static void handleStatusResponse(IBeaconSendingContext& context, std::shared_ptr<protocol::IStatusResponse> statusResponse);
 
 			/// Sleep time in milliseconds
 			int64_t mSleepTimeInMilliseconds;

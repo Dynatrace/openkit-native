@@ -16,8 +16,8 @@
 
 #include "BeaconSendingContext.h"
 
-#include "AbstractBeaconSendingState.h"
 #include "BeaconSendingInitialState.h"
+#include "IBeaconSendingState.h"
 
 #include "protocol/HTTPClient.h"
 #include "core/configuration/Configuration.h"
@@ -33,7 +33,7 @@ BeaconSendingContext::BeaconSendingContext
 	std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
 	std::shared_ptr<providers::ITimingProvider> timingProvider,
 	std::shared_ptr<core::configuration::Configuration> configuration,
-	std::unique_ptr<AbstractBeaconSendingState> initialState
+	std::unique_ptr<IBeaconSendingState> initialState
 )
 	: mLogger(logger)
 	, mCurrentState(std::move(initialState))
@@ -64,12 +64,12 @@ BeaconSendingContext::BeaconSendingContext
 	httpClientProvider,
 	timingProvider,
 	configuration,
-	std::unique_ptr<AbstractBeaconSendingState>(new BeaconSendingInitialState())
+	std::unique_ptr<IBeaconSendingState>(new BeaconSendingInitialState())
 )
 {
 }
 
-void BeaconSendingContext::setNextState(std::shared_ptr<AbstractBeaconSendingState> nextState)
+void BeaconSendingContext::setNextState(std::shared_ptr<IBeaconSendingState> nextState)
 {
 	mNextState = nextState;
 }
@@ -105,11 +105,6 @@ bool BeaconSendingContext::isShutdownRequested() const
 {
 	std::unique_lock<std::mutex> lock(mShutdownMutex);
 	return mShutdown;
-}
-
-const std::shared_ptr<core::configuration::Configuration> BeaconSendingContext::getConfiguration() const
-{
-	return mConfiguration;
 }
 
 std::shared_ptr<providers::IHTTPClientProvider> BeaconSendingContext::getHTTPClientProvider()
@@ -157,7 +152,7 @@ bool BeaconSendingContext::isCaptureOn() const
 	return mConfiguration->isCapture();
 }
 
-std::shared_ptr<AbstractBeaconSendingState> BeaconSendingContext::getCurrentState() const
+std::shared_ptr<IBeaconSendingState> BeaconSendingContext::getCurrentState() const
 {
 	return mCurrentState;
 }
@@ -228,7 +223,7 @@ void BeaconSendingContext::setLastOpenSessionBeaconSendTime(int64_t timestamp)
 	mLastOpenSessionBeaconSendTime = timestamp;
 }
 
-AbstractBeaconSendingState::StateType BeaconSendingContext::getCurrentStateType() const
+IBeaconSendingState::StateType BeaconSendingContext::getCurrentStateType() const
 {
 	return mCurrentState->getStateType();
 }
@@ -292,7 +287,7 @@ std::vector<std::shared_ptr<core::SessionWrapper>> BeaconSendingContext::getAllF
 	return finishedSessions;
 }
 
-std::shared_ptr<AbstractBeaconSendingState> BeaconSendingContext::getNextState()
+std::shared_ptr<IBeaconSendingState> BeaconSendingContext::getNextState()
 {
 	return mNextState;
 }

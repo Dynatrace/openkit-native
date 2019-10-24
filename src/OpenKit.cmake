@@ -86,6 +86,8 @@ set(OPENKIT_SOURCES_CORE_COMMUNICATION
     ${CMAKE_CURRENT_LIST_DIR}/core/communication/BeaconSendingResponseUtil.h
     ${CMAKE_CURRENT_LIST_DIR}/core/communication/BeaconSendingTerminalState.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/communication/BeaconSendingTerminalState.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/communication/IBeaconSendingContext.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/communication/IBeaconSendingState.h
 )
 
 set(OPENKIT_SOURCES_CORE_CONFIGURATION
