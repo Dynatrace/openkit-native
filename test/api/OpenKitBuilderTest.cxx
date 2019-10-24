@@ -16,13 +16,17 @@
 
 #include "mock/MockISslTrustManager.h"
 
-#include "Types.h"
-#include "../core/util/Types.h"
-#include "../protocol/Types.h"
-
-#include "core/configuration/ConfigurationDefaults.h"
-#include "core/util/StringUtil.h"
+#include "OpenKit/AppMonOpenKitBuilder.h"
+#include "OpenKit/CrashReportingLevel.h"
+#include "OpenKit/DataCollectionLevel.h"
+#include "OpenKit/DynatraceOpenKitBuilder.h"
+#include "OpenKit/LogLevel.h"
 #include "OpenKit/OpenKitConstants.h"
+#include "core/configuration/Configuration.h"
+#include "core/configuration/ConfigurationDefaults.h"
+#include "core/util/DefaultLogger.h"
+#include "core/util/StringUtil.h"
+#include "protocol/ssl/SSLStrictTrustManager.h"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -31,9 +35,15 @@
 #include <memory>
 
 using namespace test;
-using namespace test::types;
 
+using AppMonOpenKitBuilder_t = openkit::AppMonOpenKitBuilder;
+using CrashReportingLevel_t = openkit::CrashReportingLevel;
+using DataCollectionLevel_t = openkit::DataCollectionLevel;
+using DefaultLogger_t = core::util::DefaultLogger;
+using DynatraceOpenKitBuilder_t = openkit::DynatraceOpenKitBuilder;
+using LogLevel_t = openkit::LogLevel;
 using MockNiceISslTrustManager_sp = std::shared_ptr<testing::NiceMock<MockISslTrustManager>>;
+using SslStrictTrustManager_t = protocol::SSLStrictTrustManager;
 
 class OpenKitBuilderTest : public testing::Test
 {

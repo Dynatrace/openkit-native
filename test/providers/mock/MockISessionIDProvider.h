@@ -32,11 +32,9 @@ namespace test {
 		///
 		/// Default constructor
 		///
-		MockISessionIDProvider()
-		{
-		}
+		MockISessionIDProvider() = default;
 
-		virtual ~MockISessionIDProvider() {}
+		~MockISessionIDProvider() override = default;
 
 		static std::shared_ptr<testing::NiceMock<MockISessionIDProvider>> createNice()
 		{

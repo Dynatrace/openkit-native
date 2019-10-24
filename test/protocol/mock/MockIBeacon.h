@@ -48,7 +48,7 @@ namespace test
 				.WillByDefault(testing::ReturnRefOfCopy(DefaultValues::UTF8_EMPTY_STRING));
 		}
 
-		virtual ~MockIBeacon() {}
+		~MockIBeacon() override = default;
 
 		static std::shared_ptr<testing::NiceMock<MockIBeacon>> createNice()
 		{

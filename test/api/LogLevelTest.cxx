@@ -14,11 +14,11 @@
 * limitations under the License.
 */
 
-#include "Types.h"
+#include "OpenKit/LogLevel.h"
 
-#include <gtest/gtest.h>
+#include "gtest/gtest.h"
 
-using namespace test::types;
+using LogLevel_t = openkit::LogLevel;
 
 class LogLevelTest : public ::testing::Test
 {

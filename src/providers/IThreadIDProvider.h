@@ -30,7 +30,7 @@ namespace providers
 		///
 		/// Destructor
 		///
-		virtual ~IThreadIDProvider() {}
+		virtual ~IThreadIDProvider() = default;
 
 		///
 		/// Provide the current thread ID

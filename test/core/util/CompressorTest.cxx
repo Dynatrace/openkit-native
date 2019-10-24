@@ -14,12 +14,14 @@
 * limitations under the License.
 */
 
-#include "Types.h"
+#include "core/util/Compressor.h"
+
+#include "gtest/gtest.h"
 
 #include <cstdint>
-#include <gtest/gtest.h>
+#include <vector>
 
-using namespace test::types;
+using Compressor_t = base::util::Compressor;
 
 class CompressorTest : public testing::Test
 {

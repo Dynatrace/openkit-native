@@ -67,7 +67,7 @@ namespace core
 				const std::string& actionClassName
 			);
 
-			virtual ~ActionCommonImpl() {}
+			~ActionCommonImpl() override = default;
 
 			std::shared_ptr<openkit::IAction> enterAction
 			(

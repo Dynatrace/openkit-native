@@ -71,12 +71,12 @@ namespace core
 				return shared_from_this();
 			}
 
-			virtual std::shared_ptr<openkit::IWebRequestTracer> traceWebRequest(const char* /*url*/) override
+			std::shared_ptr<openkit::IWebRequestTracer> traceWebRequest(const char* /*url*/) override
 			{
 				return NullWebRequestTracer::INSTANCE;
 			}
 
-			virtual std::shared_ptr<openkit::IRootAction> leaveAction() override
+			std::shared_ptr<openkit::IRootAction> leaveAction() override
 			{
 				return mParentAction;
 			}

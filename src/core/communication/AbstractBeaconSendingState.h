@@ -45,7 +45,7 @@ namespace core
 			///
 			/// Destructor
 			///
-			~AbstractBeaconSendingState() override {}
+			~AbstractBeaconSendingState() override = default;
 
 
 			///

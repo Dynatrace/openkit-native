@@ -52,7 +52,7 @@ namespace protocol
 		///
 		/// Destructor
 		///
-		virtual ~StatusResponse() {}
+		~StatusResponse() override = default;
 
 		///
 		/// Return a boolean indicating whether this is an erroneous response or not.
@@ -72,7 +72,7 @@ namespace protocol
 		/// Return the response code
 		/// @returns the response code
 		///
-		virtual int32_t getResponseCode() const override;
+		int32_t getResponseCode() const override;
 
 		///
 		/// Return the HTTP response headers

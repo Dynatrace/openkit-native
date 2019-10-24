@@ -14,12 +14,12 @@
 * limitations under the License.
 */
 
-#include "Types.h"
+#include "protocol/HTTPResponseParser.h"
 
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
 
-using namespace test::types;
+using HttpResponseParser_t = protocol::HTTPResponseParser;
 
 class HTTPResponseParserTest : public testing::Test
 {

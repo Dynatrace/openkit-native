@@ -33,7 +33,7 @@ namespace core
 		{
 		public:
 
-			virtual ~IBeaconConfiguration() {}
+			virtual ~IBeaconConfiguration() = default;
 
 			///
 			/// Returns the data collection level

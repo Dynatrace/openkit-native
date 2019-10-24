@@ -40,7 +40,7 @@ namespace test {
 				.WillByDefault(testing::Return(nullptr));
 		}
 
-		virtual ~MockIHTTPClientProvider() {}
+		~MockIHTTPClientProvider() override = default;
 
 		static std::shared_ptr<testing::NiceMock<MockIHTTPClientProvider>> createNice()
 		{
@@ -52,9 +52,9 @@ namespace test {
 			return std::make_shared<testing::StrictMock<MockIHTTPClientProvider>>();
 		}
 
-		virtual void globalInit() override {}
+		void globalInit() override {}
 
-		virtual void globalDestroy() override {}
+		void globalDestroy() override {}
 
 
 		MOCK_METHOD2(createClient,

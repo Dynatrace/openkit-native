@@ -41,7 +41,7 @@ namespace test
 				.WillByDefault(testing::Return(core::configuration::DEFAULT_UPPER_MEMORY_BOUNDARY_IN_BYTES));
 		}
 
-		virtual ~MockIBeaconCacheConfiguration() {}
+		~MockIBeaconCacheConfiguration() override = default;
 
 		static std::shared_ptr<testing::NiceMock<MockIBeaconCacheConfiguration>> createNice()
 		{

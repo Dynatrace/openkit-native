@@ -35,7 +35,7 @@ class MockAbstractBeaconSendingState
 				.WillByDefault(testing::Return(nullptr));
 		}
 
-		~MockAbstractBeaconSendingState() override {}
+		~MockAbstractBeaconSendingState() override = default;
 
 		static std::shared_ptr<testing::NiceMock<MockAbstractBeaconSendingState>> createNice()
 		{

@@ -21,17 +21,17 @@ namespace protocol
 {
 	enum class EventType : char
 	{
-		ACTION = 1,                    // Action
-		VALUE_STRING = 11,            // captured string
-		VALUE_INT = 12,                // captured int
-		VALUE_DOUBLE = 13,            // captured double
-		NAMED_EVENT = 10,            // named event
-		SESSION_START = 18,			 // session start
-		SESSION_END = 19,            // session end
-		WEBREQUEST = 30,                // tagged web request
-		FAILURE_ERROR = 40,                    // error
-		FAILURE_CRASH = 50,                    // crash
-		IDENTIFY_USER = 60            // identify user
+		ACTION = 1,						// Action
+		VALUE_STRING = 11,				// captured string
+		VALUE_INT = 12,					// captured int
+		VALUE_DOUBLE = 13,				// captured double
+		NAMED_EVENT = 10,				// named event
+		SESSION_START = 18,				// session start
+		SESSION_END = 19,				// session end
+		WEBREQUEST = 30,				// tagged web request
+		FAILURE_ERROR = 40,				// error
+		FAILURE_CRASH = 50,				// crash
+		IDENTIFY_USER = 60				// identify user
 	};
 }
 

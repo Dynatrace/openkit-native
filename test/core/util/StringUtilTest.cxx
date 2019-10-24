@@ -14,13 +14,13 @@
 * limitations under the License.
 */
 
-#include "Types.h"
+#include "core/util/StringUtil.h"
 
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
 
 
-using namespace test::types;
+using StringUtil_t = core::util::StringUtil;
 
 class StringUtilTest : public testing::Test
 {

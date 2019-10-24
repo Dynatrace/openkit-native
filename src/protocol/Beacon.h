@@ -89,7 +89,7 @@ namespace protocol
 		///
 		/// Destructor
 		///
-		virtual ~Beacon() {}
+		~Beacon() override = default;
 
 		///
 		/// Create unique sequence number
@@ -264,7 +264,7 @@ namespace protocol
 		/// Returns the session number.
 		/// @returns session number
 		///
-		virtual int32_t getSessionNumber() const override;
+		int32_t getSessionNumber() const override;
 
 		///
 		/// Returns the device id

@@ -23,7 +23,7 @@
 
 namespace providers
 {
-	
+
 	///
 	/// Default implementation for random number generator based on STL's random::device
 	///
@@ -36,9 +36,11 @@ namespace providers
 		///
 		DefaultPRNGenerator();
 
-		virtual int32_t nextInt32(int32_t upperBound) override;
+		~DefaultPRNGenerator() override = default;
 
-		virtual int64_t nextInt64(int64_t upperBound) override;
+		int32_t nextInt32(int32_t upperBound) override;
+
+		int64_t nextInt64(int64_t upperBound) override;
 
 	private:
 		/// random engine generating the random numbers

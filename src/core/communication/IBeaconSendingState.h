@@ -39,7 +39,7 @@ namespace core
 				BEACON_SENDING_COUNT
 			};
 
-			virtual ~IBeaconSendingState() {}
+			virtual ~IBeaconSendingState() = default;
 
 			///
 			/// Execute the current state.

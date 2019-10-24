@@ -44,7 +44,7 @@ namespace protocol
 		///
 		/// Destructor
 		///
-		virtual ~IBeacon() {}
+		virtual ~IBeacon() = default;
 
 		///
 		/// Create unique sequence number

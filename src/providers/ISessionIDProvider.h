@@ -30,7 +30,7 @@ namespace providers
 		///
 		/// Destructor
 		///
-		virtual ~ISessionIDProvider() {}
+		virtual ~ISessionIDProvider() = default;
 
 		///
 		/// Provide the next sessionID

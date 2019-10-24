@@ -71,10 +71,6 @@ HTTPClient::HTTPClient
 	}
 }
 
-HTTPClient::~HTTPClient()
-{
-}
-
 std::shared_ptr<IStatusResponse> HTTPClient::sendStatusRequest()
 {
 	auto response = sendRequestInternal(RequestType::STATUS, mMonitorURL, core::UTF8String(""), core::UTF8String(""), HttpMethod::GET);
@@ -125,7 +121,7 @@ size_t HTTPClient::readFunction(void *ptr, size_t elementSize, size_t numberOfEl
 {
 	if (userPtr)
 	{
-		HTTPClient *_this = (HTTPClient*)userPtr;
+		auto _this = (HTTPClient*)userPtr;
 		size_t available = (_this->mReadBuffer.size() - _this->mReadBufferPos);
 
 		if (available > 0)
@@ -191,7 +187,7 @@ std::shared_ptr<IStatusResponse> HTTPClient::sendRequestInternal(HTTPClient::Req
 		case HTTPClient::RequestType::NEW_SESSION:
 			mLogger->debug("HTTPClient sendRequestInternal() - HTTP new session request: %s", url.getStringData().c_str());
 			break;
-		};
+		}
 	}
 
 	// init the curl session - get the curl handle
@@ -227,7 +223,7 @@ std::shared_ptr<IStatusResponse> HTTPClient::sendRequestInternal(HTTPClient::Req
 
 
 		// Set the custom HTTP header with the client IP address, if provided
-		struct curl_slist *list = NULL;
+		struct curl_slist *list = nullptr;
 		if (!clientIPAddress.empty())
 		{
 			core::UTF8String xClientId("X-Client-IP: ");
@@ -257,7 +253,7 @@ std::shared_ptr<IStatusResponse> HTTPClient::sendRequestInternal(HTTPClient::Req
 			}
 		}
 
-		if (list != NULL)
+		if (list != nullptr)
 		{
 			curl_easy_setopt(mCurl, CURLOPT_HTTPHEADER, list);
 		}

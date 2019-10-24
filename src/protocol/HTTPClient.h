@@ -62,8 +62,7 @@ namespace protocol
 		/// @param[in] logger to write traces to
 		/// @param[in] configuration configuration parameters for the HTTPClient
 		///
-		HTTPClient
-		(
+		HTTPClient(
 			std::shared_ptr<openkit::ILogger> logger,
 			std::shared_ptr<core::configuration::IHTTPClientConfiguration> configuration
 		);
@@ -71,7 +70,7 @@ namespace protocol
 		///
 		/// Destructor
 		///
-		virtual ~HTTPClient();
+		~HTTPClient() override = default;
 
 		///
 		/// Delete the copy constructor
@@ -83,11 +82,14 @@ namespace protocol
 		///
 		HTTPClient& operator = (const HTTPClient &) = delete;
 
-		virtual std::shared_ptr<IStatusResponse> sendStatusRequest() override;
+		std::shared_ptr<IStatusResponse> sendStatusRequest() override;
 
-		virtual std::shared_ptr<IStatusResponse> sendBeaconRequest(const core::UTF8String& clientIPAddress, const core::UTF8String& beaconData) override;
+		std::shared_ptr<IStatusResponse> sendBeaconRequest(
+			const core::UTF8String& clientIPAddress,
+			const core::UTF8String& beaconData
+		) override;
 
-		virtual std::shared_ptr<IStatusResponse> sendNewSessionRequest() override;
+		std::shared_ptr<IStatusResponse> sendNewSessionRequest() override;
 
 		///
 		/// Perform global initialization.

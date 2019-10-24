@@ -46,12 +46,14 @@ namespace protocol
 		///
 		SSLBlindTrustManager(const SSLBlindTrustManager&) = delete;
 
+		~SSLBlindTrustManager() override = default;
+
 		///
 		/// Delete the assignment operator
 		///
 		SSLBlindTrustManager& operator = (const SSLBlindTrustManager &) = delete;
 
-		virtual void applyTrustManager(CURL* curl) override;
+		void applyTrustManager(CURL* curl) override;
 
 	};
 

@@ -42,8 +42,7 @@ namespace core
 			/// @param[in] applicationID the application id
 			/// @param[in] sslTrustManager optional
 			///
-			HTTPClientConfiguration
-			(
+			HTTPClientConfiguration(
 				const core::UTF8String& url,
 				uint32_t serverID,
 				const core::UTF8String& applicationID,

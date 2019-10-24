@@ -58,7 +58,7 @@ class MockIBeaconSendingContext
 				.WillByDefault(testing::Return(core::communication::IBeaconSendingState::StateType::BEACON_SENDING_COUNT));
 		}
 
-		virtual ~MockIBeaconSendingContext() {}
+		~MockIBeaconSendingContext() override = default;
 
 		static std::shared_ptr<testing::NiceMock<MockIBeaconSendingContext>> createNice()
 		{

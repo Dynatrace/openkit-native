@@ -14,12 +14,14 @@
 * limitations under the License.
 */
 
-#include "Types.h"
+#include "core/util/SynchronizedQueue.h"
 
-#include <gtest/gtest.h>
+#include "gtest/gtest.h"
+
 #include <memory>
 
-using namespace test::types;
+template <typename T>
+using SynchronizedQueue_t = core::util::SynchronizedQueue<T>;
 
 class SynchronizedQueueTest : public testing::Test
 {

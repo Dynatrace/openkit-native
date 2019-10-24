@@ -31,7 +31,7 @@ namespace core
 			///
 			/// Destructor
 			///
-			virtual ~IObserver() {}
+			virtual ~IObserver() = default;
 
 			///
 			/// Called to notify/update the registered observers.

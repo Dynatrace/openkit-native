@@ -31,7 +31,7 @@ namespace core
 		{
 		public:
 
-			virtual ~IHTTPClientConfiguration() {}
+			virtual ~IHTTPClientConfiguration() = default;
 
 			///
 			/// Returns the base URL for the HTTP client

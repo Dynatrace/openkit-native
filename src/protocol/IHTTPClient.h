@@ -36,7 +36,7 @@ namespace protocol
 		///
 		/// Destructor
 		///
-		virtual ~IHTTPClient() {}
+		virtual ~IHTTPClient() = default;
 
 		///
 		/// sends a status check request and returns a status response

@@ -39,7 +39,7 @@ namespace core
 			///
 			/// Destructor
 			///
-			virtual ~IActionCommon() {}
+			virtual ~IActionCommon() = default;
 
 			///
 			/// Enters an action with the given name (only relevant for root actions)

@@ -52,25 +52,25 @@ namespace core
 			///
 			/// Destructor
 			///
-			virtual ~DefaultLogger() {}
+			~DefaultLogger() override = default;
 
-			virtual void log(openkit::LogLevel logLevel, const char* format, ...) override;
+			void log(openkit::LogLevel logLevel, const char* format, ...) override;
 
-			virtual void error(const char* format, ...) override;
+			void error(const char* format, ...) override;
 
-			virtual void warning(const char* format, ...) override;
+			void warning(const char* format, ...) override;
 
-			virtual void info(const char* format, ...) override;
+			void info(const char* format, ...) override;
 
-			virtual void debug(const char* format, ...) override;
+			void debug(const char* format, ...) override;
 
-			virtual bool isErrorEnabled() const override;
+			bool isErrorEnabled() const override;
 
-			virtual bool isWarningEnabled() const override;
+			bool isWarningEnabled() const override;
 
-			virtual bool isInfoEnabled() const override;
+			bool isInfoEnabled() const override;
 
-			virtual bool isDebugEnabled() const override;
+			bool isDebugEnabled() const override;
 
 		private:
 			///

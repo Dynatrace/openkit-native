@@ -32,11 +32,9 @@ namespace test {
 		///
 		/// Default constructor
 		///
-		MockIPRNGenerator()
-		{
-		}
+		MockIPRNGenerator() = default;
 
-		virtual ~MockIPRNGenerator() {}
+		~MockIPRNGenerator() override = default;
 
 		static std::shared_ptr<testing::NiceMock<MockIPRNGenerator>> createNice()
 		{

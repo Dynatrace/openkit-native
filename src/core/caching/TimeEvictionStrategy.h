@@ -47,8 +47,7 @@ namespace core
 			/// @param[in] timingProvider Timing provider required for time retrieval
 			/// @param[in] isAlive function to check whether the eviction thread is running or not
 			///
-			TimeEvictionStrategy
-			(
+			TimeEvictionStrategy(
 				std::shared_ptr<openkit::ILogger> logger,
 				std::shared_ptr<IBeaconCache> beaconCache,
 				std::shared_ptr<configuration::IBeaconCacheConfiguration> configuration,
@@ -59,7 +58,7 @@ namespace core
 			///
 			/// Destructor
 			///
-			virtual ~TimeEvictionStrategy() {}
+			~TimeEvictionStrategy() override = default;
 
 			///
 			/// Delete the copy constructor

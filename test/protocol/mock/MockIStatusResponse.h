@@ -46,7 +46,7 @@ namespace test
 		///
 		/// Destructor
 		///
-		~MockIStatusResponse() {}
+		~MockIStatusResponse() override = default;
 
 		static std::shared_ptr<testing::NiceMock<MockIStatusResponse>> createNice()
 		{

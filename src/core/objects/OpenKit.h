@@ -48,8 +48,7 @@ namespace core
 			/// @param[in] logger logging context
 			/// @param[in] configuration Configuration object used to build the OpenKit
 			///
-			OpenKit
-			(
+			OpenKit(
 				std::shared_ptr<openkit::ILogger> logger,
 				std::shared_ptr<configuration::Configuration> configuration
 			);
@@ -62,8 +61,7 @@ namespace core
 			/// @param[in] timingProvider timing provider
 			/// @param[in] threadIDProvider provider for thread ids
 			///
-			OpenKit
-			(
+			OpenKit(
 				std::shared_ptr<openkit::ILogger> logger,
 				std::shared_ptr<configuration::Configuration> configuration,
 				std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
@@ -71,7 +69,7 @@ namespace core
 				std::shared_ptr<providers::IThreadIDProvider> threadIDProvider
 			);
 
-			virtual ~OpenKit();
+			~OpenKit() override;
 
 			///
 			/// Initialize this OpenKit instance.
@@ -80,15 +78,15 @@ namespace core
 			///
 			void initialize();
 
-			virtual bool waitForInitCompletion() override;
+			bool waitForInitCompletion() override;
 
-			virtual bool waitForInitCompletion(int64_t timeoutMillis) override;
+			bool waitForInitCompletion(int64_t timeoutMillis) override;
 
-			virtual bool isInitialized() const override;
+			bool isInitialized() const override;
 
-			virtual std::shared_ptr<openkit::ISession> createSession(const char* clientIPAddress) override;
+			std::shared_ptr<openkit::ISession> createSession(const char* clientIPAddress) override;
 
-			virtual void shutdown() override;
+			void shutdown() override;
 
 		private:
 

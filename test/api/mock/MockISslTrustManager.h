@@ -31,7 +31,7 @@ namespace test
 	{
 	public:
 
-		virtual ~MockISslTrustManager() {}
+		~MockISslTrustManager() override = default;
 
 		static std::shared_ptr<testing::NiceMock<MockISslTrustManager>> createNice()
 		{

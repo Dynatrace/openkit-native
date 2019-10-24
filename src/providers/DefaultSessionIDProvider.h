@@ -43,14 +43,15 @@ namespace providers
 		///
 		/// Destructor
 		///
-		virtual ~DefaultSessionIDProvider() {}
+		~DefaultSessionIDProvider() override = default;
 
 		///
 		/// Provide the next sessionID
 		/// All positive integers greater than 0 can be used as sessionID
 		/// @returns the id that will be used for the next session
 		///
-		virtual int32_t getNextSessionID();
+		int32_t getNextSessionID() override;
+
 	private:
 
 		/// remember last session number - initialized with random offset

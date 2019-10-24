@@ -31,11 +31,9 @@ namespace test {
 		///
 		/// Default constructor
 		///
-		MockITimingProvider()
-		{
-		}
+		MockITimingProvider() = default;
 
-		virtual ~MockITimingProvider() {}
+		~MockITimingProvider() override = default;
 
 		static std::shared_ptr<testing::NiceMock<MockITimingProvider>> createNice()
 		{

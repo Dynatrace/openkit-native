@@ -30,7 +30,7 @@ namespace core
 			///
 			/// Destructor
 			///
-			virtual ~IBeaconCacheEvictionStrategy() {}
+			virtual ~IBeaconCacheEvictionStrategy() = default;
 
 			///
 			/// Called when this strategy is executed.

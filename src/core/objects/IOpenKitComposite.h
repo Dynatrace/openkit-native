@@ -32,6 +32,11 @@ namespace core
 		public:
 
 			///
+			/// Destructor
+			///
+			~IOpenKitComposite() override = default;
+
+			///
 			/// Adds a child object to the list of children.
 			///
 			/// @param childObject the child object to add.

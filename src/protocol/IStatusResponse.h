@@ -34,7 +34,7 @@ namespace protocol
 		///
 		/// Destructor
 		///
-		virtual ~IStatusResponse() {}
+		virtual ~IStatusResponse() = default;
 
 		///
 		/// Get a flag if capturing is enabled by the cluster

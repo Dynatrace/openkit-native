@@ -31,7 +31,7 @@ namespace core
 			///
 			/// Destructor
 			///
-			virtual ~IOpenKitObject() {}
+			virtual ~IOpenKitObject() = default;
 
 			///
 			/// Closes and finishes up this @ref IOpenKitObject

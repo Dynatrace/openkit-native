@@ -30,6 +30,8 @@ namespace test
 	{
 	public:
 
+		MockIThreadIDProvider() = default;
+
 		~MockIThreadIDProvider() override = default;
 
 		static std::shared_ptr<testing::NiceMock<MockIThreadIDProvider>> createNice()

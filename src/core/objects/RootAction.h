@@ -69,17 +69,16 @@ namespace core
 			/// @param[in] actionImpl the actual action implementation.
 			/// @param[in] session the session object keeping track of all root actions of this level
 			///
-			RootAction
-			(
+			RootAction(
 				std::shared_ptr<IActionCommon> actionImpl
 			);
 
 			///
 			/// Destructor
 			///
-			virtual ~RootAction() {}
+			~RootAction() override = default;
 
-			virtual std::shared_ptr<openkit::IAction> enterAction(const char* actionName) override;
+			std::shared_ptr<openkit::IAction> enterAction(const char* actionName) override;
 
 			std::shared_ptr<IRootAction> reportEvent(const char* eventName) override;
 
@@ -93,7 +92,7 @@ namespace core
 
 			std::shared_ptr<openkit::IWebRequestTracer> traceWebRequest(const char* url) override;
 
-			virtual void leaveAction() override;
+			void leaveAction() override;
 
 			std::shared_ptr<IActionCommon> getActionImpl();
 

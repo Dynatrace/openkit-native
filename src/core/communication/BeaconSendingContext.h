@@ -78,7 +78,7 @@ namespace core
 				std::unique_ptr<IBeaconSendingState> initialState
 			);
 
-			~BeaconSendingContext() override {}
+			~BeaconSendingContext() override = default;
 
 			///
 			/// Executes the current state

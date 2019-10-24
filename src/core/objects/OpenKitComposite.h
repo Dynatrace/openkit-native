@@ -50,7 +50,7 @@ namespace core
 			///
 			/// Destructor
 			///
-			virtual ~OpenKitComposite() {}
+			~OpenKitComposite() override = default;
 
 			///
 			/// Adds the given child object to the list of children.
@@ -80,7 +80,7 @@ namespace core
 			///
 			/// @param[in] childObject the child object which was closed.
 			///
-			virtual void onChildClosed(std::shared_ptr<IOpenKitObject> childObject) = 0;
+			void onChildClosed(std::shared_ptr<IOpenKitObject> childObject) override = 0;
 
 			///
 			/// Returns the action ID of this composite or @c 0 if the composite is not an action.
@@ -89,9 +89,9 @@ namespace core
 			/// The default implementation returns @c 0.
 			/// Action related composites need to override this method and return the appropriate value.
 			///
-			virtual int32_t getActionId() const;
+			int32_t getActionId() const override;
 
-			virtual void close() = 0;
+			void close() override = 0;
 
 		private: // members
 

@@ -34,7 +34,7 @@ namespace core
 			///
 			/// Destructor
 			///
-			virtual ~IBeaconCacheEvictor() {}
+			virtual ~IBeaconCacheEvictor() = default;
 
 			///
 			/// Checks if the eviction thread is running or not.

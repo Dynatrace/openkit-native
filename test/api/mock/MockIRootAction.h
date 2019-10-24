@@ -32,7 +32,7 @@ namespace test
 	{
 	public:
 
-		virtual ~MockIRootAction() {}
+		~MockIRootAction() override = default;
 
 		static std::shared_ptr<testing::NiceMock<MockIRootAction>> createNice()
 		{

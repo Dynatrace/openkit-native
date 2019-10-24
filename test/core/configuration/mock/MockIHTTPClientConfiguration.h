@@ -45,7 +45,7 @@ namespace test
 				.WillByDefault(testing::Return(nullptr));
 		}
 
-		virtual ~MockIHTTPClientConfiguration() {}
+		~MockIHTTPClientConfiguration() override = default;
 
 		MOCK_CONST_METHOD0(getBaseURL, const core::UTF8String&());
 

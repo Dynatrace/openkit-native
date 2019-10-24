@@ -34,11 +34,13 @@ namespace providers
 		///
 		DefaultTimingProvider();
 
+		~DefaultTimingProvider() override = default;
+
 		///
 		/// Provide the current timestamp in milliseconds.
 		/// @returns the current timestamp
 		///
-		virtual int64_t provideTimestampInMilliseconds() override;
+		int64_t provideTimestampInMilliseconds() override;
 	};
 }
 

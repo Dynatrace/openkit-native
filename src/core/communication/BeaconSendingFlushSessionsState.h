@@ -46,7 +46,7 @@ namespace core
 			/// Destructor
 			///
 
-			~BeaconSendingFlushSessionsState() override {}
+			~BeaconSendingFlushSessionsState() override = default;
 
 			 void doExecute(IBeaconSendingContext& context) override;
 

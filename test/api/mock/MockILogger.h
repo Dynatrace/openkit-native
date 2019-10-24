@@ -43,7 +43,7 @@ namespace test
 				.WillByDefault(testing::Return(true));
 		}
 
-		virtual ~MockILogger() {}
+		~MockILogger() override = default;
 
 		static std::shared_ptr<testing::NiceMock<MockILogger>> createNice()
 		{

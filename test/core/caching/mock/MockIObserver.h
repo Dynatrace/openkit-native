@@ -30,11 +30,9 @@ namespace test
 		: public core::caching::IObserver
 	{
 	public:
-		MockIObserver()
-		{
-		}
+		MockIObserver() = default;
 
-		virtual ~MockIObserver() {}
+		~MockIObserver() override = default;
 
 		static std::shared_ptr<testing::NiceMock<MockIObserver>> createNice()
 		{

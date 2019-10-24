@@ -37,7 +37,7 @@ namespace core
 			///
 			/// Destructor
 			///
-			virtual ~IBeaconCache() {}
+			virtual ~IBeaconCache() = default;
 
 			///
 			/// Add an @c IObserver which gets notified after a new event data or action data got inserted.

@@ -67,8 +67,7 @@ namespace core
 			/// @param[in] beaconSender beacon sender
 			/// @param[in] beacon beacon used for serialization
 			///
-			Session
-			(
+			Session(
 				std::shared_ptr<openkit::ILogger> logger,
 				std::shared_ptr<IBeaconSender> beaconSender,
 				std::shared_ptr<protocol::IBeacon> beacon
@@ -77,35 +76,37 @@ namespace core
 			///
 			/// Destructor
 			///
-			virtual ~Session() {}
+			~Session() override = default;
 
-			virtual std::shared_ptr<openkit::IRootAction> enterAction(const char* actionName) override;
+			std::shared_ptr<openkit::IRootAction> enterAction(const char* actionName) override;
 
-			virtual void identifyUser(const char* userTag) override;
+			void identifyUser(const char* userTag) override;
 
-			virtual void reportCrash(const char* errorName, const char* reason, const char* stacktrace) override;
+			void reportCrash(const char* errorName, const char* reason, const char* stacktrace) override;
 
-			virtual std::shared_ptr<openkit::IWebRequestTracer> traceWebRequest(const char* url) override;
+			std::shared_ptr<openkit::IWebRequestTracer> traceWebRequest(const char* url) override;
 
-			virtual void end() override;
+			void end() override;
 
 			///
 			/// Returns the end time of the session
 			/// @returns the end time of the session
 			///
-			virtual int64_t getEndTime() const;
+			int64_t getEndTime() const override;
 
 			///
 			/// Start a session
 			///
-			void startSession();
+			void startSession() override;
 
 			///
 			/// Sends the current Beacon state
 			/// @param[in] clientProvider the IHTTPClientProvider to use for sending
 			/// @returns the status response returned for the Beacon data
 			///
-			virtual std::shared_ptr<protocol::IStatusResponse> sendBeacon(std::shared_ptr<providers::IHTTPClientProvider> clientProvider);
+			std::shared_ptr<protocol::IStatusResponse> sendBeacon(
+				std::shared_ptr<providers::IHTTPClientProvider> clientProvider
+			) override;
 
 			///
 			/// Test if this session is empty or not
@@ -113,7 +114,7 @@ namespace core
 			/// A session is considered to be empty, if it does not contain any action or event data.
 			/// @returns @c true if the session is empty, @c false otherwise
 			///
-			virtual bool isEmpty() const;
+			bool isEmpty() const override;
 
 
 			///
@@ -121,25 +122,27 @@ namespace core
 			///
 			/// This is called, when capturing is turned off to avoid having too much data.
 			///
-			virtual void clearCapturedData();
+			void clearCapturedData() override;
 
 			///
 			/// Return a flag if this session was ended already
 			/// @returns @c true if session was already ended, @c false if session is still open
 			///
-			bool isSessionEnded() const;
+			bool isSessionEnded() const override;
 
 			///
 			/// Sets the beacon configuration
 			/// @param[in] beaconConfiguration the beacon configuration to apply to the Beacon
 			///
-			virtual void setBeaconConfiguration(std::shared_ptr<configuration::IBeaconConfiguration> beaconConfiguration);
+			void setBeaconConfiguration(
+				std::shared_ptr<configuration::IBeaconConfiguration> beaconConfiguration
+			) override;
 
 			///
 			/// Returns the beacon configuration
 			/// @returns the beacon configuration
 			///
-			virtual std::shared_ptr<configuration::IBeaconConfiguration> getBeaconConfiguration() const;
+			std::shared_ptr<configuration::IBeaconConfiguration> getBeaconConfiguration() const override;
 
 			void onChildClosed(std::shared_ptr<IOpenKitObject> childObject) override;
 

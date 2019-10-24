@@ -48,7 +48,7 @@ namespace core
 			///
 			/// Destructor
 			///
-			~BeaconSendingCaptureOnState() override {}
+			~BeaconSendingCaptureOnState() override = default;
 
 			void doExecute(IBeaconSendingContext& context) override;
 

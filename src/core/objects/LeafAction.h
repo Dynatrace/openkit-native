@@ -75,7 +75,7 @@ namespace core
 			///
 			/// Destructor
 			///
-			virtual ~LeafAction() {}
+			~LeafAction() override = default;
 
 			std::shared_ptr<IAction> reportEvent(const char* eventName) override;
 
@@ -89,7 +89,7 @@ namespace core
 
 			std::shared_ptr<openkit::IWebRequestTracer> traceWebRequest(const char* url) override;
 
-			virtual std::shared_ptr<openkit::IRootAction> leaveAction() override;
+			std::shared_ptr<openkit::IRootAction> leaveAction() override;
 
 			///
 			/// Returns the actual action implementation.

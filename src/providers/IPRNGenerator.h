@@ -31,7 +31,7 @@ namespace providers
 		///
 		/// Destructor
 		///
-		virtual ~IPRNGenerator() {}
+		virtual ~IPRNGenerator() = default;
 
 		///
 		/// Generate a random number between 0(inclusive) and upperBound(exclusive)

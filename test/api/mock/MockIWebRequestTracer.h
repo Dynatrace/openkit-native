@@ -30,7 +30,7 @@ namespace test
 	{
 	public:
 
-		virtual ~MockIWebRequestTracer() {}
+		~MockIWebRequestTracer() override = default;
 
 		static std::shared_ptr<testing::NiceMock<MockIWebRequestTracer>> createNice()
 		{

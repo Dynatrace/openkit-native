@@ -33,7 +33,7 @@ namespace core
 			///
 			/// Destructor
 			///
-			virtual ~IBeaconCacheConfiguration() {}
+			virtual ~IBeaconCacheConfiguration() = default;
 
 			///
 			/// Returns the maximum record age (in milliseconds) which a record is allowed to have before it gets evicted.

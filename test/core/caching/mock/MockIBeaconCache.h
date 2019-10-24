@@ -31,11 +31,9 @@ namespace test
 	class MockIBeaconCache : public core::caching::IBeaconCache
 	{
 	public:
-		MockIBeaconCache()
-		{
-		}
+		MockIBeaconCache() = default;
 
-		virtual ~MockIBeaconCache() {}
+		~MockIBeaconCache() override = default;
 
 		static std::shared_ptr<testing::NiceMock<MockIBeaconCache>> createNice()
 		{

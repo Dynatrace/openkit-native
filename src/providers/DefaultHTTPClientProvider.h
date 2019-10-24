@@ -28,14 +28,17 @@ namespace providers
 	class DefaultHTTPClientProvider : public IHTTPClientProvider
 	{
 	public:
-		virtual std::shared_ptr<protocol::IHTTPClient> createClient(
+
+		~DefaultHTTPClientProvider() override = default;
+
+		std::shared_ptr<protocol::IHTTPClient> createClient(
 			std::shared_ptr<openkit::ILogger> logger,
 			std::shared_ptr<core::configuration::IHTTPClientConfiguration> configuration
 		) override;
 
-		virtual void globalInit() override;
+		void globalInit() override;
 
-		virtual void globalDestroy() override;
+		void globalDestroy() override;
 	};
 }
 

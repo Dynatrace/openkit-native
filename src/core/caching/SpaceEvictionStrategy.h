@@ -45,8 +45,7 @@ namespace core
 			/// @param[in] configuration The configuration providing the boundary settings for this strategy.
 			/// @param[in] isAlive function to check whether the eviction thread is running or not
 			///
-			SpaceEvictionStrategy
-			(
+			SpaceEvictionStrategy(
 				std::shared_ptr<openkit::ILogger> logger,
 				std::shared_ptr<IBeaconCache> beaconCache,
 				std::shared_ptr<configuration::IBeaconCacheConfiguration> configuration,
@@ -56,7 +55,7 @@ namespace core
 			///
 			/// Destructor
 			///
-			virtual ~SpaceEvictionStrategy() {}
+			~SpaceEvictionStrategy() override = default;
 
 			///
 			/// Delete the copy constructor

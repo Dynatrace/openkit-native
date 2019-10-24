@@ -14,12 +14,13 @@
 * limitations under the License.
 */
 
-#include "Types.h"
-#include "../../api/Types.h"
+#include "OpenKit/LogLevel.h"
+#include "core/util/DefaultLogger.h"
 
-#include <gtest/gtest.h>
+#include "gtest/gtest.h"
 
-using namespace test::types;
+using DefaultLogger_t = core::util::DefaultLogger;
+using LogLevel_t = openkit::LogLevel;
 
 class DefaultLoggerTest : public testing::Test
 {

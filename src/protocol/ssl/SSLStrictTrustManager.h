@@ -42,12 +42,14 @@ namespace protocol
 		///
 		SSLStrictTrustManager(const SSLStrictTrustManager&) = delete;
 
+		~SSLStrictTrustManager() override = default;
+
 		///
 		/// Delete the assignment operator
 		///
 		SSLStrictTrustManager& operator = (const SSLStrictTrustManager &) = delete;
 
-		virtual void applyTrustManager(CURL* curl) override;
+		void applyTrustManager(CURL* curl) override;
 
 	};
 

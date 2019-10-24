@@ -50,7 +50,7 @@ namespace core
 			///
 			/// Destructor
 			///
-			~BeaconSendingInitialState() override {}
+			~BeaconSendingInitialState() override = default;
 
 			void doExecute(IBeaconSendingContext& context) override;
 

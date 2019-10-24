@@ -30,11 +30,9 @@ namespace test
 		: public core::caching::IBeaconCacheEvictionStrategy
 	{
 	public:
-		MockIBeaconCacheEvictionStrategy()
-		{
-		}
+		MockIBeaconCacheEvictionStrategy() = default;
 
-		virtual ~MockIBeaconCacheEvictionStrategy() {}
+		~MockIBeaconCacheEvictionStrategy() override = default;
 
 		static std::shared_ptr<testing::NiceMock<MockIBeaconCacheEvictionStrategy>> createNice()
 		{

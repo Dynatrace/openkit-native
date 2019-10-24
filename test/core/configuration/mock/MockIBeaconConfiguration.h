@@ -44,7 +44,7 @@ namespace test
 				.WillByDefault(testing::Return(core::configuration::DEFAULT_DATA_COLLECTION_LEVEL));
 		}
 
-		virtual ~MockIBeaconConfiguration() {}
+		~MockIBeaconConfiguration() override = default;
 
 		static std::shared_ptr<testing::NiceMock<MockIBeaconConfiguration>> createNice()
 		{

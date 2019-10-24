@@ -21,7 +21,7 @@
 
 namespace providers
 {
-	
+
 	///
 	/// Simple ThreadIDProvider implementation for getting the current thread ID.
 	///
@@ -32,7 +32,7 @@ namespace providers
 		/// Provide the current thread ID
 		/// @returns the current thread ID
 		///
-		virtual int32_t getThreadID() override;
+		int32_t getThreadID() override;
 
 		///
 		/// Convert a native thread id to a positive integer required for the Beacon protocol

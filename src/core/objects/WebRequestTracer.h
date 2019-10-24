@@ -86,21 +86,21 @@ namespace core
 			/// @deprecated use stop(int32_t) instead
 			///
 			OPENKIT_DEPRECATED
-			virtual std::shared_ptr<IWebRequestTracer> setResponseCode(int32_t responseCode) override;
+			std::shared_ptr<IWebRequestTracer> setResponseCode(int32_t responseCode) override;
 
-			virtual std::shared_ptr<IWebRequestTracer> setBytesSent(int32_t bytesSent) override;
+			std::shared_ptr<IWebRequestTracer> setBytesSent(int32_t bytesSent) override;
 
-			virtual std::shared_ptr<IWebRequestTracer> setBytesReceived(int32_t bytesReceived) override;
+			std::shared_ptr<IWebRequestTracer> setBytesReceived(int32_t bytesReceived) override;
 
-			virtual std::shared_ptr<IWebRequestTracer> start() override;
+			std::shared_ptr<IWebRequestTracer> start() override;
 
 			///
 			/// @deprectaed use stop(int32_t) instead
 			///
 			OPENKIT_DEPRECATED
-			virtual void stop() override;
+			void stop() override;
 
-			virtual void stop(int32_t responseCode);
+			void stop(int32_t responseCode);
 
 			void close() override;
 
@@ -108,60 +108,60 @@ namespace core
 			/// Returns the target URL of the web request
 			/// @returns target URL of the web request
 			///
-			const core::UTF8String getURL() const;
+			const core::UTF8String getURL() const override;
 
 			///
 			/// Returns the response code of the web request
 			/// @returns response code of the web request
 			///
-			virtual int32_t getResponseCode() const;
+			int32_t getResponseCode() const override;
 
 			///
 			/// Returns the start time of the web request
 			/// @returns start time of the web request
 			///
-			int64_t getStartTime() const;
+			int64_t getStartTime() const override;
 
 			///
 			/// Returns the end time of the web request
 			/// @returns end time of the web request
 			///
-			int64_t getEndTime() const;
+			int64_t getEndTime() const override;
 
 			///
 			/// Returns the start sequence number
 			/// @returns start sequence number of the web request
 			///
-			int32_t getStartSequenceNo() const;
+			int32_t getStartSequenceNo() const override;
 
 			///
 			/// Returns the end sequence number
 			/// @returns end sequence number of the web request
 			///
-			int32_t getEndSequenceNo() const;
+			int32_t getEndSequenceNo() const override;
 
 			///
 			/// Returns the number of bytes sent
 			/// @returns amount of bytes sent
 			///
-			virtual int32_t getBytesSent() const;
+			int32_t getBytesSent() const override;
 
 			///
 			/// Returns the number of bytes received
 			/// @returns amount of bytes received
 			///
-			virtual int32_t getBytesReceived() const;
+			int32_t getBytesReceived() const override;
 
 			///
 			/// Returns a flag if stop() has already been called
 			/// @returns @c true if the web request tracer has been stopped already, @c false otherwise
 			///
-			bool isStopped() const;
+			bool isStopped() const override;
 
 			///
 			/// Returns the parent object of this web request tracer.
 			///
-			std::shared_ptr<IOpenKitComposite> getParent() const;
+			std::shared_ptr<IOpenKitComposite> getParent() const override;
 
 		private:
 

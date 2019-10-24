@@ -35,7 +35,7 @@ namespace core
 		{
 		public:
 
-			virtual ~IBeaconSendingContext() {}
+			virtual ~IBeaconSendingContext() = default;
 
 			///
 			/// Executes the current state

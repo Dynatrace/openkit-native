@@ -51,7 +51,7 @@ namespace core
 			///
 			/// destructor
 			///
-			virtual ~BeaconCache() {}
+			~BeaconCache() override = default;
 
 			///
 			/// Delete the copy constructor
@@ -63,19 +63,19 @@ namespace core
 			///
 			BeaconCache& operator = (const BeaconCache &) = delete;
 
-			virtual void addObserver(IObserver* observer) override;
+			void addObserver(IObserver* observer) override;
 
-			virtual void addEventData(int32_t beaconID, int64_t timestamp, const core::UTF8String& data) override;
+			void addEventData(int32_t beaconID, int64_t timestamp, const core::UTF8String& data) override;
 
-			virtual void addActionData(int32_t beaconID, int64_t timestamp, const core::UTF8String& data) override;
+			void addActionData(int32_t beaconID, int64_t timestamp, const core::UTF8String& data) override;
 
-			virtual void deleteCacheEntry(int32_t beaconID) override;
+			void deleteCacheEntry(int32_t beaconID) override;
 
-			virtual const core::UTF8String getNextBeaconChunk(int32_t beaconID, const core::UTF8String& chunkPrefix, int32_t maxSize, const core::UTF8String& delimiter) override;
+			const core::UTF8String getNextBeaconChunk(int32_t beaconID, const core::UTF8String& chunkPrefix, int32_t maxSize, const core::UTF8String& delimiter) override;
 
-			virtual void removeChunkedData(int32_t beaconID) override;
+			void removeChunkedData(int32_t beaconID) override;
 
-			virtual void resetChunkedData(int32_t beaconID) override;
+			void resetChunkedData(int32_t beaconID) override;
 
 			///
 			/// Get a deep copy of events collected so far.
@@ -117,15 +117,15 @@ namespace core
 			///
 			const std::list<BeaconCacheRecord> getActionsBeingSent(int32_t beaconID);
 
-			virtual const std::unordered_set<int32_t> getBeaconIDs() override;
+			const std::unordered_set<int32_t> getBeaconIDs() override;
 
-			virtual uint32_t evictRecordsByAge(int32_t beaconID, int64_t minTimestamp) override;
+			uint32_t evictRecordsByAge(int32_t beaconID, int64_t minTimestamp) override;
 
-			virtual uint32_t evictRecordsByNumber(int32_t beaconID, uint32_t numRecords) override;
+			uint32_t evictRecordsByNumber(int32_t beaconID, uint32_t numRecords) override;
 
-			virtual int64_t getNumBytesInCache() const override;
+			int64_t getNumBytesInCache() const override;
 
-			virtual bool isEmpty(int32_t beaconID) override;
+			bool isEmpty(int32_t beaconID) override;
 
 		private:
 			///

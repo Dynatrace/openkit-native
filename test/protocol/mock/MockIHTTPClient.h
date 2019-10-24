@@ -44,7 +44,7 @@ namespace test
 		///
 		/// Destructor
 		///
-		~MockIHTTPClient() {}
+		~MockIHTTPClient() override = default;
 
 		static std::shared_ptr<testing::NiceMock<MockIHTTPClient>> createNice()
 		{
