@@ -22,7 +22,7 @@
 #include "OpenKit/ILogger.h"
 #include "core/SessionWrapper.h"
 #include "core/configuration/Configuration.h"
-#include "core/objects/Session.h"
+#include "core/objects/SessionInternals.h"
 #include "core/util/CountDownLatch.h"
 #include "core/util/SynchronizedQueue.h"
 #include "protocol/IStatusResponse.h"
@@ -253,7 +253,7 @@ namespace core
 			/// This add the @c session to the internal container of open sessions.
 			/// @param[in] session The new session to start.
 			///
-			void startSession(std::shared_ptr<core::objects::Session> session) override;
+			void startSession(std::shared_ptr<core::objects::SessionInternals> session) override;
 
 			///
 			/// Finish a session which has been started previously using startSession(std::shared_ptr<core::objects::Session>)
@@ -261,7 +261,7 @@ namespace core
 			/// otherwise it's removed from the container storing open sessions and added to the finished session container.
 			/// @param[in] session The session to finish.
 			///
-			void finishSession(std::shared_ptr<core::objects::Session> session) override;
+			void finishSession(std::shared_ptr<core::objects::SessionInternals> session) override;
 
 			///
 			/// Returns the type of state
@@ -279,7 +279,7 @@ namespace core
 			/// @param[in] session the session to look up in the session wrapper list
 			/// @returns the @ref core::SessionWrapper encapsulating the given @c session object
 			///
-			std::shared_ptr<core::SessionWrapper> findSessionWrapper(std::shared_ptr<core::objects::Session> session);
+			std::shared_ptr<core::SessionWrapper> findSessionWrapper(std::shared_ptr<core::objects::SessionInternals> session);
 
 			///
 			/// Remove @ref core::SessionWrapper from the list of all wrappers

@@ -17,9 +17,10 @@
 #ifndef _CORE_SESSIONWRAPPER_H
 #define _CORE_SESSIONWRAPPER_H
 
-#include "core/objects/Session.h"
+#include "core/objects/SessionInternals.h"
 #include "protocol/IStatusResponse.h"
 
+#include <atomic>
 #include <memory>
 
 namespace core
@@ -43,7 +44,7 @@ namespace core
 		/// Constructor taking a session object
 		/// @param[in] session pointer
 		///
-		SessionWrapper(std::shared_ptr<core::objects::Session> session);
+		SessionWrapper(std::shared_ptr<core::objects::SessionInternals> session);
 
 		///
 		/// Destructor
@@ -102,13 +103,13 @@ namespace core
 		///
 		/// Ends the session
 		///
-		void end();
+		virtual void end();
 
 		///
 		/// Gets the wrapped session
 		/// @returns the wrapped session
 		///
-		std::shared_ptr<core::objects::Session> getWrappedSession() const;
+		std::shared_ptr<core::objects::SessionInternals> getWrappedSession() const;
 
 		///
 		/// Get a boolean value indicating whether data sending is allowed or not.
@@ -132,7 +133,7 @@ namespace core
 	private:
 
 		/// pointer to wrapped session
-		std::shared_ptr<core::objects::Session> mWrappedSession;
+		std::shared_ptr<core::objects::SessionInternals> mWrappedSession;
 
 		/// the beacon configuration used by the session
 		std::shared_ptr<configuration::IBeaconConfiguration> mBeaconConfiguration;

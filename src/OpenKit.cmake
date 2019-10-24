@@ -133,6 +133,7 @@ set(OPENKIT_SOURCES_CORE_UTIL
 set(OPENKIT_SOURCES_CORE
     ${CMAKE_CURRENT_LIST_DIR}/core/BeaconSender.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/BeaconSender.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/IBeaconSender.h
     ${CMAKE_CURRENT_LIST_DIR}/core/SessionWrapper.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/SessionWrapper.h
     ${CMAKE_CURRENT_LIST_DIR}/core/UTF8String.cxx
@@ -147,6 +148,7 @@ set(OPENKIT_SOURCES_CORE_OBJECTS
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/IActionCommon.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/IOpenKitComposite.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/IOpenKitObject.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/IWebRequestTracerInternals.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/NullAction.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/NullRootAction.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/NullRootAction.h
@@ -162,6 +164,7 @@ set(OPENKIT_SOURCES_CORE_OBJECTS
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/RootAction.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/Session.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/Session.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/SessionInternals.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/WebRequestTracer.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/WebRequestTracer.h
 )

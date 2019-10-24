@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#ifndef _TEST_CORE_MOCKTYPES_H
-#define _TEST_CORE_MOCKTYPES_H
+#ifndef _TEST_CORE_OBJECTS_MOCKIOPENKITOBJECT_H
+#define _TEST_CORE_OBJECTS_MOCKIOPENKITOBJECT_H
 
-#include "MockBeaconSender.h"
+#include "core/objects/IOpenKitObject.h"
 
 #include "gmock/gmock.h"
 
@@ -25,12 +25,27 @@
 
 namespace test
 {
-	namespace types
+
+	class MockIOpenKitObject
+		: public core::objects::IOpenKitObject
 	{
-		using MockBeaconSender_t = test::MockBeaconSender;
-		using MockStrictBeaconSender_t = testing::StrictMock<MockBeaconSender_t>;
-		using MockStrictBeaconSender_sp = std::shared_ptr<MockStrictBeaconSender_t>;
-	}
+	public:
+
+		~MockIOpenKitObject() override = default;
+
+		static std::shared_ptr<testing::NiceMock<MockIOpenKitObject>> createNice()
+		{
+			return std::make_shared<testing::NiceMock<MockIOpenKitObject>>();
+		}
+
+		static std::shared_ptr<testing::StrictMock<MockIOpenKitObject>> createStrict()
+		{
+			return std::make_shared<testing::StrictMock<MockIOpenKitObject>>();
+		}
+
+		MOCK_METHOD0(close, void());
+	};
+
 }
 
 #endif

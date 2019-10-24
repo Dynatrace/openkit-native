@@ -13,14 +13,17 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-#include "Types.h"
-#include "../Types.h"
 
-#include <gtest/gtest.h>
+#include "core/UTF8String.h"
+#include "core/util/URLEncoding.h"
+
+#include "gtest/gtest.h"
+
 #include <cstdint>
 #include <memory>
 
-using namespace test::types;
+using UrlEncoding_t = core::util::URLEncoding;
+using Utf8String_t = core::UTF8String;
 
 class URLEncodingTest : public testing::Test
 {
@@ -32,15 +35,15 @@ TEST_F(URLEncodingTest, urlEncodeQueryParameterWithSpacesAndEqualsSign)
 	Utf8String_t s("q=greater than 5");
 	Utf8String_t expectation("q%3Dgreater%20than%205");
 
-	Utf8String_t encoded = UrlEnconding_t::urlencode(s);
+	Utf8String_t encoded = UrlEncoding_t::urlencode(s);
 	ASSERT_TRUE(encoded.equals(expectation));
 }
 
 TEST_F(URLEncodingTest, urlEncodeQueryParameterWithSpacesAndEqualsSignFinallyDecodeAgain)
 {
 	Utf8String_t s("q=greater than 5");
-	Utf8String_t encoded = UrlEnconding_t::urlencode(s);
-	Utf8String_t decoded = UrlEnconding_t::urldecode(encoded);
+	Utf8String_t encoded = UrlEncoding_t::urlencode(s);
+	Utf8String_t decoded = UrlEncoding_t::urldecode(encoded);
 
 	ASSERT_TRUE(decoded.equals(s));
 }
@@ -49,7 +52,7 @@ TEST_F(URLEncodingTest, urlEncodeStringNotChangedAllCharactersAllowed)
 {
 	Utf8String_t s(".All-this~characters_are_Allowed.");
 
-	Utf8String_t encoded = UrlEnconding_t::urlencode(s);
+	Utf8String_t encoded = UrlEncoding_t::urlencode(s);
 	ASSERT_TRUE(encoded.equals(s));
 }
 
@@ -58,22 +61,22 @@ TEST_F(URLEncodingTest, urlEncodeUTF8MultibyteName)
 	Utf8String_t s("\xD7\xAA\xf0\x9f\x98\x8b");
 	Utf8String_t expectation("%D7%AA%F0%9F%98%8B");
 
-	Utf8String_t encoded = UrlEnconding_t::urlencode(s);
+	Utf8String_t encoded = UrlEncoding_t::urlencode(s);
 	ASSERT_TRUE(encoded.equals(expectation));
 }
 
 TEST_F(URLEncodingTest, urlEncodeUTF8MultibyteNameFinallyDecodeAgain)
 {
 	Utf8String_t s("\xD7\xAA\xf0\x9f\x98\x8b");
-	Utf8String_t encoded = UrlEnconding_t::urlencode(s);
-	Utf8String_t decoded = UrlEnconding_t::urldecode(encoded);
+	Utf8String_t encoded = UrlEncoding_t::urlencode(s);
+	Utf8String_t decoded = UrlEncoding_t::urldecode(encoded);
 	ASSERT_TRUE(decoded.equals(s));
 }
 
 TEST_F(URLEncodingTest, urlDecodeFailing_PercentFollowedByNonHexCharacterTwoInvalidBytes)
 {
 	Utf8String_t s("invalid%string");
-	Utf8String_t decoded = UrlEnconding_t::urldecode(s);
+	Utf8String_t decoded = UrlEncoding_t::urldecode(s);
 
 	Utf8String_t expectation("invalid?string");
 	ASSERT_TRUE(decoded.equals(expectation));
@@ -82,7 +85,7 @@ TEST_F(URLEncodingTest, urlDecodeFailing_PercentFollowedByNonHexCharacterTwoInva
 TEST_F(URLEncodingTest, urlDecodeFailing_PercentFollowedByNonHexCharacterSecondByteInvalid)
 {
 	Utf8String_t s("invalid%ARstring");
-	Utf8String_t decoded = UrlEnconding_t::urldecode(s);
+	Utf8String_t decoded = UrlEncoding_t::urldecode(s);
 
 	Utf8String_t expectation("invalid?ARstring");
 	ASSERT_TRUE(decoded.equals(expectation));
@@ -91,7 +94,7 @@ TEST_F(URLEncodingTest, urlDecodeFailing_PercentFollowedByNonHexCharacterSecondB
 TEST_F(URLEncodingTest, urlDecodeFailing_PercentFollowedByNonHexCharacterFirstByteInvalid)
 {
 	Utf8String_t s("invalid%XString");
-	Utf8String_t decoded = UrlEnconding_t::urldecode(s);
+	Utf8String_t decoded = UrlEncoding_t::urldecode(s);
 
 	Utf8String_t expectation("invalid?XString");
 	ASSERT_TRUE(decoded.equals(expectation));
@@ -100,7 +103,7 @@ TEST_F(URLEncodingTest, urlDecodeFailing_PercentFollowedByNonHexCharacterFirstBy
 TEST_F(URLEncodingTest, urlDecodeFailing_OneCharacterMissingAtTheEnd)
 {
 	Utf8String_t s("invalidstring%E");
-	Utf8String_t decoded = UrlEnconding_t::urldecode(s);
+	Utf8String_t decoded = UrlEncoding_t::urldecode(s);
 
 	Utf8String_t expectation("invalidstring");
 	ASSERT_TRUE(decoded.equals(expectation));
@@ -109,7 +112,7 @@ TEST_F(URLEncodingTest, urlDecodeFailing_OneCharacterMissingAtTheEnd)
 TEST_F(URLEncodingTest, urlDecodeFailing_BothCharactersMissingAtTheEnd)
 {
 	Utf8String_t s("invalidstring%");
-	Utf8String_t decoded = UrlEnconding_t::urldecode(s);
+	Utf8String_t decoded = UrlEncoding_t::urldecode(s);
 
 	Utf8String_t expectation("invalidstring");
 	ASSERT_TRUE(decoded.equals(expectation));
@@ -119,8 +122,8 @@ TEST_F(URLEncodingTest, urlEncodeDecodePercentSignPreserved)
 {
 	Utf8String_t s("this text contains a % as valid codepoint");
 
-	Utf8String_t encoded = UrlEnconding_t::urlencode(s);
-	Utf8String_t decoded = UrlEnconding_t::urldecode(encoded);
+	Utf8String_t encoded = UrlEncoding_t::urlencode(s);
+	Utf8String_t decoded = UrlEncoding_t::urldecode(encoded);
 
 	ASSERT_TRUE(decoded.equals(s));
 }
@@ -132,7 +135,7 @@ TEST_F(URLEncodingTest, itIsPossibleToMarkAdditionalCharactersAsReserved)
 	std::unordered_set<char> additionalReservedCharacters =  { '0', '_' };
 
 	// when
-	auto obtained = UrlEnconding_t::urlencode(input, additionalReservedCharacters);
+	auto obtained = UrlEncoding_t::urlencode(input, additionalReservedCharacters);
 
 	// then
 	ASSERT_EQ(obtained, "%30123456789-.%5F~");

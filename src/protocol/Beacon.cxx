@@ -420,7 +420,10 @@ void Beacon::reportCrash(const core::UTF8String& errorName, const core::UTF8Stri
 	addEventData(timestamp, eventData);
 }
 
-void Beacon::addWebRequest(int32_t parentActionID, std::shared_ptr<core::objects::WebRequestTracer> webRequestTracer)
+void Beacon::addWebRequest(
+	int32_t parentActionID,
+	std::shared_ptr<core::objects::IWebRequestTracerInternals> webRequestTracer
+)
 {
 	if (std::atomic_load(&mBeaconConfiguration)->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
 	{

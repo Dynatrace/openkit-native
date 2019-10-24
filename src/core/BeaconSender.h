@@ -20,7 +20,8 @@
 #include "OpenKit/ILogger.h"
 #include "communication/IBeaconSendingContext.h"
 #include "configuration/Configuration.h"
-#include "core/objects/Session.h"
+#include "core/IBeaconSender.h"
+#include "core/objects/SessionInternals.h"
 #include "providers/IHTTPClientProvider.h"
 #include "providers/ITimingProvider.h"
 
@@ -33,6 +34,7 @@ namespace core
 	/// The BeaconSender runs a thread executing the beacon sending states
 	///
 	class BeaconSender
+		: public IBeaconSender
 	{
 	public:
 		///
@@ -40,7 +42,7 @@ namespace core
 		/// @param[in] logger to write traces to
 		/// @param[in] configuration general configuration options
 		/// @param[in] httpClientProvider the provider for HTTPClient instances
-		/// @param[in] timingProvider utility requried for timing related stuff
+		/// @param[in] timingProvider utility required for timing related stuff
 		///
 		BeaconSender
 		(
@@ -50,20 +52,20 @@ namespace core
 			std::shared_ptr<providers::ITimingProvider> timingProvider
 		);
 
-		virtual ~BeaconSender() {}
+		~BeaconSender() override = default;
 
 		///
 		/// Initialize this BeaconSender
 		/// @return @c true if initialization succeeded, @c false otherwise
 		///
-		bool initialize();
+		bool initialize() override;
 
 		///
 		/// Wait until initialization was completed.
 		/// NOTE: this is a blocking operation
 		/// @return @c true if initialization succeeded, @c false if initialization failed
 		///
-		bool waitForInit() const;
+		bool waitForInit() const override;
 
 		///
 		/// Wait until initialization was completed.  This function may return with @c false after the
@@ -73,17 +75,17 @@ namespace core
 		/// @param[in] timeoutMillis The maximum number of milliseconds to wait for initialization being completed.
 		/// @return @c true if initialization succeeded, @c false if initialization failed or timeout occured
 		///
-		bool waitForInit(int64_t timeoutMillis) const;
+		bool waitForInit(int64_t timeoutMillis) const override;
 
 		///
 		/// Get a bool indicating whether OpenKit has been initialized or not.
 		/// @returns @c true if @ref OpenKit has been initialized, @c false otherwise.
-		bool isInitialized() const;
+		bool isInitialized() const override;
 
 		///
 		/// Shutdown this instance of the BeaconSender
 		///
-		void shutdown();
+		void shutdown() override;
 
 		///
 		/// When starting a new Session, put it into open Sessions.
@@ -91,14 +93,14 @@ namespace core
 		/// In case capturing is disabled, this method has no effect.
 		/// @param[in] session Session to start
 		///
-		virtual void startSession(std::shared_ptr<core::objects::Session> session);
+		void startSession(std::shared_ptr<core::objects::SessionInternals> session) override;
 
 		///
 		/// When finishing a Session, remove it from open Sessions and put it into finished Sessions.
 		/// As soon as a session gets finished it will be transferred to the server.
 		/// @param[in] session Session to finish
 		///
-		virtual void finishSession(std::shared_ptr<core::objects::Session> session);
+		void finishSession(std::shared_ptr<core::objects::SessionInternals> session) override;
 
 	private:
 		/// Logger to write traces to

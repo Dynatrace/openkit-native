@@ -19,6 +19,7 @@
 #include "providers/DefaultHTTPClientProvider.h"
 #include "providers/DefaultTimingProvider.h"
 #include "providers/DefaultThreadIDProvider.h"
+#include "core/BeaconSender.h"
 #include "core/caching/BeaconCache.h"
 #include "core/caching/BeaconCacheEvictor.h"
 
@@ -58,24 +59,19 @@ OpenKit::OpenKit
 	, mConfiguration(configuration)
 	, mTimingProvider(timingProvider)
 	, mThreadIDProvider(threadIDProvider)
-	, mBeaconCache
-	(
+	, mBeaconCache(
 		std::make_shared<caching::BeaconCache>(logger)
 	)
-	, mBeaconSender
-	(
-		std::make_shared<core::BeaconSender>
-		(
+	, mBeaconSender(
+		std::make_shared<core::BeaconSender>(
 			logger,
 			configuration,
 			httpClientProvider,
 			timingProvider
 		)
 	)
-	, mBeaconCacheEvictor
-	(
-		std::make_shared<caching::BeaconCacheEvictor>
-		(
+	, mBeaconCacheEvictor(
+		std::make_shared<caching::BeaconCacheEvictor>(
 			logger,
 			mBeaconCache,
 			configuration->getBeaconCacheConfiguration(),

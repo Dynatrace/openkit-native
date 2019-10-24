@@ -21,10 +21,10 @@
 #include "../core/caching/mock/MockIBeaconCache.h"
 #include "../core/configuration/mock/MockIBeaconCacheConfiguration.h"
 #include "../core/configuration/mock/MockIBeaconConfiguration.h"
-#include "../core/objects/MockIActionCommon.h"
-#include "../core/objects/MockIOpenKitComposite.h"
-#include "../core/objects/MockSession.h"
-#include "../core/objects/MockWebRequestTracer.h"
+#include "../core/objects/mock/MockIActionCommon.h"
+#include "../core/objects/mock/MockIOpenKitComposite.h"
+#include "../core/objects/mock/MockSessionInternals.h"
+#include "../core/objects/mock/MockIWebRequestTracerInternals.h"
 #include "../protocol/mock/MockIStatusResponse.h"
 #include "../providers/mock/MockIHTTPClientProvider.h"
 #include "../providers/mock/MockIPRNGenerator.h"
@@ -67,10 +67,8 @@ using MockNiceIPRNGenerator_sp = std::shared_ptr<testing::NiceMock<MockIPRNGener
 using MockNiceISessionIDProvider_sp = std::shared_ptr<testing::NiceMock<MockISessionIDProvider>>;
 using MockNiceIThreadIDProvider_sp = std::shared_ptr<testing::NiceMock<MockIThreadIDProvider>>;
 using MockNiceITimingProvider_sp = std::shared_ptr<testing::NiceMock<MockITimingProvider>>;
-using MockNiceSession_t = testing::NiceMock<MockSession>;
+using MockNiceSession_t = testing::NiceMock<MockSessionInternals>;
 using MockNiceSession_sp = std::shared_ptr<MockNiceSession_t>;
-using MockNiceWebRequestTracer_t = testing::NiceMock<MockWebRequestTracer>;
-using MockNiceWebRequestTracer_sp = std::shared_ptr<MockNiceWebRequestTracer_t>;
 using MockStrictIBeaconCache_sp = std::shared_ptr<testing::StrictMock<MockIBeaconCache>>;
 using OpenKitType_t = core::configuration::OpenKitType;
 using UrlEncoding_t = core::util::URLEncoding;
@@ -165,11 +163,6 @@ protected:
 			->with(mockThreadIdProvider)
 			->with(mockTimingProvider)
 			->with(mockRandom);
-	}
-
-	MockNiceWebRequestTracer_sp createMockedWebRequestTracer(Beacon_sp beacon)
-	{
-		return std::make_shared<MockNiceWebRequestTracer_t>(mockLogger, mockParent, beacon, TRACER_URL);
 	}
 };
 
@@ -685,7 +678,9 @@ TEST_F(BeaconTest, addWebRequest)
 
 	auto target = createBeacon()->build();
 
-	auto tracer = createMockedWebRequestTracer(target);
+	auto tracer = MockIWebRequestTracerInternals::createNice();
+	ON_CALL(*tracer, getURL())
+		.WillByDefault(testing::Return(TRACER_URL));
 	ON_CALL(*tracer, getBytesSent())
 		.WillByDefault(testing::Return(numBytesSent));
 	ON_CALL(*tracer, getBytesReceived())
@@ -699,10 +694,10 @@ TEST_F(BeaconTest, addWebRequest)
 		<< "&na=" << UrlEncoding_t::urlencode(TRACER_URL, {'_'}).getStringData() // tracer url
 		<< "&it=" << THREAD_ID						// thread ID
 		<< "&pa=" << ACTION_ID						// parent action
-		<< "&s0=1"									// web request start sequence number
+		<< "&s0=0"									// web request start sequence number
 		<< "&t0=0"									// web request start time (since session start)
-		<< "&s1=-1"									// web request end sequence number
-		<< "&t1=-1"									// web request end time (relative to start time)
+		<< "&s1=0"									// web request end sequence number
+		<< "&t1=0"									// web request end time (relative to start time)
 		<< "&bs=" << numBytesSent					// number of bytes sent
 		<< "&br=" << numBytesReceived				// number of bytes received
 		<< "&rc=" << responseCode					// response code
@@ -1239,7 +1234,7 @@ TEST_F(BeaconTest, noWebRequestIsReportedIfCapturingDisabled)
 	// given
 	auto target = createBeacon()
 			->build();
-	auto tracer = std::make_shared<MockNiceWebRequestTracer_t>(mockLogger , mockParent, target, "");
+	auto tracer = MockIWebRequestTracerInternals::createNice();
 
 	configuration->disableCapture();
 
@@ -1264,7 +1259,7 @@ TEST_F(BeaconTest, noWebRequestIsReportedForDataCollectionLevel0)
 {
 	// given
 	auto target = createBeacon(DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF)->build();
-	auto tracer = std::make_shared<MockNiceWebRequestTracer_t>(mockLogger, mockParent, target, "");
+	auto tracer = MockIWebRequestTracerInternals::createNice();
 
 	// when, expect no interaction with beacon cache
 	target->addWebRequest(ACTION_ID, tracer);
@@ -1278,7 +1273,7 @@ TEST_F(BeaconTest, webRequestIsReportedForDataCollectionLevel1)
 
 	//given
 	auto target = createBeacon(DataCollectionLevel_t::PERFORMANCE, CrashReportingLevel_t::OFF)->build();
-	auto mockWebRequestTracer = createMockedWebRequestTracer(target);
+	auto mockWebRequestTracer = MockIWebRequestTracerInternals::createNice();
 
 	// when
 	target->addWebRequest(ACTION_ID, mockWebRequestTracer);
@@ -1292,7 +1287,7 @@ TEST_F(BeaconTest, webRequestIsReportedForDataCollectionLevel2)
 
 	//given
 	auto target = createBeacon(DataCollectionLevel_t::USER_BEHAVIOR, CrashReportingLevel_t::OFF)->build();
-	auto mockWebRequestTracer = createMockedWebRequestTracer(target);
+	auto mockWebRequestTracer = MockIWebRequestTracerInternals::createNice();
 
 	// when
 	target->addWebRequest(ACTION_ID, mockWebRequestTracer);

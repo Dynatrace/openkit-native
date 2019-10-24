@@ -42,8 +42,8 @@ set(OPENKIT_SOURCES_TEST_API
 )
 
 set(OPENKIT_SOURCES_TEST_CORE
-    ${CMAKE_CURRENT_LIST_DIR}/core/MockBeaconSender.h
     ${CMAKE_CURRENT_LIST_DIR}/core/UTF8StringTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/mock/MockIBeaconSender.h
     ${CMAKE_CURRENT_LIST_DIR}/core/util/CompressorTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/util/DefaultLoggerTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/util/InetAddressValidatorTest.cxx
@@ -57,15 +57,13 @@ set(OPENKIT_SOURCES_TEST_CORE_OBJECTS
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/LeafActionTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/RootActionTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/SessionTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/core/objects/MockLeafAction.h
-    ${CMAKE_CURRENT_LIST_DIR}/core/objects/MockIActionCommon.h
-    ${CMAKE_CURRENT_LIST_DIR}/core/objects/MockIOpenKitObject.h
-    ${CMAKE_CURRENT_LIST_DIR}/core/objects/MockIOpenKitComposite.h
-    ${CMAKE_CURRENT_LIST_DIR}/core/objects/MockRootAction.h
-    ${CMAKE_CURRENT_LIST_DIR}/core/objects/MockSession.h
-    ${CMAKE_CURRENT_LIST_DIR}/core/objects/MockWebRequestTracer.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/WebRequestTracerTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/WebRequestTracerURLValidityTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockIActionCommon.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockIOpenKitObject.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockIOpenKitComposite.h
+        ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockSessionInternals.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockIWebRequestTracerInternals.h
 )
 
 set(OPENKIT_SOURCES_TEST_PROTOCOL

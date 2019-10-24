@@ -14,8 +14,8 @@
 * limitations under the License.
 */
 
-#include "MockIOpenKitObject.h"
-#include "../MockBeaconSender.h"
+#include "mock/MockIOpenKitObject.h"
+#include "../mock/MockIBeaconSender.h"
 #include "../configuration/mock/MockIBeaconCacheConfiguration.h"
 #include "../configuration/mock/MockIBeaconConfiguration.h"
 #include "../../api/mock/MockILogger.h"
@@ -53,8 +53,7 @@ using MockNiceIHTTPClientProvider_sp = std::shared_ptr<testing::NiceMock<MockIHT
 using MockNiceIBeacon_sp = std::shared_ptr<testing::NiceMock<MockIBeacon>>;
 using MockNiceILogger_sp = std::shared_ptr<testing::NiceMock<MockILogger>>;
 using MockNiceIHTTPClient_sp = std::shared_ptr<testing::NiceMock<MockIHTTPClient>>;
-using MockStrictBeaconSender_t = testing::StrictMock<MockBeaconSender>;
-using MockStrictBeaconSender_sp = std::shared_ptr<MockStrictBeaconSender_t>;
+using MockStrictIBeaconSender_sp = std::shared_ptr<testing::StrictMock<MockIBeaconSender>>;
 using MockStrictIBeacon_sp = std::shared_ptr<testing::StrictMock<MockIBeacon>>;
 using NullRootAction_t = core::objects::NullRootAction;
 using NullWebRequestTracer_t = core::objects::NullWebRequestTracer;
@@ -75,7 +74,7 @@ protected:
 
 	Configuration_sp configuration;
 
-	MockStrictBeaconSender_sp mockBeaconSender;
+	MockStrictIBeaconSender_sp mockBeaconSender;
 	MockStrictIBeacon_sp mockBeaconStrict;
 	MockNiceIBeacon_sp mockBeaconNice;
 	MockNiceIHTTPClientProvider_sp mockHTTPClientProvider;
@@ -105,12 +104,7 @@ protected:
 		);
 		configuration->enableCapture();
 
-		mockBeaconSender = std::make_shared<MockStrictBeaconSender_t>(
-			mockLogger,
-			configuration,
-			mockHTTPClientProvider,
-			MockITimingProvider::createNice()
-		);
+		mockBeaconSender = MockIBeaconSender::createStrict();
 		mockBeaconStrict = MockIBeacon::createStrict();
 		mockBeaconNice = MockIBeacon::createNice();
 	}

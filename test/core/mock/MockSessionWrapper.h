@@ -30,20 +30,20 @@ namespace test
 	{
 	public:
 
-		MockSessionWrapper(std::shared_ptr<core::objects::Session> session)
+		MockSessionWrapper(std::shared_ptr<core::objects::SessionInternals> session)
 			: SessionWrapper(session)
 		{
 		}
 
 		static std::shared_ptr<testing::NiceMock<MockSessionWrapper>> createNice(
-			std::shared_ptr<core::objects::Session> session
+			std::shared_ptr<core::objects::SessionInternals> session
 		)
 		{
 			return std::make_shared<testing::NiceMock<MockSessionWrapper>>(session);
 		}
 
 		static std::shared_ptr<testing::StrictMock<MockSessionWrapper>> createStrict(
-			std::shared_ptr<core::objects::Session> session
+			std::shared_ptr<core::objects::SessionInternals> session
 		)
 		{
 			return std::make_shared<testing::StrictMock<MockSessionWrapper>>(session);
@@ -64,6 +64,8 @@ namespace test
 				std::shared_ptr<providers::IHTTPClientProvider>
 			)
 		);
+
+		MOCK_METHOD0(end, void());
 
 		MOCK_CONST_METHOD0(isEmpty, bool());
 

@@ -14,12 +14,13 @@
 * limitations under the License.
 */
 
-#include "Types.h"
-#include "../Types.h"
+#include "core/UTF8String.h"
+#include "core/util/InetAddressValidator.h"
 
-#include <gtest/gtest.h>
+#include "gtest/gtest.h"
 
-using namespace test::types;
+using InetAddressValidator_t = core::util::InetAddressValidator;
+using Utf8String_t = core::UTF8String;
 
 class InetAddressValidatorTest : public testing::Test
 {

@@ -28,9 +28,10 @@
 #include "NullRootAction.h"
 
 #include "core/UTF8String.h"
+#include "core/IBeaconSender.h"
 #include "core/configuration/IBeaconConfiguration.h"
 #include "core/objects/IOpenKitObject.h"
-#include "core/objects/OpenKitComposite.h"
+#include "core/objects/SessionInternals.h"
 #include "core/util/SynchronizedQueue.h"
 #include "providers/IHTTPClientProvider.h"
 #include "providers/IHTTPClientProvider.h"
@@ -51,15 +52,11 @@ namespace core
 {
 	namespace objects
 	{
-
-		class RootAction;
-
 		///
-		///  Actual implementation of the ISession interface.
+		///  Actual implementation of the SessionInternals "interface".
 		///
 		class Session
-			: public OpenKitComposite
-			, public openkit::ISession
+			: public SessionInternals
 			, public std::enable_shared_from_this<Session>
 		{
 		public:
@@ -73,7 +70,7 @@ namespace core
 			Session
 			(
 				std::shared_ptr<openkit::ILogger> logger,
-				std::shared_ptr<BeaconSender> beaconSender,
+				std::shared_ptr<IBeaconSender> beaconSender,
 				std::shared_ptr<protocol::IBeacon> beacon
 			);
 
@@ -160,7 +157,7 @@ namespace core
 			std::shared_ptr<openkit::ILogger> mLogger;
 
 			/// beacon sender
-			std::shared_ptr<BeaconSender> mBeaconSender;
+			std::shared_ptr<IBeaconSender> mBeaconSender;
 
 			/// beacon used for serialization
 			std::shared_ptr<protocol::IBeacon> mBeacon;

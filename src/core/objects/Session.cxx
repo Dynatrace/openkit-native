@@ -15,11 +15,11 @@
 */
 
 #include "Session.h"
-#include "protocol/Beacon.h"
-#include "core/BeaconSender.h"
 #include "LeafAction.h"
 #include "RootAction.h"
 #include "WebRequestTracer.h"
+#include "core/IBeaconSender.h"
+#include "protocol/Beacon.h"
 
 #include <sstream>
 
@@ -28,7 +28,7 @@ using namespace core::objects;
 Session::Session
 (
 	std::shared_ptr<openkit::ILogger> logger,
-	std::shared_ptr<core::BeaconSender> beaconSender,
+	std::shared_ptr<core::IBeaconSender> beaconSender,
 	std::shared_ptr<protocol::IBeacon> beacon
 )
 	: mLogger(logger)

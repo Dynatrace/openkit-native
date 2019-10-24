@@ -23,8 +23,7 @@
 #endif
 
 #include "OpenKit/IOpenKit.h"
-#include "OpenKit/IWebRequestTracer.h"
-#include "core/objects/IOpenKitObject.h"
+#include "core/objects/IWebRequestTracerInternals.h"
 #include "core/objects/OpenKitComposite.h"
 #include "core/UTF8String.h"
 
@@ -44,8 +43,7 @@ namespace core
 		/// Implements a tracer for web requests
 		///
 		class WebRequestTracer
-			: public openkit::IWebRequestTracer
-			, public core::objects::IOpenKitObject
+			: public IWebRequestTracerInternals
 			, public std::enable_shared_from_this<WebRequestTracer>
 		{
 		public:

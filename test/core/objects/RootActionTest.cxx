@@ -14,15 +14,22 @@
 * limitations under the License.
 */
 
-#include "Types.h"
-#include "MockTypes.h"
+#include "mock/MockIActionCommon.h"
+#include "mock/MockIWebRequestTracerInternals.h"
 
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
+#include "core/objects/RootAction.h"
+
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
 
 #include <memory>
 
-using namespace test::types;
+using namespace test;
+
+using MockStrictIActionCommon_t = testing::StrictMock<MockIActionCommon>;
+using MockStrictIActionCommon_sp = std::shared_ptr<MockStrictIActionCommon_t>;
+using RootAction_t = core::objects::RootAction;
+using RootAction_sp = std::shared_ptr<RootAction_t>;
 
 class RootActionTest : public testing::Test
 {
@@ -147,7 +154,7 @@ TEST_F(RootActionTest, traceWebRequestDelegatesToCommonImpl)
 {
 	// with
 	const char* url = "https::localhost:9999/1";
-	auto tracer = std::make_shared<MockStrictIWebRequestTracer_t>();
+	auto tracer = MockIWebRequestTracerInternals::createStrict();
 
 	// expect
 	EXPECT_CALL(*mockActionImpl, traceWebRequest(url)).Times(testing::Exactly(1));

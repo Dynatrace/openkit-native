@@ -16,11 +16,11 @@
 
 #include "CustomMatchers.h"
 #include "mock/MockIBeaconSendingState.h"
+#include "../configuration/mock/MockIBeaconCacheConfiguration.h"
+#include "../configuration/mock/MockIBeaconConfiguration.h"
+#include "../objects/mock/MockSessionInternals.h"
 #include "../../api/mock/MockILogger.h"
 #include "../../api/mock/MockISslTrustManager.h"
-#include "../../core/configuration/mock/MockIBeaconCacheConfiguration.h"
-#include "../../core/configuration/mock/MockIBeaconConfiguration.h"
-#include "../../core/objects/MockSession.h"
 #include "../../protocol/mock/MockIHTTPClient.h"
 #include "../../protocol/mock/MockIStatusResponse.h"
 #include "../../providers/mock/MockIHTTPClientProvider.h"
@@ -48,8 +48,8 @@ using IBeaconSendingState_up = std::unique_ptr<IBeaconSendingState_t>;
 using MockNiceILogger_sp = std::shared_ptr<testing::NiceMock<MockILogger>>;
 using MockNiceIHTTPClientProvider_sp = std::shared_ptr<testing::NiceMock<MockIHTTPClientProvider>>;
 using MockNiceITimingProvider_sp = std::shared_ptr<testing::NiceMock<MockITimingProvider>>;
-using MockNiceSession_t = testing::NiceMock<MockSession>;
-using MockStrictSession_t = testing::StrictMock<MockSession>;
+using MockNiceSession_t = testing::NiceMock<MockSessionInternals>;
+using MockStrictSession_t = testing::StrictMock<MockSessionInternals>;
 using MockStrictIBeaconSendingState_sp = std::shared_ptr<testing::StrictMock<MockIBeaconSendingState>>;
 using OpenKitType_t = core::configuration::OpenKitType;
 
@@ -433,8 +433,8 @@ TEST_F(BeaconSendingContextTest, startingASessionAddsTheSessionToOpenSessions)
 {
 	// given
 	auto target = createBeaconSendingContext();
-	auto mockSessionOne = std::make_shared<MockNiceSession_t>(mockLogger);
-	auto mockSessionTwo = std::make_shared<MockNiceSession_t>(mockLogger);
+	auto mockSessionOne = MockSessionInternals::createNice();
+	auto mockSessionTwo = MockSessionInternals::createNice();
 
 	// when starting first session
 	target->startSession(mockSessionOne);
@@ -461,8 +461,8 @@ TEST_F(BeaconSendingContextTest, finishingASessionMovesSessionToFinishedSessions
 {
 	// given
 	auto target = createBeaconSendingContext();
-	auto mockSessionOne = std::make_shared<MockNiceSession_t>(mockLogger);
-	auto mockSessionTwo = std::make_shared<MockNiceSession_t>(mockLogger);
+	auto mockSessionOne = MockSessionInternals::createNice();
+	auto mockSessionTwo = MockSessionInternals::createNice();
 
 	target->startSession(mockSessionOne);
 	target->startSession(mockSessionTwo);
@@ -498,7 +498,7 @@ TEST_F(BeaconSendingContextTest, finishingASessionThatHasNotBeenStartedBeforeIsN
 {
 	// given
 	auto target = createBeaconSendingContext();
-	auto mockSession = std::make_shared<MockNiceSession_t>(mockLogger);
+	auto mockSession = MockSessionInternals::createNice();
 
 	// when the session is not started, but immediately finished
 	target->finishSession(mockSession);
@@ -527,8 +527,8 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseWhenCapturingIsEnabled)
 	// given
 	mockConfiguration->enableCapture();
 	auto target = createBeaconSendingContext();
-	auto mockSessionOne = std::make_shared<MockStrictSession_t>(mockLogger);
-	auto mockSessionTwo = std::make_shared<MockStrictSession_t>(mockLogger);
+	auto mockSessionOne = MockSessionInternals::createStrict();
+	auto mockSessionTwo = MockSessionInternals::createStrict();
 
 	target->startSession(mockSessionOne);
 	target->finishSession(mockSessionOne);
@@ -562,10 +562,10 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseWhenCapturingIsDisabled)
 {
 	// given
 	auto target = createBeaconSendingContext();
-	auto mockSessionOne = std::make_shared<MockStrictSession_t>(mockLogger);
-	auto mockSessionTwo = std::make_shared<MockStrictSession_t>(mockLogger);
-	auto mockSessionThree = std::make_shared<MockStrictSession_t>(mockLogger);
-	auto mockSessionFour = std::make_shared<MockStrictSession_t>(mockLogger);
+	auto mockSessionOne = MockSessionInternals::createStrict();
+	auto mockSessionTwo = MockSessionInternals::createStrict();
+	auto mockSessionThree = MockSessionInternals::createStrict();
+	auto mockSessionFour = MockSessionInternals::createStrict();
 
 	EXPECT_CALL(*mockSessionOne, setBeaconConfiguration(testing::_))
 		.Times(testing::Exactly(1));
@@ -630,8 +630,8 @@ TEST_F(BeaconSendingContextTest, whenStartingASessionTheSessionIsConsideredAsNew
 	// given
 	auto target = createBeaconSendingContext();
 
-	auto mockSessionOne = std::make_shared<MockNiceSession_t>(mockLogger);
-	auto mockSessionTwo = std::make_shared<MockNiceSession_t>(mockLogger);
+	auto mockSessionOne = MockSessionInternals::createNice();
+	auto mockSessionTwo = MockSessionInternals::createNice();
 
 	// when
 	target->startSession(mockSessionOne);
@@ -655,8 +655,8 @@ TEST_F(BeaconSendingContextTest, finishingANewSessionStillLeavesItNew)
 	// given
 	auto target = createBeaconSendingContext();
 
-	auto mockSessionOne = std::make_shared<MockNiceSession_t>(mockLogger);
-	auto mockSessionTwo = std::make_shared<MockNiceSession_t>(mockLogger);
+	auto mockSessionOne = MockSessionInternals::createNice();
+	auto mockSessionTwo = MockSessionInternals::createNice();
 
 	// when
 	target->startSession(mockSessionOne);
@@ -682,8 +682,8 @@ TEST_F(BeaconSendingContextTest, afterASessionHasBeenConfiguredItsOpenAndConfigu
 	// given
 	auto target = createBeaconSendingContext();
 
-	auto mockSessionOne = std::make_shared<MockNiceSession_t>(mockLogger);
-	auto mockSessionTwo = std::make_shared<MockNiceSession_t>(mockLogger);
+	auto mockSessionOne = MockSessionInternals::createNice();
+	auto mockSessionTwo = MockSessionInternals::createNice();
 
 	// when
 	target->startSession(mockSessionOne);
@@ -716,8 +716,8 @@ TEST_F(BeaconSendingContextTest, afterAFinishedSessionHasBeenConfiguredItsFinish
 	// given
 	auto target = createBeaconSendingContext();
 
-	auto mockSessionOne = std::make_shared<MockNiceSession_t>(mockLogger);
-	auto mockSessionTwo = std::make_shared<MockNiceSession_t>(mockLogger);
+	auto mockSessionOne = MockSessionInternals::createNice();
+	auto mockSessionTwo = MockSessionInternals::createNice();
 
 	// when
 	target->startSession(mockSessionOne);

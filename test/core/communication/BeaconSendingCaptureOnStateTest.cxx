@@ -18,7 +18,7 @@
 #include "mock/MockIBeaconSendingContext.h"
 #include "../mock/MockSessionWrapper.h"
 #include "../configuration/mock/MockIBeaconConfiguration.h"
-#include "../objects/MockSession.h"
+#include "../objects/mock/MockSessionInternals.h"
 #include "../../api/mock/MockILogger.h"
 #include "../../protocol/mock/MockIHTTPClient.h"
 #include "../../protocol/mock/MockIStatusResponse.h"
@@ -43,7 +43,7 @@ using IBeaconConfiguration_sp = std::shared_ptr<core::configuration::IBeaconConf
 using IBeaconSendingState_sp = std::shared_ptr<core::communication::IBeaconSendingState>;
 using IStatusResponse_t = protocol::IStatusResponse;
 using MockNiceIBeaconSendingContext_sp = std::shared_ptr<MockIBeaconSendingContext>;
-using MockNiceSession_t = testing::NiceMock<MockSession>;
+using MockNiceSession_t = testing::NiceMock<MockSessionInternals>;
 using MockNiceSession_sp = std::shared_ptr<MockNiceSession_t>;
 using MockSessionWrapper_sp = std::shared_ptr<MockSessionWrapper>;
 using SessionWrapper_t = core::SessionWrapper;
@@ -56,17 +56,11 @@ class BeaconSendingCaptureOnStateTest : public testing::Test
 protected:
 
 	MockNiceIBeaconSendingContext_sp mockContext;
-	MockNiceSession_sp mockSession1Open;
 	MockSessionWrapper_sp mockSessionWrapper1Open;
-	MockNiceSession_sp mockSession2Open;
 	MockSessionWrapper_sp mockSessionWrapper2Open;
-	MockNiceSession_sp mockSession3Finished;
 	MockSessionWrapper_sp mockSessionWrapper3Finished;
-	MockNiceSession_sp mockSession4Finished;
 	MockSessionWrapper_sp mockSessionWrapper4Finished;
-	MockNiceSession_sp mockSession5New;
 	MockSessionWrapper_sp mockSessionWrapper5New;
-	MockNiceSession_sp mockSession6New;
 	MockSessionWrapper_sp mockSessionWrapper6New;
 
 	void SetUp()
@@ -75,29 +69,20 @@ protected:
 		auto successResponse = std::make_shared<StatusResponse_t>(mockLogger, "", 200, IStatusResponse_t::ResponseHeaders());
 		auto errorResponse = std::make_shared<StatusResponse_t>(mockLogger, "", 404, IStatusResponse_t::ResponseHeaders());
 
-		mockSession1Open = std::make_shared<MockNiceSession_t>(mockLogger);
-		mockSessionWrapper1Open = MockSessionWrapper::createNice(mockSession1Open);
+		mockSessionWrapper1Open = MockSessionWrapper::createNice(MockSessionInternals::createNice());
 		ON_CALL(*mockSessionWrapper1Open, sendBeacon(testing::_))
 			.WillByDefault(testing::Return(successResponse));
 		ON_CALL(*mockSessionWrapper1Open, isDataSendingAllowed())
 			.WillByDefault(testing::Return(true));
 
-		mockSession2Open = std::make_shared<MockNiceSession_t>(mockLogger);
-		mockSessionWrapper2Open = MockSessionWrapper::createNice(mockSession2Open);
+		mockSessionWrapper2Open = MockSessionWrapper::createNice(MockSessionInternals::createNice());
 		ON_CALL(*mockSessionWrapper2Open, sendBeacon(testing::_))
 			.WillByDefault(testing::Return(errorResponse));
 
-		mockSession3Finished = std::make_shared<MockNiceSession_t>(mockLogger);
-		mockSessionWrapper3Finished = MockSessionWrapper::createNice(mockSession3Finished);
-
-		mockSession4Finished = std::make_shared<MockNiceSession_t>(mockLogger);
-		mockSessionWrapper4Finished = MockSessionWrapper::createNice(mockSession4Finished);
-
-		mockSession5New = std::make_shared<MockNiceSession_t>(mockLogger);
-		mockSessionWrapper5New = MockSessionWrapper::createNice(mockSession5New);
-
-		mockSession6New = std::make_shared<MockNiceSession_t>(mockLogger);
-		mockSessionWrapper6New = MockSessionWrapper::createNice(mockSession6New);
+		mockSessionWrapper3Finished = MockSessionWrapper::createNice(MockSessionInternals::createNice());
+		mockSessionWrapper4Finished = MockSessionWrapper::createNice(MockSessionInternals::createNice());
+		mockSessionWrapper5New = MockSessionWrapper::createNice(MockSessionInternals::createNice());
+		mockSessionWrapper6New = MockSessionWrapper::createNice(MockSessionInternals::createNice());
 
 
 		auto mockHTTPClientProvider = MockIHTTPClientProvider::createNice();
@@ -270,12 +255,12 @@ TEST_F(BeaconSendingCaptureOnStateTest, multiplicityIsSetToZeroIfNoFurtherNewSes
 TEST_F(BeaconSendingCaptureOnStateTest, newSessionRequestsAreAbortedWhenTooManyRequestsResponseIsReceived)
 {
 	// with
-	mockSessionWrapper1Open = MockSessionWrapper::createStrict(mockSession1Open);
-	mockSessionWrapper2Open = MockSessionWrapper::createStrict(mockSession2Open);
-	mockSessionWrapper3Finished = MockSessionWrapper::createStrict(mockSession3Finished);
-	mockSessionWrapper4Finished = MockSessionWrapper::createStrict(mockSession4Finished);
-	mockSessionWrapper5New = MockSessionWrapper::createStrict(mockSession5New);
-	mockSessionWrapper6New = MockSessionWrapper::createStrict(mockSession6New);
+	mockSessionWrapper1Open = MockSessionWrapper::createStrict(MockSessionInternals::createStrict());
+	mockSessionWrapper2Open = MockSessionWrapper::createStrict(MockSessionInternals::createStrict());
+	mockSessionWrapper3Finished = MockSessionWrapper::createStrict(MockSessionInternals::createStrict());
+	mockSessionWrapper4Finished = MockSessionWrapper::createStrict(MockSessionInternals::createStrict());
+	mockSessionWrapper5New = MockSessionWrapper::createStrict(MockSessionInternals::createStrict());
+	mockSessionWrapper6New = MockSessionWrapper::createStrict(MockSessionInternals::createStrict());
 	std::vector<SessionWrapper_sp> newSessions = {mockSessionWrapper5New, mockSessionWrapper6New};
 	ON_CALL(*mockContext, getAllNewSessions())
 		.WillByDefault(testing::Return(newSessions));
@@ -487,10 +472,10 @@ TEST_F(BeaconSendingCaptureOnStateTest, sendingFinishedSessionsIsAbortedImmediat
 {
 	// with
 	auto beaconConfig = MockIBeaconConfiguration::createNice();
-	mockSessionWrapper1Open = MockSessionWrapper::createStrict(mockSession1Open);
-	mockSessionWrapper2Open = MockSessionWrapper::createStrict(mockSession2Open);
-	mockSessionWrapper3Finished = MockSessionWrapper::createStrict(mockSession3Finished);
-	mockSessionWrapper4Finished = MockSessionWrapper::createStrict(mockSession4Finished);
+	mockSessionWrapper1Open = MockSessionWrapper::createStrict(MockSessionInternals::createStrict());
+	mockSessionWrapper2Open = MockSessionWrapper::createStrict(MockSessionInternals::createStrict());
+	mockSessionWrapper3Finished = MockSessionWrapper::createStrict(MockSessionInternals::createStrict());
+	mockSessionWrapper4Finished = MockSessionWrapper::createStrict(MockSessionInternals::createStrict());
 
 	std::vector<SessionWrapper_sp> openSessions = {mockSessionWrapper1Open, mockSessionWrapper2Open};
 	ON_CALL(*mockContext, getAllOpenAndConfiguredSessions())
@@ -602,8 +587,8 @@ TEST_F(BeaconSendingCaptureOnStateTest, aBeaconSendingCaptureOnStateClearsOpenSe
 TEST_F(BeaconSendingCaptureOnStateTest, sendingOpenSessionsIsAbortedImmediatelyWhenTooManyRequestsResponseIsReceived)
 {
 	// with
-	mockSessionWrapper1Open = MockSessionWrapper::createStrict(mockSession1Open);
-	mockSessionWrapper2Open = MockSessionWrapper::createStrict(mockSession2Open);
+	mockSessionWrapper1Open = MockSessionWrapper::createStrict(MockSessionInternals::createStrict());
+	mockSessionWrapper2Open = MockSessionWrapper::createStrict(MockSessionInternals::createStrict());
 	std::vector<SessionWrapper_sp> openSessions ={mockSessionWrapper1Open, mockSessionWrapper2Open};
 	ON_CALL(*mockContext, getAllOpenAndConfiguredSessions())
 			.WillByDefault(testing::Return(openSessions));
@@ -660,12 +645,12 @@ TEST_F(BeaconSendingCaptureOnStateTest, nothingIsSentIfStateIsInterruptedDuringS
 	ON_CALL(*mockBeaconConfig, getMultiplicity())
 		.WillByDefault(testing::Return(2));
 
-	auto sessionWrapper1 = std::make_shared<SessionWrapper_t>(mockSession1Open);
+	auto sessionWrapper1 = std::make_shared<SessionWrapper_t>(MockSessionInternals::createNice());
 	std::vector<SessionWrapper_sp> newSessions = { sessionWrapper1 };
-	auto sessionWrapper2 = std::make_shared<SessionWrapper_t>(mockSession2Open);
+	auto sessionWrapper2 = std::make_shared<SessionWrapper_t>(MockSessionInternals::createNice());
 	sessionWrapper2->updateBeaconConfiguration(mockBeaconConfig);
 	std::vector<SessionWrapper_sp> openSessions = { sessionWrapper2 };
-	auto sessionWrapper3 = std::make_shared<SessionWrapper_t>(mockSession3Finished);
+	auto sessionWrapper3 = std::make_shared<SessionWrapper_t>(MockSessionInternals::createNice());
 	sessionWrapper3->updateBeaconConfiguration(MockIBeaconConfiguration::createNice());
 	std::vector<SessionWrapper_sp> finishedSessions = { sessionWrapper3 };
 

@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-#include "MockIActionCommon.h"
+#include "mock/MockIActionCommon.h"
 #include "../../api/mock/MockIRootAction.h"
 #include "../../api/mock/MockIWebRequestTracer.h"
 

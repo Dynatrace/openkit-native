@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#include "MockIOpenKitComposite.h"
-#include "MockIOpenKitObject.h"
+#include "mock/MockIOpenKitComposite.h"
+#include "mock/MockIOpenKitObject.h"
 #include "../../api/mock/MockILogger.h"
 #include "../../api/mock/MockIRootAction.h"
 #include "../../protocol/mock/MockIBeacon.h"

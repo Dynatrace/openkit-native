@@ -23,7 +23,7 @@ constexpr uint32_t MAX_NEW_SESSION_REQUESTS = 4;
 
 SessionWrapper::SessionWrapper
 (
-	std::shared_ptr<core::objects::Session> session
+	std::shared_ptr<core::objects::SessionInternals> session
 )
 	: mWrappedSession(session)
 	, mBeaconConfiguration()
@@ -79,7 +79,7 @@ void SessionWrapper::end()
 	mWrappedSession->end();
 }
 
-std::shared_ptr<core::objects::Session> SessionWrapper::getWrappedSession() const
+std::shared_ptr<core::objects::SessionInternals> SessionWrapper::getWrappedSession() const
 {
 	return mWrappedSession;
 }

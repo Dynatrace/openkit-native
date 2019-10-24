@@ -228,13 +228,13 @@ IBeaconSendingState::StateType BeaconSendingContext::getCurrentStateType() const
 	return mCurrentState->getStateType();
 }
 
-void BeaconSendingContext::startSession(std::shared_ptr<core::objects::Session> session)
+void BeaconSendingContext::startSession(std::shared_ptr<core::objects::SessionInternals> session)
 {
 	auto sessionWrapper = std::make_shared<core::SessionWrapper>(session);
 	mSessions.put(sessionWrapper);
 }
 
-void BeaconSendingContext::finishSession(std::shared_ptr<core::objects::Session> session)
+void BeaconSendingContext::finishSession(std::shared_ptr<core::objects::SessionInternals> session)
 {
 	std::shared_ptr<core::SessionWrapper> sessionWrapper = findSessionWrapper(session);
 	if (sessionWrapper != nullptr)
@@ -292,7 +292,7 @@ std::shared_ptr<IBeaconSendingState> BeaconSendingContext::getNextState()
 	return mNextState;
 }
 
-std::shared_ptr<core::SessionWrapper> BeaconSendingContext::findSessionWrapper(std::shared_ptr<core::objects::Session> session)
+std::shared_ptr<core::SessionWrapper> BeaconSendingContext::findSessionWrapper(std::shared_ptr<core::objects::SessionInternals> session)
 {
 	for (auto sessionWrapper : mSessions.toStdVector())
 	{

@@ -20,3 +20,4 @@ using namespace test;
 
 const core::UTF8String DefaultValues::UTF8_EMPTY_STRING = core::UTF8String("");
 const std::string DefaultValues::EMPTY_STRING = std::string("");
+const char* DefaultValues::EMPTY_CHAR_STRING = "";

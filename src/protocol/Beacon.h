@@ -28,7 +28,7 @@
 #include "core/configuration/IHTTPClientConfiguration.h"
 #include "core/objects/IActionCommon.h"
 #include "core/objects/Session.h"
-#include "core/objects/WebRequestTracer.h"
+#include "core/objects/IWebRequestTracerInternals.h"
 #include "core/caching/BeaconCache.h"
 #include "protocol/IStatusResponse.h"
 #include "EventType.h"
@@ -223,10 +223,9 @@ namespace protocol
 		/// @param[in] parentActionID The @ref core::objects::Action on which the web request was reported
 		/// @param[in] webRequestTracer @ref core::objects::WebRequestBase to serialize
 		///
-		void addWebRequest
-		(
+		void addWebRequest(
 			int32_t parentActionID,
-			std::shared_ptr<core::objects::WebRequestTracer> webRequestTracer
+			std::shared_ptr<core::objects::IWebRequestTracerInternals> webRequestTracer
 		) override;
 
 		///

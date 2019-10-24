@@ -19,7 +19,7 @@
 
 #include "core/SessionWrapper.h"
 #include "core/communication/IBeaconSendingContext.h"
-#include "core/objects/Session.h"
+#include "core/objects/SessionInternals.h"
 #include "protocol/IHTTPClient.h"
 #include "protocol/IStatusResponse.h"
 #include "providers/IHTTPClientProvider.h"
@@ -152,13 +152,13 @@ class MockIBeaconSendingContext
 
 		MOCK_METHOD1(startSession,
 			void(
-				std::shared_ptr<core::objects::Session>
+				std::shared_ptr<core::objects::SessionInternals>
 			)
 		);
 
 		MOCK_METHOD1(finishSession,
 			void(
-				std::shared_ptr<core::objects::Session>
+				std::shared_ptr<core::objects::SessionInternals>
 			)
 		);
 

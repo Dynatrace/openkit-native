@@ -14,80 +14,56 @@
 * limitations under the License.
 */
 
-#include "Types.h"
-#include "../Types.h"
-#include "../configuration/Types.h"
-#include "../../api/Types.h"
-#include "../../providers/Types.h"
-#include "../../protocol/Types.h"
-#include "../../protocol/mock/MockIStatusResponse.h"
 
+#include "mock/MockIBeaconCacheConfiguration.h"
+#include "mock/MockIBeaconConfiguration.h"
+#include "../../api/mock/MockISslTrustManager.h"
+#include "../../protocol/mock/MockIStatusResponse.h"
+#include "../../providers/mock/MockISessionIDProvider.h"
+#include "../../DefaultValues.h"
+
+#include "core/UTF8String.h"
+#include "core/configuration/Configuration.h"
 #include "core/configuration/ConfigurationDefaults.h"
+#include "core/configuration/Device.h"
+#include "core/configuration/OpenKitType.h"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
 using namespace test;
-using namespace test::types;
+
+using Configuration_t = core::configuration::Configuration;
+using Device_t = core::configuration::Device;
+using OpenKitType_t = core::configuration::OpenKitType;
+using Utf8String_t = core::UTF8String;
 
 class ConfigurationTest : public testing::Test
 {
 protected:
-	void SetUp()
-	{
-		sslTrustManager = std::make_shared<SslStrictTrustManager_t>();
-		sessionIDProvider = std::make_shared<DefaultSessionIdProvider_t>();
-		device = std::make_shared<Device_t>("", "", "");
-		beaconCacheConfiguration = std::make_shared<BeaconCacheConfiguration_t>(-1, -1, -1);
-		beaconConfiguration = std::make_shared<BeaconConfiguration_t>();
-	}
 
 	std::shared_ptr<Configuration_t> getDefaultConfiguration()
 	{
-		return std::make_shared<Configuration_t>
-		(
-				device,
-				openKitType,
-				"",
-				"",
-				"/App_ID%",
-				0,
-				"0",
-				"",
-				sessionIDProvider,
-				sslTrustManager,
-				beaconCacheConfiguration,
-				beaconConfiguration
-		);
+		return getConfiguration(DefaultValues::UTF8_EMPTY_STRING);
 	}
 
 	std::shared_ptr<Configuration_t> getConfiguration(const Utf8String_t& beaconURL)
 	{
-		return std::make_shared<Configuration_t>
-		(
-				device,
-				openKitType,
-				"",
-				"",
-				"/App_ID%",
-				0,
-				"0",
-				beaconURL,
-				sessionIDProvider,
-				sslTrustManager,
-				beaconCacheConfiguration,
-				beaconConfiguration
+		return std::make_shared<Configuration_t>(
+			std::make_shared<Device_t>("", "", ""),
+			OpenKitType_t::Type::DYNATRACE,
+			"",
+			"",
+			"/App_ID%",
+			0,
+			"0",
+			beaconURL,
+			MockISessionIDProvider::createNice(),
+			MockISslTrustManager::createNice(),
+			MockIBeaconCacheConfiguration::createNice(),
+			MockIBeaconConfiguration::createNice()
 		);
 	}
-private:
-	Device_sp device = nullptr;
-	OpenKitType_t openKitType = OpenKitType_t::Type::DYNATRACE;
-	ISessionIdProvider_sp sessionIDProvider = nullptr;
-	ISslTrustManager_sp sslTrustManager = nullptr;
-	BeaconConfiguration_sp beaconConfiguration = nullptr;
-	BeaconCacheConfiguration_sp beaconCacheConfiguration = nullptr;
-
-	Configuration_sp testConfiguration = nullptr;
 };
 
 TEST_F(ConfigurationTest, enableAndDisableCapturing)

@@ -111,7 +111,7 @@ void BeaconSender::shutdown()
 	// if the thread is still running here it will either finish later or killed when the main process is ended
 }
 
-void BeaconSender::startSession(std::shared_ptr<core::objects::Session> session)
+void BeaconSender::startSession(std::shared_ptr<core::objects::SessionInternals> session)
 {
 	if (mLogger->isDebugEnabled())
 	{
@@ -120,7 +120,7 @@ void BeaconSender::startSession(std::shared_ptr<core::objects::Session> session)
 	mBeaconSendingContext->startSession(session);
 }
 
-void BeaconSender::finishSession(std::shared_ptr<core::objects::Session> session)
+void BeaconSender::finishSession(std::shared_ptr<core::objects::SessionInternals> session)
 {
 	if (mLogger->isDebugEnabled())
 	{

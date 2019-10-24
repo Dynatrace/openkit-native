@@ -16,10 +16,9 @@
 
 #include "CustomMatchers.h"
 #include "mock/MockIBeaconSendingContext.h"
-#include "../../api/mock/MockILogger.h"
-#include "../../core/configuration/mock/MockIBeaconConfiguration.h"
-#include "../../core/mock/MockSessionWrapper.h"
-#include "../../core/objects/MockSession.h"
+#include "../configuration/mock/MockIBeaconConfiguration.h"
+#include "../mock/MockSessionWrapper.h"
+#include "../objects/mock/MockSessionInternals.h"
 #include "../../protocol/mock/MockIHTTPClient.h"
 #include "../../protocol/mock/MockIStatusResponse.h"
 
@@ -35,8 +34,6 @@ using namespace test;
 using BeaconSendingFlushSessionState_t = core::communication::BeaconSendingFlushSessionsState;
 using MockNiceIBeaconSendingContext_sp = std::shared_ptr<testing::NiceMock<MockIBeaconSendingContext>>;
 using MockNiceIHTTPClient_sp = std::shared_ptr<testing::NiceMock<MockIHTTPClient>>;
-using MockNiceSession_t = testing::NiceMock<MockSession>;
-using MockNiceSession_sp = std::shared_ptr<MockNiceSession_t>;
 using MockNiceSessionWrapper_sp = std::shared_ptr<testing::NiceMock<MockSessionWrapper>>;
 using SessionWrapper_sp = std::shared_ptr<core::SessionWrapper>;
 
@@ -45,28 +42,21 @@ class BeaconSendingFlushSessionsStateTest : public testing::Test
 protected:
 
 	MockNiceIBeaconSendingContext_sp mockContext;
-	MockNiceSession_sp mockSession1Open;
 	MockNiceSessionWrapper_sp mockSessionWrapper1Open;
-	MockNiceSession_sp mockSession2Open;
 	MockNiceSessionWrapper_sp mockSessionWrapper2Open;
-	MockNiceSession_sp mockSession3Closed;
 	MockNiceSessionWrapper_sp mockSessionWrapper3Closed;
 
 	void SetUp()
 	{
-		auto mockLogger = MockILogger::createNice();
-		mockSession1Open = std::make_shared<MockNiceSession_t>(mockLogger);
-		mockSessionWrapper1Open = MockSessionWrapper::createNice(mockSession1Open);
+		mockSessionWrapper1Open = MockSessionWrapper::createNice(MockSessionInternals::createNice());
 		ON_CALL(*mockSessionWrapper1Open, isDataSendingAllowed())
 			.WillByDefault(testing::Return(true));
 
-		mockSession2Open = std::make_shared<MockNiceSession_t>(mockLogger);
-		mockSessionWrapper2Open = MockSessionWrapper::createNice(mockSession2Open);
+		mockSessionWrapper2Open = MockSessionWrapper::createNice(MockSessionInternals::createNice());
 		ON_CALL(*mockSessionWrapper2Open, isDataSendingAllowed())
 				.WillByDefault(testing::Return(true));
 
-		mockSession3Closed = std::make_shared<MockNiceSession_t>(mockLogger);
-		mockSessionWrapper3Closed = MockSessionWrapper::createNice(mockSession3Closed);
+		mockSessionWrapper3Closed = MockSessionWrapper::createNice(MockSessionInternals::createNice());
 		ON_CALL(*mockSessionWrapper3Closed, isDataSendingAllowed())
 				.WillByDefault(testing::Return(true));
 
@@ -173,9 +163,9 @@ TEST_F(BeaconSendingFlushSessionsStateTest, aBeaconSendingFlushSessionsStateClos
 {
 	// expect
 	// verify that open sessions are closed
-	EXPECT_CALL(*mockSession1Open, end())
+	EXPECT_CALL(*mockSessionWrapper1Open, end())
 		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockSession2Open, end())
+	EXPECT_CALL(*mockSessionWrapper2Open, end())
 		.Times(testing::Exactly(1));
 
 	// given

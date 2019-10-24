@@ -17,7 +17,6 @@
 #include "mock/MockISslTrustManager.h"
 
 #include "Types.h"
-#include "../core/configuration/Types.h"
 #include "../core/util/Types.h"
 #include "../protocol/Types.h"
 

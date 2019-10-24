@@ -31,7 +31,7 @@ namespace core
 	namespace objects
 	{
 		class IActionCommon;
-		class WebRequestTracer;
+		class IWebRequestTracerInternals;
 	}
 }
 
@@ -164,13 +164,16 @@ namespace protocol
 		virtual void reportCrash(const core::UTF8String& errorName, const core::UTF8String& reason, const core::UTF8String& stacktrace) = 0;
 
 		///
-		/// Add @ref core::WebRequestTracer to Beacon
+		/// Add the given web request tracer to the Beacon
 		/// The serialized data is added to @ref core::caching::BeaconCache
 		/// @param actionID The id of the @ref core::objects::RootAction or @ref core::objects::LeafAction on which
 		///   this value was reported.
-		/// @param[in] webRequestTracer @ref core::objects::WebRequestBase to serialize
+		/// @param[in] webRequestTracer @ref core::objects::IWebRequestTracerInternals to serialize
 		///
-		virtual void addWebRequest(int32_t parentActionID, std::shared_ptr<core::objects::WebRequestTracer> webRequestTracer) = 0;
+		virtual void addWebRequest(
+			int32_t parentActionID,
+			std::shared_ptr<core::objects::IWebRequestTracerInternals> webRequestTracer
+		) = 0;
 
 		///
 		/// Add user identification to Beacon.

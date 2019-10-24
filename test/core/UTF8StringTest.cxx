@@ -13,26 +13,18 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-#include "Types.h"
-#include "memory.h"
+
+#include "core/UTF8String.h"
+
+#include "gtest/gtest.h"
 
 #include <cstdint>
-#include <gtest/gtest.h>
+#include <memory>
 
-using namespace test::types;
+using Utf8String_t = core::UTF8String;
 
 class UTF8StringTest : public testing::Test
 {
-protected:
-	void SetUp()
-	{
-
-	}
-
-	void TearDown()
-	{
-
-	}
 };
 
 TEST_F(UTF8StringTest, aStringCanBeInitializedWithAnASCIIString)

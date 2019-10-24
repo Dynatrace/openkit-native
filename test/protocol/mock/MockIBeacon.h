@@ -22,8 +22,7 @@
 #include "protocol/IStatusResponse.h"
 #include "core/configuration/IBeaconConfiguration.h"
 #include "core/objects/IActionCommon.h"
-#include "core/objects/Session.h"
-#include "core/objects/WebRequestTracer.h"
+#include "core/objects/IWebRequestTracerInternals.h"
 #include "providers/IHTTPClientProvider.h"
 
 #include "gmock/gmock.h"
@@ -135,7 +134,7 @@ namespace test
 		MOCK_METHOD2(addWebRequest,
 			void(
 				int32_t, /* parentActionID */
-				std::shared_ptr<core::objects::WebRequestTracer> /* webRequestTracer */
+				std::shared_ptr<core::objects::IWebRequestTracerInternals> /* webRequestTracer */
 			)
 		);
 

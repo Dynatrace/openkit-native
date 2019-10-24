@@ -28,6 +28,7 @@ namespace test
 	public:
 		static const core::UTF8String UTF8_EMPTY_STRING;
 		static const std::string EMPTY_STRING;
+		static const char* EMPTY_CHAR_STRING;
 	};
 }
 

@@ -27,7 +27,7 @@
 #include "providers/IThreadIDProvider.h"
 #include "core/caching/IBeaconCache.h"
 #include "core/caching/IBeaconCacheEvictor.h"
-#include "core/BeaconSender.h"
+#include "core/IBeaconSender.h"
 #include "NullSession.h"
 
 #include <mutex>
@@ -75,7 +75,7 @@ namespace core
 
 			///
 			/// Initialize this OpenKit instance.
-			/// This method starts the @ref BeaconSender and is called directly after
+			/// This method starts the @ref IBeaconSender and is called directly after
 			/// the instance has been created in @ref openkit::AbstractOpenKitBuilder.
 			///
 			void initialize();
@@ -125,7 +125,7 @@ namespace core
 			std::shared_ptr<caching::IBeaconCache> mBeaconCache;
 
 			/// Beacon sender
-			std::shared_ptr<core::BeaconSender> mBeaconSender;
+			std::shared_ptr<core::IBeaconSender> mBeaconSender;
 
 			/// beacon cache evictor
 			std::shared_ptr<caching::IBeaconCacheEvictor> mBeaconCacheEvictor;

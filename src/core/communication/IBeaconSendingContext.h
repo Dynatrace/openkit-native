@@ -19,7 +19,7 @@
 
 #include "IBeaconSendingState.h"
 #include "core/SessionWrapper.h"
-#include "core/objects/Session.h"
+#include "core/objects/SessionInternals.h"
 #include "protocol/IHTTPClient.h"
 #include "protocol/IStatusResponse.h"
 #include "providers/IHTTPClientProvider.h"
@@ -210,7 +210,7 @@ namespace core
 			/// This add the @c session to the internal container of open sessions.
 			/// @param[in] session The new session to start.
 			///
-			virtual void startSession(std::shared_ptr<core::objects::Session> session) = 0;
+			virtual void startSession(std::shared_ptr<core::objects::SessionInternals> session) = 0;
 
 			///
 			/// Finish a session which has been started previously using startSession(std::shared_ptr<core::objects::Session>)
@@ -218,7 +218,7 @@ namespace core
 			/// otherwise it's removed from the container storing open sessions and added to the finished session container.
 			/// @param[in] session The session to finish.
 			///
-			virtual void finishSession(std::shared_ptr<core::objects::Session> session) = 0;
+			virtual void finishSession(std::shared_ptr<core::objects::SessionInternals> session) = 0;
 
 			///
 			/// Returns the type of state

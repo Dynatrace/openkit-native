@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-#include "MockIOpenKitComposite.h"
+#include "mock/MockIOpenKitComposite.h"
 #include "../../api/mock/MockILogger.h"
 #include "../../protocol/mock/MockIBeacon.h"
 
@@ -46,14 +46,12 @@ protected:
 
 	MockNiceILogger_sp mockLogger;
 	MockNiceIBeacon_sp mockBeaconNice;
-	MockStrictIBeacon_sp mockBeaconStrict;
 	MockNiceIOpenKitComposite_sp mockParentNice;
 
 	void SetUp()
 	{
 		mockLogger = MockILogger::createNice();
 
-		mockBeaconStrict = MockIBeacon::createStrict();
 		mockBeaconNice = MockIBeacon::createNice();
 
 		mockParentNice = MockIOpenKitComposite::createNice();

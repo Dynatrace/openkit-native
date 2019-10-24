@@ -17,7 +17,7 @@
 #ifndef _TEST_OBJECTS_MOCKIACTIONCOMMON_H
 #define _TEST_OBJECTS_MOCKIACTIONCOMMON_H
 
-#include "../../DefaultValues.h"
+#include "../../../DefaultValues.h"
 
 #include "OpenKit/IAction.h"
 #include "OpenKit/IRootAction.h"

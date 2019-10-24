@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef _TEST_CORE_OBJECTS_MOCKOPENKITCOMPOSITE_H
-#define _TEST_CORE_OBJECTS_MOCKOPENKITCOMPOSITE_H
+#ifndef _TEST_CORE_OBJECTS_MOCKIOPENKITCOMPOSITE_H
+#define _TEST_CORE_OBJECTS_MOCKIOPENKITCOMPOSITE_H
 
 #include "core/objects/IOpenKitComposite.h"
 #include "core/objects/IOpenKitObject.h"
@@ -30,13 +30,8 @@ namespace test
 class MockIOpenKitComposite : public core::objects::IOpenKitComposite
 	{
 	public:
-		MockIOpenKitComposite()
-		{
-		}
 
-		~MockIOpenKitComposite()
-		{
-		}
+		~MockIOpenKitComposite() override = default;
 
 		static std::shared_ptr<testing::NiceMock<MockIOpenKitComposite>> createNice()
 		{
