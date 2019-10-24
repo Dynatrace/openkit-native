@@ -14,6 +14,7 @@
 * limitations under the License.
 */
 
+#include "builder/TestSessionBuilder.h"
 #include "mock/MockIOpenKitObject.h"
 #include "../mock/MockIBeaconSender.h"
 #include "../configuration/mock/MockIBeaconCacheConfiguration.h"
@@ -59,8 +60,7 @@ using NullRootAction_t = core::objects::NullRootAction;
 using NullWebRequestTracer_t = core::objects::NullWebRequestTracer;
 using OpenKitType_t = core::configuration::OpenKitType;
 using RootAction_t = core::objects::RootAction;
-using Session_t = core::objects::Session;
-using Session_sp = std::shared_ptr<Session_t>;
+using SessionBuilder_sp = std::shared_ptr<TestSessionBuilder>;
 using Utf8String_t = core::UTF8String;
 using WebRequestTracer_t = core::objects::WebRequestTracer;
 
@@ -75,8 +75,6 @@ protected:
 	Configuration_sp configuration;
 
 	MockStrictIBeaconSender_sp mockBeaconSender;
-	MockStrictIBeacon_sp mockBeaconStrict;
-	MockNiceIBeacon_sp mockBeaconNice;
 	MockNiceIHTTPClientProvider_sp mockHTTPClientProvider;
 
 	void SetUp()
@@ -105,31 +103,25 @@ protected:
 		configuration->enableCapture();
 
 		mockBeaconSender = MockIBeaconSender::createStrict();
-		mockBeaconStrict = MockIBeacon::createStrict();
-		mockBeaconNice = MockIBeacon::createNice();
 	}
 
-	Session_sp createSessionWithNiceBeacon()
+	SessionBuilder_sp createSession()
 	{
-		return std::make_shared<Session_t>(
-			mockLogger,
-			mockBeaconSender,
-			mockBeaconNice
-		);
-	}
+		auto builder = std::make_shared<TestSessionBuilder>();
 
-	Session_sp createSessionWithStrictBeacon()
- 	{
-		return std::make_shared<Session_t>(
-			mockLogger,
-			mockBeaconSender,
-			mockBeaconStrict
-		);
+		builder->with(mockLogger)
+			.with(mockBeaconSender)
+		;
+
+		return builder;
 	}
 };
 
 TEST_F(SessionTest, startSessionCallsBeacon)
 {
+	// with
+	auto mockBeaconStrict = MockIBeacon::createStrict();
+
 	// expect
 	EXPECT_CALL(*mockBeaconStrict, startSession())
 		.Times(1);
@@ -137,7 +129,9 @@ TEST_F(SessionTest, startSessionCallsBeacon)
 		.Times(1);
 
 	// given
-	auto target = createSessionWithStrictBeacon();
+	auto target = createSession()
+		->with(mockBeaconStrict)
+		.build();
 
 	// when
 	target->startSession();
@@ -145,8 +139,13 @@ TEST_F(SessionTest, startSessionCallsBeacon)
 
 TEST_F(SessionTest, constructorInitializesValidDefaults)
 {
+	// with
+	auto mockBeaconStrict = MockIBeacon::createStrict();
+
 	// given, when
-	auto target = createSessionWithStrictBeacon();
+	auto target = createSession()
+		->with(mockBeaconStrict)
+		.build();
 
 	// then
 	ASSERT_EQ(target->getEndTime(), -1);
@@ -159,7 +158,7 @@ TEST_F(SessionTest, enterActionWithNullActionNameGivesNullRootActionObject)
 		.Times(1);
 
 	// given
-	auto target = createSessionWithNiceBeacon();
+	auto target = createSession()->build();
 
 	// when
 	auto obtained = target->enterAction(nullptr);
@@ -176,7 +175,7 @@ TEST_F(SessionTest, enterActionWithEmptyActionNameGivesNullRootActionObject)
 		.Times(1);
 
 	// given
-	auto target = createSessionWithNiceBeacon();
+	auto target = createSession()->build();
 
 	// when
 	auto obtained = target->enterAction("");
@@ -189,7 +188,7 @@ TEST_F(SessionTest, enterActionWithEmptyActionNameGivesNullRootActionObject)
 TEST_F(SessionTest, enterActionWitnNonEmptyNameGivesRootAction)
 {
 	// given
-	auto target = createSessionWithNiceBeacon();
+	auto target = createSession()->build();
 
 	// when
 	auto obtained = target->enterAction("some action");
@@ -206,7 +205,7 @@ TEST_F(SessionTest, enterActionAlwaysGivesANewInstance)
 {
 	// given
 	const char* actionName = "some action";
-	auto target = createSessionWithNiceBeacon();
+	auto target = createSession()->build();
 
 	// when
 	auto obtainedOne = target->enterAction(actionName);
@@ -225,7 +224,7 @@ TEST_F(SessionTest, enterActionAlwaysGivesANewInstance)
 TEST_F(SessionTest, enterActionWithDifferentNameGivesDifferentInstance)
 {
 	// given
-	auto target = createSessionWithNiceBeacon();
+	auto target = createSession()->build();
 
 	// when
 	auto obtainedOne = target->enterAction("some action 1");
@@ -243,6 +242,9 @@ TEST_F(SessionTest, enterActionWithDifferentNameGivesDifferentInstance)
 
 TEST_F(SessionTest, enterActionDoesNotAddToTheBeaconCache)
 {
+	// with
+	auto mockBeaconStrict = MockIBeacon::createStrict();
+
 	// expect
 	EXPECT_CALL(*mockBeaconStrict, getSessionNumber())
 		.Times(1); // Session toString on debug log
@@ -254,7 +256,9 @@ TEST_F(SessionTest, enterActionDoesNotAddToTheBeaconCache)
 		.Times(1); // initialize action
 
 	// given
-	auto target = createSessionWithStrictBeacon();
+	auto target = createSession()
+		->with(mockBeaconStrict)
+		.build();
 
 	// when
 	auto obtained = target->enterAction("Some action");
@@ -271,6 +275,9 @@ TEST_F(SessionTest, enterActionDoesNotAddToTheBeaconCache)
 
 TEST_F(SessionTest, identifyUserWithNullTagDoesNothing)
 {
+	// with
+	auto mockBeaconStrict = MockIBeacon::createStrict();
+
 	// expect
 	EXPECT_CALL(*mockLogger, mockWarning("Session [sn=0] identifyUser: userTag must not be null or empty"))
 		.Times(1);
@@ -278,7 +285,9 @@ TEST_F(SessionTest, identifyUserWithNullTagDoesNothing)
 		.Times(1);
 
 	// given
-	auto target = createSessionWithStrictBeacon();
+	auto target = createSession()
+		->with(mockBeaconStrict)
+		.build();
 
 	// when
 	target->identifyUser(nullptr);
@@ -286,6 +295,9 @@ TEST_F(SessionTest, identifyUserWithNullTagDoesNothing)
 
 TEST_F(SessionTest, identifyUserWithEmptyTagDoesNothing)
 {
+	// with
+	auto mockBeaconStrict = MockIBeacon::createStrict();
+
 	// expect
 	EXPECT_CALL(*mockLogger, mockWarning("Session [sn=0] identifyUser: userTag must not be null or empty"))
 		.Times(1);
@@ -293,7 +305,9 @@ TEST_F(SessionTest, identifyUserWithEmptyTagDoesNothing)
 		.Times(1);
 
 	// given
-	auto target = createSessionWithStrictBeacon();
+	auto target = createSession()
+		->with(mockBeaconStrict)
+		.build();
 
 	// when
 	target->identifyUser("");
@@ -302,6 +316,7 @@ TEST_F(SessionTest, identifyUserWithEmptyTagDoesNothing)
 TEST_F(SessionTest, identifyUserWithNonEmptyTagReportsUser)
 {
 	// with
+	auto mockBeaconStrict = MockIBeacon::createStrict();
 	const char* userTag = "user";
 
 	// expect
@@ -313,7 +328,9 @@ TEST_F(SessionTest, identifyUserWithNonEmptyTagReportsUser)
 		.Times(1);
 
 	// given
-	auto target = createSessionWithStrictBeacon();
+	auto target = createSession()
+		->with(mockBeaconStrict)
+		.build();
 
 	// when
 	target->identifyUser(userTag);
@@ -322,6 +339,7 @@ TEST_F(SessionTest, identifyUserWithNonEmptyTagReportsUser)
 TEST_F(SessionTest, identifyUserMultipleTimesAlwaysCallsBeacon)
 {
 	// with
+	auto mockBeaconStrict = MockIBeacon::createStrict();
 	const char* userTag = "user";
 
 	// expect
@@ -333,7 +351,9 @@ TEST_F(SessionTest, identifyUserMultipleTimesAlwaysCallsBeacon)
 		.Times(2);
 
 	// given
-	auto target = createSessionWithStrictBeacon();
+	auto target = createSession()
+		->with(mockBeaconStrict)
+		.build();
 
 	// when
 	target->identifyUser(userTag);
@@ -343,6 +363,7 @@ TEST_F(SessionTest, identifyUserMultipleTimesAlwaysCallsBeacon)
 TEST_F(SessionTest, identifyUserWithDifferentUsersAlwasCallsBeacon)
 {
 	// with
+	auto mockBeaconStrict = MockIBeacon::createStrict();
 	const char* userTag1 = "user 1";
 	const char* userTag2 = "user 2";
 
@@ -357,7 +378,9 @@ TEST_F(SessionTest, identifyUserWithDifferentUsersAlwasCallsBeacon)
 		.Times(1);
 
 	// given
-	auto target = createSessionWithStrictBeacon();
+	auto target = createSession()
+		->with(mockBeaconStrict)
+		.build();
 
 	// when
 	target->identifyUser(userTag1);
@@ -367,6 +390,7 @@ TEST_F(SessionTest, identifyUserWithDifferentUsersAlwasCallsBeacon)
 TEST_F(SessionTest, reportingCrashWithNullErrorNameDoesNotReportAnything)
 {
 	// with
+	auto mockBeaconStrict = MockIBeacon::createStrict();
 	const char* errorName = nullptr;
 	const char* reason = "some reason";
 	const char* stacktrace = "some stack trace";
@@ -378,7 +402,9 @@ TEST_F(SessionTest, reportingCrashWithNullErrorNameDoesNotReportAnything)
 		.Times(1); // session to string in debug log
 
 	// given
-	auto target = createSessionWithStrictBeacon();
+	auto target = createSession()
+		->with(mockBeaconStrict)
+		.build();
 
 	// when
 	target->reportCrash(errorName, reason, stacktrace);
@@ -387,6 +413,7 @@ TEST_F(SessionTest, reportingCrashWithNullErrorNameDoesNotReportAnything)
 TEST_F(SessionTest, reportingCrashWithEmptyErrorNameDoesNotReportAnything)
 {
 	// with
+	auto mockBeaconStrict = MockIBeacon::createStrict();
 	const char* errorName = "";
 	const char* reason = "some reason";
 	const char* stacktrace = "some stack trace";
@@ -398,7 +425,9 @@ TEST_F(SessionTest, reportingCrashWithEmptyErrorNameDoesNotReportAnything)
 		.Times(1); // session to string in debug log
 
 	// given
-	auto target = createSessionWithStrictBeacon();
+	auto target = createSession()
+		->with(mockBeaconStrict)
+		.build();
 
 	// when
 	target->reportCrash(errorName, reason, stacktrace);
@@ -407,6 +436,7 @@ TEST_F(SessionTest, reportingCrashWithEmptyErrorNameDoesNotReportAnything)
 TEST_F(SessionTest, reportingCrashWithNullReasonAndStacktraceWorks)
 {
 	// with
+	auto mockBeaconNice = MockIBeacon::createNice();
 	const char* errorName = "errorName";
 	const char* reason = nullptr;
 	const char* stacktrace = nullptr;
@@ -416,7 +446,9 @@ TEST_F(SessionTest, reportingCrashWithNullReasonAndStacktraceWorks)
 		.Times(1);
 
 	// given
-	auto target = createSessionWithNiceBeacon();
+	auto target = createSession()
+		->with(mockBeaconNice)
+		.build();
 
 	// when
 	target->reportCrash(errorName, reason, stacktrace);
@@ -425,6 +457,7 @@ TEST_F(SessionTest, reportingCrashWithNullReasonAndStacktraceWorks)
 TEST_F(SessionTest, reportingCrashWithEmptyReasonAndStacktraceStringWorks)
 {
 	// with
+	auto mockBeaconNice = MockIBeacon::createNice();
 	const char* errorName = "errorName";
 	const char* reason = "";
 	const char* stacktrace = "";
@@ -434,7 +467,9 @@ TEST_F(SessionTest, reportingCrashWithEmptyReasonAndStacktraceStringWorks)
 		.Times(1);
 
 	// given
-	auto target = createSessionWithNiceBeacon();
+	auto target = createSession()
+		->with(mockBeaconNice)
+		.build();
 
 	// when
 	target->reportCrash(errorName, reason, stacktrace);
@@ -443,6 +478,7 @@ TEST_F(SessionTest, reportingCrashWithEmptyReasonAndStacktraceStringWorks)
 TEST_F(SessionTest, reportCrashWorks)
 {
 	// with
+	auto mockBeaconNice = MockIBeacon::createNice();
 	const char* errorName = "errorName";
 	const char* reason = "some reason";
 	const char* stacktrace = "some stacktrace";
@@ -452,7 +488,9 @@ TEST_F(SessionTest, reportCrashWorks)
 		.Times(1);
 
 	// given
-	auto target = createSessionWithNiceBeacon();
+	auto target = createSession()
+		->with(mockBeaconNice)
+		.build();
 
 	// when
 	target->reportCrash(errorName, reason, stacktrace);
@@ -461,6 +499,7 @@ TEST_F(SessionTest, reportCrashWorks)
 TEST_F(SessionTest, reportingCrashWithSameDataMultipleTimesForwardsEachCallToBeacon)
 {
 	// with
+	auto mockBeaconNice = MockIBeacon::createNice();
 	const char* errorName = "errorName";
 	const char* reason = "some reason";
 	const char* stacktrace = "some stacktrace";
@@ -470,7 +509,9 @@ TEST_F(SessionTest, reportingCrashWithSameDataMultipleTimesForwardsEachCallToBea
 		.Times(2);
 
 	// given
-	auto target = createSessionWithNiceBeacon();
+	auto target = createSession()
+		->with(mockBeaconNice)
+		.build();
 
 	// when
 	target->reportCrash(errorName, reason, stacktrace);
@@ -481,6 +522,7 @@ TEST_F(SessionTest, reportingCrashWithSameDataMultipleTimesForwardsEachCallToBea
 TEST_F(SessionTest, reportingCrashWithDifferentDataMultipleTimesForwardsEachCallToBeacon)
 {
 	// with
+	auto mockBeaconNice = MockIBeacon::createNice();
 	const char* errorName1 = "errorName 1";
 	const char* errorName2 = "errorName 2";
 	const char* reason1 = "some reason 1";
@@ -495,7 +537,9 @@ TEST_F(SessionTest, reportingCrashWithDifferentDataMultipleTimesForwardsEachCall
 		.Times(1);
 
 	// given
-	auto target = createSessionWithNiceBeacon();
+	auto target = createSession()
+		->with(mockBeaconNice)
+		.build();
 
 	// when
 	target->reportCrash(errorName1, reason1, stacktrace1);
@@ -505,6 +549,7 @@ TEST_F(SessionTest, reportingCrashWithDifferentDataMultipleTimesForwardsEachCall
 TEST_F(SessionTest, endSessionFinishesSessionOnBeacon)
 {
 	// with
+	auto mockBeaconNice = MockIBeacon::createNice();
 	const int64_t timestamp = 1234;
 	ON_CALL(*mockBeaconNice, getCurrentTimestamp())
 		.WillByDefault(testing::Return(timestamp));
@@ -516,7 +561,9 @@ TEST_F(SessionTest, endSessionFinishesSessionOnBeacon)
 		.Times(1);
 
 	// given
-	auto target = createSessionWithNiceBeacon();
+	auto target = createSession()
+		->with(mockBeaconNice)
+		.build();
 
 	// when
 	target->end();
@@ -528,6 +575,7 @@ TEST_F(SessionTest, endSessionFinishesSessionOnBeacon)
 TEST_F(SessionTest, endingAnAlreadyEndedSessionDoesNothing)
 {
 	// with
+	auto mockBeaconNice = MockIBeacon::createNice();
 	const int64_t timestamp = 1234;
 	ON_CALL(*mockBeaconNice, getCurrentTimestamp())
 		.WillByDefault(testing::Return(timestamp));
@@ -538,8 +586,11 @@ TEST_F(SessionTest, endingAnAlreadyEndedSessionDoesNothing)
 	EXPECT_CALL(*mockBeaconNice, endSession())
 		.Times(1); // only first invocation of end
 
+
 	// given
-	auto target = createSessionWithNiceBeacon();
+	auto target = createSession()
+		->with(mockBeaconNice)
+		.build();
 
 	// when
 	target->end();
@@ -566,7 +617,7 @@ TEST_F(SessionTest, endingASessionImplicitlyClosesAllOpenChildOjects)
 		.Times(1);
 
 	// given
-	auto target = createSessionWithNiceBeacon();
+	auto target = createSession()->build();
 	target->storeChildInList(childObjectOne);
 	target->storeChildInList(childObjectTwo);
 
@@ -576,12 +627,17 @@ TEST_F(SessionTest, endingASessionImplicitlyClosesAllOpenChildOjects)
 
 TEST_F(SessionTest, sendBeaconForwardsCallToBeacon)
 {
+	// with
+	auto mockBeaconStrict = MockIBeacon::createStrict();
+
 	// expect
 	EXPECT_CALL(*mockBeaconStrict, send(testing::Eq(mockHTTPClientProvider)))
 		.Times(1);
 
 	// given
-	auto target = createSessionWithStrictBeacon();
+	auto target = createSession()
+		->with(mockBeaconStrict)
+		.build();
 
 	// when
 	target->sendBeacon(mockHTTPClientProvider);
@@ -589,12 +645,17 @@ TEST_F(SessionTest, sendBeaconForwardsCallToBeacon)
 
 TEST_F(SessionTest, clearCapturedDataForwardsCallToBeacon)
 {
+	// with
+	auto mockBeaconStrict = MockIBeacon::createStrict();
+
 	// expect
 	EXPECT_CALL(*mockBeaconStrict, clearData())
 		.Times(1);
 
 	// given
-	auto target = createSessionWithStrictBeacon();
+	auto target = createSession()
+		->with(mockBeaconStrict)
+		.build();
 
 	// when
 	target->clearCapturedData();
@@ -602,12 +663,17 @@ TEST_F(SessionTest, clearCapturedDataForwardsCallToBeacon)
 
 TEST_F(SessionTest, isEmptyForwardsCallToBeacon)
 {
+	// with
+	auto mockBeaconStrict= MockIBeacon::createStrict();
+
 	// expect
 	EXPECT_CALL(*mockBeaconStrict, isEmpty())
 		.Times(1);
 
 	// given
-	auto target = createSessionWithStrictBeacon();
+	auto target = createSession()
+		->with(mockBeaconStrict)
+		.build();
 
 	// when
 	target->isEmpty();
@@ -616,6 +682,7 @@ TEST_F(SessionTest, isEmptyForwardsCallToBeacon)
 TEST_F(SessionTest, setBeaconConfigurationForwardsCallToBeacon)
 {
 	// with
+	auto mockBeaconStrict = MockIBeacon::createStrict();
 	auto mockBeaconConfig = MockIBeaconConfiguration::createStrict();
 
 	// expect
@@ -623,7 +690,9 @@ TEST_F(SessionTest, setBeaconConfigurationForwardsCallToBeacon)
 		.Times(1);
 
 	// given
-	auto target = createSessionWithStrictBeacon();
+	auto target = createSession()
+		->with(mockBeaconStrict)
+		.build();
 
 	// when
 	target->setBeaconConfiguration(mockBeaconConfig);
@@ -631,13 +700,17 @@ TEST_F(SessionTest, setBeaconConfigurationForwardsCallToBeacon)
 
 TEST_F(SessionTest, getBeaconConfigurationForwardsCallToBeacon)
 {
+	// with
+	auto mockBeaconStrict = MockIBeacon::createStrict();
+
 	// expect
 	EXPECT_CALL(*mockBeaconStrict, getBeaconConfiguration())
 		.Times(1);
 
 	// given
-	auto target = createSessionWithStrictBeacon();
-
+	auto target = createSession()
+		->with(mockBeaconStrict)
+		.build();
 	// when
 	target->getBeaconConfiguration();
 }
@@ -645,7 +718,7 @@ TEST_F(SessionTest, getBeaconConfigurationForwardsCallToBeacon)
 TEST_F(SessionTest, aNewlyConstructedSessionIsNotEnded)
 {
 	//given
-	auto target = createSessionWithNiceBeacon();
+	auto target = createSession()->build();
 
 	//when
 	ASSERT_THAT(target->isSessionEnded(), testing::Eq(false));
@@ -657,7 +730,7 @@ TEST_F(SessionTest, aSessionIsEndedIfEndIsCalled)
 		.Times(1);
 
 	// given
-	auto target = createSessionWithNiceBeacon();
+	auto target = createSession()->build();
 
 	// when
 	target->end();
@@ -673,7 +746,7 @@ TEST_F(SessionTest, enterActionGivesNullRootActionIfSessionIsAlreadyEnded)
 		.Times(1);
 
 	// given
-	auto target = createSessionWithNiceBeacon();
+	auto target = createSession()->build();
 	target->end();
 
 	// when
@@ -686,6 +759,9 @@ TEST_F(SessionTest, enterActionGivesNullRootActionIfSessionIsAlreadyEnded)
 
 TEST_F(SessionTest, identifyUserDoesNothingIfSessionIsEnded)
 {
+	// with
+	auto mockBeaconNice = MockIBeacon::createNice();
+
 	// expect
 	EXPECT_CALL(*mockBeaconNice, identifyUser(testing::_))
 		.Times(0);
@@ -693,7 +769,9 @@ TEST_F(SessionTest, identifyUserDoesNothingIfSessionIsEnded)
 		.Times(1);
 
 	// given
-	auto target = createSessionWithNiceBeacon();
+	auto target = createSession()
+		->with(mockBeaconNice)
+		.build();
 	target->end();
 
 	// when
@@ -702,6 +780,9 @@ TEST_F(SessionTest, identifyUserDoesNothingIfSessionIsEnded)
 
 TEST_F(SessionTest, reportCrashDoesNothingIfSessionIsEnded)
 {
+	// with
+	auto mockBeaconNice = MockIBeacon::createNice();
+
 	// expect
 	EXPECT_CALL(*mockBeaconNice, reportCrash(testing::_, testing::_, testing::_))
 		.Times(0);
@@ -709,7 +790,9 @@ TEST_F(SessionTest, reportCrashDoesNothingIfSessionIsEnded)
 		.Times(1);
 
 	// given
-	auto target = createSessionWithNiceBeacon();
+	auto target = createSession()
+		->with(mockBeaconNice)
+		.build();
 	target->end();
 
 	// when
@@ -719,6 +802,7 @@ TEST_F(SessionTest, reportCrashDoesNothingIfSessionIsEnded)
 TEST_F(SessionTest, closeEndsTheSession)
 {
 	// with
+	auto mockBeaconNice = MockIBeacon::createNice();
 	const int64_t timestamp = 1234;
 	ON_CALL(*mockBeaconNice, getCurrentTimestamp())
 		.WillByDefault(testing::Return(timestamp));
@@ -730,7 +814,9 @@ TEST_F(SessionTest, closeEndsTheSession)
 		.Times(1);
 
 	// given
-	auto target = createSessionWithNiceBeacon();
+	auto target = createSession()
+		->with(mockBeaconNice)
+		.build();
 
 	// when
 	target->close();
@@ -742,7 +828,7 @@ TEST_F(SessionTest, traceWebRequestWithValidUrlStringGivesAppropriateTracer)
 	const char* url = "http://example.com/pages/";
 
 	// given
-	auto target = createSessionWithNiceBeacon();
+	auto target = createSession()->build();
 
 	// when
 	auto obtained = target->traceWebRequest(url);
@@ -763,7 +849,7 @@ TEST_F(SessionTest, traceWebRequestWithValidUrlStringAddsTracerToListOfChildren)
 	const char* url = "http://example.com/pages/";
 
 	// given
-	auto target = createSessionWithNiceBeacon();
+	auto target =createSession()->build();
 
 	// when
 	auto obtained = target->traceWebRequest(url);
@@ -783,7 +869,7 @@ TEST_F(SessionTest, tracingANullStringWebRequestIsNotAllowed)
 {
 	// given
 	const char* url = nullptr;
-	auto target = createSessionWithNiceBeacon();
+	auto target = createSession()->build();
 
 	// when
 	auto obtained = target->traceWebRequest(url);
@@ -797,7 +883,7 @@ TEST_F(SessionTest, tracingAnEmptyStringWebRequestIsNotAllowed)
 {
 	// given
 	const char* url = "";
-	auto target = createSessionWithNiceBeacon();
+	auto target = createSession()->build();
 
 	// when
 	auto obtained = target->traceWebRequest(url);
@@ -811,7 +897,7 @@ TEST_F(SessionTest, tracingAnInvalidUrlSchemeIsNotAllowed)
 {
 	// given
 	const char* url = "1337://fourtytwo.com";
-	auto target = createSessionWithNiceBeacon();
+	auto target = createSession()->build();
 
 	// when
 	auto obtained = target->traceWebRequest(url);
@@ -829,7 +915,7 @@ TEST_F(SessionTest, traceWebRequestGivesNullTracerIfSessionIsEnded)
 
 	// given
 	const char* url = "http://example.com/pages/";
-	auto target = createSessionWithNiceBeacon();
+	auto target = createSession()->build();
 	target->end();
 
 	// when
@@ -844,7 +930,7 @@ TEST_F(SessionTest, onChildCloseRemovesChildFromList)
 {
 	// given
 	const auto childObject = MockIOpenKitObject::createNice();
-	auto target = createSessionWithNiceBeacon();
+	auto target = createSession()->build();
 	target->storeChildInList(childObject);
 
 	auto childObjects = target->getCopyOfChildObjects();

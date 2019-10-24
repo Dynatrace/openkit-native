@@ -38,14 +38,24 @@ namespace test
 		MockIHTTPClientConfiguration()
 		{
 			ON_CALL(*this, getBaseURL())
-				.WillByDefault(testing::Return(DefaultValues::UTF8_EMPTY_STRING));
+				.WillByDefault(testing::ReturnRef(DefaultValues::UTF8_EMPTY_STRING));
 			ON_CALL(*this, getApplicationID())
-				.WillByDefault(testing::Return(DefaultValues::UTF8_EMPTY_STRING));
+				.WillByDefault(testing::ReturnRef(DefaultValues::UTF8_EMPTY_STRING));
 			ON_CALL(*this, getSSLTrustManager())
 				.WillByDefault(testing::Return(nullptr));
 		}
 
 		~MockIHTTPClientConfiguration() override = default;
+
+		static std::shared_ptr<testing::NiceMock<MockIHTTPClientConfiguration>> createNice()
+		{
+			return std::make_shared<testing::NiceMock<MockIHTTPClientConfiguration>>();
+		}
+
+		static std::shared_ptr<testing::StrictMock<MockIHTTPClientConfiguration>> createStrict()
+		{
+			return std::make_shared<testing::StrictMock<MockIHTTPClientConfiguration>>();
+		}
 
 		MOCK_CONST_METHOD0(getBaseURL, const core::UTF8String&());
 

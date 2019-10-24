@@ -59,10 +59,11 @@ set(OPENKIT_SOURCES_TEST_CORE_OBJECTS
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/SessionTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/WebRequestTracerTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/WebRequestTracerURLValidityTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/builder/TestSessionBuilder.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockIActionCommon.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockIOpenKitObject.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockIOpenKitComposite.h
-        ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockSessionInternals.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockSessionInternals.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockIWebRequestTracerInternals.h
 )
 
@@ -98,6 +99,7 @@ set(OPENKIT_SOURCES_TEST_CORE_COMMUNICATION
     ${CMAKE_CURRENT_LIST_DIR}/core/communication/BeaconSendingResponseUtilTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/communication/BeaconSendingTerminalStateTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/communication/CustomMatchers.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/communication/builder/TestBeaconSendingContextBuilder.h
     ${CMAKE_CURRENT_LIST_DIR}/core/communication/mock/MockAbstractBeaconSendingState.h
     ${CMAKE_CURRENT_LIST_DIR}/core/communication/mock/MockIBeaconSendingContext.h
     ${CMAKE_CURRENT_LIST_DIR}/core/communication/mock/MockIBeaconSendingState.h

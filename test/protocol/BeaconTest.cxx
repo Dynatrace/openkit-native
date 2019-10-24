@@ -93,7 +93,6 @@ protected:
 
 	MockStrictIBeaconCache_sp mockBeaconCache;
 
-	MockNiceIPRNGenerator_sp mockRandom;
 	MockNiceISessionIDProvider_sp mockSessionIDProvider;
 	Configuration_sp configuration;
 	MockNiceITimingProvider_sp mockTimingProvider;
@@ -109,7 +108,6 @@ protected:
 			.WillByDefault(testing::Return(THREAD_ID));
 
 		mockBeaconCache = MockIBeaconCache::createStrict();
-		mockRandom = MockIPRNGenerator::createNice();
 
 		mockSessionIDProvider = MockISessionIDProvider::createNice();
 		ON_CALL(*mockSessionIDProvider, getNextSessionID())
@@ -157,12 +155,15 @@ protected:
 		);
 		configuration->enableCapture();
 
-		return std::make_shared<TestBeaconBuilder>(configuration)
-			->with(mockLogger)
-			->with(mockBeaconCache)
-			->with(mockThreadIdProvider)
-			->with(mockTimingProvider)
-			->with(mockRandom);
+		auto builder = std::make_shared<TestBeaconBuilder>(configuration);
+
+		builder->with(mockLogger)
+			.with(mockBeaconCache)
+			.with(mockThreadIdProvider)
+			.with(mockTimingProvider)
+		;
+
+		return builder;
 	}
 };
 
@@ -1093,9 +1094,9 @@ TEST_F(BeaconTest, sendValidData)
 		.Times(1);
 
 	auto target = createBeacon()
-			->withIpAddress(ipAddress)
-			->with(beaconCache)
-			->build();
+		->withIpAddress(ipAddress)
+		.with(beaconCache)
+		.build();
 
 	// when
 	target->reportCrash("errorName", "errorReason", "errorStackTrace");
@@ -1311,10 +1312,13 @@ TEST_F(BeaconTest, beaconReturnsValidTagForDataCollectionLevel1)
 	int32_t sequenceNo = 73;
 	int64_t deviceId = 37;
 	int64_t ignoredDeviceId = 999;
+	auto mockRandom = MockIPRNGenerator::createNice();
 	ON_CALL(*mockRandom, nextInt64(testing::_))
 		.WillByDefault(testing::Return(deviceId));
 
-	auto target = createBeacon(DataCollectionLevel_t::PERFORMANCE, CrashReportingLevel_t::OFF, ignoredDeviceId, APP_ID)->build();
+	auto target = createBeacon(DataCollectionLevel_t::PERFORMANCE, CrashReportingLevel_t::OFF, ignoredDeviceId, APP_ID)
+		->with(mockRandom)
+		.build();
 
 	// when
 	auto tagString = target->createTag(ACTION_ID, sequenceNo);
@@ -1363,6 +1367,7 @@ TEST_F(BeaconTest, createTagReturnsTagStringForDataCollectionLevel2)
 TEST_F(BeaconTest, deviceIDIsRandomizedOnDataCollectionLevel0)
 {
 	// with
+	auto mockRandom = MockIPRNGenerator::createNice();
 	int64_t deviceId = 1337;
 	ON_CALL(*mockRandom, nextInt64(testing::_))
 		.WillByDefault(testing::Return(deviceId));
@@ -1372,7 +1377,9 @@ TEST_F(BeaconTest, deviceIDIsRandomizedOnDataCollectionLevel0)
 		.Times(1);
 
 	// given
-	auto target = createBeacon(DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF)->build();
+	auto target = createBeacon(DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF)
+		->with(mockRandom)
+		.build();
 
 	// when
 	auto obtained = target->getDeviceID();
@@ -1384,6 +1391,7 @@ TEST_F(BeaconTest, deviceIDIsRandomizedOnDataCollectionLevel0)
 TEST_F(BeaconTest, deviceIDIsRandomizedOnDataCollectionLevel1)
 {
 	// with
+	auto mockRandom = MockIPRNGenerator::createNice();
 	int64_t deviceId = 1337;
 	ON_CALL(*mockRandom, nextInt64(testing::_))
 		.WillByDefault(testing::Return(deviceId));
@@ -1393,7 +1401,9 @@ TEST_F(BeaconTest, deviceIDIsRandomizedOnDataCollectionLevel1)
 		.Times(1);
 
 	// given
-	auto target = createBeacon(DataCollectionLevel_t::PERFORMANCE, CrashReportingLevel_t::OFF)->build();
+	auto target = createBeacon(DataCollectionLevel_t::PERFORMANCE, CrashReportingLevel_t::OFF)
+		->with(mockRandom)
+		.build();
 
 	// when
 	auto obtained = target->getDeviceID();
@@ -1409,8 +1419,8 @@ TEST_F(BeaconTest, givenDeviceIDIsUsedOnDataCollectionLevel2)
 
 	// given
 	auto target = createBeacon(DataCollectionLevel_t::USER_BEHAVIOR, CrashReportingLevel_t::OFF)
-			->with(mockRandomStrict)
-			->build();
+		->with(mockRandomStrict)
+		.build();
 
 	// when
 	auto obtained = target->getDeviceID();
@@ -1926,8 +1936,8 @@ TEST_F(BeaconTest, clientIPAddressCanBeANullptr)
 {
 	//given
 	auto target = createBeacon()
-			->withIpAddress(nullptr)
-			->build();
+		->withIpAddress(nullptr)
+		.build();
 
 	// when
 	auto obtained = target->getClientIPAddress();
@@ -1940,8 +1950,8 @@ TEST_F(BeaconTest, clientIPAddressCanBeAnEmptyString)
 {
 	//given
 	auto target = createBeacon()
-			->withIpAddress("")
-			->build();
+		->withIpAddress("")
+		.build();
 
 	// when
 	auto obtained = target->getClientIPAddress();
@@ -1955,8 +1965,8 @@ TEST_F(BeaconTest, validClientIpIsStored)
 	//given
 	Utf8String_t ipAddress("127.0.0.1");
 	auto target = createBeacon()
-			->withIpAddress(ipAddress)
-			->build();
+		->withIpAddress(ipAddress)
+		.build();
 
 	// when
 	auto obtained = target->getClientIPAddress();
@@ -1970,8 +1980,8 @@ TEST_F(BeaconTest, invalidClientIPIsConvertedToEmptyString)
 	//given
 	Utf8String_t ipAddress("asdf");
 	auto target = createBeacon()
-			->withIpAddress(ipAddress)
-			->build();
+		->withIpAddress(ipAddress)
+		.build();
 
 	// when
 	auto obtained = target->getClientIPAddress();

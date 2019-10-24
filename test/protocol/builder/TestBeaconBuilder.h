@@ -39,12 +39,10 @@
 namespace test
 {
 	class TestBeaconBuilder
-		: public std::enable_shared_from_this<TestBeaconBuilder>
 	{
 	public:
 
-		TestBeaconBuilder
-		(
+		TestBeaconBuilder(
 			std::shared_ptr<core::configuration::Configuration> configuration
 		)
 			: mLogger(nullptr)
@@ -56,47 +54,47 @@ namespace test
 		{
 		}
 
-		virtual ~TestBeaconBuilder() {}
+		virtual ~TestBeaconBuilder() = default;
 
-		std::shared_ptr<TestBeaconBuilder> with(std::shared_ptr<openkit::ILogger> logger)
+		TestBeaconBuilder& with(std::shared_ptr<openkit::ILogger> logger)
 		{
 			mLogger = logger;
-			return shared_from_this();
+			return *this;
 		}
 
-		std::shared_ptr<TestBeaconBuilder> with(std::shared_ptr<core::caching::IBeaconCache> beaconCache)
+		TestBeaconBuilder& with(std::shared_ptr<core::caching::IBeaconCache> beaconCache)
 		{
 			mBeaconCache = beaconCache;
-			return shared_from_this();
+			return *this;
 		}
 
-		std::shared_ptr<TestBeaconBuilder> withIpAddress(core::UTF8String& ipAddress)
+		TestBeaconBuilder& withIpAddress(core::UTF8String& ipAddress)
 		{
 			return withIpAddress(ipAddress.getStringData().c_str());
 		}
 
-		std::shared_ptr<TestBeaconBuilder> withIpAddress(const char* ipAddress)
+		TestBeaconBuilder& withIpAddress(const char* ipAddress)
 		{
 			mClientIPAddress = ipAddress;
-			return shared_from_this();
+			return *this;
 		}
 
-		std::shared_ptr<TestBeaconBuilder> with(std::shared_ptr<providers::IThreadIDProvider> threadIDProvider)
+		TestBeaconBuilder& with(std::shared_ptr<providers::IThreadIDProvider> threadIDProvider)
 		{
 			mThreadIDProvider = threadIDProvider;
-			return shared_from_this();
+			return *this;
 		}
 
-		std::shared_ptr<TestBeaconBuilder> with(std::shared_ptr<providers::ITimingProvider> timingProvider)
+		TestBeaconBuilder& with(std::shared_ptr<providers::ITimingProvider> timingProvider)
 		{
 			mTimingProvider = timingProvider;
-			return shared_from_this();
+			return *this;
 		}
 
-		std::shared_ptr<TestBeaconBuilder> with(std::shared_ptr<providers::IPRNGenerator> prnGenerator)
+		TestBeaconBuilder& with(std::shared_ptr<providers::IPRNGenerator> prnGenerator)
 		{
 			mPRNGenerator = prnGenerator;
-			return shared_from_this();
+			return *this;
 		}
 
 		std::shared_ptr<protocol::Beacon> build()

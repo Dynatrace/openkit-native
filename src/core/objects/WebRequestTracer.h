@@ -57,8 +57,7 @@ namespace core
 			/// @param[in] parent the parent object, to which this web request belongs
 			/// @param[in] beacon @ref protocol::Beacon used to serialize the @ref WebRequestTracer
 			///
-			WebRequestTracer
-			(
+			WebRequestTracer(
 				std::shared_ptr<openkit::ILogger> logger,
 				std::shared_ptr<IOpenKitComposite> parent,
 				std::shared_ptr<protocol::IBeacon> beacon,

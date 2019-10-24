@@ -53,8 +53,7 @@ namespace core
 			/// @param[in] timingProvider utility class for timing related stuff
 			/// @param[in] configuration general configuration options
 			///
-			BeaconSendingContext
-			(
+			BeaconSendingContext(
 				std::shared_ptr<openkit::ILogger> logger,
 				std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
 				std::shared_ptr<providers::ITimingProvider> timingProvider,
@@ -69,8 +68,7 @@ namespace core
 			/// @param[in] configuration general configuration options
 			/// @param[in] initialState the initial state
 			///
-			BeaconSendingContext
-			(
+			BeaconSendingContext(
 				std::shared_ptr<openkit::ILogger> logger,
 				std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
 				std::shared_ptr<providers::ITimingProvider> timingProvider,

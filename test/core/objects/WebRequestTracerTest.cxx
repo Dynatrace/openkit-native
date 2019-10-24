@@ -14,9 +14,11 @@
 * limitations under the License.
 */
 
+#include "builder/TestWebRequestTracerBuilder.h"
 #include "mock/MockIOpenKitComposite.h"
 #include "../../api/mock/MockILogger.h"
 #include "../../protocol/mock/MockIBeacon.h"
+#include "../../DefaultValues.h"
 
 #include "core/objects/WebRequestTracer.h"
 #include "core/UTF8String.h"
@@ -34,6 +36,7 @@ using MockNiceIOpenKitComposite_sp = std::shared_ptr<testing::NiceMock<MockIOpen
 using MockStrictIBeacon_sp = std::shared_ptr<testing::StrictMock<MockIBeacon>>;
 using WebRequestTracer_t = core::objects::WebRequestTracer;
 using WebRequestTracer_sp = std::shared_ptr<WebRequestTracer_t>;
+using WebRequestTracerBuilder_sp = std::shared_ptr<TestWebRequestTracerBuilder>;
 using Utf8String_t = core::UTF8String;
 
 static const char APP_ID[] = "appID";
@@ -51,29 +54,20 @@ protected:
 	void SetUp()
 	{
 		mockLogger = MockILogger::createNice();
-
 		mockBeaconNice = MockIBeacon::createNice();
-
 		mockParentNice = MockIOpenKitComposite::createNice();
 	}
 
-	void TearDown()
+	WebRequestTracerBuilder_sp createTracer()
 	{
-	}
+		auto builder = std::make_shared<TestWebRequestTracerBuilder>();
+		builder->with(mockLogger)
+			.with(mockParentNice)
+			.with(mockBeaconNice)
+			.withUrl(DefaultValues::UTF8_EMPTY_STRING)
+		;
 
-	WebRequestTracer_sp createTracer()
-	{
-		return createTracer(mockBeaconNice);
-	}
-
-	WebRequestTracer_sp createTracer(std::shared_ptr<MockIBeacon> beacon)
-	{
-		return std::make_shared<WebRequestTracer_t>(
-			mockLogger,
-			mockParentNice,
-			beacon,
-			""
-		);
+		return builder;
 	}
 };
 
@@ -88,7 +82,7 @@ TEST_F(WebRequestTracerTest, defaultValues)
 		.WillByDefault(testing::Return(123456789L));
 
 	// test the constructor call
-	auto testWebRequestTracer = createTracer();
+	auto testWebRequestTracer = createTracer()->build();
 
 	// verify default values
 	auto tracerURL = testWebRequestTracer->getURL();
@@ -108,7 +102,7 @@ TEST_F(WebRequestTracerTest, getTag)
 	Utf8String_t theTag(TAG);
 	ON_CALL(*mockBeaconNice, createTag(testing::_, testing::_))
 		.WillByDefault(testing::Return(theTag));
-	auto testWebRequestTracer = createTracer();
+	auto testWebRequestTracer = createTracer()->build();
 
 	//verify
 	const char* actualValue = testWebRequestTracer->getTag();
@@ -119,7 +113,7 @@ TEST_F(WebRequestTracerTest, getTag)
 TEST_F(WebRequestTracerTest, aNewlyCreatedWebRequestTracerIsNotStopped)
 {
 	// given
-	auto testWebRequestTracer = createTracer();
+	auto testWebRequestTracer = createTracer()->build();
 
 	//verify
 	ASSERT_FALSE(testWebRequestTracer->isStopped());
@@ -128,7 +122,7 @@ TEST_F(WebRequestTracerTest, aNewlyCreatedWebRequestTracerIsNotStopped)
 TEST_F(WebRequestTracerTest, aWebRequestTracerIsStoppedAfterStopHasBeenCalled)
 {
 	// given
-	auto testWebRequestTracer = createTracer();
+	auto testWebRequestTracer = createTracer()->build();
 
 	// when
 	testWebRequestTracer->stop();
@@ -140,7 +134,7 @@ TEST_F(WebRequestTracerTest, aWebRequestTracerIsStoppedAfterStopHasBeenCalled)
 TEST_F(WebRequestTracerTest, aWebRequestTracerIsStoppedAfterStopWithResponseCodeHasBeenCalled)
 {
 	// given
-	auto testWebRequestTracer = createTracer();
+	auto testWebRequestTracer = createTracer()->build();
 
 	// when
 	testWebRequestTracer->stop(200);
@@ -152,7 +146,7 @@ TEST_F(WebRequestTracerTest, aWebRequestTracerIsStoppedAfterStopWithResponseCode
 TEST_F(WebRequestTracerTest, setResponseCodeSetsTheResponseCode)
 {
 	// given
-	auto testWebRequestTracer = createTracer();
+	auto testWebRequestTracer = createTracer()->build();
 
 	// when
 	auto obtained = testWebRequestTracer->setResponseCode(418);
@@ -165,7 +159,7 @@ TEST_F(WebRequestTracerTest, setResponseCodeSetsTheResponseCode)
 TEST_F(WebRequestTracerTest, stopWithResponseCodeSetsTheResponseCode)
 {
 	// given
-	auto testWebRequestTracer = createTracer();
+	auto testWebRequestTracer = createTracer()->build();
 
 	// when
 	testWebRequestTracer->stop(418);
@@ -177,7 +171,7 @@ TEST_F(WebRequestTracerTest, stopWithResponseCodeSetsTheResponseCode)
 TEST_F(WebRequestTracerTest, setResponseCodeDoesNotSetTheResponseCodeIfStopped)
 {
 	// given
-	auto testWebRequestTracer = createTracer();
+	auto testWebRequestTracer = createTracer()->build();
 
 	// when
 	testWebRequestTracer->stop();
@@ -191,7 +185,7 @@ TEST_F(WebRequestTracerTest, setResponseCodeDoesNotSetTheResponseCodeIfStopped)
 TEST_F(WebRequestTracerTest, stopWithResponseCodeDoesNotSetTheResponseCodeIfStopped)
 {
 	// given
-	auto testWebRequestTracer = createTracer();
+	auto testWebRequestTracer = createTracer()->build();
 	testWebRequestTracer->stop(200);
 
 	// when
@@ -204,7 +198,7 @@ TEST_F(WebRequestTracerTest, stopWithResponseCodeDoesNotSetTheResponseCodeIfStop
 TEST_F(WebRequestTracerTest, setBytesSentSetsTheNumberOfSentBytes)
 {
 	// given
-	auto testWebRequestTracer = createTracer();
+	auto testWebRequestTracer = createTracer()->build();
 
 	// when
 	auto obtained = testWebRequestTracer->setBytesSent(1234);
@@ -217,7 +211,7 @@ TEST_F(WebRequestTracerTest, setBytesSentSetsTheNumberOfSentBytes)
 TEST_F(WebRequestTracerTest, setBytesSentDoesNotSetAnythingIfStopped)
 {
 	// given
-	auto testWebRequestTracer = createTracer();
+	auto testWebRequestTracer = createTracer()->build();
 
 	// when
 	testWebRequestTracer->stop();
@@ -231,7 +225,7 @@ TEST_F(WebRequestTracerTest, setBytesSentDoesNotSetAnythingIfStopped)
 TEST_F(WebRequestTracerTest, setBytesSentDoesNotSetAnythingIfStoppedWithResponseCode)
 {
 	// given
-	auto testWebRequestTracer = createTracer();
+	auto testWebRequestTracer = createTracer()->build();
 
 	// when
 	testWebRequestTracer->stop(200);
@@ -245,7 +239,7 @@ TEST_F(WebRequestTracerTest, setBytesSentDoesNotSetAnythingIfStoppedWithResponse
 TEST_F(WebRequestTracerTest, setBytesReceivedSetsTheNumberOfReceivedBytes)
 {
 	// given
-	auto testWebRequestTracer = createTracer();
+	auto testWebRequestTracer = createTracer()->build();
 
 	// when
 	auto obtained = testWebRequestTracer->setBytesReceived(1234);
@@ -258,7 +252,7 @@ TEST_F(WebRequestTracerTest, setBytesReceivedSetsTheNumberOfReceivedBytes)
 TEST_F(WebRequestTracerTest, setBytesReceivedDoesNotSetAnythingIfStopped)
 {
 	// given
-	auto testWebRequestTracer = createTracer();
+	auto testWebRequestTracer = createTracer()->build();
 
 	// when
 	testWebRequestTracer->stop();
@@ -272,7 +266,7 @@ TEST_F(WebRequestTracerTest, setBytesReceivedDoesNotSetAnythingIfStopped)
 TEST_F(WebRequestTracerTest, setBytesReceivedDoesNotSetAnythingIfStoppedWithResponseCode)
 {
 	// given
-	auto testWebRequestTracer = createTracer();
+	auto testWebRequestTracer = createTracer()->build();
 
 	// when
 	testWebRequestTracer->stop(200);
@@ -288,7 +282,7 @@ TEST_F(WebRequestTracerTest, startSetsTheStartTime)
 	// given
 	ON_CALL(*mockBeaconNice, getCurrentTimestamp())
 		.WillByDefault(testing::Return(123456789L));
-	auto testWebRequestTracer = createTracer();
+	auto testWebRequestTracer = createTracer()->build();
 
 	// when
 	auto obtained = testWebRequestTracer->start();
@@ -303,7 +297,7 @@ TEST_F(WebRequestTracerTest, startDoesNothingIfAlreadyStopped)
 	// given
 	ON_CALL(*mockBeaconNice, getCurrentTimestamp())
 		.WillByDefault(testing::Return(123456789L));
-	auto testWebRequestTracer = createTracer();
+	auto testWebRequestTracer = createTracer()->build();
 
 	// when
 	testWebRequestTracer->stop();
@@ -319,7 +313,7 @@ TEST_F(WebRequestTracerTest, startDoesNothingIfAlreadyStoppedWithResponseCode)
 	// given
 	ON_CALL(*mockBeaconNice, getCurrentTimestamp())
 		.WillByDefault(testing::Return(123456789L));
-	auto testWebRequestTracer = createTracer();
+	auto testWebRequestTracer = createTracer()->build();
 
 	// when
 	testWebRequestTracer->stop(200);
@@ -342,7 +336,7 @@ TEST_F(WebRequestTracerTest, stopCanOnlyBeExecutedOnce)
 	EXPECT_CALL(*mockBeaconNice, addWebRequest(testing::_, testing::_))
 		.Times(testing::Exactly(1));
 
-	auto testWebRequestTracer = createTracer();
+	auto testWebRequestTracer = createTracer()->build();
 
 	testWebRequestTracer->stop();
 	ASSERT_EQ(testWebRequestTracer->getEndSequenceNo(), 42);
@@ -370,7 +364,7 @@ TEST_F(WebRequestTracerTest, stopWithResponseCodeCanOnlyBeExecutedOnce)
 	EXPECT_CALL(*mockBeaconNice, addWebRequest(testing::_, testing::_))
 		.Times(testing::Exactly(1));
 
-	auto testWebRequestTracer = createTracer();
+	auto testWebRequestTracer = createTracer()->build();
 
 	testWebRequestTracer->stop(200);
 	ASSERT_EQ(testWebRequestTracer->getEndSequenceNo(), 42);
@@ -393,7 +387,7 @@ TEST_F(WebRequestTracerTest, aNewlyCreatedWebRequestTracerDoesNotAttachToThePare
 		.Times(testing::Exactly(2));
 
 	// given, when
-	auto target = createTracer();
+	auto target = createTracer()->build();
 
 	// then
 	auto obtained = target->getParent();

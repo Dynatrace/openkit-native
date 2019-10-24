@@ -14,6 +14,7 @@
 * limitations under the License.
 */
 
+#include "builder/TestWebRequestTracerBuilder.h"
 #include "mock/MockIOpenKitComposite.h"
 #include "../../api/mock/MockILogger.h"
 #include "../../protocol/mock/MockIBeacon.h"
@@ -30,6 +31,7 @@ using MockNiceILogger_sp = std::shared_ptr<testing::NiceMock<MockILogger>>;
 using MockNiceIBeacon_sp = std::shared_ptr<testing::NiceMock<MockIBeacon>>;
 using MockNiceIOpenKitComposite_sp = std::shared_ptr<testing::NiceMock<MockIOpenKitComposite>>;
 using WebRequestTracer_t = core::objects::WebRequestTracer;
+using WebRequestTracerBuilder_sp = std::shared_ptr<TestWebRequestTracerBuilder>;
 using Utf8String_t = core::UTF8String;
 
 class WebRequestTracerURLValidityTest : public testing::Test
@@ -40,7 +42,7 @@ protected:
 	MockNiceIBeacon_sp mockBeacon;
 	MockNiceIOpenKitComposite_sp mockParent;
 
-	virtual void SetUp() override
+	void SetUp() override
 	{
 		logger = MockILogger::createNice();
 		mockBeacon = MockIBeacon::createNice();
@@ -50,14 +52,19 @@ protected:
 			.WillByDefault(testing::Return(42));
 	}
 
-	virtual void TearDown() override
+	WebRequestTracerBuilder_sp createWebRequestTracer()
 	{
-		logger = nullptr;
-		mockBeacon = nullptr;
+		auto builder = std::make_shared<TestWebRequestTracerBuilder>();
+
+		builder->with(logger)
+			.with(mockParent)
+			.with(mockBeacon)
+		;
+
+		return builder;
 	}
 
 };
-
 
 TEST_F(WebRequestTracerURLValidityTest, emptyStringIsNotAValidURLScheme)
 {
@@ -99,28 +106,34 @@ TEST_F(WebRequestTracerURLValidityTest, anURLIsOnlySetInConstructorIfItIsValid)
 {
 	// given
 	Utf8String_t url("a1337://foo");
-	WebRequestTracer_t target(logger, mockParent, mockBeacon, url);
+	auto target = createWebRequestTracer()
+		->withUrl(url)
+		.build();
 
 	// then
-	ASSERT_EQ(target.getURL(), "a1337://foo");
+	ASSERT_EQ(target->getURL(), "a1337://foo");
 }
 
 TEST_F(WebRequestTracerURLValidityTest, ifURLIsInvalidTheDefaultValueIsUsed)
 {
 	// given
 	Utf8String_t url("1337://foo");
-	WebRequestTracer_t target(logger, mockParent, mockBeacon, url);
+	auto target = createWebRequestTracer()
+		->withUrl(url)
+		.build();
 
 	// then
-	ASSERT_EQ(target.getURL(), "<unknown>");
+	ASSERT_EQ(target->getURL(), "<unknown>");
 }
 
 TEST_F(WebRequestTracerURLValidityTest, urlStoredDoesNotContainRequestParameters)
 {
 	// given
 	Utf8String_t url("https://www.google.com/foo/bar?foo=bar&asdf=jklo");
-	WebRequestTracer_t target(logger, mockParent, mockBeacon, url);
+	auto target = createWebRequestTracer()
+		->withUrl(url)
+		.build();
 
 	// then
-	ASSERT_EQ(target.getURL(), "https://www.google.com/foo/bar");
+	ASSERT_EQ(target->getURL(), "https://www.google.com/foo/bar");
 }
