@@ -29,6 +29,7 @@
 #include "core/objects/NullWebRequestTracer.h"
 #include "core/objects/OpenKitComposite.h"
 
+#include <atomic>
 #include <memory>
 #include <mutex>
 #include <string>
@@ -148,7 +149,7 @@ namespace core
 			const std::string mActionClassName;
 
 			/// indicates if the action was already closed/left
-			bool mIsActionLeft;
+			std::atomic<bool> mIsActionLeft;
 
 			/// synchronization lock object
 			Mutex_t mMutex;

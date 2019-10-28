@@ -30,6 +30,7 @@
 #include "core/UTF8String.h"
 #include "core/IBeaconSender.h"
 #include "core/configuration/IBeaconConfiguration.h"
+#include "core/objects/IOpenKitComposite.h"
 #include "core/objects/IOpenKitObject.h"
 #include "core/objects/SessionInternals.h"
 #include "core/util/SynchronizedQueue.h"
@@ -38,6 +39,7 @@
 
 #include <memory>
 #include <atomic>
+#include <mutex>
 
 namespace protocol
 {
@@ -69,6 +71,7 @@ namespace core
 			///
 			Session(
 				std::shared_ptr<openkit::ILogger> logger,
+				std::shared_ptr<core::objects::IOpenKitComposite> parent,
 				std::shared_ptr<IBeaconSender> beaconSender,
 				std::shared_ptr<protocol::IBeacon> beacon
 			);
@@ -87,12 +90,6 @@ namespace core
 			std::shared_ptr<openkit::IWebRequestTracer> traceWebRequest(const char* url) override;
 
 			void end() override;
-
-			///
-			/// Returns the end time of the session
-			/// @returns the end time of the session
-			///
-			int64_t getEndTime() const override;
 
 			///
 			/// Start a session
@@ -144,20 +141,24 @@ namespace core
 			///
 			std::shared_ptr<configuration::IBeaconConfiguration> getBeaconConfiguration() const override;
 
+			///
+			/// Returns a string describing the object, based on some important fields.
+			/// This function is intended for debug printouts.
+			/// @return a string describing the object
+			///
+			const std::string toString() const;
+
 			void onChildClosed(std::shared_ptr<IOpenKitObject> childObject) override;
 
 			void close() override;
 
 		private:
-			///
-			/// Returns a string describing the object, based on some important fields.
-			/// This function is indended for debug printouts.
-			/// @return a string describing the object
-			///
-			const std::string toString() const;
 
 			/// Logger to write traces to
 			std::shared_ptr<openkit::ILogger> mLogger;
+
+			// parent object of this session
+			std::shared_ptr<core::objects::IOpenKitComposite> mParent;
 
 			/// beacon sender
 			std::shared_ptr<IBeaconSender> mBeaconSender;
@@ -165,8 +166,12 @@ namespace core
 			/// beacon used for serialization
 			std::shared_ptr<protocol::IBeacon> mBeacon;
 
-			/// end time
-			std::atomic<int64_t> mEndTime;
+
+			/// indicator if the session was ended
+			std::atomic<bool> mIsSessionEnded;
+
+			// mutex used for synchronization
+			std::mutex mMutex;
 		};
 	}
 }

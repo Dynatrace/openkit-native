@@ -15,26 +15,27 @@
 */
 
 #include "Session.h"
-#include "LeafAction.h"
 #include "RootAction.h"
 #include "WebRequestTracer.h"
 #include "core/IBeaconSender.h"
-#include "protocol/Beacon.h"
+#include "protocol/IBeacon.h"
 
 #include <sstream>
 
 using namespace core::objects;
 
-Session::Session
-(
+Session::Session(
 	std::shared_ptr<openkit::ILogger> logger,
+	std::shared_ptr<core::objects::IOpenKitComposite> parent,
 	std::shared_ptr<core::IBeaconSender> beaconSender,
 	std::shared_ptr<protocol::IBeacon> beacon
 )
 	: mLogger(logger)
+	, mParent(parent)
 	, mBeaconSender(beaconSender)
 	, mBeacon(beacon)
-	, mEndTime(-1)
+	, mIsSessionEnded()
+	, mMutex()
 {
 }
 
@@ -57,22 +58,26 @@ std::shared_ptr<openkit::IRootAction> Session::enterAction(const char* actionNam
 		mLogger->debug("%s enterAction(%s)", toString().c_str(), actionName);
 	}
 
-	if (isSessionEnded())
-	{
-		return NullRootAction::INSTANCE;
+	{ // synchronized scope
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		if (!isSessionEnded())
+		{
+			auto rootActionImpl = std::make_shared<ActionCommonImpl>(
+				mLogger,
+				mBeacon,
+				shared_from_this(),
+				actionNameString,
+				"RootAction"
+			);
+			storeChildInList(rootActionImpl);
+
+			auto rootAction = std::make_shared<RootAction>(rootActionImpl);
+			return rootAction;
+		}
 	}
 
-	auto rootActionImpl = std::make_shared<ActionCommonImpl>(
-		mLogger,
-		mBeacon,
-		shared_from_this(),
-		actionNameString,
-		"RootAction"
-	);
-	storeChildInList(rootActionImpl);
-
-	auto rootAction = std::make_shared<RootAction>(rootActionImpl);
-	return rootAction;
+	return NullRootAction::INSTANCE;
 }
 
 void Session::identifyUser(const char* userTag)
@@ -89,9 +94,13 @@ void Session::identifyUser(const char* userTag)
 		mLogger->debug("%s identifyUser(%s)", toString().c_str(), userTag);
 	}
 
-	if (!isSessionEnded())
-	{
-		mBeacon->identifyUser(userTagString);
+	{ // synchronized scope
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		if (!isSessionEnded())
+		{
+			mBeacon->identifyUser(userTagString);
+		}
 	}
 }
 
@@ -114,9 +123,13 @@ void Session::reportCrash(const char* errorName, const char* reason, const char*
 				(stacktrace != nullptr ? stacktraceString.getStringData().c_str() : "null"));
 	}
 
-	if (!isSessionEnded())
-	{
-		mBeacon->reportCrash(errorNameString, reasonString, stacktraceString);
+	{ // synchronized scope
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		if (!isSessionEnded())
+		{
+			mBeacon->reportCrash(errorNameString, reasonString, stacktraceString);
+		}
 	}
 }
 
@@ -138,13 +151,23 @@ std::shared_ptr<openkit::IWebRequestTracer> Session::traceWebRequest(const char*
 		mLogger->debug("%s traceWebRequest (string) (%s))", toString().c_str(), urlString.getStringData().c_str());
 	}
 
-	if (!isSessionEnded())
-	{
-		auto tracer =  std::make_shared<core::objects::WebRequestTracer>(mLogger, shared_from_this(), mBeacon, urlString);
-		storeChildInList(tracer);
+	{ // synchronized block
+		std::lock_guard<std::mutex> lock(mMutex);
 
-		return tracer;
+		if(!isSessionEnded())
+		{
+			auto tracer =  std::make_shared<core::objects::WebRequestTracer>(
+				mLogger,
+				shared_from_this(),
+				mBeacon,
+				urlString
+			);
+			storeChildInList(tracer);
+
+			return tracer;
+		}
 	}
+
 	return NullWebRequestTracer::INSTANCE;
 }
 
@@ -154,10 +177,16 @@ void Session::end()
 	{
 		mLogger->debug("%s end()", toString().c_str());
 	}
-	int64_t expected = -1L;
-	if (atomic_compare_exchange_strong(&mEndTime, &expected, mBeacon->getCurrentTimestamp()) == false)
-	{
-		return;
+
+	{ // synchronized scope
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		if (isSessionEnded())
+		{
+			return;
+		}
+
+		mIsSessionEnded = true;
 	}
 
 	// leave all Root-Actions for sanity reasons
@@ -171,6 +200,9 @@ void Session::end()
 	mBeacon->endSession();
 
 	mBeaconSender->finishSession(shared_from_this());
+
+	// last but not least update parent relation
+	mParent->onChildClosed(shared_from_this());
 }
 
 void Session::close()
@@ -180,12 +212,7 @@ void Session::close()
 
 bool Session::isSessionEnded() const
 {
-	return mEndTime != -1L;
-}
-
-int64_t Session::getEndTime() const
-{
-	return mEndTime;
+	return mIsSessionEnded;
 }
 
 std::shared_ptr<protocol::IStatusResponse> Session::sendBeacon(std::shared_ptr<providers::IHTTPClientProvider> clientProvider)
@@ -205,7 +232,11 @@ void Session::clearCapturedData()
 
 void Session::onChildClosed(std::shared_ptr<core::objects::IOpenKitObject> childObject)
 {
-	removeChildFromList(childObject);
+	{ // synchronized scope
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		removeChildFromList(childObject);
+	}
 }
 
 const std::string Session::toString() const

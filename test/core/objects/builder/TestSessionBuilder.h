@@ -17,12 +17,14 @@
 #ifndef _TEST_CORE_OBJECTS_BUILDER_TESTSESSIONBUILDER_H
 #define _TEST_CORE_OBJECTS_BUILDER_TESTSESSIONBUILDER_H
 
+#include "../mock/MockIOpenKitComposite.h"
 #include "../../mock/MockIBeaconSender.h"
 #include "../../../api/mock/MockILogger.h"
 #include "../../../protocol/mock/MockIBeacon.h"
 
 #include "OpenKit/ILogger.h"
 #include "core/IBeaconSender.h"
+#include "core/objects/IOpenKitComposite.h"
 #include "core/objects/Session.h"
 #include "protocol/IBeacon.h"
 
@@ -34,6 +36,7 @@ namespace test
 
 		TestSessionBuilder()
 			: mLogger(nullptr)
+			, mParent(nullptr)
 			, mBeaconSender(nullptr)
 			, mBeacon(nullptr)
 		{
@@ -42,6 +45,12 @@ namespace test
 		TestSessionBuilder& with(std::shared_ptr<openkit::ILogger> logger)
 		{
 			mLogger = logger;
+			return *this;
+		}
+
+		TestSessionBuilder& with(std::shared_ptr<core::objects::IOpenKitComposite> parent)
+		{
+			mParent = parent;
 			return *this;
 		}
 
@@ -60,11 +69,13 @@ namespace test
 		std::shared_ptr<core::objects::Session> build()
 		{
 			auto logger = mLogger != nullptr ? mLogger : MockILogger::createNice();
+			auto parent = mParent != nullptr ? mParent : MockIOpenKitComposite::createNice();
 			auto beaconSender = mBeaconSender != nullptr ? mBeaconSender : MockIBeaconSender::createNice();
 			auto beacon = mBeacon != nullptr ? mBeacon : MockIBeacon::createNice();
 
 			return std::make_shared<core::objects::Session>(
 				logger,
+				parent,
 				beaconSender,
 				beacon
 			);
@@ -73,6 +84,7 @@ namespace test
 	private:
 
 		std::shared_ptr<openkit::ILogger> mLogger;
+		std::shared_ptr<core::objects::IOpenKitComposite> mParent;
 		std::shared_ptr<core::IBeaconSender> mBeaconSender;
 		std::shared_ptr<protocol::IBeacon> mBeacon;
 	};

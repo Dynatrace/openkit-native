@@ -15,6 +15,7 @@
 */
 
 #include "builder/TestSessionBuilder.h"
+#include "mock/MockIOpenKitComposite.h"
 #include "mock/MockIOpenKitObject.h"
 #include "../mock/MockIBeaconSender.h"
 #include "../configuration/mock/MockIBeaconCacheConfiguration.h"
@@ -77,7 +78,7 @@ protected:
 	MockStrictIBeaconSender_sp mockBeaconSender;
 	MockNiceIHTTPClientProvider_sp mockHTTPClientProvider;
 
-	void SetUp()
+	void SetUp() override
 	{
 		mockLogger = MockILogger::createNice();
 
@@ -135,20 +136,6 @@ TEST_F(SessionTest, startSessionCallsBeacon)
 
 	// when
 	target->startSession();
-}
-
-TEST_F(SessionTest, constructorInitializesValidDefaults)
-{
-	// with
-	auto mockBeaconStrict = MockIBeacon::createStrict();
-
-	// given, when
-	auto target = createSession()
-		->with(mockBeaconStrict)
-		.build();
-
-	// then
-	ASSERT_EQ(target->getEndTime(), -1);
 }
 
 TEST_F(SessionTest, enterActionWithNullActionNameGivesNullRootActionObject)
@@ -219,6 +206,47 @@ TEST_F(SessionTest, enterActionAlwaysGivesANewInstance)
 	// break dependency cycle: root action in child objects of session
 	obtainedOne->leaveAction();
 	obtainedTwo->leaveAction();
+}
+
+TEST_F(SessionTest, enterActionAddsNewlyCreatedActionToTheListOfChildObjects)
+{
+	// given
+	auto target = createSession()
+		->with(MockIBeaconSender::createNice())
+		.build();
+
+	// when
+	auto obtainedOne = target->enterAction("some action");
+
+	// then
+	auto childList = target->getCopyOfChildObjects();
+	ASSERT_THAT(childList.size(), testing::Eq(1));
+
+	auto rootActionOne = std::dynamic_pointer_cast<RootAction_t>(obtainedOne);
+	ASSERT_THAT(rootActionOne, testing::NotNull());
+
+	auto objectOne = std::dynamic_pointer_cast<IOpenKitObject_t>(rootActionOne->getActionImpl());
+	ASSERT_THAT(objectOne, testing::NotNull());
+	ASSERT_THAT(objectOne, testing::Eq(*childList.begin()));
+
+	// and when entering a second time
+	auto obtainedTwo = target->enterAction("some action");
+
+	// then
+	childList = target->getCopyOfChildObjects();
+	ASSERT_THAT(childList.size(), testing::Eq(2));
+
+	auto rootActionTwo = std::dynamic_pointer_cast<RootAction_t>(obtainedTwo);
+	ASSERT_THAT(rootActionTwo, testing::NotNull());
+
+	auto objectTwo = std::dynamic_pointer_cast<IOpenKitObject_t>(rootActionTwo->getActionImpl());
+	ASSERT_THAT(objectTwo, testing::NotNull());
+
+	ASSERT_THAT(objectOne, testing::Eq(*childList.begin()));
+	ASSERT_THAT(objectTwo, testing::Eq(*(++childList.begin())));
+
+	// break dependency cycle: action Impls in the session's child list
+	target->end();
 }
 
 TEST_F(SessionTest, enterActionWithDifferentNameGivesDifferentInstance)
@@ -550,9 +578,6 @@ TEST_F(SessionTest, endSessionFinishesSessionOnBeacon)
 {
 	// with
 	auto mockBeaconNice = MockIBeacon::createNice();
-	const int64_t timestamp = 1234;
-	ON_CALL(*mockBeaconNice, getCurrentTimestamp())
-		.WillByDefault(testing::Return(timestamp));
 
 	// expect
 	EXPECT_CALL(*mockBeaconSender, finishSession(testing::_))
@@ -567,18 +592,12 @@ TEST_F(SessionTest, endSessionFinishesSessionOnBeacon)
 
 	// when
 	target->end();
-
-	// then
-	ASSERT_THAT(target->getEndTime(), testing::Eq(timestamp));
 }
 
 TEST_F(SessionTest, endingAnAlreadyEndedSessionDoesNothing)
 {
 	// with
 	auto mockBeaconNice = MockIBeacon::createNice();
-	const int64_t timestamp = 1234;
-	ON_CALL(*mockBeaconNice, getCurrentTimestamp())
-		.WillByDefault(testing::Return(timestamp));
 
 	// expect
 	EXPECT_CALL(*mockBeaconSender, finishSession(testing::_))
@@ -597,9 +616,6 @@ TEST_F(SessionTest, endingAnAlreadyEndedSessionDoesNothing)
 
 	// and when
 	target->end();
-
-	// then
-	ASSERT_THAT(target->getEndTime(), testing::Eq(timestamp));
 }
 
 TEST_F(SessionTest, endingASessionImplicitlyClosesAllOpenChildOjects)
@@ -620,6 +636,25 @@ TEST_F(SessionTest, endingASessionImplicitlyClosesAllOpenChildOjects)
 	auto target = createSession()->build();
 	target->storeChildInList(childObjectOne);
 	target->storeChildInList(childObjectTwo);
+
+	// when
+	target->end();
+}
+
+TEST_F(SessionTest, endingASessionRemovesItselfFromParent)
+{
+	// with
+	auto mockParent = MockIOpenKitComposite::createStrict();
+
+	// expect
+	EXPECT_CALL(*mockParent, onChildClosed(testing::_))
+		.Times(1);
+
+	// given
+	auto target = createSession()
+		->with(mockParent)
+		.with(MockIBeaconSender::createNice())
+		.build();
 
 	// when
 	target->end();
@@ -942,5 +977,26 @@ TEST_F(SessionTest, onChildCloseRemovesChildFromList)
 	// then
 	childObjects = target->getCopyOfChildObjects();
 	ASSERT_THAT(childObjects.size(), testing::Eq(0));
+}
 
+TEST_F(SessionTest, toStringReturnsAppropriateResult)
+{
+	// with
+	int32_t sessionNumber = 21;
+	auto mockBeaconNice = MockIBeacon::createNice();
+	ON_CALL(*mockBeaconNice, getSessionNumber())
+		.WillByDefault(testing::Return(sessionNumber));
+
+	// given
+	auto target = createSession()
+		->with(mockBeaconNice)
+		.build();
+
+	// when
+	auto obtained = target->toString();
+
+	// then
+	std::stringstream s;
+	s << "Session [sn=" << sessionNumber << "]";
+	ASSERT_THAT(obtained, testing::Eq(s.str()));
 }

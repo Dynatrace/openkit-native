@@ -51,12 +51,6 @@ namespace core
 			void end() override = 0;
 
 			///
-			/// Returns the end time of the session
-			/// @returns the end time of the session
-			///
-			virtual int64_t getEndTime() const = 0;
-
-			///
 			/// Start a session
 			///
 			virtual void startSession() = 0;

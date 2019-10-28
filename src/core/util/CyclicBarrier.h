@@ -42,7 +42,7 @@ namespace core
 			/// the cyclic barrier resets itself to become reusable.
 			///
 			void await();
-			
+
 		private:
 			/// number of threads
 			uint32_t mNumThreads;
@@ -50,7 +50,7 @@ namespace core
 			// number of waiting threads
 			uint32_t mWaits;
 
-			/// mutex used for sychronisation
+			/// mutex used for synchronisation
 			std::mutex mMutex;
 
 			/// condition variable used as the waiting spot

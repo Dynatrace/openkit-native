@@ -135,8 +135,15 @@ std::shared_ptr<openkit::ISession> OpenKit::createSession(const char* clientIPAd
 		return  NullSession::INSTANCE;
 	}
 
-	auto beacon = std::make_shared<protocol::Beacon>(mLogger, mBeaconCache, mConfiguration, clientIPAddress, mThreadIDProvider, mTimingProvider);
-	auto newSession = std::make_shared<core::objects::Session>(mLogger, mBeaconSender, beacon);
+	auto beacon = std::make_shared<protocol::Beacon>(
+		mLogger,
+		mBeaconCache,
+		mConfiguration,
+		clientIPAddress,
+		mThreadIDProvider,
+		mTimingProvider
+	);
+	auto newSession = std::make_shared<core::objects::Session>(mLogger, shared_from_this(), mBeaconSender, beacon);
 	newSession->startSession();
 	return newSession;
 }
@@ -180,4 +187,14 @@ void OpenKit::globalShutdown()
 	}
 
 	mClientProvider->globalDestroy();
+}
+
+void OpenKit::onChildClosed(std::shared_ptr<core::objects::IOpenKitObject>)
+{
+	// intentionally empty for now
+}
+
+void OpenKit::close()
+{
+	shutdown();
 }
