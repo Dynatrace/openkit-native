@@ -14,8 +14,6 @@
 * limitations under the License.
 */
 
-#include "OpenKit/CrashReportingLevel.h"
-#include "OpenKit/DataCollectionLevel.h"
 #include "core/configuration/BeaconConfiguration.h"
 
 #include "gtest/gtest.h"
@@ -23,43 +21,32 @@
 
 
 using BeaconConfiguration_t = core::configuration::BeaconConfiguration;
-using CrashReportingLevel_t = openkit::CrashReportingLevel;
-using DataCollectionLevel_t = openkit::DataCollectionLevel;
 
 class BeaconConfigurationTest : public testing::Test
 {
 };
 
-TEST_F(BeaconConfigurationTest, getDataCollectionLevel)
+TEST_F(BeaconConfigurationTest, getMultiplicityReturnsMultiplicitySetInConstructor)
 {
-	ASSERT_EQ(DataCollectionLevel_t::OFF,
-		BeaconConfiguration_t(1, DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF).getDataCollectionLevel());
-	ASSERT_EQ(DataCollectionLevel_t::PERFORMANCE,
-		BeaconConfiguration_t(1, DataCollectionLevel_t::PERFORMANCE, CrashReportingLevel_t::OFF).getDataCollectionLevel());
-	ASSERT_EQ(DataCollectionLevel_t::USER_BEHAVIOR,
-		BeaconConfiguration_t(1, DataCollectionLevel_t::USER_BEHAVIOR, CrashReportingLevel_t::OFF).getDataCollectionLevel());
+	ASSERT_EQ(0, BeaconConfiguration_t(0).getMultiplicity());
+	ASSERT_EQ(1, BeaconConfiguration_t(1).getMultiplicity());
+	ASSERT_EQ(2, BeaconConfiguration_t(2).getMultiplicity());
+	ASSERT_EQ(3, BeaconConfiguration_t(3).getMultiplicity());
+	ASSERT_EQ(4, BeaconConfiguration_t(4).getMultiplicity());
 }
 
-TEST_F(BeaconConfigurationTest, getCrashReportingLevel)
+TEST_F(BeaconConfigurationTest, capturingIsAllowedWhenMultilicityIsGreaterThanZero)
 {
-	ASSERT_EQ(CrashReportingLevel_t::OFF,
-		BeaconConfiguration_t(1, DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF).getCrashReportingLevel());
-	ASSERT_EQ(CrashReportingLevel_t::OPT_OUT_CRASHES,
-		BeaconConfiguration_t(1, DataCollectionLevel_t::OFF, CrashReportingLevel_t::OPT_OUT_CRASHES).getCrashReportingLevel());
-	ASSERT_EQ(CrashReportingLevel_t::OPT_IN_CRASHES,
-		BeaconConfiguration_t(1, DataCollectionLevel_t::OFF, CrashReportingLevel_t::OPT_IN_CRASHES).getCrashReportingLevel());
+	// when, then
+	ASSERT_THAT(BeaconConfiguration_t(1).isCapturingAllowed(), testing::Eq(true));
+	ASSERT_THAT(BeaconConfiguration_t(2).isCapturingAllowed(), testing::Eq(true));
+	ASSERT_THAT(BeaconConfiguration_t(std::numeric_limits<int32_t>::max()).isCapturingAllowed(), testing::Eq(true));
 }
 
-TEST_F(BeaconConfigurationTest, getMultiplicity)
+TEST_F(BeaconConfigurationTest, capturingIsDisallowedWhenMUltiplicityIsLessThanOrEqualToZero)
 {
-	ASSERT_EQ(0,
-		BeaconConfiguration_t(0, DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF).getMultiplicity());
-	ASSERT_EQ(1,
-		BeaconConfiguration_t(1, DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF).getMultiplicity());
-	ASSERT_EQ(2,
-		BeaconConfiguration_t(2, DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF).getMultiplicity());
-	ASSERT_EQ(3,
-		BeaconConfiguration_t(3, DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF).getMultiplicity());
-	ASSERT_EQ(4,
-		BeaconConfiguration_t(4, DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF).getMultiplicity());
+	// when, then
+	ASSERT_THAT(BeaconConfiguration_t(0).isCapturingAllowed(), testing::Eq(false));
+	ASSERT_THAT(BeaconConfiguration_t(-1).isCapturingAllowed(), testing::Eq(false));
+	ASSERT_THAT(BeaconConfiguration_t(std::numeric_limits<int32_t>::min()).isCapturingAllowed(), testing::Eq(false));
 }

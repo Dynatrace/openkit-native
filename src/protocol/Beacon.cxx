@@ -76,6 +76,7 @@ Beacon::Beacon
 	, mBeaconConfiguration(configuration->getBeaconConfiguration())
 	, mDeviceID()
 	, mRandomGenerator(randomGenerator)
+	, mPrivacyConfiguration(configuration->getPrivacyConfiguration())
 {
 	core::UTF8String internalClientIPAddress(clientIPAddress);
 	if (clientIPAddress == nullptr)
@@ -96,16 +97,12 @@ Beacon::Beacon
 	}
 
 	mBeaconId = configuration->createSessionNumber();
-	if (mBeaconConfiguration->getDataCollectionLevel() == openkit::DataCollectionLevel::USER_BEHAVIOR)
-	{
-		mDeviceID = mConfiguration->getDeviceID();
-		mSessionNumber = mBeaconId;
-	}
-	else
-	{
-		mDeviceID = mRandomGenerator->nextInt64(std::numeric_limits<int64_t>::max());
-		mSessionNumber = 1;
-	}
+	mDeviceID = mPrivacyConfiguration->isDeviceIdSendingAllowed()
+		? mConfiguration->getDeviceID()
+		: mRandomGenerator->nextInt64(std::numeric_limits<int64_t>::max());
+	mSessionNumber = mPrivacyConfiguration->isSessionNumberReportingAllowed()
+		? mBeaconId
+		: 1;
 
 	mImmutableBasicBeaconData = createImmutableBeaconData();
 }
@@ -135,9 +132,8 @@ core::UTF8String Beacon::createImmutableBeaconData()
 	addKeyValuePairIfNotEmpty(basicBeaconData, BEACON_KEY_DEVICE_MANUFACTURER, device->getManufacturer());
 	addKeyValuePairIfNotEmpty(basicBeaconData, BEACON_KEY_DEVICE_MODEL, device->getModelID());
 
-	auto beaconConfiguration = mConfiguration->getBeaconConfiguration();
-	addKeyValuePair(basicBeaconData, BEACON_KEY_DATA_COLLECTION_LEVEL, (int32_t)beaconConfiguration->getDataCollectionLevel());
-	addKeyValuePair(basicBeaconData, BEACON_KEY_CRASH_REPORTING_LEVEL, (int32_t)beaconConfiguration->getCrashReportingLevel());
+	addKeyValuePair(basicBeaconData, BEACON_KEY_DATA_COLLECTION_LEVEL, (int32_t)mPrivacyConfiguration->getDataCollectionLevel());
+	addKeyValuePair(basicBeaconData, BEACON_KEY_CRASH_REPORTING_LEVEL, (int32_t)mPrivacyConfiguration->getCrashReportingLevel());
 
 	return basicBeaconData;
 }
@@ -233,7 +229,7 @@ int32_t Beacon::createID()
 
 core::UTF8String Beacon::createTag(int32_t parentActionID, int32_t sequenceNumber)
 {
-	if (std::atomic_load(&mBeaconConfiguration)->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
+	if (!mPrivacyConfiguration->isWebRequestTracingAllowed())
 	{
 		return core::UTF8String("");
 	}
@@ -262,7 +258,12 @@ core::UTF8String Beacon::createTag(int32_t parentActionID, int32_t sequenceNumbe
 
 void Beacon::addAction(std::shared_ptr<core::objects::IActionCommon> action)
 {
-	if (std::atomic_load(&mBeaconConfiguration)->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
+	if (isCapturingDisabled())
+	{
+		return;
+	}
+
+	if (!mPrivacyConfiguration->isActionReportingAllowed())
 	{
 		return;
 	}
@@ -289,6 +290,11 @@ void Beacon::addActionData(int64_t timestamp, const core::UTF8String& actionData
 
 void Beacon::startSession()
 {
+	if (isCapturingDisabled())
+	{
+		return;
+	}
+
 	core::UTF8String eventData = createBasicEventData(EventType::SESSION_START, nullptr);
 
 	addKeyValuePair(eventData, BEACON_KEY_PARENT_ACTION_ID, 0);
@@ -300,7 +306,12 @@ void Beacon::startSession()
 
 void Beacon::endSession()
 {
-	if (std::atomic_load(&mBeaconConfiguration)->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
+	if (isCapturingDisabled())
+	{
+		return;
+	}
+
+	if (!mPrivacyConfiguration->isSessionReportingAllowed())
 	{
 		return;
 	}
@@ -317,7 +328,12 @@ void Beacon::endSession()
 
 void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, int32_t value)
 {
-	if (std::atomic_load(&mBeaconConfiguration)->getDataCollectionLevel() != openkit::DataCollectionLevel::USER_BEHAVIOR)
+	if (isCapturingDisabled())
+	{
+		return;
+	}
+
+	if (!mPrivacyConfiguration->isValueReportingAllowed())
 	{
 		return;
 	}
@@ -331,7 +347,12 @@ void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, in
 
 void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, double value)
 {
-	if (std::atomic_load(&mBeaconConfiguration)->getDataCollectionLevel() != openkit::DataCollectionLevel::USER_BEHAVIOR)
+	if (isCapturingDisabled())
+	{
+		return;
+	}
+
+	if (!mPrivacyConfiguration->isValueReportingAllowed())
 	{
 		return;
 	}
@@ -346,7 +367,12 @@ void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, do
 
 void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, const core::UTF8String& value)
 {
-	if (std::atomic_load(&mBeaconConfiguration)->getDataCollectionLevel() != openkit::DataCollectionLevel::USER_BEHAVIOR)
+	if (isCapturingDisabled())
+	{
+		return;
+	}
+
+	if (!mPrivacyConfiguration->isValueReportingAllowed())
 	{
 		return;
 	}
@@ -361,7 +387,12 @@ void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, co
 
 void Beacon::reportEvent(int32_t actionID, const core::UTF8String& eventName)
 {
-	if (std::atomic_load(&mBeaconConfiguration)->getDataCollectionLevel() != openkit::DataCollectionLevel::USER_BEHAVIOR)
+	if (isCapturingDisabled())
+	{
+		return;
+	}
+
+	if (!mPrivacyConfiguration->isEventReportingAllowed())
 	{
 		return;
 	}
@@ -374,12 +405,12 @@ void Beacon::reportEvent(int32_t actionID, const core::UTF8String& eventName)
 
 void Beacon::reportError(int32_t actionID, const core::UTF8String& errorName, int32_t errorCode, const core::UTF8String& reason)
 {
-	if (!mConfiguration->isCaptureErrors())
+	if (isCapturingDisabled() || !mConfiguration->isCaptureErrors())
 	{
 		return;
 	}
 
-	if (std::atomic_load(&mBeaconConfiguration)->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
+	if (!mPrivacyConfiguration->isErrorReportingAllowed())
 	{
 		return;
 	}
@@ -397,12 +428,12 @@ void Beacon::reportError(int32_t actionID, const core::UTF8String& errorName, in
 
 void Beacon::reportCrash(const core::UTF8String& errorName, const core::UTF8String& reason, const core::UTF8String& stacktrace)
 {
-	if (!mConfiguration->isCaptureCrashes())
+	if (isCapturingDisabled() || !mConfiguration->isCaptureCrashes())
 	{
 		return;
 	}
 
-	if (std::atomic_load(&mBeaconConfiguration)->getCrashReportingLevel() != openkit::CrashReportingLevel::OPT_IN_CRASHES)
+	if (!mPrivacyConfiguration->isCrashReportingAllowed())
 	{
 		return;
 	}
@@ -425,7 +456,12 @@ void Beacon::addWebRequest(
 	std::shared_ptr<core::objects::IWebRequestTracerInternals> webRequestTracer
 )
 {
-	if (std::atomic_load(&mBeaconConfiguration)->getDataCollectionLevel() == openkit::DataCollectionLevel::OFF)
+	if (isCapturingDisabled())
+	{
+		return;
+	}
+
+	if (!mPrivacyConfiguration->isWebRequestTracingAllowed())
 	{
 		return;
 	}
@@ -461,7 +497,12 @@ void Beacon::addWebRequest(
 
 void Beacon::identifyUser(const core::UTF8String& userTag)
 {
-	if (std::atomic_load(&mBeaconConfiguration)->getDataCollectionLevel() != openkit::DataCollectionLevel::USER_BEHAVIOR)
+	if (isCapturingDisabled())
+	{
+		return;
+	}
+
+	if (!mPrivacyConfiguration->isUserIdentificationAllowed())
 	{
 		return;
 	}
@@ -591,4 +632,9 @@ std::shared_ptr<core::configuration::IBeaconConfiguration> Beacon::getBeaconConf
 const core::UTF8String& Beacon::getClientIPAddress() const
 {
 	return mClientIPAddress;
+}
+
+bool Beacon::isCapturingDisabled() const
+{
+	return !std::atomic_load(&mBeaconConfiguration)->isCapturingAllowed();
 }

@@ -18,8 +18,6 @@
 #define _CORE_CONFIGURATION_BEACONCONFIGURATION_H
 
 #include "IBeaconConfiguration.h"
-#include "OpenKit/CrashReportingLevel.h"
-#include "OpenKit/DataCollectionLevel.h"
 
 namespace core
 {
@@ -37,24 +35,13 @@ namespace core
 			/// @param[in] dataLevel data collection level
 			/// @param[in] crashLevel crash reporting level
 			///
-			BeaconConfiguration(int32_t multiplicity, openkit::DataCollectionLevel dataLevel, openkit::CrashReportingLevel crashLevel);
+			BeaconConfiguration(int32_t multiplicity);
 
 			///
 			/// Default constructor returning the default config
 			///
 			BeaconConfiguration();
 
-			///
-			/// Get the data collection level
-			/// @return the data collection level
-			///
-			openkit::DataCollectionLevel getDataCollectionLevel() const override;
-
-			///
-			/// Get the crash reporting level
-			/// @return the crash reporting level
-			///
-			openkit::CrashReportingLevel getCrashReportingLevel() const override;
 
 			///
 			/// Get the multiplicity
@@ -62,15 +49,14 @@ namespace core
 			///
 			int32_t getMultiplicity() const override;
 
+			///
+			/// Returns a boolean indicating if capturing is allowed based on the value of multiplicity
+			///
+			bool isCapturingAllowed() const override;
+
 		private:
 			/// multiplicity controlling how many sessions are actually send
 			int32_t mMultiplicity;
-
-			/// data collection level
-			openkit::DataCollectionLevel mDataCollectionLevel;
-
-			/// crash reporting level
-			openkit::CrashReportingLevel mCrashReportingLevel;
 		};
 	}
 }

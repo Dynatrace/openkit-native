@@ -23,6 +23,7 @@
 #include "Device.h"
 #include "IBeaconCacheConfiguration.h"
 #include "IBeaconConfiguration.h"
+#include "IPrivacyConfiguration.h"
 #include "protocol/IStatusResponse.h"
 
 #include <memory>
@@ -65,7 +66,8 @@ namespace core
 				std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider,
 				std::shared_ptr<openkit::ISSLTrustManager> sslTrustManager,
 				std::shared_ptr<IBeaconCacheConfiguration> beaconCacheConfiguration,
-				std::shared_ptr<IBeaconConfiguration> beaconConfiguration
+				std::shared_ptr<IBeaconConfiguration> beaconConfiguration,
+				std::shared_ptr<IPrivacyConfiguration> privacyConfiguration
 			);
 
 			virtual ~Configuration() {}
@@ -200,6 +202,11 @@ namespace core
 			///
 			std::shared_ptr<configuration::IBeaconConfiguration> getBeaconConfiguration() const;
 
+			///
+			/// Returns the privacy configuration
+			///
+			std::shared_ptr<configuration::IPrivacyConfiguration> getPrivacyConfiguration() const;
+
 		private:
 			/// HTTP client configuration
 			std::shared_ptr<IHTTPClientConfiguration> mHTTPClientConfiguration;
@@ -254,6 +261,9 @@ namespace core
 
 			/// configuration options for @ref protocol::Beacon
 			std::shared_ptr<configuration::IBeaconConfiguration> mBeaconConfiguration;
+
+			/// configuration for data collection / crash reporting levels
+			std::shared_ptr<configuration::IPrivacyConfiguration> mPrivacyConfiguration;
 		};
 	}
 }

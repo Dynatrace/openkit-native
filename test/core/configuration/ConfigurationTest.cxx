@@ -17,6 +17,7 @@
 
 #include "mock/MockIBeaconCacheConfiguration.h"
 #include "mock/MockIBeaconConfiguration.h"
+#include "mock/MockIPrivacyConfiguration.h"
 #include "../../api/mock/MockISslTrustManager.h"
 #include "../../protocol/mock/MockIStatusResponse.h"
 #include "../../providers/mock/MockISessionIDProvider.h"
@@ -61,7 +62,8 @@ protected:
 			MockISessionIDProvider::createNice(),
 			MockISslTrustManager::createNice(),
 			MockIBeaconCacheConfiguration::createNice(),
-			MockIBeaconConfiguration::createNice()
+			MockIBeaconConfiguration::createNice(),
+			MockIPrivacyConfiguration::createNice()
 		);
 	}
 };
@@ -153,13 +155,13 @@ TEST_F(ConfigurationTest, tenantURLisSetCorrectly)
 TEST_F(ConfigurationTest, defaultDataCollectionLevelIsDefaultValueFromBeaconConfiguration)
 {
 	auto target = getDefaultConfiguration();
-	ASSERT_EQ(target->getBeaconConfiguration()->getDataCollectionLevel(), core::configuration::DEFAULT_DATA_COLLECTION_LEVEL);
+	ASSERT_EQ(target->getPrivacyConfiguration()->getDataCollectionLevel(), core::configuration::DEFAULT_DATA_COLLECTION_LEVEL);
 }
 
 TEST_F(ConfigurationTest, defaultCrashReportingLevelIsDefaultValueFromBeaconConfiguration)
 {
 	auto target = getDefaultConfiguration();
-	ASSERT_EQ(target->getBeaconConfiguration()->getCrashReportingLevel(), core::configuration::DEFAULT_CRASH_REPORTING_LEVEL);
+	ASSERT_EQ(target->getPrivacyConfiguration()->getCrashReportingLevel(), core::configuration::DEFAULT_CRASH_REPORTING_LEVEL);
 }
 
 TEST_F(ConfigurationTest, getApplicationID)

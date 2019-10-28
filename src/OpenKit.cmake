@@ -105,8 +105,11 @@ set(OPENKIT_SOURCES_CORE_CONFIGURATION
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/IBeaconCacheConfiguration.h
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/IBeaconConfiguration.h
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/IHTTPClientConfiguration.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/configuration/IPrivacyConfiguration.h
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/OpenKitType.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/OpenKitType.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/configuration/PrivacyConfiguration.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/configuration/PrivacyConfiguration.h
 )
 
 set(OPENKIT_SOURCES_CORE_UTIL

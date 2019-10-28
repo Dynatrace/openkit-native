@@ -191,12 +191,7 @@ std::shared_ptr<protocol::IStatusResponse> BeaconSendingCaptureOnState::sendNewS
 		if (!session->canSendNewSessionRequest())
 		{
 			// already exceeded the maximum number of session requests, disable any further data collecting
-			auto beaconConfiguration = session->getBeaconConfiguration();
-			auto newBeaconConfiguration = std::make_shared<configuration::BeaconConfiguration>(
-				0,
-				beaconConfiguration->getDataCollectionLevel(),
-				beaconConfiguration->getCrashReportingLevel()
-			);
+			auto newBeaconConfiguration = std::make_shared<configuration::BeaconConfiguration>(0);
 			session->updateBeaconConfiguration(newBeaconConfiguration);
 			continue;
 		}
@@ -204,11 +199,8 @@ std::shared_ptr<protocol::IStatusResponse> BeaconSendingCaptureOnState::sendNewS
 		statusResponse = context.getHTTPClient()->sendNewSessionRequest();
 		if (BeaconSendingResponseUtil::isSuccessfulResponse(statusResponse))
 		{
-			auto beaconConfiguration = session->getBeaconConfiguration();
 			auto newBeaconConfiguration = std::make_shared<configuration::BeaconConfiguration>(
-				statusResponse->getMultiplicity(),
-				beaconConfiguration->getDataCollectionLevel(),
-				beaconConfiguration->getCrashReportingLevel()
+				statusResponse->getMultiplicity()
 			);
 			session->updateBeaconConfiguration(newBeaconConfiguration);
 		}

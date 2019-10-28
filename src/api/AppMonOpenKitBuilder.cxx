@@ -20,6 +20,7 @@
 #include "core/configuration/BeaconConfiguration.h"
 #include "core/configuration/Configuration.h"
 #include "core/configuration/ConfigurationDefaults.h"
+#include "core/configuration/PrivacyConfiguration.h"
 
 using namespace openkit;
 
@@ -46,10 +47,12 @@ std::shared_ptr<core::configuration::Configuration> AppMonOpenKitBuilder::buildC
 		);
 
 	auto beaconConfiguration = std::make_shared<core::configuration::BeaconConfiguration>(
-		core::configuration::DEFAULT_MULTIPLICITY, // starting with default multiplicity, value changed according to server response
+		core::configuration::DEFAULT_MULTIPLICITY // starting with default multiplicity, value changed according to server response
+	);
+	auto privacyConfiguration = std::make_shared<core::configuration::PrivacyConfiguration>(
 		getDataCollectionLevel(),
 		getCrashReportingLevel()
-		);
+	);
 
 	return std::make_shared<core::configuration::Configuration>(
 		device,
@@ -63,6 +66,7 @@ std::shared_ptr<core::configuration::Configuration> AppMonOpenKitBuilder::buildC
 		std::make_shared<providers::DefaultSessionIDProvider>(),
 		getTrustManager(),
 		beaconCacheConfiguration,
-		beaconConfiguration
-		);
+		beaconConfiguration,
+		privacyConfiguration
+	);
 }

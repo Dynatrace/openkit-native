@@ -20,29 +20,22 @@
 using namespace core::configuration;
 
 BeaconConfiguration::BeaconConfiguration()
-	: BeaconConfiguration(DEFAULT_MULTIPLICITY, DEFAULT_DATA_COLLECTION_LEVEL, DEFAULT_CRASH_REPORTING_LEVEL)
+	: BeaconConfiguration(DEFAULT_MULTIPLICITY)
 {
 }
 
-BeaconConfiguration::BeaconConfiguration(int32_t mulitplicity, openkit::DataCollectionLevel dataLevel, openkit::CrashReportingLevel crashLevel)
-	: mMultiplicity(mulitplicity)
-	, mDataCollectionLevel(dataLevel)
-	, mCrashReportingLevel(crashLevel)
+BeaconConfiguration::BeaconConfiguration(int32_t multiplicity)
+	: mMultiplicity(multiplicity)
 {
 
-}
-
-openkit::DataCollectionLevel BeaconConfiguration::getDataCollectionLevel() const
-{
-	return mDataCollectionLevel;
-}
-
-openkit::CrashReportingLevel BeaconConfiguration::getCrashReportingLevel() const
-{
-	return mCrashReportingLevel;
 }
 
 int32_t BeaconConfiguration::getMultiplicity() const
 {
 	return mMultiplicity;
+}
+
+bool BeaconConfiguration::isCapturingAllowed() const
+{
+	return mMultiplicity > 0;
 }

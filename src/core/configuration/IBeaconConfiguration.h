@@ -36,19 +36,14 @@ namespace core
 			virtual ~IBeaconConfiguration() = default;
 
 			///
-			/// Returns the data collection level
-			///
-			virtual openkit::DataCollectionLevel getDataCollectionLevel() const = 0;
-
-			///
-			/// Returns the crash reporting level
-			///
-			virtual openkit::CrashReportingLevel getCrashReportingLevel() const = 0;
-
-			///
 			/// Returns the multiplicity
 			///
 			virtual int32_t getMultiplicity() const = 0;
+
+			///
+			/// Returns a boolean indicating if capturing is allowed based on the value of multiplicity
+			///
+			virtual bool isCapturingAllowed() const = 0;
 		};
 	}
 }

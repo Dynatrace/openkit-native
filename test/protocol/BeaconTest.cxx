@@ -21,6 +21,7 @@
 #include "../core/caching/mock/MockIBeaconCache.h"
 #include "../core/configuration/mock/MockIBeaconCacheConfiguration.h"
 #include "../core/configuration/mock/MockIBeaconConfiguration.h"
+#include "../core/configuration/mock/MockIPrivacyConfiguration.h"
 #include "../core/objects/mock/MockIActionCommon.h"
 #include "../core/objects/mock/MockIOpenKitComposite.h"
 #include "../core/objects/mock/MockSessionInternals.h"
@@ -50,8 +51,6 @@
 
 using namespace test;
 
-using Beacon_t = protocol::Beacon;
-using Beacon_sp = std::shared_ptr<Beacon_t>;
 using BeaconBuilder_sp = std::shared_ptr<TestBeaconBuilder>;
 using BeaconCache_t = core::caching::BeaconCache;
 using Configuration_t = core::configuration::Configuration;
@@ -60,15 +59,14 @@ using CrashReportingLevel_t = openkit::CrashReportingLevel;
 using DataCollectionLevel_t = openkit::DataCollectionLevel;
 using Device_t = core::configuration::Device;
 using EventType_t = protocol::EventType;
-using MockNiceIHTTPClient_sp = std::shared_ptr<testing::NiceMock<MockIHTTPClient>>;
+using MockIPrivacyConfiguration_sp = std::shared_ptr<MockIPrivacyConfiguration>;
+using MockNiceIBeaconConfiguration_sp = std::shared_ptr<testing::NiceMock<MockIBeaconConfiguration>>;
 using MockNiceILogger_sp = std::shared_ptr<testing::NiceMock<MockILogger>>;
 using MockNiceIOpenKitComposite_sp = std::shared_ptr<testing::NiceMock<MockIOpenKitComposite>>;
 using MockNiceIPRNGenerator_sp = std::shared_ptr<testing::NiceMock<MockIPRNGenerator>>;
 using MockNiceISessionIDProvider_sp = std::shared_ptr<testing::NiceMock<MockISessionIDProvider>>;
 using MockNiceIThreadIDProvider_sp = std::shared_ptr<testing::NiceMock<MockIThreadIDProvider>>;
 using MockNiceITimingProvider_sp = std::shared_ptr<testing::NiceMock<MockITimingProvider>>;
-using MockNiceSession_t = testing::NiceMock<MockSessionInternals>;
-using MockNiceSession_sp = std::shared_ptr<MockNiceSession_t>;
 using MockStrictIBeaconCache_sp = std::shared_ptr<testing::StrictMock<MockIBeaconCache>>;
 using OpenKitType_t = core::configuration::OpenKitType;
 using UrlEncoding_t = core::util::URLEncoding;
@@ -88,6 +86,9 @@ class BeaconTest : public testing::Test
 {
 protected:
 
+	MockNiceIBeaconConfiguration_sp mockBeaconConfiguration;
+	MockIPrivacyConfiguration_sp mockPrivacyConfiguration;
+
 	MockNiceILogger_sp mockLogger;
 	MockNiceIThreadIDProvider_sp mockThreadIdProvider;
 
@@ -101,43 +102,33 @@ protected:
 
 	void SetUp()
 	{
-		mockLogger = MockILogger::createNice();
-
-		mockThreadIdProvider = MockIThreadIDProvider::createNice();
-		ON_CALL(*mockThreadIdProvider, getThreadID())
-			.WillByDefault(testing::Return(THREAD_ID));
-
-		mockBeaconCache = MockIBeaconCache::createStrict();
+		mockPrivacyConfiguration = MockIPrivacyConfiguration::createNice();
+		mockBeaconConfiguration = MockIBeaconConfiguration::createNice();
 
 		mockSessionIDProvider = MockISessionIDProvider::createNice();
 		ON_CALL(*mockSessionIDProvider, getNextSessionID())
 			.WillByDefault(testing::Return(SESSION_ID));
 
+		mockThreadIdProvider = MockIThreadIDProvider::createNice();
+		ON_CALL(*mockThreadIdProvider, getThreadID())
+			.WillByDefault(testing::Return(THREAD_ID));
+
 		mockTimingProvider = MockITimingProvider::createNice();
+
+		mockLogger = MockILogger::createNice();
+		mockBeaconCache = MockIBeaconCache::createStrict();
+
 		mockParent = MockIOpenKitComposite::createNice();
 	}
 
 	BeaconBuilder_sp createBeacon()
 	{
-		return createBeacon(
-			core::configuration::DEFAULT_DATA_COLLECTION_LEVEL,
-			core::configuration::DEFAULT_CRASH_REPORTING_LEVEL
-		);
+		return createBeacon(DEVICE_ID, Utf8String_t(APP_ID));
 	}
 
-	BeaconBuilder_sp createBeacon(DataCollectionLevel_t dl, CrashReportingLevel_t cl)
-	{
-		return createBeacon(dl, cl, DEVICE_ID, Utf8String_t(APP_ID));
-	}
-
-	BeaconBuilder_sp createBeacon(DataCollectionLevel_t dl, CrashReportingLevel_t cl, int64_t deviceID, const Utf8String_t& appID)
+	BeaconBuilder_sp createBeacon(int64_t deviceID, const Utf8String_t& appID)
 	{
 		auto device = std::make_shared<Device_t>(Utf8String_t(""), Utf8String_t(""), Utf8String_t(""));
-		auto beaconConfiguration = MockIBeaconConfiguration::createNice();
-		ON_CALL(*beaconConfiguration, getCrashReportingLevel())
-			.WillByDefault(testing::Return(cl));
-		ON_CALL(*beaconConfiguration, getDataCollectionLevel())
-			.WillByDefault(testing::Return(dl));
 
 		configuration = std::make_shared<Configuration_t>(
 			device,
@@ -151,7 +142,8 @@ protected:
 			mockSessionIDProvider,
 			MockISslTrustManager::createNice(),
 			MockIBeaconCacheConfiguration::createNice(),
-			beaconConfiguration
+			mockBeaconConfiguration,
+			mockPrivacyConfiguration
 		);
 		configuration->enableCapture();
 
@@ -166,6 +158,71 @@ protected:
 		return builder;
 	}
 };
+
+TEST_F(BeaconTest, createInstanceWithInvalidIpAddress)
+{
+	// with
+	Utf8String_t ipAddress("invalid");
+
+	// expect
+	EXPECT_CALL(*mockLogger, mockWarning("Beacon() - Client IP address validation failed: invalid"))
+		.Times(1);
+
+	// given, when
+	auto target = createBeacon()
+		->withIpAddress(ipAddress)
+		.build();
+
+	// then
+	ASSERT_THAT(target->getClientIPAddress(), testing::Eq(""));
+}
+
+TEST_F(BeaconTest, createInstanceWithNullIpAddress)
+{
+	// with
+	const char* ipAddress = nullptr;
+
+	// expect
+	EXPECT_CALL(*mockLogger, mockWarning(testing::_))
+		.Times(0);
+
+	// given, when
+	auto target = createBeacon()
+		->withIpAddress(ipAddress)
+		.build();
+
+	// then
+	ASSERT_THAT(target->getClientIPAddress(), testing::Eq(""));
+}
+
+TEST_F(BeaconTest, createInstanceWithEmptyIpAddress)
+{
+	//given
+	auto target = createBeacon()
+		->withIpAddress("")
+		.build();
+
+	// when
+	auto obtained = target->getClientIPAddress();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(""));
+}
+
+TEST_F(BeaconTest, createInstanceWithValidIpAddress)
+{
+	//given
+	Utf8String_t ipAddress("127.0.0.1");
+	auto target = createBeacon()
+		->withIpAddress(ipAddress)
+		.build();
+
+	// when
+	auto obtained = target->getClientIPAddress();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(ipAddress));
+}
 
 TEST_F(BeaconTest, createIDs)
 {
@@ -247,7 +304,7 @@ TEST_F(BeaconTest, createTagEncodesDeviceIDPropperly)
 	// given
 	int32_t deviceId = -42;
 	int32_t sequenceNo = 42;
-	auto target = createBeacon(DataCollectionLevel_t::USER_BEHAVIOR, CrashReportingLevel_t::OFF, deviceId, APP_ID)->build();
+	auto target = createBeacon(deviceId, APP_ID)->build();
 
 	// when
 	auto obtained = target->createTag(ACTION_ID, sequenceNo);
@@ -273,7 +330,7 @@ TEST_F(BeaconTest, createTagUsesEncodedAppID)
 	// given
 	Utf8String_t appID("app_ID_");
 	int32_t sequenceNo = 42;
-	auto target = createBeacon(DataCollectionLevel_t::USER_BEHAVIOR, CrashReportingLevel_t::OFF, DEVICE_ID, appID)->build();
+	auto target = createBeacon(DEVICE_ID, appID)->build();
 
 	// when
 	auto obtained = target->createTag(ACTION_ID, sequenceNo);
@@ -897,7 +954,7 @@ TEST_F(BeaconTest, canAddReceivedBytesToWebRequestTracer)
 	tracer->start()->setBytesReceived(numBytesReceived)->stop(-1); // will add the web request to the beacon
 }
 
-TEST_F(BeaconTest, cannAddReceivedBytesValueZeroToWebRequestTracer)
+TEST_F(BeaconTest, canAddReceivedBytesValueZeroToWebRequestTracer)
 {
 	// with
 	Utf8String_t url("https://localhost");
@@ -1093,6 +1150,7 @@ TEST_F(BeaconTest, sendValidData)
 	EXPECT_CALL(*httpClient, sendBeaconRequest(testing::Eq(ipAddress), testing::_))
 		.Times(1);
 
+	// given
 	auto target = createBeacon()
 		->withIpAddress(ipAddress)
 		.with(beaconCache)
@@ -1105,6 +1163,73 @@ TEST_F(BeaconTest, sendValidData)
 	// then
 	ASSERT_THAT(obtained, testing::NotNull());
 	ASSERT_THAT(obtained->getResponseCode(), testing::Eq(responseCode));
+}
+
+TEST_F(BeaconTest, sendDataAndFakeErrorResponse)
+{
+	// with
+	int32_t responseCode = 418;
+	Utf8String_t ipAddress("127.0.0.1");
+	auto beaconCache = std::make_shared<BeaconCache_t>(mockLogger);
+
+	auto statusResponse = MockIStatusResponse::createNice();
+	ON_CALL(*statusResponse, getResponseCode())
+		.WillByDefault(testing::Return(responseCode));
+	ON_CALL(*statusResponse, isErroneousResponse())
+		.WillByDefault(testing::Return(true));
+
+	auto httpClient = MockIHTTPClient::createNice();
+	ON_CALL(*httpClient, sendBeaconRequest(testing::_, testing::_))
+		.WillByDefault(testing::Return(statusResponse));
+
+	auto httpClientProvider = MockIHTTPClientProvider::createNice();
+	ON_CALL(*httpClientProvider, createClient(testing::_, testing::_))
+		.WillByDefault(testing::Return(httpClient));
+
+	// expect
+	EXPECT_CALL(*httpClient, sendBeaconRequest(testing::Eq(ipAddress), testing::_))
+		.Times(1);
+
+	// given
+	auto target = createBeacon()
+		->withIpAddress(ipAddress)
+		.with(beaconCache)
+		.build();
+
+	// when
+	target->reportCrash("errorName", "errorReason", "errorStackTrace");
+	auto obtained = target->send(httpClientProvider);
+
+	// then
+	ASSERT_THAT(obtained, testing::NotNull());
+	ASSERT_THAT(obtained->getResponseCode(), testing::Eq(responseCode));
+}
+
+TEST_F(BeaconTest, clearDataFromBeaconCache)
+{
+	// given
+	auto beaconCache = std::make_shared<BeaconCache_t>(mockLogger);
+
+	auto target = createBeacon()
+		->with(beaconCache)
+		.build();
+
+	auto action = MockIActionCommon::createNice();
+
+	target->addAction(action);
+	target->reportValue(ACTION_ID, "IntValue", 42);
+	target->reportValue(ACTION_ID, "DoubleValue", 3.1415);
+	target->reportValue(ACTION_ID, "StringValue", "HelloWorld");
+	target->reportEvent(ACTION_ID, "SomeEvent");
+	target->reportError(ACTION_ID, "SomeError", -123, "SomeReason");
+	target->reportCrash("SomeCrash", "SomeReason", "SomeStacktrace");
+	target->endSession();
+
+	// when
+	target->clearData();
+
+	// then
+	ASSERT_THAT(target->isEmpty(), testing::Eq(true));
 }
 
 TEST_F(BeaconTest, clearDataForwardsCallToBeaconCache)
@@ -1200,6 +1325,18 @@ TEST_F(BeaconTest, noEventIsReportedIfCapturingDisabled)
 	target->reportEvent(ACTION_ID, eventName);
 }
 
+TEST_F(BeaconTest, DISABLED_noEventIsReportedIfDataSendingIsDisallowed)
+{
+	// with
+	Utf8String_t eventName("event name");
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when, expect no interaction with beacon cache
+	target->reportEvent(ACTION_ID, eventName);
+}
+
 TEST_F(BeaconTest, noErrorIsReportedIfCapturingDisabled)
 {
 	// with
@@ -1215,6 +1352,20 @@ TEST_F(BeaconTest, noErrorIsReportedIfCapturingDisabled)
 	target->reportError(ACTION_ID, eventName, errorCode, reason);
 }
 
+TEST_F(BeaconTest, DISABLED_noErrorIsReportedIfSendingErrorDataDisallowed)
+{
+	// with
+	Utf8String_t eventName("event name");
+	int32_t errorCode = 123;
+	Utf8String_t reason("error reason");
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when, expect no interaction with beacon cache
+	target->reportError(ACTION_ID, eventName, errorCode, reason);
+}
+
 TEST_F(BeaconTest, noCrashIsReportedIfCapturingIsDisabled)
 {
 	// with
@@ -1225,6 +1376,20 @@ TEST_F(BeaconTest, noCrashIsReportedIfCapturingIsDisabled)
 	// given
 	auto target = createBeacon()->build();
 	configuration->disableCapture();
+
+	// when, expect no interaction with beacon cache
+	target->reportCrash(eventName, reason, stacktrace);
+}
+
+TEST_F(BeaconTest, DISABLED_noCrashIsReportedIfSendingCrashDataDisallowed)
+{
+	// with
+	Utf8String_t eventName("event name");
+	Utf8String_t reason("some reason");
+	Utf8String_t stacktrace("some stacktrace");
+
+	// given
+	auto target = createBeacon()->build();
 
 	// when, expect no interaction with beacon cache
 	target->reportCrash(eventName, reason, stacktrace);
@@ -1256,48 +1421,51 @@ TEST_F(BeaconTest, noUserIdentificationIsReportedIfCapturingDisabled)
 	target->identifyUser(userID);
 }
 
-TEST_F(BeaconTest, noWebRequestIsReportedForDataCollectionLevel0)
+TEST_F(BeaconTest, noWebRequestIsReportedIfWebRequestTracingDisallowed)
 {
 	// given
-	auto target = createBeacon(DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF)->build();
+	ON_CALL(*mockPrivacyConfiguration, isWebRequestTracingAllowed())
+		.WillByDefault(testing::Return(false));
+
+	auto target = createBeacon()->build();
 	auto tracer = MockIWebRequestTracerInternals::createNice();
 
 	// when, expect no interaction with beacon cache
 	target->addWebRequest(ACTION_ID, tracer);
 }
 
-TEST_F(BeaconTest, webRequestIsReportedForDataCollectionLevel1)
+TEST_F(BeaconTest, webRequestIsReportedForIfWebRequestTracingAllowed)
 {
+	// with
+	ON_CALL(*mockPrivacyConfiguration, isWebRequestTracingAllowed())
+		.WillByDefault(testing::Return(true));
+	auto mockWebRequestTracer = MockIWebRequestTracerInternals::createNice();
+
 	// expect
 	EXPECT_CALL(*mockBeaconCache, addEventData(SESSION_ID, 0, testing::_))
 		.Times(1);
+	EXPECT_CALL(*mockWebRequestTracer, getBytesReceived())
+		.Times(1);
+	EXPECT_CALL(*mockWebRequestTracer, getBytesSent())
+		.Times(1);
+	EXPECT_CALL(*mockWebRequestTracer, getResponseCode())
+		.Times(1);
 
 	//given
-	auto target = createBeacon(DataCollectionLevel_t::PERFORMANCE, CrashReportingLevel_t::OFF)->build();
-	auto mockWebRequestTracer = MockIWebRequestTracerInternals::createNice();
+	auto target = createBeacon()->build();
 
 	// when
 	target->addWebRequest(ACTION_ID, mockWebRequestTracer);
 }
 
-TEST_F(BeaconTest, webRequestIsReportedForDataCollectionLevel2)
+TEST_F(BeaconTest, beaconReturnsEmptyTagIfWebRequestTracingDisallowed)
 {
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(SESSION_ID, 0, testing::_))
-		.Times(1);
+	// with
+	ON_CALL(*mockPrivacyConfiguration, isWebRequestTracingAllowed())
+		.WillByDefault(testing::Return(false));
 
 	//given
-	auto target = createBeacon(DataCollectionLevel_t::USER_BEHAVIOR, CrashReportingLevel_t::OFF)->build();
-	auto mockWebRequestTracer = MockIWebRequestTracerInternals::createNice();
-
-	// when
-	target->addWebRequest(ACTION_ID, mockWebRequestTracer);
-}
-
-TEST_F(BeaconTest, beaconReturnsEmptyTagForDataCollectionLevel0)
-{
-	//given
-	auto target = createBeacon(DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF)->build();
+	auto target = createBeacon()->build();
 
 	// when
 	auto obtained = target->createTag(ACTION_ID, 1);
@@ -1306,19 +1474,15 @@ TEST_F(BeaconTest, beaconReturnsEmptyTagForDataCollectionLevel0)
 	ASSERT_THAT(obtained, testing::Eq(""));
 }
 
-TEST_F(BeaconTest, beaconReturnsValidTagForDataCollectionLevel1)
+TEST_F(BeaconTest, beaconReturnsValidTagIfWebRequestTracingIsAllowed)
 {
 	// with
-	int32_t sequenceNo = 73;
-	int64_t deviceId = 37;
-	int64_t ignoredDeviceId = 999;
-	auto mockRandom = MockIPRNGenerator::createNice();
-	ON_CALL(*mockRandom, nextInt64(testing::_))
-		.WillByDefault(testing::Return(deviceId));
+	int32_t sequenceNo = 1;
 
-	auto target = createBeacon(DataCollectionLevel_t::PERFORMANCE, CrashReportingLevel_t::OFF, ignoredDeviceId, APP_ID)
-		->with(mockRandom)
-		.build();
+	ON_CALL(*mockPrivacyConfiguration, isWebRequestTracingAllowed())
+		.WillByDefault(testing::Return(true));
+
+	auto target = createBeacon()->build();
 
 	// when
 	auto tagString = target->createTag(ACTION_ID, sequenceNo);
@@ -1328,8 +1492,8 @@ TEST_F(BeaconTest, beaconReturnsValidTagForDataCollectionLevel1)
 	str << "MT"						// tag prefix
 		<< "_" << protocol::PROTOCOL_VERSION // protocol version
 		<< "_" << SERVER_ID			// server ID
-		<< "_" << deviceId			// device ID
-		<< "_1"						// session number (must always be 1 for data collection level performance)
+		<< "_" << DEVICE_ID			// device ID
+		<< "_" << SESSION_ID		// session number
 		<< "_" << APP_ID			// application ID
 		<< "_" << ACTION_ID			// parent action ID
 		<< "_" << THREAD_ID			// thread ID
@@ -1339,36 +1503,106 @@ TEST_F(BeaconTest, beaconReturnsValidTagForDataCollectionLevel1)
 	ASSERT_THAT(tagString.getStringData(), testing::Eq(str.str()));
 }
 
-TEST_F(BeaconTest, createTagReturnsTagStringForDataCollectionLevel2)
+TEST_F(BeaconTest, beaconReturnsValidTagWithSessionNumberIfSessionNumberReportingAllowed)
 {
-	//given
-	int64_t deviceId = 37;
-	int32_t sequenceNo = 73;
-	auto target = createBeacon(DataCollectionLevel_t::USER_BEHAVIOR, CrashReportingLevel_t::OFF, deviceId, APP_ID)->build();
+	// with
+	int32_t sequenceNo = 1;
+
+	ON_CALL(*mockPrivacyConfiguration, isSessionNumberReportingAllowed())
+		.WillByDefault(testing::Return(true));
+	ON_CALL(*mockPrivacyConfiguration, isWebRequestTracingAllowed())
+		.WillByDefault(testing::Return(true));
+
+	auto target = createBeacon()->build();
 
 	// when
 	auto tagString = target->createTag(ACTION_ID, sequenceNo);
 
-	// then
+	//then
 	std::stringstream str;
 	str << "MT"						// tag prefix
 		<< "_" << protocol::PROTOCOL_VERSION // protocol version
 		<< "_" << SERVER_ID			// server ID
-		<< "_" << deviceId			// device ID
+		<< "_" << DEVICE_ID			// device ID
 		<< "_" << SESSION_ID		// session number
 		<< "_" << APP_ID			// application ID
 		<< "_" << ACTION_ID			// parent action ID
 		<< "_" << THREAD_ID			// thread ID
 		<< "_" << sequenceNo		// sequence number
 	;
-	ASSERT_THAT(tagString.getStringData(), str.str());
+
+	ASSERT_THAT(tagString.getStringData(), testing::Eq(str.str()));
 }
 
-TEST_F(BeaconTest, deviceIDIsRandomizedOnDataCollectionLevel0)
+TEST_F(BeaconTest, beaconReturnsValidTagWithSessionNumberOneIfSessionNumberReportinDisallowed)
 {
 	// with
-	auto mockRandom = MockIPRNGenerator::createNice();
+	int32_t sequenceNo = 1;
+
+	ON_CALL(*mockPrivacyConfiguration, isSessionNumberReportingAllowed())
+		.WillByDefault(testing::Return(false));
+	ON_CALL(*mockPrivacyConfiguration, isWebRequestTracingAllowed())
+		.WillByDefault(testing::Return(true));
+
+	auto target = createBeacon()->build();
+
+	// when
+	auto tagString = target->createTag(ACTION_ID, sequenceNo);
+
+	//then
+	std::stringstream str;
+	str << "MT"						// tag prefix
+		<< "_" << protocol::PROTOCOL_VERSION // protocol version
+		<< "_" << SERVER_ID			// server ID
+		<< "_" << DEVICE_ID			// device ID
+		<< "_1"						// session number (must always be 1 if session number reporting disallowed)
+		<< "_" << APP_ID			// application ID
+		<< "_" << ACTION_ID			// parent action ID
+		<< "_" << THREAD_ID			// thread ID
+		<< "_" << sequenceNo		// sequence number
+	;
+
+	ASSERT_THAT(tagString.getStringData(), testing::Eq(str.str()));
+}
+
+TEST_F(BeaconTest, cannotIdentifyUserIfUserIdentificationDisabled)
+{
+	// with
+	ON_CALL(*mockPrivacyConfiguration, isUserIdentificationAllowed())
+		.WillByDefault(testing::Return(false));
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when, expect no interaction with beacon cache
+	target->identifyUser("jane@doe.com");
+}
+
+TEST_F(BeaconTest, canIdentifyUserIfUserIdentificationAllowed)
+{
+	// with
+	ON_CALL(*mockPrivacyConfiguration, isUserIdentificationAllowed())
+		.WillByDefault(testing::Return(true));
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(1);
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when, expect no interaction with beacon cache
+	target->identifyUser("jane@doe.com");
+}
+
+TEST_F(BeaconTest, deviceIDIsRandomizedIfDeviceIdSendingDisallowed)
+{
+	// with
+	ON_CALL(*mockPrivacyConfiguration, isDeviceIdSendingAllowed())
+		.WillByDefault(testing::Return(false));
+
 	int64_t deviceId = 1337;
+	auto mockRandom = MockIPRNGenerator::createNice();
 	ON_CALL(*mockRandom, nextInt64(testing::_))
 		.WillByDefault(testing::Return(deviceId));
 
@@ -1377,7 +1611,7 @@ TEST_F(BeaconTest, deviceIDIsRandomizedOnDataCollectionLevel0)
 		.Times(1);
 
 	// given
-	auto target = createBeacon(DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF)
+	auto target = createBeacon()
 		->with(mockRandom)
 		.build();
 
@@ -1388,37 +1622,16 @@ TEST_F(BeaconTest, deviceIDIsRandomizedOnDataCollectionLevel0)
 	ASSERT_THAT(obtained, testing::Eq(deviceId));
 }
 
-TEST_F(BeaconTest, deviceIDIsRandomizedOnDataCollectionLevel1)
+TEST_F(BeaconTest, givenDeviceIDIsUsedIfDeviceIdSendingIsAllowed)
 {
 	// with
-	auto mockRandom = MockIPRNGenerator::createNice();
-	int64_t deviceId = 1337;
-	ON_CALL(*mockRandom, nextInt64(testing::_))
-		.WillByDefault(testing::Return(deviceId));
+	ON_CALL(*mockPrivacyConfiguration, isDeviceIdSendingAllowed())
+		.WillByDefault(testing::Return(true));
 
-	// expect
-	EXPECT_CALL(*mockRandom, nextInt64(testing::_))
-		.Times(1);
-
-	// given
-	auto target = createBeacon(DataCollectionLevel_t::PERFORMANCE, CrashReportingLevel_t::OFF)
-		->with(mockRandom)
-		.build();
-
-	// when
-	auto obtained = target->getDeviceID();
-
-	// then
-	ASSERT_THAT(obtained, testing::Eq(deviceId));
-}
-
-TEST_F(BeaconTest, givenDeviceIDIsUsedOnDataCollectionLevel2)
-{
-	// with
 	auto mockRandomStrict = MockIPRNGenerator::createStrict();
 
 	// given
-	auto target = createBeacon(DataCollectionLevel_t::USER_BEHAVIOR, CrashReportingLevel_t::OFF)
+	auto target = createBeacon()
 		->with(mockRandomStrict)
 		.build();
 
@@ -1429,10 +1642,14 @@ TEST_F(BeaconTest, givenDeviceIDIsUsedOnDataCollectionLevel2)
 	ASSERT_THAT(obtained, testing::Eq(DEVICE_ID));
 }
 
-TEST_F(BeaconTest, randomDeviceIDCannotBeNegativeOnDataCollectionLevel0)
+TEST_F(BeaconTest, randomDeviceIDCannotBeNegativeIfDeviceIdSendingIsDisallowed)
 {
+	// with
+	ON_CALL(*mockPrivacyConfiguration, isDeviceIdSendingAllowed())
+		.WillByDefault(testing::Return(false));
+
 	// given
-	auto target = createBeacon(DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF)->build();
+	auto target = createBeacon()->build();
 
 	// when
 	auto obtained = target->getDeviceID();
@@ -1441,22 +1658,14 @@ TEST_F(BeaconTest, randomDeviceIDCannotBeNegativeOnDataCollectionLevel0)
 	EXPECT_THAT(obtained, testing::AllOf(testing::Ge(int64_t(0)), testing::Lt(std::numeric_limits<int64_t>::max())));
 }
 
-TEST_F(BeaconTest, randomDeviceIDCannotBeNegativeOnDataCollectionLevel1)
+TEST_F(BeaconTest, sessionIDIsAlwaysValueOneIfSessionNumberReportingDisallowed)
 {
+	// with
+	ON_CALL(*mockPrivacyConfiguration, isSessionNumberReportingAllowed())
+		.WillByDefault(testing::Return(false));
+
 	// given
-	auto target = createBeacon(DataCollectionLevel_t::PERFORMANCE, CrashReportingLevel_t::OFF)->build();
-
-	// when
-	auto obtained = target->getDeviceID();
-
-	// then
-	EXPECT_THAT(obtained, testing::AllOf(testing::Ge(int64_t(0)), testing::Lt(std::numeric_limits<int64_t>::max())));
-}
-
-TEST_F(BeaconTest, sessionIDIsAlwaysValue1OnDataCollectionLevel0)
-{
-	// given
-	auto target = createBeacon(DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF)->build();
+	auto target = createBeacon()->build();
 
 	// when
 	auto obtained = target->getSessionNumber();
@@ -1465,26 +1674,18 @@ TEST_F(BeaconTest, sessionIDIsAlwaysValue1OnDataCollectionLevel0)
 	ASSERT_THAT(obtained, testing::Eq(1));
 }
 
-TEST_F(BeaconTest, sessionIDIsAlwaysValue1OnDataCollectionLevel1)
+TEST_F(BeaconTest, sessionIDIsValueFromSessionIDProviderIfSessionNumberReportingAllowed)
 {
-	//given
-	auto target = createBeacon(DataCollectionLevel_t::PERFORMANCE, CrashReportingLevel_t::OFF)->build();
+	// with
+	ON_CALL(*mockPrivacyConfiguration, isSessionNumberReportingAllowed())
+		.WillByDefault(testing::Return(true));
 
-	// when
-	auto obtained = target->getSessionNumber();
-
-	// then
-	ASSERT_THAT(obtained, testing::Eq(1));
-}
-
-TEST_F(BeaconTest, sessionIDIsValueFromSessionIDProviderOnDataCollectionLevel2)
-{
 	// expect
 	EXPECT_CALL(*mockSessionIDProvider, getNextSessionID())
 		.Times(1);
 
 	// given
-	auto target = createBeacon(DataCollectionLevel_t::USER_BEHAVIOR, CrashReportingLevel_t::OFF)->build();
+	auto target = createBeacon()->build();
 
 	// when
 	auto obtained = target->getSessionNumber();
@@ -1493,21 +1694,77 @@ TEST_F(BeaconTest, sessionIDIsValueFromSessionIDProviderOnDataCollectionLevel2)
 	ASSERT_THAT(obtained, testing::Eq(SESSION_ID));
 }
 
-TEST_F(BeaconTest, actionNotReportedForDataCollectionLevel0)
+TEST_F(BeaconTest, reportCrashDoesNotReportIfCrashReportingDisallowed)
+{
+	// with
+	ON_CALL(*mockPrivacyConfiguration, isCrashReportingAllowed())
+		.WillByDefault(testing::Return(false));
+
+	Utf8String_t eventName("crash name");
+	Utf8String_t reason("some reason");
+	Utf8String_t stacktrace("in some dark code segment");
+
+	//given
+	auto target = createBeacon()->build();
+
+	// when, expect no interaction with beacon cache
+	target->reportCrash(eventName, reason, stacktrace);
+}
+
+TEST_F(BeaconTest, reportCrashDoesReportIfCrashReportingIsAllowed)
+{
+	// with
+	ON_CALL(*mockPrivacyConfiguration, isCrashReportingAllowed())
+		.WillByDefault(testing::Return(true));
+
+	Utf8String_t eventName("crash name");
+	Utf8String_t reason("some reason");
+	Utf8String_t stacktrace("in some dark code segment");
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+			.Times(1);
+
+	//given
+	auto target = createBeacon()->build();
+
+	// when
+	target->reportCrash(eventName, reason, stacktrace);
+}
+
+TEST_F(BeaconTest, actionNotReportedIfActionReportingDisallowed)
+{
+	// with
+	ON_CALL(*mockPrivacyConfiguration, isActionReportingAllowed())
+		.WillByDefault(testing::Return(false));
+
+	auto actionMock = MockIActionCommon::createStrict();
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when, expect no interaction with beacon cache
+	target->addAction(actionMock);
+}
+
+TEST_F(BeaconTest, DISABLED_actionNotReportedIfDataSendingDisallowed)
 {
 	// with
 	auto actionMock = MockIActionCommon::createStrict();
 
 	// given
-	auto target = createBeacon(DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF)->build();
+	auto target = createBeacon()->build();
 
 	// when, expect no interaction with beacon cache
 	target->addAction(actionMock);
 }
 
-TEST_F(BeaconTest, actionReportedForDataCollectionLevel1)
+TEST_F(BeaconTest, actionReportedIfActionReportingAllowed)
 {
 	// with
+	ON_CALL(*mockPrivacyConfiguration, isActionReportingAllowed())
+		.WillByDefault(testing::Return(true));
+
 	auto actionMock = MockIActionCommon::createNice();
 
 	// expect
@@ -1517,115 +1774,74 @@ TEST_F(BeaconTest, actionReportedForDataCollectionLevel1)
 		.Times(1);
 
 	//given
-	auto target = createBeacon(DataCollectionLevel_t::PERFORMANCE, CrashReportingLevel_t::OFF)
-			->build();
+	auto target = createBeacon()->build();
 
 	// when
 	target->addAction(actionMock);
 }
 
-TEST_F(BeaconTest, actionReportedForDataCollectionLevel2)
+TEST_F(BeaconTest, sessionNotReportedIfSessionReportingDisallowed)
 {
 	// with
-	auto actionMock = MockIActionCommon::createNice();
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addActionData(testing::_, testing::_, testing::_))
-		.Times(1);
-	EXPECT_CALL(*actionMock, getID())
-		.Times(1);
+	ON_CALL(*mockPrivacyConfiguration, isSessionReportingAllowed())
+		.WillByDefault(testing::Return(false));
 
 	//given
-	auto target = createBeacon(DataCollectionLevel_t::USER_BEHAVIOR, CrashReportingLevel_t::OFF)
-			->build();
-
-	// when
-	target->addAction(actionMock);
-}
-
-TEST_F(BeaconTest, sessionNotReportedForDataCollectionLevel0)
-{
-	//given
-	auto target = createBeacon(DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF)->build();
+	auto target = createBeacon()->build();
 
 	// when, expect no interaction with beacon cache
 	target->endSession();
 }
 
-TEST_F(BeaconTest, sessionReportedForDataCollectionLevel1)
+TEST_F(BeaconTest, DISABLED_sessionNotReportedIfDataSendingDisallowed)
 {
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
-		.Times(1);
-
 	//given
-	auto target = createBeacon(DataCollectionLevel_t::PERFORMANCE, CrashReportingLevel_t::OFF)->build();
+	auto target = createBeacon()->build();
 
-	// when
+	// when, expect no interaction with beacon cache
 	target->endSession();
 }
 
-TEST_F(BeaconTest, sessionReportedForDataCollectionLevel2)
-{
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
-		.Times(1);
-
-	//given
-	auto target = createBeacon(DataCollectionLevel_t::USER_BEHAVIOR, CrashReportingLevel_t::OFF)->build();
-
-	// when
-	target->endSession();
-}
-
-TEST_F(BeaconTest, identifyUserNotAllowedToReportOnDataCollectionLevel0)
-{
-	//given
-	auto target = createBeacon(DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF)->build();
-
-	// when, expect no interaction with beacon cache
-	target->identifyUser("testUser");
-}
-
-TEST_F(BeaconTest, identifyUserNotAllowedToReportOnDataCollectionLevel1)
-{
-	//given
-	auto target = createBeacon(DataCollectionLevel_t::PERFORMANCE, CrashReportingLevel_t::OFF)->build();
-
-	// when, expect no interaction with beacon cache
-	target->identifyUser("testUser");
-}
-
-TEST_F(BeaconTest, identifyUserReportsOnDataCollectionLevel2)
-{
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
-		.Times(1);
-
-	//given
-	auto target = createBeacon(DataCollectionLevel_t::USER_BEHAVIOR, CrashReportingLevel_t::OFF)->build();
-
-	// when
-	target->identifyUser(Utf8String_t("testUser"));
-}
-
-TEST_F(BeaconTest, reportErrorDoesNotReportOnDataCollectionLevel0)
+TEST_F(BeaconTest, sessionReportedIfSessionReportingAllowed)
 {
 	// with
+	ON_CALL(*mockPrivacyConfiguration, isSessionReportingAllowed())
+		.WillByDefault(testing::Return(true));
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(1);
+
+	//given
+	auto target = createBeacon()->build();
+
+	// when
+	target->endSession();
+}
+
+TEST_F(BeaconTest, errorNotReportedIfErrorReportingDisallowed)
+{
+	// with
+	ON_CALL(*mockPrivacyConfiguration, isErrorReportingAllowed())
+		.WillByDefault(testing::Return(false));
+
 	Utf8String_t eventName("error name");
 	int32_t errorCode = 132;
 	Utf8String_t reason("error reason");
 
 	//given
-	auto target = createBeacon(DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF)->build();
+	auto target = createBeacon()->build();
 
 	// when, expect no interaction with beacon cache
 	target->reportError(ACTION_ID, eventName, errorCode, reason);
 }
 
-TEST_F(BeaconTest, reportErrorDoesReportOnDataCollectionLevel1)
+TEST_F(BeaconTest, errorReportedIfErrorReportingAllowed)
 {
 	// with
+	ON_CALL(*mockPrivacyConfiguration, isErrorReportingAllowed())
+		.WillByDefault(testing::Return(true));
+
 	Utf8String_t eventName("error name");
 	int32_t errorCode = 132;
 	Utf8String_t reason("error reason");
@@ -1635,107 +1851,48 @@ TEST_F(BeaconTest, reportErrorDoesReportOnDataCollectionLevel1)
 		.Times(1);
 
 	//given
-	auto target = createBeacon(DataCollectionLevel_t::PERFORMANCE, CrashReportingLevel_t::OFF)->build();
+	auto target = createBeacon()->build();
 
 	// when
 	target->reportError(ACTION_ID, eventName, errorCode, reason);
 }
 
-TEST_F(BeaconTest, reportErrorDoesReportOnDataCollectionLevel2)
+TEST_F(BeaconTest, intValueIsNotReportedIfReportValueDisallowed)
 {
 	// with
-	Utf8String_t eventName("error name");
-	int32_t errorCode = 132;
-	Utf8String_t reason("error reason");
+	ON_CALL(*mockPrivacyConfiguration, isValueReportingAllowed())
+		.WillByDefault(testing::Return(false));
 
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
-		.Times(1);
+	Utf8String_t valueName("IntValue");
+	int32_t value = 42;
 
 	//given
-	auto target = createBeacon(DataCollectionLevel_t::USER_BEHAVIOR, CrashReportingLevel_t::OFF)
-			->build();
-
-	// when
-	target->reportError(ACTION_ID, eventName, errorCode, reason);
-}
-
-TEST_F(BeaconTest, reportCrashDoesNotReportOnDataCollectionLevel0)
-{
-	// with
-	Utf8String_t eventName("crash name");
-	Utf8String_t reason("some reason");
-	Utf8String_t stacktrace("in some dark code segment");
-
-	//given
-	auto target = createBeacon(DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF)->build();
+	auto target = createBeacon()->build();
 
 	// when, expect no interaction with beacon cache
-	target->reportCrash(eventName, reason, stacktrace);
+	target->reportValue(1, valueName, value);
 }
 
-TEST_F(BeaconTest, reportCrashDoesNotReportOnDataCollectionLevel1)
-{
-	// with
-	Utf8String_t eventName("crash name");
-	Utf8String_t reason("some reason");
-	Utf8String_t stacktrace("in some dark code segment");
-
-	//given
-	auto target = createBeacon(DataCollectionLevel_t::OFF, CrashReportingLevel_t::OPT_OUT_CRASHES)->build();
-
-	// when, expect no interaction with beacon cache
-	target->reportCrash(eventName, reason, stacktrace);
-}
-
-TEST_F(BeaconTest, reportCrashDoesReportOnCrashReportingLevel2)
-{
-	// with
-	Utf8String_t eventName("crash name");
-	Utf8String_t reason("some reason");
-	Utf8String_t stacktrace("in some dark code segment");
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
-		.Times(1);
-
-	//given
-	auto target = createBeacon(DataCollectionLevel_t::OFF, CrashReportingLevel_t::OPT_IN_CRASHES)->build();
-
-	// when
-	target->reportCrash(eventName, reason, stacktrace);
-}
-
-TEST_F(BeaconTest, intValueNotReportedForDataCollectionLevel0)
+TEST_F(BeaconTest, DISABLED_intValueIsNotReportedIfDataSendingDisallowed)
 {
 	// with
 	Utf8String_t valueName("IntValue");
 	int32_t value = 42;
 
 	//given
-	auto target = createBeacon(DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF)->build();
-
-	// when, expect no interaction with beacon cache
-	target->reportValue(1, valueName, value);
-}
-
-TEST_F(BeaconTest, intValueNotReportedForDataCollectionLevel1)
-{
-	// with
-	Utf8String_t valueName("IntValue");
-	int32_t value = 42;
-
-	//given
-	auto target = createBeacon(DataCollectionLevel_t::PERFORMANCE, CrashReportingLevel_t::OFF)->build();
+	auto target = createBeacon()->build();
 
 	// when, expect no interaction with beacon cache
 	target->reportValue(1, valueName, value);
 }
 
 
-TEST_F(BeaconTest, intValueReportedForDataCollectionLevel2)
+TEST_F(BeaconTest, intValueIsReportedIfReportValueAllowed)
 {
 	// with
+	ON_CALL(*mockPrivacyConfiguration, isValueReportingAllowed())
+		.WillByDefault(testing::Return(true));
+
 	Utf8String_t valueName("IntValue");
 	int32_t value = 42;
 
@@ -1744,43 +1901,48 @@ TEST_F(BeaconTest, intValueReportedForDataCollectionLevel2)
 		.Times(1);
 
 	//given
-	auto target = createBeacon(DataCollectionLevel_t::USER_BEHAVIOR, CrashReportingLevel_t::OFF)
-			->build();
+	auto target = createBeacon()->build();
 
 	// when
 	target->reportValue(1, valueName, value);
 }
 
-TEST_F(BeaconTest, doubleValueNotReportedForDataCollectionLevel0)
+TEST_F(BeaconTest, doubleValueIsNotReportedIfReportValueDisallowed)
+{
+	// with
+	ON_CALL(*mockPrivacyConfiguration, isValueReportingAllowed())
+		.WillByDefault(testing::Return(false));
+
+	Utf8String_t valueName("DoubleValue");
+	double value = 42.1337;
+
+	//given
+	auto target = createBeacon()->build();
+
+	// when, expect no interaction with beacon cache
+	target->reportValue(1, valueName, value);
+}
+
+TEST_F(BeaconTest, DISABLED_doubleValueIsNotReportedIfDataSendingDisallowed)
 {
 	// with
 	Utf8String_t valueName("DoubleValue");
 	double value = 42.1337;
 
 	//given
-	auto target = createBeacon(DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF)->build();
-
-	// when, expect no interaction with beacon cache
-	target->reportValue(1, valueName, value);
-}
-
-TEST_F(BeaconTest, doubleValueNotReportedForDataCollectionLevel1)
-{
-	// with
-	Utf8String_t valueName("DoubleValue");
-	double value = 42.1337;
-
-	//given
-	auto target = createBeacon(DataCollectionLevel_t::PERFORMANCE, CrashReportingLevel_t::OFF)->build();
+	auto target = createBeacon()->build();
 
 	// when, expect no interaction with beacon cache
 	target->reportValue(1, valueName, value);
 }
 
 
-TEST_F(BeaconTest, doubleValueReportedForDataCollectionLevel2)
+TEST_F(BeaconTest, doubleValueIsReportedIfValueReportingAllowed)
 {
 	// with
+	ON_CALL(*mockPrivacyConfiguration, isValueReportingAllowed())
+		.WillByDefault(testing::Return(true));
+
 	Utf8String_t valueName("DoubleValue");
 	double value = 42.1337;
 
@@ -1789,43 +1951,48 @@ TEST_F(BeaconTest, doubleValueReportedForDataCollectionLevel2)
 		.Times(1);
 
 	//given
-	auto target = createBeacon(DataCollectionLevel_t::USER_BEHAVIOR, CrashReportingLevel_t::OFF)
-			->build();
+	auto target = createBeacon()->build();
 
 	// when
 	target->reportValue(1, valueName, value);
 }
 
-TEST_F(BeaconTest, stringValueNotReportedForDataCollectionLevel0)
+TEST_F(BeaconTest, stringValueIsNotReportedIfValueReportingDisallowed)
+{
+	// with
+	ON_CALL(*mockPrivacyConfiguration, isValueReportingAllowed())
+		.WillByDefault(testing::Return(false));
+
+	Utf8String_t valueName("StringValue");
+	Utf8String_t value("HelloWorld");
+
+	//given
+	auto target = createBeacon()->build();
+
+	// when, expect no interaction with beacon cache
+	target->reportValue(1, valueName, value);
+}
+
+TEST_F(BeaconTest, DISABLED_stringValueIsNotReportedIfDataSendingDisallowed)
 {
 	// with
 	Utf8String_t valueName("StringValue");
 	Utf8String_t value("HelloWorld");
 
 	//given
-	auto target = createBeacon(DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF)->build();
-
-	// when, expect no interaction with beacon cache
-	target->reportValue(1, valueName, value);
-}
-
-TEST_F(BeaconTest, stringValueNotReportedForDataCollectionLevel1)
-{
-	// with
-	Utf8String_t valueName("StringValue");
-	Utf8String_t value("HelloWorld");
-
-	//given
-	auto target = createBeacon(DataCollectionLevel_t::PERFORMANCE, CrashReportingLevel_t::OFF)->build();
+	auto target = createBeacon()->build();
 
 	// when, expect no interaction with beacon cache
 	target->reportValue(1, valueName, value);
 }
 
 
-TEST_F(BeaconTest, stringValueReportedForDataCollectionLevel2)
+TEST_F(BeaconTest, stringValueIsReportedIfValueReportingAllowed)
 {
 	// with
+	ON_CALL(*mockPrivacyConfiguration, isValueReportingAllowed())
+		.WillByDefault(testing::Return(true));
+
 	Utf8String_t valueName("DoubleValue");
 	Utf8String_t value("HelloWorld");
 
@@ -1834,49 +2001,44 @@ TEST_F(BeaconTest, stringValueReportedForDataCollectionLevel2)
 		.Times(1);
 
 	//given
-	auto target = createBeacon(DataCollectionLevel_t::USER_BEHAVIOR, CrashReportingLevel_t::OFF)
-			->build();
+	auto target = createBeacon()->build();
 
 	// when
 	target->reportValue(1, valueName, value);
 }
 
-TEST_F(BeaconTest, namedEventNotReportedForDataCollectionLevel0)
+TEST_F(BeaconTest, namedEventNotReportedIfEventReportingDisallowed)
 {
 	// with
+	ON_CALL(*mockPrivacyConfiguration, isEventReportingAllowed())
+		.WillByDefault(testing::Return(false));
+
 	Utf8String_t eventName("some event");
 
 	//given
-	auto target = createBeacon(DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF)->build();
+	auto target = createBeacon()->build();
 
 	// when, expect no interaction with beacon cache
 	target->reportEvent(ACTION_ID, eventName);
 }
 
-TEST_F(BeaconTest, namedEventNotReportedForDataCollectionLevel1)
+TEST_F(BeaconTest, namedEventIsReportedIfErrorReportingAllowed)
 {
 	// with
+	ON_CALL(*mockPrivacyConfiguration, isEventReportingAllowed())
+		.WillByDefault(testing::Return(true));
+
 	Utf8String_t eventName("some event");
 
-	//given
-	auto target = createBeacon(DataCollectionLevel_t::PERFORMANCE, CrashReportingLevel_t::OFF)
-			->build();
-
-	// when, expect no interaction with beacon cache
-	target->reportEvent(ACTION_ID, eventName);
-}
-
-
-TEST_F(BeaconTest, namedEventNotReportedForDataCollectionLevel2)
-{
-	// with
-	Utf8String_t eventName("some event");
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(1);
 
 	//given
-	auto target = createBeacon(DataCollectionLevel_t::PERFORMANCE, CrashReportingLevel_t::OFF)
+	auto target = createBeacon()
 			->build();
 
-	// when, expect no interaction with beacon cache
+	// when
 	target->reportEvent(ACTION_ID, eventName);
 }
 
@@ -1893,101 +2055,38 @@ TEST_F(BeaconTest, sessionStartIsReported)
 	target->startSession();
 }
 
-TEST_F(BeaconTest, sessionStartIsReportedForDataCollectionLevel0)
+TEST_F(BeaconTest, sessionStartIsReportedRegardlessOfPrivacyConfiguration)
 {
+	// with
+	mockPrivacyConfiguration = MockIPrivacyConfiguration::createStrict();
+
 	// expect
 	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
 		.Times(1);
+	EXPECT_CALL(*mockPrivacyConfiguration, isDeviceIdSendingAllowed())
+		.Times(1); // beacon constructor, checking if device ID should be randomized
+	EXPECT_CALL(*mockPrivacyConfiguration, isSessionNumberReportingAllowed())
+		.Times(1); // beacon constructor, checking if session number can be sent
+	EXPECT_CALL(*mockPrivacyConfiguration, getDataCollectionLevel())
+		.Times(1); // beacon constructor, creating immutable beacon string
+	EXPECT_CALL(*mockPrivacyConfiguration, getCrashReportingLevel())
+		.Times(1); // beacon constructor, creating immutable beacon string
 
 	//given
-	auto target = createBeacon(DataCollectionLevel_t::OFF, CrashReportingLevel_t::OFF)->build();
+	auto target = createBeacon()->build();
 
 	// when
 	target->startSession();
 }
 
-TEST_F(BeaconTest, sessionStartIsReportedForDataCollectionLevel1)
+TEST_F(BeaconTest, noSessionStartIsReportedIfCapturingDisabled)
 {
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
-		.Times(1);
-
 	//given
-	auto target = createBeacon(DataCollectionLevel_t::PERFORMANCE, CrashReportingLevel_t::OFF)->build();
+	auto target = createBeacon()->build();
+	configuration->disableCapture();
 
-	// when
+	// when, expect on interaction on beacon cache
 	target->startSession();
-}
-
-TEST_F(BeaconTest, sessionStartIsReportedForDataCollectionLevel2)
-{
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
-		.Times(1);
-
-	//given
-	auto target = createBeacon(DataCollectionLevel_t::USER_BEHAVIOR, CrashReportingLevel_t::OFF)->build();
-
-	// when
-	target->startSession();
-}
-
-TEST_F(BeaconTest, clientIPAddressCanBeANullptr)
-{
-	//given
-	auto target = createBeacon()
-		->withIpAddress(nullptr)
-		.build();
-
-	// when
-	auto obtained = target->getClientIPAddress();
-
-	// then
-	ASSERT_THAT(obtained, testing::Eq(""));
-}
-
-TEST_F(BeaconTest, clientIPAddressCanBeAnEmptyString)
-{
-	//given
-	auto target = createBeacon()
-		->withIpAddress("")
-		.build();
-
-	// when
-	auto obtained = target->getClientIPAddress();
-
-	// then
-	ASSERT_THAT(obtained, testing::Eq(""));
-}
-
-TEST_F(BeaconTest, validClientIpIsStored)
-{
-	//given
-	Utf8String_t ipAddress("127.0.0.1");
-	auto target = createBeacon()
-		->withIpAddress(ipAddress)
-		.build();
-
-	// when
-	auto obtained = target->getClientIPAddress();
-
-	// then
-	ASSERT_THAT(obtained, testing::Eq(ipAddress));
-}
-
-TEST_F(BeaconTest, invalidClientIPIsConvertedToEmptyString)
-{
-	//given
-	Utf8String_t ipAddress("asdf");
-	auto target = createBeacon()
-		->withIpAddress(ipAddress)
-		.build();
-
-	// when
-	auto obtained = target->getClientIPAddress();
-
-	// then
-	ASSERT_THAT(obtained, testing::Eq(""));
 }
 
 TEST_F(BeaconTest, useInternalBeaconIdForAccessingBeaconCacheWhenSessionNumberReportingDisabled)
@@ -2001,7 +2100,7 @@ TEST_F(BeaconTest, useInternalBeaconIdForAccessingBeaconCacheWhenSessionNumberRe
 	EXPECT_CALL(*mockBeaconCache, deleteCacheEntry(beaconId)).Times(1);
 
 	// given
-	auto target = createBeacon(DataCollectionLevel_t::PERFORMANCE, CrashReportingLevel_t::OPT_IN_CRASHES)->build();
+	auto target = createBeacon()->build();
 
 	// when
 	target->clearData();

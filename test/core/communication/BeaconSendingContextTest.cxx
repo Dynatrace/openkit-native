@@ -19,6 +19,7 @@
 #include "mock/MockIBeaconSendingState.h"
 #include "../configuration/mock/MockIBeaconCacheConfiguration.h"
 #include "../configuration/mock/MockIBeaconConfiguration.h"
+#include "../configuration/mock/MockIPrivacyConfiguration.h"
 #include "../objects/mock/MockSessionInternals.h"
 #include "../../api/mock/MockILogger.h"
 #include "../../api/mock/MockISslTrustManager.h"
@@ -79,7 +80,8 @@ protected:
 			MockISessionIDProvider::createNice(),
 			MockISslTrustManager::createNice(),
 			MockIBeaconCacheConfiguration::createNice(),
-			MockIBeaconConfiguration::createNice()
+			MockIBeaconConfiguration::createNice(),
+			MockIPrivacyConfiguration::createNice()
 		);
 		mockHTTPClientProvider = MockIHTTPClientProvider::createNice();
 		mockTimingProvider = MockITimingProvider::createNice();

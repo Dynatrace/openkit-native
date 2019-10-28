@@ -17,8 +17,6 @@
 #ifndef _TEST_CORE_CONFIGURATION_MOCK_MOCKIBEACONCONFIGURATION_H
 #define _TEST_CORE_CONFIGURATION_MOCK_MOCKIBEACONCONFIGURATION_H
 
-#include "OpenKit/CrashReportingLevel.h"
-#include "OpenKit/DataCollectionLevel.h"
 #include "core/configuration/ConfigurationDefaults.h"
 #include "core/configuration/IBeaconConfiguration.h"
 
@@ -38,10 +36,8 @@ namespace test
 		{
 			ON_CALL(*this, getMultiplicity())
 				.WillByDefault(testing::Return(core::configuration::DEFAULT_MULTIPLICITY));
-			ON_CALL(*this, getCrashReportingLevel())
-				.WillByDefault(testing::Return(core::configuration::DEFAULT_CRASH_REPORTING_LEVEL));
-			ON_CALL(*this, getDataCollectionLevel())
-				.WillByDefault(testing::Return(core::configuration::DEFAULT_DATA_COLLECTION_LEVEL));
+			ON_CALL(*this, isCapturingAllowed())
+				.WillByDefault(testing::Return(true));
 		}
 
 		~MockIBeaconConfiguration() override = default;
@@ -56,11 +52,9 @@ namespace test
 			return std::make_shared<testing::StrictMock<MockIBeaconConfiguration>>();
 		}
 
-		MOCK_CONST_METHOD0(getDataCollectionLevel, openkit::DataCollectionLevel());
-
-		MOCK_CONST_METHOD0(getCrashReportingLevel, openkit::CrashReportingLevel());
-
 		MOCK_CONST_METHOD0(getMultiplicity, int32_t());
+
+		MOCK_CONST_METHOD0(isCapturingAllowed, bool());
 	};
 }
 

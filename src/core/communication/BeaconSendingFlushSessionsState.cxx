@@ -37,12 +37,7 @@ void BeaconSendingFlushSessionsState::doExecute(IBeaconSendingContext& context)
 	// first get all sessions that do not have any multiplicity set -> and move them to open sessions
 	for (auto newSession : context.getAllNewSessions())
 	{
-		auto beaconConfiguration = newSession->getBeaconConfiguration();
-		auto updatedBeaconConfiguration = std::make_shared<configuration::BeaconConfiguration>(
-			1,
-			beaconConfiguration->getDataCollectionLevel(),
-			beaconConfiguration->getCrashReportingLevel()
-		);
+		auto updatedBeaconConfiguration = std::make_shared<configuration::BeaconConfiguration>(1);
 		newSession->updateBeaconConfiguration(updatedBeaconConfiguration);
 	}
 

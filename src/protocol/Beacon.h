@@ -26,6 +26,7 @@
 #include "core/configuration/Configuration.h"
 #include "core/configuration/IBeaconConfiguration.h"
 #include "core/configuration/IHTTPClientConfiguration.h"
+#include "core/configuration/IPrivacyConfiguration.h"
 #include "core/objects/IActionCommon.h"
 #include "core/objects/Session.h"
 #include "core/objects/IWebRequestTracerInternals.h"
@@ -55,8 +56,7 @@ namespace protocol
 		/// @param[in] threadIDProvider provider for thread ids
 		/// @param[in] timingProvider timing provider used to retrieve timestamps
 		///
-		Beacon
-		(
+		Beacon(
 			std::shared_ptr<openkit::ILogger> logger,
 			std::shared_ptr<core::caching::IBeaconCache> beaconCache,
 			std::shared_ptr<core::configuration::Configuration> configuration,
@@ -75,8 +75,7 @@ namespace protocol
 		/// @param[in] timingProvider timing provider used to retrieve timestamps
 		/// @param[in] randomGenerator random number generator
 		///
-		Beacon
-		(
+		Beacon(
 			std::shared_ptr<openkit::ILogger> logger,
 			std::shared_ptr<core::caching::IBeaconCache> beaconCache,
 			std::shared_ptr<core::configuration::Configuration> configuration,
@@ -415,6 +414,8 @@ namespace protocol
 		///
 		core::UTF8String createMultiplicityData();
 
+		bool isCapturingDisabled() const;
+
 	private:
 		/// Logger to write traces to
 		std::shared_ptr<openkit::ILogger> mLogger;
@@ -463,6 +464,9 @@ namespace protocol
 
 		///random generator
 		std::shared_ptr<providers::IPRNGenerator> mRandomGenerator;
+
+		/// privacy related configuration
+		const std::shared_ptr<const core::configuration::IPrivacyConfiguration> mPrivacyConfiguration;
 	};
 }
 #endif

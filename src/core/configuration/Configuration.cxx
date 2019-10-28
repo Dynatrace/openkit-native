@@ -40,7 +40,8 @@ Configuration::Configuration
 	std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider,
 	std::shared_ptr<openkit::ISSLTrustManager> sslTrustManager,
 	std::shared_ptr<IBeaconCacheConfiguration> beaconCacheConfiguration,
-	std::shared_ptr<IBeaconConfiguration> beaconConfiguration
+	std::shared_ptr<IBeaconConfiguration> beaconConfiguration,
+	std::shared_ptr<IPrivacyConfiguration> privacyConfiguration
 )
 	: mHTTPClientConfiguration
 	(
@@ -69,6 +70,7 @@ Configuration::Configuration
 	, mDevice(device)
 	, mBeaconCacheConfiguration(beaconCacheConfiguration)
 	, mBeaconConfiguration(beaconConfiguration)
+	, mPrivacyConfiguration(privacyConfiguration)
 {
 }
 
@@ -241,4 +243,9 @@ std::shared_ptr<IBeaconCacheConfiguration> Configuration::getBeaconCacheConfigur
 std::shared_ptr<IBeaconConfiguration> Configuration::getBeaconConfiguration() const
 {
 	return mBeaconConfiguration;
+}
+
+std::shared_ptr<IPrivacyConfiguration> Configuration::getPrivacyConfiguration() const
+{
+	return mPrivacyConfiguration;
 }

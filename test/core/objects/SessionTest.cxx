@@ -20,6 +20,7 @@
 #include "../mock/MockIBeaconSender.h"
 #include "../configuration/mock/MockIBeaconCacheConfiguration.h"
 #include "../configuration/mock/MockIBeaconConfiguration.h"
+#include "../configuration/mock/MockIPrivacyConfiguration.h"
 #include "../../api/mock/MockILogger.h"
 #include "../../api/mock/MockISslTrustManager.h"
 #include "../../protocol/mock/MockIBeacon.h"
@@ -99,7 +100,8 @@ protected:
 			MockISessionIDProvider::createNice(),
 			MockISslTrustManager::createNice(),
 			MockIBeaconCacheConfiguration::createNice(),
-			MockIBeaconConfiguration::createNice()
+			MockIBeaconConfiguration::createNice(),
+			MockIPrivacyConfiguration::createNice()
 		);
 		configuration->enableCapture();
 

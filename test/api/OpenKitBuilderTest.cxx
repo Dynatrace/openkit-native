@@ -97,9 +97,9 @@ TEST_F(OpenKitBuilderTest, defaultsAreSetForAppMon)
 	ASSERT_EQ(beaconCacheConfiguration->getCacheSizeUpperBound(), core::configuration::DEFAULT_UPPER_MEMORY_BOUNDARY_IN_BYTES);
 	ASSERT_EQ(beaconCacheConfiguration->getCacheSizeLowerBound(), core::configuration::DEFAULT_LOWER_MEMORY_BOUNDARY_IN_BYTES);
 
-	auto beaconConfiguration = configuration->getBeaconConfiguration();
-	ASSERT_EQ(beaconConfiguration->getDataCollectionLevel(), core::configuration::DEFAULT_DATA_COLLECTION_LEVEL);
-	ASSERT_EQ(beaconConfiguration->getCrashReportingLevel(), core::configuration::DEFAULT_CRASH_REPORTING_LEVEL);
+	auto privacyConfiguration = configuration->getPrivacyConfiguration();
+	ASSERT_EQ(privacyConfiguration->getDataCollectionLevel(), core::configuration::DEFAULT_DATA_COLLECTION_LEVEL);
+	ASSERT_EQ(privacyConfiguration->getCrashReportingLevel(), core::configuration::DEFAULT_CRASH_REPORTING_LEVEL);
 }
 
 TEST_F(OpenKitBuilderTest, appMonOpenKitBuilderTakesStringDeviceID)
@@ -408,7 +408,7 @@ TEST_F(OpenKitBuilderTest, canSetDataCollectionLevelForDynatrace)
 		.withDataCollectionLevel(DataCollectionLevel_t::PERFORMANCE)
 		.buildConfiguration();
 
-	ASSERT_EQ(configuration->getBeaconConfiguration()->getDataCollectionLevel(), DataCollectionLevel_t::PERFORMANCE);
+	ASSERT_EQ(configuration->getPrivacyConfiguration()->getDataCollectionLevel(), DataCollectionLevel_t::PERFORMANCE);
 }
 
 TEST_F(OpenKitBuilderTest, canSetDataCollectionLevelForAppMon)
@@ -417,7 +417,7 @@ TEST_F(OpenKitBuilderTest, canSetDataCollectionLevelForAppMon)
 		.withDataCollectionLevel(DataCollectionLevel_t::PERFORMANCE)
 		.buildConfiguration();
 
-	ASSERT_EQ(configuration->getBeaconConfiguration()->getDataCollectionLevel(), DataCollectionLevel_t::PERFORMANCE);
+	ASSERT_EQ(configuration->getPrivacyConfiguration()->getDataCollectionLevel(), DataCollectionLevel_t::PERFORMANCE);
 }
 
 TEST_F(OpenKitBuilderTest, canSetCrashReportingLevelForDynatrace)
@@ -426,7 +426,7 @@ TEST_F(OpenKitBuilderTest, canSetCrashReportingLevelForDynatrace)
 		.withCrashReportingLevel(CrashReportingLevel_t::OPT_IN_CRASHES)
 		.buildConfiguration();
 
-	ASSERT_EQ(configuration->getBeaconConfiguration()->getCrashReportingLevel(), CrashReportingLevel_t::OPT_IN_CRASHES);
+	ASSERT_EQ(configuration->getPrivacyConfiguration()->getCrashReportingLevel(), CrashReportingLevel_t::OPT_IN_CRASHES);
 }
 
 TEST_F(OpenKitBuilderTest, canSetCrashReportingLevelForAppMon)
@@ -435,5 +435,5 @@ TEST_F(OpenKitBuilderTest, canSetCrashReportingLevelForAppMon)
 		.withCrashReportingLevel(CrashReportingLevel_t::OPT_IN_CRASHES)
 		.buildConfiguration();
 
-	ASSERT_EQ(configuration->getBeaconConfiguration()->getCrashReportingLevel(), CrashReportingLevel_t::OPT_IN_CRASHES);
+	ASSERT_EQ(configuration->getPrivacyConfiguration()->getCrashReportingLevel(), CrashReportingLevel_t::OPT_IN_CRASHES);
 }
