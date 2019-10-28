@@ -78,6 +78,8 @@ namespace core
 
 		virtual std::shared_ptr<openkit::ISession> createSession(const char* clientIPAddress) override;
 
+		virtual std::shared_ptr<openkit::ISession> createSession() override;
+
 		virtual void shutdown() override;
 
 	private:

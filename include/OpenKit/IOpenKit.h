@@ -78,6 +78,16 @@ namespace openkit
 		virtual std::shared_ptr<openkit::ISession> createSession(const char* clientIPAddress) = 0;
 
 		///
+	    /// Creates a Session instance which can then be used to create Actions.
+		///
+	    /// This is similar to the method \see IOpenKit::createSession(const char*), except that
+	    /// the client's IP address is determined on the server side.
+	    ///
+		/// @returns @ref openkit::ISession instance to work with
+		///
+		virtual std::shared_ptr<openkit::ISession> createSession() = 0;
+
+		///
 		/// Shuts down OpenKit, ending all open Sessions and waiting for them to be sent.
 		///
 		virtual void shutdown() = 0;

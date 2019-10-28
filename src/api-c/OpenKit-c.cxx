@@ -672,6 +672,11 @@ struct OpenKitConfigurationHandle* createOpenKitConfigurationWithStringDeviceID(
 		return handle;
 	}
 
+	SessionHandle* createSessionWithAutoIpDetermination(struct OpenKitHandle* openKitHandle)
+	{
+		return createSession(openKitHandle, nullptr);
+	}
+
 	void endSession(SessionHandle* sessionHandle)
 	{
 		// Sanity
