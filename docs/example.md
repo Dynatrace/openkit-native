@@ -233,7 +233,7 @@ const char* clientIPAddress = "12.34.56.78";
 std::shared_ptr<openkit::ISession> sessionWithIP = openKit->createSession(clientIPAddress);
 
 // create a session and let the IP be assigned on the server side
-std::shared_ptr<openkit::ISession> sessionWithNoIP = openKit->createSession(nullptr);
+std::shared_ptr<openkit::ISession> sessionWithNoIP = openKit->createSession();
 ```
 
 The following example shows how to create sessions in C.
@@ -244,7 +244,7 @@ const char* clientIPAddress = "12.34.56.78";
 struct SessionHandle* sessionWithIP = createSession(openKit, clientIPAddress);
 
 // create a session and let the IP be assigned on the server side
-struct SessionHandle* sessionWithNoIP = createSession(openKit, NULL);
+struct SessionHandle* sessionWithNoIP = createSessionWithAutoIpDetermination(openKit);
 ```
 
 ## Identify User

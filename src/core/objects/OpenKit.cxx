@@ -148,6 +148,11 @@ std::shared_ptr<openkit::ISession> OpenKit::createSession(const char* clientIPAd
 	return newSession;
 }
 
+std::shared_ptr<openkit::ISession> OpenKit::createSession()
+{
+	return createSession(nullptr);
+}
+
 void OpenKit::shutdown()
 {
 	if (mLogger->isDebugEnabled())

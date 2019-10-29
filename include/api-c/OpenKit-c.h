@@ -305,7 +305,19 @@ extern "C" {
 	/// @param[in] openKitHandle   the handle returned by @ref createDynatraceOpenKit or @ref createAppMonOpenKit
 	/// @param[in] clientIPAddress client IP address where this Session is coming from
 	/// @return Session instance handle to work with
+	///
 	OPENKIT_EXPORT struct SessionHandle* createSession(struct OpenKitHandle* openKitHandle, const char* clientIPAddress);
+
+	///
+	/// Creates a session instance which can then be used to create actions.
+	///
+	/// This is similar to the function \see ::createSession(struct OpenKitHandle*, const char*), except that
+	/// the client's IP address is determined on the server side.
+	///
+	/// @param[in] openKitHandle   the handle returned by @ref createDynatraceOpenKit or @ref createAppMonOpenKit
+	/// @return Session instance handle to work with
+	///
+	OPENKIT_EXPORT struct SessionHandle* createSessionWithAutoIpDetermination(struct OpenKitHandle* openKitHandle);
 
 	///
 	/// Ends this session and marks it as ready for immediate sending.

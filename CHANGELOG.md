@@ -33,6 +33,8 @@
 - Fix compiler errors for certain Visual Studio versions
 - Fix `leaveAction` in `RootAction` so that the `mEndTime` and `mEndSequenceNumber` is set before 
   the root action is added to the `Beacon`.
+- Add IOpenKit::createSession overload without IP address parameter.  
+  The IP address is determined in this case on the server side.
 
 ### Improvements
 - Reformatted text files to unix style line endings (excluding 3rd party files)

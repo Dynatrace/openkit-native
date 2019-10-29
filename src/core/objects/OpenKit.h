@@ -96,6 +96,8 @@ namespace core
 
 			std::shared_ptr<openkit::ISession> createSession(const char* clientIPAddress) override;
 
+			std::shared_ptr<openkit::ISession> createSession() override;
+
 			void shutdown() override;
 
 			void onChildClosed(std::shared_ptr<core::objects::IOpenKitObject> childObject) override;
