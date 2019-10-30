@@ -624,6 +624,7 @@ TEST_F(BeaconTest, reportError)
 		<< "&t0=0"									// event time since session start
 		<< "&ev=" << errorCode						// reported error value
 		<< "&rs=" << reason.getStringData()			// reported reason
+		<< "&tt=c"									// error technology type
 	;
 	EXPECT_CALL(*mockBeaconCache, addEventData(
 		SESSION_ID,									// session ID
@@ -653,6 +654,7 @@ TEST_F(BeaconTest, reportErrorWithoutName)
 		<< "&s0=1"									// sequence number of reported error
 		<< "&t0=0"									// event time since session start
 		<< "&ev=" << errorCode						// reported error value
+		<< "&tt=c"									// error technology type
 	;
 	EXPECT_CALL(*mockBeaconCache, addEventData(
 		SESSION_ID,									// session ID
@@ -684,6 +686,7 @@ TEST_F(BeaconTest, reportValidCrash)
 		<< "&t0=0"									// event time since session start
 		<< "&rs=" << reason.getStringData()			// reported reason
 		<< "&st=" << stacktrace.getStringData()		// reported stacktrace
+		<< "&tt=c"									// error technology type
 	;
 	EXPECT_CALL(*mockBeaconCache, addEventData(
 		SESSION_ID,									// session ID
@@ -713,6 +716,7 @@ TEST_F(BeaconTest, reportCrashWithDetailsNull)
 		<< "&pa=0"									// parent action
 		<< "&s0=1"									// sequence number of reported crash
 		<< "&t0=0"									// event time since session start
+		<< "&tt=c"									// error technology type
 	;
 	EXPECT_CALL(*mockBeaconCache, addEventData(
 		SESSION_ID,									// session ID

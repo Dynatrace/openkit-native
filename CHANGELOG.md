@@ -4,6 +4,7 @@
 
 ### Added
 - Support for parsing JSON
+- Technology type support for errors and crashes
 
 ### Security
 - Support for modified UTF-8 terminated strings.

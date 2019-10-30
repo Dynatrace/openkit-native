@@ -422,6 +422,7 @@ void Beacon::reportError(int32_t actionID, const core::UTF8String& errorName, in
 	addKeyValuePair(eventData, BEACON_KEY_TIME_0, getTimeSinceSessionStartTime(timestamp));
 	addKeyValuePair(eventData, BEACON_KEY_ERROR_CODE, errorCode);
 	addKeyValuePairIfNotEmpty(eventData, BEACON_KEY_ERROR_REASON, reason);
+	addKeyValuePair(eventData, BEACON_KEY_ERROR_TECHNOLOGY_TYPE, ERROR_TECHNOLOGY_TYPE);
 
 	addEventData(timestamp, eventData);
 }
@@ -447,6 +448,7 @@ void Beacon::reportCrash(const core::UTF8String& errorName, const core::UTF8Stri
 	addKeyValuePair(eventData, BEACON_KEY_TIME_0, getTimeSinceSessionStartTime(timestamp));
 	addKeyValuePairIfNotEmpty(eventData, BEACON_KEY_ERROR_REASON, reason);
 	addKeyValuePairIfNotEmpty(eventData, BEACON_KEY_ERROR_STACKTRACE, stacktrace);
+	addKeyValuePair(eventData, BEACON_KEY_ERROR_TECHNOLOGY_TYPE, ERROR_TECHNOLOGY_TYPE);
 
 	addEventData(timestamp, eventData);
 }

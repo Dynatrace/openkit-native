@@ -34,6 +34,7 @@ namespace protocol
 	constexpr char PLATFORM_TYPE_OPENKIT[] = "1";
 	constexpr char AGENT_TECHNOLOGY_TYPE[] = "okc";
 	constexpr int32_t PROTOCOL_VERSION = 3;
+	constexpr char ERROR_TECHNOLOGY_TYPE[] = "c";
 
 	//maximum supported name length
 	constexpr int32_t MAX_NAME_LEN = 250;
