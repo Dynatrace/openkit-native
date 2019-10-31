@@ -1,6 +1,9 @@
 # OpenKit Native ( C/C++ ) Changelog
 
-## [Unreleased](https://github.com/Dynatrace/openkit-native/compare/v1.1.5...release/1.1)
+## [Unreleased](https://github.com/Dynatrace/openkit-native/compare/v1.1.6...release/1.1)
+
+## 1.1.6 [Release date: 2019-10-31]
+[GitHub Releases](https://github.com/Dynatrace/openkit-native/releases/tag/v1.1.6)
 
 ### Added
 - Technology type support for errors and crashes
