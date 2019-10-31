@@ -66,6 +66,9 @@ namespace protocol
 	constexpr char BEACON_KEY_ERROR_CODE[] = "ev";
 	constexpr char BEACON_KEY_ERROR_REASON[] = "rs";
 	constexpr char BEACON_KEY_ERROR_STACKTRACE[] = "st";
+	constexpr char BEACON_KEY_ERROR_TECHNOLOGY_TYPE[] = "tt";
+
+	// web request constants
 	constexpr char BEACON_KEY_WEBREQUEST_RESPONSE_CODE[] = "rc";
 	constexpr char BEACON_KEY_WEBREQUEST_BYTES_SENT[] = "bs";
 	constexpr char BEACON_KEY_WEBREQUEST_BYTES_RECEIVED[] = "br";

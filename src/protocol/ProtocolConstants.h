@@ -35,6 +35,7 @@ namespace protocol
 	constexpr char PLATFORM_TYPE_OPENKIT[] = "1";
 	constexpr char AGENT_TECHNOLOGY_TYPE[] = "okc";
 	constexpr int32_t PROTOCOL_VERSION = 3;
+	constexpr char ERROR_TECHNOLOGY_TYPE[] = "c";
 
 	// time sync response constants
 	constexpr char RESPONSE_KEY_REQUEST_RECEIVE_TIME[] = "t1";

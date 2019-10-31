@@ -2,6 +2,9 @@
 
 ## [Unreleased](https://github.com/Dynatrace/openkit-native/compare/v1.1.5...release/1.1)
 
+### Added
+- Technology type support for errors and crashes
+
 ### Changed
 - Fix `leaveAction` in `RootAction` so that the `mEndTime` and `mEndSequenceNumber` is set before 
   the root action is added to the `Beacon`.
