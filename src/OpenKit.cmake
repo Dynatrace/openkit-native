@@ -21,6 +21,7 @@ set(OPENKIT_PUBLIC_HEADERS_CXX_API
     ${CMAKE_SOURCE_DIR}/include/OpenKit/IAction.h
     ${CMAKE_SOURCE_DIR}/include/OpenKit/ILogger.h
     ${CMAKE_SOURCE_DIR}/include/OpenKit/IOpenKit.h
+    ${CMAKE_SOURCE_DIR}/include/OpenKit/IOpenKitBuilder.h
     ${CMAKE_SOURCE_DIR}/include/OpenKit/IRootAction.h
     ${CMAKE_SOURCE_DIR}/include/OpenKit/ISession.h
     ${CMAKE_SOURCE_DIR}/include/OpenKit/ISSLTrustManager.h
@@ -105,8 +106,11 @@ set(OPENKIT_SOURCES_CORE_CONFIGURATION
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/IBeaconCacheConfiguration.h
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/IBeaconConfiguration.h
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/IHTTPClientConfiguration.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/configuration/IOpenKitConfiguration.h
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/IPrivacyConfiguration.h
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/IServerConfiguration.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/configuration/OpenKitConfiguration.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/configuration/OpenKitConfiguration.h
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/OpenKitType.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/OpenKitType.h
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/PrivacyConfiguration.cxx

@@ -36,6 +36,7 @@ set(OPENKIT_SOURCES_TEST_API
     ${CMAKE_CURRENT_LIST_DIR}/api/LogLevelTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/api/OpenKitBuilderTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/api/mock/MockILogger.h
+    ${CMAKE_CURRENT_LIST_DIR}/api/mock/MockIOpenKitBuilder.h
     ${CMAKE_CURRENT_LIST_DIR}/api/mock/MockIRootAction.h
     ${CMAKE_CURRENT_LIST_DIR}/api/mock/MockISslTrustManager.h
     ${CMAKE_CURRENT_LIST_DIR}/api/mock/MockIWebRequestTracer.h
@@ -109,11 +110,13 @@ set(OPENKIT_SOURCES_TEST_CORE_CONFIGURATION
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/BeaconConfigurationTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/BeaconCacheConfigurationTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/ConfigurationTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/configuration/OpenKitConfigurationTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/PrivacyConfigurationTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/ServerConfigurationTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/mock/MockIBeaconCacheConfiguration.h
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/mock/MockIBeaconConfiguration.h
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/mock/MockIHTTPClientConfiguration.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/configuration/mock/MockIOpenKitConfiguration.h
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/mock/MockIPrivacyConfiguration.h
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/mock/MockIServerConfiguration.h
 )

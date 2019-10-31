@@ -30,6 +30,9 @@ namespace openkit
 	class OPENKIT_EXPORT DynatraceOpenKitBuilder : public AbstractOpenKitBuilder
 	{
 	public:
+
+		static const std::string OPENKIT_TYPE;
+
 		///
 		/// Constructor
 		/// @param[in] endpointURL endpoint OpenKit connects to
@@ -51,9 +54,9 @@ namespace openkit
 		///
 		/// Destructor
 		///
-		virtual ~DynatraceOpenKitBuilder() {}
+		~DynatraceOpenKitBuilder() override = default;
 
-		virtual std::shared_ptr<core::configuration::Configuration> buildConfiguration() override;
+		std::shared_ptr<core::configuration::Configuration> buildConfiguration() override;
 
 		///
 		/// Sets the application name. The value is only set if it is not @c nullptr.
@@ -61,6 +64,12 @@ namespace openkit
 		/// @returns @c this instance
 		///
 		DynatraceOpenKitBuilder& withApplicationName(const char* applicationName);
+
+		const std::string& getOpenKitType() const override;
+
+		const std::string& getApplicationID() const override;
+
+		const std::string& getApplicationName() const override;
 
 	private:
 		/// application id

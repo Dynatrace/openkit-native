@@ -19,6 +19,7 @@
 
 #include "OpenKit_export.h"
 #include "OpenKit/IOpenKit.h"
+#include "OpenKit/IOpenKitBuilder.h"
 #include "OpenKit/ILogger.h"
 #include "OpenKit/ISSLTrustManager.h"
 #include "OpenKit/DataCollectionLevel.h"
@@ -41,8 +42,11 @@ namespace openkit
 	/// abstract base class for OpenKitBuilders
 	///
 	class OPENKIT_EXPORT AbstractOpenKitBuilder
+		: public openkit::IOpenKitBuilder
 	{
 		public:
+
+			static const int32_t DEFAULT_SERVER_ID;
 
 			///
 			/// Destructor
@@ -187,6 +191,44 @@ namespace openkit
 			///
 			virtual std::shared_ptr<core::configuration::Configuration> buildConfiguration() = 0;
 
+			const std::string& getOpenKitType() const override = 0;
+
+			const std::string& getApplicationID() const override = 0;
+
+			const std::string& getApplicationName() const override = 0;
+
+			int32_t getDefaultServerID() const override;
+
+			const std::string& getApplicationVersion() const override;
+
+			const std::string& getOperatingSystem() const override;
+
+			const std::string& getManufacturer() const override;
+
+			const std::string& getModelID() const override;
+
+			const std::string& getEndpointURL()const override;
+
+			int64_t getDeviceID() const override;
+
+			const std::string& getOrigDeviceID() const override;
+
+			std::shared_ptr<openkit::ISSLTrustManager> getTrustManager() const override;
+
+			int64_t getBeaconCacheMaxRecordAge() const override ;
+
+			int64_t getBeaconCacheLowerMemoryBoundary() const override;
+
+			int64_t getBeaconCacheUpperMemoryBoundary() const override;
+
+			DataCollectionLevel getDataCollectionLevel() const override;
+
+			CrashReportingLevel getCrashReportingLevel() const override;
+
+			openkit::LogLevel getLogLevel() const override;
+
+			std::shared_ptr<openkit::ILogger> getLogger() const override;
+
 		protected:
 
 			///
@@ -204,92 +246,6 @@ namespace openkit
 			///
 			OPENKIT_DEPRECATED
 			AbstractOpenKitBuilder(const char* endpointURL, const char* deviceID);
-
-			///
-			/// Returns the application version
-			/// @returns the application version
-			///
-			const std::string& getApplicationVersion() const;
-
-			///
-			/// Returns the operating system
-			/// @returns the operating system
-			///
-			const std::string& getOperatingSystem() const;
-
-			///
-			/// Returns the manufacturer
-			/// @returns the manufacturer
-			///
-			const std::string& getManufacturer() const;
-
-			///
-			/// Returns the model ID
-			/// @returns the model ID
-			///
-			const std::string& getModelID() const;
-
-			///
-			/// Returns the endpoint URL
-			/// @returns the endpoint URL
-			///
-			const std::string& getEndpointURL()const;
-
-			///
-			/// Returns the device ID
-			/// @returns the device ID
-			///
-			int64_t getDeviceID() const;
-
-			///
-			/// Returns the original device ID (before hashing)
-			/// @return the original device ID
-			///
-			const std::string& getOrigDeviceID() const;
-
-			///
-			/// Returns the SSL trust manager
-			/// @returns the SSL trust manager
-			///
-			std::shared_ptr<openkit::ISSLTrustManager> getTrustManager() const;
-
-			///
-			/// Returns the maximum record age
-			/// @returns the maximum record age, negative values declare that there are no bounds
-			///
-			int64_t getBeaconCacheMaxRecordAge() const;
-
-			///
-			/// Returns the lower memory boundary
-			/// @returns the lower memory boundary, negative values declare that there are no bounds
-			///
-			int64_t getBeaconCacheLowerMemoryBoundary() const;
-
-			///
-			/// Returns the upper memory boundary
-			/// @returns the upper memory boundary, negative values declare that there are no bounds
-			///
-			int64_t getBeaconCacheUpperMemoryBoundary() const;
-
-			///
-			/// Returns the data collection level
-			/// @returns the data collection level
-			///
-			DataCollectionLevel getDataCollectionLevel() const;
-
-			///
-			/// Returns the crash reporting level
-			/// @returns the crash reporting level
-			///
-			CrashReportingLevel getCrashReportingLevel() const;
-
-		public:
-			///
-			/// Returns a @ref openkit::ILogger. If no logger is set, when building the OpenKit with @ref build(),
-			/// the default logger is returned.
-			/// @return a logger
-			///
-			std::shared_ptr<openkit::ILogger> getLogger();
 
 		private:
 			///

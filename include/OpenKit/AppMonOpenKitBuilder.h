@@ -30,6 +30,9 @@ namespace openkit
 	class OPENKIT_EXPORT AppMonOpenKitBuilder : public AbstractOpenKitBuilder
 	{
 	public:
+
+		static const std::string OPENKIT_TYPE;
+
 		///
 		/// Constructor
 		/// @param[in] endpointURL endpoint OpenKit connects to
@@ -51,9 +54,15 @@ namespace openkit
 		///
 		/// Destructor
 		///
-		virtual ~AppMonOpenKitBuilder() {}
+		~AppMonOpenKitBuilder() override = default;
 
-		virtual std::shared_ptr<core::configuration::Configuration> buildConfiguration() override;
+		std::shared_ptr<core::configuration::Configuration> buildConfiguration() override;
+
+		const std::string& getOpenKitType() const override;
+
+		const std::string& getApplicationID() const override;
+
+		const std::string& getApplicationName() const override;
 
 	private:
 

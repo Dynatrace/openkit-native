@@ -24,6 +24,8 @@
 
 using namespace openkit;
 
+const std::string AppMonOpenKitBuilder::OPENKIT_TYPE = "AppMonOpenKit";
+
 AppMonOpenKitBuilder::AppMonOpenKitBuilder(const char* endpointURL, const char* applicationName, int64_t deviceID)
 	: AbstractOpenKitBuilder(endpointURL, deviceID)
 	, mApplicationName(applicationName)
@@ -69,4 +71,19 @@ std::shared_ptr<core::configuration::Configuration> AppMonOpenKitBuilder::buildC
 		beaconConfiguration,
 		privacyConfiguration
 	);
+}
+
+const std::string& AppMonOpenKitBuilder::getOpenKitType() const
+{
+	return OPENKIT_TYPE;
+}
+
+const std::string& AppMonOpenKitBuilder::getApplicationID() const
+{
+	return mApplicationName;
+}
+
+const std::string& AppMonOpenKitBuilder::getApplicationName() const
+{
+	return mApplicationName;
 }

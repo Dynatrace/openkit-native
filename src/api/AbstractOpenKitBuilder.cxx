@@ -15,14 +15,16 @@
 */
 
 #include "OpenKit/AbstractOpenKitBuilder.h"
+#include "OpenKit/OpenKitConstants.h"
 #include "core/configuration/ConfigurationDefaults.h"
 #include "core/util/DefaultLogger.h"
 #include "core/util/StringUtil.h"
 #include "core/objects/OpenKit.h"
-#include "OpenKit/OpenKitConstants.h"
 #include "protocol/ssl/SSLStrictTrustManager.h"
 
 using namespace openkit;
+
+const int32_t AbstractOpenKitBuilder::DEFAULT_SERVER_ID = 1;
 
 AbstractOpenKitBuilder::AbstractOpenKitBuilder(const char* endpointURL, const char* deviceID)
 	: AbstractOpenKitBuilder(endpointURL, core::util::StringUtil::toNumericOr64BitHash(deviceID), deviceID)
@@ -152,13 +154,9 @@ std::shared_ptr<openkit::IOpenKit> AbstractOpenKitBuilder::build()
 	return openKit;
 }
 
-std::shared_ptr<openkit::ILogger> AbstractOpenKitBuilder::getLogger()
+int32_t AbstractOpenKitBuilder::getDefaultServerID() const
 {
-	if (mLogger != nullptr)
-	{
-		return mLogger;
-	}
-	return std::shared_ptr<ILogger>(new core::util::DefaultLogger(mLogLevel));
+	return DEFAULT_SERVER_ID;
 }
 
 const std::string& AbstractOpenKitBuilder::getApplicationVersion() const
@@ -224,4 +222,18 @@ openkit::DataCollectionLevel AbstractOpenKitBuilder::getDataCollectionLevel() co
 openkit::CrashReportingLevel AbstractOpenKitBuilder::getCrashReportingLevel() const
 {
 	return mCrashReportingLevel;
+}
+
+openkit::LogLevel AbstractOpenKitBuilder::getLogLevel() const
+{
+	return mLogLevel;
+}
+
+std::shared_ptr<openkit::ILogger> AbstractOpenKitBuilder::getLogger() const
+{
+	if (mLogger != nullptr)
+	{
+		return mLogger;
+	}
+	return std::make_shared<core::util::DefaultLogger>(mLogLevel);
 }
