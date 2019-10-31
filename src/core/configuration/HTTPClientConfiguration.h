@@ -17,9 +17,10 @@
 #ifndef _CONFIGURATION_OBJECTS_HTTPCLIENTCONFIGURATION_H
 #define _CONFIGURATION_OBJECTS_HTTPCLIENTCONFIGURATION_H
 
-#include "IHTTPClientConfiguration.h"
 #include "OpenKit/ISSLTrustManager.h"
 #include "core/UTF8String.h"
+#include "core/configuration/IHTTPClientConfiguration.h"
+#include "core/configuration/IOpenKitConfiguration.h"
 
 #include <memory>
 
@@ -35,6 +36,56 @@ namespace core
 			: public IHTTPClientConfiguration
 		{
 		public:
+
+			class Builder
+			{
+			public:
+
+				Builder();
+
+				///
+				/// Creates a builder initialized from the given OpenKit configuration.
+				///
+				/// @param openKitConfig the configuration from which the builder will be initialized.
+				///
+				Builder(std::shared_ptr<core::configuration::IOpenKitConfiguration> openKitConfig);
+
+				///
+				/// Creates a builder initialized from the given HTTP client configuration.
+				///
+				/// @param httpClientConfig the configuration from which the builder will be initialized.
+				///
+				Builder(std::shared_ptr<core::configuration::IHTTPClientConfiguration> httpClientConfig);
+
+				const core::UTF8String& getBaseURL() const;
+
+				Builder& withBaseURL(const core::UTF8String& baseURL);
+
+				int32_t getServerID() const;
+
+				Builder& withServerID(int32_t serverID);
+
+				const core::UTF8String& getApplicationID() const;
+
+				Builder& withApplicationID(const core::UTF8String& applicationID);
+
+				std::shared_ptr<openkit::ISSLTrustManager> getTrustManager() const;
+
+				Builder& withTrustManager(std::shared_ptr<openkit::ISSLTrustManager> trustManager);
+
+				std::shared_ptr<core::configuration::IHTTPClientConfiguration> build();
+
+			private:
+
+				core::UTF8String mBaseURL;
+
+				int32_t mServerID;
+
+				core::UTF8String mApplicationID;
+
+				std::shared_ptr<openkit::ISSLTrustManager> mTrustManager;
+			};
+
 			///
 			/// Default constructor
 			/// @param[in] url the beacon URL
@@ -42,12 +93,7 @@ namespace core
 			/// @param[in] applicationID the application id
 			/// @param[in] sslTrustManager optional
 			///
-			HTTPClientConfiguration(
-				const core::UTF8String& url,
-				uint32_t serverID,
-				const core::UTF8String& applicationID,
-				std::shared_ptr<openkit::ISSLTrustManager> sslTrustManager = nullptr
-			);
+			HTTPClientConfiguration(Builder& builder);
 
 			///
 			/// Returns the base url for the http client
@@ -78,13 +124,13 @@ namespace core
 			const core::UTF8String mBaseURL;
 
 			/// the server ID
-			int32_t mServerID;
+			const int32_t mServerID;
 
 			/// the application id
 			const core::UTF8String mApplicationID;
 
 			/// how the peer's TSL/SSL certificate and the hostname shall be trusted
-			std::shared_ptr<openkit::ISSLTrustManager> mSSLTrustManager;
+			const std::shared_ptr<openkit::ISSLTrustManager> mSSLTrustManager;
 		};
 	}
 }

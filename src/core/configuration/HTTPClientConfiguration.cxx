@@ -18,17 +18,13 @@
 
 using namespace core::configuration;
 
-HTTPClientConfiguration::HTTPClientConfiguration
-(
-	const core::UTF8String& url,
-	uint32_t serverID,
-	const core::UTF8String& applicationID,
-	std::shared_ptr<openkit::ISSLTrustManager> sslTrustManager
+HTTPClientConfiguration::HTTPClientConfiguration(
+	HTTPClientConfiguration::Builder& builder
 )
-	: mBaseURL(url)
-	, mServerID(serverID)
-	, mApplicationID(applicationID)
-	, mSSLTrustManager(sslTrustManager)
+	: mBaseURL(builder.getBaseURL())
+	, mServerID(builder.getServerID())
+	, mApplicationID(builder.getApplicationID())
+	, mSSLTrustManager(builder.getTrustManager())
 {
 }
 
@@ -52,3 +48,85 @@ std::shared_ptr<openkit::ISSLTrustManager> HTTPClientConfiguration::getSSLTrustM
 	return mSSLTrustManager;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Builder implementation
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+HTTPClientConfiguration::Builder::Builder()
+ : mBaseURL("")
+ , mServerID(-1)
+ , mApplicationID("")
+ , mTrustManager(nullptr)
+{
+}
+
+HTTPClientConfiguration::Builder::Builder(std::shared_ptr<IOpenKitConfiguration> openKitConfig)
+	: mBaseURL(openKitConfig->getEndpointUrl())
+	, mServerID(openKitConfig->getDefaultServerId())
+	, mApplicationID(openKitConfig->getApplicationId())
+	, mTrustManager(openKitConfig->getTrustManager())
+{
+}
+
+HTTPClientConfiguration::Builder::Builder(std::shared_ptr<IHTTPClientConfiguration> httpClientConfig)
+	: mBaseURL(httpClientConfig->getBaseURL())
+	, mServerID(httpClientConfig->getServerID())
+	, mApplicationID(httpClientConfig->getApplicationID())
+	, mTrustManager(httpClientConfig->getSSLTrustManager())
+{
+}
+
+HTTPClientConfiguration::Builder& HTTPClientConfiguration::Builder::withBaseURL(
+	const core::UTF8String& baseURL
+)
+{
+	mBaseURL = baseURL;
+	return *this;
+}
+
+const core::UTF8String& HTTPClientConfiguration::Builder::getBaseURL() const
+{
+	return mBaseURL;
+}
+
+HTTPClientConfiguration::Builder& HTTPClientConfiguration::Builder::withServerID(int32_t serverID)
+{
+	mServerID = serverID;
+	return *this;
+}
+
+int32_t HTTPClientConfiguration::Builder::getServerID() const
+{
+	return mServerID;
+}
+
+HTTPClientConfiguration::Builder& HTTPClientConfiguration::Builder::withApplicationID(
+	const core::UTF8String& applicationID
+)
+{
+	mApplicationID = applicationID;
+	return *this;
+}
+
+const core::UTF8String& HTTPClientConfiguration::Builder::getApplicationID() const
+{
+	return mApplicationID;
+}
+
+HTTPClientConfiguration::Builder& HTTPClientConfiguration::Builder::withTrustManager(
+	std::shared_ptr<openkit::ISSLTrustManager> trustManager
+)
+{
+	mTrustManager = trustManager;
+	return *this;
+}
+
+std::shared_ptr<openkit::ISSLTrustManager> HTTPClientConfiguration::Builder::getTrustManager() const
+{
+	return mTrustManager;
+}
+
+std::shared_ptr<IHTTPClientConfiguration> HTTPClientConfiguration::Builder::build()
+{
+	return std::make_shared<HTTPClientConfiguration>(*this);
+}

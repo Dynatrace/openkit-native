@@ -110,6 +110,7 @@ set(OPENKIT_SOURCES_TEST_CORE_CONFIGURATION
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/BeaconConfigurationTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/BeaconCacheConfigurationTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/ConfigurationTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/configuration/HTTPClientConfigurationTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/OpenKitConfigurationTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/PrivacyConfigurationTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/ServerConfigurationTest.cxx

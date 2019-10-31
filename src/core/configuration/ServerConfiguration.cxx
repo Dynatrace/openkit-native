@@ -143,7 +143,7 @@ ServerConfiguration::Builder::Builder(std::shared_ptr<core::configuration::IServ
 {
 }
 
-bool ServerConfiguration::Builder::isCaptureEnabled()
+bool ServerConfiguration::Builder::isCaptureEnabled() const
 {
 	return mCaptureState;
 }
@@ -154,7 +154,7 @@ ServerConfiguration::Builder& ServerConfiguration::Builder::withCapture(bool cap
 	return *this;
 }
 
-bool ServerConfiguration::Builder::isCrashReportingEnabled()
+bool ServerConfiguration::Builder::isCrashReportingEnabled() const
 {
 	return mCrashReportingState;
 }
@@ -165,7 +165,7 @@ ServerConfiguration::Builder& ServerConfiguration::Builder::withCrashReporting(b
 	return *this;
 }
 
-bool ServerConfiguration::Builder::isErrorReportingEnabled()
+bool ServerConfiguration::Builder::isErrorReportingEnabled() const
 {
 	return mErrorReportingState;
 }
@@ -176,7 +176,7 @@ ServerConfiguration::Builder& ServerConfiguration::Builder::withErrorReporting(b
 	return *this;
 }
 
-int32_t ServerConfiguration::Builder::getSendIntervalInMilliseconds()
+int32_t ServerConfiguration::Builder::getSendIntervalInMilliseconds() const
 {
 	return mSendIntervalInMilliseconds;
 }
@@ -189,7 +189,7 @@ ServerConfiguration::Builder& ServerConfiguration::Builder::withSendIntervalInMi
 	return *this;
 }
 
-int32_t ServerConfiguration::Builder::getServerId()
+int32_t ServerConfiguration::Builder::getServerId() const
 {
 	return mServerId;
 }
@@ -200,7 +200,7 @@ ServerConfiguration::Builder& ServerConfiguration::Builder::withServerId(int32_t
 	return *this;
 }
 
-int32_t ServerConfiguration::Builder::getBeaconSizeInBytes()
+int32_t ServerConfiguration::Builder::getBeaconSizeInBytes() const
 {
 	return mBeaconSizeInBytes;
 }
@@ -211,7 +211,7 @@ ServerConfiguration::Builder& ServerConfiguration::Builder::withBeaconSizeInByte
 	return *this;
 }
 
-int32_t ServerConfiguration::Builder::getMultiplicity()
+int32_t ServerConfiguration::Builder::getMultiplicity() const
 {
 	return mMultiplicity;
 }

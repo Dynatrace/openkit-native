@@ -43,15 +43,13 @@ Configuration::Configuration
 	std::shared_ptr<IBeaconConfiguration> beaconConfiguration,
 	std::shared_ptr<IPrivacyConfiguration> privacyConfiguration
 )
-	: mHTTPClientConfiguration
-	(
-		std::make_shared<HTTPClientConfiguration>
-		(
-			endpointURL,
-			openKitType.getDefaultServerID(),
-			applicationID,
-			sslTrustManager
-		)
+	: mHTTPClientConfiguration(
+		HTTPClientConfiguration::Builder()
+			.withBaseURL(endpointURL)
+			.withServerID(openKitType.getDefaultServerID())
+			.withApplicationID(applicationID)
+			.withTrustManager(sslTrustManager)
+			.build()
 	)
 	, mSessionIDProvider(sessionIDProvider)
 	, mIsCapture(false)
@@ -105,10 +103,12 @@ void Configuration::updateSettings(std::shared_ptr<protocol::IStatusResponse> st
 	//check if HTTP configuration changed
 	if (mHTTPClientConfiguration->getServerID() != newServerID)
 	{
-		mHTTPClientConfiguration = std::make_shared<HTTPClientConfiguration>(mEndpointURL,
-																			newServerID,
-																			mApplicationID,
-																			mHTTPClientConfiguration->getSSLTrustManager());
+		mHTTPClientConfiguration = HTTPClientConfiguration::Builder()
+			.withBaseURL(mEndpointURL)
+			.withServerID(newServerID)
+			.withApplicationID(mApplicationID)
+			.withTrustManager(mHTTPClientConfiguration->getSSLTrustManager())
+			.build();
 	}
 
 	// use send interval from beacon response or default

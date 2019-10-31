@@ -52,7 +52,7 @@ namespace core
 				///
 				Builder(std::shared_ptr<core::configuration::IServerConfiguration> serverConfiguration);
 
-				bool isCaptureEnabled();
+				bool isCaptureEnabled() const;
 
 				///
 				/// Enables/disables capturing by setting @ref isCaptureEnabled to the corresponding value.
@@ -62,7 +62,7 @@ namespace core
 				///
 				Builder& withCapture(bool capture);
 
-				bool isCrashReportingEnabled();
+				bool isCrashReportingEnabled() const;
 
 				///
 				/// Enables/disables crash reporting by setting @ref isCrashReportingEnabled to the corresponding value.
@@ -71,7 +71,7 @@ namespace core
 				/// @return @c this
 				Builder& withCrashReporting(bool crashReportingState);
 
-				bool isErrorReportingEnabled();
+				bool isErrorReportingEnabled() const;
 
 				///
 				/// Enables/disables error reporting by setting @c isErrorReportingEnabled to the corresponding value.
@@ -81,7 +81,7 @@ namespace core
 				///
 				Builder& withErrorReporting(bool errorReportingState);
 
-				int32_t getSendIntervalInMilliseconds();
+				int32_t getSendIntervalInMilliseconds() const;
 
 				///
 				/// Configures the send interval.
@@ -91,7 +91,7 @@ namespace core
 				///
 				Builder& withSendIntervalInMilliseconds(int32_t sendIntervalInMilliseconds);
 
-				int32_t getServerId();
+				int32_t getServerId() const;
 
 				///
 				/// Configures the server ID.
@@ -100,7 +100,7 @@ namespace core
 				/// @return @c this
 				Builder& withServerId(int32_t serverId);
 
-				int32_t getBeaconSizeInBytes();
+				int32_t getBeaconSizeInBytes() const;
 
 				///
 				/// Configures the beacon size in bytes.
@@ -110,7 +110,7 @@ namespace core
 				///
 				Builder& withBeaconSizeInBytes(int32_t beaconSize);
 
-				int32_t getMultiplicity();
+				int32_t getMultiplicity() const;
 
 				///
 				/// Configures the multiplicity factor.
