@@ -51,7 +51,7 @@ protected:
 	MockNiceIBeacon_sp mockBeaconNice;
 	MockNiceIOpenKitComposite_sp mockParentNice;
 
-	void SetUp()
+	void SetUp() override
 	{
 		mockLogger = MockILogger::createNice();
 		mockBeaconNice = MockIBeacon::createNice();
@@ -94,6 +94,21 @@ TEST_F(WebRequestTracerTest, defaultValues)
 	ASSERT_EQ(testWebRequestTracer->getEndSequenceNo(), -1);
 	ASSERT_EQ(testWebRequestTracer->getBytesSent(), -1);
 	ASSERT_EQ(testWebRequestTracer->getBytesReceived(), -1);
+}
+
+TEST_F(WebRequestTracerTest, aNewlyCreatedWebRequestTracerDoesNotAttackToTheParent)
+{
+	// with
+	auto mockParent = MockIOpenKitComposite::createStrict();
+
+	// expect
+	EXPECT_CALL(*mockParent, getActionId())
+		.Times(2); // in constructor: 1 initialize parent action ID + 1 createTag
+
+	// given, when: expect no further interaction with the parent
+	auto target = createTracer()
+		->with(mockParent)
+		.build();
 }
 
 TEST_F(WebRequestTracerTest, getTag)
@@ -378,6 +393,99 @@ TEST_F(WebRequestTracerTest, stopWithResponseCodeCanOnlyBeExecutedOnce)
 		.Times(testing::Exactly(0));
 
 	testWebRequestTracer->stop(404);
+}
+
+TEST_F(WebRequestTracerTest, stopWithResponseCodeNotifiesParentAndDetachesFromParent)
+{
+	// with
+	auto mockBeacon = MockIBeacon::createNice();
+	ON_CALL(*mockBeacon, createSequenceNumber()).WillByDefault(testing::Return(42));
+
+	auto mockParent = MockIOpenKitComposite::createStrict();
+
+	// expect
+	EXPECT_CALL(*mockParent, onChildClosed(testing::_)).Times(1);
+	EXPECT_CALL(*mockParent, getActionId()).Times(2); // in constructor: 1 initialize parentAction ID + 1 createTag
+
+	// given
+	auto target = createTracer()
+		->with(mockBeacon)
+		.with(mockParent)
+		.build();
+
+	// when
+	target->stop(200);
+
+	// then
+	ASSERT_THAT(target->getParent(), testing::NotNull());
+
+}
+
+TEST_F(WebRequestTracerTest, stopNotifiesParentAndDetachesFromParent)
+{
+	// with
+	auto mockBeacon = MockIBeacon::createNice();
+	ON_CALL(*mockBeacon, createSequenceNumber()).WillByDefault(testing::Return(42));
+
+	auto mockParent = MockIOpenKitComposite::createStrict();
+
+	// expect
+	EXPECT_CALL(*mockParent, onChildClosed(testing::_)).Times(1);
+	EXPECT_CALL(*mockParent, getActionId()).Times(2); // in constructor: 1 initialize parentAction ID + 1 createTag
+
+	// given
+	auto target = createTracer()
+		->with(mockBeacon)
+		.with(mockParent)
+		.build();
+
+	// when
+	target->stop();
+
+	// then
+	ASSERT_THAT(target->getParent(), testing::NotNull());
+
+}
+
+TEST_F(WebRequestTracerTest, stopUsesSetResponseCode)
+{
+	// given
+	const int32_t responseCode = 418;
+	auto target = createTracer()->build();
+
+	// when
+	auto obtained = target->setResponseCode(responseCode);
+	target->stop();
+
+	// then
+	ASSERT_THAT(target->getResponseCode(), testing::Eq(responseCode));
+	ASSERT_THAT(obtained, testing::Eq(target));
+}
+
+TEST_F(WebRequestTracerTest, closingAWebRequestStopsIt)
+{
+	// with
+	const int32_t sequenceNumber = 42;
+	auto mockBeacon = MockIBeacon::createNice();
+
+	// expect
+	EXPECT_CALL(*mockBeacon, createSequenceNumber())
+		.Times(2)
+		.WillRepeatedly(testing::Return(sequenceNumber));
+	EXPECT_CALL(*mockBeacon, addWebRequest(0, testing::_))
+		.Times(1);
+
+	// given
+	auto target = createTracer()
+		->with(mockBeacon)
+		.build();
+
+	// when
+	target->close();
+
+	// then
+	ASSERT_THAT(target->getEndSequenceNo(), testing::Eq(sequenceNumber));
+
 }
 
 TEST_F(WebRequestTracerTest, aNewlyCreatedWebRequestTracerDoesNotAttachToTheParent)

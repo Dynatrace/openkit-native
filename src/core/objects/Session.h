@@ -66,13 +66,12 @@ namespace core
 			///
 			/// Constructor
 			/// @param[in] logger to write traces to
-			/// @param[in] beaconSender beacon sender
+			/// @param[in] parent the parent composite of this session
 			/// @param[in] beacon beacon used for serialization
 			///
 			Session(
 				std::shared_ptr<openkit::ILogger> logger,
 				std::shared_ptr<core::objects::IOpenKitComposite> parent,
-				std::shared_ptr<IBeaconSender> beaconSender,
 				std::shared_ptr<protocol::IBeacon> beacon
 			);
 
@@ -80,6 +79,11 @@ namespace core
 			/// Destructor
 			///
 			~Session() override = default;
+
+			///
+			/// The maximum number of "new session requests" to send per session.
+			///
+			static constexpr int32_t MAX_NEW_SESSION_REQUESTS = 4;
 
 			std::shared_ptr<openkit::IRootAction> enterAction(const char* actionName) override;
 
@@ -91,55 +95,21 @@ namespace core
 
 			void end() override;
 
-			///
-			/// Start a session
-			///
 			void startSession() override;
 
-			///
-			/// Sends the current Beacon state
-			/// @param[in] clientProvider the IHTTPClientProvider to use for sending
-			/// @returns the status response returned for the Beacon data
-			///
 			std::shared_ptr<protocol::IStatusResponse> sendBeacon(
 				std::shared_ptr<providers::IHTTPClientProvider> clientProvider
 			) override;
 
-			///
-			/// Test if this session is empty or not
-			///
-			/// A session is considered to be empty, if it does not contain any action or event data.
-			/// @returns @c true if the session is empty, @c false otherwise
-			///
 			bool isEmpty() const override;
 
 
-			///
-			/// Clears data that has been captured so far.
-			///
-			/// This is called, when capturing is turned off to avoid having too much data.
-			///
+
 			void clearCapturedData() override;
 
-			///
-			/// Return a flag if this session was ended already
-			/// @returns @c true if session was already ended, @c false if session is still open
-			///
-			bool isSessionEnded() const override;
-
-			///
-			/// Sets the beacon configuration
-			/// @param[in] beaconConfiguration the beacon configuration to apply to the Beacon
-			///
-			void setBeaconConfiguration(
-				std::shared_ptr<configuration::IBeaconConfiguration> beaconConfiguration
+			void updateServerConfiguration(
+				std::shared_ptr<core::configuration::IServerConfiguration> serverConfig
 			) override;
-
-			///
-			/// Returns the beacon configuration
-			/// @returns the beacon configuration
-			///
-			std::shared_ptr<configuration::IBeaconConfiguration> getBeaconConfiguration() const override;
 
 			///
 			/// Returns a string describing the object, based on some important fields.
@@ -152,23 +122,66 @@ namespace core
 
 			void close() override;
 
+			bool isDataSendingAllowed() override;
+
+			void enableCapture() override;
+
+			void disableCapture() override;
+
+			bool canSendNewSessionRequest() const override;
+
+			void decreaseNumRemainingSessionRequests() override;
+
+			bool isConfigured() override;
+
+			bool isConfiguredAndFinished() override;
+
+			bool isConfiguredAndOpen() override;
+
+			bool isFinished() override;
+
 		private:
 
+			///
+			/// Marks that the session is about to be finished.
+			///
+			/// @return @c true if the session was marked for finishing, @c false if the session was already previously
+			///  finished or marked for finishing
+			bool markAsIsFinishing();
+
+			///
+			/// Marks the session as finished.
+			///
+			void markAsFinished();
+
+			///
+			/// Indicates if this session is configured.
+			///
+			bool hasServerConfigurationSet();
+
+			///
+			/// Indicates if the session is finished or currently finishing.
+			///
+			bool isFinishingOrFinished();
+
+		private:
 			/// Logger to write traces to
-			std::shared_ptr<openkit::ILogger> mLogger;
+			const std::shared_ptr<openkit::ILogger> mLogger;
 
 			// parent object of this session
-			std::shared_ptr<core::objects::IOpenKitComposite> mParent;
-
-			/// beacon sender
-			std::shared_ptr<IBeaconSender> mBeaconSender;
+			const std::shared_ptr<core::objects::IOpenKitComposite> mParent;
 
 			/// beacon used for serialization
-			std::shared_ptr<protocol::IBeacon> mBeacon;
+			const std::shared_ptr<protocol::IBeacon> mBeacon;
 
+			/// the number of tries for new session requests.
+			int32_t mNumRemainingNewSessionRequests;
+
+			/// indicator that the session is currently finishing/finished.
+			std::atomic<bool> mIsSessionFinishing;
 
 			/// indicator if the session was ended
-			std::atomic<bool> mIsSessionEnded;
+			std::atomic<bool> mIsSessionFinished;
 
 			// mutex used for synchronization
 			std::mutex mMutex;

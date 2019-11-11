@@ -24,8 +24,6 @@
 
 using namespace openkit;
 
-const int32_t AbstractOpenKitBuilder::DEFAULT_SERVER_ID = 1;
-
 AbstractOpenKitBuilder::AbstractOpenKitBuilder(const char* endpointURL, const char* deviceID)
 	: AbstractOpenKitBuilder(endpointURL, core::util::StringUtil::toNumericOr64BitHash(deviceID), deviceID)
 {
@@ -149,14 +147,9 @@ AbstractOpenKitBuilder& AbstractOpenKitBuilder::withCrashReportingLevel(CrashRep
 
 std::shared_ptr<openkit::IOpenKit> AbstractOpenKitBuilder::build()
 {
-	auto openKit = std::make_shared<core::objects::OpenKit>(getLogger(), buildConfiguration());
+	auto openKit = std::make_shared<core::objects::OpenKit>(*this);
 	openKit->initialize();
 	return openKit;
-}
-
-int32_t AbstractOpenKitBuilder::getDefaultServerID() const
-{
-	return DEFAULT_SERVER_ID;
 }
 
 const std::string& AbstractOpenKitBuilder::getApplicationVersion() const

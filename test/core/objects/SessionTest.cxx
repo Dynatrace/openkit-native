@@ -21,19 +21,12 @@
 #include "../configuration/mock/MockIBeaconCacheConfiguration.h"
 #include "../configuration/mock/MockIBeaconConfiguration.h"
 #include "../configuration/mock/MockIPrivacyConfiguration.h"
+#include "../configuration/mock/MockIServerConfiguration.h"
 #include "../../api/mock/MockILogger.h"
-#include "../../api/mock/MockISslTrustManager.h"
 #include "../../protocol/mock/MockIBeacon.h"
-#include "../../protocol/mock/MockIHTTPClient.h"
-#include "../../protocol/mock/MockIStatusResponse.h"
 #include "../../providers/mock/MockIHTTPClientProvider.h"
-#include "../../providers/mock/MockISessionIDProvider.h"
-#include "../../providers/mock/MockITimingProvider.h"
 
 #include "core/UTF8String.h"
-#include "core/configuration/Configuration.h"
-#include "core/configuration/Device.h"
-#include "core/configuration/OpenKitType.h"
 #include "core/objects/IOpenKitObject.h"
 #include "core/objects/NullRootAction.h"
 #include "core/objects/NullWebRequestTracer.h"
@@ -45,76 +38,40 @@
 #include <gmock/gmock.h>
 
 #include <memory>
+#include <core/objects/Session.h>
 
 using namespace test;
 
-using Configuration_t = core::configuration::Configuration;
-using Configuration_sp = std::shared_ptr<Configuration_t>;
-using Device_t = core::configuration::Device;
 using IOpenKitObject_t = core::objects::IOpenKitObject;
-using MockNiceIHTTPClientProvider_sp = std::shared_ptr<testing::NiceMock<MockIHTTPClientProvider>>;
-using MockNiceIBeacon_sp = std::shared_ptr<testing::NiceMock<MockIBeacon>>;
-using MockNiceILogger_sp = std::shared_ptr<testing::NiceMock<MockILogger>>;
-using MockNiceIHTTPClient_sp = std::shared_ptr<testing::NiceMock<MockIHTTPClient>>;
-using MockStrictIBeaconSender_sp = std::shared_ptr<testing::StrictMock<MockIBeaconSender>>;
-using MockStrictIBeacon_sp = std::shared_ptr<testing::StrictMock<MockIBeacon>>;
+using MockIBeaconSender_sp = std::shared_ptr<MockIBeaconSender>;
+using MockILogger_sp = std::shared_ptr<MockILogger>;
 using NullRootAction_t = core::objects::NullRootAction;
 using NullWebRequestTracer_t = core::objects::NullWebRequestTracer;
-using OpenKitType_t = core::configuration::OpenKitType;
 using RootAction_t = core::objects::RootAction;
+using Session_t = core::objects::Session;
 using SessionBuilder_sp = std::shared_ptr<TestSessionBuilder>;
 using Utf8String_t = core::UTF8String;
 using WebRequestTracer_t = core::objects::WebRequestTracer;
 
-static const char APP_ID[] = "appID";
-static const char APP_NAME[] = "appName";
+constexpr char APP_ID[] = "appID";
+constexpr char APP_NAME[] = "appName";
 
 class SessionTest : public testing::Test
 {
 protected:
-	MockNiceILogger_sp mockLogger;
 
-	Configuration_sp configuration;
-
-	MockStrictIBeaconSender_sp mockBeaconSender;
-	MockNiceIHTTPClientProvider_sp mockHTTPClientProvider;
+	MockILogger_sp mockLogger;
 
 	void SetUp() override
 	{
 		mockLogger = MockILogger::createNice();
-
-		mockHTTPClientProvider = MockIHTTPClientProvider::createNice();
-
-		auto device = std::make_shared<Device_t>(Utf8String_t(""), Utf8String_t(""), Utf8String_t(""));
-
-		configuration = std::make_shared<Configuration_t>
-		(
-			device,
-			OpenKitType_t::Type::DYNATRACE,
-			Utf8String_t(APP_NAME),
-			"",
-			APP_ID,
-			0,
-			"0",
-			"",
-			MockISessionIDProvider::createNice(),
-			MockISslTrustManager::createNice(),
-			MockIBeaconCacheConfiguration::createNice(),
-			MockIBeaconConfiguration::createNice(),
-			MockIPrivacyConfiguration::createNice()
-		);
-		configuration->enableCapture();
-
-		mockBeaconSender = MockIBeaconSender::createStrict();
 	}
 
 	SessionBuilder_sp createSession()
 	{
 		auto builder = std::make_shared<TestSessionBuilder>();
 
-		builder->with(mockLogger)
-			.with(mockBeaconSender)
-		;
+		builder->with(mockLogger);
 
 		return builder;
 	}
@@ -127,8 +84,6 @@ TEST_F(SessionTest, startSessionCallsBeacon)
 
 	// expect
 	EXPECT_CALL(*mockBeaconStrict, startSession())
-		.Times(1);
-	EXPECT_CALL(*mockBeaconSender, startSession(testing::_))
 		.Times(1);
 
 	// given
@@ -214,8 +169,7 @@ TEST_F(SessionTest, enterActionAddsNewlyCreatedActionToTheListOfChildObjects)
 {
 	// given
 	auto target = createSession()
-		->with(MockIBeaconSender::createNice())
-		.build();
+		->build();
 
 	// when
 	auto obtainedOne = target->enterAction("some action");
@@ -390,7 +344,7 @@ TEST_F(SessionTest, identifyUserMultipleTimesAlwaysCallsBeacon)
 	target->identifyUser(userTag);
 }
 
-TEST_F(SessionTest, identifyUserWithDifferentUsersAlwasCallsBeacon)
+TEST_F(SessionTest, identifyUserWithDifferentUsersAlwaysCallsBeacon)
 {
 	// with
 	auto mockBeaconStrict = MockIBeacon::createStrict();
@@ -582,8 +536,6 @@ TEST_F(SessionTest, endSessionFinishesSessionOnBeacon)
 	auto mockBeaconNice = MockIBeacon::createNice();
 
 	// expect
-	EXPECT_CALL(*mockBeaconSender, finishSession(testing::_))
-		.Times(1);
 	EXPECT_CALL(*mockBeaconNice, endSession())
 		.Times(1);
 
@@ -602,8 +554,6 @@ TEST_F(SessionTest, endingAnAlreadyEndedSessionDoesNothing)
 	auto mockBeaconNice = MockIBeacon::createNice();
 
 	// expect
-	EXPECT_CALL(*mockBeaconSender, finishSession(testing::_))
-		.Times(1); // only first invocation of end
 	EXPECT_CALL(*mockBeaconNice, endSession())
 		.Times(1); // only first invocation of end
 
@@ -631,8 +581,6 @@ TEST_F(SessionTest, endingASessionImplicitlyClosesAllOpenChildOjects)
 		.Times(1);
 	EXPECT_CALL(*childObjectTwo, close())
 		.Times(1);
-	EXPECT_CALL(*mockBeaconSender, finishSession(testing::_))
-		.Times(1);
 
 	// given
 	auto target = createSession()->build();
@@ -655,7 +603,6 @@ TEST_F(SessionTest, endingASessionRemovesItselfFromParent)
 	// given
 	auto target = createSession()
 		->with(mockParent)
-		.with(MockIBeaconSender::createNice())
 		.build();
 
 	// when
@@ -666,6 +613,7 @@ TEST_F(SessionTest, sendBeaconForwardsCallToBeacon)
 {
 	// with
 	auto mockBeaconStrict = MockIBeacon::createStrict();
+	auto mockHTTPClientProvider = MockIHTTPClientProvider::createNice();
 
 	// expect
 	EXPECT_CALL(*mockBeaconStrict, send(testing::Eq(mockHTTPClientProvider)))
@@ -716,14 +664,14 @@ TEST_F(SessionTest, isEmptyForwardsCallToBeacon)
 	target->isEmpty();
 }
 
-TEST_F(SessionTest, setBeaconConfigurationForwardsCallToBeacon)
+TEST_F(SessionTest, updateServerConfigurationForwardsCallToBeacon)
 {
 	// with
 	auto mockBeaconStrict = MockIBeacon::createStrict();
-	auto mockBeaconConfig = MockIBeaconConfiguration::createStrict();
+	auto mockServerConfig = MockIServerConfiguration::createStrict();
 
 	// expect
-	EXPECT_CALL(*mockBeaconStrict, setBeaconConfiguration(testing::Eq(mockBeaconConfig)))
+	EXPECT_CALL(*mockBeaconStrict, updateServerConfiguration(testing::Eq(mockServerConfig)))
 		.Times(1);
 
 	// given
@@ -732,40 +680,111 @@ TEST_F(SessionTest, setBeaconConfigurationForwardsCallToBeacon)
 		.build();
 
 	// when
-	target->setBeaconConfiguration(mockBeaconConfig);
+	target->updateServerConfiguration(mockServerConfig);
 }
 
-TEST_F(SessionTest, getBeaconConfigurationForwardsCallToBeacon)
-{
-	// with
-	auto mockBeaconStrict = MockIBeacon::createStrict();
-
-	// expect
-	EXPECT_CALL(*mockBeaconStrict, getBeaconConfiguration())
-		.Times(1);
-
-	// given
-	auto target = createSession()
-		->with(mockBeaconStrict)
-		.build();
-	// when
-	target->getBeaconConfiguration();
-}
-
-TEST_F(SessionTest, aNewlyConstructedSessionIsNotEnded)
+TEST_F(SessionTest, aNewlyCreatedSessionIsNotFinished)
 {
 	//given
 	auto target = createSession()->build();
 
 	//when
-	ASSERT_THAT(target->isSessionEnded(), testing::Eq(false));
+	ASSERT_THAT(target->isFinished(), testing::Eq(false));
+	ASSERT_THAT(target->isConfiguredAndFinished(), testing::Eq(false));
+}
+
+TEST_F(SessionTest, aNewlyCreatedSessionIsNotInStateConfigured)
+{
+	//given
+	auto target = createSession()->build();
+
+	//when
+	ASSERT_THAT(target->isConfigured(), testing::Eq(false));
+	ASSERT_THAT(target->isConfiguredAndFinished(), testing::Eq(false));
+	ASSERT_THAT(target->isConfiguredAndOpen(), testing::Eq(false));
+}
+
+
+TEST_F(SessionTest, aNotConfiguredNotFinishedSessionHasCorrectState)
+{
+	// with
+	auto mockBeacon = MockIBeacon::createNice();
+
+	ON_CALL(*mockBeacon, isServerConfigurationSet()).WillByDefault(testing::Return(false));
+
+	// given
+	auto target = createSession()
+		->with(mockBeacon)
+		.build();
+
+	// when
+	ASSERT_THAT(target->isConfigured(), testing::Eq(false));
+	ASSERT_THAT(target->isConfiguredAndOpen(), testing::Eq(false));
+	ASSERT_THAT(target->isConfiguredAndFinished(), testing::Eq(false));
+	ASSERT_THAT(target->isFinished(), testing::Eq(false));
+}
+
+TEST_F(SessionTest, aConfiguredNotFinishedSessionHasCorrectState)
+{
+	// with
+	auto mockBeacon = MockIBeacon::createNice();
+
+	ON_CALL(*mockBeacon, isServerConfigurationSet()).WillByDefault(testing::Return(true));
+
+	// given
+	auto target = createSession()
+		->with(mockBeacon)
+		.build();
+
+	// when
+	ASSERT_THAT(target->isConfigured(), testing::Eq(true));
+	ASSERT_THAT(target->isConfiguredAndOpen(), testing::Eq(true));
+	ASSERT_THAT(target->isConfiguredAndFinished(), testing::Eq(false));
+	ASSERT_THAT(target->isFinished(), testing::Eq(false));
+}
+
+TEST_F(SessionTest, aNotConfiguredFinishedSessionHasCorrectState)
+{
+	// with
+	auto mockBeacon = MockIBeacon::createNice();
+
+	ON_CALL(*mockBeacon, isServerConfigurationSet()).WillByDefault(testing::Return(false));
+
+	// given
+	auto target = createSession()
+		->with(mockBeacon)
+		.build();
+	target->end();
+
+	// when
+	ASSERT_THAT(target->isConfigured(), testing::Eq(false));
+	ASSERT_THAT(target->isConfiguredAndOpen(), testing::Eq(false));
+	ASSERT_THAT(target->isConfiguredAndFinished(), testing::Eq(false));
+	ASSERT_THAT(target->isFinished(), testing::Eq(true));
+}
+
+TEST_F(SessionTest, aConfiguredFinishedSessionHasCorrectState)
+{
+	// with
+	auto mockBeacon = MockIBeacon::createNice();
+
+	ON_CALL(*mockBeacon, isServerConfigurationSet()).WillByDefault(testing::Return(true));
+
+	// given
+	auto target = createSession()
+		->with(mockBeacon)
+		.build();
+	target->end();
+
+	// when
+	ASSERT_THAT(target->isConfigured(), testing::Eq(true));
+	ASSERT_THAT(target->isConfiguredAndOpen(), testing::Eq(false));
+	ASSERT_THAT(target->isConfiguredAndFinished(), testing::Eq(true));
+	ASSERT_THAT(target->isFinished(), testing::Eq(true));
 }
 
 TEST_F(SessionTest, aSessionIsEndedIfEndIsCalled)
 {
-	EXPECT_CALL(*mockBeaconSender, finishSession(testing::_))
-		.Times(1);
-
 	// given
 	auto target = createSession()->build();
 
@@ -773,15 +792,11 @@ TEST_F(SessionTest, aSessionIsEndedIfEndIsCalled)
 	target->end();
 
 	// then
-	ASSERT_THAT(target->isSessionEnded(), testing::Eq(true));
+	ASSERT_THAT(target->isFinished(), testing::Eq(true));
 }
 
 TEST_F(SessionTest, enterActionGivesNullRootActionIfSessionIsAlreadyEnded)
 {
-	// expect
-	EXPECT_CALL(*mockBeaconSender, finishSession(testing::_))
-		.Times(1);
-
 	// given
 	auto target = createSession()->build();
 	target->end();
@@ -802,8 +817,6 @@ TEST_F(SessionTest, identifyUserDoesNothingIfSessionIsEnded)
 	// expect
 	EXPECT_CALL(*mockBeaconNice, identifyUser(testing::_))
 		.Times(0);
-	EXPECT_CALL(*mockBeaconSender, finishSession(testing::_))
-		.Times(1);
 
 	// given
 	auto target = createSession()
@@ -823,8 +836,6 @@ TEST_F(SessionTest, reportCrashDoesNothingIfSessionIsEnded)
 	// expect
 	EXPECT_CALL(*mockBeaconNice, reportCrash(testing::_, testing::_, testing::_))
 		.Times(0);
-	EXPECT_CALL(*mockBeaconSender, finishSession(testing::_))
-		.Times(1);
 
 	// given
 	auto target = createSession()
@@ -846,8 +857,6 @@ TEST_F(SessionTest, closeEndsTheSession)
 
 	// expect
 	EXPECT_CALL(*mockBeaconNice, endSession())
-		.Times(1);
-	EXPECT_CALL(*mockBeaconSender, finishSession(testing::_))
 		.Times(1);
 
 	// given
@@ -930,7 +939,7 @@ TEST_F(SessionTest, tracingAnEmptyStringWebRequestIsNotAllowed)
 	ASSERT_THAT(std::dynamic_pointer_cast<NullWebRequestTracer_t>(obtained), testing::NotNull());
 }
 
-TEST_F(SessionTest, tracingAnInvalidUrlSchemeIsNotAllowed)
+TEST_F(SessionTest, tracingAStringWebRequestWithInvalidUrlIsNotAllowed)
 {
 	// given
 	const char* url = "1337://fourtytwo.com";
@@ -946,10 +955,6 @@ TEST_F(SessionTest, tracingAnInvalidUrlSchemeIsNotAllowed)
 
 TEST_F(SessionTest, traceWebRequestGivesNullTracerIfSessionIsEnded)
 {
-	// expect
-	EXPECT_CALL(*mockBeaconSender, finishSession(testing::_))
-		.Times(1);
-
 	// given
 	const char* url = "http://example.com/pages/";
 	auto target = createSession()->build();
@@ -1001,4 +1006,139 @@ TEST_F(SessionTest, toStringReturnsAppropriateResult)
 	std::stringstream s;
 	s << "Session [sn=" << sessionNumber << "]";
 	ASSERT_THAT(obtained, testing::Eq(s.str()));
+}
+
+TEST_F(SessionTest, aNewSessionCanSendNewSessionRequests)
+{
+	// given
+	auto target = createSession()->build();
+
+	// when
+	auto obtained = target->canSendNewSessionRequest();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(true));
+}
+
+TEST_F(SessionTest, canSendNewSessionRequestIsFalseIfAllRequestsAreUsedUp)
+{
+	// given
+	auto target = createSession()->build();
+
+	// when, then
+	for (auto i = Session_t::MAX_NEW_SESSION_REQUESTS; i > 0; i--)
+	{
+		ASSERT_THAT(target->canSendNewSessionRequest(), testing::Eq(true));
+
+		target->decreaseNumRemainingSessionRequests();
+	}
+
+	// then
+	ASSERT_THAT(target->canSendNewSessionRequest(), testing::Eq(false));
+}
+
+TEST_F(SessionTest, isDataSendingAllowedReturnsTrueForConfiguredAndCaptureEnabledSession)
+{
+	// with
+	auto mockBeacon = MockIBeacon::createNice();
+	ON_CALL(*mockBeacon, isCaptureEnabled()).WillByDefault(testing::Return(true));
+	ON_CALL(*mockBeacon, isServerConfigurationSet()).WillByDefault(testing::Return(true));
+
+	auto target = createSession()
+		->with(mockBeacon)
+		.build();
+
+	// when
+	auto obtained = target->isDataSendingAllowed();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(true));
+}
+
+TEST_F(SessionTest, isDataSendingAllowedReturnsFalseForNotConfiguredSession)
+{
+	// given
+	auto mockBeacon = MockIBeacon::createNice();
+	ON_CALL(*mockBeacon, isCaptureEnabled()).WillByDefault(testing::Return(true));
+	ON_CALL(*mockBeacon, isServerConfigurationSet()).WillByDefault(testing::Return(false));
+
+	auto target = createSession()
+		->with(mockBeacon)
+		.build();
+
+	// when
+	auto obtained = target->isDataSendingAllowed();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(false));
+}
+
+TEST_F(SessionTest, isDataSendingAllowedReturnsFalseForCaptureDisabledSession)
+{
+	// given
+	auto mockBeacon = MockIBeacon::createNice();
+	ON_CALL(*mockBeacon, isCaptureEnabled()).WillByDefault(testing::Return(false));
+	ON_CALL(*mockBeacon, isServerConfigurationSet()).WillByDefault(testing::Return(true));
+
+	auto target = createSession()
+		->with(mockBeacon)
+		.build();
+
+	// when
+	auto obtained = target->isDataSendingAllowed();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(false));
+}
+
+TEST_F(SessionTest, isDataSendingAllowedReturnsFalseForNotConfiguredAndCaptureDisabledSession)
+{
+		// given
+	auto mockBeacon = MockIBeacon::createNice();
+	ON_CALL(*mockBeacon, isCaptureEnabled()).WillByDefault(testing::Return(false));
+	ON_CALL(*mockBeacon, isServerConfigurationSet()).WillByDefault(testing::Return(false));
+
+	auto target = createSession()
+		->with(mockBeacon)
+		.build();
+
+	// when
+	auto obtained = target->isDataSendingAllowed();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(false));
+}
+
+TEST_F(SessionTest, enableCaptureDelegatesToBeacon)
+{
+	// with
+	auto mockBeacon = MockIBeacon::createStrict();
+
+	// expect
+	EXPECT_CALL(*mockBeacon, enableCapture()).Times(1);
+
+	// given
+	auto target = createSession()
+		->with(mockBeacon)
+		.build();
+
+	// when
+	target->enableCapture();
+}
+
+TEST_F(SessionTest, disableCaptureDelegatesToBeacon)
+{
+	// with
+	auto mockBeacon = MockIBeacon::createStrict();
+
+	// expect
+	EXPECT_CALL(*mockBeacon, disableCapture()).Times(1);
+
+	// given
+	auto target = createSession()
+		->with(mockBeacon)
+		.build();
+
+	// when
+	target->disableCapture();
 }

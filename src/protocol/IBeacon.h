@@ -216,23 +216,45 @@ namespace protocol
 		///
 		virtual int64_t getDeviceID() const = 0;
 
-		///
-		/// Sets the beacon configuration on the Beacon
-		/// @param[in] beaconConfiguration the beacon configuration to apply to this Beacon
-		///
-		virtual void setBeaconConfiguration(std::shared_ptr<core::configuration::IBeaconConfiguration> beaconConfiguration) = 0;
-
-		///
-		/// Return the beacon configuration
-		/// @returns the beacon configuration
-		///
-		virtual std::shared_ptr<core::configuration::IBeaconConfiguration> getBeaconConfiguration() const = 0;
 
 		///
 		/// Get the client IP address.
 		/// @returns The client's IP address.
 		///
 		virtual const core::UTF8String& getClientIPAddress() const = 0;
+
+		///
+		/// Updates this beacon with the given server configuration
+		///
+		/// @param serverConfig the server configuration which will be used to update this beacon.
+		///
+		virtual void updateServerConfiguration(std::shared_ptr<core::configuration::IServerConfiguration> serverConfig) = 0;
+
+		///
+		/// Indicates whether a server configuration is set on this beacon or not.
+		///
+		virtual bool isServerConfigurationSet() = 0;
+
+		///
+		/// Indicates whether data capturing for this beacon is currently enabled or not.
+		///
+		virtual bool isCaptureEnabled() = 0;
+
+		///
+		/// Enables capturing for this beacon.
+		///
+		/// @par
+		/// This will implicitly cause @ref isServerConfigurationSet() to return @c true
+		///
+		virtual void enableCapture() = 0;
+
+		///
+		/// Disables capturing for this beacon.
+		///
+		/// @par
+		/// This will implicitly cause @ref isServerConfigurationSet() to return @c true
+		///
+		virtual void disableCapture() = 0;
 	};
 }
 

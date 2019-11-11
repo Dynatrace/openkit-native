@@ -41,7 +41,7 @@ protected:
 	MockNiceIBeaconSendingContext_sp mockContext;
 	MockNiceIStatusResponse_sp mockStatusResponse;
 
-	void SetUp()
+	void SetUp() override
 	{
 		mockStatusResponse = MockIStatusResponse::createNice();
 
@@ -170,8 +170,6 @@ TEST_F(BeaconSendingInitialStateTest, initIsTerminatedIfShutdownRequestedWithVal
 	// when
 	target.execute(*mockContext);
 }
-
-
 
 TEST_F(BeaconSendingInitialStateTest, reinitializeSleepsBeforeSendingStatusRequestsAgain)
 {
@@ -487,7 +485,7 @@ TEST_F(BeaconSendingInitialStateTest, receivingTooManyRequestsResponseDisablesCa
 		.WillRepeatedly(testing::Return(true));
 
 	// expect
-	EXPECT_CALL(*mockContext, disableCapture())
+	EXPECT_CALL(*mockContext, disableCaptureAndClear())
 		.Times(1);
 
 	// given

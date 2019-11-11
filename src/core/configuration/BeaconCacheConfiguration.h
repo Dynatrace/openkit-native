@@ -18,6 +18,7 @@
 #define _CORE_CONFIGURATION_BEACONCACHECONFIGURATION_H
 
 #include "IBeaconCacheConfiguration.h"
+#include "OpenKit/IOpenKitBuilder.h"
 
 #include <cstdint>
 
@@ -34,11 +35,18 @@ namespace core
 		public:
 			///
 			/// Constructor
-			/// @param[in] maxRecordAge Maximum record age
-			/// @param[in] cacheSizeLowerBound lower memory limit for cache
-			/// @param[in] cacheSizeUpperBound upper memory limit for cache
+			/// @param[in] builder OpenKit builder providing the necessary beacon cache configuration details
 			///
-			BeaconCacheConfiguration(int64_t maxRecordAge, int64_t cacheSizeLowerBound, int64_t cacheSizeUpperBound);
+			BeaconCacheConfiguration(openkit::IOpenKitBuilder& builder);
+
+			///
+			/// Creates a beacon cache configuration from the given OpenKit builder.
+			///
+			/// @param builder the OpenKit builder from which to create a beacon cache configuration.
+			/// @return a newly created beacon cache configuration instance or @c nullptr if the given argument is
+			/// @c nullptr
+			///
+			static std::shared_ptr<IBeaconCacheConfiguration> from(openkit::IOpenKitBuilder& builder);
 
 			///
 			/// Get maximum record age.

@@ -52,11 +52,6 @@ namespace test {
 			return std::make_shared<testing::StrictMock<MockIHTTPClientProvider>>();
 		}
 
-		void globalInit() override {}
-
-		void globalDestroy() override {}
-
-
 		MOCK_METHOD2(createClient,
 			std::shared_ptr<protocol::IHTTPClient>(
 				std::shared_ptr<openkit::ILogger>,

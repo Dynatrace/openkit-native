@@ -19,6 +19,10 @@
 
 #include "core/configuration/ConfigurationDefaults.h"
 #include "core/configuration/IBeaconConfiguration.h"
+#include "core/configuration/IHTTPClientConfiguration.h"
+#include "core/configuration/IOpenKitConfiguration.h"
+#include "core/configuration/IPrivacyConfiguration.h"
+#include "core/configuration/IServerConfiguration.h"
 
 #include "gmock/gmock.h"
 
@@ -34,10 +38,10 @@ namespace test
 
 		MockIBeaconConfiguration()
 		{
-			ON_CALL(*this, getMultiplicity())
-				.WillByDefault(testing::Return(core::configuration::DEFAULT_MULTIPLICITY));
-			ON_CALL(*this, isCapturingAllowed())
-				.WillByDefault(testing::Return(true));
+			ON_CALL(*this, getOpenKitConfiguration()).WillByDefault(testing::Return(nullptr));
+			ON_CALL(*this, getPrivacyConfiguration()).WillByDefault(testing::Return(nullptr));
+			ON_CALL(*this, getHTTPClientConfiguration()).WillByDefault(testing::Return(nullptr));
+			ON_CALL(*this, getServerConfiguration()).WillByDefault(testing::Return(nullptr));
 		}
 
 		~MockIBeaconConfiguration() override = default;
@@ -52,9 +56,25 @@ namespace test
 			return std::make_shared<testing::StrictMock<MockIBeaconConfiguration>>();
 		}
 
-		MOCK_CONST_METHOD0(getMultiplicity, int32_t());
+		MOCK_CONST_METHOD0(getOpenKitConfiguration, std::shared_ptr<core::configuration::IOpenKitConfiguration>());
 
-		MOCK_CONST_METHOD0(isCapturingAllowed, bool());
+		MOCK_CONST_METHOD0(getPrivacyConfiguration, std::shared_ptr<core::configuration::IPrivacyConfiguration>());
+
+		MOCK_CONST_METHOD0(getHTTPClientConfiguration, std::shared_ptr<core::configuration::IHTTPClientConfiguration>());
+
+		MOCK_METHOD0(getServerConfiguration, std::shared_ptr<core::configuration::IServerConfiguration>());
+
+		MOCK_METHOD0(enableCapture, void());
+
+		MOCK_METHOD0(disableCapture, void());
+
+		MOCK_METHOD1(updateServerConfiguration,
+			void(
+				std::shared_ptr<core::configuration::IServerConfiguration>
+			)
+		);
+
+		MOCK_METHOD0(isServerConfigurationSet, bool());
 	};
 }
 

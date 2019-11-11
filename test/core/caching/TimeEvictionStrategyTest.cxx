@@ -63,7 +63,7 @@ protected:
 	MockStrictIBeaconCache_sp mockBeaconCacheStrict;
 	MockStrictITimingProvider_sp mockTimingProviderStrict;
 
-	void SetUp()
+	void SetUp() override
 	{
 		mockLoggerNice = MockILogger::createNice();
 		mockBeaconCacheNice = MockIBeaconCache::createNice();

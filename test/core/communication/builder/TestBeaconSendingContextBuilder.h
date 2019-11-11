@@ -26,7 +26,6 @@
 #include "OpenKit/ILogger.h"
 #include "core/communication/BeaconSendingContext.h"
 #include "core/communication/IBeaconSendingState.h"
-#include "core/configuration/Configuration.h"
 #include "core/configuration/IHTTPClientConfiguration.h"
 #include "providers/IHTTPClientProvider.h"
 #include "providers/ITimingProvider.h"
@@ -38,14 +37,11 @@ namespace test
 	class TestBeaconSendingContextBuilder
 	{
 	public:
-		TestBeaconSendingContextBuilder(
-			std::shared_ptr<core::configuration::Configuration> configuration
-		)
+		TestBeaconSendingContextBuilder()
 			: mLogger(nullptr)
 			, mClientConfig(nullptr)
 			, mClientProvider(nullptr)
 			, mTimingProvider(nullptr)
-			, mConfiguration(configuration)
 			, mState(nullptr)
 		{
 		}
@@ -93,18 +89,18 @@ namespace test
 			{
 				return std::make_shared<core::communication::BeaconSendingContext>(
 					logger,
+					clientConfig,
 					clientProvider,
 					timingProvider,
-					mConfiguration,
 					std::move(mState)
 				);
 			}
 
 			return std::make_shared<core::communication::BeaconSendingContext>(
 				logger,
+				clientConfig,
 				clientProvider,
-				timingProvider,
-				mConfiguration
+				timingProvider
 			);
 		}
 
@@ -113,7 +109,6 @@ namespace test
 		std::shared_ptr<core::configuration::IHTTPClientConfiguration> mClientConfig;
 		std::shared_ptr<providers::IHTTPClientProvider> mClientProvider;
 		std::shared_ptr<providers::ITimingProvider> mTimingProvider;
-		std::shared_ptr<core::configuration::Configuration> mConfiguration;
 		std::unique_ptr<core::communication::IBeaconSendingState> mState;
 	};
 }

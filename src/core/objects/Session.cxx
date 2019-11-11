@@ -27,14 +27,14 @@ using namespace core::objects;
 Session::Session(
 	std::shared_ptr<openkit::ILogger> logger,
 	std::shared_ptr<core::objects::IOpenKitComposite> parent,
-	std::shared_ptr<core::IBeaconSender> beaconSender,
 	std::shared_ptr<protocol::IBeacon> beacon
 )
 	: mLogger(logger)
 	, mParent(parent)
-	, mBeaconSender(beaconSender)
 	, mBeacon(beacon)
-	, mIsSessionEnded()
+	, mNumRemainingNewSessionRequests(MAX_NEW_SESSION_REQUESTS)
+	, mIsSessionFinishing(false)
+	, mIsSessionFinished(false)
 	, mMutex()
 {
 }
@@ -42,7 +42,6 @@ Session::Session(
 void Session::startSession()
 {
 	mBeacon->startSession();
-	mBeaconSender->startSession(shared_from_this());
 }
 
 std::shared_ptr<openkit::IRootAction> Session::enterAction(const char* actionName)
@@ -61,7 +60,7 @@ std::shared_ptr<openkit::IRootAction> Session::enterAction(const char* actionNam
 	{ // synchronized scope
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		if (!isSessionEnded())
+		if (!isFinishingOrFinished())
 		{
 			auto rootActionImpl = std::make_shared<ActionCommonImpl>(
 				mLogger,
@@ -97,7 +96,7 @@ void Session::identifyUser(const char* userTag)
 	{ // synchronized scope
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		if (!isSessionEnded())
+		if (!isFinishingOrFinished())
 		{
 			mBeacon->identifyUser(userTagString);
 		}
@@ -126,7 +125,7 @@ void Session::reportCrash(const char* errorName, const char* reason, const char*
 	{ // synchronized scope
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		if (!isSessionEnded())
+		if (!isFinishingOrFinished())
 		{
 			mBeacon->reportCrash(errorNameString, reasonString, stacktraceString);
 		}
@@ -154,7 +153,7 @@ std::shared_ptr<openkit::IWebRequestTracer> Session::traceWebRequest(const char*
 	{ // synchronized block
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		if(!isSessionEnded())
+		if(!isFinishingOrFinished())
 		{
 			auto tracer =  std::make_shared<core::objects::WebRequestTracer>(
 				mLogger,
@@ -181,25 +180,26 @@ void Session::end()
 	{ // synchronized scope
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		if (isSessionEnded())
+		if (!markAsIsFinishing())
 		{
-			return;
+			return; // end() was already called before
 		}
-
-		mIsSessionEnded = true;
 	}
 
 	// leave all Root-Actions for sanity reasons
 	auto childObjects = getCopyOfChildObjects();
-	for (auto it = childObjects.begin(); it != childObjects.end(); ++it)
+	for (auto childObject : childObjects)
 	{
-		auto childObject = *it;
 		childObject->close();
 	}
 
 	mBeacon->endSession();
 
-	mBeaconSender->finishSession(shared_from_this());
+	{ // synchronized scope
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		markAsFinished();
+	}
 
 	// last but not least update parent relation
 	mParent->onChildClosed(shared_from_this());
@@ -208,11 +208,6 @@ void Session::end()
 void Session::close()
 {
 	end();
-}
-
-bool Session::isSessionEnded() const
-{
-	return mIsSessionEnded;
 }
 
 std::shared_ptr<protocol::IStatusResponse> Session::sendBeacon(std::shared_ptr<providers::IHTTPClientProvider> clientProvider)
@@ -230,6 +225,11 @@ void Session::clearCapturedData()
 	mBeacon->clearData();
 }
 
+void Session::updateServerConfiguration(std::shared_ptr<core::configuration::IServerConfiguration> serverConfig)
+{
+	mBeacon->updateServerConfiguration(serverConfig);
+}
+
 void Session::onChildClosed(std::shared_ptr<core::objects::IOpenKitObject> childObject)
 {
 	{ // synchronized scope
@@ -239,6 +239,31 @@ void Session::onChildClosed(std::shared_ptr<core::objects::IOpenKitObject> child
 	}
 }
 
+bool Session::isDataSendingAllowed()
+{
+	return isConfigured() && mBeacon->isCaptureEnabled();
+}
+
+void Session::enableCapture()
+{
+	mBeacon->enableCapture();
+}
+
+void Session::disableCapture()
+{
+	mBeacon->disableCapture();
+}
+
+bool Session::canSendNewSessionRequest() const
+{
+	return mNumRemainingNewSessionRequests > 0;
+}
+
+void Session::decreaseNumRemainingSessionRequests()
+{
+	mNumRemainingNewSessionRequests--;
+}
+
 const std::string Session::toString() const
 {
 	std::stringstream ss;
@@ -246,12 +271,68 @@ const std::string Session::toString() const
 	return ss.str();
 }
 
-void Session::setBeaconConfiguration(std::shared_ptr<core::configuration::IBeaconConfiguration> beaconConfiguration)
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Session state
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool Session::isConfigured()
 {
-	mBeacon->setBeaconConfiguration(beaconConfiguration);
+	{ // synchronized scope
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		return hasServerConfigurationSet();
+	}
 }
 
-std::shared_ptr<core::configuration::IBeaconConfiguration> Session::getBeaconConfiguration() const
+bool Session::isConfiguredAndFinished()
 {
-	return mBeacon->getBeaconConfiguration();
+	{ // synchronized scope
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		return hasServerConfigurationSet() && mIsSessionFinished;
+	}
+}
+
+bool Session::isConfiguredAndOpen()
+{
+	{ // synchronized scope
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		return hasServerConfigurationSet() && !mIsSessionFinished;
+	}
+}
+
+bool Session::isFinished()
+{
+	{ // synchronized scope
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		return mIsSessionFinished;
+	}
+}
+
+bool Session::markAsIsFinishing()
+{
+	if (isFinishingOrFinished())
+	{
+		return false;
+	}
+
+	mIsSessionFinishing = true;
+	return true;
+}
+
+void Session::markAsFinished()
+{
+	mIsSessionFinished = true;
+}
+
+bool Session::hasServerConfigurationSet()
+{
+	return mBeacon->isServerConfigurationSet();
+}
+
+bool Session::isFinishingOrFinished()
+{
+	return mIsSessionFinishing || mIsSessionFinished;
 }

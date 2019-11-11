@@ -80,28 +80,79 @@ namespace core
 			virtual void clearCapturedData() = 0;
 
 			///
-			/// Return a flag if this session was ended already
-			/// @returns @c true if session was already ended, @c false if session is still open
+			/// Updates the this session with the given server configuration.
 			///
-			virtual bool isSessionEnded() const = 0;
-
-			///
-			/// Sets the beacon configuration
-			/// @param[in] beaconConfiguration the beacon configuration to apply to the Beacon
-			///
-			virtual void setBeaconConfiguration(
-				std::shared_ptr<configuration::IBeaconConfiguration> beaconConfiguration
+			virtual void updateServerConfiguration(
+				std::shared_ptr<core::configuration::IServerConfiguration> serverConfig
 			) = 0;
-
-			///
-			/// Returns the beacon configuration
-			/// @returns the beacon configuration
-			///
-			virtual std::shared_ptr<configuration::IBeaconConfiguration> getBeaconConfiguration() const = 0;
 
 			void onChildClosed(std::shared_ptr<IOpenKitObject> childObject) override = 0;
 
 			void close() override = 0;
+
+			///
+			/// Indicates whether sending data for this session is allowed or not.
+			///
+			virtual bool isDataSendingAllowed() = 0;
+
+			///
+			/// Enables capturing for this session.
+			///
+			/// @par
+			/// Will implicitly also set the state of this session to @ref isConfigured()
+			///
+			virtual void enableCapture() = 0;
+
+			///
+			/// Disables capturing for this session.
+			///
+			/// @par
+			/// Will implicitly also set the state of this session to @ref isConfigured()
+			///
+			virtual void disableCapture() = 0;
+
+			///
+			/// Indicates whether new session requests can be sent or not.
+			///
+			/// @par
+			/// This is directly related to @ref decreaseNumRemainingSessionRequests()
+			///
+			virtual bool canSendNewSessionRequest() const = 0;
+
+			///
+			/// Decreases the number of remaining new session requests
+			///
+			/// @par
+			/// In case no more new session requests remain, @ref canSendNewSessionRequest() will return @c false
+			///
+			virtual void decreaseNumRemainingSessionRequests() = 0;
+
+			///
+			/// Indicates whether this session is configured or not.
+			///
+			/// @par
+			/// A session is considered as configured if it received configuration updates from the server.
+			///
+			virtual bool isConfigured() = 0;
+
+			///
+			/// Indicates if this session is finished and was configured.
+			///
+			virtual bool isConfiguredAndFinished() = 0;
+
+			///
+			/// Indicates if this session is configured and not yet finished.
+			///
+			virtual bool isConfiguredAndOpen() = 0;
+
+			///
+			/// Indicates if the session is finished.
+			///
+			/// @par
+			/// A session is considered as finished, after @ref end() was called.
+			///
+			virtual bool isFinished() = 0;
+
 		};
 	}
 }

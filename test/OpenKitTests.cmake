@@ -33,8 +33,10 @@ set(OPENKIT_SOURCES_TEST
 )
 
 set(OPENKIT_SOURCES_TEST_API
+    ${CMAKE_CURRENT_LIST_DIR}/api/AbstractOpenKitBuilderTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/api/AppMonOpenKitBuilderTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/api/DynatraceOpenKitBuilderTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/api/LogLevelTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/api/OpenKitBuilderTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/api/mock/MockILogger.h
     ${CMAKE_CURRENT_LIST_DIR}/api/mock/MockIOpenKitBuilder.h
     ${CMAKE_CURRENT_LIST_DIR}/api/mock/MockIRootAction.h
@@ -56,10 +58,16 @@ set(OPENKIT_SOURCES_TEST_CORE
 set(OPENKIT_SOURCES_TEST_CORE_OBJECTS
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/ActionCommonImplTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/LeafActionTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/NullActionTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/NullRootActionTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/NullSessionTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/NullWebRequestTracerTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/OpenKitTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/RootActionTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/SessionTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/WebRequestTracerTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/WebRequestTracerURLValidityTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/builder/TestOpenKitBuilder.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/builder/TestSessionBuilder.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockIActionCommon.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockIOpenKitObject.h
@@ -109,7 +117,6 @@ set(OPENKIT_SOURCES_TEST_CORE_COMMUNICATION
 set(OPENKIT_SOURCES_TEST_CORE_CONFIGURATION
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/BeaconConfigurationTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/BeaconCacheConfigurationTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/core/configuration/ConfigurationTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/HTTPClientConfigurationTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/OpenKitConfigurationTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/PrivacyConfigurationTest.cxx

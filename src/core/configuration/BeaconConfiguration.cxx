@@ -15,27 +15,118 @@
 */
 
 #include "BeaconConfiguration.h"
-#include "ConfigurationDefaults.h"
+#include "HTTPClientConfiguration.h"
+#include "ServerConfiguration.h"
 
 using namespace core::configuration;
 
-BeaconConfiguration::BeaconConfiguration()
-	: BeaconConfiguration(DEFAULT_MULTIPLICITY)
+BeaconConfiguration::BeaconConfiguration(
+	std::shared_ptr<IOpenKitConfiguration> openKitConfig,
+	std::shared_ptr<IPrivacyConfiguration> privacyConfig,
+	int32_t serverId
+)
+	: mOpenKitConfiguration(openKitConfig)
+	, mPrivacyConfiguration(privacyConfig)
+	, mHTTPClientConfiguration(
+		HTTPClientConfiguration::Builder(openKitConfig)
+			.withServerID(serverId)
+			.build()
+	)
+	, mServerConfiguration(nullptr)
+	, mMutex()
 {
 }
 
-BeaconConfiguration::BeaconConfiguration(int32_t multiplicity)
-	: mMultiplicity(multiplicity)
+std::shared_ptr<IBeaconConfiguration> BeaconConfiguration::from(
+		std::shared_ptr<core::configuration::IOpenKitConfiguration> openKitConfig,
+		std::shared_ptr<core::configuration::IPrivacyConfiguration> privacyConfig, int32_t serverId)
 {
+	if (openKitConfig == nullptr || privacyConfig == nullptr)
+	{
+		return nullptr;
+	}
 
+	return std::make_shared<BeaconConfiguration>(openKitConfig, privacyConfig, serverId);
 }
 
-int32_t BeaconConfiguration::getMultiplicity() const
+std::shared_ptr<IOpenKitConfiguration> BeaconConfiguration::getOpenKitConfiguration() const
 {
-	return mMultiplicity;
+	return mOpenKitConfiguration;
 }
 
-bool BeaconConfiguration::isCapturingAllowed() const
+std::shared_ptr<IPrivacyConfiguration> BeaconConfiguration::getPrivacyConfiguration() const
 {
-	return mMultiplicity > 0;
+	return mPrivacyConfiguration;
 }
+
+std::shared_ptr<IHTTPClientConfiguration> BeaconConfiguration::getHTTPClientConfiguration() const
+{
+	return mHTTPClientConfiguration;
+}
+
+std::shared_ptr<IServerConfiguration> BeaconConfiguration::getServerConfiguration()
+{
+	// synchronized scope
+	std::lock_guard<std::mutex> lock(mMutex);
+	return getServerConfigurationOrDefault();
+}
+
+std::shared_ptr<IServerConfiguration> BeaconConfiguration::getServerConfigurationOrDefault()
+{
+	auto serverConfig = mServerConfiguration;
+	return serverConfig != nullptr ? serverConfig : ServerConfiguration::DEFAULT;
+}
+
+void BeaconConfiguration::updateServerConfiguration(
+		std::shared_ptr<core::configuration::IServerConfiguration> newServerConfiguration)
+{
+	if (newServerConfiguration == nullptr)
+	{
+		return;
+	}
+
+	{ // synchronized scope
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		auto serverConfig = mServerConfiguration;
+		if (serverConfig == nullptr)
+		{
+			mServerConfiguration = newServerConfiguration;
+		}
+		else
+		{
+			mServerConfiguration = serverConfig->merge(newServerConfiguration);
+		}
+	}
+}
+
+void BeaconConfiguration::enableCapture()
+{
+	updateCaptureWith(true);
+}
+
+void BeaconConfiguration::disableCapture()
+{
+	updateCaptureWith(false);
+}
+
+void BeaconConfiguration::updateCaptureWith(bool captureState)
+{
+	{ // synchronized scope
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		auto currentServerConfig = getServerConfigurationOrDefault();
+		mServerConfiguration = ServerConfiguration::Builder(currentServerConfig)
+			.withCapture(captureState)
+			.build();
+	}
+}
+
+bool BeaconConfiguration::isServerConfigurationSet()
+{
+	//synchronized scope
+	std::lock_guard<std::mutex> lock(mMutex);
+
+	return mServerConfiguration != nullptr;
+}
+

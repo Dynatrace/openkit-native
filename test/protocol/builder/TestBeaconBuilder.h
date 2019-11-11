@@ -24,7 +24,9 @@
 
 #include "../../api/mock/MockILogger.h"
 #include "../../core/caching/mock/MockIBeaconCache.h"
+#include "../../core/configuration/mock/MockIBeaconConfiguration.h"
 #include "../../providers/mock/MockIPRNGenerator.h"
+#include "../../providers/mock/MockISessionIDProvider.h"
 #include "../../providers/mock/MockIThreadIDProvider.h"
 #include "../../providers/mock/MockITimingProvider.h"
 
@@ -32,9 +34,10 @@
 #include "core/UTF8String.h"
 #include "core/caching/IBeaconCache.h"
 #include "protocol/Beacon.h"
+#include "providers/IPRNGenerator.h"
+#include "providers/ISessionIDProvider.h"
 #include "providers/IThreadIDProvider.h"
 #include "providers/ITimingProvider.h"
-#include "providers/IPRNGenerator.h"
 
 namespace test
 {
@@ -42,12 +45,10 @@ namespace test
 	{
 	public:
 
-		TestBeaconBuilder(
-			std::shared_ptr<core::configuration::Configuration> configuration
-		)
+		TestBeaconBuilder()
 			: mLogger(nullptr)
 			, mBeaconCache(nullptr)
-			, mConfiguration(configuration)
+			, mConfiguration(nullptr)
 			, mClientIPAddress("127.0.0.1")
 			, mThreadIDProvider(nullptr)
 			, mTimingProvider(nullptr)
@@ -68,6 +69,12 @@ namespace test
 			return *this;
 		}
 
+		TestBeaconBuilder& with(std::shared_ptr<core::configuration::IBeaconConfiguration> configuration)
+		{
+			mConfiguration = configuration;
+			return *this;
+		}
+
 		TestBeaconBuilder& withIpAddress(core::UTF8String& ipAddress)
 		{
 			return withIpAddress(ipAddress.getStringData().c_str());
@@ -76,6 +83,12 @@ namespace test
 		TestBeaconBuilder& withIpAddress(const char* ipAddress)
 		{
 			mClientIPAddress = ipAddress;
+			return *this;
+		}
+
+		TestBeaconBuilder& with(std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider)
+		{
+			mSessionIDProvider = sessionIDProvider;
 			return *this;
 		}
 
@@ -99,18 +112,33 @@ namespace test
 
 		std::shared_ptr<protocol::Beacon> build()
 		{
-			auto logger = (mLogger != nullptr) ? mLogger : MockILogger::createNice();
-			auto beaconCache = (mBeaconCache != nullptr) ? mBeaconCache : MockIBeaconCache::createNice();
-			auto threadIDProvider = (mThreadIDProvider != nullptr) ? mThreadIDProvider : MockIThreadIDProvider::createNice();
-			auto timingProvider = (mTimingProvider != nullptr) ? mTimingProvider : MockITimingProvider::createNice();
+			auto logger = (mLogger != nullptr)
+				? mLogger
+				: MockILogger::createNice();
+			auto beaconCache = (mBeaconCache != nullptr)
+				? mBeaconCache
+				: MockIBeaconCache::createNice();
+			auto configuration = (mConfiguration != nullptr)
+				? mConfiguration
+				: MockIBeaconConfiguration::createNice();
+			auto sessionIDProvider = (mSessionIDProvider != nullptr)
+				? mSessionIDProvider
+				: MockISessionIDProvider::createNice();
+			auto threadIDProvider = (mThreadIDProvider != nullptr)
+				? mThreadIDProvider
+				: MockIThreadIDProvider::createNice();
+			auto timingProvider = (mTimingProvider != nullptr)
+				? mTimingProvider
+				: MockITimingProvider::createNice();
 
 			if(mPRNGenerator != nullptr)
 			{
 				return std::make_shared<protocol::Beacon>(
 					logger,
 					beaconCache,
-					mConfiguration,
+					configuration,
 					mClientIPAddress,
+					sessionIDProvider,
 					threadIDProvider,
 					timingProvider,
 					mPRNGenerator
@@ -120,8 +148,9 @@ namespace test
 			return std::make_shared<protocol::Beacon>(
 				logger,
 				beaconCache,
-				mConfiguration,
+				configuration,
 				mClientIPAddress,
+				sessionIDProvider,
 				threadIDProvider,
 				timingProvider
 			);
@@ -131,8 +160,9 @@ namespace test
 
 		std::shared_ptr<openkit::ILogger> mLogger;
 		std::shared_ptr<core::caching::IBeaconCache> mBeaconCache;
-		std::shared_ptr<core::configuration::Configuration> mConfiguration;
+		std::shared_ptr<core::configuration::IBeaconConfiguration> mConfiguration;
 		const char* mClientIPAddress;
+		std::shared_ptr<providers::ISessionIDProvider> mSessionIDProvider;
 		std::shared_ptr<providers::IThreadIDProvider> mThreadIDProvider;
 		std::shared_ptr<providers::ITimingProvider> mTimingProvider;
 		std::shared_ptr<providers::IPRNGenerator> mPRNGenerator;

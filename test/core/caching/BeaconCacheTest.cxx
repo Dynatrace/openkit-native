@@ -41,7 +41,7 @@ protected:
 
 	MockNiceILogger_sp mockLogger;
 
-	void SetUp()
+	void SetUp() override
 	{
 		mockLogger = MockILogger::createNice();
 	}

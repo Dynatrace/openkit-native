@@ -18,11 +18,18 @@
 
 using namespace core::configuration;
 
-BeaconCacheConfiguration::BeaconCacheConfiguration(int64_t maxRecordAge, int64_t cacheSizeLowerBound, int64_t cacheSizeUpperBound)
-	: mMaxRecordAge(maxRecordAge)
-	, mCacheSizeLowerBound(cacheSizeLowerBound)
-	, mCacheSizeUpperBound(cacheSizeUpperBound)
+BeaconCacheConfiguration::BeaconCacheConfiguration(openkit::IOpenKitBuilder& builder)
+	: mMaxRecordAge(builder.getBeaconCacheMaxRecordAge())
+	, mCacheSizeLowerBound(builder.getBeaconCacheLowerMemoryBoundary())
+	, mCacheSizeUpperBound(builder.getBeaconCacheUpperMemoryBoundary())
 {
+}
+
+std::shared_ptr<IBeaconCacheConfiguration> BeaconCacheConfiguration::from(
+		openkit::IOpenKitBuilder& builder)
+{
+
+	return std::make_shared<BeaconCacheConfiguration>(builder);
 }
 
 int64_t BeaconCacheConfiguration::getMaxRecordAge() const

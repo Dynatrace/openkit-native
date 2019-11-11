@@ -24,14 +24,6 @@ class DefaultSessionIDProviderTest : public testing::Test
 {
 protected:
 
-	void SetUp()
-	{
-	}
-
-	void TearDown()
-	{
-	}
-
 	DefaultSessionIdProvider_t* getProvider()
 	{
 		return &mProvider;

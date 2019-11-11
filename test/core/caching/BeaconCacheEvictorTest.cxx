@@ -48,7 +48,7 @@ protected:
 	MockNiceIBeaconCacheEvictionStrategy_sp mockStrategyOne;
 	MockNiceIBeaconCacheEvictionStrategy_sp mockStrategyTwo;
 
-	void SetUp()
+	void SetUp() override
 	{
 		mockLogger = MockILogger::createNice();
 		mockBeaconCache = MockIBeaconCache::createNice();

@@ -32,14 +32,18 @@ constexpr int32_t SHUTDOWN_SLICED_WAIT_TIME_MILLISECONDS = 100;
 BeaconSender::BeaconSender
 (
 	std::shared_ptr<openkit::ILogger> logger,
-	std::shared_ptr<core::configuration::Configuration> configuration,
+	std::shared_ptr<core::configuration::IHTTPClientConfiguration> httpClientConfiguration,
 	std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
 	std::shared_ptr<providers::ITimingProvider> timingProvider
 )
 	: mLogger(logger)
-	, mBeaconSendingContext
-	(
-		std::make_shared<BeaconSendingContext>(logger, httpClientProvider, timingProvider, configuration)
+	, mBeaconSendingContext(
+		std::make_shared<BeaconSendingContext>(
+			logger,
+			httpClientConfiguration,
+			httpClientProvider,
+			timingProvider
+		)
 	)
 	, mSendingThread()
 	, mTimingProvider(timingProvider)
@@ -111,20 +115,16 @@ void BeaconSender::shutdown()
 	// if the thread is still running here it will either finish later or killed when the main process is ended
 }
 
-void BeaconSender::startSession(std::shared_ptr<core::objects::SessionInternals> session)
+int32_t BeaconSender::getCurrentServerID() const
 {
-	if (mLogger->isDebugEnabled())
-	{
-		mLogger->debug("BeaconSender startSession");
-	}
-	mBeaconSendingContext->startSession(session);
+	return mBeaconSendingContext->getCurrentServerID();
 }
 
-void BeaconSender::finishSession(std::shared_ptr<core::objects::SessionInternals> session)
+void BeaconSender::addSession(std::shared_ptr<core::objects::SessionInternals> session)
 {
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("BeaconSender finishSession");
+		mLogger->debug("BeaconSender addSession");
 	}
-	mBeaconSendingContext->finishSession(session);
+	mBeaconSendingContext->addSession(session);
 }

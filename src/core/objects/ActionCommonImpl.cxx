@@ -288,9 +288,8 @@ bool ActionCommonImpl::leaveAction()
 	// Note: at this point it's save to do any further operations outside a mutual exclusive scope
 	// after the action was left, no further child objects must be added
 	auto childObjects = getCopyOfChildObjects();
-	for (auto it = childObjects.begin(); it != childObjects.end(); ++it)
+	for (auto childObject : childObjects)
 	{
-		auto childObject = *it;
 		childObject->close();
 	}
 
@@ -321,6 +320,11 @@ bool ActionCommonImpl::isActionLeft() const
 int32_t ActionCommonImpl::getID() const
 {
 	return mActionID;
+}
+
+int32_t ActionCommonImpl::getActionId() const
+{
+	return getID();
 }
 
 int32_t ActionCommonImpl::getParentID() const

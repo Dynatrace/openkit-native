@@ -41,7 +41,6 @@ namespace test
 			ON_CALL(*this, enterAction(testing::_)).WillByDefault(testing::Return(nullptr));
 			ON_CALL(*this, traceWebRequest(testing::_)).WillByDefault(testing::Return(nullptr));
 			ON_CALL(*this, sendBeacon(testing::_)).WillByDefault(testing::Return(nullptr));
-			ON_CALL(*this, getBeaconConfiguration()).WillByDefault(testing::Return(nullptr));
 		}
 
 		~MockSessionInternals() override = default;
@@ -98,13 +97,11 @@ namespace test
 
 		MOCK_CONST_METHOD0(isSessionEnded, bool());
 
-		MOCK_METHOD1(setBeaconConfiguration,
+		MOCK_METHOD1(updateServerConfiguration,
 			void(
-				std::shared_ptr<core::configuration::IBeaconConfiguration>
+				std::shared_ptr<core::configuration::IServerConfiguration> /* serverConfig */
 			)
 		);
-
-		MOCK_CONST_METHOD0(getBeaconConfiguration, std::shared_ptr<core::configuration::IBeaconConfiguration>());
 
 		MOCK_METHOD1(onChildClosed,
 			void(
@@ -113,6 +110,24 @@ namespace test
 		);
 
 		MOCK_METHOD0(close, void());
+
+		MOCK_METHOD0(isDataSendingAllowed, bool());
+
+		MOCK_METHOD0(enableCapture, void());
+
+		MOCK_METHOD0(disableCapture, void());
+
+		MOCK_CONST_METHOD0(canSendNewSessionRequest, bool());
+
+		MOCK_METHOD0(decreaseNumRemainingSessionRequests, void());
+
+		MOCK_METHOD0(isConfigured, bool());
+
+		MOCK_METHOD0(isConfiguredAndFinished, bool());
+
+		MOCK_METHOD0(isConfiguredAndOpen, bool());
+
+		MOCK_METHOD0(isFinished, bool());
 	};
 }
 

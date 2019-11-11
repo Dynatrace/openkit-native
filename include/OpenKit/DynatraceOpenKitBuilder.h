@@ -31,6 +31,8 @@ namespace openkit
 	{
 	public:
 
+		static constexpr int32_t DEFAULT_SERVER_ID = 1;
+
 		static const std::string OPENKIT_TYPE;
 
 		///
@@ -56,8 +58,6 @@ namespace openkit
 		///
 		~DynatraceOpenKitBuilder() override = default;
 
-		std::shared_ptr<core::configuration::Configuration> buildConfiguration() override;
-
 		///
 		/// Sets the application name. The value is only set if it is not @c nullptr.
 		/// @param[in] applicationName name of the application
@@ -70,6 +70,8 @@ namespace openkit
 		const std::string& getApplicationID() const override;
 
 		const std::string& getApplicationName() const override;
+
+		int32_t getDefaultServerID() const override;
 
 	private:
 		/// application id

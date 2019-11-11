@@ -18,21 +18,19 @@
 
 #include "BeaconSendingInitialState.h"
 #include "IBeaconSendingState.h"
-
 #include "protocol/HTTPClient.h"
-#include "core/configuration/Configuration.h"
+#include "core/configuration/ServerConfiguration.h"
 #include "core/configuration/HTTPClientConfiguration.h"
 
 using namespace core::communication;
 
 const std::chrono::milliseconds BeaconSendingContext::DEFAULT_SLEEP_TIME_MILLISECONDS(std::chrono::seconds(1));
 
-BeaconSendingContext::BeaconSendingContext
-(
+BeaconSendingContext::BeaconSendingContext(
 	std::shared_ptr<openkit::ILogger> logger,
+	std::shared_ptr<core::configuration::IHTTPClientConfiguration> httpClientConfig,
 	std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
 	std::shared_ptr<providers::ITimingProvider> timingProvider,
-	std::shared_ptr<core::configuration::Configuration> configuration,
 	std::unique_ptr<IBeaconSendingState> initialState
 )
 	: mLogger(logger)
@@ -42,7 +40,8 @@ BeaconSendingContext::BeaconSendingContext
 	, mShutdownMutex()
 	, mSleepConditionVariable()
 	, mInitSucceeded(false)
-	, mConfiguration(configuration)
+	, mServerConfiguration(core::configuration::ServerConfiguration::DEFAULT)
+	, mHTTPClientConfiguration(httpClientConfig)
 	, mHTTPClientProvider(httpClientProvider)
 	, mTimingProvider(timingProvider)
 	, mLastStatusCheckTime(0)
@@ -55,28 +54,18 @@ BeaconSendingContext::BeaconSendingContext
 BeaconSendingContext::BeaconSendingContext
 (
 	std::shared_ptr<openkit::ILogger> logger,
+	std::shared_ptr<core::configuration::IHTTPClientConfiguration> httpClientConfig,
 	std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
-	std::shared_ptr<providers::ITimingProvider> timingProvider,
-	std::shared_ptr<core::configuration::Configuration> configuration
+	std::shared_ptr<providers::ITimingProvider> timingProvider
 )
 : BeaconSendingContext(
 	logger,
+	httpClientConfig,
 	httpClientProvider,
 	timingProvider,
-	configuration,
 	std::unique_ptr<IBeaconSendingState>(new BeaconSendingInitialState())
 )
 {
-}
-
-void BeaconSendingContext::setNextState(std::shared_ptr<IBeaconSendingState> nextState)
-{
-	mNextState = nextState;
-}
-
-bool BeaconSendingContext::isInTerminalState() const
-{
-	return mCurrentState->isTerminalState();
 }
 
 void BeaconSendingContext::executeCurrentState()
@@ -107,54 +96,16 @@ bool BeaconSendingContext::isShutdownRequested() const
 	return mShutdown;
 }
 
-std::shared_ptr<providers::IHTTPClientProvider> BeaconSendingContext::getHTTPClientProvider()
+bool BeaconSendingContext::waitForInit()
 {
-	return mHTTPClientProvider;
+	mInitCountdownLatch.await();
+	return mInitSucceeded;
 }
 
-std::shared_ptr<protocol::IHTTPClient> BeaconSendingContext::getHTTPClient()
+bool BeaconSendingContext::waitForInit(int64_t timeoutMillis)
 {
-	auto httpClientConfig = mConfiguration->getHTTPClientConfiguration();
-	return mHTTPClientProvider->createClient(mLogger, httpClientConfig);
-}
-
-int64_t BeaconSendingContext::getSendInterval() const
-{
-	return mConfiguration->getSendInterval();
-}
-
-void BeaconSendingContext::handleStatusResponse(std::shared_ptr<protocol::IStatusResponse> response)
-{
-	mConfiguration->updateSettings(response);
-
-	if (!isCaptureOn())
-	{
-		// capturing was turned off
-		clearAllSessionData();
-	}
-}
-
-void BeaconSendingContext::clearAllSessionData()
-{
-	// clear captured data from finished sessions
-	for (auto session : mSessions.toStdVector())
-	{
-		session->clearCapturedData();
-		if (session->isSessionFinished())
-		{
-			mSessions.remove(session);
-		}
-	}
-}
-
-bool BeaconSendingContext::isCaptureOn() const
-{
-	return mConfiguration->isCapture();
-}
-
-std::shared_ptr<IBeaconSendingState> BeaconSendingContext::getCurrentState() const
-{
-	return mCurrentState;
+	mInitCountdownLatch.await(timeoutMillis);
+	return mInitSucceeded;
 }
 
 void BeaconSendingContext::setInitCompleted(bool success)
@@ -168,16 +119,44 @@ bool BeaconSendingContext::isInitialized() const
 	return mInitSucceeded;
 }
 
-bool BeaconSendingContext::waitForInit()
+bool BeaconSendingContext::isInTerminalState() const
 {
-	mInitCountdownLatch.await();
-	return mInitSucceeded;
+	return mCurrentState->isTerminalState();
 }
 
-bool BeaconSendingContext::waitForInit(int64_t timeoutMillis)
+bool BeaconSendingContext::isCaptureOn() const
 {
-	mInitCountdownLatch.await(timeoutMillis);
-	return mInitSucceeded;
+	return mServerConfiguration->isCaptureEnabled();
+}
+
+std::shared_ptr<IBeaconSendingState> BeaconSendingContext::getCurrentState() const
+{
+	return mCurrentState;
+}
+
+void BeaconSendingContext::setNextState(std::shared_ptr<IBeaconSendingState> nextState)
+{
+	mNextState = nextState;
+}
+
+std::shared_ptr<IBeaconSendingState> BeaconSendingContext::getNextState()
+{
+	return mNextState;
+}
+
+std::shared_ptr<providers::IHTTPClientProvider> BeaconSendingContext::getHTTPClientProvider()
+{
+	return mHTTPClientProvider;
+}
+
+std::shared_ptr<protocol::IHTTPClient> BeaconSendingContext::getHTTPClient()
+{
+	return mHTTPClientProvider->createClient(mLogger, mHTTPClientConfiguration);
+}
+
+int64_t BeaconSendingContext::getCurrentTimestamp() const
+{
+	return mTimingProvider->provideTimestampInMilliseconds();
 }
 
 void BeaconSendingContext::sleep()
@@ -191,28 +170,6 @@ void BeaconSendingContext::sleep(int64_t ms)
 	mSleepConditionVariable.wait_for(lock, std::chrono::milliseconds(ms), [&] { return mShutdown; });
 }
 
-int64_t BeaconSendingContext::getLastStatusCheckTime() const
-{
-	return mLastStatusCheckTime;
-}
-
-void BeaconSendingContext::setLastStatusCheckTime(int64_t lastStatusCheckTime)
-{
-	mLastStatusCheckTime = lastStatusCheckTime;
-}
-
-void BeaconSendingContext::disableCapture()
-{
-	// first disable in configuration, so no further data will get collected
-	mConfiguration->disableCapture();
-	clearAllSessionData();
-}
-
-int64_t BeaconSendingContext::getCurrentTimestamp() const
-{
-	return mTimingProvider->provideTimestampInMilliseconds();
-}
-
 int64_t BeaconSendingContext::getLastOpenSessionBeaconSendTime() const
 {
 	return mLastOpenSessionBeaconSendTime;
@@ -223,88 +180,137 @@ void BeaconSendingContext::setLastOpenSessionBeaconSendTime(int64_t timestamp)
 	mLastOpenSessionBeaconSendTime = timestamp;
 }
 
-IBeaconSendingState::StateType BeaconSendingContext::getCurrentStateType() const
+int64_t BeaconSendingContext::getLastStatusCheckTime() const
 {
-	return mCurrentState->getStateType();
+	return mLastStatusCheckTime;
 }
 
-void BeaconSendingContext::startSession(std::shared_ptr<core::objects::SessionInternals> session)
+void BeaconSendingContext::setLastStatusCheckTime(int64_t lastStatusCheckTime)
 {
-	auto sessionWrapper = std::make_shared<core::SessionWrapper>(session);
-	mSessions.put(sessionWrapper);
+	mLastStatusCheckTime = lastStatusCheckTime;
 }
 
-void BeaconSendingContext::finishSession(std::shared_ptr<core::objects::SessionInternals> session)
+int64_t BeaconSendingContext::getSendInterval() const
 {
-	std::shared_ptr<core::SessionWrapper> sessionWrapper = findSessionWrapper(session);
-	if (sessionWrapper != nullptr)
+	return mServerConfiguration->getSendIntervalInMilliseconds();
+}
+
+void BeaconSendingContext::disableCaptureAndClear()
+{
+	// first disable in configuration, so no further data will get collected
+	disableCapture();
+	clearAllSessionData();
+}
+
+void BeaconSendingContext::disableCapture()
+{
+	mServerConfiguration = core::configuration::ServerConfiguration::Builder(mServerConfiguration)
+			.withCapture(false)
+			.build();
+}
+
+void BeaconSendingContext::handleStatusResponse(std::shared_ptr<protocol::IStatusResponse> response)
+{
+	if (response == nullptr || response->getResponseCode() != 200)
 	{
-		sessionWrapper->finishSession();
+		disableCaptureAndClear();
+		return;
+	}
+
+	mServerConfiguration = core::configuration::ServerConfiguration::Builder(response).build();
+	if (!isCaptureOn())
+	{
+		// capturing was turned off
+		clearAllSessionData();
+	}
+
+	auto serverId = mServerConfiguration->getServerId();
+	if (serverId != mHTTPClientConfiguration->getServerID())
+	{
+		mHTTPClientConfiguration = core::configuration::HTTPClientConfiguration::Builder(mHTTPClientConfiguration)
+			.withServerID(serverId)
+			.build();
 	}
 }
 
-std::vector<std::shared_ptr<core::SessionWrapper>> BeaconSendingContext::getAllNewSessions()
+void BeaconSendingContext::clearAllSessionData()
 {
-	std::vector<std::shared_ptr<core::SessionWrapper>> newSessions;
-
-	for (auto wrapper : mSessions.toStdVector())
+	// clear captured data from finished sessions
+	for (auto session : mSessions.toStdVector())
 	{
-		if (!wrapper->isBeaconConfigurationSet())
+		session->clearCapturedData();
+		if (session->isFinished())
 		{
-			newSessions.push_back(wrapper);
+			mSessions.remove(session);
+		}
+	}
+}
+
+std::vector<std::shared_ptr<core::objects::SessionInternals>> BeaconSendingContext::getAllNotConfiguredSessions()
+{
+	std::vector<std::shared_ptr<core::objects::SessionInternals>> notConfiguredSessions;
+
+	for (auto session : mSessions.toStdVector())
+	{
+		if (!session->isConfigured())
+		{
+			notConfiguredSessions.push_back(session);
 		}
 	}
 
-	return newSessions;
+	return notConfiguredSessions;
 }
 
-std::vector<std::shared_ptr<core::SessionWrapper>> BeaconSendingContext::getAllOpenAndConfiguredSessions()
+std::vector<std::shared_ptr<core::objects::SessionInternals>> BeaconSendingContext::getAllOpenAndConfiguredSessions()
 {
-	std::vector<std::shared_ptr<core::SessionWrapper>> openSessions;
+	std::vector<std::shared_ptr<core::objects::SessionInternals>> openSessions;
 
-	for (auto wrapper : mSessions.toStdVector())
+	for (auto session : mSessions.toStdVector())
 	{
-		if (wrapper->isBeaconConfigurationSet() && !wrapper->isSessionFinished())
+		if (session->isConfiguredAndOpen())
 		{
-			openSessions.push_back(wrapper);
+			openSessions.push_back(session);
 		}
 	}
 
 	return openSessions;
 }
 
-std::vector<std::shared_ptr<core::SessionWrapper>> BeaconSendingContext::getAllFinishedAndConfiguredSessions()
+std::vector<std::shared_ptr<core::objects::SessionInternals>> BeaconSendingContext::getAllFinishedAndConfiguredSessions()
 {
-	std::vector<std::shared_ptr<core::SessionWrapper>> finishedSessions;
-	for (auto wrapper : mSessions.toStdVector())
+	std::vector<std::shared_ptr<core::objects::SessionInternals>> finishedSessions;
+	for (auto session : mSessions.toStdVector())
 	{
-		if (wrapper->isBeaconConfigurationSet() && wrapper->isSessionFinished())
+		if (session->isConfiguredAndFinished())
 		{
-			finishedSessions.push_back(wrapper);
+			finishedSessions.push_back(session);
 		}
 	}
 
 	return finishedSessions;
 }
 
-std::shared_ptr<IBeaconSendingState> BeaconSendingContext::getNextState()
+int32_t BeaconSendingContext::getSessionCount()
 {
-	return mNextState;
+	return mSessions.size();
 }
 
-std::shared_ptr<core::SessionWrapper> BeaconSendingContext::findSessionWrapper(std::shared_ptr<core::objects::SessionInternals> session)
+int32_t BeaconSendingContext::getCurrentServerID() const
 {
-	for (auto sessionWrapper : mSessions.toStdVector())
-	{
-		if ( sessionWrapper->getWrappedSession() == session )
-		{
-			return sessionWrapper;
-		}
-	}
-	return nullptr;
+	return mHTTPClientConfiguration->getServerID();
 }
 
-bool BeaconSendingContext::removeSession(std::shared_ptr<core::SessionWrapper> sessionWrapper)
+void BeaconSendingContext::addSession(std::shared_ptr<core::objects::SessionInternals> session)
+{
+	mSessions.put(session);
+}
+
+bool BeaconSendingContext::removeSession(std::shared_ptr<core::objects::SessionInternals> sessionWrapper)
 {
 	return mSessions.remove(sessionWrapper);
+}
+
+IBeaconSendingState::StateType BeaconSendingContext::getCurrentStateType() const
+{
+	return mCurrentState->getStateType();
 }

@@ -24,6 +24,7 @@
 #include "core/UTF8String.h"
 #include "core/objects/ActionCommonImpl.h"
 #include "core/objects/IActionCommon.h"
+#include "core/objects/IOpenKitObject.h"
 #include "core/objects/LeafAction.h"
 #include "core/objects/NullAction.h"
 #include "core/objects/NullWebRequestTracer.h"
@@ -39,6 +40,7 @@ using namespace test;
 using ActionCommonImpl_t = core::objects::ActionCommonImpl;
 using ActionCommonImpl_sp = std::shared_ptr<ActionCommonImpl_t>;
 using IActionCommon_t = core::objects::IActionCommon;
+using IOpenKitObject_t = core::objects::IOpenKitObject;
 using IRootAction_t = openkit::IRootAction;
 using LeafAction_t = core::objects::LeafAction;
 using MockNiceILogger_sp = std::shared_ptr<testing::NiceMock<MockILogger>>;
@@ -62,7 +64,7 @@ protected:
 	Utf8String_t ACTION_NAME = "TestAction";
 	int32_t ACTION_ID= 1234;
 
-	void SetUp()
+	void SetUp() override
 	{
 		mockNiceLogger = MockILogger::createNice();
 		mockParent = std::make_shared<MockNiceIOpenKitComposite_t>();
@@ -255,25 +257,6 @@ TEST_F(ActionCommonImplTest, reportValueDoubleWithValidValue)
 	target->reportValue(eventName, value);
 }
 
-TEST_F(ActionCommonImplTest, reportValueStringWithNullNameDoesNotReportValue)
-{
-	// given
-	const char* eventName = nullptr;
-	const char* value = "This is a string";
-	auto target = createAction();
-
-	// expect
-	std::stringstream stream;
-	stream << target->toString() << " reportValue (string): valueName must not be null or empty";
-	EXPECT_CALL(*mockNiceLogger, mockWarning(stream.str()))
-		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockNiceBeacon, reportValue(testing::_, testing::_, testing::An<const Utf8String_t&>()))
-		.Times(testing::Exactly(0));
-
-	//when
-	target->reportValue(eventName, value);
-}
-
 TEST_F(ActionCommonImplTest, reportValueStringWithValidValue)
 {
 	// with
@@ -289,6 +272,25 @@ TEST_F(ActionCommonImplTest, reportValueStringWithValidValue)
 
 	// given
 	auto target = createAction();
+
+	//when
+	target->reportValue(eventName, value);
+}
+
+TEST_F(ActionCommonImplTest, reportValueStringWithNullNameDoesNotReportValue)
+{
+	// given
+	const char* eventName = nullptr;
+	const char* value = "This is a string";
+	auto target = createAction();
+
+	// expect
+	std::stringstream stream;
+	stream << target->toString() << " reportValue (string): valueName must not be null or empty";
+	EXPECT_CALL(*mockNiceLogger, mockWarning(stream.str()))
+		.Times(testing::Exactly(1));
+	EXPECT_CALL(*mockNiceBeacon, reportValue(testing::_, testing::_, testing::An<const Utf8String_t&>()))
+		.Times(testing::Exactly(0));
 
 	//when
 	target->reportValue(eventName, value);
@@ -431,6 +433,24 @@ TEST_F(ActionCommonImplTest, traceWebRequestWithUrlContainingParameters)
 	obtained->stop(0);
 }
 
+TEST_F(ActionCommonImplTest, traceWebRequestWithValidUrlStringAttachesWebRequestTracerAsChildObject)
+{
+	// given
+	const char* url = "http://localhost";
+	auto target = createAction();
+
+	// when
+	auto obtained = target->traceWebRequest(url);
+
+	// then
+	auto childObjects = target->getCopyOfChildObjects();
+	ASSERT_THAT(childObjects.size(), testing::Eq(1));
+	ASSERT_THAT(std::dynamic_pointer_cast<IOpenKitObject_t>(obtained), testing::Eq(*childObjects.begin()));
+
+	// break dependency cycle: tracer as child in action
+	obtained->stop(0);
+}
+
 TEST_F(ActionCommonImplTest, onChildClosedRemovesChildFromList)
 {
 	// with
@@ -483,7 +503,6 @@ TEST_F(ActionCommonImplTest, tracingAnEmptyStringWebRequestIsNotAllowed)
 	EXPECT_CALL(*mockNiceLogger, mockWarning(stream.str()))
 		.Times(testing::Exactly(1));
 
-
 	// when
 	auto obtained = target->traceWebRequest(url);
 
@@ -507,7 +526,6 @@ TEST_F(ActionCommonImplTest, traceWebRequestWithInvalidUrlIsNotAllowed)
 	stream << target->toString() << " traceWebRequest (string): url \"" << url << "\" does not have a valid scheme";
 	EXPECT_CALL(*mockNiceLogger, mockWarning(stream.str()))
 		.Times(testing::Exactly(1));
-
 
 	// when
 	auto obtained = target->traceWebRequest(url);
@@ -962,6 +980,21 @@ TEST_F(ActionCommonImplTest, reportErrorDoesNothingIfActionIsLeft)
 	target->reportError(errorName, errorCode, errorReason);
 }
 
+TEST_F(ActionCommonImplTest, traceWebRequestGivesNullTracerIfActionIsLeft)
+{
+	// given
+	const char* url = "http://localhost";
+	auto target = createAction();
+	target->leaveAction();
+
+	// when
+	auto obtained = target->traceWebRequest(url);
+
+	// then
+	ASSERT_THAT(obtained, testing::NotNull());
+	ASSERT_THAT(std::dynamic_pointer_cast<NullWebRequestTracer_t>(obtained), testing::NotNull());
+}
+
 TEST_F(ActionCommonImplTest, closeActionLeavesTheAction)
 {
 	// with
@@ -1140,4 +1173,19 @@ TEST_F(ActionCommonImplTest, toStringReturnsAppropriateResult)
 		<< ", pa=" << parentId
 		<< "]";
 	ASSERT_THAT(obtained, testing::Eq(ss.str()));
+}
+
+TEST_F(ActionCommonImplTest, getActionIdReturnsIdInitializedInConstructor)
+{
+	// given
+	const int32_t id = 777;
+	ON_CALL(*mockNiceBeacon, createID())
+		.WillByDefault(testing::Return(id));
+
+	// when
+	auto target = createAction();
+
+	// then
+	ASSERT_THAT(target->getID(), testing::Eq(id));
+	ASSERT_THAT(target->getActionId(), testing::Eq(id));
 }

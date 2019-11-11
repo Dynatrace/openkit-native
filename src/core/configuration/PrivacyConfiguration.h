@@ -19,6 +19,7 @@
 
 #include "OpenKit/CrashReportingLevel.h"
 #include "OpenKit/DataCollectionLevel.h"
+#include "OpenKit/IOpenKitBuilder.h"
 #include "core/configuration/IPrivacyConfiguration.h"
 
 namespace core
@@ -36,15 +37,21 @@ namespace core
 			///
 			/// Constructs the privacy configuration
 			///
-			/// @param dataCollectionLevel data collection level as configured in the OpenKit builder.
-			/// @param crashReportingLevel crash reporting level as configured in the OpenKit builder.
+			/// @param builder instance providing privacy relevant configuration details.
 			///
 			PrivacyConfiguration(
-				openkit::DataCollectionLevel dataCollectionLevel,
-				openkit::CrashReportingLevel crashReportingLevel
+				openkit::IOpenKitBuilder& builder
 			);
 
 			~PrivacyConfiguration() override = default;
+
+			///
+			/// Creates a privacy configuration instance from the given OpenKit builder.
+			///
+			/// @param builder the OpenKit builder from which to create the privacy configuration instance.
+			/// @return a newly created privacy configuration instance or @c nullptr if the given argument is @c nullptr
+			///
+			static std::shared_ptr<IPrivacyConfiguration> from(openkit::IOpenKitBuilder& builder);
 
 			///
 			/// Returns the data collection level which was set in the constructor.

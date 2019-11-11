@@ -37,7 +37,6 @@ namespace test
 		TestSessionBuilder()
 			: mLogger(nullptr)
 			, mParent(nullptr)
-			, mBeaconSender(nullptr)
 			, mBeacon(nullptr)
 		{
 		}
@@ -54,12 +53,6 @@ namespace test
 			return *this;
 		}
 
-		TestSessionBuilder& with(std::shared_ptr<core::IBeaconSender> beaconSender)
-		{
-			mBeaconSender = beaconSender;
-			return *this;
-		}
-
 		TestSessionBuilder& with(std::shared_ptr<protocol::IBeacon> beacon)
 		{
 			mBeacon = beacon;
@@ -70,13 +63,11 @@ namespace test
 		{
 			auto logger = mLogger != nullptr ? mLogger : MockILogger::createNice();
 			auto parent = mParent != nullptr ? mParent : MockIOpenKitComposite::createNice();
-			auto beaconSender = mBeaconSender != nullptr ? mBeaconSender : MockIBeaconSender::createNice();
 			auto beacon = mBeacon != nullptr ? mBeacon : MockIBeacon::createNice();
 
 			return std::make_shared<core::objects::Session>(
 				logger,
 				parent,
-				beaconSender,
 				beacon
 			);
 		}
@@ -85,7 +76,6 @@ namespace test
 
 		std::shared_ptr<openkit::ILogger> mLogger;
 		std::shared_ptr<core::objects::IOpenKitComposite> mParent;
-		std::shared_ptr<core::IBeaconSender> mBeaconSender;
 		std::shared_ptr<protocol::IBeacon> mBeacon;
 	};
 }

@@ -46,12 +46,10 @@ namespace openkit
 	{
 		public:
 
-			static const int32_t DEFAULT_SERVER_ID;
-
 			///
 			/// Destructor
 			///
-			virtual ~AbstractOpenKitBuilder() {}
+			virtual ~AbstractOpenKitBuilder() = default;
 
 			///
 			/// Enables verbose mode. Verbose mode is only enabled if the the default logger is used.
@@ -183,13 +181,7 @@ namespace openkit
 			/// Builds an @ref openkit::IOpenKit instance
 			/// @return an @ref openkit::IOpenKit instance
 			///
-			virtual std::shared_ptr<openkit::IOpenKit> build();
-
-			///
-			/// Builds the configuration for the OpenKit instance
-			/// @returns the configuration build using the parameters in this class
-			///
-			virtual std::shared_ptr<core::configuration::Configuration> buildConfiguration() = 0;
+			std::shared_ptr<openkit::IOpenKit> build();
 
 			const std::string& getOpenKitType() const override = 0;
 
@@ -197,7 +189,7 @@ namespace openkit
 
 			const std::string& getApplicationName() const override = 0;
 
-			int32_t getDefaultServerID() const override;
+			int32_t getDefaultServerID() const override = 0;
 
 			const std::string& getApplicationVersion() const override;
 

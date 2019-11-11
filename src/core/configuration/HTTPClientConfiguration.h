@@ -23,6 +23,7 @@
 #include "core/configuration/IOpenKitConfiguration.h"
 
 #include <memory>
+#include <OpenKit/IOpenKitBuilder.h>
 
 
 namespace core
@@ -56,6 +57,8 @@ namespace core
 				/// @param httpClientConfig the configuration from which the builder will be initialized.
 				///
 				Builder(std::shared_ptr<core::configuration::IHTTPClientConfiguration> httpClientConfig);
+
+				~Builder() = default;
 
 				const core::UTF8String& getBaseURL() const;
 
@@ -94,6 +97,18 @@ namespace core
 			/// @param[in] sslTrustManager optional
 			///
 			HTTPClientConfiguration(Builder& builder);
+
+			~HTTPClientConfiguration() override = default;
+
+			///
+			/// Creates a new HTTP client configuration instance and initializes it from the given builder.
+			///
+			/// @param openKitConfig the OpenKit configuration from which the instance will be initialized.
+			/// @return  a new HTTP client configuration instance initialized from the given configuration.
+			///
+			static std::shared_ptr<IHTTPClientConfiguration> from(
+				std::shared_ptr<core::configuration::IOpenKitConfiguration> openKitConfig)
+			;
 
 			///
 			/// Returns the base url for the http client

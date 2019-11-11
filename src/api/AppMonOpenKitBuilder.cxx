@@ -15,12 +15,6 @@
 */
 
 #include "OpenKit/AppMonOpenKitBuilder.h"
-#include "providers/DefaultSessionIDProvider.h"
-#include "core/configuration/BeaconCacheConfiguration.h"
-#include "core/configuration/BeaconConfiguration.h"
-#include "core/configuration/Configuration.h"
-#include "core/configuration/ConfigurationDefaults.h"
-#include "core/configuration/PrivacyConfiguration.h"
 
 using namespace openkit;
 
@@ -38,41 +32,6 @@ AppMonOpenKitBuilder::AppMonOpenKitBuilder(const char* endpointURL, const char* 
 {
 }
 
-std::shared_ptr<core::configuration::Configuration> AppMonOpenKitBuilder::buildConfiguration()
-{
-	auto device = std::make_shared<core::configuration::Device>(getOperatingSystem(), getManufacturer(), getModelID());
-
-	auto beaconCacheConfiguration = std::make_shared<core::configuration::BeaconCacheConfiguration>(
-		getBeaconCacheMaxRecordAge(),
-		getBeaconCacheLowerMemoryBoundary(),
-		getBeaconCacheUpperMemoryBoundary()
-		);
-
-	auto beaconConfiguration = std::make_shared<core::configuration::BeaconConfiguration>(
-		core::configuration::DEFAULT_MULTIPLICITY // starting with default multiplicity, value changed according to server response
-	);
-	auto privacyConfiguration = std::make_shared<core::configuration::PrivacyConfiguration>(
-		getDataCollectionLevel(),
-		getCrashReportingLevel()
-	);
-
-	return std::make_shared<core::configuration::Configuration>(
-		device,
-		core::configuration::OpenKitType::Type::APPMON,
-		mApplicationName,
-		getApplicationVersion(),
-		mApplicationName,
-		getDeviceID(),
-		getOrigDeviceID(),
-		getEndpointURL(),
-		std::make_shared<providers::DefaultSessionIDProvider>(),
-		getTrustManager(),
-		beaconCacheConfiguration,
-		beaconConfiguration,
-		privacyConfiguration
-	);
-}
-
 const std::string& AppMonOpenKitBuilder::getOpenKitType() const
 {
 	return OPENKIT_TYPE;
@@ -86,4 +45,9 @@ const std::string& AppMonOpenKitBuilder::getApplicationID() const
 const std::string& AppMonOpenKitBuilder::getApplicationName() const
 {
 	return mApplicationName;
+}
+
+int32_t AppMonOpenKitBuilder::getDefaultServerID() const
+{
+	return DEFAULT_SERVER_ID;
 }

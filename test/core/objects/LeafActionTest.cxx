@@ -39,14 +39,10 @@ protected:
 	MockStrictIActionCommon_sp mockActionImpl;
 	MockStrictIRootAction_sp mockRootAction;
 
-	void SetUp()
+	void SetUp() override
 	{
 		mockActionImpl = MockIActionCommon::createStrict();
 		mockRootAction = MockIRootAction::createStrict();
-	}
-
-	void TearDown()
-	{
 	}
 
 	LeafAction_sp createAction()

@@ -26,13 +26,3 @@ std::shared_ptr<protocol::IHTTPClient> DefaultHTTPClientProvider::createClient(
 {
 	return std::make_shared<protocol::HTTPClient>(logger, configuration);
 }
-
-void DefaultHTTPClientProvider::globalInit()
-{
-	protocol::HTTPClient::globalInit();
-}
-
-void DefaultHTTPClientProvider::globalDestroy()
-{
-	protocol::HTTPClient::globalDestroy();
-}

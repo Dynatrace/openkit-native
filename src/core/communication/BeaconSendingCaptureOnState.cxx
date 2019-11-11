@@ -26,6 +26,7 @@
 #include "BeaconSendingContext.h"
 #include "BeaconSendingResponseUtil.h"
 #include "core/configuration/BeaconConfiguration.h"
+#include "core/configuration/ServerConfiguration.h"
 #include "protocol/IStatusResponse.h"
 
 using namespace core::communication;
@@ -186,23 +187,20 @@ std::shared_ptr<protocol::IStatusResponse> BeaconSendingCaptureOnState::sendNewS
 )
 {
 	std::shared_ptr<protocol::IStatusResponse> statusResponse = nullptr;
-	for (auto session : context.getAllNewSessions() )
+	for (auto session : context.getAllNotConfiguredSessions())
 	{
 		if (!session->canSendNewSessionRequest())
 		{
 			// already exceeded the maximum number of session requests, disable any further data collecting
-			auto newBeaconConfiguration = std::make_shared<configuration::BeaconConfiguration>(0);
-			session->updateBeaconConfiguration(newBeaconConfiguration);
+			session->disableCapture();
 			continue;
 		}
 
 		statusResponse = context.getHTTPClient()->sendNewSessionRequest();
 		if (BeaconSendingResponseUtil::isSuccessfulResponse(statusResponse))
 		{
-			auto newBeaconConfiguration = std::make_shared<configuration::BeaconConfiguration>(
-				statusResponse->getMultiplicity()
-			);
-			session->updateBeaconConfiguration(newBeaconConfiguration);
+			auto newServerConfig = configuration::ServerConfiguration::from(statusResponse);
+			session->updateServerConfiguration(newServerConfig);
 		}
 		else if (BeaconSendingResponseUtil::isTooManyRequestsResponse(statusResponse))
 		{
@@ -212,7 +210,7 @@ std::shared_ptr<protocol::IStatusResponse> BeaconSendingCaptureOnState::sendNewS
 		else
 		{
 			// any other unsuccessful response
-			session->decreaseNumberOfNewSessionRequests();
+			session->decreaseNumRemainingSessionRequests();
 		}
 	}
 

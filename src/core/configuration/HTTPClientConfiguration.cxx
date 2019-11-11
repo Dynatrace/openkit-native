@@ -28,6 +28,18 @@ HTTPClientConfiguration::HTTPClientConfiguration(
 {
 }
 
+std::shared_ptr<IHTTPClientConfiguration> HTTPClientConfiguration::from(
+	std::shared_ptr<core::configuration::IOpenKitConfiguration> openKitConfig
+)
+{
+	if (openKitConfig == nullptr)
+	{
+		return nullptr;
+	}
+
+	return HTTPClientConfiguration::Builder(openKitConfig).build();
+}
+
 const core::UTF8String& HTTPClientConfiguration::getBaseURL() const
 {
 	return mBaseURL;

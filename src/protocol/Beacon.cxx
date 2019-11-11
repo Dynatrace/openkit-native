@@ -15,8 +15,6 @@
 */
 
 #include "Beacon.h"
-#include "OpenKit/DataCollectionLevel.h"
-#include "OpenKit/CrashReportingLevel.h"
 #include "ProtocolConstants.h"
 #include "BeaconProtocolConstants.h"
 #include "core/util/URLEncoding.h"
@@ -24,25 +22,24 @@
 #include "providers/DefaultPRNGenerator.h"
 
 #include <random>
-#include <sstream>
 
 using namespace protocol;
 
-Beacon::Beacon
-(
+Beacon::Beacon(
 	std::shared_ptr<openkit::ILogger> logger,
 	std::shared_ptr<core::caching::IBeaconCache> beaconCache,
-	std::shared_ptr<core::configuration::Configuration> configuration,
+	std::shared_ptr<core::configuration::IBeaconConfiguration> configuration,
 	const char* clientIPAddress,
+	std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider,
 	std::shared_ptr<providers::IThreadIDProvider> threadIDProvider,
 	std::shared_ptr<providers::ITimingProvider> timingProvider
 )
-: Beacon
-(
+: Beacon(
 	logger,
 	beaconCache,
 	configuration,
 	clientIPAddress,
+	sessionIDProvider,
 	threadIDProvider,
 	timingProvider,
 	std::make_shared<providers::DefaultPRNGenerator>()
@@ -50,33 +47,31 @@ Beacon::Beacon
 {
 }
 
-Beacon::Beacon
-(
+Beacon::Beacon(
 	std::shared_ptr<openkit::ILogger> logger,
 	std::shared_ptr<core::caching::IBeaconCache> beaconCache,
-	std::shared_ptr<core::configuration::Configuration> configuration,
+	std::shared_ptr<core::configuration::IBeaconConfiguration> configuration,
 	const char* clientIPAddress,
+	std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider,
 	std::shared_ptr<providers::IThreadIDProvider> threadIDProvider,
 	std::shared_ptr<providers::ITimingProvider> timingProvider,
 	std::shared_ptr<providers::IPRNGenerator> randomGenerator
 )
 	: mLogger(logger)
-	, mConfiguration(configuration)
+	, mBeaconCache(beaconCache)
+	, mBeaconConfiguration(configuration)
 	, mClientIPAddress(core::UTF8String(""))
-	, mTimingProvider(timingProvider)
 	, mThreadIDProvider(threadIDProvider)
+	, mTimingProvider(timingProvider)
+	, mRandomGenerator(randomGenerator)
+	, mDeviceID()
 	, mSequenceNumber(0)
 	, mID(0)
+	, mBeaconId(sessionIDProvider->getNextSessionID())
 	, mSessionNumber()
-	, mBeaconId()
 	, mSessionStartTime(timingProvider->provideTimestampInMilliseconds())
 	, mImmutableBasicBeaconData()
-	, mBeaconCache(beaconCache)
-	, mHTTPClientConfiguration(configuration->getHTTPClientConfiguration())
-	, mBeaconConfiguration(configuration->getBeaconConfiguration())
-	, mDeviceID()
-	, mRandomGenerator(randomGenerator)
-	, mPrivacyConfiguration(configuration->getPrivacyConfiguration())
+
 {
 	core::UTF8String internalClientIPAddress(clientIPAddress);
 	if (clientIPAddress == nullptr)
@@ -96,11 +91,12 @@ Beacon::Beacon
 		}
 	}
 
-	mBeaconId = configuration->createSessionNumber();
-	mDeviceID = mPrivacyConfiguration->isDeviceIdSendingAllowed()
-		? mConfiguration->getDeviceID()
+	auto privacyConfig = configuration->getPrivacyConfiguration();
+	auto openKitConfig = configuration->getOpenKitConfiguration();
+	mDeviceID = privacyConfig->isDeviceIdSendingAllowed()
+		? openKitConfig->getDeviceId()
 		: mRandomGenerator->nextInt64(std::numeric_limits<int64_t>::max());
-	mSessionNumber = mPrivacyConfiguration->isSessionNumberReportingAllowed()
+	mSessionNumber = privacyConfig->isSessionNumberReportingAllowed()
 		? mBeaconId
 		: 1;
 
@@ -111,12 +107,14 @@ core::UTF8String Beacon::createImmutableBeaconData()
 {
 	core::UTF8String basicBeaconData;
 
+	auto openKitConfig = mBeaconConfiguration->getOpenKitConfiguration();
+
 	//version and application information
 	addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_PROTOCOL_VERSION, protocol::PROTOCOL_VERSION);
 	addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_OPENKIT_VERSION, protocol::OPENKIT_VERSION);
-	addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_APPLICATION_ID, mConfiguration->getApplicationID());
-	addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_APPLICATION_NAME, mConfiguration->getApplicationName());
-	addKeyValuePairIfNotEmpty(basicBeaconData, protocol::BEACON_KEY_APPLICATION_VERSION, mConfiguration->getApplicationVersion());
+	addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_APPLICATION_ID, openKitConfig->getApplicationId());
+	addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_APPLICATION_NAME, openKitConfig->getApplicationName());
+	addKeyValuePairIfNotEmpty(basicBeaconData, protocol::BEACON_KEY_APPLICATION_VERSION, openKitConfig->getApplicationVersion());
 
 	addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_PLATFORM_TYPE, PLATFORM_TYPE_OPENKIT);
 	addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_AGENT_TECHNOLOGY_TYPE, AGENT_TECHNOLOGY_TYPE);
@@ -127,13 +125,13 @@ core::UTF8String Beacon::createImmutableBeaconData()
 	addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_CLIENT_IP_ADDRESS, mClientIPAddress);
 
 	// platform information
-	auto device = mConfiguration->getDevice();
-	addKeyValuePairIfNotEmpty(basicBeaconData, BEACON_KEY_DEVICE_OS, device->getOperatingSystem());
-	addKeyValuePairIfNotEmpty(basicBeaconData, BEACON_KEY_DEVICE_MANUFACTURER, device->getManufacturer());
-	addKeyValuePairIfNotEmpty(basicBeaconData, BEACON_KEY_DEVICE_MODEL, device->getModelID());
+	addKeyValuePairIfNotEmpty(basicBeaconData, BEACON_KEY_DEVICE_OS, openKitConfig->getOperatingSystem());
+	addKeyValuePairIfNotEmpty(basicBeaconData, BEACON_KEY_DEVICE_MANUFACTURER, openKitConfig->getManufacturer());
+	addKeyValuePairIfNotEmpty(basicBeaconData, BEACON_KEY_DEVICE_MODEL, openKitConfig->getModelId());
 
-	addKeyValuePair(basicBeaconData, BEACON_KEY_DATA_COLLECTION_LEVEL, (int32_t)mPrivacyConfiguration->getDataCollectionLevel());
-	addKeyValuePair(basicBeaconData, BEACON_KEY_CRASH_REPORTING_LEVEL, (int32_t)mPrivacyConfiguration->getCrashReportingLevel());
+	auto privacyConfig = mBeaconConfiguration->getPrivacyConfiguration();
+	addKeyValuePair(basicBeaconData, BEACON_KEY_DATA_COLLECTION_LEVEL, (int32_t)privacyConfig->getDataCollectionLevel());
+	addKeyValuePair(basicBeaconData, BEACON_KEY_CRASH_REPORTING_LEVEL, (int32_t)privacyConfig->getCrashReportingLevel());
 
 	return basicBeaconData;
 }
@@ -229,23 +227,25 @@ int32_t Beacon::createID()
 
 core::UTF8String Beacon::createTag(int32_t parentActionID, int32_t sequenceNumber)
 {
-	if (!mPrivacyConfiguration->isWebRequestTracingAllowed())
+	if (!mBeaconConfiguration->getPrivacyConfiguration()->isWebRequestTracingAllowed())
 	{
 		return core::UTF8String("");
 	}
+
+	auto serverId = mBeaconConfiguration->getServerConfiguration()->getServerId();
 
 	core::UTF8String webRequestTag(TAG_PREFIX);
 
 	webRequestTag.concatenate("_");
 	webRequestTag.concatenate(std::to_string(PROTOCOL_VERSION));
 	webRequestTag.concatenate("_");
-	webRequestTag.concatenate(std::to_string(mHTTPClientConfiguration->getServerID()));
+	webRequestTag.concatenate(std::to_string(serverId));
 	webRequestTag.concatenate("_");
 	webRequestTag.concatenate(std::to_string(getDeviceID()));
 	webRequestTag.concatenate("_");
 	webRequestTag.concatenate(std::to_string(mSessionNumber));
 	webRequestTag.concatenate("_");
-	webRequestTag.concatenate(mConfiguration->getApplicationIDPercentEncoded());
+	webRequestTag.concatenate(mBeaconConfiguration->getOpenKitConfiguration()->getApplicationIdPercentEncoded());
 	webRequestTag.concatenate("_");
 	webRequestTag.concatenate(std::to_string(parentActionID));
 	webRequestTag.concatenate("_");
@@ -258,12 +258,12 @@ core::UTF8String Beacon::createTag(int32_t parentActionID, int32_t sequenceNumbe
 
 void Beacon::addAction(std::shared_ptr<core::objects::IActionCommon> action)
 {
-	if (isCapturingDisabled())
+	if (!mBeaconConfiguration->getPrivacyConfiguration()->isActionReportingAllowed())
 	{
 		return;
 	}
 
-	if (!mPrivacyConfiguration->isActionReportingAllowed())
+	if (!mBeaconConfiguration->getServerConfiguration()->isSendingDataAllowed())
 	{
 		return;
 	}
@@ -282,7 +282,7 @@ void Beacon::addAction(std::shared_ptr<core::objects::IActionCommon> action)
 
 void Beacon::addActionData(int64_t timestamp, const core::UTF8String& actionData)
 {
-	if (mConfiguration->isCapture())
+	if (isCaptureEnabled())
 	{
 		mBeaconCache->addActionData(mBeaconId, timestamp, actionData);
 	}
@@ -290,7 +290,7 @@ void Beacon::addActionData(int64_t timestamp, const core::UTF8String& actionData
 
 void Beacon::startSession()
 {
-	if (isCapturingDisabled())
+	if (!isCaptureEnabled())
 	{
 		return;
 	}
@@ -306,12 +306,12 @@ void Beacon::startSession()
 
 void Beacon::endSession()
 {
-	if (isCapturingDisabled())
+	if (!mBeaconConfiguration->getPrivacyConfiguration()->isSessionReportingAllowed())
 	{
 		return;
 	}
 
-	if (!mPrivacyConfiguration->isSessionReportingAllowed())
+	if (!mBeaconConfiguration->getServerConfiguration()->isSendingDataAllowed())
 	{
 		return;
 	}
@@ -328,12 +328,12 @@ void Beacon::endSession()
 
 void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, int32_t value)
 {
-	if (isCapturingDisabled())
+	if (!mBeaconConfiguration->getPrivacyConfiguration()->isValueReportingAllowed())
 	{
 		return;
 	}
 
-	if (!mPrivacyConfiguration->isValueReportingAllowed())
+	if (!mBeaconConfiguration->getServerConfiguration()->isSendingDataAllowed())
 	{
 		return;
 	}
@@ -347,12 +347,12 @@ void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, in
 
 void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, double value)
 {
-	if (isCapturingDisabled())
+	if (!mBeaconConfiguration->getPrivacyConfiguration()->isValueReportingAllowed())
 	{
 		return;
 	}
 
-	if (!mPrivacyConfiguration->isValueReportingAllowed())
+	if (!mBeaconConfiguration->getServerConfiguration()->isSendingDataAllowed())
 	{
 		return;
 	}
@@ -367,12 +367,12 @@ void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, do
 
 void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, const core::UTF8String& value)
 {
-	if (isCapturingDisabled())
+	if (!mBeaconConfiguration->getPrivacyConfiguration()->isValueReportingAllowed())
 	{
 		return;
 	}
 
-	if (!mPrivacyConfiguration->isValueReportingAllowed())
+	if (!mBeaconConfiguration->getServerConfiguration()->isSendingDataAllowed())
 	{
 		return;
 	}
@@ -387,12 +387,12 @@ void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, co
 
 void Beacon::reportEvent(int32_t actionID, const core::UTF8String& eventName)
 {
-	if (isCapturingDisabled())
+	if (!mBeaconConfiguration->getPrivacyConfiguration()->isEventReportingAllowed())
 	{
 		return;
 	}
 
-	if (!mPrivacyConfiguration->isEventReportingAllowed())
+	if (!mBeaconConfiguration->getServerConfiguration()->isSendingDataAllowed())
 	{
 		return;
 	}
@@ -405,12 +405,12 @@ void Beacon::reportEvent(int32_t actionID, const core::UTF8String& eventName)
 
 void Beacon::reportError(int32_t actionID, const core::UTF8String& errorName, int32_t errorCode, const core::UTF8String& reason)
 {
-	if (isCapturingDisabled() || !mConfiguration->isCaptureErrors())
+	if (!mBeaconConfiguration->getPrivacyConfiguration()->isErrorReportingAllowed())
 	{
 		return;
 	}
 
-	if (!mPrivacyConfiguration->isErrorReportingAllowed())
+	if (!mBeaconConfiguration->getServerConfiguration()->isSendingErrorsAllowed())
 	{
 		return;
 	}
@@ -429,12 +429,12 @@ void Beacon::reportError(int32_t actionID, const core::UTF8String& errorName, in
 
 void Beacon::reportCrash(const core::UTF8String& errorName, const core::UTF8String& reason, const core::UTF8String& stacktrace)
 {
-	if (isCapturingDisabled() || !mConfiguration->isCaptureCrashes())
+	if (!mBeaconConfiguration->getPrivacyConfiguration()->isCrashReportingAllowed())
 	{
 		return;
 	}
 
-	if (!mPrivacyConfiguration->isCrashReportingAllowed())
+	if (!mBeaconConfiguration->getServerConfiguration()->isSendingCrashesAllowed())
 	{
 		return;
 	}
@@ -458,12 +458,12 @@ void Beacon::addWebRequest(
 	std::shared_ptr<core::objects::IWebRequestTracerInternals> webRequestTracer
 )
 {
-	if (isCapturingDisabled())
+	if (!mBeaconConfiguration->getPrivacyConfiguration()->isWebRequestTracingAllowed())
 	{
 		return;
 	}
 
-	if (!mPrivacyConfiguration->isWebRequestTracingAllowed())
+	if (!isCaptureEnabled())
 	{
 		return;
 	}
@@ -499,12 +499,12 @@ void Beacon::addWebRequest(
 
 void Beacon::identifyUser(const core::UTF8String& userTag)
 {
-	if (isCapturingDisabled())
+	if (!mBeaconConfiguration->getPrivacyConfiguration()->isUserIdentificationAllowed())
 	{
 		return;
 	}
 
-	if (!mPrivacyConfiguration->isUserIdentificationAllowed())
+	if (!isCaptureEnabled())
 	{
 		return;
 	}
@@ -522,8 +522,9 @@ void Beacon::identifyUser(const core::UTF8String& userTag)
 
 core::UTF8String Beacon::createMultiplicityData()
 {
+	auto multiplicity = mBeaconConfiguration->getServerConfiguration()->getMultiplicity();
 	core::UTF8String multiplicityData;
-	addKeyValuePair(multiplicityData, BEACON_KEY_MULTIPLICITY, mBeaconConfiguration->getMultiplicity());
+	addKeyValuePair(multiplicityData, BEACON_KEY_MULTIPLICITY, multiplicity);
 	return multiplicityData;
 }
 
@@ -543,17 +544,22 @@ core::UTF8String Beacon::getMutableBeaconData()
 
 std::shared_ptr<protocol::IStatusResponse> Beacon::send(std::shared_ptr<providers::IHTTPClientProvider> clientProvider)
 {
-	std::shared_ptr<protocol::IHTTPClient> httpClient = clientProvider->createClient(mLogger, mHTTPClientConfiguration);
+	auto httpClient = clientProvider->createClient(mLogger, mBeaconConfiguration->getHTTPClientConfiguration());
 
 	std::shared_ptr<protocol::IStatusResponse> response = nullptr;
 
 	while (true)
 	{
 		// prefix for this chunk - must be built up newly, due to changing timestamps
-		core::UTF8String prefix = mImmutableBasicBeaconData;
+		auto prefix = mImmutableBasicBeaconData;
 		prefix.concatenate( getMutableBeaconData());
 
-		core::UTF8String chunk = mBeaconCache->getNextBeaconChunk(mBeaconId, prefix, mConfiguration->getMaxBeaconSize() - 1024, BEACON_DATA_DELIMITER);
+		auto chunk = mBeaconCache->getNextBeaconChunk(
+			mBeaconId,
+			prefix,
+			mBeaconConfiguration->getServerConfiguration()->getBeaconSizeInBytes() - 1024,
+			BEACON_DATA_DELIMITER
+		);
 		if (chunk == nullptr || chunk.empty())
 		{
 			return response;
@@ -580,7 +586,7 @@ std::shared_ptr<protocol::IStatusResponse> Beacon::send(std::shared_ptr<provider
 
 void Beacon::addEventData(int64_t timestamp, const core::UTF8String& eventData)
 {
-	if (mConfiguration->isCapture())
+	if (isCaptureEnabled())
 	{
 		mBeaconCache->addEventData(mBeaconId, timestamp, eventData);
 	}
@@ -621,22 +627,32 @@ int64_t Beacon::getDeviceID() const
 	return mDeviceID;
 }
 
-void Beacon::setBeaconConfiguration(std::shared_ptr<core::configuration::IBeaconConfiguration> beaconConfiguration)
-{
-	std::atomic_store(&mBeaconConfiguration, beaconConfiguration);
-}
-
-std::shared_ptr<core::configuration::IBeaconConfiguration> Beacon::getBeaconConfiguration() const
-{
-	return std::atomic_load(&mBeaconConfiguration);
-}
-
 const core::UTF8String& Beacon::getClientIPAddress() const
 {
 	return mClientIPAddress;
 }
 
-bool Beacon::isCapturingDisabled() const
+void Beacon::updateServerConfiguration(std::shared_ptr<core::configuration::IServerConfiguration> serverConfig)
 {
-	return !std::atomic_load(&mBeaconConfiguration)->isCapturingAllowed();
+	mBeaconConfiguration->updateServerConfiguration(serverConfig);
+}
+
+bool Beacon::isServerConfigurationSet()
+{
+	return mBeaconConfiguration->isServerConfigurationSet();
+}
+
+bool Beacon::isCaptureEnabled()
+{
+	return mBeaconConfiguration->getServerConfiguration()->isCaptureEnabled();
+}
+
+void Beacon::enableCapture()
+{
+	return mBeaconConfiguration->enableCapture();
+}
+
+void Beacon::disableCapture()
+{
+	return mBeaconConfiguration->disableCapture();
 }

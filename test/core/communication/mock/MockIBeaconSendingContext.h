@@ -17,7 +17,6 @@
 #ifndef _TEST_CORE_COMMUNICATION_MOCK_MOCKBEACONSENDINGCONTEXT_H
 #define _TEST_CORE_COMMUNICATION_MOCK_MOCKBEACONSENDINGCONTEXT_H
 
-#include "core/SessionWrapper.h"
 #include "core/communication/IBeaconSendingContext.h"
 #include "core/objects/SessionInternals.h"
 #include "protocol/IHTTPClient.h"
@@ -47,12 +46,12 @@ class MockIBeaconSendingContext
 			ON_CALL(*this, getHTTPClient())
 				.WillByDefault(testing::Return(nullptr));
 
-			ON_CALL(*this, getAllNewSessions())
-				.WillByDefault(testing::Return(std::vector<std::shared_ptr<core::SessionWrapper>>()));
+			ON_CALL(*this, getAllNotConfiguredSessions())
+				.WillByDefault(testing::Return(std::vector<std::shared_ptr<core::objects::SessionInternals>>()));
 			ON_CALL(*this, getAllOpenAndConfiguredSessions())
-				.WillByDefault(testing::Return(std::vector<std::shared_ptr<core::SessionWrapper>>()));
+				.WillByDefault(testing::Return(std::vector<std::shared_ptr<core::objects::SessionInternals>>()));
 			ON_CALL(*this, getAllFinishedAndConfiguredSessions())
-				.WillByDefault(testing::Return(std::vector<std::shared_ptr<core::SessionWrapper>>()));
+				.WillByDefault(testing::Return(std::vector<std::shared_ptr<core::objects::SessionInternals>>()));
 
 			ON_CALL(*this, getCurrentStateType())
 				.WillByDefault(testing::Return(core::communication::IBeaconSendingState::StateType::BEACON_SENDING_COUNT));
@@ -134,7 +133,7 @@ class MockIBeaconSendingContext
 
 		MOCK_CONST_METHOD0(getSendInterval, int64_t());
 
-		MOCK_METHOD0(disableCapture, void());
+		MOCK_METHOD0(disableCaptureAndClear, void());
 
 		MOCK_METHOD1(handleStatusResponse,
 			void(
@@ -144,31 +143,29 @@ class MockIBeaconSendingContext
 
 		MOCK_METHOD0(clearAllSessionData, void());
 
-		MOCK_METHOD0(getAllNewSessions, std::vector<std::shared_ptr<core::SessionWrapper>>());
+		MOCK_METHOD0(getAllNotConfiguredSessions, std::vector<std::shared_ptr<core::objects::SessionInternals>>());
 
-		MOCK_METHOD0(getAllOpenAndConfiguredSessions, std::vector<std::shared_ptr<core::SessionWrapper>>());
+		MOCK_METHOD0(getAllOpenAndConfiguredSessions, std::vector<std::shared_ptr<core::objects::SessionInternals>>());
 
-		MOCK_METHOD0(getAllFinishedAndConfiguredSessions, std::vector<std::shared_ptr<core::SessionWrapper>>());
+		MOCK_METHOD0(getAllFinishedAndConfiguredSessions, std::vector<std::shared_ptr<core::objects::SessionInternals>>());
 
-		MOCK_METHOD1(startSession,
+		MOCK_METHOD0(getSessionCount, int32_t());
+
+		MOCK_CONST_METHOD0(getCurrentServerID, int32_t());
+
+		MOCK_METHOD1(addSession,
 			void(
 				std::shared_ptr<core::objects::SessionInternals>
 			)
 		);
 
-		MOCK_METHOD1(finishSession,
-			void(
+		MOCK_METHOD1(removeSession,
+			bool(
 				std::shared_ptr<core::objects::SessionInternals>
 			)
 		);
 
 		MOCK_CONST_METHOD0(getCurrentStateType, core::communication::IBeaconSendingState::StateType());
-
-		MOCK_METHOD1(removeSession,
-			bool(
-				std::shared_ptr<core::SessionWrapper>
-			)
-		);
 	};
 }
 #endif

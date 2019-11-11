@@ -15,12 +15,6 @@
 */
 
 #include "OpenKit/DynatraceOpenKitBuilder.h"
-#include "providers/DefaultSessionIDProvider.h"
-#include "core/configuration/BeaconCacheConfiguration.h"
-#include "core/configuration/BeaconConfiguration.h"
-#include "core/configuration/Configuration.h"
-#include "core/configuration/ConfigurationDefaults.h"
-#include "core/configuration/PrivacyConfiguration.h"
 
 using namespace openkit;
 
@@ -38,41 +32,6 @@ DynatraceOpenKitBuilder::DynatraceOpenKitBuilder(const char* endpointURL, const 
 	, mApplicationID(applicationID)
 	, mApplicationName()
 {
-}
-
-std::shared_ptr<core::configuration::Configuration> DynatraceOpenKitBuilder::buildConfiguration()
-{
-	auto device = std::make_shared<core::configuration::Device>(getOperatingSystem(), getManufacturer(), getModelID());
-
-	auto beaconCacheConfiguration = std::make_shared<core::configuration::BeaconCacheConfiguration>(
-			getBeaconCacheMaxRecordAge(),
-			getBeaconCacheLowerMemoryBoundary(),
-			getBeaconCacheUpperMemoryBoundary()
-		);
-
-	auto beaconConfiguration = std::make_shared<core::configuration::BeaconConfiguration>(
-		core::configuration::DEFAULT_MULTIPLICITY // starting with default multiplicity, value changed according to server response
-	);
-	auto privacyConfiguration = std::make_shared<core::configuration::PrivacyConfiguration>(
-		getDataCollectionLevel(),
-		getCrashReportingLevel()
-	);
-
-	return std::make_shared<core::configuration::Configuration>(
-		device,
-		core::configuration::OpenKitType::Type::DYNATRACE,
-		mApplicationName,
-		getApplicationVersion(),
-		mApplicationID,
-		getDeviceID(),
-		getOrigDeviceID(),
-		getEndpointURL(),
-		std::make_shared<providers::DefaultSessionIDProvider>(),
-		getTrustManager(),
-		beaconCacheConfiguration,
-		beaconConfiguration,
-		privacyConfiguration
-	);
 }
 
 DynatraceOpenKitBuilder& DynatraceOpenKitBuilder::withApplicationName(const char* applicationName)
@@ -99,3 +58,7 @@ const std::string& DynatraceOpenKitBuilder::getApplicationName() const
 	return mApplicationName;
 }
 
+int32_t DynatraceOpenKitBuilder::getDefaultServerID() const
+{
+	return DEFAULT_SERVER_ID;
+}

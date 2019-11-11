@@ -35,10 +35,9 @@ BeaconSendingFlushSessionsState::BeaconSendingFlushSessionsState()
 void BeaconSendingFlushSessionsState::doExecute(IBeaconSendingContext& context)
 {
 	// first get all sessions that do not have any multiplicity set -> and move them to open sessions
-	for (auto newSession : context.getAllNewSessions())
+	for (auto newSession : context.getAllNotConfiguredSessions())
 	{
-		auto updatedBeaconConfiguration = std::make_shared<configuration::BeaconConfiguration>(1);
-		newSession->updateBeaconConfiguration(updatedBeaconConfiguration);
+		newSession->enableCapture();
 	}
 
 	// end open sessions -> will be flushed afterwards

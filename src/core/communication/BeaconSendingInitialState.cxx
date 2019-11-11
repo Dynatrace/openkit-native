@@ -47,9 +47,7 @@ const std::chrono::milliseconds BeaconSendingInitialState::INITIAL_RETRY_SLEEP_T
 BeaconSendingInitialState::BeaconSendingInitialState()
 	: AbstractBeaconSendingState(IBeaconSendingState::StateType::BEACON_SENDING_INIT_STATE)
 	, mReinitializeDelayIndex(0)
-
 {
-
 }
 
 void BeaconSendingInitialState::doExecute(IBeaconSendingContext& context)
@@ -118,7 +116,7 @@ std::shared_ptr<protocol::IStatusResponse> BeaconSendingInitialState::executeSta
 			sleepTime = statusResponse->getRetryAfterInMilliseconds();
 
 			// also temporarily disable capturing to avoid further server overloading
-			context.disableCapture();
+			context.disableCaptureAndClear();
 		}
 
 		// status request needs to be sent again after some delay

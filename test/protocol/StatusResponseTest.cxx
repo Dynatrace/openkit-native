@@ -39,7 +39,7 @@ class StatusResponseTest : public testing::Test
 protected:
 	MockNiceILogger_sp logger;
 
-	void SetUp()
+	void SetUp() override
 	{
 		logger = MockILogger::createNice();
 	}

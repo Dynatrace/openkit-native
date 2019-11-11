@@ -19,6 +19,10 @@
 
 #include "OpenKit/CrashReportingLevel.h"
 #include "OpenKit/DataCollectionLevel.h"
+#include "core/configuration/IHTTPClientConfiguration.h"
+#include "core/configuration/IOpenKitConfiguration.h"
+#include "core/configuration/IPrivacyConfiguration.h"
+#include "core/configuration/IServerConfiguration.h"
 
 #include <cstdint>
 
@@ -36,14 +40,50 @@ namespace core
 			virtual ~IBeaconConfiguration() = default;
 
 			///
-			/// Returns the multiplicity
+			/// Returns the object holding application relevant configuration details.
 			///
-			virtual int32_t getMultiplicity() const = 0;
+			virtual std::shared_ptr<IOpenKitConfiguration> getOpenKitConfiguration() const = 0;
 
 			///
-			/// Returns a boolean indicating if capturing is allowed based on the value of multiplicity
+			/// Returns the object holding privacy relevant configuration details.
 			///
-			virtual bool isCapturingAllowed() const = 0;
+			virtual std::shared_ptr<IPrivacyConfiguration> getPrivacyConfiguration() const = 0;
+
+			///
+			/// Returns the object holding HTTP related configuration details.
+			///
+			virtual std::shared_ptr<IHTTPClientConfiguration> getHTTPClientConfiguration() const = 0;
+
+			///
+			/// Returns the object holding server relevant configuration details.
+			///
+			virtual std::shared_ptr<IServerConfiguration> getServerConfiguration() = 0;
+
+			///
+			/// Enables the capturing and implicitly sets @ref isServerConfigurationSet()
+			///
+			virtual void enableCapture() = 0;
+
+			///
+			/// Disables capturing and implicitly sets @ref isServerConfigurationSet()
+			///
+			virtual void disableCapture() = 0;
+
+			///
+			/// Updates the server configuration object.
+			///
+			/// @par
+			/// The first call to this method takes over the given configuration as is. Subsequent calls will merge the
+			/// given configuration with the one already stored.
+			///
+			/// @param newServerConfiguration the new configuration as received by the server.
+			///
+			virtual void updateServerConfiguration(std::shared_ptr<IServerConfiguration> newServerConfiguration) = 0;
+
+			///
+			/// Returns a boolean indicating whether the server configuration has been set before or not.
+			///
+			virtual bool isServerConfigurationSet() = 0;
 		};
 	}
 }

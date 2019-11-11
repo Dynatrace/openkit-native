@@ -14,11 +14,13 @@
 * limitations under the License.
 */
 
+#include <core/configuration/ServerConfiguration.h>
 #include "CustomMatchers.h"
 #include "builder/TestBeaconSendingContextBuilder.h"
 #include "mock/MockIBeaconSendingState.h"
 #include "../configuration/mock/MockIBeaconCacheConfiguration.h"
 #include "../configuration/mock/MockIBeaconConfiguration.h"
+#include "../configuration/mock/MockIHTTPClientConfiguration.h"
 #include "../configuration/mock/MockIPrivacyConfiguration.h"
 #include "../objects/mock/MockSessionInternals.h"
 #include "../../api/mock/MockILogger.h"
@@ -29,11 +31,11 @@
 #include "../../providers/mock/MockISessionIDProvider.h"
 #include "../../providers/mock/MockITimingProvider.h"
 
+#include "core/UTF8String.h"
 #include "core/communication/BeaconSendingContext.h"
 #include "core/communication/IBeaconSendingState.h"
-#include "core/configuration/Configuration.h"
-#include "core/configuration/Device.h"
-#include "core/configuration/OpenKitType.h"
+#include "core/configuration/IHTTPClientConfiguration.h"
+#include "core/configuration/ServerConfiguration.h"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -42,55 +44,50 @@ using namespace test;
 
 using BeaconSendingContext_t = core::communication::BeaconSendingContext;
 using BeaconSendingContextBuilder_sp = std::shared_ptr<TestBeaconSendingContextBuilder>;
-using Configuration_t = core::configuration::Configuration;
-using Configuration_sp = std::shared_ptr<Configuration_t>;
-using Device_t = core::configuration::Device;
 using IBeaconSendingState_t = core::communication::IBeaconSendingState;
 using IBeaconSendingState_up = std::unique_ptr<IBeaconSendingState_t>;
+using IHTTPClientConfiguration_sp = std::shared_ptr<core::configuration::IHTTPClientConfiguration>;
+using MockIHTTPClientConfiguration_sp = std::shared_ptr<MockIHTTPClientConfiguration>;
 using MockNiceILogger_sp = std::shared_ptr<testing::NiceMock<MockILogger>>;
 using MockNiceIHTTPClientProvider_sp = std::shared_ptr<testing::NiceMock<MockIHTTPClientProvider>>;
 using MockNiceITimingProvider_sp = std::shared_ptr<testing::NiceMock<MockITimingProvider>>;
 using MockNiceSession_t = testing::NiceMock<MockSessionInternals>;
 using MockStrictSession_t = testing::StrictMock<MockSessionInternals>;
 using MockStrictIBeaconSendingState_sp = std::shared_ptr<testing::StrictMock<MockIBeaconSendingState>>;
-using OpenKitType_t = core::configuration::OpenKitType;
+using ServerConfiguration_t = core::configuration::ServerConfiguration;
+using Utf8String_t = core::UTF8String;
 
 class BeaconSendingContextTest : public testing::Test
 {
 protected:
 
 	MockNiceILogger_sp mockLogger;
-	Configuration_sp mockConfiguration;
 	MockNiceIHTTPClientProvider_sp mockHTTPClientProvider;
 	MockNiceITimingProvider_sp mockTimingProvider;
+	MockIHTTPClientConfiguration_sp mockHttpClientConfig;
 
 
-	void SetUp()
+	void SetUp() override
 	{
 		mockLogger = MockILogger::createNice();
-		mockConfiguration = std::make_shared<Configuration_t>(
-			std::make_shared<Device_t>("", "", ""),
-			OpenKitType_t::Type::DYNATRACE,
-			"",
-			"",
-			"",
-			1,
-			"1",
-			"",
-			MockISessionIDProvider::createNice(),
-			MockISslTrustManager::createNice(),
-			MockIBeaconCacheConfiguration::createNice(),
-			MockIBeaconConfiguration::createNice(),
-			MockIPrivacyConfiguration::createNice()
-		);
+
+		auto httpClient = MockIHTTPClient::createNice();
+		ON_CALL(*httpClient, sendBeaconRequest(testing::_, testing::_))
+			.WillByDefault(testing::Return(MockIStatusResponse::createNice()));
+
 		mockHTTPClientProvider = MockIHTTPClientProvider::createNice();
+		ON_CALL(*mockHTTPClientProvider, createClient(testing::_, testing::_))
+			.WillByDefault(testing::Return(httpClient));
+
 		mockTimingProvider = MockITimingProvider::createNice();
+		mockHttpClientConfig = MockIHTTPClientConfiguration::createNice();
 	}
 
 	BeaconSendingContextBuilder_sp createBeaconSendingContext()
 	{
-		auto builder = std::make_shared<TestBeaconSendingContextBuilder>(mockConfiguration);
+		auto builder = std::make_shared<TestBeaconSendingContextBuilder>();
 		builder->with(mockLogger)
+			.with(mockHttpClientConfig)
 			.with(mockHTTPClientProvider)
 			.with(mockTimingProvider)
 		;
@@ -242,6 +239,16 @@ TEST_F(BeaconSendingContextTest, successfullyInitializedContextIsInitialized)
 	ASSERT_TRUE(target->isInitialized());
 }
 
+TEST_F(BeaconSendingContextTest, notSuccessfullyInitializedContextIsNotInitialzed)
+{
+	// given
+	auto target = createBeaconSendingContext()->build();
+	target->setInitCompleted(false);
+
+	// when, then
+	ASSERT_THAT(target->isInitialized(), testing::Eq(false));
+}
+
 TEST_F(BeaconSendingContextTest, isInTerminalStateChecksCurrentState)
 {
 	// with
@@ -263,23 +270,15 @@ TEST_F(BeaconSendingContextTest, isInTerminalStateChecksCurrentState)
 	ASSERT_THAT(target->getCurrentState(), IsABeaconSendingInitState());
 }
 
-TEST_F(BeaconSendingContextTest, isCaptureOnReturnsValueFromConfiguration)
+TEST_F(BeaconSendingContextTest, isCaptureOnIsTakenFromDefaultServerConfig)
 {
-	// given
+	// given, when
 	auto target = createBeaconSendingContext()->build();
 
-	// when capturing is enabled
-	mockConfiguration->enableCapture();
-
 	// then
-	ASSERT_TRUE(target->isCaptureOn());
-
-	// and when capturing is disabled
-	mockConfiguration->disableCapture();
-
-	// then
-	ASSERT_FALSE(target->isCaptureOn());
+	ASSERT_THAT(target->isCaptureOn(), testing::Eq(ServerConfiguration_t::DEFAULT->isCaptureEnabled()));
 }
+
 
 TEST_F(BeaconSendingContextTest, setAndGetLastOpenSessionBeaconSendTime)
 {
@@ -317,17 +316,16 @@ TEST_F(BeaconSendingContextTest, setAndGetLastStatusCheckTime)
 	ASSERT_EQ(target->getLastStatusCheckTime(), 5678L);
 }
 
-TEST_F(BeaconSendingContextTest, getSendIntervalRetrievesItFromConfiguration)
+TEST_F(BeaconSendingContextTest, getSendIntervalIsTakeFromDefaultSessionConfig)
 {
 	// given
 	auto target = createBeaconSendingContext()->build();
-	mockConfiguration->setSendInterval(1234L);
 
 	// when
-	int64_t obtained = target->getSendInterval();
+	auto obtained = target->getSendInterval();
 
 	// then
-	ASSERT_EQ(obtained, 1234L);
+	ASSERT_THAT(obtained, testing::Eq(ServerConfiguration_t::DEFAULT->getSendIntervalInMilliseconds()));
 }
 
 TEST_F(BeaconSendingContextTest, getHTTPClientProvider)
@@ -432,325 +430,518 @@ TEST_F(BeaconSendingContextTest, aDefaultConstructedContextDoesNotStoreAnySessio
 	auto target = createBeaconSendingContext()->build();
 
 	// then
-	ASSERT_TRUE(target->getAllNewSessions().empty());
+	ASSERT_TRUE(target->getAllNotConfiguredSessions().empty());
 	ASSERT_TRUE(target->getAllOpenAndConfiguredSessions().empty());
 	ASSERT_TRUE(target->getAllFinishedAndConfiguredSessions().empty());
 }
 
-TEST_F(BeaconSendingContextTest, startingASessionAddsTheSessionToOpenSessions)
+TEST_F(BeaconSendingContextTest, addSession)
 {
 	// given
 	auto target = createBeaconSendingContext()->build();
-	auto mockSessionOne = MockSessionInternals::createNice();
-	auto mockSessionTwo = MockSessionInternals::createNice();
 
-	// when starting first session
-	target->startSession(mockSessionOne);
+	auto mockSessionOne = MockSessionInternals::createStrict();
+	auto mockSessionTwo = MockSessionInternals::createStrict();
 
-	// then
-	ASSERT_EQ(target->getAllNewSessions().size(), 1);
-	ASSERT_EQ(target->getAllNewSessions()[0]->getWrappedSession(), mockSessionOne);
-	ASSERT_TRUE(target->getAllOpenAndConfiguredSessions().empty());
-	ASSERT_TRUE(target->getAllFinishedAndConfiguredSessions().empty());
-
-	// when starting second sessions
-	target->startSession(mockSessionTwo);
+	// when
+	target->addSession(mockSessionOne);
 
 	// then
-	ASSERT_EQ(target->getAllNewSessions().size(), 2);
-	ASSERT_EQ(target->getAllNewSessions()[0]->getWrappedSession(), mockSessionOne);
-	ASSERT_EQ(target->getAllNewSessions()[1]->getWrappedSession(), mockSessionTwo);
-	ASSERT_TRUE(target->getAllOpenAndConfiguredSessions ().empty());
-	ASSERT_TRUE(target->getAllFinishedAndConfiguredSessions().empty());
+	ASSERT_THAT(target->getSessionCount(), testing::Eq(1));
+
+	// and when
+	target->addSession(mockSessionTwo);
+
+	// then
+	ASSERT_THAT(target->getSessionCount(), testing::Eq(2));
 }
 
-
-TEST_F(BeaconSendingContextTest, finishingASessionMovesSessionToFinishedSessions)
+TEST_F(BeaconSendingContextTest, removeSession)
 {
 	// given
 	auto target = createBeaconSendingContext()->build();
-	auto mockSessionOne = MockSessionInternals::createNice();
-	auto mockSessionTwo = MockSessionInternals::createNice();
 
-	target->startSession(mockSessionOne);
-	target->startSession(mockSessionTwo);
+	auto mockSessionOne = MockSessionInternals::createStrict();
+	auto mockSessionTwo = MockSessionInternals::createStrict();
 
-	auto sessionWrapper1 = target->findSessionWrapper(mockSessionOne);
-	sessionWrapper1->updateBeaconConfiguration(MockIBeaconConfiguration::createNice());
+	target->addSession(mockSessionOne);
+	target->addSession(mockSessionTwo);
+	ASSERT_THAT(target->getSessionCount(), testing::Eq(2));
 
-	auto sessionWrapper2 = target->findSessionWrapper(mockSessionTwo);
-	sessionWrapper2->updateBeaconConfiguration(MockIBeaconConfiguration::createNice());
-
-	// when finishing the first session
-	target->finishSession(mockSessionOne);
+	// when
+	target->removeSession(mockSessionOne);
 
 	// then
-	ASSERT_TRUE(target->getAllNewSessions().empty());
-	ASSERT_EQ(target->getAllOpenAndConfiguredSessions().size(), 1);
-	ASSERT_EQ(target->getAllOpenAndConfiguredSessions()[0]->getWrappedSession(), mockSessionTwo);
-	ASSERT_EQ(target->getAllFinishedAndConfiguredSessions().size(), 1);
-	ASSERT_EQ(target->getAllFinishedAndConfiguredSessions()[0]->getWrappedSession(), mockSessionOne);
+	ASSERT_THAT(target->getSessionCount(), testing::Eq(1));
 
-	// and when finishing the second session
-	target->finishSession(mockSessionTwo);
+	// and when
+	target->removeSession(mockSessionTwo);
 
 	// then
-	ASSERT_TRUE(target->getAllNewSessions().empty());
-	ASSERT_TRUE(target->getAllOpenAndConfiguredSessions().empty());
-	ASSERT_EQ(target->getAllFinishedAndConfiguredSessions().size(), 2);
-	ASSERT_EQ(target->getAllFinishedAndConfiguredSessions()[0]->getWrappedSession(), mockSessionOne);
-	ASSERT_EQ(target->getAllFinishedAndConfiguredSessions()[1]->getWrappedSession(), mockSessionTwo);
+	ASSERT_THAT(target->getSessionCount(), testing::Eq(0));
 }
 
-TEST_F(BeaconSendingContextTest, finishingASessionThatHasNotBeenStartedBeforeIsNotAddedToInternalList)
+TEST_F(BeaconSendingContextTest, disableCaptureAndClearModifiesCaptureFlag)
 {
 	// given
 	auto target = createBeaconSendingContext()->build();
+	ASSERT_THAT(target->isCaptureOn(), testing::Eq(true));
+
+	// when
+	target->disableCaptureAndClear();
+
+	// then
+	ASSERT_THAT(target->isCaptureOn(), testing::Eq(false));
+}
+
+TEST_F(BeaconSendingContextTest, disableCaptureAndClearClearsCapturedSessionData)
+{
+	// with
 	auto mockSession = MockSessionInternals::createNice();
 
-	// when the session is not started, but immediately finished
-	target->finishSession(mockSession);
+	// expect
+	EXPECT_CALL(*mockSession, clearCapturedData()).Times(1);
+
+	// given
+	auto target = createBeaconSendingContext()->build();
+	target->addSession(mockSession);
+
+	// when
+	target->disableCaptureAndClear();
 
 	// then
-	ASSERT_TRUE(target->getAllNewSessions().empty());
-	ASSERT_TRUE(target->getAllOpenAndConfiguredSessions().empty());
-	ASSERT_TRUE(target->getAllFinishedAndConfiguredSessions().empty());
+	ASSERT_THAT(target->getSessionCount(), testing::Eq(1));
 }
 
-TEST_F(BeaconSendingContextTest, getNextFinishedSessionReturnsEmptyListIfThereAreNoFinishedSessions)
+TEST_F(BeaconSendingContextTest, disableCaptureAndClearRemovesFinishedSession)
+{
+	// given
+	auto mockSession = MockSessionInternals::createNice();
+
+	// expect
+	EXPECT_CALL(*mockSession, isFinished()).Times(1)
+		.WillOnce(testing::Return(true));
+	EXPECT_CALL(*mockSession, clearCapturedData()).Times(1);
+
+	auto target = createBeaconSendingContext()->build();
+	target->addSession(mockSession);
+
+	// when
+	target->disableCaptureAndClear();
+
+	// then
+	ASSERT_THAT(target->getSessionCount(), testing::Eq(0));
+}
+
+TEST_F(BeaconSendingContextTest, handleStatusResponseDisablesCaptureIfResponseIsNull)
+{
+	// given
+	auto target = createBeaconSendingContext()->build();
+	ASSERT_THAT(target->isCaptureOn(), testing::Eq(true));
+
+	// when
+	target->handleStatusResponse(nullptr);
+
+	// then
+	ASSERT_THAT(target->isCaptureOn(), testing::Eq(false));
+}
+
+TEST_F(BeaconSendingContextTest, handleStatusResponseClearsSessionDataIfResponseIsNull)
+{
+	// with
+	auto mockSession = MockSessionInternals::createNice();
+
+	// expect
+	EXPECT_CALL(*mockSession, clearCapturedData()).Times(1);
+
+	// given
+	auto target = createBeaconSendingContext()->build();
+	target->addSession(mockSession);
+
+	// when
+	target->handleStatusResponse(nullptr);
+
+	// then
+	ASSERT_THAT(target->getSessionCount(), testing::Eq(1));
+}
+
+TEST_F(BeaconSendingContextTest, handleStatusResponseRemovesFinishedSessionIfResponseIsNull)
+{
+	// with
+	auto mockSession = MockSessionInternals::createNice();
+
+	// expect
+	EXPECT_CALL(*mockSession, isFinished())
+		.Times(1)
+		.WillOnce(testing::Return(true));
+	EXPECT_CALL(*mockSession, clearCapturedData())
+		.Times(1);
+
+	// given
+	auto target = createBeaconSendingContext()->build();
+	target->addSession(mockSession);
+
+	// when
+	target->handleStatusResponse(nullptr);
+
+	// then
+	ASSERT_THAT(target->getSessionCount(), testing::Eq(0));
+}
+
+TEST_F(BeaconSendingContextTest, handleStatusResponseDisablesCaptureIfResponseCodeIsNotOk)
+{
+	// given
+	auto response = MockIStatusResponse::createNice();
+	ON_CALL(*response, getResponseCode()).WillByDefault(testing::Return(404));
+
+	auto target = createBeaconSendingContext()->build();
+	ASSERT_THAT(target->isCaptureOn(), testing::Eq(true));
+
+	// when
+	target->handleStatusResponse(response);
+
+	// then
+	ASSERT_THAT(target->isCaptureOn(), testing::Eq(false));
+}
+
+TEST_F(BeaconSendingContextTest, handleStatusResponseClearsSessionDataIfResponseCodeIsNotOk)
+{
+	// with
+	auto response = MockIStatusResponse::createNice();
+	ON_CALL(*response, getResponseCode()).WillByDefault(testing::Return(404));
+
+	auto mockSession = MockSessionInternals::createNice();
+
+	// expect
+	EXPECT_CALL(*mockSession, clearCapturedData())
+		.Times(1);
+
+	auto target = createBeaconSendingContext()->build();
+	target->addSession(mockSession);
+
+	// when
+	target->handleStatusResponse(response);
+
+	// then
+	ASSERT_THAT(target->getSessionCount(), testing::Eq(1));
+}
+
+TEST_F(BeaconSendingContextTest, handleStatusResponseRemovesFinishedSessionsIfResponseCodeIsNotOk)
+{
+	// with
+	auto response = MockIStatusResponse::createNice();
+	ON_CALL(*response, getResponseCode()).WillByDefault(testing::Return(404));
+
+	auto mockSession = MockSessionInternals::createNice();
+
+	// expect
+	EXPECT_CALL(*mockSession, isFinished())
+		.Times(1)
+		.WillOnce(testing::Return(true));
+	EXPECT_CALL(*mockSession, clearCapturedData())
+		.Times(1);
+
+	// given
+	auto target = createBeaconSendingContext()->build();
+	target->addSession(mockSession);
+
+	// when
+	target->handleStatusResponse(response);
+
+	// then
+	ASSERT_THAT(target->getSessionCount(), testing::Eq(0));
+}
+
+TEST_F(BeaconSendingContextTest, handleStatusResponseClearsSessionDataIfResponseIsCaptureOff)
+{
+	// with
+	auto response = MockIStatusResponse::createNice();
+	ON_CALL(*response, getResponseCode()).WillByDefault(testing::Return(200));
+	ON_CALL(*response, isCapture()).WillByDefault(testing::Return(false));
+
+	auto mockSession = MockSessionInternals::createNice();
+
+	// expect
+	EXPECT_CALL(*mockSession, clearCapturedData()).Times(1);
+
+	// given
+	auto target = createBeaconSendingContext()->build();
+	target->addSession(mockSession);
+
+	// when
+	target->handleStatusResponse(response);
+
+	// then
+	ASSERT_THAT(target->getSessionCount(), testing::Eq(1));
+}
+
+TEST_F(BeaconSendingContextTest, handleStatusResponseRemovesFinishedSessionsIfResponseIsCaptureOff)
+{
+	// with
+	auto response = MockIStatusResponse::createNice();
+	ON_CALL(*response, getResponseCode()).WillByDefault(testing::Return(200));
+	ON_CALL(*response, isCapture()).WillByDefault(testing::Return(false));
+
+	auto mockSession = MockSessionInternals::createNice();
+
+	// expect
+	EXPECT_CALL(*mockSession, isFinished())
+		.Times(1)
+		.WillOnce(testing::Return(true));
+	EXPECT_CALL(*mockSession, clearCapturedData())
+		.Times(1);
+
+	// given
+	auto target = createBeaconSendingContext()->build();
+	target->addSession(mockSession);
+
+	// when
+	target->handleStatusResponse(response);
+
+	// then
+	ASSERT_THAT(target->getSessionCount(), testing::Eq(0));
+}
+
+TEST_F(BeaconSendingContextTest, handleStatusResponseUpdatesSendInterval)
+{
+	// given
+	const int32_t sendInterval = 999;
+
+	auto response = MockIStatusResponse::createNice();
+	ON_CALL(*response, isCapture()).WillByDefault(testing::Return(true));
+	ON_CALL(*response, getResponseCode()).WillByDefault(testing::Return(200));
+	ON_CALL(*response, getSendInterval()).WillByDefault(testing::Return(sendInterval));
+
+	auto mockSession = MockSessionInternals::createStrict();
+
+	auto target = createBeaconSendingContext()->build();
+	target->addSession(mockSession);
+	ASSERT_THAT(target->getSendInterval(), testing::Ne(sendInterval));
+
+	// when
+	target->handleStatusResponse(response);
+	auto obtained = target->getSendInterval();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(sendInterval));
+}
+
+TEST_F(BeaconSendingContextTest, handleStatusResponseUpdatesCaptureStateToFalse)
+{
+	// with
+	auto response = MockIStatusResponse::createNice();
+	ON_CALL(*response, isCapture()).WillByDefault(testing::Return(false));
+	ON_CALL(*response, getResponseCode()).WillByDefault(testing::Return(200));
+
+	auto mockSession = MockSessionInternals::createNice();
+
+	// expect
+	EXPECT_CALL(*mockSession, clearCapturedData()).Times(1);
+
+	// given
+	auto target = createBeaconSendingContext()->build();
+	target->addSession(mockSession);
+	ASSERT_THAT(target->isCaptureOn(), testing::Eq(true));
+
+	// when
+	target->handleStatusResponse(response);
+
+	// then
+	ASSERT_THAT(target->isCaptureOn(), testing::Eq(false));
+}
+
+TEST_F(BeaconSendingContextTest, handleStatusResponseUpdatesCaptureStateToTrue)
+{
+	// given
+	auto response = MockIStatusResponse::createNice();
+	ON_CALL(*response, isCapture()).WillByDefault(testing::Return(true));
+	ON_CALL(*response, getResponseCode()).WillByDefault(testing::Return(200));
+
+	auto mockSession = MockSessionInternals::createStrict();
+
+	auto target = createBeaconSendingContext()->build();
+	target->disableCaptureAndClear();
+	target->addSession(mockSession);
+	ASSERT_THAT(target->isCaptureOn(), testing::Eq(false));
+
+	// when
+	target->handleStatusResponse(response);
+
+	// then
+	ASSERT_THAT(target->isCaptureOn(), testing::Eq(true));
+}
+
+TEST_F(BeaconSendingContextTest, handleStatusResponseUpdatesHttpClientConfig)
+{
+	// with
+	Utf8String_t baseUrl("https://localhost:9999/1");
+	Utf8String_t applicationId("some cryptic appId");
+	const int32_t initialServerId = 42;
+	auto trustManager = MockISslTrustManager::createNice();
+
+	const int32_t serverId = 73;
+	auto response = MockIStatusResponse::createNice();
+	ON_CALL(*response, isCapture()).WillByDefault(testing::Return(true));
+	ON_CALL(*response, getResponseCode()).WillByDefault(testing::Return(200));
+	ON_CALL(*response, getServerID()).WillByDefault(testing::Return(serverId));
+
+	// expect
+	EXPECT_CALL(*mockHttpClientConfig, getBaseURL())
+		.Times(1)
+		.WillRepeatedly(testing::ReturnRef(baseUrl));
+	EXPECT_CALL(*mockHttpClientConfig, getApplicationID())
+		.Times(1)
+		.WillRepeatedly(testing::ReturnRef(applicationId));
+	EXPECT_CALL(*mockHttpClientConfig, getServerID())
+		.Times(2)
+		.WillRepeatedly(testing::Return(initialServerId));
+	EXPECT_CALL(*mockHttpClientConfig, getSSLTrustManager())
+		.Times(1)
+		.WillRepeatedly(testing::Return(trustManager));
+
+	IHTTPClientConfiguration_sp httpConfigCapture = nullptr;
+	EXPECT_CALL(*mockHTTPClientProvider, createClient(testing::_, testing::_))
+		.Times(1)
+		.WillOnce(
+			testing::DoAll(
+				testing::SaveArg<1>(&httpConfigCapture),
+				testing::Return(MockIHTTPClient::createNice())
+			)
+		);
+
+	// given
+	auto target = createBeaconSendingContext()->build();
+
+	// when
+	target->handleStatusResponse(response);
+	target->getHTTPClient();
+
+	// then
+	ASSERT_THAT(httpConfigCapture, testing::NotNull());
+	ASSERT_THAT(httpConfigCapture, testing::Ne(mockHttpClientConfig));
+	ASSERT_THAT(httpConfigCapture->getServerID(), testing::Eq(serverId));
+	ASSERT_THAT(httpConfigCapture->getBaseURL(), testing::Eq(baseUrl));
+	ASSERT_THAT(httpConfigCapture->getApplicationID(), testing::Eq(applicationId));
+	ASSERT_THAT(httpConfigCapture->getSSLTrustManager(), testing::Eq(trustManager));
+}
+
+TEST_F(BeaconSendingContextTest, onDefaultGetAllNotConfiguredSessionsIsEmpty)
 {
 	// given
 	auto target = createBeaconSendingContext()->build();
 
 	// when
-	auto finishedSessions = target->getAllFinishedAndConfiguredSessions();
+	auto obtained = target->getAllNotConfiguredSessions();
 
 	// then
-	ASSERT_EQ(finishedSessions.size(), 0);
-
+	ASSERT_THAT(obtained.size(), testing::Eq(0));
 }
 
-TEST_F(BeaconSendingContextTest, handleStatusResponseWhenCapturingIsEnabled)
+TEST_F(BeaconSendingContextTest, getAllNotConfiguredSessionsReturnsOnlyNotConfiguredSessions)
 {
 	// given
-	mockConfiguration->enableCapture();
+	auto relevantSession = MockSessionInternals::createNice();
+	ON_CALL(*relevantSession, isConfigured()).WillByDefault(testing::Return(false));
+
+	auto ignoredSession = MockSessionInternals::createNice();
+	ON_CALL(*ignoredSession, isConfigured()).WillByDefault(testing::Return(true));
+
 	auto target = createBeaconSendingContext()->build();
-	auto mockSessionOne = MockSessionInternals::createStrict();
-	auto mockSessionTwo = MockSessionInternals::createStrict();
+	target->addSession(relevantSession);
+	target->addSession(ignoredSession);
 
-	target->startSession(mockSessionOne);
-	target->finishSession(mockSessionOne);
-	target->startSession(mockSessionTwo);
-
-	auto mockStatusResponse = MockIStatusResponse::createNice();
-	ON_CALL(*mockStatusResponse, getResponseCode())
-		.WillByDefault(testing::Return(200));
-	ON_CALL(*mockStatusResponse, isCapture())
-		.WillByDefault(testing::Return(true));
+	ASSERT_THAT(target->getSessionCount(), testing::Eq(2));
 
 	// when
-	target->handleStatusResponse(mockStatusResponse);
+	auto obtained = target->getAllNotConfiguredSessions();
 
 	// then
-	auto newSessions = target->getAllNewSessions();
-	ASSERT_EQ(newSessions.size(), 2);
-	ASSERT_EQ(newSessions[0]->getWrappedSession(), mockSessionOne);
-	ASSERT_EQ(newSessions[1]->getWrappedSession(), mockSessionTwo);
-
-	auto openedSessions = target->getAllOpenAndConfiguredSessions();
-	ASSERT_EQ(openedSessions.size(), 0);
-
-	auto finishedSessions = target->getAllFinishedAndConfiguredSessions();
-	ASSERT_EQ(finishedSessions.size(), 0);
-
-
+	ASSERT_THAT(obtained.size(), testing::Eq(1));
+	ASSERT_THAT(*obtained.begin(), testing::Eq(relevantSession));
 }
 
-TEST_F(BeaconSendingContextTest, handleStatusResponseWhenCapturingIsDisabled)
-{
-	// given
-	auto target = createBeaconSendingContext()->build();
-	auto mockSessionOne = MockSessionInternals::createStrict();
-	auto mockSessionTwo = MockSessionInternals::createStrict();
-	auto mockSessionThree = MockSessionInternals::createStrict();
-	auto mockSessionFour = MockSessionInternals::createStrict();
-
-	EXPECT_CALL(*mockSessionOne, setBeaconConfiguration(testing::_))
-		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockSessionTwo, setBeaconConfiguration(testing::_))
-		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockSessionThree, setBeaconConfiguration(testing::_))
-		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockSessionFour, setBeaconConfiguration(testing::_))
-		.Times(testing::Exactly(1));
-
-	target->startSession(mockSessionOne);
-	target->findSessionWrapper(mockSessionOne)->updateBeaconConfiguration(MockIBeaconConfiguration::createNice());
-	target->finishSession(mockSessionOne);
-	target->startSession(mockSessionTwo);
-	target->findSessionWrapper(mockSessionTwo)->updateBeaconConfiguration(MockIBeaconConfiguration::createNice());
-	target->startSession(mockSessionThree);
-	target->findSessionWrapper(mockSessionThree)->updateBeaconConfiguration(MockIBeaconConfiguration::createNice());
-	target->startSession(mockSessionFour);
-	target->findSessionWrapper(mockSessionFour)->updateBeaconConfiguration(MockIBeaconConfiguration::createNice());
-	target->finishSession(mockSessionFour);
-
-	auto mockStatusResponse = MockIStatusResponse::createNice();
-
-	mockConfiguration->disableCapture();
-
-	// verify
-	EXPECT_CALL(*mockSessionOne, clearCapturedData())
-		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockSessionTwo, clearCapturedData())
-		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockSessionThree, clearCapturedData())
-		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockSessionFour, clearCapturedData())
-		.Times(testing::Exactly(1));
-
-	// then
-	auto newSessions = target->getAllNewSessions();
-	ASSERT_EQ(newSessions.size(), 0);
-
-	auto openSessions = target->getAllOpenAndConfiguredSessions();
-	ASSERT_EQ(openSessions.size(), 2);
-
-	auto finishedSessions = target->getAllFinishedAndConfiguredSessions();
-	ASSERT_EQ(finishedSessions.size(), 2);
-
-	// when
-	target->handleStatusResponse(mockStatusResponse);
-
-	// then
-	newSessions = target->getAllNewSessions();
-	ASSERT_EQ(newSessions.size(), 0);
-
-	openSessions = target->getAllOpenAndConfiguredSessions();
-	ASSERT_EQ(openSessions.size(), 2);//open sessions stay open
-
-	finishedSessions = target->getAllFinishedAndConfiguredSessions();
-	ASSERT_EQ(finishedSessions.size(), 0);//finished sessions are cleared
-}
-
-TEST_F(BeaconSendingContextTest, whenStartingASessionTheSessionIsConsideredAsNew)
+TEST_F(BeaconSendingContextTest, onDefaultGetAllOpenAndConfiguredSessionsIsEmpty)
 {
 	// given
 	auto target = createBeaconSendingContext()->build();
 
-	auto mockSessionOne = MockSessionInternals::createNice();
-	auto mockSessionTwo = MockSessionInternals::createNice();
-
 	// when
-	target->startSession(mockSessionOne);
+	auto obtained = target->getAllOpenAndConfiguredSessions();
 
 	// then
-	ASSERT_EQ(target->getAllNewSessions().size(), 1);
-	ASSERT_EQ(target->getAllOpenAndConfiguredSessions().size(), 0);
-	ASSERT_EQ(target->getAllFinishedAndConfiguredSessions().size(), 0);
-
-	// when
-	target->startSession(mockSessionTwo);
-
-	// then
-	ASSERT_EQ(target->getAllNewSessions().size(), 2);
-	ASSERT_EQ(target->getAllOpenAndConfiguredSessions().size(), 0);
-	ASSERT_EQ(target->getAllFinishedAndConfiguredSessions().size(), 0);
+	ASSERT_THAT(obtained.size(), testing::Eq(0));
 }
 
-TEST_F(BeaconSendingContextTest, finishingANewSessionStillLeavesItNew)
+TEST_F(BeaconSendingContextTest, getAllOpenAndConfiguredSessionsReturnsOnlyConfiguredNotFinsihedSessions)
+{
+	// given
+	auto relevantSession = MockSessionInternals::createNice();
+	ON_CALL(*relevantSession, isConfiguredAndOpen()).WillByDefault(testing::Return(true));
+
+	auto ignoredSession = MockSessionInternals::createNice();
+	ON_CALL(*ignoredSession, isConfiguredAndOpen()).WillByDefault(testing::Return(false));
+
+	auto target = createBeaconSendingContext()->build();
+	target->addSession(relevantSession);
+	target->addSession(ignoredSession);
+
+	ASSERT_THAT(target->getSessionCount(), testing::Eq(2));
+
+	// when
+	auto obtained = target->getAllOpenAndConfiguredSessions();
+
+	// then
+	ASSERT_THAT(obtained.size(), testing::Eq(1));
+	ASSERT_THAT(*obtained.begin(), testing::Eq(relevantSession));
+}
+
+TEST_F(BeaconSendingContextTest, onDefaultGetAllFinishedAndConfiguredSessionsIsEmpty)
 {
 	// given
 	auto target = createBeaconSendingContext()->build();
 
-	auto mockSessionOne = MockSessionInternals::createNice();
-	auto mockSessionTwo = MockSessionInternals::createNice();
-
 	// when
-	target->startSession(mockSessionOne);
-	target->finishSession(mockSessionOne);
+	auto obtained = target->getAllFinishedAndConfiguredSessions();
 
 	// then
-	ASSERT_EQ(target->getAllNewSessions().size(), 1);
-	ASSERT_EQ(target->getAllOpenAndConfiguredSessions().size(), 0);
-	ASSERT_EQ(target->getAllFinishedAndConfiguredSessions().size(), 0);
-
-	// when
-	target->startSession(mockSessionTwo);
-	target->finishSession(mockSessionTwo);
-
-	// then
-	ASSERT_EQ(target->getAllNewSessions().size(), 2);
-	ASSERT_EQ(target->getAllOpenAndConfiguredSessions().size(), 0);
-	ASSERT_EQ(target->getAllFinishedAndConfiguredSessions().size(), 0);
+	ASSERT_THAT(obtained.size(), testing::Eq(0));
 }
 
-TEST_F(BeaconSendingContextTest, afterASessionHasBeenConfiguredItsOpenAndConfigured)
+TEST_F(BeaconSendingContextTest, getAllFinishedAndConfiguredSessionsReturnsOnlyConfiguredAndFinsihedSessions)
 {
 	// given
+	auto relevantSession = MockSessionInternals::createNice();
+	ON_CALL(*relevantSession, isConfiguredAndFinished()).WillByDefault(testing::Return(true));
+
+	auto ignoredSession = MockSessionInternals::createNice();
+	ON_CALL(*ignoredSession, isConfiguredAndFinished()).WillByDefault(testing::Return(false));
+
 	auto target = createBeaconSendingContext()->build();
+	target->addSession(relevantSession);
+	target->addSession(ignoredSession);
 
-	auto mockSessionOne = MockSessionInternals::createNice();
-	auto mockSessionTwo = MockSessionInternals::createNice();
-
-	// when
-	target->startSession(mockSessionOne);
-	target->startSession(mockSessionTwo);
-
-	// then
-	ASSERT_EQ(target->getAllNewSessions().size(), 2);
-	ASSERT_EQ(target->getAllOpenAndConfiguredSessions().size(), 0);
-	ASSERT_EQ(target->getAllFinishedAndConfiguredSessions().size(), 0);
+	ASSERT_THAT(target->getSessionCount(), testing::Eq(2));
 
 	// when
-	target->findSessionWrapper(mockSessionOne)->updateBeaconConfiguration(MockIBeaconConfiguration::createNice());
+	auto obtained = target->getAllFinishedAndConfiguredSessions();
 
 	// then
-	ASSERT_EQ(target->getAllNewSessions().size(), 1);
-	ASSERT_EQ(target->getAllOpenAndConfiguredSessions().size(), 1);
-	ASSERT_EQ(target->getAllFinishedAndConfiguredSessions().size(), 0);
-
-	// when
-	target->findSessionWrapper(mockSessionTwo)->updateBeaconConfiguration(MockIBeaconConfiguration::createNice());
-
-	// then
-	ASSERT_EQ(target->getAllNewSessions().size(), 0);
-	ASSERT_EQ(target->getAllOpenAndConfiguredSessions().size(), 2);
-	ASSERT_EQ(target->getAllFinishedAndConfiguredSessions().size(), 0);
+	ASSERT_THAT(obtained.size(), testing::Eq(1));
+	ASSERT_THAT(*obtained.begin(), testing::Eq(relevantSession));
 }
 
-TEST_F(BeaconSendingContextTest, afterAFinishedSessionHasBeenConfiguredItsFinishedAndConfigured)
+TEST_F(BeaconSendingContextTest, getCurrentServerIdReturnsServerIdOfHttpClientConfig)
 {
 	// given
+	const int32_t serverId = 37;
+	ON_CALL(*mockHttpClientConfig, getServerID()).WillByDefault(testing::Return(serverId));
+
 	auto target = createBeaconSendingContext()->build();
 
-	auto mockSessionOne = MockSessionInternals::createNice();
-	auto mockSessionTwo = MockSessionInternals::createNice();
-
 	// when
-	target->startSession(mockSessionOne);
-	target->startSession(mockSessionTwo);
+	auto obtained = target->getCurrentServerID();
 
 	// then
-	ASSERT_EQ(target->getAllNewSessions().size(), 2);
-	ASSERT_EQ(target->getAllOpenAndConfiguredSessions().size(), 0);
-	ASSERT_EQ(target->getAllFinishedAndConfiguredSessions().size(), 0);
-
-	// when
-	target->findSessionWrapper(mockSessionOne)->updateBeaconConfiguration(MockIBeaconConfiguration::createNice());
-	target->finishSession(mockSessionOne);
-
-	// then
-	ASSERT_EQ(target->getAllNewSessions().size(), 1);
-	ASSERT_EQ(target->getAllOpenAndConfiguredSessions().size(), 0);
-	ASSERT_EQ(target->getAllFinishedAndConfiguredSessions().size(), 1);
-
-	// when
-	target->findSessionWrapper(mockSessionTwo)->updateBeaconConfiguration(MockIBeaconConfiguration::createNice());
-	target->finishSession(mockSessionTwo);
-
-	// then
-	ASSERT_EQ(target->getAllNewSessions().size(), 0);
-	ASSERT_EQ(target->getAllOpenAndConfiguredSessions().size(), 0);
-	ASSERT_EQ(target->getAllFinishedAndConfiguredSessions().size(), 2);
+	ASSERT_THAT(obtained, testing::Eq(serverId));
 }
+

@@ -50,7 +50,7 @@ BeaconSendingCaptureOffState::BeaconSendingCaptureOffState(int64_t sleepTimeInMi
 void BeaconSendingCaptureOffState::doExecute(IBeaconSendingContext& context)
 {
 	// disable capturing - avoid collecting further data
-	context.disableCapture();
+	context.disableCaptureAndClear();
 
 	auto currentTime = context.getCurrentTimestamp();
 

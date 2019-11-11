@@ -143,7 +143,7 @@ namespace core
 			ServerConfiguration(ServerConfiguration::Builder& builder);
 
 			/// Default server configuration instance.
-			static const std::shared_ptr<const core::configuration::IServerConfiguration> DEFAULT;
+			static const std::shared_ptr<core::configuration::IServerConfiguration> DEFAULT;
 
 			/// by default capturing is enabled
 			static constexpr bool DEFAULT_CAPTURE_ENABLED = true;

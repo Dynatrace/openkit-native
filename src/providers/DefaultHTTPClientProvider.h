@@ -35,10 +35,6 @@ namespace providers
 			std::shared_ptr<openkit::ILogger> logger,
 			std::shared_ptr<core::configuration::IHTTPClientConfiguration> configuration
 		) override;
-
-		void globalInit() override;
-
-		void globalDestroy() override;
 	};
 }
 

@@ -20,12 +20,16 @@
 using namespace core::configuration;
 
 PrivacyConfiguration::PrivacyConfiguration(
-	openkit::DataCollectionLevel dataCollectionLevel,
-	openkit::CrashReportingLevel crashReportingLevel
+	openkit::IOpenKitBuilder& builder
 )
-	: mDataCollectionLevel(dataCollectionLevel)
-	, mCrashReportingLevel(crashReportingLevel)
+	: mDataCollectionLevel(builder.getDataCollectionLevel())
+	, mCrashReportingLevel(builder.getCrashReportingLevel())
 {
+}
+
+std::shared_ptr<IPrivacyConfiguration> PrivacyConfiguration::from(openkit::IOpenKitBuilder& builder)
+{
+	return std::make_shared<PrivacyConfiguration>(builder);
 }
 
 openkit::DataCollectionLevel PrivacyConfiguration::getDataCollectionLevel() const

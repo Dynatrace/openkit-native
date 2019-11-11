@@ -128,6 +128,17 @@ namespace core
 				return std::vector<T>(mList.begin(), mList.end());
 			}
 
+			///
+			/// Returns the size of this queue.
+			///
+			size_t size()
+			{
+				// synchronized scope
+				std::lock_guard<std::mutex> lock(mMutex);
+
+				return mList.size();
+			}
+
 		private:
 			typedef typename std::list<T>::iterator queue_iterator;
 

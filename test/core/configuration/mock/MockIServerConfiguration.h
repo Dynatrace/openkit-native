@@ -64,7 +64,7 @@ namespace test
 
 		static std::shared_ptr<testing::StrictMock<MockIServerConfiguration>> createStrict()
 		{
-			return std::shared_ptr<testing::StrictMock<MockIServerConfiguration>>();
+			return std::make_shared<testing::StrictMock<MockIServerConfiguration>>();
 		}
 
 		MOCK_CONST_METHOD0(isCaptureEnabled, bool());

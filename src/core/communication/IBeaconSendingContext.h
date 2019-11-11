@@ -18,7 +18,6 @@
 #define _CORE_COMMUNICATION_IBEACONSENDINGCONTEXT_H
 
 #include "IBeaconSendingState.h"
-#include "core/SessionWrapper.h"
 #include "core/objects/SessionInternals.h"
 #include "protocol/IHTTPClient.h"
 #include "protocol/IStatusResponse.h"
@@ -172,7 +171,7 @@ namespace core
 			///
 			/// Disable data capturing.
 			///
-			virtual void disableCapture() = 0;
+			virtual void disableCaptureAndClear() = 0;
 
 			///
 			/// Handle the status response received from the server
@@ -181,44 +180,56 @@ namespace core
 			virtual void handleStatusResponse(std::shared_ptr<protocol::IStatusResponse> response) = 0;
 
 			///
-			/// Clears all session data
+			/// Get all sessions that were not yet configured.
 			///
-			virtual void clearAllSessionData() = 0;
-
-			///
-			/// Get all sessions that are considered new.
+			/// @par
+			/// A session is considered as not configured if it did not receive a server configuration update (either
+			/// when receiving a successful for the first new session request or when capturing for the session got
+			/// disabled due to an unsuccessful response).
 			///
 			/// The returned list is a snapshot and might change during traversal.
-			/// @returns a shallow copy of all new sessions.
 			///
-			virtual std::vector<std::shared_ptr<core::SessionWrapper>> getAllNewSessions() = 0;
+			/// @returns a shallow copy of all sessions which were not yet configured.
+			///
+			virtual std::vector<std::shared_ptr<core::objects::SessionInternals>> getAllNotConfiguredSessions() = 0;
 
 			///
 			/// Gets all open and configured sessions.
 			/// @return a shallow copy of all open sessions.
 			///
-			virtual std::vector<std::shared_ptr<core::SessionWrapper>> getAllOpenAndConfiguredSessions() = 0;
+			virtual std::vector<std::shared_ptr<core::objects::SessionInternals>> getAllOpenAndConfiguredSessions() = 0;
 
 			///
 			/// Get a list of all sessions that have been configured and are currently finished
 			/// @returns a shallow copy of all finished and configured sessions.
 			///
-			virtual std::vector<std::shared_ptr<core::SessionWrapper>> getAllFinishedAndConfiguredSessions() = 0;
+			virtual std::vector<std::shared_ptr<core::objects::SessionInternals>> getAllFinishedAndConfiguredSessions() = 0;
 
 			///
-			/// Start a new session.
-			/// This add the @c session to the internal container of open sessions.
-			/// @param[in] session The new session to start.
+			/// Returns the number of sessions currently known to this context
 			///
-			virtual void startSession(std::shared_ptr<core::objects::SessionInternals> session) = 0;
+			virtual int32_t getSessionCount() = 0;
 
 			///
-			/// Finish a session which has been started previously using startSession(std::shared_ptr<core::objects::Session>)
-			/// If the session cannot be found in the container storing all open sessions, the parameter is ignored,
-			/// otherwise it's removed from the container storing open sessions and added to the finished session container.
-			/// @param[in] session The session to finish.
+			/// Returns the current server ID to be used for creating new sessions.
 			///
-			virtual void finishSession(std::shared_ptr<core::objects::SessionInternals> session) = 0;
+			virtual int32_t getCurrentServerID() const = 0;
+
+			///
+			/// Adds the given session to the internal container of sessions
+			///
+			/// @param session the new session to add.
+			///
+			virtual void addSession(std::shared_ptr<core::objects::SessionInternals> session) = 0;
+
+			///
+			/// Remove the given session form the sessions known by this context.
+			///
+			/// @param[in] session the session to be removed.
+			/// @returns @c true if @c sessionWrapper was found in the session wrapper list and was removed successfully,
+			///   @c false otherwise
+			///
+			virtual bool removeSession(std::shared_ptr<core::objects::SessionInternals> session) = 0;
 
 			///
 			/// Returns the type of state
@@ -226,12 +237,6 @@ namespace core
 			///
 			virtual IBeaconSendingState::StateType getCurrentStateType() const = 0;
 
-			///
-			/// Remove @ref core::SessionWrapper from the list of all wrappers
-			/// @param[in] sessionWrapper
-			/// @returns @c true if @c sessionWrapper was found in the session wrapper list and was removed successfully, @c false otherwise
-			///
-			virtual bool removeSession(std::shared_ptr<core::SessionWrapper> sessionWrapper) = 0;
 		};
 	}
 }

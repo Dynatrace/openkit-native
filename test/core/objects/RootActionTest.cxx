@@ -37,13 +37,9 @@ protected:
 
 	MockStrictIActionCommon_sp mockActionImpl;
 
-	void SetUp()
+	void SetUp() override
 	{
 		mockActionImpl = std::make_shared<MockStrictIActionCommon_t>();
-	}
-
-	void TearDown()
-	{
 	}
 
 	RootAction_sp createAction()

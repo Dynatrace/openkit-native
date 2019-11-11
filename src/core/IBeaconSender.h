@@ -61,19 +61,14 @@ namespace core
 		virtual void shutdown() = 0;
 
 		///
-		/// When starting a new Session, put it into open Sessions.
-		/// A session is only put into the open Sessions if capturing is enabled.
-		/// In case capturing is disabled, this method has no effect.
-		/// @param[in] session Session to start
+		/// Returns the current serverID to be used for creating new sessions.
 		///
-		virtual void startSession(std::shared_ptr<core::objects::SessionInternals> session) = 0;
+		virtual int32_t getCurrentServerID() const = 0;
 
 		///
-		/// When finishing a Session, remove it from open Sessions and put it into finished Sessions.
-		/// As soon as a session gets finished it will be transferred to the server.
-		/// @param[in] session Session to finish
+		/// Adds the given session to the known sessions of this beacon sender.
 		///
-		virtual void finishSession(std::shared_ptr<core::objects::SessionInternals> session) = 0;
+		virtual void addSession(std::shared_ptr<core::objects::SessionInternals> session) = 0;
 	};
 }
 

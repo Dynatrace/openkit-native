@@ -42,8 +42,6 @@ namespace test
 				.WillByDefault(testing::Return(DefaultValues::UTF8_EMPTY_STRING));
 			ON_CALL(*this, send(testing::_))
 				.WillByDefault(testing::Return(nullptr));
-			ON_CALL(*this, getBeaconConfiguration())
-				.WillByDefault(testing::Return(nullptr));
 			ON_CALL(*this, getClientIPAddress())
 				.WillByDefault(testing::ReturnRefOfCopy(DefaultValues::UTF8_EMPTY_STRING));
 		}
@@ -158,15 +156,21 @@ namespace test
 
 		MOCK_CONST_METHOD0(getDeviceID, int64_t());
 
-		MOCK_METHOD1(setBeaconConfiguration,
+		MOCK_CONST_METHOD0(getClientIPAddress, core::UTF8String&());
+
+		MOCK_METHOD1(updateServerConfiguration,
 			void(
-				std::shared_ptr<core::configuration::IBeaconConfiguration> beaconConfiguration /* beaconConfiguration */
+				std::shared_ptr<core::configuration::IServerConfiguration> /* serverConfig */
 			)
 		);
 
-		MOCK_CONST_METHOD0(getBeaconConfiguration, std::shared_ptr<core::configuration::IBeaconConfiguration>());
+		MOCK_METHOD0(isServerConfigurationSet, bool());
 
-		MOCK_CONST_METHOD0(getClientIPAddress, core::UTF8String&());
+		MOCK_METHOD0(isCaptureEnabled, bool());
+
+		MOCK_METHOD0(enableCapture, void());
+
+		MOCK_METHOD0(disableCapture, void());
 	};
 }
 #endif

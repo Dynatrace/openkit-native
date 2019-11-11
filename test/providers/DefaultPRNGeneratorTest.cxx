@@ -24,19 +24,6 @@ using DefaultPrnGenerator_t = providers::DefaultPRNGenerator;
 
 class DefaultPRNGeneratorTest : public testing::Test
 {
-protected:
-	DefaultPRNGeneratorTest()
-	{
-	}
-
-	void SetUp()
-	{
-	}
-
-	void TearDown()
-	{
-	}
-
 public:
 	/// the test target
 	DefaultPrnGenerator_t randomGenerator;

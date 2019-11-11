@@ -41,7 +41,7 @@ protected:
 	MockNiceIBeaconSendingContext_sp mockContext;
 	MockNiceIHttpClient_sp mockHTTPClient;
 
-	void SetUp()
+	void SetUp() override
 	{
 		mockHTTPClient = MockIHTTPClient::createNice();
 		ON_CALL(*mockHTTPClient, sendStatusRequest())
@@ -50,12 +50,7 @@ protected:
 		mockContext = MockIBeaconSendingContext::createNice();
 		ON_CALL(*mockContext, getHTTPClient())
 			.WillByDefault(testing::Return(mockHTTPClient));
-}
-
-	void TearDown()
-	{
 	}
-
 };
 
 TEST_F(BeaconSendingCaptureOffStateTest, aBeaconSendingCaptureOffStateIsNotATerminalState)
@@ -105,7 +100,7 @@ TEST_F(BeaconSendingCaptureOffStateTest, aBeaconSendingCaptureOffStateTransition
 	auto target = BeaconSendingCaptureOffState_t();
 
 	// expect
-	EXPECT_CALL(*mockContext, disableCapture())
+	EXPECT_CALL(*mockContext, disableCaptureAndClear())
 		.Times(::testing::Exactly(1));
 	EXPECT_CALL(*mockContext, setLastStatusCheckTime(testing::_))
 		.Times(testing::Exactly(1));
@@ -209,7 +204,7 @@ TEST_F(BeaconSendingCaptureOffStateTest, aBeaconSendingCaptureOffStateDoesDoesNo
 		.WillRepeatedly(testing::Return(true));
 
 	// expect
-	EXPECT_CALL(*mockContext, disableCapture())
+	EXPECT_CALL(*mockContext, disableCaptureAndClear())
 		.Times(::testing::Exactly(1));
 	// also verify that lastStatusCheckTime was updated
 	EXPECT_CALL(*mockContext, setLastStatusCheckTime(testing::_))

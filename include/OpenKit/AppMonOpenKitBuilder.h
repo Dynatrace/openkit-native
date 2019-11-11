@@ -31,6 +31,8 @@ namespace openkit
 	{
 	public:
 
+		static constexpr int32_t DEFAULT_SERVER_ID = 1;
+
 		static const std::string OPENKIT_TYPE;
 
 		///
@@ -56,13 +58,13 @@ namespace openkit
 		///
 		~AppMonOpenKitBuilder() override = default;
 
-		std::shared_ptr<core::configuration::Configuration> buildConfiguration() override;
-
 		const std::string& getOpenKitType() const override;
 
 		const std::string& getApplicationID() const override;
 
 		const std::string& getApplicationName() const override;
+
+		int32_t getDefaultServerID() const override;
 
 	private:
 

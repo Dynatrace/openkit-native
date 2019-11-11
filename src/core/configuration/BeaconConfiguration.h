@@ -18,6 +18,12 @@
 #define _CORE_CONFIGURATION_BEACONCONFIGURATION_H
 
 #include "IBeaconConfiguration.h"
+#include "IHTTPClientConfiguration.h"
+#include "IOpenKitConfiguration.h"
+#include "IPrivacyConfiguration.h"
+#include "IServerConfiguration.h"
+
+#include <mutex>
 
 namespace core
 {
@@ -30,33 +36,69 @@ namespace core
 			: public IBeaconConfiguration
 		{
 		public:
-			///
-			/// Constructor
-			/// @param[in] dataLevel data collection level
-			/// @param[in] crashLevel crash reporting level
-			///
-			BeaconConfiguration(int32_t multiplicity);
+
+			BeaconConfiguration(
+					std::shared_ptr<IOpenKitConfiguration> openKitConfig,
+					std::shared_ptr<IPrivacyConfiguration> privacyConfig,
+					int32_t serverId
+			);
+
+			~BeaconConfiguration() override = default;
 
 			///
-			/// Default constructor returning the default config
+			/// Creates a @ref IBeaconConfiguration from the given @ref IOpenKitConfiguration and
+			/// @ref IPrivacyConfiguration.
 			///
-			BeaconConfiguration();
+			/// @param openKitConfig application related configuration
+			/// @param privacyConfig privacy related configuration.
+			/// @return @c nullptr if any of the given arguments is @c nullptr, otherwise a new @ref IBeaconConfiguration.
+			static std::shared_ptr<IBeaconConfiguration> from(
+				std::shared_ptr<IOpenKitConfiguration> openKitConfig,
+				std::shared_ptr<IPrivacyConfiguration> privacyConfig,
+				int32_t serverId
+			);
 
+			std::shared_ptr<IOpenKitConfiguration> getOpenKitConfiguration() const override;
 
-			///
-			/// Get the multiplicity
-			/// @return the multiplicity
-			///
-			int32_t getMultiplicity() const override;
+			std::shared_ptr<IPrivacyConfiguration> getPrivacyConfiguration() const override;
 
-			///
-			/// Returns a boolean indicating if capturing is allowed based on the value of multiplicity
-			///
-			bool isCapturingAllowed() const override;
+			std::shared_ptr<IHTTPClientConfiguration> getHTTPClientConfiguration() const override;
+
+			std::shared_ptr<IServerConfiguration> getServerConfiguration() override;
+
+			void enableCapture() override;
+
+			void disableCapture() override;
+
+			void updateServerConfiguration(std::shared_ptr<IServerConfiguration> newServerConfiguration) override;
+
+			bool isServerConfigurationSet() override;
 
 		private:
-			/// multiplicity controlling how many sessions are actually send
-			int32_t mMultiplicity;
+
+			///
+			/// Enables/disables capture according to the given state
+			///
+			/// @param captureState the state to which capture will be set.
+			///
+			void updateCaptureWith(bool captureState);
+
+			std::shared_ptr<IServerConfiguration> getServerConfigurationOrDefault();
+
+			/// application related configuration
+			const std::shared_ptr<IOpenKitConfiguration> mOpenKitConfiguration;
+
+			/// privacy related configuration
+			const std::shared_ptr<IPrivacyConfiguration> mPrivacyConfiguration;
+
+			/// HTTP client configuration
+			const std::shared_ptr<IHTTPClientConfiguration> mHTTPClientConfiguration;
+
+			/// server related configuration
+			std::shared_ptr<IServerConfiguration> mServerConfiguration;
+
+			/// synchronization
+			std::mutex mMutex;
 		};
 	}
 }

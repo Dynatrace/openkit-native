@@ -96,11 +96,7 @@ set(OPENKIT_SOURCES_CORE_CONFIGURATION
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/BeaconCacheConfiguration.h
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/BeaconConfiguration.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/BeaconConfiguration.h
-    ${CMAKE_CURRENT_LIST_DIR}/core/configuration/Configuration.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/core/configuration/Configuration.h
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/ConfigurationDefaults.h
-    ${CMAKE_CURRENT_LIST_DIR}/core/configuration/Device.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/core/configuration/Device.h
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/HTTPClientConfiguration.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/HTTPClientConfiguration.h
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/IBeaconCacheConfiguration.h
@@ -111,8 +107,6 @@ set(OPENKIT_SOURCES_CORE_CONFIGURATION
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/IServerConfiguration.h
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/OpenKitConfiguration.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/OpenKitConfiguration.h
-    ${CMAKE_CURRENT_LIST_DIR}/core/configuration/OpenKitType.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/core/configuration/OpenKitType.h
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/PrivacyConfiguration.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/PrivacyConfiguration.h
     ${CMAKE_CURRENT_LIST_DIR}/core/configuration/ServerConfiguration.cxx
@@ -144,8 +138,6 @@ set(OPENKIT_SOURCES_CORE
     ${CMAKE_CURRENT_LIST_DIR}/core/BeaconSender.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/BeaconSender.h
     ${CMAKE_CURRENT_LIST_DIR}/core/IBeaconSender.h
-    ${CMAKE_CURRENT_LIST_DIR}/core/SessionWrapper.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/core/SessionWrapper.h
     ${CMAKE_CURRENT_LIST_DIR}/core/UTF8String.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/UTF8String.h
 )

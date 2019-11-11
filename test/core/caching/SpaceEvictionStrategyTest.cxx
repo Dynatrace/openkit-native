@@ -55,7 +55,7 @@ protected:
 
 	MockStrictILogger_sp mockLoggerStrict;
 
-	void SetUp()
+	void SetUp() override
 	{
 		mockLoggerNice = MockILogger::createNice();
 		mockBeaconCache = MockIBeaconCache::createNice();
@@ -129,6 +129,21 @@ TEST_F(SpaceEvictionStrategyTest, theStrategyIsDisabledIfCacheSizeUpperBoundIsEq
 
 	// then
 	ASSERT_TRUE(target.isStrategyDisabled());
+}
+
+TEST_F(SpaceEvictionStrategyTest, theStrategyIsDisabledIfCacheSizeUpperBoundIsLessThanZero)
+{
+	// given
+	auto configuration = createBeaconCacheConfig(1000L, 1000L, -1L);
+	SpaceEvictionStrategy_t target(
+		mockLoggerNice,
+		mockBeaconCache,
+		configuration,
+		std::bind(&SpaceEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this)
+	);
+
+	// then
+	ASSERT_THAT(target.isStrategyDisabled(), testing::Eq(true));
 }
 
 TEST_F(SpaceEvictionStrategyTest, theStrategyIsDisabledIfCacheSizeUpperBoundIsLessThanLowerBound)

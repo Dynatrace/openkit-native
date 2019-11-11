@@ -18,7 +18,7 @@
 
 using namespace core::configuration;
 
-const std::shared_ptr<const IServerConfiguration> ServerConfiguration::DEFAULT = ServerConfiguration::Builder().build();
+const std::shared_ptr<IServerConfiguration> ServerConfiguration::DEFAULT = ServerConfiguration::Builder().build();
 
 ServerConfiguration::ServerConfiguration(Builder& builder)
 	: mIsCaptureEnabled(builder.isCaptureEnabled())

@@ -17,11 +17,12 @@
 #include "builder/TestBeaconBuilder.h"
 #include "mock/MockIHTTPClient.h"
 #include "../api/mock/MockILogger.h"
-#include "../api/mock/MockISslTrustManager.h"
 #include "../core/caching/mock/MockIBeaconCache.h"
-#include "../core/configuration/mock/MockIBeaconCacheConfiguration.h"
 #include "../core/configuration/mock/MockIBeaconConfiguration.h"
+#include "../core/configuration/mock/MockIHTTPClientConfiguration.h"
+#include "../core/configuration/mock/MockIOpenKitConfiguration.h"
 #include "../core/configuration/mock/MockIPrivacyConfiguration.h"
+#include "../core/configuration/mock/MockIServerConfiguration.h"
 #include "../core/objects/mock/MockIActionCommon.h"
 #include "../core/objects/mock/MockIOpenKitComposite.h"
 #include "../core/objects/mock/MockSessionInternals.h"
@@ -37,10 +38,7 @@
 #include "OpenKit/DataCollectionLevel.h"
 #include "core/UTF8String.h"
 #include "core/caching/BeaconCache.h"
-#include "core/configuration/Configuration.h"
 #include "core/configuration/ConfigurationDefaults.h"
-#include "core/configuration/Device.h"
-#include "core/configuration/OpenKitType.h"
 #include "core/objects/WebRequestTracer.h"
 #include "core/util/URLEncoding.h"
 #include "protocol/Beacon.h"
@@ -53,57 +51,89 @@ using namespace test;
 
 using BeaconBuilder_sp = std::shared_ptr<TestBeaconBuilder>;
 using BeaconCache_t = core::caching::BeaconCache;
-using Configuration_t = core::configuration::Configuration;
-using Configuration_sp = std::shared_ptr<Configuration_t>;
 using CrashReportingLevel_t = openkit::CrashReportingLevel;
 using DataCollectionLevel_t = openkit::DataCollectionLevel;
-using Device_t = core::configuration::Device;
 using EventType_t = protocol::EventType;
+using MockIBeaconConfiguration_sp = std::shared_ptr<MockIBeaconConfiguration>;
+using MockILogger_sp = std::shared_ptr<MockILogger>;
+using MockIOpenKitComposite_sp = std::shared_ptr<MockIOpenKitComposite>;
+using MockIOpenKitConfiguration_sp = std::shared_ptr<MockIOpenKitConfiguration>;
 using MockIPrivacyConfiguration_sp = std::shared_ptr<MockIPrivacyConfiguration>;
-using MockNiceIBeaconConfiguration_sp = std::shared_ptr<testing::NiceMock<MockIBeaconConfiguration>>;
-using MockNiceILogger_sp = std::shared_ptr<testing::NiceMock<MockILogger>>;
-using MockNiceIOpenKitComposite_sp = std::shared_ptr<testing::NiceMock<MockIOpenKitComposite>>;
-using MockNiceIPRNGenerator_sp = std::shared_ptr<testing::NiceMock<MockIPRNGenerator>>;
-using MockNiceISessionIDProvider_sp = std::shared_ptr<testing::NiceMock<MockISessionIDProvider>>;
-using MockNiceIThreadIDProvider_sp = std::shared_ptr<testing::NiceMock<MockIThreadIDProvider>>;
-using MockNiceITimingProvider_sp = std::shared_ptr<testing::NiceMock<MockITimingProvider>>;
-using MockStrictIBeaconCache_sp = std::shared_ptr<testing::StrictMock<MockIBeaconCache>>;
-using OpenKitType_t = core::configuration::OpenKitType;
+using MockIPRNGenerator_sp = std::shared_ptr<MockIPRNGenerator>;
+using MockIServerConfiguration_sp = std::shared_ptr<MockIServerConfiguration>;
+using MockISessionIDProvider_sp = std::shared_ptr<MockISessionIDProvider>;
+using MockIThreadIDProvider_sp = std::shared_ptr<MockIThreadIDProvider>;
+using MockITimingProvider_sp = std::shared_ptr<MockITimingProvider>;
+using MockIBeaconCache_sp = std::shared_ptr<MockIBeaconCache>;
 using UrlEncoding_t = core::util::URLEncoding;
 using Utf8String_t = core::UTF8String;
 using WebRequestTracer_t = core::objects::WebRequestTracer;
 
-constexpr char APP_ID[] = "appID";
-constexpr char APP_NAME[] = "appName";
+const Utf8String_t APP_ID("appID");
+const Utf8String_t APP_NAME("appName");
+const Utf8String_t APP_VERSION("1.0");
 constexpr int32_t ACTION_ID = 17;
 constexpr int32_t SERVER_ID = 1;
 constexpr int64_t DEVICE_ID = 456;
 constexpr int32_t THREAD_ID = 1234567;
 constexpr int32_t SESSION_ID = 73;
-constexpr char TRACER_URL[] = "https://localhost";
+const Utf8String_t TRACER_URL("https://localhost");
+constexpr int32_t MULTIPLICITY = 37;
 
 class BeaconTest : public testing::Test
 {
 protected:
 
-	MockNiceIBeaconConfiguration_sp mockBeaconConfiguration;
+	MockIBeaconConfiguration_sp mockBeaconConfiguration;
+	MockIOpenKitConfiguration_sp mockOpenKitConfiguration;
 	MockIPrivacyConfiguration_sp mockPrivacyConfiguration;
+	MockIServerConfiguration_sp mockServerConfiguration;
 
-	MockNiceILogger_sp mockLogger;
-	MockNiceIThreadIDProvider_sp mockThreadIdProvider;
+	MockISessionIDProvider_sp mockSessionIDProvider;
+	MockIThreadIDProvider_sp mockThreadIdProvider;
+	MockITimingProvider_sp mockTimingProvider;
+	MockIOpenKitComposite_sp mockParent;
 
-	MockStrictIBeaconCache_sp mockBeaconCache;
+	MockILogger_sp mockLogger;
+	MockIBeaconCache_sp mockBeaconCache;
 
-	MockNiceISessionIDProvider_sp mockSessionIDProvider;
-	Configuration_sp configuration;
-	MockNiceITimingProvider_sp mockTimingProvider;
-
-	MockNiceIOpenKitComposite_sp mockParent;
-
-	void SetUp()
+	void SetUp() override
 	{
+		mockOpenKitConfiguration = MockIOpenKitConfiguration::createNice();
+		ON_CALL(*mockOpenKitConfiguration, getApplicationId())
+			.WillByDefault(testing::ReturnRef(APP_ID));
+		ON_CALL(*mockOpenKitConfiguration, getApplicationIdPercentEncoded())
+			.WillByDefault(testing::ReturnRef(APP_ID));
+		ON_CALL(*mockOpenKitConfiguration, getApplicationName())
+			.WillByDefault(testing::ReturnRef(APP_NAME));
+		ON_CALL(*mockOpenKitConfiguration, getApplicationVersion())
+			.WillByDefault(testing::ReturnRef(APP_VERSION));
+		ON_CALL(*mockOpenKitConfiguration, getDeviceId())
+			.WillByDefault(testing::Return(DEVICE_ID));
+
 		mockPrivacyConfiguration = MockIPrivacyConfiguration::createNice();
+
+		mockServerConfiguration = MockIServerConfiguration::createNice();
+		ON_CALL(*mockServerConfiguration, getServerId())
+			.WillByDefault(testing::Return(SERVER_ID));
+		ON_CALL(*mockServerConfiguration, getBeaconSizeInBytes())
+			.WillByDefault(testing::Return(30 * 1024)); // 30 kB
+		ON_CALL(*mockServerConfiguration, getMultiplicity())
+			.WillByDefault(testing::Return(MULTIPLICITY));
+
+		auto mockHttpClientConfig = MockIHTTPClientConfiguration::createNice();
+		ON_CALL(*mockHttpClientConfig, getServerID())
+			.WillByDefault(testing::Return(SERVER_ID));
+
 		mockBeaconConfiguration = MockIBeaconConfiguration::createNice();
+		ON_CALL(*mockBeaconConfiguration, getOpenKitConfiguration())
+			.WillByDefault(testing::Return(mockOpenKitConfiguration));
+		ON_CALL(*mockBeaconConfiguration, getPrivacyConfiguration())
+			.WillByDefault(testing::Return(mockPrivacyConfiguration));
+		ON_CALL(*mockBeaconConfiguration, getServerConfiguration())
+			.WillByDefault(testing::Return(mockServerConfiguration));
+		ON_CALL(*mockBeaconConfiguration, getHTTPClientConfiguration())
+			.WillByDefault(testing::Return(mockHttpClientConfig));
 
 		mockSessionIDProvider = MockISessionIDProvider::createNice();
 		ON_CALL(*mockSessionIDProvider, getNextSessionID())
@@ -123,34 +153,12 @@ protected:
 
 	BeaconBuilder_sp createBeacon()
 	{
-		return createBeacon(DEVICE_ID, Utf8String_t(APP_ID));
-	}
-
-	BeaconBuilder_sp createBeacon(int64_t deviceID, const Utf8String_t& appID)
-	{
-		auto device = std::make_shared<Device_t>(Utf8String_t(""), Utf8String_t(""), Utf8String_t(""));
-
-		configuration = std::make_shared<Configuration_t>(
-			device,
-			OpenKitType_t::Type::DYNATRACE,
-			Utf8String_t(APP_NAME),
-			"",
-			appID,
-			deviceID,
-			std::to_string(deviceID).c_str(),
-			"",
-			mockSessionIDProvider,
-			MockISslTrustManager::createNice(),
-			MockIBeaconCacheConfiguration::createNice(),
-			mockBeaconConfiguration,
-			mockPrivacyConfiguration
-		);
-		configuration->enableCapture();
-
-		auto builder = std::make_shared<TestBeaconBuilder>(configuration);
+		auto builder = std::make_shared<TestBeaconBuilder>();
 
 		builder->with(mockLogger)
 			.with(mockBeaconCache)
+			.with(mockBeaconConfiguration)
+			.with(mockSessionIDProvider)
 			.with(mockThreadIdProvider)
 			.with(mockTimingProvider)
 		;
@@ -158,6 +166,15 @@ protected:
 		return builder;
 	}
 };
+
+TEST_F(BeaconTest, defaultBeaconConfigurationDoesNotDisableCapturing)
+{
+	// given
+	auto target = createBeacon()->build();
+
+	// then
+	ASSERT_THAT(target->isCaptureEnabled(), testing::Eq(true));
+}
 
 TEST_F(BeaconTest, createInstanceWithInvalidIpAddress)
 {
@@ -291,7 +308,7 @@ TEST_F(BeaconTest, createWebRequestTag)
 		<< "_" << SERVER_ID							// server ID
 		<< "_" << DEVICE_ID							// device ID
 		<< "_" << SESSION_ID						// session number
-		<< "_" << APP_ID							// application ID
+		<< "_" << APP_ID.getStringData()			// application ID
 		<< "_" << ACTION_ID							// parent action ID
 		<< "_" << THREAD_ID							// thread ID
 		<< "_" << sequenceNo						// sequence number
@@ -304,7 +321,11 @@ TEST_F(BeaconTest, createTagEncodesDeviceIDPropperly)
 	// given
 	int32_t deviceId = -42;
 	int32_t sequenceNo = 42;
-	auto target = createBeacon(deviceId, APP_ID)->build();
+
+	ON_CALL(*mockOpenKitConfiguration, getDeviceId())
+		.WillByDefault(testing::Return(deviceId));
+
+	auto target = createBeacon()->build();
 
 	// when
 	auto obtained = target->createTag(ACTION_ID, sequenceNo);
@@ -316,33 +337,7 @@ TEST_F(BeaconTest, createTagEncodesDeviceIDPropperly)
 		<< "_" << SERVER_ID							// server ID
 		<< "_" << deviceId							// device ID
 		<< "_" << SESSION_ID						// session number
-		<< "_" << APP_ID							// application ID
-		<< "_" << ACTION_ID							// parent action ID
-		<< "_" << THREAD_ID							// thread ID
-		<< "_" << sequenceNo						// sequence number
-	;
-
-	ASSERT_THAT(obtained, testing::Eq(s.str()));
-}
-
-TEST_F(BeaconTest, createTagUsesEncodedAppID)
-{
-	// given
-	Utf8String_t appID("app_ID_");
-	int32_t sequenceNo = 42;
-	auto target = createBeacon(DEVICE_ID, appID)->build();
-
-	// when
-	auto obtained = target->createTag(ACTION_ID, sequenceNo);
-
-	// then
-	std::stringstream s;
-	s << "MT" 										// tag prefix
-		<< "_" << protocol::PROTOCOL_VERSION		// protocol version
-		<< "_" << SERVER_ID							// server ID
-		<< "_" << DEVICE_ID							// device ID
-		<< "_" << SESSION_ID						// session number
-		<< "_" << UrlEncoding_t::urlencode(appID, {'_'}).getStringData()	// application ID
+		<< "_" << APP_ID.getStringData()			// application ID
 		<< "_" << ACTION_ID							// parent action ID
 		<< "_" << THREAD_ID							// thread ID
 		<< "_" << sequenceNo						// sequence number
@@ -1097,6 +1092,9 @@ TEST_F(BeaconTest, canAddActionIfDataSendingIsAllowed)
 TEST_F(BeaconTest, cannotAddActionIfCapturingIsDisabled)
 {
 	// with
+	ON_CALL(*mockServerConfiguration, isCaptureEnabled())
+		.WillByDefault(testing::Return(false));
+
 	Utf8String_t actionName("action");
 	auto action = MockIActionCommon::createNice();
 	ON_CALL(*action, getName())
@@ -1104,7 +1102,6 @@ TEST_F(BeaconTest, cannotAddActionIfCapturingIsDisabled)
 
 	// given
 	auto target = createBeacon()->build();
-	configuration->disableCapture();
 
 	// when, expect no interaction with beacon cache
 	target->addAction(action);
@@ -1252,8 +1249,10 @@ TEST_F(BeaconTest, clearDataForwardsCallToBeaconCache)
 TEST_F(BeaconTest, noSessionIsAddedIfCapturingDisabled)
 {
 	// given
+	ON_CALL(*mockServerConfiguration, isCaptureEnabled())
+		.WillByDefault(testing::Return(false));
+
 	auto target = createBeacon()->build();
-	configuration->disableCapture();
 
 	// when, expect no interaction with beacon cache
 	target->endSession();
@@ -1262,13 +1261,15 @@ TEST_F(BeaconTest, noSessionIsAddedIfCapturingDisabled)
 TEST_F(BeaconTest, noActionIsAddedIfCapturingDisabled)
 {
 	// with
+	ON_CALL(*mockServerConfiguration, isCaptureEnabled())
+		.WillByDefault(testing::Return(false));
+
 	auto action = MockIActionCommon::createNice();
 	ON_CALL(*action, getID())
 		.WillByDefault(testing::Return(ACTION_ID));
 
 	// given
 	auto target = createBeacon()->build();
-	configuration->disableCapture();
 
 	// when, expect no interaction with beacon cache
 	target->addAction(action);
@@ -1277,12 +1278,14 @@ TEST_F(BeaconTest, noActionIsAddedIfCapturingDisabled)
 TEST_F(BeaconTest, noIntValueIsReportedIfCapturingIsDisabled)
 {
 	// with
+	ON_CALL(*mockServerConfiguration, isCaptureEnabled())
+		.WillByDefault(testing::Return(false));
+
 	int32_t value = 42;
 	Utf8String_t valueName("IntValue");
 
 	// given
 	auto target = createBeacon()->build();
-	configuration->disableCapture();
 
 	// when, expect no interaction with beacon cache
 	target->reportValue(ACTION_ID, valueName, value);
@@ -1291,12 +1294,14 @@ TEST_F(BeaconTest, noIntValueIsReportedIfCapturingIsDisabled)
 TEST_F(BeaconTest, noDoubleValueIsReportedIfCapturingIsDisabled)
 {
 	// with
+	ON_CALL(*mockServerConfiguration, isCaptureEnabled())
+		.WillByDefault(testing::Return(false));
+
 	double value = 42.1337;
 	Utf8String_t valueName("DoubleValue");
 
 	// given
 	auto target = createBeacon()->build();
-	configuration->disableCapture();
 
 	// when, expect no interaction with beacon cache
 	target->reportValue(ACTION_ID, valueName, value);
@@ -1305,12 +1310,14 @@ TEST_F(BeaconTest, noDoubleValueIsReportedIfCapturingIsDisabled)
 TEST_F(BeaconTest, noStringValueIsReportedIfCapturingIsDisabled)
 {
 	// with
+	ON_CALL(*mockServerConfiguration, isCaptureEnabled())
+		.WillByDefault(testing::Return(false));
+
 	Utf8String_t value("HelloWorld");
 	Utf8String_t valueName("StringValue");
 
 	// given
 	auto target = createBeacon()->build();
-	configuration->disableCapture();
 
 	// when, expect no interaction with beacon cache
 	target->reportValue(ACTION_ID, valueName, value);
@@ -1319,19 +1326,24 @@ TEST_F(BeaconTest, noStringValueIsReportedIfCapturingIsDisabled)
 TEST_F(BeaconTest, noEventIsReportedIfCapturingDisabled)
 {
 	// with
+	ON_CALL(*mockServerConfiguration, isCaptureEnabled())
+		.WillByDefault(testing::Return(false));
+
 	Utf8String_t eventName("event name");
 
 	// given
 	auto target = createBeacon()->build();
-	configuration->disableCapture();
 
 	// when, expect no interaction with beacon cache
 	target->reportEvent(ACTION_ID, eventName);
 }
 
-TEST_F(BeaconTest, DISABLED_noEventIsReportedIfDataSendingIsDisallowed)
+TEST_F(BeaconTest, noEventIsReportedIfDataSendingIsDisallowed)
 {
 	// with
+	ON_CALL(*mockServerConfiguration, isSendingDataAllowed())
+		.WillByDefault(testing::Return(false));
+
 	Utf8String_t eventName("event name");
 
 	// given
@@ -1344,21 +1356,26 @@ TEST_F(BeaconTest, DISABLED_noEventIsReportedIfDataSendingIsDisallowed)
 TEST_F(BeaconTest, noErrorIsReportedIfCapturingDisabled)
 {
 	// with
+	ON_CALL(*mockServerConfiguration, isCaptureEnabled())
+		.WillByDefault(testing::Return(false));
+
 	Utf8String_t eventName("event name");
 	int32_t errorCode = 123;
 	Utf8String_t reason("error reason");
 
 	// given
 	auto target = createBeacon()->build();
-	configuration->disableCapture();
 
 	// when, expect no interaction with beacon cache
 	target->reportError(ACTION_ID, eventName, errorCode, reason);
 }
 
-TEST_F(BeaconTest, DISABLED_noErrorIsReportedIfSendingErrorDataDisallowed)
+TEST_F(BeaconTest, noErrorIsReportedIfSendingErrorDataDisallowed)
 {
 	// with
+	ON_CALL(*mockServerConfiguration, isSendingErrorsAllowed())
+		.WillByDefault(testing::Return(false));
+
 	Utf8String_t eventName("event name");
 	int32_t errorCode = 123;
 	Utf8String_t reason("error reason");
@@ -1373,21 +1390,26 @@ TEST_F(BeaconTest, DISABLED_noErrorIsReportedIfSendingErrorDataDisallowed)
 TEST_F(BeaconTest, noCrashIsReportedIfCapturingIsDisabled)
 {
 	// with
+	ON_CALL(*mockServerConfiguration, isCaptureEnabled())
+		.WillByDefault(testing::Return(false));
+
 	Utf8String_t eventName("event name");
 	Utf8String_t reason("some reason");
 	Utf8String_t stacktrace("some stacktrace");
 
 	// given
 	auto target = createBeacon()->build();
-	configuration->disableCapture();
 
 	// when, expect no interaction with beacon cache
 	target->reportCrash(eventName, reason, stacktrace);
 }
 
-TEST_F(BeaconTest, DISABLED_noCrashIsReportedIfSendingCrashDataDisallowed)
+TEST_F(BeaconTest, noCrashIsReportedIfSendingCrashDataDisallowed)
 {
 	// with
+	ON_CALL(*mockServerConfiguration, isSendingCrashesAllowed())
+		.WillByDefault(testing::Return(false));
+
 	Utf8String_t eventName("event name");
 	Utf8String_t reason("some reason");
 	Utf8String_t stacktrace("some stacktrace");
@@ -1402,11 +1424,12 @@ TEST_F(BeaconTest, DISABLED_noCrashIsReportedIfSendingCrashDataDisallowed)
 TEST_F(BeaconTest, noWebRequestIsReportedIfCapturingDisabled)
 {
 	// given
+	ON_CALL(*mockServerConfiguration, isCaptureEnabled())
+		.WillByDefault(testing::Return(false));
+
 	auto target = createBeacon()
 			->build();
 	auto tracer = MockIWebRequestTracerInternals::createNice();
-
-	configuration->disableCapture();
 
 	// when, expect no interaction with beacon cache
 	target->addWebRequest(ACTION_ID, tracer);
@@ -1415,11 +1438,13 @@ TEST_F(BeaconTest, noWebRequestIsReportedIfCapturingDisabled)
 TEST_F(BeaconTest, noUserIdentificationIsReportedIfCapturingDisabled)
 {
 	// with
+	ON_CALL(*mockServerConfiguration, isCaptureEnabled())
+		.WillByDefault(testing::Return(false));
+
 	Utf8String_t userID("jane.doe@acmoe.com");
 
 	// given
 	auto target = createBeacon()->build();
-	configuration->disableCapture();
 
 	// when, expect no interaction with beacon cache
 	target->identifyUser(userID);
@@ -1494,14 +1519,14 @@ TEST_F(BeaconTest, beaconReturnsValidTagIfWebRequestTracingIsAllowed)
 	//then
 	std::stringstream str;
 	str << "MT"						// tag prefix
-		<< "_" << protocol::PROTOCOL_VERSION // protocol version
-		<< "_" << SERVER_ID			// server ID
-		<< "_" << DEVICE_ID			// device ID
-		<< "_" << SESSION_ID		// session number
-		<< "_" << APP_ID			// application ID
-		<< "_" << ACTION_ID			// parent action ID
-		<< "_" << THREAD_ID			// thread ID
-		<< "_" << sequenceNo		// sequence number
+		<< "_" << protocol::PROTOCOL_VERSION	// protocol version
+		<< "_" << SERVER_ID						// server ID
+		<< "_" << DEVICE_ID						// device ID
+		<< "_" << SESSION_ID					// session number
+		<< "_" << APP_ID.getStringData()		// application ID
+		<< "_" << ACTION_ID						// parent action ID
+		<< "_" << THREAD_ID						// thread ID
+		<< "_" << sequenceNo					// sequence number
 	;
 
 	ASSERT_THAT(tagString.getStringData(), testing::Eq(str.str()));
@@ -1525,14 +1550,14 @@ TEST_F(BeaconTest, beaconReturnsValidTagWithSessionNumberIfSessionNumberReportin
 	//then
 	std::stringstream str;
 	str << "MT"						// tag prefix
-		<< "_" << protocol::PROTOCOL_VERSION // protocol version
-		<< "_" << SERVER_ID			// server ID
-		<< "_" << DEVICE_ID			// device ID
-		<< "_" << SESSION_ID		// session number
-		<< "_" << APP_ID			// application ID
-		<< "_" << ACTION_ID			// parent action ID
-		<< "_" << THREAD_ID			// thread ID
-		<< "_" << sequenceNo		// sequence number
+		<< "_" << protocol::PROTOCOL_VERSION	// protocol version
+		<< "_" << SERVER_ID						// server ID
+		<< "_" << DEVICE_ID						// device ID
+		<< "_" << SESSION_ID					// session number
+		<< "_" << APP_ID.getStringData()		// application ID
+		<< "_" << ACTION_ID						// parent action ID
+		<< "_" << THREAD_ID						// thread ID
+		<< "_" << sequenceNo					// sequence number
 	;
 
 	ASSERT_THAT(tagString.getStringData(), testing::Eq(str.str()));
@@ -1556,14 +1581,14 @@ TEST_F(BeaconTest, beaconReturnsValidTagWithSessionNumberOneIfSessionNumberRepor
 	//then
 	std::stringstream str;
 	str << "MT"						// tag prefix
-		<< "_" << protocol::PROTOCOL_VERSION // protocol version
-		<< "_" << SERVER_ID			// server ID
-		<< "_" << DEVICE_ID			// device ID
-		<< "_1"						// session number (must always be 1 if session number reporting disallowed)
-		<< "_" << APP_ID			// application ID
-		<< "_" << ACTION_ID			// parent action ID
-		<< "_" << THREAD_ID			// thread ID
-		<< "_" << sequenceNo		// sequence number
+		<< "_" << protocol::PROTOCOL_VERSION	// protocol version
+		<< "_" << SERVER_ID						// server ID
+		<< "_" << DEVICE_ID						// device ID
+		<< "_1"									// session number (must always be 1 if session number reporting disallowed)
+		<< "_" << APP_ID.getStringData()		// application ID
+		<< "_" << ACTION_ID						// parent action ID
+		<< "_" << THREAD_ID						// thread ID
+		<< "_" << sequenceNo					// sequence number
 	;
 
 	ASSERT_THAT(tagString.getStringData(), testing::Eq(str.str()));
@@ -1751,9 +1776,12 @@ TEST_F(BeaconTest, actionNotReportedIfActionReportingDisallowed)
 	target->addAction(actionMock);
 }
 
-TEST_F(BeaconTest, DISABLED_actionNotReportedIfDataSendingDisallowed)
+TEST_F(BeaconTest, actionNotReportedIfDataSendingDisallowed)
 {
 	// with
+	ON_CALL(*mockServerConfiguration, isSendingDataAllowed())
+		.WillByDefault(testing::Return(false));
+
 	auto actionMock = MockIActionCommon::createStrict();
 
 	// given
@@ -1797,9 +1825,12 @@ TEST_F(BeaconTest, sessionNotReportedIfSessionReportingDisallowed)
 	target->endSession();
 }
 
-TEST_F(BeaconTest, DISABLED_sessionNotReportedIfDataSendingDisallowed)
+TEST_F(BeaconTest, sessionNotReportedIfDataSendingDisallowed)
 {
 	//given
+	ON_CALL(*mockServerConfiguration, isSendingDataAllowed())
+		.WillByDefault(testing::Return(false));
+
 	auto target = createBeacon()->build();
 
 	// when, expect no interaction with beacon cache
@@ -1877,9 +1908,12 @@ TEST_F(BeaconTest, intValueIsNotReportedIfReportValueDisallowed)
 	target->reportValue(1, valueName, value);
 }
 
-TEST_F(BeaconTest, DISABLED_intValueIsNotReportedIfDataSendingDisallowed)
+TEST_F(BeaconTest, intValueIsNotReportedIfDataSendingDisallowed)
 {
 	// with
+	ON_CALL(*mockServerConfiguration, isSendingDataAllowed())
+		.WillByDefault(testing::Return(false));
+
 	Utf8String_t valueName("IntValue");
 	int32_t value = 42;
 
@@ -1927,9 +1961,12 @@ TEST_F(BeaconTest, doubleValueIsNotReportedIfReportValueDisallowed)
 	target->reportValue(1, valueName, value);
 }
 
-TEST_F(BeaconTest, DISABLED_doubleValueIsNotReportedIfDataSendingDisallowed)
+TEST_F(BeaconTest, doubleValueIsNotReportedIfDataSendingDisallowed)
 {
 	// with
+	ON_CALL(*mockServerConfiguration, isSendingDataAllowed())
+		.WillByDefault(testing::Return(false));
+
 	Utf8String_t valueName("DoubleValue");
 	double value = 42.1337;
 
@@ -1977,9 +2014,12 @@ TEST_F(BeaconTest, stringValueIsNotReportedIfValueReportingDisallowed)
 	target->reportValue(1, valueName, value);
 }
 
-TEST_F(BeaconTest, DISABLED_stringValueIsNotReportedIfDataSendingDisallowed)
+TEST_F(BeaconTest, stringValueIsNotReportedIfDataSendingDisallowed)
 {
 	// with
+	ON_CALL(*mockServerConfiguration, isSendingDataAllowed())
+		.WillByDefault(testing::Return(false));
+
 	Utf8String_t valueName("StringValue");
 	Utf8String_t value("HelloWorld");
 
@@ -1989,7 +2029,6 @@ TEST_F(BeaconTest, DISABLED_stringValueIsNotReportedIfDataSendingDisallowed)
 	// when, expect no interaction with beacon cache
 	target->reportValue(1, valueName, value);
 }
-
 
 TEST_F(BeaconTest, stringValueIsReportedIfValueReportingAllowed)
 {
@@ -2062,18 +2101,21 @@ TEST_F(BeaconTest, sessionStartIsReported)
 TEST_F(BeaconTest, sessionStartIsReportedRegardlessOfPrivacyConfiguration)
 {
 	// with
-	mockPrivacyConfiguration = MockIPrivacyConfiguration::createStrict();
+	auto privacyConfig = MockIPrivacyConfiguration::createStrict();
+
+	ON_CALL(*mockBeaconConfiguration, getPrivacyConfiguration())
+		.WillByDefault(testing::Return(privacyConfig));
 
 	// expect
 	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
 		.Times(1);
-	EXPECT_CALL(*mockPrivacyConfiguration, isDeviceIdSendingAllowed())
+	EXPECT_CALL(*privacyConfig, isDeviceIdSendingAllowed())
 		.Times(1); // beacon constructor, checking if device ID should be randomized
-	EXPECT_CALL(*mockPrivacyConfiguration, isSessionNumberReportingAllowed())
+	EXPECT_CALL(*privacyConfig, isSessionNumberReportingAllowed())
 		.Times(1); // beacon constructor, checking if session number can be sent
-	EXPECT_CALL(*mockPrivacyConfiguration, getDataCollectionLevel())
+	EXPECT_CALL(*privacyConfig, getDataCollectionLevel())
 		.Times(1); // beacon constructor, creating immutable beacon string
-	EXPECT_CALL(*mockPrivacyConfiguration, getCrashReportingLevel())
+	EXPECT_CALL(*privacyConfig, getCrashReportingLevel())
 		.Times(1); // beacon constructor, creating immutable beacon string
 
 	//given
@@ -2086,11 +2128,101 @@ TEST_F(BeaconTest, sessionStartIsReportedRegardlessOfPrivacyConfiguration)
 TEST_F(BeaconTest, noSessionStartIsReportedIfCapturingDisabled)
 {
 	//given
+	ON_CALL(*mockServerConfiguration, isCaptureEnabled())
+		.WillByDefault(testing::Return(false));
+
 	auto target = createBeacon()->build();
-	configuration->disableCapture();
 
 	// when, expect on interaction on beacon cache
 	target->startSession();
+}
+
+TEST_F(BeaconTest, updateServerConfigurationDelegatesToBeaconConfig)
+{
+	// with
+	auto serverConfig = MockIServerConfiguration::createStrict();
+
+	// expect
+	EXPECT_CALL(*mockBeaconConfiguration, updateServerConfiguration(testing::Eq(serverConfig)))
+		.Times(1);
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when
+	target->updateServerConfiguration(serverConfig);
+}
+
+TEST_F(BeaconTest, isServerConfigurationSetDelegatesToBeaconConfig)
+{
+	// with
+	EXPECT_CALL(*mockBeaconConfiguration, isServerConfigurationSet())
+		.Times(2)
+		.WillOnce(testing::Return(false))
+		.WillOnce(testing::Return(true));
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when
+	auto obtained = target->isServerConfigurationSet();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(false));
+
+	// and when
+	obtained = target->isServerConfigurationSet();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(true));
+}
+
+TEST_F(BeaconTest, isCaptureEnabledReturnsValueFromServerConfig)
+{
+	// expect
+	EXPECT_CALL(*mockServerConfiguration, isCaptureEnabled())
+		.Times(2)
+		.WillOnce(testing::Return(false))
+		.WillOnce(testing::Return(true));
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when
+	auto obtained = target->isCaptureEnabled();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(false));
+
+	// and when
+	obtained = target->isCaptureEnabled();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(true));
+}
+
+TEST_F(BeaconTest, enableCaptureDelegatesToBeaconConfig)
+{
+	// expect
+	EXPECT_CALL(*mockBeaconConfiguration, enableCapture()).Times(1);
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when
+	target->enableCapture();
+}
+
+TEST_F(BeaconTest, disableCaptureDelegatesToBeaconConfig)
+{
+	// expect
+	EXPECT_CALL(*mockBeaconConfiguration, disableCapture()).Times(1);
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when
+	target->disableCapture();
 }
 
 TEST_F(BeaconTest, useInternalBeaconIdForAccessingBeaconCacheWhenSessionNumberReportingDisabled)

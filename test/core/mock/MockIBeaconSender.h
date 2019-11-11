@@ -57,13 +57,9 @@ namespace test
 
 		MOCK_METHOD0(shutdown, void());
 
-		MOCK_METHOD1(startSession,
-			void(
-				std::shared_ptr<core::objects::SessionInternals> /* session */
-			)
-		);
+		MOCK_CONST_METHOD0(getCurrentServerID, int32_t());
 
-		MOCK_METHOD1(finishSession,
+		MOCK_METHOD1(addSession,
 			void(
 				std::shared_ptr<core::objects::SessionInternals> /* session */
 			)

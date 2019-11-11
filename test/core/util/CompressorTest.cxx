@@ -25,16 +25,6 @@ using Compressor_t = base::util::Compressor;
 
 class CompressorTest : public testing::Test
 {
-protected:
-	void SetUp()
-	{
-
-	}
-
-	void TearDown()
-	{
-
-	}
 };
 
 TEST_F(CompressorTest, gzipCompressHelloWorld)

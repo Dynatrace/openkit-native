@@ -106,6 +106,8 @@ namespace core
 
 			int32_t getEndSequenceNumber() const override;
 
+			int32_t getActionId() const override;
+
 			void onChildClosed(std::shared_ptr<IOpenKitObject> childObject) override;
 
 			void close() override;

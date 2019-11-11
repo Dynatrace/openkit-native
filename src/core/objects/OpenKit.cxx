@@ -16,12 +16,20 @@
 
 #include "OpenKit.h"
 #include "protocol/Beacon.h"
+#include "protocol/HTTPClient.h"
 #include "providers/DefaultHTTPClientProvider.h"
+#include "providers/DefaultSessionIDProvider.h"
 #include "providers/DefaultTimingProvider.h"
 #include "providers/DefaultThreadIDProvider.h"
 #include "core/BeaconSender.h"
 #include "core/caching/BeaconCache.h"
 #include "core/caching/BeaconCacheEvictor.h"
+#include "core/configuration/BeaconCacheConfiguration.h"
+#include "core/configuration/BeaconConfiguration.h"
+#include "core/configuration/HTTPClientConfiguration.h"
+#include "core/configuration/PrivacyConfiguration.h"
+#include "core/configuration/OpenKitConfiguration.h"
+#include "core/objects/NullSession.h"
 
 #include <inttypes.h> // for PRId64 macro
 
@@ -31,76 +39,94 @@ using namespace core::objects;
 int32_t OpenKit::gInstanceCount = 0;
 std::mutex OpenKit::gInitLock;
 
-OpenKit::OpenKit
-(
-	std::shared_ptr<openkit::ILogger> logger,
-	std::shared_ptr<core::configuration::Configuration> configuration
+OpenKit::OpenKit(
+	openkit::IOpenKitBuilder& builder
 )
-: OpenKit
-(
-	logger,
-	configuration,
-	std::make_shared<providers::DefaultHTTPClientProvider>(),
-	std::make_shared<providers::DefaultTimingProvider>(),
-	std::make_shared<providers::DefaultThreadIDProvider>()
-)
-{
-}
-
-OpenKit::OpenKit
-(
-	std::shared_ptr<openkit::ILogger> logger,
-	std::shared_ptr<core::configuration::Configuration> configuration,
-	std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
-	std::shared_ptr<providers::ITimingProvider> timingProvider,
-	std::shared_ptr<providers::IThreadIDProvider> threadIDProvider)
-	: mLogger(logger)
-	, mClientProvider(httpClientProvider)
-	, mConfiguration(configuration)
-	, mTimingProvider(timingProvider)
-	, mThreadIDProvider(threadIDProvider)
-	, mBeaconCache(
-		std::make_shared<caching::BeaconCache>(logger)
-	)
+	: mLogger(builder.getLogger())
+	, mPrivacyConfiguration(core::configuration::PrivacyConfiguration::from(builder))
+	, mOpenKitConfiguration(core::configuration::OpenKitConfiguration::from(builder))
+	, mTimingProvider(std::make_shared<providers::DefaultTimingProvider>())
+	, mThreadIDProvider(std::make_shared<providers::DefaultThreadIDProvider>())
+	, mSessionIDProvider(std::make_shared<providers::DefaultSessionIDProvider>())
+	, mBeaconCache(std::make_shared<core::caching::BeaconCache>(mLogger))
 	, mBeaconSender(
 		std::make_shared<core::BeaconSender>(
-			logger,
-			configuration,
-			httpClientProvider,
-			timingProvider
+			mLogger,
+			core::configuration::HTTPClientConfiguration::from(mOpenKitConfiguration),
+			std::make_shared<providers::DefaultHTTPClientProvider>(),
+			mTimingProvider
 		)
 	)
 	, mBeaconCacheEvictor(
-		std::make_shared<caching::BeaconCacheEvictor>(
-			logger,
+		std::make_shared<core::caching::BeaconCacheEvictor>(
+			mLogger,
 			mBeaconCache,
-			configuration->getBeaconCacheConfiguration(),
-			timingProvider
+			core::configuration::BeaconCacheConfiguration::from(builder),
+			mTimingProvider
 		)
 	)
+	, mMutex()
 	, mIsShutdown(0)
 {
-	if (logger->isInfoEnabled())
-	{
-		// TODO: Use proper version information (incl. the build number)
-		logger->info("OpenKit() - %s OpenKit %s instantiated", configuration->getOpenKitType(), openkit::DEFAULT_APPLICATION_VERSION);
-	}
-	if (logger->isDebugEnabled())
-	{
-		logger->debug("OpenKit() - applicationName=%s, applicationID=%s, deviceID=%ld, origDeviceID=%s, endpointURL=%s",
-			configuration->getApplicationName().getStringData().c_str(),
-			configuration->getApplicationID().getStringData().c_str(),
-			configuration->getDeviceID(),
-			configuration->getOrigDeviceID().getStringData().c_str(),
-			configuration->getEndpointURL().getStringData().c_str());
-	}
-
 	globalInit();
+	logOpenKitInstanceCreation(mLogger, mOpenKitConfiguration);
 }
+
+OpenKit::OpenKit(
+	std::shared_ptr<openkit::ILogger> logger,
+	std::shared_ptr<core::configuration::IPrivacyConfiguration> privacyConfiguration,
+	std::shared_ptr<core::configuration::IOpenKitConfiguration> openKitConfiguration,
+	std::shared_ptr<providers::ITimingProvider> timingProvider,
+	std::shared_ptr<providers::IThreadIDProvider> threadIDProvider,
+	std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider,
+	std::shared_ptr<core::caching::IBeaconCache> beaconCache,
+	std::shared_ptr<core::IBeaconSender> beaconSender,
+	std::shared_ptr<core::caching::IBeaconCacheEvictor> beaconCacheEvictor
+)
+	: mLogger(logger)
+	, mPrivacyConfiguration(privacyConfiguration)
+	, mOpenKitConfiguration(openKitConfiguration)
+	, mTimingProvider(timingProvider)
+	, mThreadIDProvider(threadIDProvider)
+	, mSessionIDProvider(sessionIDProvider)
+	, mBeaconCache(beaconCache)
+	, mBeaconSender(beaconSender)
+	, mBeaconCacheEvictor(beaconCacheEvictor)
+	, mMutex()
+	, mIsShutdown(0)
+{
+	globalInit();
+	logOpenKitInstanceCreation(logger, openKitConfiguration);
+}
+
 
 OpenKit::~OpenKit()
 {
 	globalShutdown();
+}
+
+void OpenKit::logOpenKitInstanceCreation(
+	std::shared_ptr<openkit::ILogger> logger,
+	std::shared_ptr<core::configuration::IOpenKitConfiguration> openKitConfiguration
+)
+{
+	if (logger->isInfoEnabled())
+	{
+		// TODO: Use proper version information (incl. the build number)
+		logger->info("OpenKit() - %s OpenKit %s instantiated",
+			openKitConfiguration->getOpenKitType().c_str(),
+			openkit::DEFAULT_APPLICATION_VERSION
+		);
+	}
+	if (logger->isDebugEnabled())
+	{
+		logger->debug("OpenKit() - applicationName=%s, applicationID=%s, deviceID=%ld, origDeviceID=%s, endpointURL=%s",
+			openKitConfiguration->getApplicationName().getStringData().c_str(),
+			openKitConfiguration->getApplicationId().getStringData().c_str(),
+			openKitConfiguration->getDeviceId(),
+			openKitConfiguration->getOrigDeviceId().getStringData().c_str(),
+			openKitConfiguration->getEndpointUrl().getStringData().c_str());
+	}
 }
 
 void OpenKit::initialize()
@@ -130,22 +156,43 @@ std::shared_ptr<openkit::ISession> OpenKit::createSession(const char* clientIPAd
 	{
 		mLogger->debug("OpenKit createSession(%s)", clientIPAddress != nullptr ? core::UTF8String(clientIPAddress).getStringData().c_str() : "null");
 	}
-	if (mIsShutdown)
-	{
-		return  NullSession::INSTANCE;
+
+	{ // synchronized scope
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		if (!mIsShutdown)
+		{
+			auto serverId = mBeaconSender->getCurrentServerID();
+			auto beaconConfiguration = core::configuration::BeaconConfiguration::from(
+					mOpenKitConfiguration,
+					mPrivacyConfiguration,
+					serverId
+			);
+
+			auto beacon = std::make_shared<protocol::Beacon>(
+					mLogger,
+					mBeaconCache,
+					beaconConfiguration,
+					clientIPAddress,
+					mSessionIDProvider,
+					mThreadIDProvider,
+					mTimingProvider
+			);
+			auto newSession = std::make_shared<core::objects::Session>(
+				mLogger,
+				shared_from_this(),
+				beacon
+			);
+			newSession->startSession();
+			mBeaconSender->addSession(newSession);
+
+			storeChildInList(newSession);
+
+			return newSession;
+		}
 	}
 
-	auto beacon = std::make_shared<protocol::Beacon>(
-		mLogger,
-		mBeaconCache,
-		mConfiguration,
-		clientIPAddress,
-		mThreadIDProvider,
-		mTimingProvider
-	);
-	auto newSession = std::make_shared<core::objects::Session>(mLogger, shared_from_this(), mBeaconSender, beacon);
-	newSession->startSession();
-	return newSession;
+	return NullSession::INSTANCE;
 }
 
 std::shared_ptr<openkit::ISession> OpenKit::createSession()
@@ -159,7 +206,25 @@ void OpenKit::shutdown()
 	{
 		mLogger->debug("OpenKit shutdown requested");
 	}
-	mIsShutdown = 1;
+
+	{ // synchronized scope
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		if(mIsShutdown)
+		{
+			return;
+		}
+
+		mIsShutdown = true;
+	}
+
+	// close all child objects
+	auto childObjects = getCopyOfChildObjects();
+	for (auto childObject : childObjects)
+	{
+		childObject->close();
+	}
+
 	mBeaconCacheEvictor->stop();
 	mBeaconSender->shutdown();
 }
@@ -176,7 +241,7 @@ void OpenKit::globalInit()
 		return;
 	}
 
-	mClientProvider->globalInit();
+	protocol::HTTPClient::globalInit();
 }
 
 void OpenKit::globalShutdown()
@@ -191,12 +256,15 @@ void OpenKit::globalShutdown()
 		return;
 	}
 
-	mClientProvider->globalDestroy();
+	protocol::HTTPClient::globalDestroy();
 }
 
-void OpenKit::onChildClosed(std::shared_ptr<core::objects::IOpenKitObject>)
+void OpenKit::onChildClosed(std::shared_ptr<core::objects::IOpenKitObject> childObject)
 {
-	// intentionally empty for now
+	 // synchronized scope
+	std::lock_guard<std::mutex> lock(mMutex);
+
+	removeChildFromList(childObject);
 }
 
 void OpenKit::close()
