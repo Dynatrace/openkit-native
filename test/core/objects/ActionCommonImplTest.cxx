@@ -141,6 +141,22 @@ TEST_F(ActionCommonImplTest, reportEventDoesNothingIfEventNameIsEmpty)
 	target->reportEvent(eventName);
 }
 
+TEST_F(ActionCommonImplTest, reportEventLogsInvocation)
+{
+	// given
+	const char* eventName = "event name";
+	auto target = createAction();
+
+	// expect
+	std::stringstream stream;
+	stream << target->toString() << " reportEvent(" << eventName << ")";
+	EXPECT_CALL(*mockNiceLogger, mockDebug(stream.str()))
+		.Times(1);
+
+	// when
+	target->reportEvent(eventName);
+}
+
 TEST_F(ActionCommonImplTest, reportValueIntWithNullNameDoesNotReportValue)
 {
 	// given
@@ -199,6 +215,24 @@ TEST_F(ActionCommonImplTest, reportValueIntWithValidValue)
 	target->reportValue(eventName, value);
 }
 
+TEST_F(ActionCommonImplTest, reportValueIntLogsInvocation)
+{
+	// with
+	const char* eventName = "IntegerValue";
+	const int32_t value = 42;
+
+	// given
+	auto target = createAction();
+
+	// expect
+	std::stringstream stream;
+	stream << target->toString() << " reportValue (int) (" << eventName << ", " << value << ")";
+	EXPECT_CALL(*mockNiceLogger, mockDebug(stream.str()));
+
+	// when
+	target->reportValue(eventName, value);
+}
+
 TEST_F(ActionCommonImplTest, reportValueDoubleWithNullNameDoesNotReportValue)
 {
 	// given
@@ -240,7 +274,7 @@ TEST_F(ActionCommonImplTest, reportValueDoubleWithEmptyNameDoesNotReportValue)
 TEST_F(ActionCommonImplTest, reportValueDoubleWithValidValue)
 {
 	// with
-	const char* eventName = "IntegerValue";
+	const char* eventName = "DoubleValue";
 	const double value = 42.1337;
 
 	// expect
@@ -252,6 +286,25 @@ TEST_F(ActionCommonImplTest, reportValueDoubleWithValidValue)
 
 	// given
 	auto target = createAction();
+
+	// when
+	target->reportValue(eventName, value);
+}
+
+TEST_F(ActionCommonImplTest, reportValueDoubleLogsInvocation)
+{
+	// with
+	const char* eventName = "DoubleValue";
+	const double value = 42.1337;
+
+	// given
+	auto target = createAction();
+
+	// expect
+	std::stringstream stream;
+	stream << target->toString() << " reportValue (double) (" << eventName << ", " << std::to_string(value) << ")";
+	EXPECT_CALL(*mockNiceLogger, mockDebug(stream.str()))
+		.Times(testing::Exactly(1));
 
 	// when
 	target->reportValue(eventName, value);
@@ -311,6 +364,25 @@ TEST_F(ActionCommonImplTest, reportValueStringWithValueNull)
 
 	// given
 	auto target = createAction();
+
+	//when
+	target->reportValue(eventName, value);
+}
+
+TEST_F(ActionCommonImplTest, reportValueStringLogsInvocation)
+{
+	// with
+	const char* eventName = "StringValue";
+	const char* value = "value";
+
+	// given
+	auto target = createAction();
+
+	// expect
+	std::stringstream stream;
+	stream << target->toString() << " reportValue (string) (" << eventName << ", " << value << ")";
+	EXPECT_CALL(*mockNiceLogger, mockDebug(stream.str()))
+		.Times(testing::Exactly(1));
 
 	//when
 	target->reportValue(eventName, value);
@@ -387,6 +459,24 @@ TEST_F(ActionCommonImplTest, reportErrorWithEmptyNullErrorReasonDoesReport)
 
 	// given
 	auto target = createAction();
+
+	//when
+	target->reportError(errorName, errorCode, errorReason);
+}
+
+TEST_F(ActionCommonImplTest, reportErrorLogsInvocation)
+{
+	// given
+	const char* errorName = "name";
+	const int32_t errorCode = 0x8005037;
+	const char* errorReason = "reason";
+	auto target = createAction();
+
+	// expect
+	std::stringstream stream;
+	stream << target->toString() << " reportError(" << errorName << ", " << errorCode << ", " << errorReason << ")";
+	EXPECT_CALL(*mockNiceLogger, mockDebug(stream.str()))
+		.Times(testing::Exactly(1));
 
 	//when
 	target->reportError(errorName, errorCode, errorReason);
@@ -516,7 +606,6 @@ TEST_F(ActionCommonImplTest, tracingAnEmptyStringWebRequestIsNotAllowed)
 
 TEST_F(ActionCommonImplTest, traceWebRequestWithInvalidUrlIsNotAllowed)
 {
-	// with
 	// given
 	const char* url = "foobar/://";
 	auto target = createAction();
@@ -536,6 +625,25 @@ TEST_F(ActionCommonImplTest, traceWebRequestWithInvalidUrlIsNotAllowed)
 
 	// break dependency cycle: obtained contained in child objects of target
 	obtained->stop(0);
+}
+
+TEST_F(ActionCommonImplTest, traceWebRequestLogsInvocation)
+{
+	// given
+	const char* url = "https://localhost";
+	auto target = createAction();
+
+	// expect
+	std::stringstream stream;
+	stream << target->toString() << " traceWebRequest(" << url << ")";
+	EXPECT_CALL(*mockNiceLogger, mockDebug(stream.str()))
+		.Times(testing::Exactly(1));
+
+	// when
+	auto obtained = target->traceWebRequest(url);
+
+	// break dependency cycle: obtained contained in child objects of target
+	target->removeChildFromList(std::dynamic_pointer_cast<IOpenKitObject_t>(obtained));
 }
 
 TEST_F(ActionCommonImplTest, parentActionIdIsInitializedInTheConstructor)
@@ -854,6 +962,21 @@ TEST_F(ActionCommonImplTest, leaveActionLeavesChildActionsBeforeSettingEndTime)
 	target->leaveAction();
 }
 
+TEST_F(ActionCommonImplTest, leaveActionLogsInvocation)
+{
+	// given
+	auto target = createAction();
+
+	// expect
+	std::stringstream stream;
+	stream << target->toString() << " leaveAction(" << ACTION_NAME.getStringData() << ")";
+	EXPECT_CALL(*mockNiceLogger, mockDebug(stream.str()))
+		.Times(1);
+
+	// when
+	target->leaveAction();
+}
+
 TEST_F(ActionCommonImplTest, reportEventDoesNothingIfActionIsLeft)
 {
 	// with
@@ -1142,6 +1265,28 @@ TEST_F(ActionCommonImplTest, enterActionGivesNullActionIfAlreadyLeft)
 	auto obtainedRootAction = nullAction->leaveAction();
 	ASSERT_THAT(obtainedRootAction, testing::NotNull());
 	ASSERT_THAT(std::dynamic_pointer_cast<IRootAction_t>(obtainedRootAction), testing::Eq(rootAction));
+}
+
+TEST_F(ActionCommonImplTest, enterActionLogsInvocation)
+{
+	// given
+	const char* actionName = "child action";
+	auto rootAction = std::make_shared<MockStrictIRootAction_t>();
+	auto target = createAction();
+
+	// expect
+	std::stringstream stream;
+	stream << target->toString() << " enterAction(" << actionName << ")";
+	EXPECT_CALL(*mockNiceLogger, mockDebug(stream.str()))
+		.Times(1);
+
+	// when
+	auto obtained = target->enterAction(rootAction, actionName);
+
+	// break dependency cycle
+	auto leafAction = std::dynamic_pointer_cast<LeafAction_t>(obtained);
+	ASSERT_THAT(leafAction, testing::NotNull());
+	target->removeChildFromList(std::dynamic_pointer_cast<IOpenKitObject_t>(leafAction->getActionImpl()));
 }
 
 TEST_F(ActionCommonImplTest, toStringReturnsAppropriateResult)

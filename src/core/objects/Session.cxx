@@ -137,17 +137,17 @@ std::shared_ptr<openkit::IWebRequestTracer> Session::traceWebRequest(const char*
 	core::UTF8String urlString(url);
 	if (urlString.empty())
 	{
-		mLogger->warning("%s traceWebRequest (string): url must not be null or empty", toString().c_str());
+		mLogger->warning("%s traceWebRequest: url must not be null or empty", toString().c_str());
 		return NullWebRequestTracer::INSTANCE;
 	}
 	if (!WebRequestTracer::isValidURLScheme(urlString))
 	{
-		mLogger->warning("%s traceWebRequest (string): url \"%s\" does not have a valid scheme", toString().c_str(), urlString.getStringData().c_str());
+		mLogger->warning("%s traceWebRequest: url \"%s\" does not have a valid scheme", toString().c_str(), urlString.getStringData().c_str());
 		return NullWebRequestTracer::INSTANCE;
 	}
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("%s traceWebRequest (string) (%s))", toString().c_str(), urlString.getStringData().c_str());
+		mLogger->debug("%s traceWebRequest(%s)", toString().c_str(), urlString.getStringData().c_str());
 	}
 
 	{ // synchronized block

@@ -122,7 +122,7 @@ void ActionCommonImpl::reportValue(const char* valueName, int32_t value)
 	}
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("%s reportValue (int) (%s, %d))",
+		mLogger->debug("%s reportValue (int) (%s, %d)",
 			toString().c_str(),
 			valueNameString.getStringData().c_str(),
 			value
@@ -151,7 +151,7 @@ void ActionCommonImpl::reportValue(const char* valueName, double value)
 	}
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("%s reportValue (double) (%s, %f))",
+		mLogger->debug("%s reportValue (double) (%s, %f)",
 			toString().c_str(),
 			valueNameString.getStringData().c_str(),
 			value
@@ -180,7 +180,7 @@ void ActionCommonImpl::reportValue(const char* valueName, const char* value)
 	if (mLogger->isDebugEnabled())
 	{
 		UTF8String valueString(value);
-		mLogger->debug("%s reportValue (string) (%s, %s))",
+		mLogger->debug("%s reportValue (string) (%s, %s)",
 			toString().c_str(),
 			valueNameString.getStringData().c_str(),
 			(value != nullptr ? valueString.getStringData().c_str() : "null")
@@ -210,7 +210,7 @@ void ActionCommonImpl::reportError(const char* errorName, int32_t errorCode, con
 	}
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("%s reportError (%s, %d, %s))",
+		mLogger->debug("%s reportError(%s, %d, %s)",
 			toString().c_str(),
 			errorNameString.getStringData().c_str(), errorCode,
 			(reason != nullptr ? reasonString.getStringData().c_str() : "null")
@@ -246,7 +246,7 @@ std::shared_ptr<openkit::IWebRequestTracer> ActionCommonImpl::traceWebRequest(co
 	}
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("%s traceWebRequest (string) (%s))", toString().c_str(), urlString.getStringData().c_str());
+		mLogger->debug("%s traceWebRequest(%s)", toString().c_str(), urlString.getStringData().c_str());
 	}
 
 	// synchronized scope
@@ -269,7 +269,7 @@ bool ActionCommonImpl::leaveAction()
 {
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("%s leaveAction(%s))", toString().c_str(), mName.getStringData().c_str());
+		mLogger->debug("%s leaveAction(%s)", toString().c_str(), mName.getStringData().c_str());
 	}
 
 	// synchronized scope

@@ -97,12 +97,17 @@ TEST_F(SessionTest, startSessionCallsBeacon)
 
 TEST_F(SessionTest, enterActionWithNullActionNameGivesNullRootActionObject)
 {
+	// with
+	auto logger = MockILogger::createStrict();
+
 	// expect
-	EXPECT_CALL(*mockLogger, mockWarning("Session [sn=0] enterAction: actionName must not be null or empty"))
+	EXPECT_CALL(*logger, mockWarning("Session [sn=0] enterAction: actionName must not be null or empty"))
 		.Times(1);
 
 	// given
-	auto target = createSession()->build();
+	auto target = createSession()
+		->with(logger)
+		.build();
 
 	// when
 	auto obtained = target->enterAction(nullptr);
@@ -114,12 +119,17 @@ TEST_F(SessionTest, enterActionWithNullActionNameGivesNullRootActionObject)
 
 TEST_F(SessionTest, enterActionWithEmptyActionNameGivesNullRootActionObject)
 {
+	// with
+	auto logger = MockILogger::createStrict();
+
 	// expect
-	EXPECT_CALL(*mockLogger, mockWarning("Session [sn=0] enterAction: actionName must not be null or empty"))
+	EXPECT_CALL(*logger, mockWarning("Session [sn=0] enterAction: actionName must not be null or empty"))
 		.Times(1);
 
 	// given
-	auto target = createSession()->build();
+	auto target = createSession()
+		->with(logger)
+		.build();
 
 	// when
 	auto obtained = target->enterAction("");
@@ -257,13 +267,38 @@ TEST_F(SessionTest, enterActionDoesNotAddToTheBeaconCache)
 	target->removeChildFromList(std::dynamic_pointer_cast<IOpenKitObject_t>(actionImpl));
 }
 
+TEST_F(SessionTest, enterActionLogsInvocation)
+{
+	// with
+	auto logger = MockILogger::createStrict();
+
+	// expect
+	EXPECT_CALL(*logger, mockDebug("Session [sn=0] enterAction(some action)"));
+	EXPECT_CALL(*logger, isDebugEnabled())
+			.Times(2) // 1 when logging method invocation + 1 when leaving action to break dependency cycle
+			.WillOnce(testing::Return(true))
+			.WillRepeatedly(testing::Return(false));
+
+	// given
+	auto target = createSession()
+			->with(logger)
+			.build();
+
+	// when
+	auto obtained = target->enterAction("some action");
+
+	// break dependency cycle: root action in child objects of session
+	obtained->leaveAction();
+}
+
 TEST_F(SessionTest, identifyUserWithNullTagDoesNothing)
 {
 	// with
+	auto logger = MockILogger::createStrict();
 	auto mockBeaconStrict = MockIBeacon::createStrict();
 
 	// expect
-	EXPECT_CALL(*mockLogger, mockWarning("Session [sn=0] identifyUser: userTag must not be null or empty"))
+	EXPECT_CALL(*logger, mockWarning("Session [sn=0] identifyUser: userTag must not be null or empty"))
 		.Times(1);
 	EXPECT_CALL(*mockBeaconStrict, getSessionNumber())
 		.Times(1);
@@ -271,6 +306,7 @@ TEST_F(SessionTest, identifyUserWithNullTagDoesNothing)
 	// given
 	auto target = createSession()
 		->with(mockBeaconStrict)
+		.with(logger)
 		.build();
 
 	// when
@@ -280,10 +316,11 @@ TEST_F(SessionTest, identifyUserWithNullTagDoesNothing)
 TEST_F(SessionTest, identifyUserWithEmptyTagDoesNothing)
 {
 	// with
+	auto logger = MockILogger::createStrict();
 	auto mockBeaconStrict = MockIBeacon::createStrict();
 
 	// expect
-	EXPECT_CALL(*mockLogger, mockWarning("Session [sn=0] identifyUser: userTag must not be null or empty"))
+	EXPECT_CALL(*logger, mockWarning("Session [sn=0] identifyUser: userTag must not be null or empty"))
 		.Times(1);
 	EXPECT_CALL(*mockBeaconStrict, getSessionNumber())
 		.Times(1);
@@ -291,6 +328,7 @@ TEST_F(SessionTest, identifyUserWithEmptyTagDoesNothing)
 	// given
 	auto target = createSession()
 		->with(mockBeaconStrict)
+		.with(logger)
 		.build();
 
 	// when
@@ -371,16 +409,37 @@ TEST_F(SessionTest, identifyUserWithDifferentUsersAlwaysCallsBeacon)
 	target->identifyUser(userTag2);
 }
 
+TEST_F(SessionTest, identifyUserLogsInvocation)
+{
+	// with
+	auto logger = MockILogger::createStrict();
+
+	// expect
+	EXPECT_CALL(*logger, isDebugEnabled())
+			.Times(1)
+			.WillOnce(testing::Return(true));
+	EXPECT_CALL(*logger, mockDebug("Session [sn=0] identifyUser(user)"));
+
+	// given
+	auto target = createSession()
+			->with(logger)
+			.build();
+
+	// when
+	target->identifyUser("user");
+}
+
 TEST_F(SessionTest, reportingCrashWithNullErrorNameDoesNotReportAnything)
 {
 	// with
+	auto logger = MockILogger::createStrict();
 	auto mockBeaconStrict = MockIBeacon::createStrict();
 	const char* errorName = nullptr;
 	const char* reason = "some reason";
 	const char* stacktrace = "some stack trace";
 
 	// expect
-	EXPECT_CALL(*mockLogger, mockWarning("Session [sn=0] reportCrash: errorName must not be null or empty"))
+	EXPECT_CALL(*logger, mockWarning("Session [sn=0] reportCrash: errorName must not be null or empty"))
 		.Times(1);
 	EXPECT_CALL(*mockBeaconStrict,getSessionNumber())
 		.Times(1); // session to string in debug log
@@ -388,6 +447,7 @@ TEST_F(SessionTest, reportingCrashWithNullErrorNameDoesNotReportAnything)
 	// given
 	auto target = createSession()
 		->with(mockBeaconStrict)
+		.with(logger)
 		.build();
 
 	// when
@@ -397,13 +457,14 @@ TEST_F(SessionTest, reportingCrashWithNullErrorNameDoesNotReportAnything)
 TEST_F(SessionTest, reportingCrashWithEmptyErrorNameDoesNotReportAnything)
 {
 	// with
+	auto logger = MockILogger::createStrict();
 	auto mockBeaconStrict = MockIBeacon::createStrict();
 	const char* errorName = "";
 	const char* reason = "some reason";
 	const char* stacktrace = "some stack trace";
 
 	// expect
-	EXPECT_CALL(*mockLogger, mockWarning("Session [sn=0] reportCrash: errorName must not be null or empty"))
+	EXPECT_CALL(*logger, mockWarning("Session [sn=0] reportCrash: errorName must not be null or empty"))
 		.Times(1);
 	EXPECT_CALL(*mockBeaconStrict,getSessionNumber())
 		.Times(1); // session to string in debug log
@@ -411,6 +472,7 @@ TEST_F(SessionTest, reportingCrashWithEmptyErrorNameDoesNotReportAnything)
 	// given
 	auto target = createSession()
 		->with(mockBeaconStrict)
+		.with(logger)
 		.build();
 
 	// when
@@ -530,6 +592,26 @@ TEST_F(SessionTest, reportingCrashWithDifferentDataMultipleTimesForwardsEachCall
 	target->reportCrash(errorName2, reason2, stacktrace2);
 }
 
+TEST_F(SessionTest, reportCrashLogsInvocation)
+{
+	// with
+	auto logger = MockILogger::createStrict();
+
+	// expect
+	EXPECT_CALL(*logger, isDebugEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(true));
+	EXPECT_CALL(*logger, mockDebug("Session [sn=0] reportCrash(name, reason, stacktrace)"));
+
+	// given
+	auto target = createSession()
+		->with(logger)
+		.build();
+
+	// when
+	target->reportCrash("name", "reason", "stacktrace");
+}
+
 TEST_F(SessionTest, endSessionFinishesSessionOnBeacon)
 {
 	// with
@@ -603,6 +685,26 @@ TEST_F(SessionTest, endingASessionRemovesItselfFromParent)
 	// given
 	auto target = createSession()
 		->with(mockParent)
+		.build();
+
+	// when
+	target->end();
+}
+
+TEST_F(SessionTest, endLogsInvocation)
+{
+	// with
+	auto logger = MockILogger::createStrict();
+
+	// expect
+	EXPECT_CALL(*logger, isDebugEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(true));
+	EXPECT_CALL(*logger, mockDebug("Session [sn=0] end()"));
+
+	// given
+	auto target = createSession()
+		->with(logger)
 		.build();
 
 	// when
@@ -913,9 +1015,18 @@ TEST_F(SessionTest, traceWebRequestWithValidUrlStringAddsTracerToListOfChildren)
 
 TEST_F(SessionTest, tracingANullStringWebRequestIsNotAllowed)
 {
+	// with
+	auto logger = MockILogger::createStrict();
+
+	// expect
+	EXPECT_CALL(*logger, mockWarning("Session [sn=0] traceWebRequest: url must not be null or empty"))
+		.Times(1);
+
 	// given
 	const char* url = nullptr;
-	auto target = createSession()->build();
+	auto target = createSession()
+		->with(logger)
+		.build();
 
 	// when
 	auto obtained = target->traceWebRequest(url);
@@ -927,9 +1038,18 @@ TEST_F(SessionTest, tracingANullStringWebRequestIsNotAllowed)
 
 TEST_F(SessionTest, tracingAnEmptyStringWebRequestIsNotAllowed)
 {
+	// with
+	auto logger = MockILogger::createStrict();
+
+	// expect
+	EXPECT_CALL(*logger, mockWarning("Session [sn=0] traceWebRequest: url must not be null or empty"))
+		.Times(1);
+
 	// given
 	const char* url = "";
-	auto target = createSession()->build();
+	auto target = createSession()
+		->with(logger)
+		.build();
 
 	// when
 	auto obtained = target->traceWebRequest(url);
@@ -941,9 +1061,18 @@ TEST_F(SessionTest, tracingAnEmptyStringWebRequestIsNotAllowed)
 
 TEST_F(SessionTest, tracingAStringWebRequestWithInvalidUrlIsNotAllowed)
 {
+	// with
+	auto logger = MockILogger::createStrict();
+
+	// expect
+	EXPECT_CALL(*logger, mockWarning("Session [sn=0] traceWebRequest: url \"1337://fourtytwo.com\" does not have a valid scheme"))
+			.Times(1);
+
 	// given
 	const char* url = "1337://fourtytwo.com";
-	auto target = createSession()->build();
+	auto target = createSession()
+		->with(logger)
+		.build();
 
 	// when
 	auto obtained = target->traceWebRequest(url);
@@ -966,6 +1095,22 @@ TEST_F(SessionTest, traceWebRequestGivesNullTracerIfSessionIsEnded)
 	// then
 	ASSERT_THAT(obtained, testing::NotNull());
 	ASSERT_THAT(std::dynamic_pointer_cast<NullWebRequestTracer_t>(obtained), testing::NotNull());
+}
+
+TEST_F(SessionTest, traceWebRequestLogsInvocation)
+{
+	// expect
+	EXPECT_CALL(*mockLogger, mockDebug("Session [sn=0] traceWebRequest(https://localhost)"))
+		.Times(1);
+
+	// given
+	auto target = createSession()->build();
+
+	// when
+	auto obtained = target->traceWebRequest("https://localhost");
+
+	// break dependency cycle
+	target->removeChildFromList(std::dynamic_pointer_cast<IOpenKitObject_t>(obtained));
 }
 
 TEST_F(SessionTest, onChildCloseRemovesChildFromList)
