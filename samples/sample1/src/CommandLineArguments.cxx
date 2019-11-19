@@ -21,7 +21,7 @@ using namespace sample;
 CommandLineArguments::CommandLineArguments()
 	: mDeviceID(0)
 	, mApplicationID("")
-	, mBeaconURL("")
+	, mEndpointURL("")
 {
 }
 
@@ -42,7 +42,7 @@ void CommandLineArguments::parse(uint32_t argc, char** argv)
 
 			if (previous == "-u")
 			{
-				mBeaconURL = current;
+				mEndpointURL = current;
 			}
 
 
@@ -72,9 +72,9 @@ const std::string& CommandLineArguments::getApplicationID() const
 	return mApplicationID;
 }
 
-const std::string& CommandLineArguments::getBeaconURL() const
+const std::string& CommandLineArguments::getEndpointURL() const
 {
-	return mBeaconURL;
+	return mEndpointURL;
 }
 
 int32_t CommandLineArguments::getDeviceID() const
@@ -84,11 +84,11 @@ int32_t CommandLineArguments::getDeviceID() const
 
 bool CommandLineArguments::isValidConfiguration() const
 {
-	return (mDeviceID > 0) && !mBeaconURL.empty() && !mApplicationID.empty();
+	return (mDeviceID > 0) && !mEndpointURL.empty() && !mApplicationID.empty();
 }
 
 void CommandLineArguments::printHelp()
 {
 	std::cerr << "The application is is called the following way and requires all arguments." << std::endl;
-	std::cerr << "./openkit-sample -a <application id> -u <beacon url> -d <device id>" << std::endl;
+	std::cerr << "./openkit-sample -a <application id> -u <endpoint url> -d <device id>" << std::endl;
 }

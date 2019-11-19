@@ -31,18 +31,18 @@
 const char APPLICATION_VERSION[] = "1.2.3";
 
 ///
-/// Parses the command line arguments, thereby reading in the "beaconURL" (=endpoint URL),
+/// Parses the command line arguments, thereby reading in the "endpointURL",
 /// the "serverID" and the "applicationID".
 /// @param[in] argc the command line argument count
 /// @param[in] argv the command line arguments
-/// @param[out] beaconURL the beaconURL is the endpoint URL, e.g. "https://bf1234567xyz.com/mbeacon"
+/// @param[out] endpointURL Dynatrace/AppMon endpoint URL, e.g. "https://bf1234567xyz.com/mbeacon"
 /// @param[out] deviceID the numeric ID of the device
 /// @param[out] applicationID the ID of the application
 ///
-bool parseCommandLine(int32_t argc, char** argv, char** beaconURL, uint32_t* deviceID, char** applicationID)
+bool parseCommandLine(int32_t argc, char** argv, char** endpointURL, uint32_t* deviceID, char** applicationID)
 {
 	*deviceID = 0;
-	*beaconURL = NULL;
+	*endpointURL = NULL;
 	*applicationID = NULL;
 
 	int32_t index = 2;
@@ -54,7 +54,7 @@ bool parseCommandLine(int32_t argc, char** argv, char** beaconURL, uint32_t* dev
 			char* cur = argv[index];
 			if (strcmp("-u", prev) == 0)
 			{
-				*beaconURL = cur;
+				*endpointURL = cur;
 			}
 			else if (strcmp("-a", prev) == 0)
 			{
@@ -72,7 +72,7 @@ bool parseCommandLine(int32_t argc, char** argv, char** beaconURL, uint32_t* dev
 		}
 	}
 
-	return *deviceID > 0 && *beaconURL != NULL && *applicationID != NULL;
+	return *deviceID > 0 && *endpointURL != NULL && *applicationID != NULL;
 }
 
 #define UNUSED_ARG(x) ((x)=(x))
@@ -116,29 +116,29 @@ void logFunction(LOG_LEVEL level, const char* traceStatement)
 /// This sample demonstrate the usage of the C binding API of OpenKit C++.
 /// It basically calls each function on the C API with demo parameters.
 /// @param[in] argc number of arguments
-/// @param[in] argv the arguments, provide (at least) -u beaconURL -s serverID -a applicationID
+/// @param[in] argv the arguments, provide (at least) -u endpointURL -d deviceID -a applicationID
 ///
 int32_t main(int32_t argc, char** argv)
 {
-	char* beaconURL = NULL;
+	char* endpointURL = NULL;
 	uint32_t deviceID = 0;
 	char* applicationID = NULL;
 
-	bool hasValidCommandLineParams = parseCommandLine(argc, argv, &beaconURL, &deviceID, &applicationID);
+	bool hasValidCommandLineParams = parseCommandLine(argc, argv, &endpointURL, &deviceID, &applicationID);
 	if (!hasValidCommandLineParams)
 	{
 		fprintf(stderr, "The application is is called the following way and requires all arguments.");
-		fprintf(stderr, "./openkit-sample -a <application id> -u <beacon url> -d <device id>");
+		fprintf(stderr, "./openkit-sample -a <application id> -u <endpoint url> -d <device id>");
 		exit(-1);
 	}
 
-	printf("BeaconURL = %s\n", beaconURL);
+	printf("EndpointURL = %s\n", endpointURL);
 	printf("ApplicationID = %s\n", applicationID);
 	printf("DeviceID = %u\n", deviceID);
 
 	struct LoggerHandle* loggerHandle = createLogger(&levelEnabledFunction, &logFunction);
 
-	struct OpenKitConfigurationHandle* configurationHandle = createOpenKitConfiguration(beaconURL, applicationID, deviceID);
+	struct OpenKitConfigurationHandle* configurationHandle = createOpenKitConfiguration(endpointURL, applicationID, deviceID);
 
 	useLoggerForConfiguration(configurationHandle, loggerHandle);
 	useApplicationVersionForConfiguration(configurationHandle, "v0.1.x");

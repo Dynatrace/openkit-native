@@ -50,10 +50,10 @@ namespace sample
 		const std::string& getApplicationID() const;
 
 		///
-		/// Get the beacon URL
-		/// @returns the parsed beacon URL or an empty string
+		/// Get the endpoint URL
+		/// @returns the parsed endpoint URL or an empty string
 		///
-		const std::string& getBeaconURL() const;
+		const std::string& getEndpointURL() const;
 
 		///
 		/// Get the device id
@@ -79,8 +79,8 @@ namespace sample
 		/// application version
 		std::string mApplicationID;
 
-		/// beacon URL
-		std::string mBeaconURL;
+		/// endpoint URL
+		std::string mEndpointURL;
 	};
 }
 #endif
