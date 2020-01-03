@@ -119,6 +119,42 @@ namespace core
 				/// @return @ this
 				Builder& withMultiplicity(int32_t multiplicity);
 
+				int32_t getMaxSessionDurationInMilliseconds() const;
+
+				///
+				/// Configures the maximum duration after which the session gets split.
+				///
+				/// @param maxSessionDurationInMilliseconds the maximum duration of a session in milliseconds
+				/// @return @c this
+				Builder& withMaxSessionDurationInMilliseconds(int32_t maxSessionDurationInMilliseconds);
+
+				int32_t getMaxEventsPerSession() const;
+
+				///
+				/// Configures the maximum number of events after which the session gets split.
+				///
+				/// @param maxEventsPerSession the maximum number of top level actions after which a session gets split.
+				/// @return @c this
+				Builder& withMaxEventsPerSession(int maxEventsPerSession);
+
+				int32_t getSessionTimeoutInMilliseconds() const;
+
+				///
+				/// Configures the idle timeout after which a session gets split.
+				///
+				/// @param sessionTimeoutInMilliseconds the idle timeout in milliseconds after which a session gets split.
+				/// @return @c this
+				Builder& withSessionTimeoutInMilliseconds(int32_t sessionTimeoutInMilliseconds);
+
+				int32_t getVisitStoreVersion() const;
+
+				///
+				/// Configures the version of the visit store that is to be used.
+				///
+				/// @param visitStoreVersion the version of the visit store to be used.
+				/// @return @c this
+				Builder& withVisitStoreVersion(int32_t visitStoreVersion);
+
 				///
 				/// Creates a new instance of @ref IServerConfiguration
 				///
@@ -135,6 +171,10 @@ namespace core
 				int32_t mServerId;
 				int32_t mBeaconSizeInBytes;
 				int32_t mMultiplicity;
+				int32_t mMaxSessionDurationInMilliseconds;
+				int32_t mMaxEventsPerSession;
+				int32_t mSessionIdleTimeout;
+				int32_t mVisitStoreVersion;
 			};
 
 			///
@@ -166,6 +206,18 @@ namespace core
 			// default multiplicity is 1
 			static constexpr int32_t DEFAULT_MULTIPLICITY = 1;
 
+			// by default split by session duration is disabled, thus value is -1
+			static constexpr int32_t DEFAULT_MAX_SESSION_DURATION = -1;
+
+			// by default split by events is disabled,thus value is -1
+			static constexpr int32_t DEFAULT_MAX_EVENTS_PER_SESSION = -1;
+
+			// by default session split by timeout is disabled, thus value is -1
+			static constexpr int32_t DEFAULT_SESSION_TIMEOUT = -1;
+
+			// default visit store version is 1
+			static constexpr int32_t DEFAULT_VISIT_STORE_VERSION = 1;
+
 			~ServerConfiguration() override = default;
 
 			///
@@ -191,6 +243,14 @@ namespace core
 			int32_t getBeaconSizeInBytes() const override;
 
 			int32_t getMultiplicity() const override;
+
+			int32_t getMaxSessionDurationInMilliseconds() const override;
+
+			int32_t getMaxEventsPerSession() const override;
+
+			int32_t getSessionTimeoutInMilliseconds() const override;
+
+			int32_t getVisitStoreVersion() const override;
 
 			bool isSendingDataAllowed() const override;
 
@@ -224,6 +284,18 @@ namespace core
 
 			/// the multiplicity value
 			const int32_t mMultiplicity;
+
+			/// the maximum duration of a session after which it gets split
+			const int32_t mMaxSessionDurationInMilliseconds;
+
+			/// the maximum number of events after which a session gets split
+			const int32_t mMaxEventsPerSession;
+
+			/// the idle timeout after which a session gets split
+			const int32_t mSessionTimeoutInMilliseconds;
+
+			/// the version of the visit store being used.
+			const int32_t mVisitStoreVersion;
 		};
 	}
 }

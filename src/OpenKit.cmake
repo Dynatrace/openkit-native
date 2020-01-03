@@ -189,7 +189,19 @@ set(OPENKIT_SOURCES_PROTOCOL
     ${CMAKE_CURRENT_LIST_DIR}/protocol/HTTPResponseParser.h
     ${CMAKE_CURRENT_LIST_DIR}/protocol/IBeacon.h
     ${CMAKE_CURRENT_LIST_DIR}/protocol/IHTTPClient.h
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/IResponseAttributes.h
     ${CMAKE_CURRENT_LIST_DIR}/protocol/IStatusResponse.h
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/JsonResponseParser.h
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/JsonResponseParser.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/KeyValueResponseParser.h
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/KeyValueResponseParser.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/ResponseAttribute.h
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/ResponseAttributes.h
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/ResponseAttributes.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/ResponseAttributesDefaults.h
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/ResponseAttributesDefaults.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/ResponseParser.h
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/ResponseParser.cxx
     ${CMAKE_CURRENT_LIST_DIR}/protocol/StatusResponse.cxx
     ${CMAKE_CURRENT_LIST_DIR}/protocol/StatusResponse.h
 )

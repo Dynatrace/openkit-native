@@ -81,6 +81,14 @@ namespace test
 
 		MOCK_CONST_METHOD0(getMultiplicity, int32_t());
 
+		MOCK_CONST_METHOD0(getMaxSessionDurationInMilliseconds, int32_t());
+
+		MOCK_CONST_METHOD0(getMaxEventsPerSession, int32_t());
+
+		MOCK_CONST_METHOD0(getSessionTimeoutInMilliseconds, int32_t());
+
+		MOCK_CONST_METHOD0(getVisitStoreVersion, int32_t());
+
 		MOCK_CONST_METHOD0(isSendingDataAllowed, bool());
 
 		MOCK_CONST_METHOD0(isSendingCrashesAllowed, bool());

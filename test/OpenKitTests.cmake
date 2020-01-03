@@ -80,9 +80,15 @@ set(OPENKIT_SOURCES_TEST_PROTOCOL
     ${CMAKE_CURRENT_LIST_DIR}/protocol/StatusResponseTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/protocol/HTTPResponseParserTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/protocol/BeaconTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/JsonResponseParserTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/KeyValueResponseParserTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/ResponseAttributesDefaultsTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/ResponseAttributesTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/ResponseParserTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/protocol/builder/TestBeaconBuilder.h
     ${CMAKE_CURRENT_LIST_DIR}/protocol/mock/MockIBeacon.h
     ${CMAKE_CURRENT_LIST_DIR}/protocol/mock/MockIHTTPClient.h
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/mock/MockIResponseAttributes.h
     ${CMAKE_CURRENT_LIST_DIR}/protocol/mock/MockIStatusResponse.h
 )
 

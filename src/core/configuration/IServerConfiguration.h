@@ -76,6 +76,26 @@ namespace core
 			virtual int32_t getMultiplicity() const = 0;
 
 			///
+			/// Returns the maximum duration in milliseconds after which a session is to be split.
+			///
+			virtual int32_t getMaxSessionDurationInMilliseconds() const = 0;
+
+			///
+			/// Returns the maximum number of events after which a session is to be split.
+			///
+			virtual int32_t getMaxEventsPerSession() const = 0;
+
+			///
+			/// Returns the idle timeout after which a session is to be split.
+			///
+			virtual int32_t getSessionTimeoutInMilliseconds() const = 0;
+
+			///
+			/// Returns the version of the visit store that is being used.
+			///
+			virtual int32_t getVisitStoreVersion() const = 0;
+
+			///
 			/// Indicates whether sending arbitrary data to the server is allowed or not.
 			///
 			/// @par

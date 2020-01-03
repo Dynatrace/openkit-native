@@ -87,6 +87,27 @@ TEST_F(ServerConfigurationTest, inDefaultServerConfigurationMultiplicityIsOne)
 	ASSERT_THAT(ServerConfiguration_t::DEFAULT->getMultiplicity(), testing::Eq(1));
 }
 
+
+TEST_F(ServerConfigurationTest, inDefaultServerConfigurationMaxSessionDurationIsMinusOne)
+{
+	ASSERT_THAT(ServerConfiguration_t::DEFAULT->getMaxSessionDurationInMilliseconds(), testing::Eq(-1));
+}
+
+TEST_F(ServerConfigurationTest, inDefaultServerConfigurationMaxEventsPerSessionIsMinusOne)
+{
+	ASSERT_THAT(ServerConfiguration_t::DEFAULT->getMaxEventsPerSession(), testing::Eq(-1));
+}
+
+TEST_F(ServerConfigurationTest, inDefaultServerConfigurationSessionTimeoutIsMinusOne)
+{
+	ASSERT_THAT(ServerConfiguration_t::DEFAULT->getSessionTimeoutInMilliseconds(), testing::Eq(-1));
+}
+
+TEST_F(ServerConfigurationTest, inDefaultServerConfigurationVisitStoreVersionIsMinusOne)
+{
+	ASSERT_THAT(ServerConfiguration_t::DEFAULT->getVisitStoreVersion(), testing::Eq(1));
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// creation via 'from' factory tests
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
