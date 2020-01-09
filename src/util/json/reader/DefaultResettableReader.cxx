@@ -59,7 +59,7 @@ void DefaultResettableReader::reset()
 		throw std::logic_error("No position has been marked");
 	}
 
-	int32_t currentPos = mReader->tellg();
+	auto currentPos = mReader->tellg();
 
 	if (currentPos > mMarkedPosition + mLookAheadLimit)
 	{

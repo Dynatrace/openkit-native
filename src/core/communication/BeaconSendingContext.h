@@ -136,7 +136,7 @@ namespace core
 
 			std::vector<std::shared_ptr<core::objects::SessionInternals>> getAllFinishedAndConfiguredSessions() override;
 
-			int32_t getSessionCount() override;
+			size_t getSessionCount() override;
 
 			int32_t getCurrentServerID() const override;
 

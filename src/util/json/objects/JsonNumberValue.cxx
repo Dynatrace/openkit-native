@@ -27,13 +27,13 @@ using namespace util::json::constants;
 JsonNumberValue::JsonNumberValue(int64_t longValue)
 	: mIsInteger(true)
 	, mLongValue(longValue)
-	, mDoubleValue(longValue)
+	, mDoubleValue(static_cast<double>(longValue))
 {
 }
 
 JsonNumberValue::JsonNumberValue(double doubleValue)
 	: mIsInteger(false)
-	, mLongValue((int64_t) doubleValue)
+	, mLongValue(static_cast<int64_t>(doubleValue))
 	, mDoubleValue(doubleValue)
 {
 }
@@ -66,7 +66,7 @@ std::shared_ptr<JsonNumberValue> JsonNumberValue::fromNumberLiteral(const std::s
 		}
 		return parseDoubleValue(literalValue);
 	}
-	catch (std::invalid_argument& ia)
+	catch (std::invalid_argument&)
 	{
 		return nullptr;
 	}

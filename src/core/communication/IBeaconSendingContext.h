@@ -208,7 +208,7 @@ namespace core
 			///
 			/// Returns the number of sessions currently known to this context
 			///
-			virtual int32_t getSessionCount() = 0;
+			virtual size_t getSessionCount() = 0;
 
 			///
 			/// Returns the current server ID to be used for creating new sessions.

@@ -149,7 +149,7 @@ class MockIBeaconSendingContext
 
 		MOCK_METHOD0(getAllFinishedAndConfiguredSessions, std::vector<std::shared_ptr<core::objects::SessionInternals>>());
 
-		MOCK_METHOD0(getSessionCount, int32_t());
+		MOCK_METHOD0(getSessionCount, size_t());
 
 		MOCK_CONST_METHOD0(getCurrentServerID, int32_t());
 

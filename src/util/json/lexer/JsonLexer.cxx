@@ -73,7 +73,7 @@ const JsonLexer::JsonTokenPtr JsonLexer::nextToken()
 		mLexerState = JsonLexerState::ERROR;
 		throw e;
 	}
-	catch (std::ios_base::failure& e)
+	catch (std::ios_base::failure&)
 	{
 		mLexerState = JsonLexerState::ERROR;
 		std::throw_with_nested(JsonLexerException("Exception when reading from input stream"));

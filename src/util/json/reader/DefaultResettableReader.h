@@ -22,6 +22,7 @@
 #include <string>
 #include <sstream>
 #include <memory>
+#include <ios>
 
 namespace util
 {
@@ -49,9 +50,9 @@ namespace util
 
 				InputStreamPtr mReader;
 
-				int32_t mMarkedPosition = 0;
+				std::streamoff mMarkedPosition = 0;
 
-				int32_t mLookAheadLimit = -1;
+				std::streamoff mLookAheadLimit = -1;
 			};
 		}
 	}

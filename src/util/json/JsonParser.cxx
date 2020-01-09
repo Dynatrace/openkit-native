@@ -63,7 +63,7 @@ const JsonParser::JsonValuePtr JsonParser::parse()
 	{
 		mParsedValue = doParse();
 	}
-	catch (util::json::lexer::JsonLexerException& e)
+	catch (util::json::lexer::JsonLexerException&)
 	{
 		mState = JsonParserState::ERROR;
 		std::throw_with_nested(JsonParserException("Caught exception from lexical analysis"));

@@ -290,7 +290,7 @@ std::vector<std::shared_ptr<core::objects::SessionInternals>> BeaconSendingConte
 	return finishedSessions;
 }
 
-int32_t BeaconSendingContext::getSessionCount()
+size_t BeaconSendingContext::getSessionCount()
 {
 	return mSessions.size();
 }
