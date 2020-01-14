@@ -21,6 +21,13 @@ namespace core
 {
 	namespace util
 	{
+		/// 
+		/// This is an implementation of @c std::hash<> for enum classes.
+		///
+		/// @par
+		/// As soon as we use C++14 or higher this struct can be removed,
+		/// since C++14 and above natively support typed and untyped enum hashing.
+		///
 		struct EnumClassHash
 		{
 			template<typename T>

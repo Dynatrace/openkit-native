@@ -263,7 +263,7 @@ int32_t ServerConfiguration::Builder::getMaxSessionDurationInMilliseconds() cons
 	return mMaxSessionDurationInMilliseconds;
 }
 
-ServerConfiguration::Builder & ServerConfiguration::Builder::withMaxSessionDurationInMilliseconds(
+ServerConfiguration::Builder& ServerConfiguration::Builder::withMaxSessionDurationInMilliseconds(
 		int32_t maxSessionDurationInMilliseconds)
 {
 	mMaxSessionDurationInMilliseconds = maxSessionDurationInMilliseconds;
@@ -286,7 +286,7 @@ int32_t ServerConfiguration::Builder::getSessionTimeoutInMilliseconds() const
 	return mSessionIdleTimeout;
 }
 
-ServerConfiguration::Builder & ServerConfiguration::Builder::withSessionTimeoutInMilliseconds(
+ServerConfiguration::Builder& ServerConfiguration::Builder::withSessionTimeoutInMilliseconds(
 		int32_t sessionTimeoutInMilliseconds)
 {
 	mSessionIdleTimeout = sessionTimeoutInMilliseconds;
@@ -298,7 +298,7 @@ int32_t ServerConfiguration::Builder::getVisitStoreVersion() const
 	return mVisitStoreVersion;
 }
 
-ServerConfiguration::Builder & ServerConfiguration::Builder::withVisitStoreVersion(int32_t visitStoreVersion)
+ServerConfiguration::Builder& ServerConfiguration::Builder::withVisitStoreVersion(int32_t visitStoreVersion)
 {
 	mVisitStoreVersion = visitStoreVersion;
 	return *this;
