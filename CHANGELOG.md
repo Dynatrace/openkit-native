@@ -5,6 +5,8 @@
 ### Added
 - Support for parsing JSON
 - Technology type support for errors and crashes
+- Support for session splitting. Sessions are split transparently after either the maximum session duration,
+  the idle timeout or the number of top level actions are exceeded.
 
 ### Security
 - Support for modified UTF-8 terminated strings.
