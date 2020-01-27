@@ -17,8 +17,10 @@
 #include "BeaconSendingContext.h"
 
 #include "BeaconSendingInitialState.h"
+#include "BeaconSendingResponseUtil.h"
 #include "IBeaconSendingState.h"
 #include "protocol/HTTPClient.h"
+#include "protocol/ResponseAttributes.h"
 #include "core/configuration/ServerConfiguration.h"
 #include "core/configuration/HTTPClientConfiguration.h"
 
@@ -46,6 +48,7 @@ BeaconSendingContext::BeaconSendingContext(
 	, mTimingProvider(timingProvider)
 	, mLastStatusCheckTime(0)
 	, mLastOpenSessionBeaconSendTime(0)
+	, mLastResponseAttributes(protocol::ResponseAttributes::withUndefinedDefaults().build())
 	, mInitCountdownLatch(1)
 	, mSessions()
 {
@@ -217,7 +220,8 @@ void BeaconSendingContext::handleStatusResponse(std::shared_ptr<protocol::IStatu
 		return;
 	}
 
-	mServerConfiguration = core::configuration::ServerConfiguration::Builder(response).build();
+	auto updatedAttributes = updateLastResponseAttributesFrom(response);
+	mServerConfiguration = core::configuration::ServerConfiguration::Builder(updatedAttributes).build();
 	if (!isCaptureOn())
 	{
 		// capturing was turned off
@@ -231,6 +235,21 @@ void BeaconSendingContext::handleStatusResponse(std::shared_ptr<protocol::IStatu
 			.withServerID(serverId)
 			.build();
 	}
+}
+
+std::shared_ptr<protocol::IResponseAttributes> BeaconSendingContext::updateLastResponseAttributesFrom(std::shared_ptr<protocol::IStatusResponse> statusResponse)
+{
+	if (BeaconSendingResponseUtil::isSuccessfulResponse(statusResponse))
+	{
+		mLastResponseAttributes = mLastResponseAttributes->merge(statusResponse->getResponseAttributes());
+	}
+
+	return mLastResponseAttributes;
+}
+
+std::shared_ptr<protocol::IResponseAttributes> BeaconSendingContext::getLastResponseAttributes() const
+{
+	return mLastResponseAttributes;
 }
 
 void BeaconSendingContext::clearAllSessionData()

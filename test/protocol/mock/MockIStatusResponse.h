@@ -19,6 +19,8 @@
 
 #include "../../DefaultValues.h"
 #include "protocol/IStatusResponse.h"
+#include "protocol/IResponseAttributes.h"
+#include "protocol/ResponseAttributes.h"
 
 #include "gmock/gmock.h"
 
@@ -33,14 +35,14 @@ namespace test
 
 		MockIStatusResponse()
 		{
-			ON_CALL(*this, getMonitorName())
-				.WillByDefault(testing::ReturnRef(DefaultValues::UTF8_EMPTY_STRING));
 			ON_CALL(*this, getResponseHeaders())
 				.WillByDefault(testing::ReturnRefOfCopy(protocol::IStatusResponse::ResponseHeaders()));
 			ON_CALL(*this, getResponseCode())
 				.WillByDefault(testing::Return(200));
 			ON_CALL(*this, isErroneousResponse())
 				.WillByDefault(testing::Return(false));
+			ON_CALL(*this, getResponseAttributes())
+				.WillByDefault(testing::Return(protocol::ResponseAttributes::withUndefinedDefaults().build()));
 		}
 
 		///
@@ -58,22 +60,6 @@ namespace test
 			return std::make_shared<testing::StrictMock<MockIStatusResponse>>();
 		}
 
-		MOCK_CONST_METHOD0(isCapture, bool());
-
-		MOCK_CONST_METHOD0(getSendInterval, int32_t());
-
-		MOCK_CONST_METHOD0(getMonitorName, const core::UTF8String&());
-
-		MOCK_CONST_METHOD0(getServerID, int32_t());
-
-		MOCK_CONST_METHOD0(getMaxBeaconSize, int32_t());
-
-		MOCK_CONST_METHOD0(isCaptureErrors, bool());
-
-		MOCK_CONST_METHOD0(isCaptureCrashes, bool());
-
-		MOCK_CONST_METHOD0(getMultiplicity, int32_t());
-
 		MOCK_CONST_METHOD0(isErroneousResponse, bool());
 
 		MOCK_CONST_METHOD0(isTooManyRequestsResponse, bool());
@@ -83,6 +69,8 @@ namespace test
 		MOCK_CONST_METHOD0(getResponseHeaders, protocol::IStatusResponse::ResponseHeaders&());
 
 		MOCK_CONST_METHOD0(getRetryAfterInMilliseconds, int64_t());
+
+		MOCK_CONST_METHOD0(getResponseAttributes, std::shared_ptr<protocol::IResponseAttributes>());
 	};
 }
 

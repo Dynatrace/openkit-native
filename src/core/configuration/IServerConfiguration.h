@@ -47,7 +47,7 @@ namespace core
 			///
 			/// Indicates whether error reporting is enabled by Dynatrace/AppMon or not.
 			///
-			/// @return @c true if error reporting si enabled, @c false otherwise.
+			/// @return @c true if error reporting is enabled, @c false otherwise.
 			///
 			virtual bool isErrorReportingEnabled() const = 0;
 

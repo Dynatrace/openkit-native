@@ -18,10 +18,12 @@
 #include "mock/MockIBeaconSendingContext.h"
 #include "../../protocol/mock/MockIHTTPClient.h"
 #include "../../protocol/mock/MockIStatusResponse.h"
+#include "../../protocol/mock/MockIResponseAttributes.h"
 
 #include "core/communication/BeaconSendingInitialState.h"
 #include "protocol/IStatusResponse.h"
 #include "protocol/StatusResponse.h"
+#include "protocol/IResponseAttributes.h"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -32,6 +34,7 @@ using BeaconSendingInitialState_t = core::communication::BeaconSendingInitialSta
 using MockNiceIBeaconSendingContext_sp = std::shared_ptr<testing::NiceMock<MockIBeaconSendingContext>>;
 using MockNiceIHTTPClient_sp = std::shared_ptr<testing::NiceMock<MockIHTTPClient>>;
 using MockNiceIStatusResponse_sp = std::shared_ptr<testing::NiceMock<MockIStatusResponse>>;
+using MockNiceIResponseAttributes_sp = std::shared_ptr<testing::NiceMock<MockIResponseAttributes>>;
 
 class BeaconSendingInitialStateTest : public testing::Test
 {
@@ -40,10 +43,15 @@ protected:
 	MockNiceIHTTPClient_sp mockHTTPClient;
 	MockNiceIBeaconSendingContext_sp mockContext;
 	MockNiceIStatusResponse_sp mockStatusResponse;
+	MockNiceIResponseAttributes_sp mockAttributes;
 
 	void SetUp() override
 	{
+		mockAttributes = MockIResponseAttributes::createNice();
+
 		mockStatusResponse = MockIStatusResponse::createNice();
+		ON_CALL(*mockStatusResponse, getResponseAttributes())
+			.WillByDefault(testing::Return(mockAttributes));
 
 		mockHTTPClient = MockIHTTPClient::createNice();
 		ON_CALL(*mockHTTPClient, sendStatusRequest())
@@ -362,7 +370,7 @@ TEST_F(BeaconSendingInitialStateTest, initialStatusRequestGivesUpWhenShutdownReq
 TEST_F(BeaconSendingInitialStateTest, aSuccessfulStatusResponseSetsInitCompletedToTrueForCaptureOn)
 {
 	// with
-	ON_CALL(*mockStatusResponse, isCapture())
+	ON_CALL(*mockAttributes, isCapture())
 		.WillByDefault(testing::Return(true));
 
 	// expect
@@ -379,8 +387,8 @@ TEST_F(BeaconSendingInitialStateTest, aSuccessfulStatusResponseSetsInitCompleted
 TEST_F(BeaconSendingInitialStateTest, aSuccessfulStatusResponseSetsInitCompletedToTrueForCaptureOff)
 {
 	// with
-	ON_CALL(*mockStatusResponse, isCapture())
-		.WillByDefault(testing::Return(false));
+	ON_CALL(*mockAttributes, isCapture())
+		.WillByDefault(testing::Return(true));
 
 	// expect
 	EXPECT_CALL(*mockContext, setInitCompleted(true))

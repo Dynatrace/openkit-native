@@ -59,11 +59,11 @@ std::shared_ptr<IResponseAttributes> KeyValueResponseParser::parse(const core::U
 	applyServerId(builder, keyValuePairs);
 	applyMultiplicity(builder, keyValuePairs);
 
-	return builder->build();
+	return builder.build();
 }
 
 void KeyValueResponseParser::applyBeaconSizeInKb(
-	std::shared_ptr<ResponseAttributes::Builder> builder,
+	protocol::ResponseAttributes::Builder& builder,
 	std::unordered_map <std::string, std::string>& keyValuePairs
 )
 {
@@ -74,11 +74,11 @@ void KeyValueResponseParser::applyBeaconSizeInKb(
 	}
 
 	auto beaconSizeInKb = std::stoi(entry->second);
-	builder->withMaxBeaconSizeInBytes(beaconSizeInKb * 1024);
+	builder.withMaxBeaconSizeInBytes(beaconSizeInKb * 1024);
 }
 
 void KeyValueResponseParser::applySendIntervalInSec(
-	std::shared_ptr<ResponseAttributes::Builder> builder,
+	protocol::ResponseAttributes::Builder& builder,
 	std::unordered_map <std::string, std::string>& keyValuePairs
 )
 {
@@ -89,11 +89,11 @@ void KeyValueResponseParser::applySendIntervalInSec(
 	}
 
 	auto sendIntervalInSec = std::stoi(entry->second);
-	builder->withSendIntervalInMilliseconds(sendIntervalInSec * 1000);
+	builder.withSendIntervalInMilliseconds(sendIntervalInSec * 1000);
 }
 
 void KeyValueResponseParser::applyCapture(
-	std::shared_ptr<ResponseAttributes::Builder> builder,
+	protocol::ResponseAttributes::Builder& builder,
 	std::unordered_map <std::string, std::string>& keyValuePairs
 )
 {
@@ -104,11 +104,11 @@ void KeyValueResponseParser::applyCapture(
 	}
 
 	auto capture = std::stoi(entry->second);
-	builder->withCapture(capture == 1);
+	builder.withCapture(capture == 1);
 }
 
 void KeyValueResponseParser::applyReportCrashes(
-		std::shared_ptr<ResponseAttributes::Builder> builder,
+		protocol::ResponseAttributes::Builder& builder,
 	std::unordered_map <std::string, std::string>& keyValuePairs
 )
 {
@@ -119,11 +119,11 @@ void KeyValueResponseParser::applyReportCrashes(
 	}
 
 	auto reportCrashes = std::stoi(entry->second);
-	builder->withCaptureCrashes(reportCrashes != 0);
+	builder.withCaptureCrashes(reportCrashes != 0);
 }
 
 void KeyValueResponseParser::applyReportErrors(
-	std::shared_ptr<ResponseAttributes::Builder> builder,
+	protocol::ResponseAttributes::Builder& builder,
 	std::unordered_map <std::string, std::string>& keyValuePairs
 )
 {
@@ -134,11 +134,11 @@ void KeyValueResponseParser::applyReportErrors(
 	}
 
 	auto reportErrors = std::stoi(entry->second);
-	builder->withCaptureErrors(reportErrors != 0);
+	builder.withCaptureErrors(reportErrors != 0);
 }
 
 void KeyValueResponseParser::applyServerId(
-	std::shared_ptr<ResponseAttributes::Builder> builder,
+	protocol::ResponseAttributes::Builder& builder,
 	std::unordered_map <std::string, std::string>& keyValuePairs
 )
 {
@@ -149,11 +149,11 @@ void KeyValueResponseParser::applyServerId(
 	}
 
 	auto serverId = std::stoi(entry->second);
-	builder->withServerId(serverId);
+	builder.withServerId(serverId);
 }
 
 void KeyValueResponseParser::applyMultiplicity(
-	std::shared_ptr<ResponseAttributes::Builder> builder,
+	protocol::ResponseAttributes::Builder& builder,
 	std::unordered_map <std::string, std::string>& keyValuePairs
 )
 {
@@ -164,5 +164,5 @@ void KeyValueResponseParser::applyMultiplicity(
 	}
 
 	auto multiplicity = std::stoi(entry->second);
-	builder->withMultiplicity(multiplicity);
+	builder.withMultiplicity(multiplicity);
 }

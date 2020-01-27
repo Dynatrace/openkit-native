@@ -199,7 +199,8 @@ std::shared_ptr<protocol::IStatusResponse> BeaconSendingCaptureOnState::sendNewS
 		statusResponse = context.getHTTPClient()->sendNewSessionRequest();
 		if (BeaconSendingResponseUtil::isSuccessfulResponse(statusResponse))
 		{
-			auto newServerConfig = configuration::ServerConfiguration::from(statusResponse);
+			auto updatedAttributes = context.updateLastResponseAttributesFrom(statusResponse);
+			auto newServerConfig = configuration::ServerConfiguration::from(updatedAttributes);
 			session->updateServerConfiguration(newServerConfig);
 		}
 		else if (BeaconSendingResponseUtil::isTooManyRequestsResponse(statusResponse))

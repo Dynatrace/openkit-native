@@ -72,37 +72,37 @@ namespace protocol
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		static void applyAgentConfiguration(
-			std::shared_ptr<protocol::ResponseAttributes::Builder> builder,
+			protocol::ResponseAttributes::Builder& builder,
 			std::shared_ptr<util::json::objects::JsonObjectValue> rootObject
 		);
 
 		static void applyBeaconSizeInKb(
-			std::shared_ptr<protocol::ResponseAttributes::Builder> builder,
+			protocol::ResponseAttributes::Builder& builder,
 			std::shared_ptr<util::json::objects::JsonObjectValue> agentConfigObject
 		);
 
 		static void applyMaxSessionDurationInMin(
-			std::shared_ptr<protocol::ResponseAttributes::Builder> builder,
+			protocol::ResponseAttributes::Builder& builder,
 			std::shared_ptr<util::json::objects::JsonObjectValue> agentConfigObject
 		);
 
 		static void applyMaxEventsPerSession(
-			std::shared_ptr<protocol::ResponseAttributes::Builder> builder,
+			protocol::ResponseAttributes::Builder& builder,
 			std::shared_ptr<util::json::objects::JsonObjectValue> agentConfigObject
 		);
 
 		static void applySessionTimeoutInSec(
-			std::shared_ptr<protocol::ResponseAttributes::Builder> builder,
+			protocol::ResponseAttributes::Builder& builder,
 			std::shared_ptr<util::json::objects::JsonObjectValue> agentConfigObject
 		);
 
 		static void applySendIntervalInSec(
-			std::shared_ptr<protocol::ResponseAttributes::Builder> builder,
+			protocol::ResponseAttributes::Builder& builder,
 			std::shared_ptr<util::json::objects::JsonObjectValue> agentConfigObject
 		);
 
 		static void applyVisitStoreVersion(
-			std::shared_ptr<protocol::ResponseAttributes::Builder> builder,
+			protocol::ResponseAttributes::Builder& builder,
 			std::shared_ptr<util::json::objects::JsonObjectValue> agentConfigObject
 		);
 
@@ -111,22 +111,22 @@ namespace protocol
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		static void applyApplicationConfiguration(
-			std::shared_ptr<protocol::ResponseAttributes::Builder> builder,
+			protocol::ResponseAttributes::Builder& builder,
 			std::shared_ptr<util::json::objects::JsonObjectValue> rootObject
 		);
 
 		static void applyCapture(
-			std::shared_ptr<protocol::ResponseAttributes::Builder> builder,
+			protocol::ResponseAttributes::Builder& builder,
 			std::shared_ptr<util::json::objects::JsonObjectValue> appConfigObject
 		);
 
 		static void applyReportCrashes(
-			std::shared_ptr<protocol::ResponseAttributes::Builder> builder,
+			protocol::ResponseAttributes::Builder& builder,
 			std::shared_ptr<util::json::objects::JsonObjectValue> appConfigObject
 		);
 
 		static void applyReportErrors(
-			std::shared_ptr<protocol::ResponseAttributes::Builder> builder,
+			protocol::ResponseAttributes::Builder& builder,
 			std::shared_ptr<util::json::objects::JsonObjectValue> appConfigObject
 		);
 
@@ -135,17 +135,17 @@ namespace protocol
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		static void applyDynamicConfiguration(
-			std::shared_ptr<protocol::ResponseAttributes::Builder> builder,
+			protocol::ResponseAttributes::Builder& builder,
 			std::shared_ptr<util::json::objects::JsonObjectValue> rootObject
 		);
 
 		static void applyMultiplicity(
-			std::shared_ptr<protocol::ResponseAttributes::Builder> builder,
+			protocol::ResponseAttributes::Builder& builder,
 			std::shared_ptr<util::json::objects::JsonObjectValue> dynConfigObject
 		);
 
 		static void applyServerId(
-			std::shared_ptr<protocol::ResponseAttributes::Builder> builder,
+			protocol::ResponseAttributes::Builder& builder,
 			std::shared_ptr<util::json::objects::JsonObjectValue> dynConfigObject
 		);
 
@@ -154,7 +154,7 @@ namespace protocol
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		static void applyRootAttributes(
-			std::shared_ptr<protocol::ResponseAttributes::Builder> builder,
+			protocol::ResponseAttributes::Builder& builder,
 			std::shared_ptr<util::json::objects::JsonObjectValue> rootObject
 		);
 	};

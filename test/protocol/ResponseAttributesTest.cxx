@@ -36,7 +36,7 @@ class ResponseAttributesTest : public testing::Test
 TEST_F(ResponseAttributesTest, buildWithJsonDefaultsHasNoAttributesSetOnInstance)
 {
 	// given
-	auto target = ResponseAttributes_t::withJsonDefaults()->build();
+	auto target = ResponseAttributes_t::withJsonDefaults().build();
 
 	// when, then
 	for (const auto attribute : protocol::ALL_RESPONSE_ATTRIBUTES)
@@ -48,7 +48,7 @@ TEST_F(ResponseAttributesTest, buildWithJsonDefaultsHasNoAttributesSetOnInstance
 TEST_F(ResponseAttributesTest, buildWithKeyValueDefaultsHasNoAttributeSetOnInstance)
 {
 	// given
-	auto target = ResponseAttributes_t::withKeyValueDefaults()->build();
+	auto target = ResponseAttributes_t::withKeyValueDefaults().build();
 
 	// when, then
 	for (const auto attribute : protocol::ALL_RESPONSE_ATTRIBUTES)
@@ -64,7 +64,7 @@ TEST_F(ResponseAttributesTest, buildForwardsJsonDefaultsToInstance)
 	auto target = ResponseAttributes_t::withJsonDefaults();
 
 	// when
-	auto obtained = target->build();
+	auto obtained = target.build();
 
 	// then
 	ASSERT_THAT(obtained->getMaxBeaconSizeInBytes(), testing::Eq(defaults->getMaxBeaconSizeInBytes()));
@@ -92,7 +92,7 @@ TEST_F(ResponseAttributesTest, buildForwardsKeyValueDefaultsToInstance)
 	auto target = ResponseAttributes_t::withJsonDefaults();
 
 	// when
-	auto obtained = target->build();
+	auto obtained = target.build();
 
 	// then
 	ASSERT_THAT(obtained->getMaxBeaconSizeInBytes(), testing::Eq(defaults->getMaxBeaconSizeInBytes()));
@@ -120,7 +120,7 @@ TEST_F(ResponseAttributesTest, buildPropagatesMaxBeaconSizeToInstance)
 	auto target = ResponseAttributes_t::withJsonDefaults();
 
 	// when
-	auto obtained = target->withMaxBeaconSizeInBytes(beaconSize).build();
+	auto obtained = target.withMaxBeaconSizeInBytes(beaconSize).build();
 
 	// then
 	ASSERT_THAT(obtained->getMaxBeaconSizeInBytes(), testing::Eq(beaconSize));
@@ -133,7 +133,7 @@ TEST_F(ResponseAttributesTest, ithMaxBeaconSizeSetsAttributeOnInstance)
 	auto target = ResponseAttributes_t::withJsonDefaults();
 
 	// when
-	auto obtained = target->withMaxBeaconSizeInBytes(37).build();
+	auto obtained = target.withMaxBeaconSizeInBytes(37).build();
 
 	// then
 	ASSERT_THAT(obtained->isAttributeSet(attribute), testing::Eq(true));
@@ -156,7 +156,7 @@ TEST_F(ResponseAttributesTest, uildPropagatesMaxSessionDurationToInstance)
 	auto target = ResponseAttributes_t::withJsonDefaults();
 
 	// when
-	auto obtained = target->withMaxSessionDurationInMilliseconds(sessionDuration).build();
+	auto obtained = target.withMaxSessionDurationInMilliseconds(sessionDuration).build();
 
 	// then
 	ASSERT_THAT(obtained->getMaxSessionDurationInMilliseconds(), testing::Eq(sessionDuration));
@@ -169,7 +169,7 @@ TEST_F(ResponseAttributesTest, withMaxSessionDurationSetsAttributeOnInstance)
 	auto target = ResponseAttributes_t::withJsonDefaults();
 
 	// when
-	auto obtained = target->withMaxSessionDurationInMilliseconds(37).build();
+	auto obtained = target.withMaxSessionDurationInMilliseconds(37).build();
 
 	// then
 	ASSERT_THAT(obtained->isAttributeSet(attribute), testing::Eq(true));
@@ -192,7 +192,7 @@ TEST_F(ResponseAttributesTest, buildPropagatesMaxEventsPerSessionToInstance)
 	auto target = ResponseAttributes_t::withJsonDefaults();
 
 	// when
-	auto obtained = target->withMaxEventsPerSession(eventsPerSession).build();
+	auto obtained = target.withMaxEventsPerSession(eventsPerSession).build();
 
 	// then
 	ASSERT_THAT(obtained->getMaxEventsPerSession(), testing::Eq(eventsPerSession));
@@ -205,7 +205,7 @@ TEST_F(ResponseAttributesTest, withMaxEventsPerSessionSetsAttributeOnInstance)
 	auto target = ResponseAttributes_t::withJsonDefaults();
 
 	// when
-	auto obtained = target->withMaxEventsPerSession(37).build();
+	auto obtained = target.withMaxEventsPerSession(37).build();
 
 	// then
 	ASSERT_THAT(obtained->isAttributeSet(attribute), testing::Eq(true));
@@ -228,7 +228,7 @@ TEST_F(ResponseAttributesTest, buildPropagatesSessionTimeoutToInstance)
 	auto target = ResponseAttributes_t::withJsonDefaults();
 
 	// when
-	auto obtained = target->withSessionTimeoutInMilliseconds(sessionTimeout).build();
+	auto obtained = target.withSessionTimeoutInMilliseconds(sessionTimeout).build();
 
 	// then
 	ASSERT_THAT(obtained->getSessionTimeoutInMilliseconds(), testing::Eq(sessionTimeout));
@@ -241,7 +241,7 @@ TEST_F(ResponseAttributesTest, withSessionTimeoutSetsAttributeOnInstance)
 	auto target = ResponseAttributes_t::withJsonDefaults();
 
 	// when
-	auto obtained = target->withSessionTimeoutInMilliseconds(37).build();
+	auto obtained = target.withSessionTimeoutInMilliseconds(37).build();
 
 	// then
 	ASSERT_THAT(obtained->isAttributeSet(attribute), testing::Eq(true));
@@ -264,7 +264,7 @@ TEST_F(ResponseAttributesTest, buildPropagatesSendIntervalToInstance)
 	auto target = ResponseAttributes_t::withJsonDefaults();
 
 	// when
-	auto obtained = target->withSendIntervalInMilliseconds(sendInterval).build();
+	auto obtained = target.withSendIntervalInMilliseconds(sendInterval).build();
 
 	// then
 	ASSERT_THAT(obtained->getSendIntervalInMilliseconds(), testing::Eq(sendInterval));
@@ -277,7 +277,7 @@ TEST_F(ResponseAttributesTest, withSendIntervalSetsAttributeOnInstance)
 	auto target = ResponseAttributes_t::withJsonDefaults();
 
 	// when
-	auto obtained = target->withSendIntervalInMilliseconds(37).build();
+	auto obtained = target.withSendIntervalInMilliseconds(37).build();
 
 	// then
 	ASSERT_THAT(obtained->isAttributeSet(attribute), testing::Eq(true));
@@ -300,7 +300,7 @@ TEST_F(ResponseAttributesTest, buildPropagatesVisitStoreVersionToInstance)
 	auto target = ResponseAttributes_t::withJsonDefaults();
 
 	// when
-	auto obtained = target->withVisitStoreVersion(visitStoreVersion).build();
+	auto obtained = target.withVisitStoreVersion(visitStoreVersion).build();
 
 	// then
 	ASSERT_THAT(obtained->getVisitStoreVersion(), testing::Eq(visitStoreVersion));
@@ -313,7 +313,7 @@ TEST_F(ResponseAttributesTest, withVisitStoreVersionSetsAttributeOnInstance)
 	auto target = ResponseAttributes_t::withJsonDefaults();
 
 	// when
-	auto obtained = target->withVisitStoreVersion(37).build();
+	auto obtained = target.withVisitStoreVersion(37).build();
 
 	// then
 	ASSERT_THAT(obtained->isAttributeSet(attribute), testing::Eq(true));
@@ -336,7 +336,7 @@ TEST_F(ResponseAttributesTest, buildPropagatesIsCaptureToInstance)
 	auto target = ResponseAttributes_t::withJsonDefaults();
 
 	// when
-	auto obtained = target->withCapture(isCapture).build();
+	auto obtained = target.withCapture(isCapture).build();
 
 	// then
 	ASSERT_THAT(obtained->isCapture(), testing::Eq(isCapture));
@@ -349,7 +349,7 @@ TEST_F(ResponseAttributesTest, ithCaptureSetsAttributeOnInstance)
 	auto target = ResponseAttributes_t::withJsonDefaults();
 
 	// when
-	auto obtained = target->withCapture(!ResponseAttributesDefaults_t::JSON_RESPONSE->isCapture()).build();
+	auto obtained = target.withCapture(!ResponseAttributesDefaults_t::JSON_RESPONSE->isCapture()).build();
 
 	// then
 	ASSERT_THAT(obtained->isAttributeSet(attribute), testing::Eq(true));
@@ -372,7 +372,7 @@ TEST_F(ResponseAttributesTest, buildPropagatesIsCaptureCrashesToInstance)
 	auto target = ResponseAttributes_t::withJsonDefaults();
 
 	// when
-	auto obtained = target->withCaptureCrashes(isCaptureCrashes).build();
+	auto obtained = target.withCaptureCrashes(isCaptureCrashes).build();
 
 	// then
 	ASSERT_THAT(obtained->isCaptureCrashes(), testing::Eq(isCaptureCrashes));
@@ -385,7 +385,7 @@ TEST_F(ResponseAttributesTest, withCaptureCrashesSetsAttributeOnInstance)
 	auto target = ResponseAttributes_t::withJsonDefaults();
 
 	// when
-	auto obtained = target->withCaptureCrashes(!ResponseAttributesDefaults_t::JSON_RESPONSE->isCaptureCrashes()).build();
+	auto obtained = target.withCaptureCrashes(!ResponseAttributesDefaults_t::JSON_RESPONSE->isCaptureCrashes()).build();
 
 	// then
 	ASSERT_THAT(obtained->isAttributeSet(attribute), testing::Eq(true));
@@ -408,7 +408,7 @@ TEST_F(ResponseAttributesTest, buildPropagatesIsCaptureErrorsToInstance)
 	auto target = ResponseAttributes_t::withJsonDefaults();
 
 	// when
-	auto obtained = target->withCaptureErrors(isCaptureErrors).build();
+	auto obtained = target.withCaptureErrors(isCaptureErrors).build();
 
 	// then
 	ASSERT_THAT(obtained->isCaptureErrors(), testing::Eq(isCaptureErrors));
@@ -421,7 +421,7 @@ TEST_F(ResponseAttributesTest, withCaptureErrorsSetsAttributeOnInstance)
 	auto target = ResponseAttributes_t::withJsonDefaults();
 
 	// when
-	auto obtained = target->withCaptureErrors(!ResponseAttributesDefaults_t::JSON_RESPONSE->isCaptureErrors()).build();
+	auto obtained = target.withCaptureErrors(!ResponseAttributesDefaults_t::JSON_RESPONSE->isCaptureErrors()).build();
 
 	// then
 	ASSERT_THAT(obtained->isAttributeSet(attribute), testing::Eq(true));
@@ -444,7 +444,7 @@ TEST_F(ResponseAttributesTest, buildPropagatesMultiplicityToInstance)
 	auto target = ResponseAttributes_t::withJsonDefaults();
 
 	// when
-	auto obtained = target->withMultiplicity(multiplicity).build();
+	auto obtained = target.withMultiplicity(multiplicity).build();
 
 	// then
 	ASSERT_THAT(obtained->getMultiplicity(), testing::Eq(multiplicity));
@@ -457,7 +457,7 @@ TEST_F(ResponseAttributesTest, withMultiplicitySetsAttributeOnInstance)
 	auto target = ResponseAttributes_t::withJsonDefaults();
 
 	// when
-	auto obtained = target->withMultiplicity(37).build();
+	auto obtained = target.withMultiplicity(37).build();
 
 	// then
 	ASSERT_THAT(obtained->isAttributeSet(attribute), testing::Eq(true));
@@ -480,7 +480,7 @@ TEST_F(ResponseAttributesTest, buildPropagatesServerIdToInstance)
 	auto target = ResponseAttributes_t::withJsonDefaults();
 
 	// when
-	auto obtained = target->withServerId(serverId).build();
+	auto obtained = target.withServerId(serverId).build();
 
 	// then
 	ASSERT_THAT(obtained->getServerId(), testing::Eq(serverId));
@@ -493,7 +493,7 @@ TEST_F(ResponseAttributesTest, withServerIdSetsAttributeOnInstance)
 	auto target = ResponseAttributes_t::withJsonDefaults();
 
 	// when
-	auto obtained = target->withServerId(37).build();
+	auto obtained = target.withServerId(37).build();
 
 	// then
 	ASSERT_THAT(obtained->isAttributeSet(attribute), testing::Eq(true));
@@ -516,7 +516,7 @@ TEST_F(ResponseAttributesTest, buildPropagatesTimestampToInstance)
 	auto target = ResponseAttributes_t::withJsonDefaults();
 
 	// when
-	auto obtained = target->withTimestampInMilliseconds(timestamp).build();
+	auto obtained = target.withTimestampInMilliseconds(timestamp).build();
 
 	// then
 	ASSERT_THAT(obtained->getTimestampInMilliseconds(), testing::Eq(timestamp));
@@ -529,7 +529,7 @@ TEST_F(ResponseAttributesTest, withTimestampSetsAttributeOnInstance)
 	auto target = ResponseAttributes_t::withJsonDefaults();
 
 	// when
-	auto obtained = target->withTimestampInMilliseconds(37L).build();
+	auto obtained = target.withTimestampInMilliseconds(37L).build();
 
 	// then
 	ASSERT_THAT(obtained->isAttributeSet(attribute), testing::Eq(true));
@@ -552,8 +552,8 @@ TEST_F(ResponseAttributesTest, withTimestampSetsAttributeOnInstance)
 TEST_F(ResponseAttributesTest, mergingDefaultResponsesReturnsResponseWithoutAnyAttributeSet)
 {
 	// given
-	auto toMerge = ResponseAttributes_t::withUndefinedDefaults()->build();
-	auto target = ResponseAttributes_t::withJsonDefaults()->build();
+	auto toMerge = ResponseAttributes_t::withUndefinedDefaults().build();
+	auto target = ResponseAttributes_t::withJsonDefaults().build();
 
 	// when
 	auto obtained = target->merge(toMerge);
@@ -570,7 +570,7 @@ TEST_F(ResponseAttributesTest, mergeResponseWithAllValuesSetToDefaultResponse)
 	// given
 	auto toMerge = MockIResponseAttributes::createNice();
 	ON_CALL(*toMerge, isAttributeSet(testing::_)).WillByDefault(testing::Return(true));
-	auto target = ResponseAttributes_t::withUndefinedDefaults()->build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().build();
 
 	// when
 	auto obtained = target->merge(toMerge);
@@ -586,8 +586,8 @@ TEST_F(ResponseAttributesTest, mergeTakesBeaconSizeFromMergeTargetIfNotSetInSour
 {
 	// given
 	const int32_t beaconSize = 73;
-	auto source = ResponseAttributes_t::withUndefinedDefaults()->build();
-	auto target = ResponseAttributes_t::withUndefinedDefaults()->withMaxBeaconSizeInBytes(beaconSize).build();
+	auto source = ResponseAttributes_t::withUndefinedDefaults().build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().withMaxBeaconSizeInBytes(beaconSize).build();
 
 	// when
 	auto obtained = target->merge(source);
@@ -601,8 +601,8 @@ TEST_F(ResponseAttributesTest, mergeTakesBeaconSizeFromMergeSourceIfSetInSource)
 {
 	// given
 	const int32_t beaconSize = 73;
-	auto source = ResponseAttributes_t::withUndefinedDefaults()->withMaxBeaconSizeInBytes(beaconSize).build();
-	auto target = ResponseAttributes_t::withUndefinedDefaults()->build();
+	auto source = ResponseAttributes_t::withUndefinedDefaults().withMaxBeaconSizeInBytes(beaconSize).build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().build();
 
 	// when
 	auto obtained = target->merge(source);
@@ -616,8 +616,8 @@ TEST_F(ResponseAttributesTest, mergeTakesBeaconSizeFromMergeSourceIfSetInSourceA
 {
 	// given
 	const int32_t beaconSize = 73;
-	auto source = ResponseAttributes_t::withUndefinedDefaults()->withMaxBeaconSizeInBytes(beaconSize).build();
-	auto target = ResponseAttributes_t::withUndefinedDefaults()->withMaxBeaconSizeInBytes(37).build();
+	auto source = ResponseAttributes_t::withUndefinedDefaults().withMaxBeaconSizeInBytes(beaconSize).build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().withMaxBeaconSizeInBytes(37).build();
 
 	// when
 	auto obtained = target->merge(source);
@@ -631,9 +631,9 @@ TEST_F(ResponseAttributesTest, mergeTakesSessionDurationFromMergeTargetIfNotSetI
 {
 	// given
 	const int32_t sessionDuration = 73;
-	auto source = ResponseAttributes_t::withUndefinedDefaults()->build();
+	auto source = ResponseAttributes_t::withUndefinedDefaults().build();
 	auto target = ResponseAttributes_t::withUndefinedDefaults()
-		->withMaxSessionDurationInMilliseconds(sessionDuration).build();
+		.withMaxSessionDurationInMilliseconds(sessionDuration).build();
 
 	// when
 	auto obtained = target->merge(source);
@@ -648,8 +648,8 @@ TEST_F(ResponseAttributesTest, mergeTakesSessionDurationFromMergeSourceIfSetInSo
 	// given
 	const int32_t sessionDuration = 73;
 	auto source = ResponseAttributes_t::withUndefinedDefaults()
-		->withMaxSessionDurationInMilliseconds(sessionDuration).build();
-	auto target = ResponseAttributes_t::withUndefinedDefaults()->build();
+		.withMaxSessionDurationInMilliseconds(sessionDuration).build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().build();
 
 	// when
 	auto obtained = target->merge(source);
@@ -664,8 +664,8 @@ TEST_F(ResponseAttributesTest, mergeTakesSessionDurationFromMergeSourceIfSetInSo
 	// given
 	const int32_t sessionDuration = 73;
 	auto source = ResponseAttributes_t::withUndefinedDefaults()
-		->withMaxSessionDurationInMilliseconds(sessionDuration).build();
-	auto target = ResponseAttributes_t::withUndefinedDefaults()->withMaxSessionDurationInMilliseconds(37).build();
+		.withMaxSessionDurationInMilliseconds(sessionDuration).build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().withMaxSessionDurationInMilliseconds(37).build();
 
 	// when
 	auto obtained = target->merge(source);
@@ -679,8 +679,8 @@ TEST_F(ResponseAttributesTest, mergeTakesEventsPerSessionFromMergeTargetIfNotSet
 {
 	// given
 	const int32_t eventsPerSession = 73;
-	auto source = ResponseAttributes_t::withUndefinedDefaults()->build();
-	auto target = ResponseAttributes_t::withUndefinedDefaults()->withMaxEventsPerSession(eventsPerSession).build();
+	auto source = ResponseAttributes_t::withUndefinedDefaults().build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().withMaxEventsPerSession(eventsPerSession).build();
 
 	// when
 	auto obtained = target->merge(source);
@@ -695,8 +695,8 @@ TEST_F(ResponseAttributesTest, mergeTakesEventsPerSessionFromMergeSourceIfSetInS
 	// given
 	const int32_t eventsPerSession = 73;
 	auto source = ResponseAttributes_t::withUndefinedDefaults()
-		->withMaxEventsPerSession(eventsPerSession).build();
-	auto target = ResponseAttributes_t::withUndefinedDefaults()->build();
+		.withMaxEventsPerSession(eventsPerSession).build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().build();
 
 	// when
 	auto obtained = target->merge(source);
@@ -710,8 +710,8 @@ TEST_F(ResponseAttributesTest, mergeTakesEventsPerSessionFromMergeSourceIfSetInS
 {
 	// given
 	const int32_t eventsPerSession = 73;
-	auto source = ResponseAttributes_t::withUndefinedDefaults()->withMaxEventsPerSession(eventsPerSession).build();
-	auto target = ResponseAttributes_t::withUndefinedDefaults()->withMaxEventsPerSession(37).build();
+	auto source = ResponseAttributes_t::withUndefinedDefaults().withMaxEventsPerSession(eventsPerSession).build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().withMaxEventsPerSession(37).build();
 
 	// when
 	auto obtained = target->merge(source);
@@ -725,8 +725,8 @@ TEST_F(ResponseAttributesTest, mergeTakesSessionTimeoutFromMergeTargetIfNotSetIn
 {
 	// given
 	const int32_t sessionTimeout = 73;
-	auto source = ResponseAttributes_t::withUndefinedDefaults()->build();
-	auto target = ResponseAttributes_t::withUndefinedDefaults()->withSessionTimeoutInMilliseconds(sessionTimeout)
+	auto source = ResponseAttributes_t::withUndefinedDefaults().build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().withSessionTimeoutInMilliseconds(sessionTimeout)
 		.build();
 
 	// when
@@ -741,9 +741,9 @@ TEST_F(ResponseAttributesTest, mergeTakesSessionTimeoutFromMergeSourceIfSetInSou
 {
 	// given
 	const int32_t sessionTimeout = 73;
-	auto source = ResponseAttributes_t::withUndefinedDefaults()->withSessionTimeoutInMilliseconds(sessionTimeout)
+	auto source = ResponseAttributes_t::withUndefinedDefaults().withSessionTimeoutInMilliseconds(sessionTimeout)
 		.build();
-	auto target = ResponseAttributes_t::withUndefinedDefaults()->build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().build();
 
 	// when
 	auto obtained = target->merge(source);
@@ -757,9 +757,9 @@ TEST_F(ResponseAttributesTest, mergeTakesSessionTimeoutFromMergeSourceIfSetInSou
 {
 	// given
 	const int32_t sessionTimeout = 73;
-	auto source = ResponseAttributes_t::withUndefinedDefaults()->withSessionTimeoutInMilliseconds(sessionTimeout)
+	auto source = ResponseAttributes_t::withUndefinedDefaults().withSessionTimeoutInMilliseconds(sessionTimeout)
 		.build();
-	auto target = ResponseAttributes_t::withUndefinedDefaults()->withSessionTimeoutInMilliseconds(37).build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().withSessionTimeoutInMilliseconds(37).build();
 
 	// when
 	auto obtained = target->merge(source);
@@ -773,8 +773,8 @@ TEST_F(ResponseAttributesTest, mergeTakesSendIntervalFromMergeTargetIfNotSetInSo
 {
 	// given
 	const int32_t sendInterval = 73;
-	auto source = ResponseAttributes_t::withUndefinedDefaults()->build();
-	auto target = ResponseAttributes_t::withUndefinedDefaults()->withSendIntervalInMilliseconds(sendInterval)
+	auto source = ResponseAttributes_t::withUndefinedDefaults().build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().withSendIntervalInMilliseconds(sendInterval)
 		.build();
 
 	// when
@@ -789,9 +789,9 @@ TEST_F(ResponseAttributesTest, mergeTakesSendIntervalFromMergeSourceIfSetInSourc
 {
 	// given
 	const int32_t sendInterval = 73;
-	auto source = ResponseAttributes_t::withUndefinedDefaults()->withSendIntervalInMilliseconds(sendInterval)
+	auto source = ResponseAttributes_t::withUndefinedDefaults().withSendIntervalInMilliseconds(sendInterval)
 		.build();
-	auto target = ResponseAttributes_t::withUndefinedDefaults()->build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().build();
 
 	// when
 	auto obtained = target->merge(source);
@@ -805,9 +805,9 @@ TEST_F(ResponseAttributesTest, mergeTakesSendIntervalFromMergeSourceIfSetInSourc
 {
 	// given
 	const int32_t sendInterval = 73;
-	auto source = ResponseAttributes_t::withUndefinedDefaults()->withSendIntervalInMilliseconds(sendInterval)
+	auto source = ResponseAttributes_t::withUndefinedDefaults().withSendIntervalInMilliseconds(sendInterval)
 		.build();
-	auto target = ResponseAttributes_t::withUndefinedDefaults()->withSendIntervalInMilliseconds(37).build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().withSendIntervalInMilliseconds(37).build();
 
 	// when
 	auto obtained = target->merge(source);
@@ -821,8 +821,8 @@ TEST_F(ResponseAttributesTest, mergeTakesVisitStoreVersionFromMergeTargetIfNotSe
 {
 	// given
 	const int32_t visitStoreVersion = 73;
-	auto source = ResponseAttributes_t::withUndefinedDefaults()->build();
-	auto target = ResponseAttributes_t::withUndefinedDefaults()->withVisitStoreVersion(visitStoreVersion).build();
+	auto source = ResponseAttributes_t::withUndefinedDefaults().build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().withVisitStoreVersion(visitStoreVersion).build();
 
 	// when
 	auto obtained = target->merge(source);
@@ -837,8 +837,8 @@ TEST_F(ResponseAttributesTest, mergeTakesVisitStoreVersionFromMergeSourceIfSetIn
 	// given
 	const int32_t visitStoreVersion = 73;
 	auto source = ResponseAttributes_t::withUndefinedDefaults()
-		->withVisitStoreVersion(visitStoreVersion).build();
-	auto target = ResponseAttributes_t::withUndefinedDefaults()->build();
+		.withVisitStoreVersion(visitStoreVersion).build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().build();
 
 	// when
 	auto obtained = target->merge(source);
@@ -852,8 +852,8 @@ TEST_F(ResponseAttributesTest, ergeTakesVisitStoreVersionFromMergeSourceIfSetInS
 {
 	// given
 	const int32_t visitStoreVersion = 73;
-	auto source = ResponseAttributes_t::withUndefinedDefaults()->withVisitStoreVersion(visitStoreVersion).build();
-	auto target = ResponseAttributes_t::withUndefinedDefaults()->withVisitStoreVersion(37).build();
+	auto source = ResponseAttributes_t::withUndefinedDefaults().withVisitStoreVersion(visitStoreVersion).build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().withVisitStoreVersion(37).build();
 
 	// when
 	auto obtained = target->merge(source);
@@ -867,8 +867,8 @@ TEST_F(ResponseAttributesTest, mergeTakesCaptureFromMergeTargetIfNotSetInSource)
 {
 	// given
 	auto capture = !ResponseAttributesDefaults_t::UNDEFINED->isCapture();
-	auto source = ResponseAttributes_t::withUndefinedDefaults()->build();
-	auto target = ResponseAttributes_t::withUndefinedDefaults()->withCapture(capture).build();
+	auto source = ResponseAttributes_t::withUndefinedDefaults().build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().withCapture(capture).build();
 
 	// when
 	auto obtained = target->merge(source);
@@ -882,8 +882,8 @@ TEST_F(ResponseAttributesTest, mergeTakesCaptureFromMergeSourceIfSetInSource)
 {
 	// given
 	auto capture = !ResponseAttributesDefaults_t::UNDEFINED->isCapture();
-	auto source = ResponseAttributes_t::withUndefinedDefaults()->withCapture(capture).build();
-	auto target = ResponseAttributes_t::withUndefinedDefaults()->build();
+	auto source = ResponseAttributes_t::withUndefinedDefaults().withCapture(capture).build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().build();
 
 	// when
 	auto obtained = target->merge(source);
@@ -897,8 +897,8 @@ TEST_F(ResponseAttributesTest, mergeTakesCaptureFromMergeSourceIfSetInSourceAndT
 {
 	// given
 	auto capture = !ResponseAttributesDefaults_t::UNDEFINED->isCapture();
-	auto source = ResponseAttributes_t::withUndefinedDefaults()->withCapture(capture).build();
-	auto target = ResponseAttributes_t::withUndefinedDefaults()->withCapture(!capture).build();
+	auto source = ResponseAttributes_t::withUndefinedDefaults().withCapture(capture).build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().withCapture(!capture).build();
 
 	// when
 	auto obtained = target->merge(source);
@@ -912,8 +912,8 @@ TEST_F(ResponseAttributesTest, mergeTakesCaptureCrashesFromMergeTargetIfNotSetIn
 {
 	// given
 	auto captureCrashes = !ResponseAttributesDefaults_t::UNDEFINED->isCaptureCrashes();
-	auto source = ResponseAttributes_t::withUndefinedDefaults()->build();
-	auto target = ResponseAttributes_t::withUndefinedDefaults()->withCaptureCrashes(captureCrashes).build();
+	auto source = ResponseAttributes_t::withUndefinedDefaults().build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().withCaptureCrashes(captureCrashes).build();
 
 	// when
 	auto obtained = target->merge(source);
@@ -927,8 +927,8 @@ TEST_F(ResponseAttributesTest, mergeTakesCaptureCrashesFromMergeSourceIfSetInSou
 {
 	// given
 	auto captureCrashes = !ResponseAttributesDefaults_t::UNDEFINED->isCaptureCrashes();
-	auto source = ResponseAttributes_t::withUndefinedDefaults()->withCaptureCrashes(captureCrashes).build();
-	auto target = ResponseAttributes_t::withUndefinedDefaults()->build();
+	auto source = ResponseAttributes_t::withUndefinedDefaults().withCaptureCrashes(captureCrashes).build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().build();
 
 	// when
 	auto obtained = target->merge(source);
@@ -942,8 +942,8 @@ TEST_F(ResponseAttributesTest, mergeTakesCaptureCrashesFromMergeSourceIfSetInSou
 {
 	// given
 	auto captureCrashes = !ResponseAttributesDefaults_t::UNDEFINED->isCaptureCrashes();
-	auto source = ResponseAttributes_t::withUndefinedDefaults()->withCaptureCrashes(captureCrashes).build();
-	auto target = ResponseAttributes_t::withUndefinedDefaults()->withCaptureCrashes(!captureCrashes).build();
+	auto source = ResponseAttributes_t::withUndefinedDefaults().withCaptureCrashes(captureCrashes).build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().withCaptureCrashes(!captureCrashes).build();
 
 	// when
 	auto obtained = target->merge(source);
@@ -957,8 +957,8 @@ TEST_F(ResponseAttributesTest, mergeTakesCaptureErrorsFromMergeTargetIfNotSetInS
 {
 	// given
 	auto captureErrors = !ResponseAttributesDefaults_t::UNDEFINED->isCaptureErrors();
-	auto source = ResponseAttributes_t::withUndefinedDefaults()->build();
-	auto target = ResponseAttributes_t::withUndefinedDefaults()->withCaptureErrors(captureErrors).build();
+	auto source = ResponseAttributes_t::withUndefinedDefaults().build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().withCaptureErrors(captureErrors).build();
 
 	// when
 	auto obtained = target->merge(source);
@@ -972,8 +972,8 @@ TEST_F(ResponseAttributesTest, mergeTakesCaptureErrorsFromMergeSourceIfSetInSour
 {
 	// given
 	auto captureErrors = !ResponseAttributesDefaults_t::UNDEFINED->isCaptureErrors();
-	auto source = ResponseAttributes_t::withUndefinedDefaults()->withCaptureErrors(captureErrors).build();
-	auto target = ResponseAttributes_t::withUndefinedDefaults()->build();
+	auto source = ResponseAttributes_t::withUndefinedDefaults().withCaptureErrors(captureErrors).build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().build();
 
 	// when
 	auto obtained = target->merge(source);
@@ -987,8 +987,8 @@ TEST_F(ResponseAttributesTest, mergeTakesCaptureErrorsFromMergeSourceIfSetInSour
 {
 	// given
 	auto captureErrors = !ResponseAttributesDefaults_t::UNDEFINED->isCaptureErrors();
-	auto source = ResponseAttributes_t::withUndefinedDefaults()->withCaptureErrors(captureErrors).build();
-	auto target = ResponseAttributes_t::withUndefinedDefaults()->withCaptureErrors(!captureErrors).build();
+	auto source = ResponseAttributes_t::withUndefinedDefaults().withCaptureErrors(captureErrors).build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().withCaptureErrors(!captureErrors).build();
 
 	// when
 	auto obtained = target->merge(source);
@@ -1002,8 +1002,8 @@ TEST_F(ResponseAttributesTest, mergeTakesMultiplicityFromMergeTargetIfNotSetInSo
 {
 	// given
 	const int32_t multiplicity = 73;
-	auto source = ResponseAttributes_t::withUndefinedDefaults()->build();
-	auto target = ResponseAttributes_t::withUndefinedDefaults()->withMultiplicity(multiplicity).build();
+	auto source = ResponseAttributes_t::withUndefinedDefaults().build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().withMultiplicity(multiplicity).build();
 
 	// when
 	auto obtained = target->merge(source);
@@ -1017,8 +1017,8 @@ TEST_F(ResponseAttributesTest, mergeTakesMultiplicityFromMergeSourceIfSetInSourc
 {
 	// given
 	const int32_t multiplicity = 73;
-	auto source = ResponseAttributes_t::withUndefinedDefaults()->withMultiplicity(multiplicity).build();
-	auto target = ResponseAttributes_t::withUndefinedDefaults()->build();
+	auto source = ResponseAttributes_t::withUndefinedDefaults().withMultiplicity(multiplicity).build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().build();
 
 	// when
 	auto obtained = target->merge(source);
@@ -1032,8 +1032,8 @@ TEST_F(ResponseAttributesTest, mergeTakesMultiplicityFromMergeSourceIfSetInSourc
 {
 	// given
 	const int32_t multiplicity = 73;
-	auto source = ResponseAttributes_t::withUndefinedDefaults()->withMultiplicity(multiplicity).build();
-	auto target = ResponseAttributes_t::withUndefinedDefaults()->withMultiplicity(37).build();
+	auto source = ResponseAttributes_t::withUndefinedDefaults().withMultiplicity(multiplicity).build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().withMultiplicity(37).build();
 
 	// when
 	auto obtained = target->merge(source);
@@ -1047,8 +1047,8 @@ TEST_F(ResponseAttributesTest, mergeTakesServerIdFromMergeTargetIfNotSetInSource
 {
 	// given
 	const int32_t serverId = 73;
-	auto source = ResponseAttributes_t::withUndefinedDefaults()->build();
-	auto target = ResponseAttributes_t::withUndefinedDefaults()->withServerId(serverId).build();
+	auto source = ResponseAttributes_t::withUndefinedDefaults().build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().withServerId(serverId).build();
 
 	// when
 	auto obtained = target->merge(source);
@@ -1062,8 +1062,8 @@ TEST_F(ResponseAttributesTest, mergeTakesServerIdFromMergeSourceIfSetInSource)
 {
 	// given
 	const int32_t serverId = 73;
-	auto source = ResponseAttributes_t::withUndefinedDefaults()->withServerId(serverId).build();
-	auto target = ResponseAttributes_t::withUndefinedDefaults()->build();
+	auto source = ResponseAttributes_t::withUndefinedDefaults().withServerId(serverId).build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().build();
 
 	// when
 	auto obtained = target->merge(source);
@@ -1077,8 +1077,8 @@ TEST_F(ResponseAttributesTest, mergeTakesServerIdFromMergeSourceIfSetInSourceAnd
 {
 	// given
 	const int32_t serverId = 73;
-	auto source = ResponseAttributes_t::withUndefinedDefaults()->withServerId(serverId).build();
-	auto target = ResponseAttributes_t::withUndefinedDefaults()->withServerId(37).build();
+	auto source = ResponseAttributes_t::withUndefinedDefaults().withServerId(serverId).build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().withServerId(37).build();
 
 	// when
 	auto obtained = target->merge(source);
@@ -1092,8 +1092,8 @@ TEST_F(ResponseAttributesTest, mergeTakesTimestampFromMergeTargetIfNotSetInSourc
 {
 	// given
 	const int64_t timestamp = 73;
-	auto source = ResponseAttributes_t::withUndefinedDefaults()->build();
-	auto target = ResponseAttributes_t::withUndefinedDefaults()->withTimestampInMilliseconds(timestamp).build();
+	auto source = ResponseAttributes_t::withUndefinedDefaults().build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().withTimestampInMilliseconds(timestamp).build();
 
 	// when
 	auto obtained = target->merge(source);
@@ -1107,8 +1107,8 @@ TEST_F(ResponseAttributesTest, mergeTakesTimestampFromMergeSourceIfSetInSource)
 {
 	// given
 	const int64_t timestamp = 73;
-	auto source = ResponseAttributes_t::withUndefinedDefaults()->withTimestampInMilliseconds(timestamp).build();
-	auto target = ResponseAttributes_t::withUndefinedDefaults()->build();
+	auto source = ResponseAttributes_t::withUndefinedDefaults().withTimestampInMilliseconds(timestamp).build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().build();
 
 	// when
 	auto obtained = target->merge(source);
@@ -1122,8 +1122,8 @@ TEST_F(ResponseAttributesTest, mergeTakesTimestampFromMergeSourceIfSetInSourceAn
 {
 	// given
 	const int64_t timestamp = 73;
-	auto source = ResponseAttributes_t::withUndefinedDefaults()->withTimestampInMilliseconds(timestamp).build();
-	auto target = ResponseAttributes_t::withUndefinedDefaults()->withTimestampInMilliseconds(37).build();
+	auto source = ResponseAttributes_t::withUndefinedDefaults().withTimestampInMilliseconds(timestamp).build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().withTimestampInMilliseconds(37).build();
 
 	// when
 	auto obtained = target->merge(source);

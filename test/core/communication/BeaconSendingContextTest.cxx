@@ -36,6 +36,8 @@
 #include "core/communication/IBeaconSendingState.h"
 #include "core/configuration/IHTTPClientConfiguration.h"
 #include "core/configuration/ServerConfiguration.h"
+#include "protocol/StatusResponse.h"
+#include "protocol/ResponseAttributes.h"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -655,9 +657,13 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseRemovesFinishedSessionsIfRe
 TEST_F(BeaconSendingContextTest, handleStatusResponseClearsSessionDataIfResponseIsCaptureOff)
 {
 	// with
-	auto response = MockIStatusResponse::createNice();
-	ON_CALL(*response, getResponseCode()).WillByDefault(testing::Return(200));
-	ON_CALL(*response, isCapture()).WillByDefault(testing::Return(false));
+	auto responseAttributes = protocol::ResponseAttributes::withUndefinedDefaults().withCapture(false).build();
+	auto response = protocol::StatusResponse::createSuccessResponse(
+		mockLogger,
+		responseAttributes,
+		200,
+		protocol::IStatusResponse::ResponseHeaders()
+	);
 
 	auto mockSession = MockSessionInternals::createNice();
 
@@ -678,9 +684,13 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseClearsSessionDataIfResponse
 TEST_F(BeaconSendingContextTest, handleStatusResponseRemovesFinishedSessionsIfResponseIsCaptureOff)
 {
 	// with
-	auto response = MockIStatusResponse::createNice();
-	ON_CALL(*response, getResponseCode()).WillByDefault(testing::Return(200));
-	ON_CALL(*response, isCapture()).WillByDefault(testing::Return(false));
+	auto responseAttributes = protocol::ResponseAttributes::withUndefinedDefaults().withCapture(false).build();
+	auto response = protocol::StatusResponse::createSuccessResponse(
+		mockLogger,
+		responseAttributes,
+		200,
+		protocol::IStatusResponse::ResponseHeaders()
+	);
 
 	auto mockSession = MockSessionInternals::createNice();
 
@@ -707,10 +717,16 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseUpdatesSendInterval)
 	// given
 	const int32_t sendInterval = 999;
 
-	auto response = MockIStatusResponse::createNice();
-	ON_CALL(*response, isCapture()).WillByDefault(testing::Return(true));
-	ON_CALL(*response, getResponseCode()).WillByDefault(testing::Return(200));
-	ON_CALL(*response, getSendInterval()).WillByDefault(testing::Return(sendInterval));
+	auto responseAttributes = protocol::ResponseAttributes::withUndefinedDefaults()
+		.withCapture(true)
+		.withSendIntervalInMilliseconds(sendInterval)
+		.build();
+	auto response = protocol::StatusResponse::createSuccessResponse(
+		mockLogger,
+		responseAttributes,
+		200,
+		protocol::IStatusResponse::ResponseHeaders()
+	);
 
 	auto mockSession = MockSessionInternals::createStrict();
 
@@ -729,9 +745,15 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseUpdatesSendInterval)
 TEST_F(BeaconSendingContextTest, handleStatusResponseUpdatesCaptureStateToFalse)
 {
 	// with
-	auto response = MockIStatusResponse::createNice();
-	ON_CALL(*response, isCapture()).WillByDefault(testing::Return(false));
-	ON_CALL(*response, getResponseCode()).WillByDefault(testing::Return(200));
+	auto responseAttributes = protocol::ResponseAttributes::withUndefinedDefaults()
+		.withCapture(false)
+		.build();
+	auto response = protocol::StatusResponse::createSuccessResponse(
+		mockLogger,
+		responseAttributes,
+		200,
+		protocol::IStatusResponse::ResponseHeaders()
+	);
 
 	auto mockSession = MockSessionInternals::createNice();
 
@@ -753,9 +775,15 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseUpdatesCaptureStateToFalse)
 TEST_F(BeaconSendingContextTest, handleStatusResponseUpdatesCaptureStateToTrue)
 {
 	// given
-	auto response = MockIStatusResponse::createNice();
-	ON_CALL(*response, isCapture()).WillByDefault(testing::Return(true));
-	ON_CALL(*response, getResponseCode()).WillByDefault(testing::Return(200));
+	auto responseAttributes = protocol::ResponseAttributes::withUndefinedDefaults()
+		.withCapture(true)
+		.build();
+	auto response = protocol::StatusResponse::createSuccessResponse(
+		mockLogger,
+		responseAttributes,
+		200,
+		protocol::IStatusResponse::ResponseHeaders()
+	);
 
 	auto mockSession = MockSessionInternals::createStrict();
 
@@ -780,10 +808,16 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseUpdatesHttpClientConfig)
 	auto trustManager = MockISslTrustManager::createNice();
 
 	const int32_t serverId = 73;
-	auto response = MockIStatusResponse::createNice();
-	ON_CALL(*response, isCapture()).WillByDefault(testing::Return(true));
-	ON_CALL(*response, getResponseCode()).WillByDefault(testing::Return(200));
-	ON_CALL(*response, getServerID()).WillByDefault(testing::Return(serverId));
+	auto responseAttributes = protocol::ResponseAttributes::withUndefinedDefaults()
+		.withCapture(true)
+		.withServerId(serverId)
+		.build();
+	auto response = protocol::StatusResponse::createSuccessResponse(
+		mockLogger,
+		responseAttributes,
+		200,
+		protocol::IStatusResponse::ResponseHeaders()
+	);
 
 	// expect
 	EXPECT_CALL(*mockHttpClientConfig, getBaseURL())

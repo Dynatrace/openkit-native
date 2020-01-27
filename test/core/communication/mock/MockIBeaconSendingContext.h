@@ -22,6 +22,7 @@
 #include "protocol/IHTTPClient.h"
 #include "protocol/IStatusResponse.h"
 #include "providers/IHTTPClientProvider.h"
+#include "protocol/ResponseAttributes.h"
 
 #include "gmock/gmock.h"
 
@@ -55,6 +56,9 @@ class MockIBeaconSendingContext
 
 			ON_CALL(*this, getCurrentStateType())
 				.WillByDefault(testing::Return(core::communication::IBeaconSendingState::StateType::BEACON_SENDING_COUNT));
+
+			ON_CALL(*this, getLastResponseAttributes())
+				.WillByDefault(testing::Return(protocol::ResponseAttributes::withUndefinedDefaults().build()));
 		}
 
 		~MockIBeaconSendingContext() override = default;
@@ -139,6 +143,16 @@ class MockIBeaconSendingContext
 			void(
 				std::shared_ptr<protocol::IStatusResponse>
 			)
+		);
+
+		MOCK_METHOD1(updateLastResponseAttributesFrom,
+			std::shared_ptr<protocol::IResponseAttributes>(
+				std::shared_ptr<protocol::IStatusResponse>
+			)
+		);
+
+		MOCK_CONST_METHOD0(getLastResponseAttributes,
+			std::shared_ptr<protocol::IResponseAttributes>()
 		);
 
 		MOCK_METHOD0(clearAllSessionData, void());

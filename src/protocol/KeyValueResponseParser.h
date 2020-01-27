@@ -47,37 +47,37 @@ namespace protocol
 		KeyValueResponseParser() {}
 
 		static void applyBeaconSizeInKb(
-			std::shared_ptr<ResponseAttributes::Builder> builder,
+			protocol::ResponseAttributes::Builder& builder,
 			std::unordered_map<std::string, std::string>& keyValuePairs
 		);
 
 		static void applySendIntervalInSec(
-			std::shared_ptr<ResponseAttributes::Builder> builder,
+			protocol::ResponseAttributes::Builder& builder,
 			std::unordered_map<std::string, std::string>& keyValuePairs
 		);
 
 		static void applyCapture(
-			std::shared_ptr<ResponseAttributes::Builder> builder,
+			protocol::ResponseAttributes::Builder& builder,
 			std::unordered_map<std::string, std::string>& keyValuePairs
 		);
 
 		static void applyReportCrashes(
-			std::shared_ptr<ResponseAttributes::Builder> builder,
+			protocol::ResponseAttributes::Builder& builder,
 			std::unordered_map<std::string, std::string>& keyValuePairs
 		);
 
 		static void applyReportErrors(
-			std::shared_ptr<ResponseAttributes::Builder> builder,
+			protocol::ResponseAttributes::Builder& builder,
 			std::unordered_map<std::string, std::string>& keyValuePairs
 		);
 
 		static void applyServerId(
-			std::shared_ptr<ResponseAttributes::Builder> builder,
+			protocol::ResponseAttributes::Builder& builder,
 			std::unordered_map<std::string, std::string>& keyValuePairs
 		);
 
 		static void applyMultiplicity(
-			std::shared_ptr<ResponseAttributes::Builder> builder,
+			protocol::ResponseAttributes::Builder& builder,
 			std::unordered_map<std::string, std::string>& keyValuePairs
 		);
 	};

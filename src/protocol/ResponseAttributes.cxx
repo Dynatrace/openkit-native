@@ -36,19 +36,19 @@ ResponseAttributes::ResponseAttributes(Builder& builder)
 {
 }
 
-std::shared_ptr<ResponseAttributes::Builder> ResponseAttributes::withKeyValueDefaults()
+ResponseAttributes::Builder ResponseAttributes::withKeyValueDefaults()
 {
-	return std::make_shared<ResponseAttributes::Builder>(*ResponseAttributesDefaults::KEY_VALUE_RESPONSE);
+	return ResponseAttributes::Builder(*ResponseAttributesDefaults::KEY_VALUE_RESPONSE);
 }
 
-std::shared_ptr<ResponseAttributes::Builder> ResponseAttributes::withJsonDefaults()
+ResponseAttributes::Builder ResponseAttributes::withJsonDefaults()
 {
-	return std::make_shared<ResponseAttributes::Builder>(*ResponseAttributesDefaults::JSON_RESPONSE);
+	return ResponseAttributes::Builder(*ResponseAttributesDefaults::JSON_RESPONSE);
 }
 
-std::shared_ptr<ResponseAttributes::Builder> ResponseAttributes::withUndefinedDefaults()
+ResponseAttributes::Builder ResponseAttributes::withUndefinedDefaults()
 {
-	return std::make_shared<ResponseAttributes::Builder>(*ResponseAttributesDefaults::UNDEFINED);
+	return ResponseAttributes::Builder(*ResponseAttributesDefaults::UNDEFINED);
 }
 
 int32_t ResponseAttributes::getMaxBeaconSizeInBytes() const

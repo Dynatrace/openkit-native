@@ -51,7 +51,7 @@ namespace protocol
 		///
 		/// HTTP methods
 		///
-		enum HttpMethod
+		enum class HttpMethod
 		{
 			GET,
 			POST

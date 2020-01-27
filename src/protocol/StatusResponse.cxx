@@ -16,6 +16,7 @@
 
 
 #include "StatusResponse.h"
+#include "ResponseAttributes.h"
 
 #include <stdexcept>
 #include <sstream>
@@ -29,35 +30,45 @@ static constexpr int32_t HTTP_TOO_MANY_REQUESTS = 429;
 static constexpr char RESPONSE_KEY_RETRY_AFTER[] = "retry-after";
 static constexpr int64_t DEFAULT_RETRY_AFTER_IN_MILLISECONDS = 10L * 60L * 1000L; // 10 minutes in milliseconds
 
-constexpr char RESPONSE_KEY_CAPTURE[] = "cp";
-constexpr char RESPONSE_KEY_SEND_INTERVAL[] = "si";
-constexpr char RESPONSE_KEY_MONITOR_NAME[] = "bn";
-constexpr char RESPONSE_KEY_SERVER_ID[] = "id";
-constexpr char RESPONSE_KEY_MAX_BEACON_SIZE[] = "bl";
-constexpr char RESPONSE_KEY_CAPTURE_ERRORS[] = "er";
-constexpr char RESPONSE_KEY_CAPTURE_CRASHES[] = "cr";
-constexpr char RESPONSE_KEY_MULTIPLICITY[] = "mp";
-
 StatusResponse::StatusResponse
 (
 	std::shared_ptr<openkit::ILogger> logger,
-	const core::UTF8String& response,
+	std::shared_ptr<IResponseAttributes> responseAttributes,
 	int32_t responseCode,
 	const ResponseHeaders& responseHeaders
 )
 	: mLogger(logger)
+	, mResponseAttributes(responseAttributes)
 	, mResponseCode(responseCode)
 	, mResponseHeaders(responseHeaders)
-	, mCapture(true)
-	, mSendInterval(-1)
-	, mMonitorName()
-	, mServerID(-1)
-	, mMaxBeaconSize(-1)
-	, mCaptureErrors(true)
-	, mCaptureCrashes(true)
-	, mMultiplicity(1)
 {
-	parseResponse(response);
+}
+
+std::shared_ptr<StatusResponse> StatusResponse::createSuccessResponse(
+	std::shared_ptr<openkit::ILogger> logger,
+	std::shared_ptr<IResponseAttributes> responseAttributes,
+	int32_t responseCode,
+	const ResponseHeaders& responseHeaders)
+{
+	return std::shared_ptr<StatusResponse>(new StatusResponse(logger, responseAttributes, responseCode, responseHeaders));
+}
+
+std::shared_ptr<StatusResponse> StatusResponse::createErrorResponse(
+	std::shared_ptr<openkit::ILogger> logger,
+	int32_t responseCode
+)
+{
+	return createErrorResponse(logger, responseCode, ResponseHeaders());
+}
+
+std::shared_ptr<StatusResponse> StatusResponse::createErrorResponse(
+	std::shared_ptr<openkit::ILogger> logger,
+	int32_t responseCode,
+	const ResponseHeaders& responseHeaders
+)
+{
+	auto responseAttributes = ResponseAttributes::withUndefinedDefaults().build();
+	return std::shared_ptr<StatusResponse>(new StatusResponse(logger, responseAttributes, responseCode, responseHeaders));
 }
 
 bool StatusResponse::isErroneousResponse() const
@@ -122,94 +133,7 @@ int64_t StatusResponse::getRetryAfterInMilliseconds() const
 	return delaySeconds * 1000L;
 }
 
-void StatusResponse::parseResponse(const core::UTF8String& response)
+std::shared_ptr<IResponseAttributes> StatusResponse::getResponseAttributes() const
 {
-	auto parts = response.split('&');
-	for (auto const& part : parts)
-	{
-		auto found = part.getIndexOf("=");
-		if (found != std::string::npos)
-		{
-			auto key = part.substring(0, found);
-			auto value = part.substring(found + 1);
-
-			if (!key.empty() && !value.empty())
-			{
-				if (key.equals(RESPONSE_KEY_CAPTURE))
-				{
-					mCapture = std::stoi(value.getStringData()) == 1;
-				}
-				else if (key.equals(RESPONSE_KEY_SEND_INTERVAL))
-				{
-					mSendInterval = std::stoi(value.getStringData()) * 1000;
-				}
-				else if (key.equals(RESPONSE_KEY_MONITOR_NAME))
-				{
-					mMonitorName = core::UTF8String(value);
-				}
-				else if (key.equals(RESPONSE_KEY_SERVER_ID))
-				{
-					mServerID = std::stoi(value.getStringData());
-				}
-				else if (key.equals(RESPONSE_KEY_MAX_BEACON_SIZE))
-				{
-					mMaxBeaconSize = std::stoi(value.getStringData());
-				}
-				else if (key.equals(RESPONSE_KEY_CAPTURE_ERRORS))
-				{
-					/* 1 (always on) and 2 (only on WiFi) are treated the same */
-					mCaptureErrors = std::stoi(value.getStringData()) != 0;
-				}
-				else if (key.equals(RESPONSE_KEY_CAPTURE_CRASHES))
-				{
-					/* 1 (always on) and 2 (only on WiFi) are treated the same */
-					mCaptureCrashes = std::stoi(value.getStringData()) != 0;
-				}
-				else if (key.equals(RESPONSE_KEY_MULTIPLICITY))
-				{
-					mMultiplicity = std::stoi(value.getStringData());
-				}
-			}
-		}
-	}
-}
-
-bool StatusResponse::isCapture() const
-{
-	return mCapture;
-}
-
-int32_t StatusResponse::getSendInterval() const
-{
-	return mSendInterval;
-}
-
-const core::UTF8String& StatusResponse::getMonitorName() const
-{
-	return mMonitorName;
-}
-
-int32_t StatusResponse::getServerID() const
-{
-	return mServerID;
-}
-
-int32_t StatusResponse::getMaxBeaconSize() const
-{
-	return mMaxBeaconSize;
-}
-
-bool StatusResponse::isCaptureErrors() const
-{
-	return mCaptureErrors;
-}
-
-bool StatusResponse::isCaptureCrashes() const
-{
-	return mCaptureCrashes;
-}
-
-int32_t StatusResponse::getMultiplicity() const
-{
-	return mMultiplicity;
+	return mResponseAttributes;
 }

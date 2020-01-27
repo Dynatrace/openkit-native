@@ -44,7 +44,7 @@ namespace core
 		/// @param[in] string the string used to initialize this string
 		/// @return a new string initialized to the provided value
 		///
-		UTF8String(std::string string);
+		UTF8String(const std::string& string);
 
 		///
 		/// Using a user-provided char sequence initialize this string. Either UTF8 multibyte

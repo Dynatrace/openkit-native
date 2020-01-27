@@ -130,6 +130,10 @@ namespace core
 
 			void handleStatusResponse(std::shared_ptr<protocol::IStatusResponse> response) override;
 
+			std::shared_ptr<protocol::IResponseAttributes> updateLastResponseAttributesFrom(std::shared_ptr<protocol::IStatusResponse> statusResponse) override;
+
+			std::shared_ptr<protocol::IResponseAttributes> getLastResponseAttributes() const override;
+
 			std::vector<std::shared_ptr<core::objects::SessionInternals>> getAllNotConfiguredSessions() override;
 
 			std::vector<std::shared_ptr<core::objects::SessionInternals>> getAllOpenAndConfiguredSessions() override;
@@ -183,6 +187,7 @@ namespace core
 			///
 			/// Configuration storing last valid server side configuration.
 			///
+			/// @remarks
 			/// This field is initialized in the constructor and must only be modified within the context of the
 			/// beacon sending thread.
 			///
@@ -191,6 +196,7 @@ namespace core
 			///
 			/// Configuration storing the last valid HTTP client configuration, independent of a session.
 			///
+			/// @remarks
 			/// This field is initialized in the constructor and must only be modified within the context of the
 			/// beacon sending thread.
 			///
@@ -207,6 +213,15 @@ namespace core
 
 			/// time when open sessions were last sent
 			int64_t mLastOpenSessionBeaconSendTime;
+
+			///
+			/// This property will be subsequently updated from every successful server response (e.g. from session
+			/// requests) by merging the received attributes.
+			///
+			/// @remarks
+			/// Modification of this field must only happen within the context of the BeaconSending thread.
+			///
+			std::shared_ptr<protocol::IResponseAttributes> mLastResponseAttributes;
 
 			/// countdown latch used for wait-on-initialization
 			core::util::CountDownLatch mInitCountdownLatch;

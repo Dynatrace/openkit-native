@@ -18,7 +18,7 @@
 #define _CORE_CONFIGURATION_SERVERCONFIGURATION_H
 
 #include "core/configuration/IServerConfiguration.h"
-#include "protocol/IStatusResponse.h"
+#include "protocol/IResponseAttributes.h"
 
 namespace core
 {
@@ -39,16 +39,16 @@ namespace core
 				Builder();
 
 				///
-				/// Creates a new builder instance with pre-initialized fields from the given status response.
+				/// Creates a new builder instance with pre-initialized fields from the given IResponseAttributes.
 				///
-				/// @param statusResponse status response used for initializing the builder.
+				/// @param responseAttributes response attributes used for initializing this builder
 				///
-				Builder(std::shared_ptr<protocol::IStatusResponse> statusResponse);
+				Builder(std::shared_ptr<protocol::IResponseAttributes> responseAttributes);
 
 				///
-				/// Creates a new builder instance with pre-initialized fields from the given server configuration.
+				/// Creates a new builder instance with pre-initialized fields from the IServerConfiguration.
 				///
-				/// @param serverConfiguration  server configuration for initializing the builder.
+				/// @param serverConfiguration the server configuration from which to initialize the builder instance.
 				///
 				Builder(std::shared_ptr<core::configuration::IServerConfiguration> serverConfiguration);
 
@@ -164,9 +164,9 @@ namespace core
 
 			private:
 
-				bool mCaptureState;
-				bool mCrashReportingState;
-				bool mErrorReportingState;
+				bool mIsCaptureEnabled;
+				bool mIsCrashReportingEnabled;
+				bool mIsErrorReportingEnabled;
 				int32_t mSendIntervalInMilliseconds;
 				int32_t mServerId;
 				int32_t mBeaconSizeInBytes;
@@ -221,13 +221,13 @@ namespace core
 			~ServerConfiguration() override = default;
 
 			///
-			/// Creates a new serer configuration from the given status response.
+			/// Creates a new serer configuration from the given IResponseAttributes.
 			///
-			/// @param statusResponse the status response from which to create the server configuration.
+			/// @param responseAttributes the response attributes from which to create the server configuration
 			/// @return a newly creates server configuration.
 			///
 			static std::shared_ptr<core::configuration::IServerConfiguration> from(
-					std::shared_ptr<protocol::IStatusResponse> statusResponse
+					std::shared_ptr<protocol::IResponseAttributes> responseAttributes
 			);
 
 			bool isCaptureEnabled() const override;

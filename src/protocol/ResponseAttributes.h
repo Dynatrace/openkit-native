@@ -199,17 +199,17 @@ namespace protocol
 		///
 		/// Creates a new builder initialized with the default values for key-value parsing.
 		///
-		static std::shared_ptr<Builder> withKeyValueDefaults();
+		static Builder withKeyValueDefaults();
 
 		///
 		/// Creates a new builder instance with default values for JSON parsing.
 		///
-		static std::shared_ptr<Builder> withJsonDefaults();
+		static Builder withJsonDefaults();
 
 		///
 		/// Creates a new builder instance with undefined default values.
 		///
-		static std::shared_ptr<Builder> withUndefinedDefaults();
+		static Builder withUndefinedDefaults();
 
 		int32_t getMaxBeaconSizeInBytes() const override;
 

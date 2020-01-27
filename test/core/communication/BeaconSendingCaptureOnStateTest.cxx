@@ -21,6 +21,7 @@
 #include "../../api/mock/MockILogger.h"
 #include "../../protocol/mock/MockIHTTPClient.h"
 #include "../../protocol/mock/MockIStatusResponse.h"
+#include "../../protocol/mock/MockIResponseAttributes.h"
 #include "../../providers/mock/MockIHTTPClientProvider.h"
 
 #include "core/communication/BeaconSendingCaptureOffState.h"
@@ -31,6 +32,7 @@
 #include "core/objects/SessionInternals.h"
 #include "protocol/StatusResponse.h"
 #include "protocol/IStatusResponse.h"
+#include "protocol/ResponseAttributes.h"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -46,6 +48,7 @@ using MockNiceIBeaconSendingContext_sp = std::shared_ptr<MockIBeaconSendingConte
 using MockSession_sp = std::shared_ptr<MockSessionInternals>;
 using SessionInternals_sp = std::shared_ptr<core::objects::SessionInternals>;
 using StatusResponse_t = protocol::StatusResponse;
+using ResponseAttributes_t = protocol::ResponseAttributes;
 using IStatusResponse_sp = std::shared_ptr<IStatusResponse_t>;
 
 class BeaconSendingCaptureOnStateTest : public testing::Test
@@ -63,8 +66,9 @@ protected:
 	void SetUp() override
 	{
 		auto mockLogger = MockILogger::createNice();
-		auto successResponse = std::make_shared<StatusResponse_t>(mockLogger, "", 200, IStatusResponse_t::ResponseHeaders());
-		auto errorResponse = std::make_shared<StatusResponse_t>(mockLogger, "", 404, IStatusResponse_t::ResponseHeaders());
+		auto responseAttributes = ResponseAttributes_t::withUndefinedDefaults().build();
+		auto successResponse = StatusResponse_t::createSuccessResponse(mockLogger, responseAttributes, 200, IStatusResponse_t::ResponseHeaders());
+		auto errorResponse = StatusResponse_t::createErrorResponse(mockLogger, 404);
 
 		mockSession1Open = MockSessionInternals::createNice();
 		ON_CALL(*mockSession1Open, sendBeacon(testing::_))
@@ -161,16 +165,22 @@ TEST_F(BeaconSendingCaptureOnStateTest, newSessionRequestsAreMadeForAllNotConfig
 	// with
 	auto mockClient = MockIHTTPClient::createNice();
 	std::vector<SessionInternals_sp> notConfiguredSessions = {mockSession5New, mockSession6New};
+	auto mockLogger = MockILogger::createNice();
+	auto responseAttributes = ResponseAttributes_t::withJsonDefaults().withMultiplicity(5).build();
+	auto successResponse = StatusResponse_t::createSuccessResponse(mockLogger, responseAttributes, 200, IStatusResponse_t::ResponseHeaders());
+	auto errorResponse = StatusResponse_t::createErrorResponse(mockLogger, 400);
+
 	ON_CALL(*mockContext, getHTTPClient())
 		.WillByDefault(testing::Return(mockClient));
 	ON_CALL(*mockContext, getAllNotConfiguredSessions())
 		.WillByDefault(testing::Return(notConfiguredSessions));
+	ON_CALL(*mockContext, updateLastResponseAttributesFrom(testing::_))
+		.WillByDefault(testing::Return(successResponse->getResponseAttributes()));
 
-	auto mockLogger = MockILogger::createNice();
 	EXPECT_CALL(*mockClient, sendNewSessionRequest())
 		.Times(testing::Exactly(2))
-		.WillOnce(testing::Return(std::make_shared<StatusResponse_t>(mockLogger, "mp=5", 200, IStatusResponse_t::ResponseHeaders())))
-		.WillOnce(testing::Return(std::make_shared<StatusResponse_t>(mockLogger, "", 400, IStatusResponse_t::ResponseHeaders())))
+		.WillOnce(testing::Return(successResponse))
+		.WillOnce(testing::Return(errorResponse))
 	;
 
 	ON_CALL(*mockSession5New, canSendNewSessionRequest())
@@ -195,6 +205,81 @@ TEST_F(BeaconSendingCaptureOnStateTest, newSessionRequestsAreMadeForAllNotConfig
 	// then
 	ASSERT_THAT(serverConfigCapture, testing::NotNull());
 	ASSERT_THAT(serverConfigCapture->getMultiplicity(), testing::Eq(5));
+}
+
+TEST_F(BeaconSendingCaptureOnStateTest, successfulNewSessionRequestUpdateLastResponseAttributes)
+{
+	// with
+	constexpr auto beaconSize = 73;
+	auto mockResponseAttributes = MockIResponseAttributes::createNice();
+	ON_CALL(*mockResponseAttributes, getMaxBeaconSizeInBytes())
+		.WillByDefault(testing::Return(beaconSize));
+	auto sessionRequestResponse = MockIStatusResponse::createNice();
+	ON_CALL(*sessionRequestResponse, getResponseAttributes())
+		.WillByDefault(testing::Return(mockResponseAttributes));
+
+	EXPECT_CALL(*mockContext, updateLastResponseAttributesFrom(testing::Eq(sessionRequestResponse)))
+		.Times(testing::Exactly(1))
+		.WillOnce(testing::Return(mockResponseAttributes));
+
+	auto mockClient = MockIHTTPClient::createNice();
+	ON_CALL(*mockClient, sendNewSessionRequest())
+		.WillByDefault(testing::Return(sessionRequestResponse));
+
+	ON_CALL(*mockContext, getHTTPClient())
+		.WillByDefault(testing::Return(mockClient));
+	ON_CALL(*mockContext, getAllNotConfiguredSessions())
+		.WillByDefault(testing::Return(std::vector<SessionInternals_sp>{mockSession5New}));
+
+	ON_CALL(*mockSession5New, canSendNewSessionRequest())
+		.WillByDefault(testing::Return(true));
+
+	IServerConfiguration_sp serverConfigCapture = nullptr;
+	EXPECT_CALL(*mockSession5New, updateServerConfiguration(testing::_))
+		.Times(testing::Exactly(1))
+		.WillOnce(testing::SaveArg<0>(&serverConfigCapture));
+
+	// given
+	BeaconSendingCaptureOnState_t target;
+
+	// when
+	target.execute(*mockContext);
+
+	// then
+	ASSERT_THAT(serverConfigCapture, testing::NotNull());
+	ASSERT_THAT(serverConfigCapture->getBeaconSizeInBytes(), testing::Eq(beaconSize));
+}
+
+TEST_F(BeaconSendingCaptureOnStateTest, unsuccessfulNewSessionRequestDoesNotMergeStatusResponse)
+{
+	// with
+	auto sessionRequestResponse = MockIStatusResponse::createNice();
+	ON_CALL(*sessionRequestResponse, isErroneousResponse())
+		.WillByDefault(testing::Return(true));
+
+	auto mockClient = MockIHTTPClient::createNice();
+	ON_CALL(*mockClient, sendNewSessionRequest())
+		.WillByDefault(testing::Return(sessionRequestResponse));
+
+	auto contextAttributes = MockIResponseAttributes::createStrict();
+
+	ON_CALL(*mockContext, getHTTPClient())
+		.WillByDefault(testing::Return(mockClient));
+	ON_CALL(*mockContext, getLastResponseAttributes())
+		.WillByDefault(testing::Return(contextAttributes));
+	ON_CALL(*mockContext, getAllNotConfiguredSessions())
+		.WillByDefault(testing::Return(std::vector<SessionInternals_sp>{mockSession5New}));
+	
+	ON_CALL(*mockSession5New, canSendNewSessionRequest())
+		.WillByDefault(testing::Return(true));
+	EXPECT_CALL(*mockSession5New, updateServerConfiguration(testing::_))
+		.Times(0);
+
+	// given
+	BeaconSendingCaptureOnState_t target;
+
+	// when
+	target.execute(*mockContext);
 }
 
 TEST_F(BeaconSendingCaptureOnStateTest, captureIsDisabledIfNoFurtherNewSessionRequestsAreAllowed)

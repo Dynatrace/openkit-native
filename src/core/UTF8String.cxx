@@ -37,7 +37,7 @@ UTF8String::UTF8String(const char* stringData)
 	}
 }
 
-UTF8String::UTF8String(std::string stringData)
+UTF8String::UTF8String(const std::string& stringData)
 	: UTF8String(stringData.c_str())
 {
 }

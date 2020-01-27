@@ -36,15 +36,15 @@ ServerConfiguration::ServerConfiguration(Builder& builder)
 }
 
 std::shared_ptr<core::configuration::IServerConfiguration> ServerConfiguration::from(
-	std::shared_ptr<protocol::IStatusResponse> statusResponse
+	std::shared_ptr<protocol::IResponseAttributes> responseAttributes
 )
 {
-	if (statusResponse == nullptr)
+	if (responseAttributes == nullptr)
 	{
 		return nullptr;
 	}
 
-	ServerConfiguration::Builder builder(statusResponse);
+	ServerConfiguration::Builder builder(responseAttributes);
 	return builder.build();
 }
 
@@ -135,9 +135,9 @@ std::shared_ptr<core::configuration::IServerConfiguration> ServerConfiguration::
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ServerConfiguration::Builder::Builder()
-	: mCaptureState(ServerConfiguration::DEFAULT_CAPTURE_ENABLED)
-	, mCrashReportingState(ServerConfiguration::DEFAULT_CRASH_REPORTING_ENABLED)
-	, mErrorReportingState(ServerConfiguration::DEFAULT_ERROR_REPORTING_ENABLED)
+	: mIsCaptureEnabled(ServerConfiguration::DEFAULT_CAPTURE_ENABLED)
+	, mIsCrashReportingEnabled(ServerConfiguration::DEFAULT_CRASH_REPORTING_ENABLED)
+	, mIsErrorReportingEnabled(ServerConfiguration::DEFAULT_ERROR_REPORTING_ENABLED)
 	, mSendIntervalInMilliseconds(ServerConfiguration::DEFAULT_SEND_INTERVAL)
 	, mServerId(ServerConfiguration::DEFAULT_SERVER_ID)
 	, mBeaconSizeInBytes(ServerConfiguration::DEFAULT_BEACON_SIZE)
@@ -149,25 +149,25 @@ ServerConfiguration::Builder::Builder()
 {
 }
 
-ServerConfiguration::Builder::Builder(std::shared_ptr<protocol::IStatusResponse> statusResponse)
-	: mCaptureState(statusResponse->isCapture())
-	, mCrashReportingState(statusResponse->isCaptureCrashes())
-	, mErrorReportingState(statusResponse->isCaptureErrors())
-	, mSendIntervalInMilliseconds(statusResponse->getSendInterval())
-	, mServerId(statusResponse->getServerID())
-	, mBeaconSizeInBytes(statusResponse->getMaxBeaconSize())
-	, mMultiplicity(statusResponse->getMultiplicity())
-	, mMaxSessionDurationInMilliseconds(ServerConfiguration::DEFAULT_MAX_SESSION_DURATION)
-	, mMaxEventsPerSession(ServerConfiguration::DEFAULT_MAX_EVENTS_PER_SESSION)
-	, mSessionIdleTimeout(ServerConfiguration::DEFAULT_SESSION_TIMEOUT)
-	, mVisitStoreVersion(ServerConfiguration::DEFAULT_VISIT_STORE_VERSION)
+ServerConfiguration::Builder::Builder(std::shared_ptr<protocol::IResponseAttributes> responseAttributes)
+	: mIsCaptureEnabled(responseAttributes->isCapture())
+	, mIsCrashReportingEnabled(responseAttributes->isCaptureCrashes())
+	, mIsErrorReportingEnabled(responseAttributes->isCaptureErrors())
+	, mSendIntervalInMilliseconds(responseAttributes->getSendIntervalInMilliseconds())
+	, mServerId(responseAttributes->getServerId())
+	, mBeaconSizeInBytes(responseAttributes->getMaxBeaconSizeInBytes())
+	, mMultiplicity(responseAttributes->getMultiplicity())
+	, mMaxSessionDurationInMilliseconds(responseAttributes->getMaxSessionDurationInMilliseconds())
+	, mMaxEventsPerSession(responseAttributes->getMaxEventsPerSession())
+	, mSessionIdleTimeout(responseAttributes->getSessionTimeoutInMilliseconds())
+	, mVisitStoreVersion(responseAttributes->getVisitStoreVersion())
 {
 }
 
 ServerConfiguration::Builder::Builder(std::shared_ptr<core::configuration::IServerConfiguration> serverConfiguration)
-	: mCaptureState(serverConfiguration->isCaptureEnabled())
-	, mCrashReportingState(serverConfiguration->isCrashReportingEnabled())
-	, mErrorReportingState(serverConfiguration->isErrorReportingEnabled())
+	: mIsCaptureEnabled(serverConfiguration->isCaptureEnabled())
+	, mIsCrashReportingEnabled(serverConfiguration->isCrashReportingEnabled())
+	, mIsErrorReportingEnabled(serverConfiguration->isErrorReportingEnabled())
 	, mSendIntervalInMilliseconds(serverConfiguration->getSendIntervalInMilliseconds())
 	, mServerId(serverConfiguration->getServerId())
 	, mBeaconSizeInBytes(serverConfiguration->getBeaconSizeInBytes())
@@ -181,34 +181,34 @@ ServerConfiguration::Builder::Builder(std::shared_ptr<core::configuration::IServ
 
 bool ServerConfiguration::Builder::isCaptureEnabled() const
 {
-	return mCaptureState;
+	return mIsCaptureEnabled;
 }
 
 ServerConfiguration::Builder& ServerConfiguration::Builder::withCapture(bool capture)
 {
-	mCaptureState = capture;
+	mIsCaptureEnabled = capture;
 	return *this;
 }
 
 bool ServerConfiguration::Builder::isCrashReportingEnabled() const
 {
-	return mCrashReportingState;
+	return mIsCrashReportingEnabled;
 }
 
 ServerConfiguration::Builder& ServerConfiguration::Builder::withCrashReporting(bool crashReportingState)
 {
-	mCrashReportingState = crashReportingState;
+	mIsCrashReportingEnabled = crashReportingState;
 	return *this;
 }
 
 bool ServerConfiguration::Builder::isErrorReportingEnabled() const
 {
-	return mErrorReportingState;
+	return mIsErrorReportingEnabled;
 }
 
 ServerConfiguration::Builder& ServerConfiguration::Builder::withErrorReporting(bool errorReportingState)
 {
-	mErrorReportingState = errorReportingState;
+	mIsErrorReportingEnabled = errorReportingState;
 	return *this;
 }
 

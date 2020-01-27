@@ -20,6 +20,7 @@
 #include "core/util/Compressor.h"
 #include "core/util/URLEncoding.h"
 #include "protocol/IStatusResponse.h"
+#include "protocol/ResponseParser.h"
 #include "protocol/StatusResponse.h"
 #include "protocol/ssl/SSLStrictTrustManager.h"
 
@@ -33,10 +34,10 @@
 #include <string.h>
 
 // connection constants
-constexpr uint32_t MAX_SEND_RETRIES = 3;	// max number of retries of the HTTP GET or POST operation
-constexpr uint32_t RETRY_SLEEP_TIME = 200;	// retry sleep time in ms
-constexpr uint64_t CONNECT_TIMEOUT = 5;		// Time-out connect operations after this amount of seconds
-constexpr uint64_t READ_TIMEOUT = 30;		// Time-out the read operation after this amount of seconds
+constexpr uint32_t MAX_SEND_RETRIES = 3; // max number of retries of the HTTP GET or POST operation
+constexpr uint32_t RETRY_SLEEP_TIME = 200; // retry sleep time in ms
+constexpr uint64_t CONNECT_TIMEOUT = 5; // Time-out connect operations after this amount of seconds
+constexpr uint64_t READ_TIMEOUT = 30; // Time-out the read operation after this amount of seconds
 
 using namespace protocol;
 using namespace base::util;
@@ -74,28 +75,34 @@ HTTPClient::HTTPClient
 std::shared_ptr<IStatusResponse> HTTPClient::sendStatusRequest()
 {
 	auto response = sendRequestInternal(RequestType::STATUS, mMonitorURL, core::UTF8String(""), core::UTF8String(""), HttpMethod::GET);
+	if (response == nullptr)
+	{
+		response = StatusResponse::createErrorResponse(mLogger, std::numeric_limits<int32_t>::max());
+	}
 
-	return response != nullptr
-		? response
-		: std::make_shared<StatusResponse>(mLogger, core::UTF8String(), std::numeric_limits<int32_t>::max(), IStatusResponse::ResponseHeaders());
+	return response;
 }
 
 std::shared_ptr<IStatusResponse> HTTPClient::sendBeaconRequest(const core::UTF8String& clientIPAddress, const core::UTF8String& beaconData)
 {
 	auto response = sendRequestInternal(RequestType::BEACON, mMonitorURL, clientIPAddress, beaconData, HttpMethod::POST);
+	if (response == nullptr)
+	{
+		response = StatusResponse::createErrorResponse(mLogger, std::numeric_limits<int32_t>::max());
+	}
 
-	return response != nullptr
-		? response
-		: std::make_shared<StatusResponse>(mLogger, core::UTF8String(), std::numeric_limits<int32_t>::max(), IStatusResponse::ResponseHeaders());
+	return response;
 }
 
 std::shared_ptr<IStatusResponse> HTTPClient::sendNewSessionRequest()
 {
 	auto response = sendRequestInternal(RequestType::NEW_SESSION, mNewSessionURL, core::UTF8String(""), core::UTF8String(""), HttpMethod::GET);
+	if (response == nullptr)
+	{
+		response = StatusResponse::createErrorResponse(mLogger, std::numeric_limits<int32_t>::max());
+	}
 
-	return response != nullptr
-		? response
-		: std::make_shared<StatusResponse>(mLogger, core::UTF8String(), std::numeric_limits<int32_t>::max(), IStatusResponse::ResponseHeaders());
+	return response;
 }
 
 void HTTPClient::globalInit()
@@ -231,7 +238,7 @@ std::shared_ptr<IStatusResponse> HTTPClient::sendRequestInternal(HTTPClient::Req
 			list = curl_slist_append(list, xClientId.getStringData().c_str());
 		}
 
-		if (method == POST)
+		if (method == HttpMethod::POST)
 		{
 			// Do a regular HTTP post
 			curl_easy_setopt(mCurl, CURLOPT_POST, 1L);
@@ -323,21 +330,21 @@ std::shared_ptr<IStatusResponse> HTTPClient::handleResponse(RequestType requestT
 		case RequestType::STATUS:
 		case RequestType::NEW_SESSION: // FALLTHROUGH
 		case RequestType::BEACON:      // FALLTHROUGH
-			return std::make_shared<StatusResponse>(mLogger, core::UTF8String(), httpCode, responseHeaders);
+			return StatusResponse::createErrorResponse(mLogger, httpCode, responseHeaders);
 		default:
 			return nullptr;
 		}
 	}
 	else
 	{
-		// process status response
-		if (response.find(REQUEST_TYPE_MOBILE) == 0)
+		try
 		{
-			return std::make_shared<StatusResponse>(mLogger, core::UTF8String(response.c_str()), httpCode, responseHeaders);
+			auto responseAttributes = ResponseParser::parseResponse(core::UTF8String(response));
+			return StatusResponse::createSuccessResponse(mLogger, responseAttributes, httpCode, responseHeaders);
 		}
-		else
+		catch (std::exception& e)
 		{
-			mLogger->warning("HTTPClient handleResponse() - Ignoring response - unknown request type in response [%s]", response.c_str());
+			mLogger->error("HTTPClient handleResponse() Caught exception %s", e.what());
 			return HTTPClient::unknownErrorResponse(requestType);
 		}
 	}
@@ -378,7 +385,7 @@ std::shared_ptr<IStatusResponse> HTTPClient::unknownErrorResponse(RequestType re
 	case RequestType::STATUS:
 	case RequestType::BEACON: // fallthrough
 	case RequestType::NEW_SESSION: // fallthrough
-		return std::make_shared<StatusResponse>(mLogger, core::UTF8String(), std::numeric_limits<int32_t>::max(), IStatusResponse::ResponseHeaders());
+		return StatusResponse::createErrorResponse(mLogger, std::numeric_limits<int32_t>::max());
 	default:
 		// should not be reached
 		return nullptr;

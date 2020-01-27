@@ -54,7 +54,7 @@ std::shared_ptr<protocol::IResponseAttributes> JsonResponseParser::parse(const c
 	applyDynamicConfiguration(builder, rootObject);
 	applyRootAttributes(builder, rootObject);
 
-	return builder->build();
+	return builder.build();
 }
 
 std::shared_ptr<util::json::objects::JsonObjectValue> JsonResponseParser::getJsonObjectFrom(
@@ -90,7 +90,7 @@ std::shared_ptr<util::json::objects::JsonNumberValue> JsonResponseParser::getJso
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void JsonResponseParser::applyAgentConfiguration(
-	std::shared_ptr<protocol::ResponseAttributes::Builder> builder,
+	protocol::ResponseAttributes::Builder& builder,
 	std::shared_ptr<util::json::objects::JsonObjectValue> rootObject
 )
 {
@@ -109,7 +109,7 @@ void JsonResponseParser::applyAgentConfiguration(
 }
 
 void JsonResponseParser::applyBeaconSizeInKb(
-	std::shared_ptr<protocol::ResponseAttributes::Builder> builder,
+	protocol::ResponseAttributes::Builder& builder,
 	std::shared_ptr<util::json::objects::JsonObjectValue> agentConfigObject
 )
 {
@@ -120,11 +120,11 @@ void JsonResponseParser::applyBeaconSizeInKb(
 	}
 
 	auto beaconSizeInKb = numberValue->getInt32Value();
-	builder->withMaxBeaconSizeInBytes(beaconSizeInKb * 1024);
+	builder.withMaxBeaconSizeInBytes(beaconSizeInKb * 1024);
 }
 
 void JsonResponseParser::applyMaxSessionDurationInMin(
-	std::shared_ptr<protocol::ResponseAttributes::Builder> builder,
+	protocol::ResponseAttributes::Builder& builder,
 	std::shared_ptr<util::json::objects::JsonObjectValue> agentConfigObject
 )
 {
@@ -135,11 +135,11 @@ void JsonResponseParser::applyMaxSessionDurationInMin(
 	}
 
 	auto sessionDurationMillis = numberValue->getInt32Value() * 60 * 1000;
-	builder->withMaxSessionDurationInMilliseconds(sessionDurationMillis);
+	builder.withMaxSessionDurationInMilliseconds(sessionDurationMillis);
 }
 
 void JsonResponseParser::applyMaxEventsPerSession(
-	std::shared_ptr<protocol::ResponseAttributes::Builder> builder,
+	protocol::ResponseAttributes::Builder& builder,
 	std::shared_ptr<util::json::objects::JsonObjectValue> agentConfigObject
 )
 {
@@ -150,11 +150,11 @@ void JsonResponseParser::applyMaxEventsPerSession(
 	}
 
 	auto maxEvents = numberValue->getInt32Value();
-	builder->withMaxEventsPerSession(maxEvents);
+	builder.withMaxEventsPerSession(maxEvents);
 }
 
 void JsonResponseParser::applySessionTimeoutInSec(
-	std::shared_ptr<protocol::ResponseAttributes::Builder> builder,
+	protocol::ResponseAttributes::Builder& builder,
 	std::shared_ptr<util::json::objects::JsonObjectValue> agentConfigObject
 )
 {
@@ -165,11 +165,11 @@ void JsonResponseParser::applySessionTimeoutInSec(
 	}
 
 	auto timeoutInMillis = numberValue->getInt32Value() * 1000;
-	builder->withSessionTimeoutInMilliseconds(timeoutInMillis);
+	builder.withSessionTimeoutInMilliseconds(timeoutInMillis);
 }
 
 void JsonResponseParser::applySendIntervalInSec(
-	std::shared_ptr<protocol::ResponseAttributes::Builder> builder,
+	protocol::ResponseAttributes::Builder& builder,
 	std::shared_ptr<util::json::objects::JsonObjectValue> agentConfigObject
 )
 {
@@ -180,11 +180,11 @@ void JsonResponseParser::applySendIntervalInSec(
 	}
 
 	auto intervalInMillis = numberValue->getInt32Value() * 1000;
-	builder->withSendIntervalInMilliseconds(intervalInMillis);
+	builder.withSendIntervalInMilliseconds(intervalInMillis);
 }
 
 void JsonResponseParser::applyVisitStoreVersion(
-	std::shared_ptr<protocol::ResponseAttributes::Builder> builder,
+	protocol::ResponseAttributes::Builder& builder,
 	std::shared_ptr<util::json::objects::JsonObjectValue> agentConfigObject
 )
 {
@@ -195,7 +195,7 @@ void JsonResponseParser::applyVisitStoreVersion(
 	}
 
 	auto visitStoreVersion = numberValue->getInt32Value();
-	builder->withVisitStoreVersion(visitStoreVersion);
+	builder.withVisitStoreVersion(visitStoreVersion);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -203,7 +203,7 @@ void JsonResponseParser::applyVisitStoreVersion(
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void JsonResponseParser::applyApplicationConfiguration(
-	std::shared_ptr<protocol::ResponseAttributes::Builder> builder,
+	protocol::ResponseAttributes::Builder& builder,
 	std::shared_ptr<util::json::objects::JsonObjectValue> rootObject
 )
 {
@@ -219,7 +219,7 @@ void JsonResponseParser::applyApplicationConfiguration(
 }
 
 void JsonResponseParser::applyCapture(
-	std::shared_ptr<protocol::ResponseAttributes::Builder> builder,
+	protocol::ResponseAttributes::Builder& builder,
 	std::shared_ptr<util::json::objects::JsonObjectValue> appConfigObject
 )
 {
@@ -230,11 +230,11 @@ void JsonResponseParser::applyCapture(
 	}
 
 	auto capture = numberValue->getInt32Value();
-	builder->withCapture(capture == 1);
+	builder.withCapture(capture == 1);
 }
 
 void JsonResponseParser::applyReportCrashes(
-	std::shared_ptr<protocol::ResponseAttributes::Builder> builder,
+	protocol::ResponseAttributes::Builder& builder,
 	std::shared_ptr<util::json::objects::JsonObjectValue> appConfigObject
 )
 {
@@ -245,11 +245,11 @@ void JsonResponseParser::applyReportCrashes(
 	}
 
 	auto reportCrashes = numberValue->getInt32Value();
-	builder->withCaptureCrashes(reportCrashes != 0);
+	builder.withCaptureCrashes(reportCrashes != 0);
 }
 
 void JsonResponseParser::applyReportErrors(
-	std::shared_ptr<protocol::ResponseAttributes::Builder> builder,
+	protocol::ResponseAttributes::Builder& builder,
 	std::shared_ptr<util::json::objects::JsonObjectValue> appConfigObject
 )
 {
@@ -260,7 +260,7 @@ void JsonResponseParser::applyReportErrors(
 	}
 
 	auto reportErrors = numberValue->getInt32Value();
-	builder->withCaptureErrors(reportErrors != 0);
+	builder.withCaptureErrors(reportErrors != 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -268,7 +268,7 @@ void JsonResponseParser::applyReportErrors(
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void JsonResponseParser::applyDynamicConfiguration(
-	std::shared_ptr<protocol::ResponseAttributes::Builder> builder,
+	protocol::ResponseAttributes::Builder& builder,
 	std::shared_ptr<util::json::objects::JsonObjectValue> rootObject
 )
 {
@@ -283,7 +283,7 @@ void JsonResponseParser::applyDynamicConfiguration(
 }
 
 void JsonResponseParser::applyMultiplicity(
-	std::shared_ptr<protocol::ResponseAttributes::Builder> builder,
+	protocol::ResponseAttributes::Builder& builder,
 	std::shared_ptr<util::json::objects::JsonObjectValue> dynConfigObject
 )
 {
@@ -294,11 +294,11 @@ void JsonResponseParser::applyMultiplicity(
 	}
 
 	auto multiplicity = numberValue->getInt32Value();
-	builder->withMultiplicity(multiplicity);
+	builder.withMultiplicity(multiplicity);
 }
 
 void JsonResponseParser::applyServerId(
-	std::shared_ptr<protocol::ResponseAttributes::Builder> builder,
+	protocol::ResponseAttributes::Builder& builder,
 	std::shared_ptr<util::json::objects::JsonObjectValue> dynConfigObject
 )
 {
@@ -309,7 +309,7 @@ void JsonResponseParser::applyServerId(
 	}
 
 	auto serverId = numberValue->getInt32Value();
-	builder->withServerId(serverId);
+	builder.withServerId(serverId);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -317,7 +317,7 @@ void JsonResponseParser::applyServerId(
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void JsonResponseParser::applyRootAttributes(
-	std::shared_ptr<protocol::ResponseAttributes::Builder> builder,
+	protocol::ResponseAttributes::Builder& builder,
 	std::shared_ptr<util::json::objects::JsonObjectValue> rootObject
 )
 {
@@ -328,5 +328,5 @@ void JsonResponseParser::applyRootAttributes(
 	}
 
 	auto timestamp = numberValue->getLongValue();
-	builder->withTimestampInMilliseconds(timestamp);
+	builder.withTimestampInMilliseconds(timestamp);
 }

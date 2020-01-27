@@ -35,24 +35,39 @@ namespace protocol
 	public:
 
 		///
-		/// Construct a status response using a response code and string
+		/// Creates a success StatusResponse.
 		/// @param[in] logger The logger to write traces to
-		/// @param[in] response the response string obtained from the server
+		/// @param[in] responseAttributes the response attributes
 		/// @param[in] responseCode a numerical response code
 		/// @param[in] responseHeaders HTTP response headers
 		///
-		StatusResponse
-		(
+		static std::shared_ptr<StatusResponse> createSuccessResponse(
 			std::shared_ptr<openkit::ILogger> logger,
-			const core::UTF8String& response,
+			std::shared_ptr<IResponseAttributes> responseAttributes,
 			int32_t responseCode,
-			const ResponseHeaders& responseHeaders
+			const ResponseHeaders& responseHeaders);
+
+		///
+		/// Creates an erroneous StatusResponse.
+		/// @param[in] logger The logger to write traces to
+		/// @param[in] responseCode a numerical response code
+		///
+		static std::shared_ptr<StatusResponse> createErrorResponse(
+			std::shared_ptr<openkit::ILogger> logger,
+			int32_t responseCode
 		);
 
 		///
-		/// Destructor
+		/// Creates an erroneous StatusResponse.
+		/// @param[in] logger The logger to write traces to
+		/// @param[in] responseCode a numerical response code
+		/// @param[in] responseHeaders HTTP response headers
 		///
-		~StatusResponse() override = default;
+		static std::shared_ptr<StatusResponse> createErrorResponse(
+			std::shared_ptr<openkit::ILogger> logger,
+			int32_t responseCode,
+			const ResponseHeaders& responseHeaders
+		);
 
 		///
 		/// Return a boolean indicating whether this is an erroneous response or not.
@@ -78,7 +93,7 @@ namespace protocol
 		/// Return the HTTP response headers
 		/// @returns the response headers
 		///
-		const IStatusResponse::ResponseHeaders& getResponseHeaders() const override;
+		const ResponseHeaders& getResponseHeaders() const override;
 
 		///
 		/// Get Retry-After response header value in milliseconds.
@@ -95,93 +110,40 @@ namespace protocol
 		int64_t getRetryAfterInMilliseconds() const override;
 
 		///
-		/// Get a flag if capturing is enabled by the cluster
-		/// @returns @c true if capturing is enabled, @c false is capturing is not enabled
+		/// Return the response attributes
 		///
-		bool isCapture() const override;
-
-		///
-		/// Get the send interval
-		/// @returns send interval in seconds
-		///
-		int32_t getSendInterval() const override;
-
-		///
-		/// Get the monitor name
-		/// @returns the monitor name
-		///
-		const core::UTF8String& getMonitorName() const override;
-
-		///
-		/// Get the server id
-		/// @returns the server id
-		///
-		int32_t getServerID() const override;
-
-		///
-		/// Get the maximum beacon size
-		/// @returns the maximum beacon size in kilobytes
-		///
-		int32_t getMaxBeaconSize() const override;
-
-		///
-		/// Get a flag if errors should be reported
-		/// @returns @c true if errors are reported to the cluster, @c false if errors are not reported
-		///
-		bool isCaptureErrors() const override;
-
-		///
-		/// Get a flag if crashes should be reported
-		/// @returns @c true if errors are reported to the cluster, @c false if errors are not reported
-		///
-		bool isCaptureCrashes() const override;
-
-		///
-		/// Get the multiplicity
-		/// @returns the multiplicity factor
-		///
-		int32_t getMultiplicity() const override;
+		std::shared_ptr<IResponseAttributes> getResponseAttributes() const override;
 
 	private:
+
 		///
-		/// Parse the response string for further details
+		/// Construct a status response using a response code and string
+		/// @param[in] logger The logger to write traces to
 		/// @param[in] response the response string obtained from the server
+		/// @param[in] responseCode a numerical response code
+		/// @param[in] responseHeaders HTTP response headers
 		///
-		void parseResponse(const core::UTF8String& response);
+		StatusResponse
+		(
+			std::shared_ptr<openkit::ILogger> logger,
+			std::shared_ptr<IResponseAttributes> responseAttributes,
+			int32_t responseCode,
+			const ResponseHeaders& responseHeaders
+		);
+
 	private:
 
 		/// Logger to write traces to
 		std::shared_ptr<openkit::ILogger> mLogger;
+
+		/// response attributes
+		std::shared_ptr<IResponseAttributes> mResponseAttributes;
 
 		/// numerical response code
 		int32_t mResponseCode;
 
 		/// response headers
 		ResponseHeaders mResponseHeaders;
-
-		/// capture on/off
-		bool mCapture;
-
-		/// send interval
-		int32_t mSendInterval;
-
-		/// monitor name
-		core::UTF8String mMonitorName;
-
-		/// server id
-		int32_t mServerID;
-
-		/// maximum beacon size
-		int32_t mMaxBeaconSize;
-
-		/// capture errors
-		bool mCaptureErrors;
-
-		/// capture crashes
-		bool mCaptureCrashes;
-
-		/// multiplicity
-		int32_t mMultiplicity;
 	};
 }
 

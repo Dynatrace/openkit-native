@@ -17,6 +17,7 @@
 #ifndef _PROTOCOL_ISTATUSRESPONSE_H
 #define _PROTOCOL_ISTATUSRESPONSE_H
 
+#include "IResponseAttributes.h"
 #include "core/UTF8String.h"
 
 #include <unordered_map>
@@ -35,54 +36,6 @@ namespace protocol
 		/// Destructor
 		///
 		virtual ~IStatusResponse() = default;
-
-		///
-		/// Get a flag if capturing is enabled by the cluster
-		/// @returns @c true if capturing is enabled, @c false is capturing is not enabled
-		///
-		virtual bool isCapture() const = 0;
-
-		///
-		/// Get the send interval
-		/// @returns send interval in seconds
-		///
-		virtual int32_t getSendInterval() const = 0;
-
-		///
-		/// Get the monitor name
-		/// @returns the monitor name
-		///
-		virtual const core::UTF8String& getMonitorName() const = 0;
-
-		///
-		/// Get the server id
-		/// @returns the server id
-		///
-		virtual int32_t getServerID() const = 0;
-
-		///
-		/// Get the maximum beacon size
-		/// @returns the maximum beacon size in kilobytes
-		///
-		virtual int32_t getMaxBeaconSize() const = 0;
-
-		///
-		/// Get a flag if errors should be reported
-		/// @returns @c true if errors are reported to the cluster, @c false if errors are not reported
-		///
-		virtual bool isCaptureErrors() const = 0;
-
-		///
-		/// Get a flag if crashes should be reported
-		/// @returns @c true if errors are reported to the cluster, @c false if errors are not reported
-		///
-		virtual bool isCaptureCrashes() const = 0;
-
-		///
-		/// Get the multiplicity
-		/// @returns the multiplicity factor
-		///
-		virtual int32_t getMultiplicity() const = 0;
 
 		///
 		/// Return a boolean indicating whether this is an erroneous response or not.
@@ -123,6 +76,11 @@ namespace protocol
 		/// @return Returns the parsed Retry-After response header value or the default value in case of parsing errors.
 		///
 		virtual int64_t getRetryAfterInMilliseconds() const = 0;
+
+		///
+		/// Return the response attributes
+		///
+		virtual std::shared_ptr<IResponseAttributes> getResponseAttributes() const = 0;
 	};
 }
 

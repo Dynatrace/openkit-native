@@ -14,40 +14,45 @@
  * limitations under the License.
  */
 
-#include "../../protocol/mock/MockIStatusResponse.h"
+#include "../../protocol/mock/MockIResponseAttributes.h"
 
 #include "core/configuration/ServerConfiguration.h"
+#include "protocol/ResponseAttributesDefaults.h"
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 using namespace test;
 
-using MockIStatusResponse_sp = std::shared_ptr<MockIStatusResponse>;
+using IResponseAttributes_sp = std::shared_ptr<protocol::IResponseAttributes>;
+using ResponseAttributesDefaults_t = protocol::ResponseAttributesDefaults;
 using ServerConfiguration_t = core::configuration::ServerConfiguration;
+using MockIResponseAttributes_sp = std::shared_ptr<MockIResponseAttributes>;
 
 class ServerConfigurationTest : public testing::Test
 {
 protected:
 
-	MockIStatusResponse_sp mockStatusResponse;
+	IResponseAttributes_sp defaultValues;
+	MockIResponseAttributes_sp mockAttributes;
 
 	void SetUp() override
 	{
-		mockStatusResponse = MockIStatusResponse::createNice();
-		ON_CALL(*mockStatusResponse, isCapture())
+		defaultValues = ResponseAttributesDefaults_t::UNDEFINED;
+		mockAttributes = MockIResponseAttributes::createNice();
+		ON_CALL(*mockAttributes, isCapture())
 			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_CAPTURE_ENABLED));
-		ON_CALL(*mockStatusResponse, isCaptureCrashes())
+		ON_CALL(*mockAttributes, isCaptureCrashes())
 			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_CRASH_REPORTING_ENABLED));
-		ON_CALL(*mockStatusResponse, isCaptureErrors())
+		ON_CALL(*mockAttributes, isCaptureErrors())
 			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_ERROR_REPORTING_ENABLED));
-		ON_CALL(*mockStatusResponse, getSendInterval())
+		ON_CALL(*mockAttributes, getSendIntervalInMilliseconds())
 			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_SEND_INTERVAL));
-		ON_CALL(*mockStatusResponse, getServerID())
+		ON_CALL(*mockAttributes, getServerId())
 			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_SERVER_ID));
-		ON_CALL(*mockStatusResponse, getMaxBeaconSize())
+		ON_CALL(*mockAttributes, getMaxBeaconSizeInBytes())
 			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_BEACON_SIZE));
-		ON_CALL(*mockStatusResponse, getMultiplicity())
+		ON_CALL(*mockAttributes, getMultiplicity())
 			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_MULTIPLICITY));
 	}
 };
@@ -87,7 +92,6 @@ TEST_F(ServerConfigurationTest, inDefaultServerConfigurationMultiplicityIsOne)
 	ASSERT_THAT(ServerConfiguration_t::DEFAULT->getMultiplicity(), testing::Eq(1));
 }
 
-
 TEST_F(ServerConfigurationTest, inDefaultServerConfigurationMaxSessionDurationIsMinusOne)
 {
 	ASSERT_THAT(ServerConfiguration_t::DEFAULT->getMaxSessionDurationInMilliseconds(), testing::Eq(-1));
@@ -117,111 +121,111 @@ TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromNullStatusRespon
 	ASSERT_THAT(ServerConfiguration_t::from(nullptr), testing::Eq(nullptr));
 }
 
-TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromStatusResponseCopiesCaptureSettings)
+TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttributesCopiesCaptureSettings)
 {
 	// expect
-	EXPECT_CALL(*mockStatusResponse, isCapture())
+	EXPECT_CALL(*mockAttributes, isCapture())
 		.Times(1)
 		.WillOnce(testing::Return(false));
 
 	// when
-	auto target = ServerConfiguration_t::from(mockStatusResponse);
+	auto target = ServerConfiguration_t::from(mockAttributes);
 
 	// then
 	ASSERT_THAT(target->isCaptureEnabled(), testing::Eq(false));
 }
 
-TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromStatusResponseCopiesCrashReportingSettings)
+TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttributesCopiesCrashReportingSettings)
 {
 	// expect
-	EXPECT_CALL(*mockStatusResponse, isCaptureCrashes())
+	EXPECT_CALL(*mockAttributes, isCaptureCrashes())
 		.Times(1)
 		.WillOnce(testing::Return(false));
 
 	// when
-	auto target = ServerConfiguration_t::from(mockStatusResponse);
+	auto target = ServerConfiguration_t::from(mockAttributes);
 
 	// then
 	ASSERT_THAT(target->isCrashReportingEnabled(), testing::Eq(false));
 }
 
-TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromStatusResponseCopiesErrorReportingSettings)
+TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttributesCopiesErrorReportingSettings)
 {
-	// expect
-	EXPECT_CALL(*mockStatusResponse, isCaptureErrors())
+	// mockAttributs
+	EXPECT_CALL(*mockAttributes, isCaptureErrors())
 		.Times(1)
 		.WillOnce(testing::Return(false));
 
 	// when
-	auto target = ServerConfiguration_t::from(mockStatusResponse);
+	auto target = ServerConfiguration_t::from(mockAttributes);
 
 	// then
 	ASSERT_THAT(target->isErrorReportingEnabled(), testing::Eq(false));
 }
 
-TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromStatusResponseCopiesSendingIntervalSettings)
+TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttributesCopiesSendingIntervalSettings)
 {
 	// with
 	int32_t sendInterval = 1234;
 
 	// expect
-	EXPECT_CALL(*mockStatusResponse, getSendInterval())
+	EXPECT_CALL(*mockAttributes, getSendIntervalInMilliseconds())
 		.Times(1)
 		.WillOnce(testing::Return(sendInterval));
 
 	// when
-	auto target = ServerConfiguration_t::from(mockStatusResponse);
+	auto target = ServerConfiguration_t::from(mockAttributes);
 
 	// then
 	ASSERT_THAT(target->getSendIntervalInMilliseconds(), testing::Eq(sendInterval));
 }
 
-TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromStatusResponseCopiesServerIdSettings)
+TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttributesCopiesServerIdSettings)
 {
 	// with
 	int32_t serverId = 73;
 
 	// expect
-	EXPECT_CALL(*mockStatusResponse, getServerID())
+	EXPECT_CALL(*mockAttributes, getServerId())
 		.Times(1)
 		.WillOnce(testing::Return(serverId));
 
 	// when
-	auto target = ServerConfiguration_t::from(mockStatusResponse);
+	auto target = ServerConfiguration_t::from(mockAttributes);
 
 	// then
 	ASSERT_THAT(target->getServerId(), testing::Eq(serverId));
 }
 
-TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromStatusResponseCopiesBeaconSizeSettings)
+TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttributesCopiesBeaconSizeSettings)
 {
 	// with
 	int32_t beaconSize = 37;
 
 	// expect
-	EXPECT_CALL(*mockStatusResponse, getMaxBeaconSize())
+	EXPECT_CALL(*mockAttributes, getMaxBeaconSizeInBytes())
 		.Times(1)
 		.WillOnce(testing::Return(beaconSize));
 
 	// when
-	auto target = ServerConfiguration_t::from(mockStatusResponse);
+	auto target = ServerConfiguration_t::from(mockAttributes);
 
 	// then
 	ASSERT_THAT(target->getBeaconSizeInBytes(), testing::Eq(beaconSize));
 }
 
-TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromStatusResponseCopiesMultiplicitySettings)
+TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttributesCopiesMultiplicitySettings)
 {
 	// with
 	int32_t multiplicity = 37;
 
 	// expect
-	EXPECT_CALL(*mockStatusResponse, getMultiplicity())
+	EXPECT_CALL(*mockAttributes, getMultiplicity())
 		.Times(1)
 		.WillOnce(testing::Return(multiplicity));
 
 	// when
-	auto target = ServerConfiguration_t::from(mockStatusResponse);
+	auto target = ServerConfiguration_t::from(mockAttributes);
 
 	// then
 	ASSERT_THAT(target->getMultiplicity(), testing::Eq(multiplicity));
@@ -230,11 +234,11 @@ TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromStatusResponseCo
 TEST_F(ServerConfigurationTest, sendingDataToTheServerIsAllowedIfCapturingIsEnabledAndMultiplicityIsGreaterThanZero)
 {
 	// with
-	ON_CALL(*mockStatusResponse, isCapture()).WillByDefault(testing::Return(true));
-	ON_CALL(*mockStatusResponse, getMultiplicity()).WillByDefault(testing::Return(1));
+	ON_CALL(*mockAttributes, isCapture()).WillByDefault(testing::Return(true));
+	ON_CALL(*mockAttributes, getMultiplicity()).WillByDefault(testing::Return(1));
 
 	// given
-	auto target = ServerConfiguration_t::from(mockStatusResponse);
+	auto target = ServerConfiguration_t::from(mockAttributes);
 
 	// when
 	auto obtained = target->isSendingDataAllowed();
@@ -246,11 +250,11 @@ TEST_F(ServerConfigurationTest, sendingDataToTheServerIsAllowedIfCapturingIsEnab
 TEST_F(ServerConfigurationTest, sendingDataToTheServerIsNotAllowedIfCapturingIsDisallowed)
 {
 	// with
-	ON_CALL(*mockStatusResponse, isCapture()).WillByDefault(testing::Return(false));
-	ON_CALL(*mockStatusResponse, getMultiplicity()).WillByDefault(testing::Return(1));
+	ON_CALL(*mockAttributes, isCapture()).WillByDefault(testing::Return(false));
+	ON_CALL(*mockAttributes, getMultiplicity()).WillByDefault(testing::Return(1));
 
 	// given
-	auto target = ServerConfiguration_t::from(mockStatusResponse);
+	auto target = ServerConfiguration_t::from(mockAttributes);
 
 	// when
 	auto obtained = target->isSendingDataAllowed();
@@ -262,11 +266,11 @@ TEST_F(ServerConfigurationTest, sendingDataToTheServerIsNotAllowedIfCapturingIsD
 TEST_F(ServerConfigurationTest, sendingDataToTheServerIsNotAllowedIfCapturingIsEnabledButMultiplicityIsZero)
 {
 	// with
-	ON_CALL(*mockStatusResponse, isCapture()).WillByDefault(testing::Return(true));
-	ON_CALL(*mockStatusResponse, getMultiplicity()).WillByDefault(testing::Return(0));
+	ON_CALL(*mockAttributes, isCapture()).WillByDefault(testing::Return(true));
+	ON_CALL(*mockAttributes, getMultiplicity()).WillByDefault(testing::Return(0));
 
 	// given
-	auto target = ServerConfiguration_t::from(mockStatusResponse);
+	auto target = ServerConfiguration_t::from(mockAttributes);
 
 	// when
 	auto obtained = target->isSendingDataAllowed();
@@ -278,12 +282,12 @@ TEST_F(ServerConfigurationTest, sendingDataToTheServerIsNotAllowedIfCapturingIsE
 TEST_F(ServerConfigurationTest, sendingCrashesToTheServerIsAllowedIfDataSendingIsAllowedAndCaptureCrashesIsEnabled)
 {
 	// with
-	ON_CALL(*mockStatusResponse, isCapture()).WillByDefault(testing::Return(true));
-	ON_CALL(*mockStatusResponse, getMultiplicity()).WillByDefault(testing::Return(1));
-	ON_CALL(*mockStatusResponse, isCaptureCrashes()).WillByDefault(testing::Return(true));
+	ON_CALL(*mockAttributes, isCapture()).WillByDefault(testing::Return(true));
+	ON_CALL(*mockAttributes, getMultiplicity()).WillByDefault(testing::Return(1));
+	ON_CALL(*mockAttributes, isCaptureCrashes()).WillByDefault(testing::Return(true));
 
 	// given
-	auto target = ServerConfiguration_t::from(mockStatusResponse);
+	auto target = ServerConfiguration_t::from(mockAttributes);
 
 	// when
 	auto obtained = target->isSendingCrashesAllowed();
@@ -295,12 +299,12 @@ TEST_F(ServerConfigurationTest, sendingCrashesToTheServerIsAllowedIfDataSendingI
 TEST_F(ServerConfigurationTest, sendingCrashesToTheServerIsNotAllowedIfDataSendingIsNotAllowed)
 {
 	// with
-	ON_CALL(*mockStatusResponse, isCapture()).WillByDefault(testing::Return(false));
-	ON_CALL(*mockStatusResponse, getMultiplicity()).WillByDefault(testing::Return(1));
-	ON_CALL(*mockStatusResponse, isCaptureCrashes()).WillByDefault(testing::Return(true));
+	ON_CALL(*mockAttributes, isCapture()).WillByDefault(testing::Return(false));
+	ON_CALL(*mockAttributes, getMultiplicity()).WillByDefault(testing::Return(1));
+	ON_CALL(*mockAttributes, isCaptureCrashes()).WillByDefault(testing::Return(true));
 
 	// given
-	auto target = ServerConfiguration_t::from(mockStatusResponse);
+	auto target = ServerConfiguration_t::from(mockAttributes);
 
 	// when
 	auto obtained = target->isSendingCrashesAllowed();
@@ -312,12 +316,12 @@ TEST_F(ServerConfigurationTest, sendingCrashesToTheServerIsNotAllowedIfDataSendi
 TEST_F(ServerConfigurationTest, sendingCrashesToTheServerIsNotAllowedIfDataSendingIsAllowedButCaptureCrashesIsDisabled)
 {
 	// with
-	ON_CALL(*mockStatusResponse, isCapture()).WillByDefault(testing::Return(true));
-	ON_CALL(*mockStatusResponse, getMultiplicity()).WillByDefault(testing::Return(1));
-	ON_CALL(*mockStatusResponse, isCaptureCrashes()).WillByDefault(testing::Return(false));
+	ON_CALL(*mockAttributes, isCapture()).WillByDefault(testing::Return(true));
+	ON_CALL(*mockAttributes, getMultiplicity()).WillByDefault(testing::Return(1));
+	ON_CALL(*mockAttributes, isCaptureCrashes()).WillByDefault(testing::Return(false));
 
 	// given
-	auto target = ServerConfiguration_t::from(mockStatusResponse);
+	auto target = ServerConfiguration_t::from(mockAttributes);
 
 	// when
 	auto obtained = target->isSendingCrashesAllowed();
@@ -329,12 +333,12 @@ TEST_F(ServerConfigurationTest, sendingCrashesToTheServerIsNotAllowedIfDataSendi
 TEST_F(ServerConfigurationTest, sendingErrorToTheServerIsAllowedIfDataSendingIsAllowedAndCaptureErrorIsEnabled)
 {
 	// with
-	ON_CALL(*mockStatusResponse, isCapture()).WillByDefault(testing::Return(true));
-	ON_CALL(*mockStatusResponse, getMultiplicity()).WillByDefault(testing::Return(1));
-	ON_CALL(*mockStatusResponse, isCaptureErrors()).WillByDefault(testing::Return(true));
+	ON_CALL(*mockAttributes, isCapture()).WillByDefault(testing::Return(true));
+	ON_CALL(*mockAttributes, getMultiplicity()).WillByDefault(testing::Return(1));
+	ON_CALL(*mockAttributes, isCaptureErrors()).WillByDefault(testing::Return(true));
 
 	// given
-	auto target = ServerConfiguration_t::from(mockStatusResponse);
+	auto target = ServerConfiguration_t::from(mockAttributes);
 
 	// when
 	auto obtained = target->isSendingErrorsAllowed();
@@ -346,12 +350,12 @@ TEST_F(ServerConfigurationTest, sendingErrorToTheServerIsAllowedIfDataSendingIsA
 TEST_F(ServerConfigurationTest, sendingErrorToTheServerIsNotAllowedIfDataSendingIsNotAllowed)
 {
 	// with
-	ON_CALL(*mockStatusResponse, isCapture()).WillByDefault(testing::Return(false));
-	ON_CALL(*mockStatusResponse, getMultiplicity()).WillByDefault(testing::Return(1));
-	ON_CALL(*mockStatusResponse, isCaptureErrors()).WillByDefault(testing::Return(true));
+	ON_CALL(*mockAttributes, isCapture()).WillByDefault(testing::Return(false));
+	ON_CALL(*mockAttributes, getMultiplicity()).WillByDefault(testing::Return(1));
+	ON_CALL(*mockAttributes, isCaptureErrors()).WillByDefault(testing::Return(true));
 
 	// given
-	auto target = ServerConfiguration_t::from(mockStatusResponse);
+	auto target = ServerConfiguration_t::from(mockAttributes);
 
 	// when
 	auto obtained = target->isSendingErrorsAllowed();
@@ -363,12 +367,12 @@ TEST_F(ServerConfigurationTest, sendingErrorToTheServerIsNotAllowedIfDataSending
 TEST_F(ServerConfigurationTest, sendingErrorToTheServerIsNotAllowedIfDataSendingIsAllowedButCaptureErrorsDisabled)
 {
 	// with
-	ON_CALL(*mockStatusResponse, isCapture()).WillByDefault(testing::Return(true));
-	ON_CALL(*mockStatusResponse, getMultiplicity()).WillByDefault(testing::Return(1));
-	ON_CALL(*mockStatusResponse, isCaptureErrors()).WillByDefault(testing::Return(false));
+	ON_CALL(*mockAttributes, isCapture()).WillByDefault(testing::Return(true));
+	ON_CALL(*mockAttributes, getMultiplicity()).WillByDefault(testing::Return(1));
+	ON_CALL(*mockAttributes, isCaptureErrors()).WillByDefault(testing::Return(false));
 
 	// given
-	auto target = ServerConfiguration_t::from(mockStatusResponse);
+	auto target = ServerConfiguration_t::from(mockAttributes);
 
 	// when
 	auto obtained = target->isSendingErrorsAllowed();
@@ -513,6 +517,62 @@ TEST_F(ServerConfigurationTest, mergeIgnoresServerId)
 
 	// then
 	ASSERT_THAT(obtained->getServerId(), testing::Eq(serverId));
+}
+
+TEST_F(ServerConfigurationTest, mergeTakesOverMaxSessionDuration)
+{
+	// given
+	int32_t sessionDuration = 73;
+	auto target = ServerConfiguration_t::Builder().withMaxSessionDurationInMilliseconds(37).build();
+	auto other = ServerConfiguration_t::Builder().withMaxSessionDurationInMilliseconds(sessionDuration).build();
+
+	// when
+	auto obtained = target->merge(other);
+
+	// then
+	ASSERT_THAT(obtained->getMaxSessionDurationInMilliseconds(), testing::Eq(sessionDuration));
+}
+
+TEST_F(ServerConfigurationTest, mergeTakesOverMaxEventsPerSession)
+{
+	// given
+	int32_t eventsPerSession = 73;
+	auto target = ServerConfiguration_t::Builder().withMaxEventsPerSession(37).build();
+	auto other = ServerConfiguration_t::Builder().withMaxEventsPerSession(eventsPerSession).build();
+
+	// when
+	auto obtained = target->merge(other);
+
+	// then
+	ASSERT_THAT(obtained->getMaxEventsPerSession(), testing::Eq(eventsPerSession));
+}
+
+TEST_F(ServerConfigurationTest, mergeTakesOverSessionTimeout)
+{
+	// given
+	int32_t sessionTimeout = 73;
+	auto target = ServerConfiguration_t::Builder().withSessionTimeoutInMilliseconds(37).build();
+	auto other = ServerConfiguration_t::Builder().withSessionTimeoutInMilliseconds(sessionTimeout).build();
+
+	// when
+	auto obtained = target->merge(other);
+
+	// then
+	ASSERT_THAT(obtained->getSessionTimeoutInMilliseconds(), testing::Eq(sessionTimeout));
+}
+
+TEST_F(ServerConfigurationTest, mergeTakesOverVisitStoreVersion)
+{
+	// given
+	int32_t visitStoreVersion = 73;
+	auto target = ServerConfiguration_t::Builder().withVisitStoreVersion(37).build();
+	auto other = ServerConfiguration_t::Builder().withVisitStoreVersion(visitStoreVersion).build();
+
+	// when
+	auto obtained = target->merge(other);
+
+	// then
+	ASSERT_THAT(obtained->getVisitStoreVersion(), testing::Eq(visitStoreVersion));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
