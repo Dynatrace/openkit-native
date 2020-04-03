@@ -40,6 +40,8 @@
 #include "../core/MockSession.h"
 #include "../providers/MockTimingProvider.h"
 
+#include <locale>
+
 using namespace core;
 using namespace protocol;
 
@@ -71,6 +73,10 @@ public:
 		randomGeneratorMock = std::make_shared<testing::NiceMock<test::MockPRNGenerator>>();
 		sessionIDProviderMock = std::make_shared<testing::NiceMock<test::MockSessionIDProvider>>();
 		mockTimingProvider = std::make_shared<testing::NiceMock<test::MockTimingProvider>>();
+
+		// manipulate the global locale to a variant of the classic (C/POSIX) one.
+		auto newLocale = std::locale(std::locale::classic(), new SpecialNumpunctFacet());
+		currentLocale = std::locale::global(newLocale);
 	}
 
 	std::shared_ptr<protocol::Beacon> buildBeaconWithDefaultConfig()
@@ -154,11 +160,34 @@ public:
 
 	void TearDown()
 	{
-
+		// reset global locale
+		std::locale::global(currentLocale);
 	}
 
 protected:
+
+	// special numpunct facet for testing purposes
+	class SpecialNumpunctFacet : public std::numpunct<char>
+	{
+		char do_decimal_point() const override
+		{
+			return '~'; // use tilde as decimal point
+		}
+
+		char do_thousands_sep() const override
+		{
+			return ';'; // use semicolon as thousand separator
+		}
+
+		std::string do_grouping() const override
+		{
+			return "\1"; // group after each character
+		}
+	};
+
 	std::ostringstream devNull;
+	std::locale currentLocale;
+
 	std::shared_ptr<openkit::ILogger> logger;
 	std::shared_ptr<providers::IThreadIDProvider> threadIDProvider;
 	std::shared_ptr<providers::ITimingProvider> timingProvider;
@@ -1011,4 +1040,55 @@ TEST_F(BeaconTest, invalidClientIPIsConvertedToEmptyString)
 
 	// when, then
 	ASSERT_EQ(0, target->getClientIPAddress().getStringLength());
+}
+
+TEST_F(BeaconTest, createTagReturnsLocaleIndependentTagString)
+{
+	//given
+	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF);
+
+	// when
+	auto tagString = target->createTag(123456, 987654);
+
+	// then
+	ASSERT_THAT(tagString.getStringData(), ::testing::StartsWith("MT_3_1_0_0_appID_123456_"));
+	ASSERT_THAT(tagString.getStringData(), ::testing::EndsWith("_987654"));
+}
+
+TEST_F(BeaconTest, reportedIntValueIsLocaleIndependent)
+{
+	//given
+	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF);
+	auto timingProviderMock = getTimingProviderMock();
+
+	EXPECT_CALL(*timingProviderMock, provideTimestampInMilliseconds())
+		.Times(1);
+
+	// when
+	target->reportValue(1, "foo", 123456789);
+
+	//then
+	ASSERT_THAT(beaconCache->getBeaconIDs().size(), ::testing::Eq(1));
+	auto eventData = beaconCache->getEvents(*beaconCache->getBeaconIDs().begin());
+	ASSERT_THAT(eventData.size(), ::testing::Eq(1));
+	ASSERT_THAT(eventData[0].getStringData(), ::testing::EndsWith("&vl=123456789"));
+}
+
+TEST_F(BeaconTest, reportedDoubleValueIsLocaleIndependent)
+{
+	//given
+	auto target = buildBeacon(openkit::DataCollectionLevel::USER_BEHAVIOR, openkit::CrashReportingLevel::OFF);
+	auto timingProviderMock = getTimingProviderMock();
+
+	EXPECT_CALL(*timingProviderMock, provideTimestampInMilliseconds())
+		.Times(1);
+
+	// when
+	target->reportValue(1, "bar", 12345.125);
+
+	//then
+	ASSERT_THAT(beaconCache->getBeaconIDs().size(), ::testing::Eq(1));
+	auto eventData = beaconCache->getEvents(*beaconCache->getBeaconIDs().begin());
+	ASSERT_THAT(eventData.size(), ::testing::Eq(1));
+	ASSERT_THAT(eventData[0].getStringData(), ::testing::EndsWith("&vl=12345.125000")); // fixed floating point with 6 digits precision
 }

@@ -10,6 +10,10 @@
   the root action is added to the `Beacon`.
 - Fix `enterAction` for a ended/left `RootAction` to return a `NullAction` with the `RootAction` as parent instead of
   a `NullAction` without parent.
+- Fixed issue with reporting localized beacon data  
+  Integer and floating point numbers might have been reported with the global locale
+  if `std::locale::global` was called before. This might have an impact on
+  session properties.
 
 ## 1.0.4 [Release date: 2019-03-14]
 [GitHub Releases](https://github.com/Dynatrace/openkit-native/releases/tag/v1.0.4)
