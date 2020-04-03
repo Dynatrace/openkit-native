@@ -25,8 +25,29 @@
 
 #include <random>
 #include <sstream>
+#include <iomanip>
+#include <locale>
+#include <type_traits>
 
 using namespace protocol;
+
+namespace details
+{
+	constexpr std::streamsize DEFAULT_FP_PRECISION = 6;
+
+	template<typename Type>
+	static std::string locale_independent_to_string(const Type& value)
+	{
+		std::ostringstream oss;
+		oss.imbue(std::locale::classic());
+		if (std::is_floating_point<Type>::value) {
+			oss << std::fixed << std::setprecision(DEFAULT_FP_PRECISION);
+		}
+		oss << value;
+
+		return oss.str();
+	}
+}
 
 Beacon::Beacon(std::shared_ptr<openkit::ILogger> logger, std::shared_ptr<caching::IBeaconCache> beaconCache, std::shared_ptr<configuration::Configuration> configuration, const char* clientIPAddress, std::shared_ptr<providers::IThreadIDProvider> threadIDProvider, std::shared_ptr<providers::ITimingProvider> timingProvider)
 	: Beacon(logger, beaconCache, configuration, clientIPAddress, threadIDProvider, timingProvider, std::make_shared<providers::DefaultPRNGenerator>())
@@ -184,17 +205,20 @@ void Beacon::addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, c
 
 void Beacon::addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, int32_t value)
 {
-	addKeyValuePair(s, key, std::to_string(value));
+	auto strValue = details::locale_independent_to_string(value);
+	addKeyValuePair(s, key, strValue);
 }
 
 void Beacon::addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, int64_t value)
 {
-	addKeyValuePair(s, key, std::to_string(value));
+	auto strValue = details::locale_independent_to_string(value);
+	addKeyValuePair(s, key, strValue);
 }
 
 void Beacon::addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, double value)
 {
-	addKeyValuePair(s, key, std::to_string(value));
+	auto strValue = details::locale_independent_to_string(value);
+	addKeyValuePair(s, key, strValue);
 }
 
 int32_t Beacon::createSequenceNumber()
@@ -219,26 +243,20 @@ core::UTF8String Beacon::createTag(int32_t parentActionID, int32_t sequenceNumbe
 		return core::UTF8String("");
 	}
 
-	core::UTF8String webRequestTag(TAG_PREFIX);
+	std::ostringstream oss;
+	oss.imbue(std::locale::classic());
 
-	webRequestTag.concatenate("_");
-	webRequestTag.concatenate(std::to_string(PROTOCOL_VERSION));
-	webRequestTag.concatenate("_");
-	webRequestTag.concatenate(std::to_string(mHTTPClientConfiguration->getServerID()));
-	webRequestTag.concatenate("_");
-	webRequestTag.concatenate(std::to_string(getDeviceID()));
-	webRequestTag.concatenate("_");
-	webRequestTag.concatenate(std::to_string(mSessionNumber));
-	webRequestTag.concatenate("_");
-	webRequestTag.concatenate(mConfiguration->getApplicationIDPercentEncoded());
-	webRequestTag.concatenate("_");
-	webRequestTag.concatenate(std::to_string(parentActionID));
-	webRequestTag.concatenate("_");
-	webRequestTag.concatenate(std::to_string(mThreadIDProvider->getThreadID()));
-	webRequestTag.concatenate("_");
-	webRequestTag.concatenate(std::to_string(sequenceNumber));
+	oss << TAG_PREFIX << "_"
+		<< PROTOCOL_VERSION << "_"
+		<< mHTTPClientConfiguration->getServerID() << "_"
+		<< getDeviceID() << "_"
+		<< mSessionNumber << "_"
+		<< mConfiguration->getApplicationIDPercentEncoded().getStringData() << "_"
+		<< parentActionID << "_"
+		<< mThreadIDProvider->getThreadID() << "_"
+		<< sequenceNumber;
 
-	return webRequestTag;
+	return core::UTF8String(oss.str());
 }
 
 void Beacon::addAction(std::shared_ptr<core::Action> action)

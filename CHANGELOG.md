@@ -2,6 +2,12 @@
 
 ## [Unreleased](https://github.com/Dynatrace/openkit-native/compare/v1.1.6...release/1.1)
 
+### Changed
+- Fixed issue with reporting localized beacon data  
+  Integer and floating point numbers might have been reported with the global locale
+  if `std::locale::global` was called before. This might have an impact on
+  session properties.
+
 ## 1.1.6 [Release date: 2019-10-31]
 [GitHub Releases](https://github.com/Dynatrace/openkit-native/releases/tag/v1.1.6)
 
