@@ -1,6 +1,9 @@
 # OpenKit Native ( C/C++ ) Changelog
 
-## [Unreleased](https://github.com/Dynatrace/openkit-native/compare/v1.1.6...release/1.1)
+## [Unreleased](https://github.com/Dynatrace/openkit-native/compare/v1.1.7...release/1.1)
+
+## 1.1.7 [Release date: 2020-04-06]
+[GitHub Releases](https://github.com/Dynatrace/openkit-native/releases/tag/v1.1.7)
 
 ### Changed
 - Fixed issue with reporting localized beacon data  
