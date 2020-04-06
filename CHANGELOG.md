@@ -1,6 +1,9 @@
 # OpenKit Native ( C/C++ ) Changelog
 
-## [Unreleased](https://github.com/Dynatrace/openkit-native/compare/v1.0.4...release/1.0)
+## [Unreleased](https://github.com/Dynatrace/openkit-native/compare/v1.0.5...release/1.0)
+
+## 1.0.5 [Release date: 2020-04-06]
+[GitHub Releases](https://github.com/Dynatrace/openkit-native/releases/tag/v1.0.5)
 
 ### Changed
 - Fix incorrect check in C-API's useBeaconCacheBehaviorForConfiguration function when setting the
