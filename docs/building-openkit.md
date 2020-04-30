@@ -25,12 +25,10 @@ additionally required.
 
 ### Required libraries
 
-OpenKit C/C++ depends on the following libraries, which are all included
+OpenKit C/C++ depends on various 3rd party libraries, which are all included
 and build when building OpenKit.
-
-* zlib (http://www.zlib.net/) version 1.2.11
-* libcurl (https://curl.haxx.se/) version 7.59.0
-* gtest & gmock (https://github.com/google/googletest) version 1.8.0
+A lisf of libraries, including the versions and licenses are documented in the
+[README.md](../README.md#included-3rd-party-libraries).
 
 Since OpenKit communicates to the AppMon/Dynatrace backend via HTTPS,
 libcurl requires an SSL library.  
