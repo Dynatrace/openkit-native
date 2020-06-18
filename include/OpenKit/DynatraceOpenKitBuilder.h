@@ -62,7 +62,9 @@ namespace openkit
 		/// Sets the application name. The value is only set if it is not @c nullptr.
 		/// @param[in] applicationName name of the application
 		/// @returns @c this instance
+		/// @deprecated This value is set in Dynatrace when creating a Custom application.
 		///
+		OPENKIT_DEPRECATED
 		DynatraceOpenKitBuilder& withApplicationName(const char* applicationName);
 
 		const std::string& getOpenKitType() const override;
