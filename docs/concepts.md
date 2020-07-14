@@ -94,7 +94,6 @@ const char* endpointURL = "https://tenantid.beaconurl.com/mbeacon";
 
 std::shared_ptr<openkit::IOpenKit> openKit = 
     DynatraceOpenKitBuilder(endpointURL, applicationID, deviceID)
-    .withApplicationName(applicationName)
     .withApplicationVersion("1.0.0.0")
     .withOperatingSystem("Windows 10")
     .withManufacturer("MyCompany")

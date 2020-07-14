@@ -57,8 +57,7 @@ int32_t main(int32_t argc, char** argv)
 	parseCommandLine(argc, argv, endpointURL, deviceID, applicationID);
 
 	openkit::DynatraceOpenKitBuilder builder(endpointURL.c_str(), applicationID.c_str(), deviceID);
-	builder.withApplicationName("openkit-sample-c++")
-		.withApplicationVersion(APPLICATION_VERSION)
+	builder.withApplicationVersion(APPLICATION_VERSION)
 		.withManufacturer("Dynatrace")
 		.withOperatingSystem("ACME OS")
 		.withModelID("Model E")

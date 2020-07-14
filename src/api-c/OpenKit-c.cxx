@@ -555,10 +555,6 @@ extern "C" {
 		TRY
 		{
 			openkit::DynatraceOpenKitBuilder builder(configurationHandle->endpointURL, configurationHandle->applicationID, configurationHandle->origDeviceID);
-			if (configurationHandle->applicationName != nullptr)
-			{
-				builder.withApplicationName(configurationHandle->applicationName);
-			}
 
 			// initialize the abstract builder
 			initializeOpenKitBuilder(builder, configurationHandle);

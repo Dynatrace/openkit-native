@@ -171,6 +171,8 @@ extern "C" {
 	/// Set the application name in the OpenKit configuration
 	/// @param[in] configurationHandle configuration storing the given parameter
 	/// @param[in] applicationName optional name for the application. If @c NULL is provided the application name is an empty string.
+	/// @remarks
+	/// This is only used for AppMon backends, as it has been deprecated for Dynatrace.
 	///
 	OPENKIT_EXPORT void useApplicationNameForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, const char* applicationName);
 
