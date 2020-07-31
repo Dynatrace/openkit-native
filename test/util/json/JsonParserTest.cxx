@@ -41,6 +41,8 @@ using namespace util::json::parser;
 
 MATCHER(isNullToken, "")
 {
+	(void)result_listener; // result_listener argument is unused, keep compiler quiet
+
 	if (arg == nullptr)
 	{
 		return false;
@@ -51,6 +53,8 @@ MATCHER(isNullToken, "")
 
 MATCHER_P(isBooleanTokenOf, value, "")
 {
+	(void)result_listener; // result_listener argument is unused, keep compiler quiet
+
 	if (arg == nullptr)
 	{
 		return false;
@@ -71,6 +75,8 @@ MATCHER_P(isBooleanTokenOf, value, "")
 
 MATCHER_P(isStringTokenOf, value, "")
 {
+	(void)result_listener; // result_listener argument is unused, keep compiler quiet
+
 	if (arg == nullptr)
 	{
 		return false;
@@ -91,6 +97,8 @@ MATCHER_P(isStringTokenOf, value, "")
 
 MATCHER_P(isNumberLongTokenOf, value, "")
 {
+	(void)result_listener; // result_listener argument is unused, keep compiler quiet
+
 	if (arg == nullptr)
 	{
 		return false;
@@ -111,6 +119,8 @@ MATCHER_P(isNumberLongTokenOf, value, "")
 
 MATCHER_P(isNumberDecimalTokenOf, value, "")
 {
+	(void)result_listener; // result_listener argument is unused, keep compiler quiet
+
 	if (arg == nullptr)
 	{
 		return false;
@@ -131,6 +141,8 @@ MATCHER_P(isNumberDecimalTokenOf, value, "")
 
 MATCHER_P(isArrayOfSize, size, "")
 {
+	(void)result_listener; // result_listener argument is unused, keep compiler quiet
+
 	if (arg == nullptr)
 	{
 		return false;
@@ -151,6 +163,8 @@ MATCHER_P(isArrayOfSize, size, "")
 
 MATCHER_P(isObjectOfSize, size, "")
 {
+	(void)result_listener; // result_listener argument is unused, keep compiler quiet
+
 	if (arg == nullptr)
 	{
 		return false;

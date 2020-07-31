@@ -790,7 +790,7 @@ TEST_F(ActionCommonImplTest, leavingAnActionSetsTheEndTime)
 TEST_F(ActionCommonImplTest, leavingAnActionSetsTheEndSequenceNumber)
 {
 	// with
-	int64_t endSequenceNumber = 1234;
+	int32_t endSequenceNumber = 1234;
 
 	// expect
 	EXPECT_CALL(*mockNiceBeacon, createSequenceNumber())

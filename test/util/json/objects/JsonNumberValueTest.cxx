@@ -88,7 +88,7 @@ TEST_F(JsonNumberValueTest, getInt32ValueReturns32BitIntValue)
 TEST_F(JsonNumberValueTest, getInt32ValueReturnsCastedValueFromLong)
 {
 	// when constructed from a long that does not fit into 32-bit, then
-	ASSERT_THAT(JsonNumberValue::fromLong(0x11111111deadbabeL)->getInt32Value(), testing::Eq(0xdeadbabe));
+	ASSERT_THAT(JsonNumberValue::fromLong(0x11111111deadbabeL)->getInt32Value(), testing::Eq(static_cast<int32_t>(0xdeadbabe)));
 }
 
 TEST_F(JsonNumberValueTest, getInt32ValueReturnsCastedValueFromDouble)

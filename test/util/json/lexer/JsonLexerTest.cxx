@@ -28,6 +28,8 @@ using namespace util::json::lexer;
 
 MATCHER_P2(isLiteralTokenOf, tokenType, value, "")
 {
+	(void)result_listener; // result_listener argument is unused, keep compiler quiet
+
 	if (arg == nullptr)
 	{
 		return false;
@@ -42,6 +44,8 @@ MATCHER_P2(isLiteralTokenOf, tokenType, value, "")
 
 MATCHER_P(isStructuralTokenOf, tokenType, "")
 {
+	(void)result_listener; // result_listener argument is unused, keep compiler quiet
+
 	if (arg == nullptr)
 	{
 		return false;
