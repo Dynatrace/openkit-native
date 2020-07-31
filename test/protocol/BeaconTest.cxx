@@ -440,7 +440,7 @@ TEST_F(BeaconTest, reportValidValueDouble)
 {
 	// with
 	Utf8String_t valueName("DoubleValue");
-	double value = 3.14;
+	double value = 3.125;
 
 	// expect
 	std::stringstream s;
@@ -450,7 +450,7 @@ TEST_F(BeaconTest, reportValidValueDouble)
 		<< "&pa=" << ACTION_ID						// parent action
 		<< "&s0=1"									// sequence number of reported value
 		<< "&t0=0"									// event time since session start
-		<< "&vl=" << std::to_string(value)			// reported value
+		<< "&vl=3.125"								// reported value
 	;
 	EXPECT_CALL(*mockBeaconCache, addEventData(
 		SESSION_ID,									// session ID

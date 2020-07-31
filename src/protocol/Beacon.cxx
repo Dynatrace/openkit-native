@@ -19,6 +19,7 @@
 #include "BeaconProtocolConstants.h"
 #include "core/util/URLEncoding.h"
 #include "core/util/InetAddressValidator.h"
+#include "core/util/StringUtil.h"
 #include "providers/DefaultPRNGenerator.h"
 
 #include <random>
@@ -197,17 +198,17 @@ void Beacon::addKeyValuePairIfNotEmpty(core::UTF8String& s, const core::UTF8Stri
 
 void Beacon::addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, int32_t value)
 {
-	addKeyValuePair(s, key, std::to_string(value));
+	addKeyValuePair(s, key, core::util::StringUtil::toInvariantString(value));
 }
 
 void Beacon::addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, int64_t value)
 {
-	addKeyValuePair(s, key, std::to_string(value));
+	addKeyValuePair(s, key, core::util::StringUtil::toInvariantString(value));
 }
 
 void Beacon::addKeyValuePair(core::UTF8String& s, const core::UTF8String& key, double value)
 {
-	addKeyValuePair(s, key, std::to_string(value));
+	addKeyValuePair(s, key, core::util::StringUtil::toInvariantString(value));
 }
 
 int32_t Beacon::createSequenceNumber()
@@ -237,21 +238,21 @@ core::UTF8String Beacon::createTag(int32_t parentActionID, int32_t sequenceNumbe
 	core::UTF8String webRequestTag(TAG_PREFIX);
 
 	webRequestTag.concatenate("_");
-	webRequestTag.concatenate(std::to_string(PROTOCOL_VERSION));
+	webRequestTag.concatenate(core::util::StringUtil::toInvariantString(PROTOCOL_VERSION));
 	webRequestTag.concatenate("_");
-	webRequestTag.concatenate(std::to_string(serverId));
+	webRequestTag.concatenate(core::util::StringUtil::toInvariantString(serverId));
 	webRequestTag.concatenate("_");
-	webRequestTag.concatenate(std::to_string(getDeviceID()));
+	webRequestTag.concatenate(core::util::StringUtil::toInvariantString(getDeviceID()));
 	webRequestTag.concatenate("_");
-	webRequestTag.concatenate(std::to_string(mSessionNumber));
+	webRequestTag.concatenate(core::util::StringUtil::toInvariantString(mSessionNumber));
 	webRequestTag.concatenate("_");
 	webRequestTag.concatenate(mBeaconConfiguration->getOpenKitConfiguration()->getApplicationIdPercentEncoded());
 	webRequestTag.concatenate("_");
-	webRequestTag.concatenate(std::to_string(parentActionID));
+	webRequestTag.concatenate(core::util::StringUtil::toInvariantString(parentActionID));
 	webRequestTag.concatenate("_");
-	webRequestTag.concatenate(std::to_string(mThreadIDProvider->getThreadID()));
+	webRequestTag.concatenate(core::util::StringUtil::toInvariantString(mThreadIDProvider->getThreadID()));
 	webRequestTag.concatenate("_");
-	webRequestTag.concatenate(std::to_string(sequenceNumber));
+	webRequestTag.concatenate(core::util::StringUtil::toInvariantString(sequenceNumber));
 
 	return webRequestTag;
 }

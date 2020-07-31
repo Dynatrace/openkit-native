@@ -285,7 +285,7 @@ extern "C" {
 
 	struct OpenKitConfigurationHandle* createOpenKitConfiguration(const char* endpointURL, const char* applicationID, int64_t deviceID)
 	{
-		return createOpenKitConfigurationWithOrigAndHashedDeviceId(endpointURL, applicationID, deviceID, std::to_string(deviceID).c_str());
+		return createOpenKitConfigurationWithOrigAndHashedDeviceId(endpointURL, applicationID, deviceID, core::util::StringUtil::toInvariantString(deviceID).c_str());
 	}
 
 	struct OpenKitConfigurationHandle* createOpenKitConfigurationWithStringDeviceID(const char* endpointURL, const char* applicationID, const char* deviceID)

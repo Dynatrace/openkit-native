@@ -19,6 +19,7 @@
 #include "ProtocolConstants.h"
 #include "core/util/Compressor.h"
 #include "core/util/URLEncoding.h"
+#include "core/util/StringUtil.h"
 #include "protocol/IStatusResponse.h"
 #include "protocol/ResponseParser.h"
 #include "protocol/StatusResponse.h"
@@ -356,7 +357,7 @@ void HTTPClient::buildMonitorURL(core::UTF8String& monitorURL, const core::UTF8S
 	monitorURL.concatenate("?");
 	monitorURL.concatenate(REQUEST_TYPE_MOBILE);
 
-	appendQueryParam(monitorURL, QUERY_KEY_SERVER_ID, std::to_string(serverID));
+	appendQueryParam(monitorURL, QUERY_KEY_SERVER_ID, core::util::StringUtil::toInvariantString(serverID));
 	appendQueryParam(monitorURL, QUERY_KEY_APPLICATION, applicationID);
 	appendQueryParam(monitorURL, QUERY_KEY_VERSION, OPENKIT_VERSION);
 	appendQueryParam(monitorURL, QUERY_KEY_PLATFORM_TYPE, PLATFORM_TYPE_OPENKIT);

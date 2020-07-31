@@ -435,3 +435,101 @@ TEST_F(StringUtilTest, to64BitHashWithOddString)
 	// then
 	ASSERT_THAT(hash, testing::Gt(0));
 }
+
+// toInvariantString tests ---------------------------------------------------------------------------------------------
+
+TEST_F(StringUtilTest, int32ToInvariantString)
+{
+	// given
+	const int32_t number = -12345;
+
+	// when
+	auto obtained = StringUtil_t::toInvariantString(number);
+
+	// then
+	ASSERT_THAT(obtained, testing::StrEq("-12345"));
+}
+
+TEST_F(StringUtilTest, uint32ToInvariantString)
+{
+	// given
+	const uint32_t number = 98765;
+
+	// when
+	auto obtained = StringUtil_t::toInvariantString(number);
+
+	// then
+	ASSERT_THAT(obtained, testing::StrEq("98765"));
+}
+
+TEST_F(StringUtilTest, int64ToInvariantString)
+{
+	// given
+	const int64_t number = -123456789;
+
+	// when
+	auto obtained = StringUtil_t::toInvariantString(number);
+
+	// then
+	ASSERT_THAT(obtained, testing::StrEq("-123456789"));
+}
+
+TEST_F(StringUtilTest, uint64ToInvariantString)
+{
+	// given
+	const uint64_t number = 123456789012;
+
+	// when
+	auto obtained = StringUtil_t::toInvariantString(number);
+
+	// then
+	ASSERT_THAT(obtained, testing::StrEq("123456789012"));
+}
+
+TEST_F(StringUtilTest, floatToInvariantString)
+{
+	// given
+	const float number = 0.125;
+
+	// when
+	auto obtained = StringUtil_t::toInvariantString(number);
+
+	// then
+	ASSERT_THAT(obtained, testing::StrEq("0.125"));
+}
+
+TEST_F(StringUtilTest, integralFloatToInvariantString)
+{
+	// given
+	const float number = 1234;
+
+	// when
+	auto obtained = StringUtil_t::toInvariantString(number);
+
+	// then
+	ASSERT_THAT(obtained, testing::StrEq("1234"));
+}
+
+TEST_F(StringUtilTest, doubleToInvariantString)
+{
+	// given
+	const double number = -2.875;
+
+	// when
+	auto obtained = StringUtil_t::toInvariantString(number);
+
+	// then
+	ASSERT_THAT(obtained, testing::StrEq("-2.875"));
+}
+
+TEST_F(StringUtilTest, integralDoubleToInvariantString)
+{
+	// given
+	const double number = 271828;
+
+	// when
+	auto obtained = StringUtil_t::toInvariantString(number);
+
+	// then
+	ASSERT_THAT(obtained, testing::StrEq("271828"));
+}

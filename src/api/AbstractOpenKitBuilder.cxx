@@ -30,7 +30,7 @@ AbstractOpenKitBuilder::AbstractOpenKitBuilder(const char* endpointURL, const ch
 }
 
 AbstractOpenKitBuilder::AbstractOpenKitBuilder(const char* endpointURL, int64_t deviceID)
-	: AbstractOpenKitBuilder(endpointURL, deviceID, std::to_string(deviceID).c_str())
+	: AbstractOpenKitBuilder(endpointURL, deviceID, core::util::StringUtil::toInvariantString(deviceID).c_str())
 {
 }
 

@@ -18,6 +18,11 @@
 #define _CORE_UTIL_STRINGUTIL_H
 
 #include <string>
+#include <type_traits>
+#include <sstream>
+#include <iomanip>
+#include <locale>
+#include <limits>
 
 namespace core
 {
@@ -114,6 +119,50 @@ namespace core
 			/// @return @c true if the given character represents a low surrogate character, @c false otherwise.
 			///
 			static bool isLowSurrogateCharacter(int32_t character);
+
+			///
+			/// Method to convert an integral type into a string with invariant culture.
+			///
+			/// @par
+			/// As the std::to_string method is locale aware and std::to_chars is introduced
+			/// with C++17, this wrapper is offering an alternative.
+			///
+			/// @param intValue the integral value to convert
+			/// @return converted string value of @c intValue
+			///
+			template <typename Integer>
+			typename std::enable_if<std::is_integral<Integer>::value, std::string>::type static toInvariantString(Integer intValue)
+			{
+				std::ostringstream oss;
+				oss.imbue(std::locale::classic());
+				oss << intValue;
+
+				return oss.str();
+			}
+
+			///
+			/// Method to convert a floating point type into a string with invariant culture.
+			///
+			/// @par
+			/// As the std::to_string method is locale aware and std::to_chars is introduced
+			/// with C++17, this wrapper is offering an alternative.
+			///
+			/// @par
+			/// The precision used is large enough to guarantee a correct parsing again.
+			/// The output written is as short as possible, but guaranteed to be parseable by Dynatrace cluster.
+			///
+			/// @param floatValue the floating point value to convert
+			/// @return converted string value of @c floatValue
+			///
+			template <typename Float>
+			typename std::enable_if<std::is_floating_point<Float>::value, std::string>::type static toInvariantString(Float floatValue)
+			{
+				std::ostringstream oss;
+				oss.imbue(std::locale::classic());
+				oss << std::setprecision(std::numeric_limits<Float>::max_digits10) << floatValue;
+
+				return oss.str();
+			}
 
 		private:
 			/// utility class, not instantiable
