@@ -87,10 +87,10 @@ This small example provides a rough overview how OpenKit can be used.
 Detailed explanation is available in [example.md][example].
 
 ```c++
-const char* applicationName = "My OpenKit application";
-const char* applicationID = "application-id";
-uint64_t deviceID = 42;
-const char* endpointURL = "https://tenantid.beaconurl.com/mbeacon";
+const char* applicationName = "My OpenKit application";             // Your application's name
+const char* applicationID = "application-id";                       // Your application's ID
+uint64_t deviceID = 42;                                             // Replace with a unique value per device/installation
+const char* endpointURL = "https://tenantid.beaconurl.com/mbeacon"; // Dynatrace endpoint URL
 
 std::shared_ptr<openkit::IOpenKit> openKit = 
     DynatraceOpenKitBuilder(endpointURL, applicationID, deviceID)
@@ -99,6 +99,10 @@ std::shared_ptr<openkit::IOpenKit> openKit =
     .withManufacturer("MyCompany")
     .withModelID("MyModelID")
     .build();
+
+// Wait up to 10 seconds for OpenKit to complete initialization
+int64_t timeoutInMilliseconds = 10 * 1000;
+bool success = openKit->waitForInitCompletion(timeoutInMilliseconds);
 
 const char* clientIP = "8.8.8.8";
 std::shared_ptr<openkit::ISession> session = openKit->createSession(clientIP);

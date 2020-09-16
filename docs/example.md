@@ -185,7 +185,7 @@ An overloaded method exists to wait a given amount of time for OpenKit to initia
 following example.
 ```c++
 // C++ API
-// wait 10 seconds for OpenKit to complete initialization
+// wait up to 10 seconds for OpenKit to complete initialization
 int64_t timeoutInMilliseconds = 10 * 1000;
 bool success = openKit->waitForInitCompletion(timeoutInMilliseconds);
 ```
@@ -194,12 +194,14 @@ The method returns `false` in case the timeout expired or `shutdown` has been in
 and `true` to indicate successful initialization.  
 
 To verify if OpenKit has been initialized, use the `isInitialized` method as shown in the example below.
-```java
-boolean isInitialized = openKit.isInitialized();
-if (isInitialized) {
-    System.out.println("OpenKit is initialized");
-} else {
-    System.out.println("OpenKit is not yet initialized");
+```c++
+bool isInitialized = openKit.isInitialized();
+if (isInitialized)
+{
+    std::cout << "OpenKit is initialized" << std::endl;
+} else
+{
+    std::cout << "OpenKit is not yet initialized" << std::endl;
 }
 ```
 
@@ -212,7 +214,7 @@ bool success = waitForInitCompletion(openKit);
 
 ```c
 // C API
-// wait 10 seconds for OpenKit to complete initialization
+// wait up to 10 seconds for OpenKit to complete initialization
 int64_t timeoutInMilliseconds = 10 * 1000;
 bool success = waitForInitCompletionWithTimeout(openKit, timeoutInMilliseconds);
 ```
