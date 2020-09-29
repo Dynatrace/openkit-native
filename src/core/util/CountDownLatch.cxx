@@ -49,13 +49,12 @@ void CountDownLatch::await()
 
 void CountDownLatch::await(int64_t milliseconds)
 {
-	std::unique_lock<std::mutex> lock(mMutex);
-	auto start = std::chrono::system_clock::now();
+	auto waitUntil = std::chrono::steady_clock::now() + std::chrono::milliseconds(milliseconds);
 
-	auto current = std::chrono::system_clock::now();
-	while (mCount > 0 && (current - start).count() < milliseconds)
+	std::unique_lock<std::mutex> lock(mMutex);
+	
+	while (mCount > 0 && std::chrono::steady_clock::now() < waitUntil)
 	{
-		mConditionVariable.wait_for(lock, std::chrono::milliseconds(milliseconds));
-		current = std::chrono::system_clock::now();
+		mConditionVariable.wait_until(lock, waitUntil);
 	}
 }

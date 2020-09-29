@@ -397,9 +397,9 @@ TEST_F(BeaconSendingContextTest, sleepDefaultTime)
 		.build();
 
 	// when
-	auto start = std::chrono::system_clock::now();
+	auto start = std::chrono::steady_clock::now();
 	target->sleep();
-	auto duration = std::chrono::system_clock::now() - start;
+	auto duration = std::chrono::steady_clock::now() - start;
 
 	// then ensure sleep is correct
 	ASSERT_GE(duration, BeaconSendingContext_t::DEFAULT_SLEEP_TIME_MILLISECONDS);
@@ -418,9 +418,9 @@ TEST_F(BeaconSendingContextTest, sleepWithGivenTime)
 		.build();
 
 	// when
-	auto start = std::chrono::system_clock::now();
+	auto start = std::chrono::steady_clock::now();
 	target->sleep(100L);
-	auto duration = std::chrono::system_clock::now() - start;
+	auto duration = std::chrono::steady_clock::now() - start;
 
 	// then ensure sleep is correct
 	ASSERT_GE(duration, std::chrono::milliseconds(100L));
