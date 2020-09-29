@@ -25,11 +25,17 @@
 #include "core/configuration/IServerConfiguration.h"
 
 #include <cstdint>
+#include <functional>
 
 namespace core
 {
 	namespace configuration
 	{
+		///
+		/// Specifies a callback which will be invoked when the server configuration is updated.
+		///
+		using ServerConfigurationUpdateCallback = std::function<void(std::shared_ptr<IServerConfiguration>)>;
+
 		///
 		/// Provides configuration for the beacon.
 		///
@@ -84,6 +90,13 @@ namespace core
 			/// Returns a boolean indicating whether the server configuration has been set before or not.
 			///
 			virtual bool isServerConfigurationSet() = 0;
+
+			///
+			/// Set the callback being invoked when the server configuration is updated.
+			///
+			/// @param serverConfigurationUpdateCallback Method being invoked
+			///
+			virtual void setServerConfigurationUpdateCallback(ServerConfigurationUpdateCallback serverConfigurationUpdateCallback) = 0;
 		};
 	}
 }

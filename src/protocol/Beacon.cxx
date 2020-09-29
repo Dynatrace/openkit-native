@@ -96,7 +96,7 @@ Beacon::Beacon(
 	auto openKitConfig = configuration->getOpenKitConfiguration();
 	mDeviceID = privacyConfig->isDeviceIdSendingAllowed()
 		? openKitConfig->getDeviceId()
-		: mRandomGenerator->nextInt64(std::numeric_limits<int64_t>::max());
+		: mRandomGenerator->nextPositiveInt64();
 	mSessionNumber = privacyConfig->isSessionNumberReportingAllowed()
 		? mBeaconId
 		: 1;
@@ -123,7 +123,10 @@ core::UTF8String Beacon::createImmutableBeaconData()
 	// device/visitor ID, session number and IP address
 	addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_VISITOR_ID, getDeviceID());
 	addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_SESSION_NUMBER, getSessionNumber());
-	addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_CLIENT_IP_ADDRESS, mClientIPAddress);
+	if (!mClientIPAddress.empty())
+	{
+		addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_CLIENT_IP_ADDRESS, mClientIPAddress);
+	}
 
 	// platform information
 	addKeyValuePairIfNotEmpty(basicBeaconData, BEACON_KEY_DEVICE_OS, openKitConfig->getOperatingSystem());
@@ -656,4 +659,9 @@ void Beacon::enableCapture()
 void Beacon::disableCapture()
 {
 	return mBeaconConfiguration->disableCapture();
+}
+
+void Beacon::setServerConfigurationUpdateCallback(core::configuration::ServerConfigurationUpdateCallback serverConfigurationUpdateCallback)
+{
+	mBeaconConfiguration->setServerConfigurationUpdateCallback(serverConfigurationUpdateCallback);
 }

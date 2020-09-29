@@ -15,9 +15,11 @@
  */
 
 #include "../../protocol/mock/MockIResponseAttributes.h"
+#include "../../core/configuration/mock/MockIServerConfiguration.h"
 
 #include "core/configuration/ServerConfiguration.h"
 #include "protocol/ResponseAttributesDefaults.h"
+#include "protocol/ResponseAttribute.h"
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
@@ -26,8 +28,10 @@ using namespace test;
 
 using IResponseAttributes_sp = std::shared_ptr<protocol::IResponseAttributes>;
 using ResponseAttributesDefaults_t = protocol::ResponseAttributesDefaults;
+using ResponseAttribute_t = protocol::ResponseAttribute;
 using ServerConfiguration_t = core::configuration::ServerConfiguration;
 using MockIResponseAttributes_sp = std::shared_ptr<MockIResponseAttributes>;
+using MockIServerConfiguration_sp = std::shared_ptr<MockIServerConfiguration>;
 
 class ServerConfigurationTest : public testing::Test
 {
@@ -35,6 +39,7 @@ protected:
 
 	IResponseAttributes_sp defaultValues;
 	MockIResponseAttributes_sp mockAttributes;
+	MockIServerConfiguration_sp mockServerConfiguration;
 
 	void SetUp() override
 	{
@@ -54,6 +59,40 @@ protected:
 			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_BEACON_SIZE));
 		ON_CALL(*mockAttributes, getMultiplicity())
 			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_MULTIPLICITY));
+		ON_CALL(*mockAttributes, getMaxSessionDurationInMilliseconds())
+			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_MAX_SESSION_DURATION));
+		ON_CALL(*mockAttributes, getMaxEventsPerSession())
+			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_MAX_EVENTS_PER_SESSION));
+		ON_CALL(*mockAttributes, getSessionTimeoutInMilliseconds())
+			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_SESSION_TIMEOUT));
+		ON_CALL(*mockAttributes, getVisitStoreVersion())
+			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_VISIT_STORE_VERSION));
+
+		mockServerConfiguration = MockIServerConfiguration::createNice();
+		ON_CALL(*mockServerConfiguration, isCaptureEnabled())
+			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_CAPTURE_ENABLED));
+		ON_CALL(*mockServerConfiguration, isCrashReportingEnabled())
+			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_CRASH_REPORTING_ENABLED));
+		ON_CALL(*mockServerConfiguration, isErrorReportingEnabled())
+			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_ERROR_REPORTING_ENABLED));
+		ON_CALL(*mockServerConfiguration, getSendIntervalInMilliseconds())
+			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_SEND_INTERVAL));
+		ON_CALL(*mockServerConfiguration, getServerId())
+			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_SERVER_ID));
+		ON_CALL(*mockServerConfiguration, getBeaconSizeInBytes())
+			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_BEACON_SIZE));
+		ON_CALL(*mockServerConfiguration, getMultiplicity())
+			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_MULTIPLICITY));
+		ON_CALL(*mockServerConfiguration, getMaxSessionDurationInMilliseconds())
+			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_MAX_SESSION_DURATION));
+		ON_CALL(*mockServerConfiguration, getMaxEventsPerSession())
+			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_MAX_EVENTS_PER_SESSION));
+		ON_CALL(*mockServerConfiguration, isSessionSplitByEventsEnabled())
+			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_IS_SESSION_SPLIT_BY_EVENTS_ENABLED));
+		ON_CALL(*mockServerConfiguration, getSessionTimeoutInMilliseconds())
+			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_SESSION_TIMEOUT));
+		ON_CALL(*mockServerConfiguration, getVisitStoreVersion())
+			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_VISIT_STORE_VERSION));
 	}
 };
 
@@ -100,6 +139,11 @@ TEST_F(ServerConfigurationTest, inDefaultServerConfigurationMaxSessionDurationIs
 TEST_F(ServerConfigurationTest, inDefaultServerConfigurationMaxEventsPerSessionIsMinusOne)
 {
 	ASSERT_THAT(ServerConfiguration_t::DEFAULT->getMaxEventsPerSession(), testing::Eq(-1));
+}
+
+TEST_F(ServerConfigurationTest, inDefaultServerConfigurationIsSessionSplitByEventsEnabledIsFalse)
+{
+	ASSERT_THAT(ServerConfiguration_t::DEFAULT->isSessionSplitByEventsEnabled(), testing::Eq(false));
 }
 
 TEST_F(ServerConfigurationTest, inDefaultServerConfigurationSessionTimeoutIsMinusOne)
@@ -229,6 +273,154 @@ TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttribut
 
 	// then
 	ASSERT_THAT(target->getMultiplicity(), testing::Eq(multiplicity));
+}
+
+TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromStatusResponseCopiesSessionDuration)
+{
+	// with
+	int32_t sessionDuration = 73;
+
+	// expect
+	EXPECT_CALL(*mockAttributes, getMaxSessionDurationInMilliseconds())
+		.Times(1)
+		.WillOnce(testing::Return(sessionDuration));
+
+	// when
+	auto target = ServerConfiguration_t::from(mockAttributes);
+
+	// then
+	ASSERT_THAT(target->getMaxSessionDurationInMilliseconds(), testing::Eq(sessionDuration));
+}
+
+TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromStatusResponseCopiesMaxEventsPerSession)
+{
+	// with
+	int32_t eventsPerSession = 37;
+
+	// expect
+	EXPECT_CALL(*mockAttributes, getMaxEventsPerSession())
+		.Times(1)
+		.WillOnce(testing::Return(eventsPerSession));
+
+	// when
+	auto target = ServerConfiguration_t::from(mockAttributes);
+
+	// then
+	ASSERT_THAT(target->getMaxEventsPerSession(), testing::Eq(eventsPerSession));
+}
+
+TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromStatusResponseHasSplitBySessionEnabledIfMaxEventsGreaterZero)
+{
+	// with
+	int32_t eventsPerSession = 1;
+
+	// expect
+	EXPECT_CALL(*mockAttributes, getMaxEventsPerSession())
+		.Times(1)
+		.WillOnce(testing::Return(eventsPerSession));
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_EVENTS_PER_SESSION))
+		.Times(1)
+		.WillOnce(testing::Return(true));
+
+	// when
+	auto target = ServerConfiguration_t::from(mockAttributes);
+
+	// then
+	ASSERT_THAT(target->isSessionSplitByEventsEnabled(), testing::Eq(true));
+}
+
+TEST_F(ServerConfigurationTest, creatingAServerConfigurationStatusResponseHasSplitBySessionDisabledIfMaxEventsZero)
+{
+	// with
+	int32_t eventsPerSession = 0;
+
+	// expect
+	EXPECT_CALL(*mockAttributes, getMaxEventsPerSession())
+		.Times(1)
+		.WillOnce(testing::Return(eventsPerSession));
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_EVENTS_PER_SESSION))
+		.Times(1)
+		.WillOnce(testing::Return(true));
+
+	// when
+	auto target = ServerConfiguration_t::from(mockAttributes);
+
+	// then
+	ASSERT_THAT(target->isSessionSplitByEventsEnabled(), testing::Eq(false));
+}
+
+TEST_F(ServerConfigurationTest, creatingAServerConfigurationStatusResponseHasSplitBySessionDisabledIfMaxEventsEventsSmallerZero)
+{
+	// with
+	int32_t eventsPerSession = -1;
+
+	// expect
+	EXPECT_CALL(*mockAttributes, getMaxEventsPerSession())
+		.Times(1)
+		.WillOnce(testing::Return(eventsPerSession));
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_EVENTS_PER_SESSION))
+		.Times(1)
+		.WillOnce(testing::Return(true));
+
+	// when
+	auto target = ServerConfiguration_t::from(mockAttributes);
+
+	// then
+	ASSERT_THAT(target->isSessionSplitByEventsEnabled(), testing::Eq(false));
+}
+
+TEST_F(ServerConfigurationTest, creatingAServerConfigurationStatusResponseHasSplitBySessionDisabledIfMaxEventsIsNotSet)
+{
+	// with
+	int32_t eventsPerSession = 1;
+
+	// expect
+	EXPECT_CALL(*mockAttributes, getMaxEventsPerSession())
+		.Times(1)
+		.WillOnce(testing::Return(eventsPerSession));
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_EVENTS_PER_SESSION))
+		.Times(1)
+		.WillOnce(testing::Return(false));
+
+	// when
+	auto target = ServerConfiguration_t::from(mockAttributes);
+
+	// then
+	ASSERT_THAT(target->isSessionSplitByEventsEnabled(), testing::Eq(false));
+}
+
+TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromStatusResponseCopiesSessionTimeout)
+{
+	// with
+	int32_t sessionTimeout = 42;
+
+	// expect
+	EXPECT_CALL(*mockAttributes, getSessionTimeoutInMilliseconds())
+		.Times(1)
+		.WillOnce(testing::Return(sessionTimeout));
+
+	// when
+	auto target = ServerConfiguration_t::from(mockAttributes);
+
+	// then
+	ASSERT_THAT(target->getSessionTimeoutInMilliseconds(), testing::Eq(sessionTimeout));
+}
+
+TEST_F(ServerConfigurationTest, creatingASessionConfigurationFromStatusResponseCopiesVisitStoreVersion)
+{
+	// with
+	int32_t visitStoreVersion = 73;
+
+	// expect
+	EXPECT_CALL(*mockAttributes, getVisitStoreVersion())
+		.Times(1)
+		.WillOnce(testing::Return(visitStoreVersion));
+
+	// when
+	auto target = ServerConfiguration_t::from(mockAttributes);
+
+	// then
+	ASSERT_THAT(target->getVisitStoreVersion(), testing::Eq(visitStoreVersion));
 }
 
 TEST_F(ServerConfigurationTest, sendingDataToTheServerIsAllowedIfCapturingIsEnabledAndMultiplicityIsGreaterThanZero)
@@ -379,6 +571,414 @@ TEST_F(ServerConfigurationTest, sendingErrorToTheServerIsNotAllowedIfDataSending
 
 	// then
 	ASSERT_THAT(obtained, testing::Eq(false));
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// creating builder from server config tests
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+TEST_F(ServerConfigurationTest, builderFromServerConfigCopiesCaptureSettings)
+{
+	// expect
+	EXPECT_CALL(*mockServerConfiguration, isCaptureEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(false));
+
+	// given
+	auto target = ServerConfiguration_t::Builder(mockServerConfiguration).build();
+
+	// then
+	ASSERT_THAT(target->isCaptureEnabled(), testing::Eq(false));
+}
+
+TEST_F(ServerConfigurationTest, builderFromServerConfigCopiesCrashReportingSettings)
+{
+	// expect
+	EXPECT_CALL(*mockServerConfiguration, isCrashReportingEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(false));
+
+	// given
+	auto target = ServerConfiguration_t::Builder(mockServerConfiguration).build();
+
+	// then
+	ASSERT_THAT(target->isCrashReportingEnabled(), testing::Eq(false));
+}
+
+TEST_F(ServerConfigurationTest, builderFromServerConfigCopiesErrorReportingSettings)
+{
+	// expect
+	EXPECT_CALL(*mockServerConfiguration, isErrorReportingEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(false));
+
+	// given
+	auto target = ServerConfiguration_t::Builder(mockServerConfiguration).build();
+
+	// then
+	ASSERT_THAT(target->isErrorReportingEnabled(), testing::Eq(false));
+}
+
+TEST_F(ServerConfigurationTest, builderFromServerConfigCopiesSendingIntervalSettings)
+{
+	// expect
+	EXPECT_CALL(*mockServerConfiguration, getSendIntervalInMilliseconds())
+		.Times(1)
+		.WillOnce(testing::Return(1234));
+
+	// given
+	auto target = ServerConfiguration_t::Builder(mockServerConfiguration).build();
+
+	// then
+	ASSERT_THAT(target->getSendIntervalInMilliseconds(), testing::Eq(1234));
+}
+
+TEST_F(ServerConfigurationTest, builderFromServerConfigCopiesServerIdSettings)
+{
+	// expect
+	EXPECT_CALL(*mockServerConfiguration, getServerId())
+		.Times(1)
+		.WillOnce(testing::Return(42));
+
+	// given
+	auto target = ServerConfiguration_t::Builder(mockServerConfiguration).build();
+
+	// then
+	ASSERT_THAT(target->getServerId(), testing::Eq(42));
+}
+
+TEST_F(ServerConfigurationTest, builderFromServerConfigCopiesBeaconSizeSettings)
+{
+	// expect
+	EXPECT_CALL(*mockServerConfiguration, getBeaconSizeInBytes())
+		.Times(1)
+		.WillOnce(testing::Return(100 * 1024));
+
+	// given
+	auto target = ServerConfiguration_t::Builder(mockServerConfiguration).build();
+
+	// then
+	ASSERT_THAT(target->getBeaconSizeInBytes(), testing::Eq(100 * 1024));
+}
+
+TEST_F(ServerConfigurationTest, builderFromServerConfigCopiesMultiplicitySettings)
+{
+	// expect
+	EXPECT_CALL(*mockServerConfiguration, getMultiplicity())
+		.Times(1)
+		.WillOnce(testing::Return(7));
+
+	// given
+	auto target = ServerConfiguration_t::Builder(mockServerConfiguration).build();
+
+	// then
+	ASSERT_THAT(target->getMultiplicity(), testing::Eq(7));
+}
+
+TEST_F(ServerConfigurationTest, builderFromServerConfigCopiesSessionDuration)
+{
+	// expect
+	EXPECT_CALL(*mockServerConfiguration, getMaxSessionDurationInMilliseconds())
+		.Times(1)
+		.WillOnce(testing::Return(73));
+
+	// given
+	auto target = ServerConfiguration_t::Builder(mockServerConfiguration).build();
+
+	// then
+	ASSERT_THAT(target->getMaxSessionDurationInMilliseconds(), testing::Eq(73));
+}
+
+TEST_F(ServerConfigurationTest, builderFromServerConfigCopiesMaxEventsPerSession)
+{
+	// expect
+	EXPECT_CALL(*mockServerConfiguration, getMaxEventsPerSession())
+		.Times(1)
+		.WillOnce(testing::Return(37));
+
+	// given
+	auto target = ServerConfiguration_t::Builder(mockServerConfiguration).build();
+
+	// then
+	ASSERT_THAT(target->getMaxEventsPerSession(), testing::Eq(37));
+}
+
+TEST_F(ServerConfigurationTest, builderFromServerConfigHasSplitBySessionEnabledIfMaxEventsGreaterZero)
+{
+	// with
+	int32_t eventsPerSession = 1;
+
+	// expect
+	EXPECT_CALL(*mockServerConfiguration, getMaxEventsPerSession())
+		.Times(1)
+		.WillOnce(testing::Return(eventsPerSession));
+	EXPECT_CALL(*mockServerConfiguration, isSessionSplitByEventsEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(true));
+
+	// given
+	auto target = ServerConfiguration_t::Builder(mockServerConfiguration).build();
+
+	// then
+	ASSERT_THAT(target->isSessionSplitByEventsEnabled(), testing::Eq(true));
+}
+
+TEST_F(ServerConfigurationTest, builderFromServerConfigHasSplitBySessionDisabledIfMaxEventsZero)
+{
+	// with
+	int32_t eventsPerSession = 0;
+
+	// expect
+	EXPECT_CALL(*mockServerConfiguration, getMaxEventsPerSession())
+		.Times(1)
+		.WillOnce(testing::Return(eventsPerSession));
+	EXPECT_CALL(*mockServerConfiguration, isSessionSplitByEventsEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(true));
+
+	// given
+	auto target = ServerConfiguration_t::Builder(mockServerConfiguration).build();
+
+	// then
+	ASSERT_THAT(target->isSessionSplitByEventsEnabled(), testing::Eq(false));
+}
+
+TEST_F(ServerConfigurationTest, builderFromServerConfigHasSplitBySessionDisabledIfMaxEventsSmallerZero)
+{
+	// with
+	int32_t eventsPerSession = -1;
+
+	// expect
+	EXPECT_CALL(*mockServerConfiguration, getMaxEventsPerSession())
+		.Times(1)
+		.WillOnce(testing::Return(eventsPerSession));
+	EXPECT_CALL(*mockServerConfiguration, isSessionSplitByEventsEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(true));
+
+	// given
+	auto target = ServerConfiguration_t::Builder(mockServerConfiguration).build();
+
+	// then
+	ASSERT_THAT(target->isSessionSplitByEventsEnabled(), testing::Eq(false));
+}
+
+TEST_F(ServerConfigurationTest, builderFromServerConfigHasSplitBySessionDisabledIfMaxEventsIsNotSet)
+{
+	// with
+	int32_t eventsPerSession = 1;
+
+	// expect
+	EXPECT_CALL(*mockServerConfiguration, getMaxEventsPerSession())
+		.Times(1)
+		.WillOnce(testing::Return(eventsPerSession));
+	EXPECT_CALL(*mockServerConfiguration, isSessionSplitByEventsEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(false));
+
+	// given
+	auto target = ServerConfiguration_t::Builder(mockServerConfiguration).build();
+
+	// then
+	ASSERT_THAT(target->isSessionSplitByEventsEnabled(), testing::Eq(false));
+}
+
+TEST_F(ServerConfigurationTest, builderFromServerConfigCopiesSessionTimeout)
+{
+	// expect
+	EXPECT_CALL(*mockServerConfiguration, getSessionTimeoutInMilliseconds())
+		.Times(1)
+		.WillOnce(testing::Return(42));
+
+	// given
+	auto target = ServerConfiguration_t::Builder(mockServerConfiguration).build();
+
+	// then
+	ASSERT_THAT(target->getSessionTimeoutInMilliseconds(), testing::Eq(42));
+}
+
+TEST_F(ServerConfigurationTest, builderFromServerConfigCopiesVisitStoreVersion)
+{
+	// expect
+	EXPECT_CALL(*mockServerConfiguration, getVisitStoreVersion())
+		.Times(1)
+		.WillOnce(testing::Return(73));
+
+	// given
+	auto target = ServerConfiguration_t::Builder(mockServerConfiguration).build();
+
+	// then
+	ASSERT_THAT(target->getVisitStoreVersion(), testing::Eq(73));
+}
+
+TEST_F(ServerConfigurationTest, builderFromServerConfigSendingDataToTheServerIsAllowedIfCapturingIsEnabledAndMultiplicityIsGreaterThanZero)
+{
+	// expect
+	EXPECT_CALL(*mockServerConfiguration, isCaptureEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(true));
+	EXPECT_CALL(*mockServerConfiguration, getMultiplicity())
+		.Times(1)
+		.WillOnce(testing::Return(1));
+
+	// given
+	auto target = ServerConfiguration_t::Builder(mockServerConfiguration).build();
+
+	// then
+	ASSERT_THAT(target->isSendingDataAllowed(), testing::Eq(true));
+}
+
+TEST_F(ServerConfigurationTest, builderFromServerConfigSendingDataToTheServerIsNotAllowedIfCapturingIsDisabled)
+{
+	// expect
+	EXPECT_CALL(*mockServerConfiguration, isCaptureEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(false));
+	EXPECT_CALL(*mockServerConfiguration, getMultiplicity())
+		.Times(1)
+		.WillOnce(testing::Return(1));
+
+	// given
+	auto target = ServerConfiguration_t::Builder(mockServerConfiguration).build();
+
+	// then
+	ASSERT_THAT(target->isSendingDataAllowed(), testing::Eq(false));
+}
+
+TEST_F(ServerConfigurationTest, builderFromServerConfigSendingDataToTheServerIsNotAllowedIfCapturingIsEnabledButMultiplicityIsZero)
+{
+	// expect
+	EXPECT_CALL(*mockServerConfiguration, isCaptureEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(true));
+	EXPECT_CALL(*mockServerConfiguration, getMultiplicity())
+		.Times(1)
+		.WillOnce(testing::Return(0));
+
+	// given
+	auto target = ServerConfiguration_t::Builder(mockServerConfiguration).build();
+
+	// then
+	ASSERT_THAT(target->isSendingDataAllowed(), testing::Eq(false));
+}
+
+TEST_F(ServerConfigurationTest, builderFromServerConfigSendingCrashesToTheServerIsAllowedIfDataSendingIsAllowedAndCaptureCrashesIsEnabled)
+{
+	// expect
+	EXPECT_CALL(*mockServerConfiguration, isCaptureEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(true));
+	EXPECT_CALL(*mockServerConfiguration, getMultiplicity())
+		.Times(1)
+		.WillOnce(testing::Return(1));
+	EXPECT_CALL(*mockServerConfiguration, isCrashReportingEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(true));
+
+	// given
+	auto target = ServerConfiguration_t::Builder(mockServerConfiguration).build();
+
+	// then
+	ASSERT_THAT(target->isSendingCrashesAllowed(), testing::Eq(true));
+}
+
+TEST_F(ServerConfigurationTest, builderFromServerConfigSendingCrashesToTheServerIsNotAllowedIfDataSendingIsNotAllowed)
+{
+	// expect
+	EXPECT_CALL(*mockServerConfiguration, isCaptureEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(false));
+	EXPECT_CALL(*mockServerConfiguration, getMultiplicity())
+		.Times(1)
+		.WillOnce(testing::Return(1));
+	EXPECT_CALL(*mockServerConfiguration, isCrashReportingEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(true));
+
+	// given
+	auto target = ServerConfiguration_t::Builder(mockServerConfiguration).build();
+
+	// then
+	ASSERT_THAT(target->isSendingCrashesAllowed(), testing::Eq(false));
+}
+
+TEST_F(ServerConfigurationTest, builderFromServerConfigSendingCrashesToTheServerIsNotAllowedIfDataSendingIsAllowedButCaptureCrashesIsDisabled)
+{
+	// expect
+	EXPECT_CALL(*mockServerConfiguration, isCaptureEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(true));
+	EXPECT_CALL(*mockServerConfiguration, getMultiplicity())
+		.Times(1)
+		.WillOnce(testing::Return(1));
+	EXPECT_CALL(*mockServerConfiguration, isCrashReportingEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(false));
+
+	// given
+	auto target = ServerConfiguration_t::Builder(mockServerConfiguration).build();
+
+	// then
+	ASSERT_THAT(target->isSendingCrashesAllowed(), testing::Eq(false));
+}
+
+TEST_F(ServerConfigurationTest, builderFromServerConfigSendingErrorToTheServerIsAllowedIfDataSendingIsAllowedAndCaptureErrorIsEnabled)
+{
+	// expect
+	EXPECT_CALL(*mockServerConfiguration, isCaptureEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(true));
+	EXPECT_CALL(*mockServerConfiguration, getMultiplicity())
+		.Times(1)
+		.WillOnce(testing::Return(1));
+	EXPECT_CALL(*mockServerConfiguration, isErrorReportingEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(true));
+
+	// given
+	auto target = ServerConfiguration_t::Builder(mockServerConfiguration).build();
+
+	// then
+	ASSERT_THAT(target->isSendingErrorsAllowed(), testing::Eq(true));
+}
+
+TEST_F(ServerConfigurationTest, builderFromServerConfigSendingErrorToTheServerIsNotAllowedIfDataSendingIsNotAllowed)
+{
+	// expect
+	EXPECT_CALL(*mockServerConfiguration, isCaptureEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(false));
+	EXPECT_CALL(*mockServerConfiguration, getMultiplicity())
+		.Times(1)
+		.WillOnce(testing::Return(1));
+	EXPECT_CALL(*mockServerConfiguration, isErrorReportingEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(true));
+
+	// given
+	auto target = ServerConfiguration_t::Builder(mockServerConfiguration).build();
+
+	// then
+	ASSERT_THAT(target->isSendingErrorsAllowed(), testing::Eq(false));
+}
+
+TEST_F(ServerConfigurationTest, BuilderFromServerConfigSendingErrorsToTheServerIsNotAllowedIfDataSendingIsAllowedButCaptureErrorsDisabled)
+{
+	// expect
+	EXPECT_CALL(*mockServerConfiguration, isCaptureEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(true));
+	EXPECT_CALL(*mockServerConfiguration, getMultiplicity())
+		.Times(1)
+		.WillOnce(testing::Return(1));
+	EXPECT_CALL(*mockServerConfiguration, isErrorReportingEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(false));
+
+	// given
+	auto target = ServerConfiguration_t::Builder(mockServerConfiguration).build();
+
+	// then
+	ASSERT_THAT(target->isSendingErrorsAllowed(), testing::Eq(false));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -545,6 +1145,102 @@ TEST_F(ServerConfigurationTest, mergeTakesOverMaxEventsPerSession)
 
 	// then
 	ASSERT_THAT(obtained->getMaxEventsPerSession(), testing::Eq(eventsPerSession));
+}
+
+TEST_F(ServerConfigurationTest, mergeTakesOverIsSessionSplitByEventsEnabledWhenMaxEventsIsGreaterZeroAndAttributeIsSet)
+{
+	// with
+	int32_t eventsPerSession = 73;
+
+	// expect
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_EVENTS_PER_SESSION))
+		.Times(1)
+		.WillOnce(testing::Return(true));
+	EXPECT_CALL(*mockAttributes, getMaxEventsPerSession())
+		.Times(1)
+		.WillOnce(testing::Return(eventsPerSession));
+
+	// given
+	auto target = ServerConfiguration_t::Builder().build();
+	auto other = ServerConfiguration_t::from(mockAttributes);
+
+	// when
+	auto obtained = target->merge(other);
+
+	// then
+	ASSERT_THAT(obtained->isSessionSplitByEventsEnabled(), testing::Eq(true));
+}
+
+TEST_F(ServerConfigurationTest, mergeTakesOverIsSessionSplitByEventsEnabledWhenMaxEventsIsEqualToZeroButAttributeIsSet)
+{
+	// with
+	int32_t eventsPerSession = 0;
+
+	// expect
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_EVENTS_PER_SESSION))
+		.Times(1)
+		.WillOnce(testing::Return(true));
+	EXPECT_CALL(*mockAttributes, getMaxEventsPerSession())
+		.Times(1)
+		.WillOnce(testing::Return(eventsPerSession));
+
+	// given
+	auto target = ServerConfiguration_t::Builder().build();
+	auto other = ServerConfiguration_t::from(mockAttributes);
+
+	// when
+	auto obtained = target->merge(other);
+
+	// then
+	ASSERT_THAT(obtained->isSessionSplitByEventsEnabled(), testing::Eq(false));
+}
+
+TEST_F(ServerConfigurationTest, mergeTakesOverIsSessionSplitByEventsEnabledWhenMaxEventsIsSmallerZeroButAttributeIsSet)
+{
+	// with
+	int32_t eventsPerSession = -1;
+
+	// expect
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_EVENTS_PER_SESSION))
+		.Times(1)
+		.WillOnce(testing::Return(true));
+	EXPECT_CALL(*mockAttributes, getMaxEventsPerSession())
+		.Times(1)
+		.WillOnce(testing::Return(eventsPerSession));
+
+	// given
+	auto target = ServerConfiguration_t::Builder().build();
+	auto other = ServerConfiguration_t::from(mockAttributes);
+
+	// when
+	auto obtained = target->merge(other);
+
+	// then
+	ASSERT_THAT(obtained->isSessionSplitByEventsEnabled(), testing::Eq(false));
+}
+
+TEST_F(ServerConfigurationTest, mergeTakesOverIsSessionSplitByEventsEnabledWhenMaxEventsIsGreaterZeroButAttributeIsNotSet)
+{
+	// with
+	int32_t eventsPerSession = 73;
+
+	// expect
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_EVENTS_PER_SESSION))
+		.Times(1)
+		.WillOnce(testing::Return(false));
+	EXPECT_CALL(*mockAttributes, getMaxEventsPerSession())
+		.Times(1)
+		.WillOnce(testing::Return(eventsPerSession));
+
+	// given
+	auto target = ServerConfiguration_t::Builder().build();
+	auto other = ServerConfiguration_t::from(mockAttributes);
+
+	// when
+	auto obtained = target->merge(other);
+
+	// then
+	ASSERT_THAT(obtained->isSessionSplitByEventsEnabled(), testing::Eq(false));
 }
 
 TEST_F(ServerConfigurationTest, mergeTakesOverSessionTimeout)

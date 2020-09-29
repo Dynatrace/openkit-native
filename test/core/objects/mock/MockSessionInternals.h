@@ -121,6 +121,8 @@ namespace test
 
 		MOCK_METHOD0(decreaseNumRemainingSessionRequests, void());
 
+		MOCK_METHOD0(getBeacon, std::shared_ptr<protocol::IBeacon>());
+
 		MOCK_METHOD0(isConfigured, bool());
 
 		MOCK_METHOD0(isConfiguredAndFinished, bool());

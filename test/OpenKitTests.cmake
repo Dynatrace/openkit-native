@@ -64,16 +64,20 @@ set(OPENKIT_SOURCES_TEST_CORE_OBJECTS
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/NullWebRequestTracerTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/OpenKitTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/RootActionTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/SessionCreatorTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/SessionProxyTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/SessionTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/WebRequestTracerTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/WebRequestTracerURLValidityTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/builder/TestOpenKitBuilder.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/builder/TestSessionBuilder.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockIActionCommon.h
-    ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockIOpenKitObject.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockIOpenKitComposite.h
-    ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockSessionInternals.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockIOpenKitObject.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockISessionCreator.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockISessionCreatorInput.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockIWebRequestTracerInternals.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockSessionInternals.h
 )
 
 set(OPENKIT_SOURCES_TEST_PROTOCOL
@@ -93,14 +97,16 @@ set(OPENKIT_SOURCES_TEST_PROTOCOL
 )
 
 set(OPENKIT_SOURCES_TEST_PROVIDERS
-    ${CMAKE_CURRENT_LIST_DIR}/providers/DefaultPRNGeneratorTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/providers/DefaultSessionIDProviderTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/providers/DefaultThreadIDProviderTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/providers/mock/MockIHTTPClientProvider.h
     ${CMAKE_CURRENT_LIST_DIR}/providers/mock/MockIPRNGenerator.h
     ${CMAKE_CURRENT_LIST_DIR}/providers/mock/MockISessionIDProvider.h
     ${CMAKE_CURRENT_LIST_DIR}/providers/mock/MockIThreadIDProvider.h
     ${CMAKE_CURRENT_LIST_DIR}/providers/mock/MockITimingProvider.h
+    ${CMAKE_CURRENT_LIST_DIR}/providers/DefaultPRNGeneratorTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/providers/DefaultSessionIDProviderTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/providers/DefaultThreadIDProviderTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/providers/FixedPRNGeneratorTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/providers/FixedSessionIDProviderTest.cxx
 )
 
 set(OPENKIT_SOURCES_TEST_CORE_COMMUNICATION

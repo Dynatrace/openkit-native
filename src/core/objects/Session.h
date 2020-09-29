@@ -103,8 +103,6 @@ namespace core
 
 			bool isEmpty() const override;
 
-
-
 			void clearCapturedData() override;
 
 			void updateServerConfiguration(
@@ -131,6 +129,8 @@ namespace core
 			bool canSendNewSessionRequest() const override;
 
 			void decreaseNumRemainingSessionRequests() override;
+
+			std::shared_ptr<protocol::IBeacon> getBeacon() override;
 
 			bool isConfigured() override;
 

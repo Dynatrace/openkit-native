@@ -14,25 +14,37 @@
 * limitations under the License.
 */
 
-#include "DefaultPRNGenerator.h"
+#ifndef _PROVIDERS_FIXEDPRNGENERATOR_H
+#define _PROVIDERS_FIXEDPRNGENERATOR_H
 
-#include <limits>
+#include "IPRNGenerator.h"
 
-using namespace providers;
+#include <memory>
 
-DefaultPRNGenerator::DefaultPRNGenerator()
-	: mRandomEngine((std::random_device())())
+namespace providers
 {
+
+	///
+	/// Implementation of IPRNGenerator providing fixed random numbers.
+	///
+	class FixedPRNGenerator : public IPRNGenerator
+	{
+	public:
+
+		FixedPRNGenerator(std::shared_ptr<IPRNGenerator> rng);
+
+		~FixedPRNGenerator() override = default;
+
+		int32_t nextPositiveInt32() override;
+
+		int64_t nextPositiveInt64() override;
+
+	private:
+		
+		int32_t mRandomInt32Number;
+
+		int64_t mRandomInt64Number;
+	};
 }
 
-int32_t DefaultPRNGenerator::nextPositiveInt32()
-{
-	std::uniform_real_distribution<double> uniform_dist(0.0, 1.0);
-	return static_cast<int32_t>(uniform_dist(mRandomEngine) * std::numeric_limits<int32_t>::max());
-}
-
-int64_t DefaultPRNGenerator::nextPositiveInt64()
-{
-	std::uniform_real_distribution<double> uniform_dist(0.0, 1.0);
-	return static_cast<int64_t>(uniform_dist(mRandomEngine) * std::numeric_limits<int64_t>::max());
-}
+#endif

@@ -32,6 +32,7 @@
 using namespace test;
 
 using BeaconConfiguration_t = core::configuration::BeaconConfiguration;
+using IServerConfiguration_sp = std::shared_ptr<core::configuration::IServerConfiguration>;
 using BeaconConfiguration_sp = std::shared_ptr<BeaconConfiguration_t>;
 using MockIOpenKitConfiguration_sp = std::shared_ptr<MockIOpenKitConfiguration>;
 using MockIPrivacyConfiguration_sp = std::shared_ptr<MockIPrivacyConfiguration>;
@@ -261,6 +262,45 @@ TEST_F(BeaconConfigurationTest, updateServerConfigurationWithNullDoesNothing)
 	// then
 	ASSERT_THAT(target->isServerConfigurationSet(), testing::Eq(false));
 	ASSERT_THAT(target->getServerConfiguration(), testing::Eq(ServerConfiguration_t::DEFAULT));
+}
+
+TEST_F(BeaconConfigurationTest, updateServerConfigurationDoesInvokeCallbackIfCallbackIsSet)
+{
+	// given
+	auto serverConfig = MockIServerConfiguration::createNice();
+	IServerConfiguration_sp capturedServerConfiguration = nullptr;
+	auto updateServerConfigurationCallback = [&capturedServerConfiguration](IServerConfiguration_sp updatedServerConfiguration) {
+		capturedServerConfiguration = updatedServerConfiguration;
+	};
+
+	auto target = createBeaconConfig();
+	target->setServerConfigurationUpdateCallback(updateServerConfigurationCallback);
+
+	// when
+	target->updateServerConfiguration(serverConfig);
+
+	// then
+	ASSERT_THAT(capturedServerConfiguration, testing::Eq(serverConfig));
+}
+
+TEST_F(BeaconConfigurationTest, updateServerConfigurationDoesNotInvokeCallbackIfNoCallbackIsSet)
+{
+	// given
+	auto serverConfig = MockIServerConfiguration::createNice();
+	IServerConfiguration_sp capturedServerConfiguration = nullptr;
+	auto updateServerConfigurationCallback = [&capturedServerConfiguration](IServerConfiguration_sp updatedServerConfiguration) {
+		capturedServerConfiguration = updatedServerConfiguration;
+	};
+
+	auto target = createBeaconConfig();
+	target->setServerConfigurationUpdateCallback(updateServerConfigurationCallback);
+	target->setServerConfigurationUpdateCallback(nullptr);
+
+	// when
+	target->updateServerConfiguration(serverConfig);
+
+	// then
+	ASSERT_THAT(capturedServerConfiguration, testing::Eq(nullptr));
 }
 
 TEST_F(BeaconConfigurationTest, enableCaptureSetsIsConfigurationSet)

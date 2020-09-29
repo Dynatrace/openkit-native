@@ -36,7 +36,7 @@ namespace openkit
 		///
 		/// Destructor
 		///
-		virtual ~ISession() {}
+		virtual ~ISession() = default;
 
 		///
 		/// Enters an Action with a specified name in this Session.

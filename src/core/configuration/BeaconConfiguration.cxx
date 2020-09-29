@@ -33,6 +33,7 @@ BeaconConfiguration::BeaconConfiguration(
 			.build()
 	)
 	, mServerConfiguration(nullptr)
+	, mServerConfigurationUpdateCallback(nullptr)
 	, mMutex()
 {
 }
@@ -85,18 +86,24 @@ void BeaconConfiguration::updateServerConfiguration(
 		return;
 	}
 
+	ServerConfigurationUpdateCallback callback;
 	{ // synchronized scope
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		auto serverConfig = mServerConfiguration;
-		if (serverConfig == nullptr)
+		if (mServerConfiguration != nullptr)
 		{
-			mServerConfiguration = newServerConfiguration;
+			newServerConfiguration = mServerConfiguration->merge(newServerConfiguration);
 		}
-		else
-		{
-			mServerConfiguration = serverConfig->merge(newServerConfiguration);
-		}
+
+		mServerConfiguration = newServerConfiguration;
+
+		callback = mServerConfigurationUpdateCallback;
+	}
+
+	// notify has to be called outside of the synchronized block to avoid deadlock situation
+	if (callback != nullptr)
+	{
+		callback(newServerConfiguration);
 	}
 }
 
@@ -112,14 +119,12 @@ void BeaconConfiguration::disableCapture()
 
 void BeaconConfiguration::updateCaptureWith(bool captureState)
 {
-	{ // synchronized scope
-		std::lock_guard<std::mutex> lock(mMutex);
+	std::lock_guard<std::mutex> lock(mMutex);
 
-		auto currentServerConfig = getServerConfigurationOrDefault();
-		mServerConfiguration = ServerConfiguration::Builder(currentServerConfig)
-			.withCapture(captureState)
-			.build();
-	}
+	auto currentServerConfig = getServerConfigurationOrDefault();
+	mServerConfiguration = ServerConfiguration::Builder(currentServerConfig)
+		.withCapture(captureState)
+		.build();
 }
 
 bool BeaconConfiguration::isServerConfigurationSet()
@@ -130,3 +135,9 @@ bool BeaconConfiguration::isServerConfigurationSet()
 	return mServerConfiguration != nullptr;
 }
 
+void BeaconConfiguration::setServerConfigurationUpdateCallback(ServerConfigurationUpdateCallback serverConfigurationUpdateCallback)
+{
+	std::lock_guard<std::mutex> lock(mMutex);
+
+	mServerConfigurationUpdateCallback = serverConfigurationUpdateCallback;
+}

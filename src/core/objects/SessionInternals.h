@@ -20,9 +20,11 @@
 #include "OpenKit/IRootAction.h"
 #include "OpenKit/ISession.h"
 #include "OpenKit/IWebRequestTracer.h"
+
 #include "core/configuration/IBeaconConfiguration.h"
 #include "core/objects/IOpenKitObject.h"
 #include "core/objects/OpenKitComposite.h"
+#include "protocol/IBeacon.h"
 #include "protocol/IStatusResponse.h"
 #include "providers/IHTTPClientProvider.h"
 
@@ -128,6 +130,11 @@ namespace core
 			virtual void decreaseNumRemainingSessionRequests() = 0;
 
 			///
+			/// Returns the beacon associated with this session.
+			///
+			virtual std::shared_ptr<protocol::IBeacon> getBeacon() = 0;
+
+			///
 			/// Indicates whether this session is configured or not.
 			///
 			/// @par
@@ -152,7 +159,6 @@ namespace core
 			/// A session is considered as finished, after @ref end() was called.
 			///
 			virtual bool isFinished() = 0;
-
 		};
 	}
 }

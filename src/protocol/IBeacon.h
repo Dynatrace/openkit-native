@@ -17,23 +17,16 @@
 #ifndef _PROTOCOL_IBEACON_H
 #define _PROTOCOL_IBEACON_H
 
-#include "IStatusResponse.h"
 #include "core/UTF8String.h"
+#include "core/configuration/IServerConfiguration.h"
 #include "core/configuration/IBeaconConfiguration.h"
-#include "core/objects/LeafAction.h"
-#include "core/objects/RootAction.h"
-#include "core/objects/Session.h"
+#include "core/objects/IActionCommon.h"
+#include "core/objects/IWebRequestTracerInternals.h"
+#include "protocol/IStatusResponse.h"
+#include "providers/IHTTPClientProvider.h"
 
 #include <memory>
-
-namespace core
-{
-	namespace objects
-	{
-		class IActionCommon;
-		class IWebRequestTracerInternals;
-	}
-}
+#include <cstdint>
 
 namespace protocol
 {
@@ -255,6 +248,13 @@ namespace protocol
 		/// This will implicitly cause @ref isServerConfigurationSet() to return @c true
 		///
 		virtual void disableCapture() = 0;
+
+		///
+		/// Set the callback being invoked when the server configuration is updated.
+		///
+		/// @param serverConfigurationUpdateCallback Method being invoked
+		///
+		virtual void setServerConfigurationUpdateCallback(core::configuration::ServerConfigurationUpdateCallback serverConfigurationUpdateCallback) = 0;
 	};
 }
 

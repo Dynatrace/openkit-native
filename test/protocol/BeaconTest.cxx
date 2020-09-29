@@ -68,6 +68,7 @@ using MockIBeaconCache_sp = std::shared_ptr<MockIBeaconCache>;
 using UrlEncoding_t = core::util::URLEncoding;
 using Utf8String_t = core::UTF8String;
 using WebRequestTracer_t = core::objects::WebRequestTracer;
+using IServerConfiguration_sp = std::shared_ptr<core::configuration::IServerConfiguration>;
 
 const Utf8String_t APP_ID("appID");
 const Utf8String_t APP_NAME("appName");
@@ -1632,11 +1633,11 @@ TEST_F(BeaconTest, deviceIDIsRandomizedIfDeviceIdSendingDisallowed)
 
 	int64_t deviceId = 1337;
 	auto mockRandom = MockIPRNGenerator::createNice();
-	ON_CALL(*mockRandom, nextInt64(testing::_))
+	ON_CALL(*mockRandom, nextPositiveInt64())
 		.WillByDefault(testing::Return(deviceId));
 
 	// expect
-	EXPECT_CALL(*mockRandom, nextInt64(testing::_))
+	EXPECT_CALL(*mockRandom, nextPositiveInt64())
 		.Times(1);
 
 	// given
@@ -1669,22 +1670,6 @@ TEST_F(BeaconTest, givenDeviceIDIsUsedIfDeviceIdSendingIsAllowed)
 
 	// then
 	ASSERT_THAT(obtained, testing::Eq(DEVICE_ID));
-}
-
-TEST_F(BeaconTest, randomDeviceIDCannotBeNegativeIfDeviceIdSendingIsDisallowed)
-{
-	// with
-	ON_CALL(*mockPrivacyConfiguration, isDeviceIdSendingAllowed())
-		.WillByDefault(testing::Return(false));
-
-	// given
-	auto target = createBeacon()->build();
-
-	// when
-	auto obtained = target->getDeviceID();
-
-	// then
-	EXPECT_THAT(obtained, testing::AllOf(testing::Ge(int64_t(0)), testing::Lt(std::numeric_limits<int64_t>::max())));
 }
 
 TEST_F(BeaconTest, sessionIDIsAlwaysValueOneIfSessionNumberReportingDisallowed)
@@ -2240,4 +2225,32 @@ TEST_F(BeaconTest, useInternalBeaconIdForAccessingBeaconCacheWhenSessionNumberRe
 
 	// when
 	target->clearData();
+}
+
+TEST_F(BeaconTest, onServerConfigurationUpdateAttachesEventOnBeaconConfiguration)
+{
+	// expect
+	core::configuration::ServerConfigurationUpdateCallback serverConfigurationUpdateCallback = [](IServerConfiguration_sp config) {(void)config;};
+	EXPECT_CALL(*mockBeaconConfiguration, setServerConfigurationUpdateCallback(testing::_))
+		.Times(1);
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when
+	target->setServerConfigurationUpdateCallback(serverConfigurationUpdateCallback);
+}
+
+TEST_F(BeaconTest, onServerConfigurationUpdateDetachesEventOnBeaconConfiguration)
+{
+	// expect
+	core::configuration::ServerConfigurationUpdateCallback serverConfigurationUpdateCallback = nullptr;
+	EXPECT_CALL(*mockBeaconConfiguration, setServerConfigurationUpdateCallback(testing::_))
+		.Times(1);
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when
+	target->setServerConfigurationUpdateCallback(serverConfigurationUpdateCallback);
 }

@@ -271,3 +271,43 @@ void OpenKit::close()
 {
 	shutdown();
 }
+
+std::shared_ptr<openkit::ILogger> OpenKit::getLogger()
+{
+	return mLogger;
+}
+
+std::shared_ptr<core::configuration::IOpenKitConfiguration> OpenKit::getOpenKitConfiguration()
+{
+	return mOpenKitConfiguration;
+}
+
+std::shared_ptr<core::configuration::IPrivacyConfiguration> OpenKit::getPrivacyConfiguration()
+{
+	return mPrivacyConfiguration;
+}
+
+std::shared_ptr<core::caching::IBeaconCache> OpenKit::getBeaconCache()
+{
+	return mBeaconCache;
+}
+
+std::shared_ptr<providers::ISessionIDProvider> OpenKit::getSessionIdProvider()
+{
+	return mSessionIDProvider;
+}
+
+std::shared_ptr<providers::IThreadIDProvider> OpenKit::getThreadIdProvider()
+{
+	return mThreadIDProvider;
+}
+
+std::shared_ptr<providers::ITimingProvider> OpenKit::getTimingProvider()
+{
+	return mTimingProvider;
+}
+
+int32_t OpenKit::getCurrentServerId()
+{
+	return mBeaconSender->getCurrentServerID();
+}

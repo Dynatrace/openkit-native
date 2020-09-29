@@ -38,9 +38,9 @@ namespace providers
 
 		~DefaultPRNGenerator() override = default;
 
-		int32_t nextInt32(int32_t upperBound) override;
+		int32_t nextPositiveInt32() override;
 
-		int64_t nextInt64(int64_t upperBound) override;
+		int64_t nextPositiveInt64() override;
 
 	private:
 		/// random engine generating the random numbers

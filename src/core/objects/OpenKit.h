@@ -28,6 +28,7 @@
 #include "OpenKit/IOpenKitBuilder.h"
 #include "OpenKit/ILogger.h"
 #include "core/objects/IOpenKitObject.h"
+#include "core/objects/ISessionCreatorInput.h"
 #include "core/objects/OpenKitComposite.h"
 #include "providers/ISessionIDProvider.h"
 #include "providers/ITimingProvider.h"
@@ -49,6 +50,7 @@ namespace core
 		class OpenKit
 			: public openkit::IOpenKit
 			, public core::objects::OpenKitComposite
+			, public core::objects::ISessionCreatorInput
 			, public std::enable_shared_from_this<OpenKit>
 		{
 		public:
@@ -110,6 +112,22 @@ namespace core
 			void onChildClosed(std::shared_ptr<core::objects::IOpenKitObject> childObject) override;
 
 			void close() override;
+
+			std::shared_ptr<openkit::ILogger> getLogger() override;
+
+			std::shared_ptr<core::configuration::IOpenKitConfiguration> getOpenKitConfiguration() override;
+
+			std::shared_ptr<core::configuration::IPrivacyConfiguration> getPrivacyConfiguration() override;
+
+			std::shared_ptr<core::caching::IBeaconCache> getBeaconCache() override;
+
+			std::shared_ptr<providers::ISessionIDProvider> getSessionIdProvider() override;
+
+			std::shared_ptr<providers::IThreadIDProvider> getThreadIdProvider() override;
+
+			std::shared_ptr<providers::ITimingProvider> getTimingProvider() override;
+
+			int32_t getCurrentServerId() override;
 
 		private:
 

@@ -14,25 +14,30 @@
 * limitations under the License.
 */
 
-#include "DefaultPRNGenerator.h"
+#ifndef _PROVIDERS_FIXEDSESSIONIDPROVIDER_H
+#define _PROVIDERS_FIXEDSESSIONIDPROVIDER_H
 
-#include <limits>
+#include "ISessionIDProvider.h"
 
-using namespace providers;
+#include <memory>
+#include <cstdint>
 
-DefaultPRNGenerator::DefaultPRNGenerator()
-	: mRandomEngine((std::random_device())())
+namespace providers
 {
+	class FixedSessionIDProvider : public ISessionIDProvider
+	{
+	public:
+
+		FixedSessionIDProvider(std::shared_ptr<ISessionIDProvider> sessionIdProvider);
+
+		~FixedSessionIDProvider() override = default;
+
+		int32_t getNextSessionID() override;
+
+	private:
+
+		int32_t mSessionId;
+	};
 }
 
-int32_t DefaultPRNGenerator::nextPositiveInt32()
-{
-	std::uniform_real_distribution<double> uniform_dist(0.0, 1.0);
-	return static_cast<int32_t>(uniform_dist(mRandomEngine) * std::numeric_limits<int32_t>::max());
-}
-
-int64_t DefaultPRNGenerator::nextPositiveInt64()
-{
-	std::uniform_real_distribution<double> uniform_dist(0.0, 1.0);
-	return static_cast<int64_t>(uniform_dist(mRandomEngine) * std::numeric_limits<int64_t>::max());
-}
+#endif

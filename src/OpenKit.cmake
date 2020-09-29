@@ -143,14 +143,17 @@ set(OPENKIT_SOURCES_CORE
 )
 
 set(OPENKIT_SOURCES_CORE_OBJECTS
-    ${CMAKE_CURRENT_LIST_DIR}/core/objects/LeafAction.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/core/objects/LeafAction.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/ActionCommonImpl.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/ActionCommonImpl.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/IActionCommon.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/IOpenKitComposite.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/IOpenKitObject.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/ISessionCreator.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/ISessionCreatorInput.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/ISessionProxy.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/IWebRequestTracerInternals.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/LeafAction.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/LeafAction.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/NullAction.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/NullRootAction.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/NullRootAction.h
@@ -166,7 +169,11 @@ set(OPENKIT_SOURCES_CORE_OBJECTS
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/RootAction.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/Session.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/Session.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/SessionCreator.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/SessionCreator.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/SessionInternals.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/SessionProxy.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/SessionProxy.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/WebRequestTracer.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/WebRequestTracer.h
 )
@@ -217,6 +224,10 @@ set(OPENKIT_SOURCES_PROVIDERS
     ${CMAKE_CURRENT_LIST_DIR}/providers/DefaultThreadIDProvider.h
     ${CMAKE_CURRENT_LIST_DIR}/providers/DefaultTimingProvider.cxx
     ${CMAKE_CURRENT_LIST_DIR}/providers/DefaultTimingProvider.h
+    ${CMAKE_CURRENT_LIST_DIR}/providers/FixedPRNGenerator.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/providers/FixedPRNGenerator.h
+    ${CMAKE_CURRENT_LIST_DIR}/providers/FixedSessionIDProvider.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/providers/FixedSessionIDProvider.h
     ${CMAKE_CURRENT_LIST_DIR}/providers/IHTTPClientProvider.h
     ${CMAKE_CURRENT_LIST_DIR}/providers/IPRNGenerator.h
     ${CMAKE_CURRENT_LIST_DIR}/providers/ISessionIDProvider.h

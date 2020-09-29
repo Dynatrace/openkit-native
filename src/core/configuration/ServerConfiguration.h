@@ -130,8 +130,10 @@ namespace core
 
 				int32_t getMaxEventsPerSession() const;
 
+				bool isSessionSplitByEventsEnabled() const;
+
 				///
-				/// Configures the maximum number of events after which the session gets split.
+				/// Configures the maximum number of top level actions after which the session gets split.
 				///
 				/// @param maxEventsPerSession the maximum number of top level actions after which a session gets split.
 				/// @return @c this
@@ -173,6 +175,7 @@ namespace core
 				int32_t mMultiplicity;
 				int32_t mMaxSessionDurationInMilliseconds;
 				int32_t mMaxEventsPerSession;
+				bool mIsSessionSplitByEventsEnabled;
 				int32_t mSessionIdleTimeout;
 				int32_t mVisitStoreVersion;
 			};
@@ -212,6 +215,9 @@ namespace core
 			// by default split by events is disabled,thus value is -1
 			static constexpr int32_t DEFAULT_MAX_EVENTS_PER_SESSION = -1;
 
+			// by default split by events is disabled
+			static constexpr bool DEFAULT_IS_SESSION_SPLIT_BY_EVENTS_ENABLED = false;
+
 			// by default session split by timeout is disabled, thus value is -1
 			static constexpr int32_t DEFAULT_SESSION_TIMEOUT = -1;
 
@@ -247,6 +253,8 @@ namespace core
 			int32_t getMaxSessionDurationInMilliseconds() const override;
 
 			int32_t getMaxEventsPerSession() const override;
+
+			bool isSessionSplitByEventsEnabled() const override;
 
 			int32_t getSessionTimeoutInMilliseconds() const override;
 
@@ -290,6 +298,9 @@ namespace core
 
 			/// the maximum number of events after which a session gets split
 			const int32_t mMaxEventsPerSession;
+
+			/// indicator whether event-based session splitting is enabled or not.
+			const bool mIsSessionSplitByEventsEnabled;
 
 			/// the idle timeout after which a session gets split
 			const int32_t mSessionTimeoutInMilliseconds;

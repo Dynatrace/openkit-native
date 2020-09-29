@@ -28,6 +28,12 @@ namespace providers
 	class DefaultThreadIDProvider : public IThreadIDProvider
 	{
 	public:
+
+		///
+		/// Destructor
+		///
+		~DefaultThreadIDProvider() override = default;
+
 		///
 		/// Provide the current thread ID
 		/// @returns the current thread ID

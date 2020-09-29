@@ -81,9 +81,15 @@ namespace core
 			virtual int32_t getMaxSessionDurationInMilliseconds() const = 0;
 
 			///
-			/// Returns the maximum number of events after which a session is to be split.
+			/// Returns the maximum number of top level actions after which a session is to be split.
 			///
 			virtual int32_t getMaxEventsPerSession() const = 0;
+			
+			///
+			/// Returns @c true if session splitting when exceeding the maximum number of top level events is
+			/// enabled, @c false otherwise.
+			///
+			virtual bool isSessionSplitByEventsEnabled() const = 0;
 
 			///
 			/// Returns the idle timeout after which a session is to be split.

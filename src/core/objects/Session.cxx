@@ -264,6 +264,11 @@ void Session::decreaseNumRemainingSessionRequests()
 	mNumRemainingNewSessionRequests--;
 }
 
+std::shared_ptr<protocol::IBeacon> Session::getBeacon()
+{
+	return mBeacon;
+}
+
 const std::string Session::toString() const
 {
 	std::stringstream ss;

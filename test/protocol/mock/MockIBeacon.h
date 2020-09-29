@@ -171,6 +171,8 @@ namespace test
 		MOCK_METHOD0(enableCapture, void());
 
 		MOCK_METHOD0(disableCapture, void());
+
+		MOCK_METHOD1(setServerConfigurationUpdateCallback, void(core::configuration::ServerConfigurationUpdateCallback));
 	};
 }
 #endif

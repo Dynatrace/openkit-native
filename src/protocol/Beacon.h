@@ -162,6 +162,8 @@ namespace protocol
 
 		void disableCapture() override;
 
+		void setServerConfigurationUpdateCallback(core::configuration::ServerConfigurationUpdateCallback serverConfigurationUpdateCallback) override;
+
 	private:
 		///
 		/// Serialization helper method for creating basic beacon protocol data.

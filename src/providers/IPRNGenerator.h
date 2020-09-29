@@ -34,18 +34,14 @@ namespace providers
 		virtual ~IPRNGenerator() = default;
 
 		///
-		/// Generate a random number between 0(inclusive) and upperBound(exclusive)
-		/// @param[in] upperBound the upper boundary used for random number generation, is exclusive
-		/// @return random number within the requested boundaries
+		/// Provide a positive random 32-bit number between 0(inclusive) and std::numeric_limits<int32_t>::max() (exclusive).
 		///
-		virtual int32_t nextInt32(int32_t upperBound) = 0;
+		virtual int32_t nextPositiveInt32() = 0;
 
 		///
-		/// Generate a random number between 0(inclusive) and upperBound(exclusive)
-		/// @param[in] upperBound the upper boundary used for random number generation, is exclusive
-		/// @return random number within the requested boundaries
+		/// Provide a positive random 64-bit number between 0(inclusive) and std::numeric_limits<int64_t>::max() (exclusive).
 		///
-		virtual int64_t nextInt64(int64_t upperBound) = 0;
+		virtual int64_t nextPositiveInt64() = 0;
 	};
 }
 

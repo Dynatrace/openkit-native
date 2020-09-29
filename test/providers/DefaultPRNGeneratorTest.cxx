@@ -32,7 +32,7 @@ public:
 TEST_F(DefaultPRNGeneratorTest, DefaultPRNGeneratorProvidesPositiveInt32)
 {
 	// when
-	auto randomNumber = randomGenerator.nextInt32(std::numeric_limits<int32_t>::max());
+	auto randomNumber = randomGenerator.nextPositiveInt32();
 
 	// then
 	EXPECT_THAT(randomNumber, testing::AllOf(testing::Ge(int32_t(0)), testing::Lt(std::numeric_limits<int32_t>::max())));
@@ -42,7 +42,7 @@ TEST_F(DefaultPRNGeneratorTest, DefaultPRNGeneratorProvidesPositiveInt32)
 TEST_F(DefaultPRNGeneratorTest, DefaultPRNGeneratorProvidesPositiveUInt64)
 {
 	// when
-	auto randomNumber = randomGenerator.nextInt64(std::numeric_limits<int64_t>::max());
+	auto randomNumber = randomGenerator.nextPositiveInt64();
 
 	// then
 	EXPECT_THAT(randomNumber, testing::AllOf(testing::Ge(int64_t(0)), testing::Lt(std::numeric_limits<int64_t>::max())));

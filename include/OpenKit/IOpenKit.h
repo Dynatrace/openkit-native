@@ -36,7 +36,7 @@ namespace openkit
 		///
 		/// Destructor
 		///
-		virtual ~IOpenKit() {}
+		virtual ~IOpenKit() = default;
 
 		///
 		/// Waits until OpenKit is fully initialized.

@@ -74,6 +74,8 @@ namespace core
 
 			bool isServerConfigurationSet() override;
 
+			void setServerConfigurationUpdateCallback(ServerConfigurationUpdateCallback serverConfigurationUpdateCallback) override;
+
 		private:
 
 			///
@@ -96,6 +98,9 @@ namespace core
 
 			/// server related configuration
 			std::shared_ptr<IServerConfiguration> mServerConfiguration;
+
+			/// Callback invoked when server configuration is updated
+			ServerConfigurationUpdateCallback mServerConfigurationUpdateCallback;
 
 			/// synchronization
 			std::mutex mMutex;

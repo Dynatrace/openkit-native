@@ -75,6 +75,8 @@ namespace test
 		);
 
 		MOCK_METHOD0(isServerConfigurationSet, bool());
+
+		MOCK_METHOD1(setServerConfigurationUpdateCallback, void(core::configuration::ServerConfigurationUpdateCallback serverConfigurationUpdateCallback));
 	};
 }
 

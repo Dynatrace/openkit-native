@@ -26,7 +26,7 @@ DefaultSessionIDProvider::DefaultSessionIDProvider()
 	, mNextIDMutex()
 {
 	providers::DefaultPRNGenerator randomGenerator;
-	mLastSessionNumber = randomGenerator.nextInt32(std::numeric_limits<int32_t>::max());
+	mLastSessionNumber = randomGenerator.nextPositiveInt32();
 	
 }
 

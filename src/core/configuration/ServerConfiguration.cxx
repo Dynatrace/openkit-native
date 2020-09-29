@@ -30,6 +30,7 @@ ServerConfiguration::ServerConfiguration(Builder& builder)
 	, mMultiplicity(builder.getMultiplicity())
 	, mMaxSessionDurationInMilliseconds(builder.getMaxSessionDurationInMilliseconds())
 	, mMaxEventsPerSession(builder.getMaxEventsPerSession())
+	, mIsSessionSplitByEventsEnabled(builder.isSessionSplitByEventsEnabled())
 	, mSessionTimeoutInMilliseconds(builder.getSessionTimeoutInMilliseconds())
 	, mVisitStoreVersion(builder.getVisitStoreVersion())
 {
@@ -93,6 +94,11 @@ int32_t ServerConfiguration::getMaxEventsPerSession() const
 	return mMaxEventsPerSession;
 }
 
+bool ServerConfiguration::isSessionSplitByEventsEnabled() const
+{
+	return mIsSessionSplitByEventsEnabled && getMaxEventsPerSession() > 0;
+}
+
 int32_t ServerConfiguration::getSessionTimeoutInMilliseconds() const
 {
 	return mSessionTimeoutInMilliseconds;
@@ -144,6 +150,7 @@ ServerConfiguration::Builder::Builder()
 	, mMultiplicity(ServerConfiguration::DEFAULT_MULTIPLICITY)
 	, mMaxSessionDurationInMilliseconds(ServerConfiguration::DEFAULT_MAX_SESSION_DURATION)
 	, mMaxEventsPerSession(ServerConfiguration::DEFAULT_MAX_EVENTS_PER_SESSION)
+	, mIsSessionSplitByEventsEnabled(ServerConfiguration::DEFAULT_IS_SESSION_SPLIT_BY_EVENTS_ENABLED)
 	, mSessionIdleTimeout(ServerConfiguration::DEFAULT_SESSION_TIMEOUT)
 	, mVisitStoreVersion(ServerConfiguration::DEFAULT_VISIT_STORE_VERSION)
 {
@@ -159,6 +166,7 @@ ServerConfiguration::Builder::Builder(std::shared_ptr<protocol::IResponseAttribu
 	, mMultiplicity(responseAttributes->getMultiplicity())
 	, mMaxSessionDurationInMilliseconds(responseAttributes->getMaxSessionDurationInMilliseconds())
 	, mMaxEventsPerSession(responseAttributes->getMaxEventsPerSession())
+	, mIsSessionSplitByEventsEnabled(responseAttributes->isAttributeSet(protocol::ResponseAttribute::MAX_EVENTS_PER_SESSION))
 	, mSessionIdleTimeout(responseAttributes->getSessionTimeoutInMilliseconds())
 	, mVisitStoreVersion(responseAttributes->getVisitStoreVersion())
 {
@@ -174,6 +182,7 @@ ServerConfiguration::Builder::Builder(std::shared_ptr<core::configuration::IServ
 	, mMultiplicity(serverConfiguration->getMultiplicity())
 	, mMaxSessionDurationInMilliseconds(serverConfiguration->getMaxSessionDurationInMilliseconds())
 	, mMaxEventsPerSession(serverConfiguration->getMaxEventsPerSession())
+	, mIsSessionSplitByEventsEnabled(serverConfiguration->isSessionSplitByEventsEnabled())
 	, mSessionIdleTimeout(serverConfiguration->getSessionTimeoutInMilliseconds())
 	, mVisitStoreVersion(serverConfiguration->getVisitStoreVersion())
 {
@@ -273,6 +282,11 @@ ServerConfiguration::Builder& ServerConfiguration::Builder::withMaxSessionDurati
 int32_t ServerConfiguration::Builder::getMaxEventsPerSession() const
 {
 	return mMaxEventsPerSession;
+}
+
+bool ServerConfiguration::Builder::isSessionSplitByEventsEnabled() const
+{
+	return mIsSessionSplitByEventsEnabled;
 }
 
 ServerConfiguration::Builder& ServerConfiguration::Builder::withMaxEventsPerSession(int maxEventsPerSession)
