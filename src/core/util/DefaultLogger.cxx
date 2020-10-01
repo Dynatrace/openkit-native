@@ -151,7 +151,7 @@ void DefaultLogger::doLog(const char * level, const char* format, va_list args)
 	// add the trace statement
 	va_list argcopy;
 	va_copy(argcopy, args);
-	int length = vsnprintf(nullptr, 0, format, argcopy);	// excl. term. 0
+	size_t length = vsnprintf(nullptr, 0, format, argcopy);	// excl. term. 0
 	va_end(argcopy);
 	char *traceStatement = new char[length + 1]; // + 1 for term. 0
 	vsnprintf(traceStatement, length + 1, format, args);

@@ -82,6 +82,31 @@ namespace core
 			virtual void clearCapturedData() = 0;
 
 			///
+			/// Tries to end the current session by checking if there are no more child objects (actions / web request
+			/// tracers) open. In case no more child objects are open, the session is ended, otherwise it is kept open.
+			///
+			/// @return @c true if the session was successfully ended (or was already ended before). @c false in case
+			/// there are / were still open child objects (actions / web request tracers).
+			///
+			virtual bool tryEnd() = 0;
+
+			///
+			/// Gets the end time when the session is to be forcefully ended after a session is split by exceeding the
+			/// maximum top level event count was performed but the session could not be ended at that time due to open
+			/// child objects (actions, tracers). Such sessions will be automatically be closed by the
+			/// SessionWatchdog thread after this grace period is elapsed.
+			///
+			virtual int64_t getSplitByEventsGracePeriodEndTimeInMillis() = 0;
+
+			///
+			/// Sets the end time when the session is to be forcefully ended.
+			/// 
+			/// @remarks
+			/// For a detailed description see SessionInternals::getSplitByEventsGracePeriodEndTimeInMillis()
+			///
+			virtual void setSplitByEventsGracePeriodEndTimeInMillis(int64_t splitByEventsGracePeriodEndTimeInMillis) = 0;
+
+			///
 			/// Updates the this session with the given server configuration.
 			///
 			virtual void updateServerConfiguration(

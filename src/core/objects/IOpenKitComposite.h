@@ -31,6 +31,8 @@ namespace core
 		{
 		public:
 
+			using ChildList = std::list<std::shared_ptr<IOpenKitObject>>;
+
 			///
 			/// Destructor
 			///
@@ -53,7 +55,12 @@ namespace core
 			///
 			/// Returns a shallow copy of the @ref IOpenKitObject child objects
 			///
-			virtual std::list<std::shared_ptr<IOpenKitObject>> getCopyOfChildObjects() = 0;
+			virtual ChildList getCopyOfChildObjects() = 0;
+
+			///
+			/// Returns the current number of children held by this composite.
+			///
+			virtual ChildList::size_type getChildCount() = 0;
 
 			///
 			/// Abstract method to notify the composite about closing/ending a child object.

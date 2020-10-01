@@ -29,11 +29,6 @@ namespace providers
 	{
 	public:
 
-		///
-		/// Default constructor
-		///
-		DefaultTimingProvider();
-
 		~DefaultTimingProvider() override = default;
 
 		///

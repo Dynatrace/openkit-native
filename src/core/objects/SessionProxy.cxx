@@ -23,13 +23,18 @@ using namespace core::objects;
 
 SessionProxy::SessionProxy(std::shared_ptr<openkit::ILogger> logger,
 	std::shared_ptr<IOpenKitComposite> parent,
-	std::shared_ptr<ISessionCreator> sessionCreator)
+	std::shared_ptr<ISessionCreator> sessionCreator,
+	std::shared_ptr<core::IBeaconSender> beaconSender,
+	std::shared_ptr<core::ISessionWatchdog> sessionWatchdog)
 	: mLockObject()
 	, mLogger(logger)
 	, mParent(parent)
 	, mSessionCreator(sessionCreator)
+	, mBeaconSender(beaconSender)
+	, mSessionWatchdog(sessionWatchdog)
 	, mCurrentSession(nullptr)
 	, mTopLevelActionCount(0)
+	, mLastInteractionTime(0)
 	, mServerConfiguration(nullptr)
 	, mIsFinished(false)
 {
@@ -38,9 +43,11 @@ SessionProxy::SessionProxy(std::shared_ptr<openkit::ILogger> logger,
 
 std::shared_ptr<SessionProxy> SessionProxy::createSessionProxy(std::shared_ptr<openkit::ILogger> logger,
 	std::shared_ptr<IOpenKitComposite> parent,
-	std::shared_ptr<ISessionCreator> sessionCreator)
+	std::shared_ptr<ISessionCreator> sessionCreator,
+	std::shared_ptr<core::IBeaconSender> beaconSender,
+	std::shared_ptr<core::ISessionWatchdog> sessionWatchdog)
 {
-	auto instance = std::shared_ptr<SessionProxy>(new SessionProxy(logger, parent, sessionCreator));
+	auto instance = std::shared_ptr<SessionProxy>(new SessionProxy(logger, parent, sessionCreator, beaconSender, sessionWatchdog));
 	instance->createInitialSession();
 
 	return instance;
@@ -195,6 +202,13 @@ void SessionProxy::end()
 	mParent->onChildClosed(thisSession);
 }
 
+bool SessionProxy::isFinished()
+{
+	std::lock_guard<std::mutex> lock(mLockObject);
+
+	return mIsFinished;
+}
+
 void SessionProxy::close()
 {
 	end();
@@ -203,21 +217,34 @@ void SessionProxy::close()
 void SessionProxy::onChildClosed(std::shared_ptr<IOpenKitObject> childObject)
 {
 	std::lock_guard<std::mutex> lock(mLockObject);
+	
 	removeChildFromList(childObject);
+	
+	// if child is a session remove it from watchdog
+	auto childSession = std::dynamic_pointer_cast<SessionInternals>(childObject);
+	if (childSession != nullptr)
+	{
+		mSessionWatchdog->dequeueFromClosing(childSession);
+	}
 }
 
 void SessionProxy::createInitialSession()
 {
-	mCurrentSession = createSession();
+	mCurrentSession = createSession(nullptr);
 }
 
 std::shared_ptr<openkit::ISession> SessionProxy::getOrSplitCurrentSession()
 {
 	if (isSessionSplitRequired())
 	{
-		mCurrentSession = createSession();
-		mCurrentSession->updateServerConfiguration(mServerConfiguration);
+		auto newSession = createSession(mServerConfiguration);
 		mTopLevelActionCount = 0;
+
+		// try to close old session or wait half the max session duration and then close it forcefully
+		auto closeGracePeriodMillis = mServerConfiguration->getMaxSessionDurationInMilliseconds() / 2;
+		mSessionWatchdog->closeOrEnqueueForClosing(mCurrentSession, closeGracePeriodMillis);
+
+		mCurrentSession = newSession;
 	}
 
 	return mCurrentSession;
@@ -233,7 +260,7 @@ bool SessionProxy::isSessionSplitRequired() const
 	return mServerConfiguration->getMaxEventsPerSession() <= mTopLevelActionCount;
 }
 
-std::shared_ptr<SessionInternals> SessionProxy::createSession()
+std::shared_ptr<SessionInternals> SessionProxy::createSession(std::shared_ptr<core::configuration::IServerConfiguration> sessionServerConfig)
 {
 	auto session = mSessionCreator->createSession(shared_from_this());
 	session->getBeacon()->setServerConfigurationUpdateCallback(
@@ -241,12 +268,19 @@ std::shared_ptr<SessionInternals> SessionProxy::createSession()
 
 	storeChildInList(session);
 
+	if (sessionServerConfig != nullptr)
+	{
+		session->updateServerConfiguration(sessionServerConfig);
+	}
+
+	mBeaconSender->addSession(session);
+
 	return session;
 }
 
 void SessionProxy::recordTopLevelEventInteraction()
 {
-	// nothing for now
+	mLastInteractionTime = mCurrentSession->getBeacon()->getCurrentTimestamp();
 }
 
 void SessionProxy::recordTopLevelActionEvent()
@@ -259,6 +293,12 @@ int32_t SessionProxy::getTopLevelActionCount()
 {
 	std::lock_guard<std::mutex> lock(mLockObject);
 	return mTopLevelActionCount;
+}
+
+int64_t SessionProxy::getLastInteractionTime()
+{
+	std::lock_guard<std::mutex> lock(mLockObject);
+	return mLastInteractionTime;
 }
 
 void SessionProxy::onServerConfigurationUpdate(std::shared_ptr<core::configuration::IServerConfiguration> serverConfig)

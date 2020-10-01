@@ -97,6 +97,17 @@ namespace test
 
 		MOCK_CONST_METHOD0(isSessionEnded, bool());
 
+
+		MOCK_METHOD0(tryEnd, bool());
+
+		MOCK_METHOD0(getSplitByEventsGracePeriodEndTimeInMillis, int64_t());
+
+		MOCK_METHOD1(setSplitByEventsGracePeriodEndTimeInMillis,
+			void(
+				int64_t /* splitByEventsGracePeriodEndTimeInMillis */
+			)
+		);
+
 		MOCK_METHOD1(updateServerConfiguration,
 			void(
 				std::shared_ptr<core::configuration::IServerConfiguration> /* serverConfig */

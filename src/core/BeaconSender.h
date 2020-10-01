@@ -22,6 +22,7 @@
 #include "core/IBeaconSender.h"
 #include "core/configuration/IHTTPClientConfiguration.h"
 #include "core/objects/SessionInternals.h"
+#include "core/util/ThreadSurrogate.h"
 #include "providers/IHTTPClientProvider.h"
 #include "providers/ITimingProvider.h"
 
@@ -76,7 +77,7 @@ namespace core
 		std::shared_ptr<communication::IBeaconSendingContext> mBeaconSendingContext;
 
 		/// thread instance running the beacon sending state machine
-		std::future<bool> mSendingThread;
+		std::unique_ptr<core::util::ThreadSurrogate> mSendingThread;
 
 		/// timing provider for shutdown timeout
 		std::shared_ptr<providers::ITimingProvider> mTimingProvider;

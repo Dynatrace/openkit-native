@@ -24,6 +24,7 @@
 #include <memory>
 
 namespace test {
+
 	class MockITimingProvider : public providers::ITimingProvider
 	{
 	public:

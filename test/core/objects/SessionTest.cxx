@@ -711,6 +711,54 @@ TEST_F(SessionTest, endLogsInvocation)
 	target->end();
 }
 
+TEST_F(SessionTest, tryEndEndsSessionIfNoMoreChildObjects)
+{
+	// with
+	auto mockBeacon = MockIBeacon::createNice();
+
+	// expect
+	EXPECT_CALL(*mockBeacon, endSession())
+		.Times(1);
+
+	// given
+	auto target = createSession()->with(mockBeacon).build();
+	auto action = target->enterAction("action");
+	auto tracer = target->traceWebRequest("https://localhost");
+
+	// when
+	auto obtained = target->tryEnd();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(false));
+
+	// and when
+	action->leaveAction();
+	obtained = target->tryEnd();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(false));
+
+	// and when
+	tracer->stop(200);
+	obtained = target->tryEnd();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(true));
+}
+
+TEST_F(SessionTest, tryEndReturnsTrueIfSessionAlreadyEnded)
+{
+	// given
+	auto target = createSession()->build();
+	target->end();
+
+	// when
+	auto obtained = target->tryEnd();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(true));
+}
+
 TEST_F(SessionTest, sendBeaconForwardsCallToBeacon)
 {
 	// with
@@ -1120,15 +1168,15 @@ TEST_F(SessionTest, onChildCloseRemovesChildFromList)
 	auto target = createSession()->build();
 	target->storeChildInList(childObject);
 
-	auto childObjects = target->getCopyOfChildObjects();
-	ASSERT_THAT(childObjects.size(), testing::Eq(1));
+	auto numChildObjects = target->getChildCount();
+	ASSERT_THAT(numChildObjects, testing::Eq(1));
 
 	// when
 	target->onChildClosed(childObject);
 
 	// then
-	childObjects = target->getCopyOfChildObjects();
-	ASSERT_THAT(childObjects.size(), testing::Eq(0));
+	numChildObjects = target->getChildCount();
+	ASSERT_THAT(numChildObjects, testing::Eq(0));
 }
 
 TEST_F(SessionTest, toStringReturnsAppropriateResult)

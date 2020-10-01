@@ -498,6 +498,6 @@ TEST_F(OpenKitTest, onChildClosedRemovesArgumentFromListOfChildren)
 	target->onChildClosed(childObjectTwo);
 
 	// then
-	childObjects = target->getCopyOfChildObjects();
-	ASSERT_THAT(childObjects.size(), testing::Eq(0));
+	auto numChildObjects = target->getChildCount();
+	ASSERT_THAT(numChildObjects, testing::Eq(0));
 }

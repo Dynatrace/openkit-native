@@ -55,7 +55,9 @@ class MockIOpenKitComposite : public core::objects::IOpenKitComposite
 			)
 		);
 
-		MOCK_METHOD0(getCopyOfChildObjects, std::list<std::shared_ptr<core::objects::IOpenKitObject>>());
+		MOCK_METHOD0(getCopyOfChildObjects, ChildList());
+
+		MOCK_METHOD0(getChildCount, ChildList::size_type());
 
 		MOCK_METHOD1(onChildClosed,
 			void(

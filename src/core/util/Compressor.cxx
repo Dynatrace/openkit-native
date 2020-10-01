@@ -16,9 +16,11 @@
 
 #include "Compressor.h"
 
-#include <stdint.h>
+#include <cassert>
+#include <cstdint>
+#include <memory>
+
 #include <zlib.h>
-#include "assert.h"
 
 using namespace base::util;
 
@@ -30,7 +32,7 @@ void Compressor::compressMemory(const void* inData, size_t inDataSize, std::vect
 	std::vector<uint8_t> buffer;
 
 	const size_t BUFSIZE = 128 * 1024;
-	uint8_t tmpBuffer[BUFSIZE];
+	auto tmpBuffer = new uint8_t[BUFSIZE];
 
 	z_stream strm;
 	strm.zalloc = 0;
@@ -73,5 +75,7 @@ void Compressor::compressMemory(const void* inData, size_t inDataSize, std::vect
 	deflateEnd(&strm);
 
 	outData.swap(buffer);
+
+	delete[] tmpBuffer;
 }
 

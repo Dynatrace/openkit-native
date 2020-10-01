@@ -24,9 +24,11 @@
 
 #include "OpenKit/ILogger.h"
 #include "OpenKit/IRootAction.h"
-#include "OpenKit/ISession.h"
 #include "OpenKit/IWebRequestTracer.h"
 
+#include "core/IBeaconSender.h"
+#include "core/ISessionWatchdog.h"
+#include "core/objects/ISessionProxy.h"
 #include "core/objects/IOpenKitComposite.h"
 #include "core/objects/ISessionCreator.h"
 #include "core/objects/SessionInternals.h"
@@ -43,7 +45,7 @@ namespace core
 	namespace objects
 	{
 		class SessionProxy
-			: public openkit::ISession
+			: public core::objects::ISessionProxy
 			, public OpenKitComposite
 			, public std::enable_shared_from_this<SessionProxy>
 		{
@@ -59,7 +61,9 @@ namespace core
 			///
 			static std::shared_ptr<SessionProxy> createSessionProxy(std::shared_ptr<openkit::ILogger> logger,
 				std::shared_ptr<IOpenKitComposite> parent,
-				std::shared_ptr<ISessionCreator> sessionCreator);
+				std::shared_ptr<ISessionCreator> sessionCreator,
+				std::shared_ptr<core::IBeaconSender> beaconSender,
+				std::shared_ptr<core::ISessionWatchdog> sessionWatchdog);
 
 			~SessionProxy() override = default;
 
@@ -73,6 +77,8 @@ namespace core
 
 			void end() override;
 
+			bool isFinished();
+
 			void close() override;
 
 			void onChildClosed(std::shared_ptr<IOpenKitObject> childObject) override;
@@ -80,6 +86,8 @@ namespace core
 			void onServerConfigurationUpdate(std::shared_ptr<core::configuration::IServerConfiguration> serverConfig);
 
 			int32_t getTopLevelActionCount();
+
+			int64_t getLastInteractionTime();
 
 			///
 			/// Returns a string describing the object, based on some important fields.
@@ -93,13 +101,15 @@ namespace core
 
 			SessionProxy(std::shared_ptr<openkit::ILogger> logger,
 				std::shared_ptr<IOpenKitComposite> parent,
-				std::shared_ptr<ISessionCreator> sessionCreator);
+				std::shared_ptr<ISessionCreator> sessionCreator,
+				std::shared_ptr<core::IBeaconSender> beaconSender,
+				std::shared_ptr<core::ISessionWatchdog> sessionWatchdog);
 
 			void createInitialSession();
 
 			std::shared_ptr<openkit::ISession> getOrSplitCurrentSession();
 
-			std::shared_ptr<SessionInternals> createSession();
+			std::shared_ptr<SessionInternals> createSession(std::shared_ptr<core::configuration::IServerConfiguration> sessionServerConfig);
 
 			bool isSessionSplitRequired() const;
 
@@ -128,6 +138,16 @@ namespace core
 			std::shared_ptr<ISessionCreator> mSessionCreator;
 
 			///
+			/// sender of beacon data
+			///
+			std::shared_ptr<core::IBeaconSender> mBeaconSender;
+
+			///
+			/// watchdog to split sessions after idle/max timeout or to close split off session after a grace period
+			///
+			std::shared_ptr<core::ISessionWatchdog> mSessionWatchdog;
+
+			///
 			/// the current session instance
 			///
 			std::shared_ptr<SessionInternals> mCurrentSession;
@@ -136,6 +156,11 @@ namespace core
 			/// holds the number of received calls \see SessionProxy::enterAction(const char*)
 			///
 			int32_t mTopLevelActionCount;
+
+			///
+			/// specifies the timestamp when the last top level event happened
+			///
+			int64_t mLastInteractionTime;
 
 			///
 			/// the server configuration of the first session (will be initialized when the first

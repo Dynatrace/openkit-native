@@ -25,6 +25,7 @@
 #include "../objects/mock/MockSessionInternals.h"
 #include "../../api/mock/MockILogger.h"
 #include "../../api/mock/MockISslTrustManager.h"
+#include "../../core/util/mock/MockIInterruptibleThreadSuspender.h"
 #include "../../protocol/mock/MockIHTTPClient.h"
 #include "../../protocol/mock/MockIStatusResponse.h"
 #include "../../providers/mock/MockIHTTPClientProvider.h"
@@ -56,6 +57,7 @@ using MockNiceITimingProvider_sp = std::shared_ptr<testing::NiceMock<MockITiming
 using MockNiceSession_t = testing::NiceMock<MockSessionInternals>;
 using MockStrictSession_t = testing::StrictMock<MockSessionInternals>;
 using MockStrictIBeaconSendingState_sp = std::shared_ptr<testing::StrictMock<MockIBeaconSendingState>>;
+using MockIInterruptibleThreadSuspender_sp = std::shared_ptr<testing::NiceMock<MockIInterruptibleThreadSuspender>>;
 using ServerConfiguration_t = core::configuration::ServerConfiguration;
 using Utf8String_t = core::UTF8String;
 
@@ -67,7 +69,7 @@ protected:
 	MockNiceIHTTPClientProvider_sp mockHTTPClientProvider;
 	MockNiceITimingProvider_sp mockTimingProvider;
 	MockIHTTPClientConfiguration_sp mockHttpClientConfig;
-
+	MockIInterruptibleThreadSuspender_sp mockThreadSuspender;
 
 	void SetUp() override
 	{
@@ -83,6 +85,7 @@ protected:
 
 		mockTimingProvider = MockITimingProvider::createNice();
 		mockHttpClientConfig = MockIHTTPClientConfiguration::createNice();
+		mockThreadSuspender = MockIInterruptibleThreadSuspender::createNice();
 	}
 
 	BeaconSendingContextBuilder_sp createBeaconSendingContext()
@@ -92,6 +95,7 @@ protected:
 			.with(mockHttpClientConfig)
 			.with(mockHTTPClientProvider)
 			.with(mockTimingProvider)
+			.with(mockThreadSuspender)
 		;
 
 		return builder;
@@ -167,6 +171,19 @@ TEST_F(BeaconSendingContextTest, requestShutdown)
 
 	// then
 	ASSERT_THAT(target->isShutdownRequested(), testing::Eq(true));
+}
+
+TEST_F(BeaconSendingContextTest, requestShutdownWakesUpThreadSuspender)
+{
+	// expect
+	EXPECT_CALL(*mockThreadSuspender, wakeup())
+		.Times(1);
+
+	// given
+	auto target = createBeaconSendingContext()->build();
+
+	// when
+	target->requestShutdown();
 }
 
 TEST_F(BeaconSendingContextTest, initCompleteFailureAndWait)
@@ -367,17 +384,14 @@ TEST_F(BeaconSendingContextTest, getCurrentTimestamp)
 {
 	// with
 	int64_t timestamp = 1234567890;
-	auto timingProvider = MockITimingProvider::createStrict();
 
 	// expect
-	EXPECT_CALL(*timingProvider, provideTimestampInMilliseconds())
+	EXPECT_CALL(*mockTimingProvider, provideTimestampInMilliseconds())
 		.Times(testing::Exactly(1))
 		.WillOnce(testing::Return(timestamp));
 
 	// given
-	auto target = createBeaconSendingContext()
-		->with(timingProvider)
-		.build();
+	auto target = createBeaconSendingContext()->build();
 
 	// when
 	auto obtained = target->getCurrentTimestamp();
@@ -388,42 +402,33 @@ TEST_F(BeaconSendingContextTest, getCurrentTimestamp)
 
 TEST_F(BeaconSendingContextTest, sleepDefaultTime)
 {
-	// with
-	auto timingProvider = MockITimingProvider::createStrict();
+	// expect
+	EXPECT_CALL(*mockThreadSuspender, sleep(BeaconSendingContext_t::DEFAULT_SLEEP_TIME_MILLISECONDS.count()))
+		.Times(1);
 
 	// given
-	auto target = createBeaconSendingContext()
-		->with(timingProvider)
-		.build();
+	auto target = createBeaconSendingContext()->build();
 
 	// when
-	auto start = std::chrono::steady_clock::now();
 	target->sleep();
-	auto duration = std::chrono::steady_clock::now() - start;
-
-	// then ensure sleep is correct
-	ASSERT_GE(duration, BeaconSendingContext_t::DEFAULT_SLEEP_TIME_MILLISECONDS);
 }
 
 TEST_F(BeaconSendingContextTest, sleepWithGivenTime)
 {
 	// with
-	auto timingProvider = MockITimingProvider::createStrict();
-	ON_CALL(*timingProvider, provideTimestampInMilliseconds())
+	ON_CALL(*mockTimingProvider, provideTimestampInMilliseconds())
 		.WillByDefault(testing::Return(1234567890L));
+	const int64_t sleepTime = 100L;
+
+	// expect
+	EXPECT_CALL(*mockThreadSuspender, sleep(sleepTime))
+		.Times(1);
 
 	// given
-	auto target = createBeaconSendingContext()
-		->with(timingProvider)
-		.build();
+	auto target = createBeaconSendingContext()->build();
 
 	// when
-	auto start = std::chrono::steady_clock::now();
-	target->sleep(100L);
-	auto duration = std::chrono::steady_clock::now() - start;
-
-	// then ensure sleep is correct
-	ASSERT_GE(duration, std::chrono::milliseconds(100L));
+	target->sleep(sleepTime);
 }
 
 TEST_F(BeaconSendingContextTest, aDefaultConstructedContextDoesNotStoreAnySessions)

@@ -21,10 +21,6 @@
 
 using namespace providers;
 
-DefaultTimingProvider::DefaultTimingProvider()
-{
-}
-
 int64_t DefaultTimingProvider::provideTimestampInMilliseconds()
 {
 	std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(

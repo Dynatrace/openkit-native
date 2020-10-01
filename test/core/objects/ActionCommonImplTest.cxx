@@ -554,8 +554,8 @@ TEST_F(ActionCommonImplTest, onChildClosedRemovesChildFromList)
 	target->onChildClosed(childObject);
 
 	// then
-	auto childObjects = target->getCopyOfChildObjects();
-	ASSERT_THAT(childObjects.size(), testing::Eq(0));
+	auto numChildObjects = target->getChildCount();
+	ASSERT_THAT(numChildObjects, testing::Eq(0));
 }
 
 TEST_F(ActionCommonImplTest, tracingANullStringWebRequestIsNotAllowed)
@@ -901,15 +901,15 @@ TEST_F(ActionCommonImplTest, leaveActionRemovesItSelfFromParent)
 	// when
 	auto obtained = target->enterAction(rootAction, "child Action");
 
-	auto childObjects = target->getCopyOfChildObjects();
-	ASSERT_THAT(childObjects.size(), testing::Eq(1));
+	auto numChildObjects = target->getChildCount();
+	ASSERT_THAT(numChildObjects, testing::Eq(1));
 
 	// and when
 	obtained->leaveAction();
 
 	// then
-	childObjects = target->getCopyOfChildObjects();
-	ASSERT_THAT(childObjects.size(), testing::Eq(0));
+	numChildObjects = target->getChildCount();
+	ASSERT_THAT(numChildObjects, testing::Eq(0));
 }
 
 TEST_F(ActionCommonImplTest, leaveActionSetsEndTimeBeforeAddingToBeacon)

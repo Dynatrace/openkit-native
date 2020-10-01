@@ -45,14 +45,12 @@ set(OPENKIT_SOURCES_TEST_API
 )
 
 set(OPENKIT_SOURCES_TEST_CORE
+    ${CMAKE_CURRENT_LIST_DIR}/core/SessionWatchdogContextTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/SessionWatchdogTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/UTF8StringTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/mock/MockIBeaconSender.h
-    ${CMAKE_CURRENT_LIST_DIR}/core/util/CompressorTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/core/util/DefaultLoggerTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/core/util/InetAddressValidatorTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/core/util/StringUtilTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/core/util/SynchronizedQueueTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/core/util/URLEncodingTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/mock/MockISessionWatchdog.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/mock/MockISessionWatchdogContext.h
 )
 
 set(OPENKIT_SOURCES_TEST_CORE_OBJECTS
@@ -78,6 +76,18 @@ set(OPENKIT_SOURCES_TEST_CORE_OBJECTS
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockISessionCreatorInput.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockIWebRequestTracerInternals.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockSessionInternals.h
+)
+
+set(OPENKIT_SOURCES_TEST_CORE_UTIL
+    ${CMAKE_CURRENT_LIST_DIR}/core/util/CompressorTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/util/DefaultLoggerTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/util/InetAddressValidatorTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/util/InterruptibleThreadSuspenderTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/util/StringUtilTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/util/SynchronizedQueueTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/util/ThreadSurrogateTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/util/URLEncodingTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/util//mock/MockIInterruptibleThreadSuspender.h
 )
 
 set(OPENKIT_SOURCES_TEST_PROTOCOL
@@ -187,6 +197,7 @@ set(OPENKIT_SOURCES_UNITTEST
     ${OPENKIT_SOURCES_TEST_CORE_COMMUNICATION}
     ${OPENKIT_SOURCES_TEST_CORE_CONFIGURATION}
     ${OPENKIT_SOURCES_TEST_CORE_OBJECTS}
+    ${OPENKIT_SOURCES_TEST_CORE_UTIL}
     ${OPENKIT_SOURCES_TEST_PROTOCOL}
     ${OPENKIT_SOURCES_TEST_PROVIDERS}
     ${OPENKIT_SOURCES_TEST_UTIL_JSON_LEXER}

@@ -23,6 +23,8 @@
 #include "mock/MockIOpenKitObject.h"
 #include "mock/MockSessionInternals.h"
 #include "../configuration/mock/MockIServerConfiguration.h"
+#include "../mock/MockIBeaconSender.h"
+#include "../mock/MockISessionWatchdog.h"
 #include "../../api/mock/MockILogger.h"
 #include "../../protocol/mock/MockIBeacon.h"
 
@@ -36,7 +38,8 @@ using namespace test;
 
 using SessionProxy_t = core::objects::SessionProxy;
 using SessionProxy_sp = std::shared_ptr<SessionProxy_t>;
-using SessionInternals_sp = std::shared_ptr<core::objects::SessionInternals>;
+using SessionInternals_t = core::objects::SessionInternals;
+using SessionInternals_sp = std::shared_ptr<SessionInternals_t>;
 using IOpenKitComposite_sp = std::shared_ptr<core::objects::IOpenKitComposite>;
 using NullRootAction_t = core::objects::NullRootAction;
 using NullWebRequestTracer_t = core::objects::NullWebRequestTracer;
@@ -46,6 +49,8 @@ using MockSessionInternals_sp = std::shared_ptr<MockSessionInternals>;
 using MockIBeacon_sp = std::shared_ptr<MockIBeacon>;
 using MockISessionCreator_sp = std::shared_ptr<MockISessionCreator>;
 using MockIServerConfiguration_sp = std::shared_ptr<MockIServerConfiguration>;
+using MockIBeaconSender_sp = std::shared_ptr<MockIBeaconSender>;
+using MockISessionWatchdog_sp = std::shared_ptr<MockISessionWatchdog>;
 
 
 class SessionProxyTest : public testing::Test
@@ -62,6 +67,8 @@ protected:
     MockIBeacon_sp mockSplitBeacon2;
     MockISessionCreator_sp mockSessionCreator;
     MockIServerConfiguration_sp mockServerConfiguration;
+    MockIBeaconSender_sp mockBeaconSender;
+    MockISessionWatchdog_sp mockSessionWatchdog;
 
     void SetUp() override
     {
@@ -92,11 +99,14 @@ protected:
         mockSessionCreator = MockISessionCreator::createNice();
         ON_CALL(*mockSessionCreator, createSession(testing::_))
             .WillByDefault(testing::Return(mockSession));
+
+        mockBeaconSender = MockIBeaconSender::createNice();
+        mockSessionWatchdog = MockISessionWatchdog::createNice();
     }
 
     SessionProxy_sp createSessionProxy()
     {
-        return SessionProxy_t::createSessionProxy(mockLogger, mockParent, mockSessionCreator);
+        return SessionProxy_t::createSessionProxy(mockLogger, mockParent, mockSessionCreator, mockBeaconSender, mockSessionWatchdog);
     }
 };
 
@@ -111,6 +121,18 @@ TEST_F(SessionProxyTest, constructingASessionProxyCreatesASessionInitially)
     auto target = createSessionProxy();
 }
 
+TEST_F(SessionProxyTest, aNewlyCreatedSessionProxyIsNotFinished)
+{
+    // given
+    auto target = createSessionProxy();
+
+    // when
+    auto obtained = target->isFinished();
+
+    // then
+    ASSERT_THAT(obtained, testing::Eq(false));
+}
+
 TEST_F(SessionProxyTest, initiallyCreatedSessionRegistersServerConfigurationUpdateCallback)
 {
     // expect
@@ -119,6 +141,16 @@ TEST_F(SessionProxyTest, initiallyCreatedSessionRegistersServerConfigurationUpda
     EXPECT_CALL(*mockSessionCreator, createSession(testing::_))
         .Times(1)
         .WillOnce(testing::Return(mockSession));
+
+    // given, when
+    auto target = createSessionProxy();
+}
+
+TEST_F(SessionProxyTest, initiallyCreatedSessionIsAddedToTheBeaconSender)
+{
+    // expect
+    EXPECT_CALL(*mockBeaconSender, addSession(testing::_))
+        .Times(1);
 
     // given, when
     auto target = createSessionProxy();
@@ -222,6 +254,23 @@ TEST_F(SessionProxyTest, enterActionIncreasesTopLevelActionCount)
 
     // then
     ASSERT_THAT(target->getTopLevelActionCount(), testing::Eq(1));
+}
+
+TEST_F(SessionProxyTest, enterActionSetsLastInterActionTime)
+{
+    // given
+    const int64_t timestamp = 17;
+    ON_CALL(*mockBeacon, getCurrentTimestamp())
+        .WillByDefault(testing::Return(timestamp));
+    
+    auto target = createSessionProxy();
+    ASSERT_THAT(target->getLastInteractionTime(), testing::Eq(0));
+
+    // when
+    target->enterAction("test");
+
+    // then
+    ASSERT_THAT(target->getLastInteractionTime(), testing::Eq(17));
 }
 
 TEST_F(SessionProxyTest, enterActionDoesNotSplitSessionIfNoServerConfigurationIsSet)
@@ -362,6 +411,65 @@ TEST_F(SessionProxyTest, EnterActionSplitsSessionEveryNthEventFromFirstServerCon
     }
 }
 
+TEST_F(SessionProxyTest, enterActionCallsWatchdogToCloseOldSessionOnSplitByEvents)
+{
+    // with
+    const int32_t sessionDuration = 10;
+
+    // expect
+    EXPECT_CALL(*mockSessionCreator, createSession(testing::_))
+        .Times(2)
+        .WillOnce(testing::Return(mockSession))
+        .WillOnce(testing::Return(mockSplitSession1))
+        .WillRepeatedly(testing::ReturnNull());
+    EXPECT_CALL(*mockSessionWatchdog, closeOrEnqueueForClosing(testing::Eq(mockSession), sessionDuration / 2))
+        .Times(1);
+
+    // given
+    ON_CALL(*mockServerConfiguration, isSessionSplitByEventsEnabled())
+        .WillByDefault(testing::Return(true));
+    ON_CALL(*mockServerConfiguration, getMaxEventsPerSession())
+        .WillByDefault(testing::Return(1));
+    ON_CALL(*mockServerConfiguration, getMaxSessionDurationInMilliseconds())
+        .WillByDefault(testing::Return(sessionDuration));
+
+    auto target = createSessionProxy();
+
+    target->onServerConfigurationUpdate(mockServerConfiguration);
+
+    // when
+    target->enterAction("some action");
+    target->enterAction("some other action");
+}
+
+TEST_F(SessionProxyTest, enterActionAddsSplitSessionToBeaconSenderOnSplitByEvents)
+{
+    // expect
+    EXPECT_CALL(*mockSessionCreator, createSession(testing::_))
+        .Times(2)
+        .WillOnce(testing::Return(mockSession))
+        .WillOnce(testing::Return(mockSplitSession1))
+        .WillRepeatedly(testing::ReturnNull());
+    EXPECT_CALL(*mockBeaconSender, addSession(testing::Eq(mockSession)))
+        .Times(1);
+    EXPECT_CALL(*mockBeaconSender, addSession(testing::Eq(mockSplitSession1)))
+        .Times(1);
+
+    // given
+    ON_CALL(*mockServerConfiguration, isSessionSplitByEventsEnabled())
+        .WillByDefault(testing::Return(true));
+    ON_CALL(*mockServerConfiguration, getMaxEventsPerSession())
+        .WillByDefault(testing::Return(1));
+
+    auto target = createSessionProxy();
+
+    target->onServerConfigurationUpdate(mockServerConfiguration);
+
+    // when
+    target->enterAction("some action");
+    target->enterAction("some other action");
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// identify user tests
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -457,6 +565,23 @@ TEST_F(SessionProxyTest, identifyUserDoesNotIncreaseTopLevelEventCount)
 
     // then
     ASSERT_THAT(target->getTopLevelActionCount(), testing::Eq(0));
+}
+
+TEST_F(SessionProxyTest, identifyUserSetsLastInterActionTime)
+{
+    // given
+    const int64_t timestamp = 17;
+    ON_CALL(*mockBeacon, getCurrentTimestamp())
+        .WillByDefault(testing::Return(timestamp));
+
+    auto target = createSessionProxy();
+    ASSERT_THAT(target->getLastInteractionTime(), testing::Eq(0));
+
+    // when
+    target->identifyUser("Jane Doe");
+
+    // then
+    ASSERT_THAT(target->getLastInteractionTime(), testing::Eq(timestamp));
 }
 
 TEST_F(SessionProxyTest, identifyUserDoesNotSplitSession)
@@ -603,7 +728,24 @@ TEST_F(SessionProxyTest, reportCrashDoesNotIncreaseTopLevelEventCount)
     ASSERT_THAT(target->getTopLevelActionCount(), testing::Eq(0));
 }
 
-TEST_F(SessionProxyTest, reportCrashUserDoesNotSplitSession)
+TEST_F(SessionProxyTest, reportCrashSetsLastInterActionTime)
+{
+    // given
+    const int64_t timestamp = 17;
+    ON_CALL(*mockBeacon, getCurrentTimestamp())
+        .WillByDefault(testing::Return(timestamp));
+
+    auto target = createSessionProxy();
+    ASSERT_THAT(target->getLastInteractionTime(), testing::Eq(0));
+
+    // when
+    target->reportCrash("errorName", "reason", "stacktrace");
+
+    // then
+    ASSERT_THAT(target->getLastInteractionTime(), testing::Eq(timestamp));
+}
+
+TEST_F(SessionProxyTest, reportCrashDoesNotSplitSession)
 {
     // expect
     EXPECT_CALL(*mockSessionCreator, createSession(testing::_))
@@ -752,6 +894,23 @@ TEST_F(SessionProxyTest, traceWebRequestWithStringDoesNotIncreaseTopLevelEventCo
     ASSERT_THAT(target->getTopLevelActionCount(), testing::Eq(0));
 }
 
+TEST_F(SessionProxyTest, traceWebRequestWithStringUrlSetsLastInterActionTime)
+{
+    // given
+    const int64_t timestamp = 17;
+    ON_CALL(*mockBeacon, getCurrentTimestamp())
+        .WillByDefault(testing::Return(timestamp));
+
+    auto target = createSessionProxy();
+    ASSERT_THAT(target->getLastInteractionTime(), testing::Eq(0));
+
+    // when
+    target->traceWebRequest("https://localhost");
+
+    // then
+    ASSERT_THAT(target->getLastInteractionTime(), testing::Eq(timestamp));
+}
+
 TEST_F(SessionProxyTest, traceWebRequestWithStringUrlDoesNotSplitSession)
 {
     // expect
@@ -880,6 +1039,23 @@ TEST_F(SessionProxyTest, onChildClosedRemovesChildFromList)
 
     // then
     ASSERT_THAT(target->getCopyOfChildObjects().size(), testing::Eq(1));
+}
+
+TEST_F(SessionProxyTest, onChildClosedCallsDequeueOnSessionWatchdog)
+{
+    // with
+    auto session = MockSessionInternals::createNice();
+
+    // expect
+    EXPECT_CALL(*mockSessionWatchdog, dequeueFromClosing(testing::Eq(session)))
+        .Times(1);
+
+    // given
+    auto target = std::dynamic_pointer_cast<core::objects::IOpenKitComposite>(createSessionProxy());
+    target->storeChildInList(session);
+
+    // when
+    target->onChildClosed(session);
 }
 
 TEST_F(SessionProxyTest, toStringReturnsAppropriateResult)

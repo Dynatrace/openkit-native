@@ -122,22 +122,35 @@ set(OPENKIT_SOURCES_CORE_UTIL
     ${CMAKE_CURRENT_LIST_DIR}/core/util/CyclicBarrier.h
     ${CMAKE_CURRENT_LIST_DIR}/core/util/DefaultLogger.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/util/DefaultLogger.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/util/EnumClassHash.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/util/IInterruptibleThreadSuspender.h
     ${CMAKE_CURRENT_LIST_DIR}/core/util/InetAddressValidator.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/util/InetAddressValidator.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/util/InterruptibleThreadSuspender.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/util/InterruptibleThreadSuspender.h
     ${CMAKE_CURRENT_LIST_DIR}/core/util/ReadWriteLock.h
     ${CMAKE_CURRENT_LIST_DIR}/core/util/ScopedReadLock.h
     ${CMAKE_CURRENT_LIST_DIR}/core/util/ScopedWriteLock.h
-    ${CMAKE_CURRENT_LIST_DIR}/core/util/SynchronizedQueue.h
-    ${CMAKE_CURRENT_LIST_DIR}/core/util/URLEncoding.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/core/util/URLEncoding.h
     ${CMAKE_CURRENT_LIST_DIR}/core/util/StringUtil.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/util/StringUtil.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/util/SynchronizedQueue.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/util/ThreadSurrogate.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/util/ThreadSurrogate.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/util/URLEncoding.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/util/URLEncoding.h
+
 )
 
 set(OPENKIT_SOURCES_CORE
     ${CMAKE_CURRENT_LIST_DIR}/core/BeaconSender.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/BeaconSender.h
     ${CMAKE_CURRENT_LIST_DIR}/core/IBeaconSender.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/ISessionWatchdog.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/ISessionWatchdogContext.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/SessionWatchdog.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/SessionWatchdog.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/SessionWatchdogContext.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/SessionWatchdogContext.h
     ${CMAKE_CURRENT_LIST_DIR}/core/UTF8String.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/UTF8String.h
 )

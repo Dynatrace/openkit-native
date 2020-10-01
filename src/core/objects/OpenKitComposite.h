@@ -69,7 +69,12 @@ namespace core
 			///
 			/// Returns a shallow copy of the @ref IOpenKitObject child objects
 			///
-			std::list<std::shared_ptr<IOpenKitObject>> getCopyOfChildObjects() override;
+			ChildList getCopyOfChildObjects() override;
+
+			///
+			/// Returns the current number of children held by this composite.
+			///
+			ChildList::size_type getChildCount() override;
 
 			///
 			/// Abstract method to notify the composite about closing/ending of a child object.
@@ -103,7 +108,7 @@ namespace core
 			///
 			/// Container for storing the children of this composite.
 			///
-			std::list<std::shared_ptr<IOpenKitObject>> mChildren;
+			ChildList mChildren;
 		};
 
 	}

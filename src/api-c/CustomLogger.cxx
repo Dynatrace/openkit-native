@@ -111,7 +111,7 @@ void CustomLogger::doLog(LOG_LEVEL level, const char* format, va_list args)
 	// perform the printf argument filling
 	va_list argcopy;
 	va_copy(argcopy, args);
-	int length = vsnprintf(nullptr, 0, format, argcopy);	// excl. term. 0
+	size_t length = vsnprintf(nullptr, 0, format, argcopy);	// excl. term. 0
 	va_end(argcopy);
 	char *traceStatement = new char[length + 1]; // + 1 for term. 0
 	vsnprintf(traceStatement, length + 1, format, args);

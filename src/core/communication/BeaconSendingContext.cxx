@@ -33,14 +33,13 @@ BeaconSendingContext::BeaconSendingContext(
 	std::shared_ptr<core::configuration::IHTTPClientConfiguration> httpClientConfig,
 	std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
 	std::shared_ptr<providers::ITimingProvider> timingProvider,
+	std::shared_ptr<core::util::IInterruptibleThreadSuspender> threadSuspender,
 	std::unique_ptr<IBeaconSendingState> initialState
 )
 	: mLogger(logger)
 	, mCurrentState(std::move(initialState))
 	, mNextState(nullptr)
 	, mShutdown(false)
-	, mShutdownMutex()
-	, mSleepConditionVariable()
 	, mInitSucceeded(false)
 	, mServerConfiguration(core::configuration::ServerConfiguration::DEFAULT)
 	, mHTTPClientConfiguration(httpClientConfig)
@@ -50,6 +49,7 @@ BeaconSendingContext::BeaconSendingContext(
 	, mLastOpenSessionBeaconSendTime(0)
 	, mLastResponseAttributes(protocol::ResponseAttributes::withUndefinedDefaults().build())
 	, mInitCountdownLatch(1)
+	, mThreadSuspender(threadSuspender)
 	, mSessions()
 {
 }
@@ -59,13 +59,15 @@ BeaconSendingContext::BeaconSendingContext
 	std::shared_ptr<openkit::ILogger> logger,
 	std::shared_ptr<core::configuration::IHTTPClientConfiguration> httpClientConfig,
 	std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
-	std::shared_ptr<providers::ITimingProvider> timingProvider
+	std::shared_ptr<providers::ITimingProvider> timingProvider,
+	std::shared_ptr<core::util::IInterruptibleThreadSuspender> threadSuspender
 )
 : BeaconSendingContext(
 	logger,
 	httpClientConfig,
 	httpClientProvider,
 	timingProvider,
+	threadSuspender,
 	std::unique_ptr<IBeaconSendingState>(new BeaconSendingInitialState())
 )
 {
@@ -88,14 +90,12 @@ void BeaconSendingContext::executeCurrentState()
 
 void BeaconSendingContext::requestShutdown()
 {
-	std::unique_lock<std::mutex> lock(mShutdownMutex);
 	mShutdown = true;
-	mSleepConditionVariable.notify_all(); // wake up all sleeping threads
+	mThreadSuspender->wakeup();
 }
 
 bool BeaconSendingContext::isShutdownRequested() const
 {
-	std::unique_lock<std::mutex> lock(mShutdownMutex);
 	return mShutdown;
 }
 
@@ -169,8 +169,7 @@ void BeaconSendingContext::sleep()
 
 void BeaconSendingContext::sleep(int64_t ms)
 {
-	std::unique_lock<std::mutex> lock(mShutdownMutex);
-	mSleepConditionVariable.wait_for(lock, std::chrono::milliseconds(ms), [&] { return mShutdown; });
+	mThreadSuspender->sleep(ms);
 }
 
 int64_t BeaconSendingContext::getLastOpenSessionBeaconSendTime() const

@@ -19,6 +19,7 @@
 
 #include "../mock/MockIBeaconSendingState.h"
 #include "../../configuration/mock/MockIHTTPClientConfiguration.h"
+#include "../../../core/util/mock/MockIInterruptibleThreadSuspender.h"
 #include "../../../api/mock/MockILogger.h"
 #include "../../../providers/mock/MockIHTTPClientProvider.h"
 #include "../../../providers/mock/MockITimingProvider.h"
@@ -27,6 +28,7 @@
 #include "core/communication/BeaconSendingContext.h"
 #include "core/communication/IBeaconSendingState.h"
 #include "core/configuration/IHTTPClientConfiguration.h"
+#include "core/util/IInterruptibleThreadSuspender.h"
 #include "providers/IHTTPClientProvider.h"
 #include "providers/ITimingProvider.h"
 
@@ -42,6 +44,7 @@ namespace test
 			, mClientConfig(nullptr)
 			, mClientProvider(nullptr)
 			, mTimingProvider(nullptr)
+			, mThreadSuspender(nullptr)
 			, mState(nullptr)
 		{
 		}
@@ -72,6 +75,12 @@ namespace test
 			return *this;
 		}
 
+		TestBeaconSendingContextBuilder& with(std::shared_ptr<core::util::IInterruptibleThreadSuspender> threadSuspender)
+		{
+			mThreadSuspender = threadSuspender;
+			return *this;
+		}
+
 		TestBeaconSendingContextBuilder& with(std::unique_ptr<core::communication::IBeaconSendingState> state)
 		{
 			mState = std::move(state);
@@ -84,6 +93,7 @@ namespace test
 			auto clientConfig = mClientConfig != nullptr ? mClientConfig : MockIHTTPClientConfiguration::createNice();
 			auto clientProvider = mClientProvider != nullptr ? mClientProvider : MockIHTTPClientProvider::createNice();
 			auto timingProvider = mTimingProvider != nullptr ? mTimingProvider : MockITimingProvider::createNice();
+			auto threadSuspender = mThreadSuspender != nullptr ? mThreadSuspender : MockIInterruptibleThreadSuspender::createNice();
 
 			if (mState != nullptr)
 			{
@@ -92,6 +102,7 @@ namespace test
 					clientConfig,
 					clientProvider,
 					timingProvider,
+					threadSuspender,
 					std::move(mState)
 				);
 			}
@@ -100,7 +111,8 @@ namespace test
 				logger,
 				clientConfig,
 				clientProvider,
-				timingProvider
+				timingProvider,
+				threadSuspender
 			);
 		}
 
@@ -109,6 +121,7 @@ namespace test
 		std::shared_ptr<core::configuration::IHTTPClientConfiguration> mClientConfig;
 		std::shared_ptr<providers::IHTTPClientProvider> mClientProvider;
 		std::shared_ptr<providers::ITimingProvider> mTimingProvider;
+		std::shared_ptr<core::util::IInterruptibleThreadSuspender> mThreadSuspender;
 		std::unique_ptr<core::communication::IBeaconSendingState> mState;
 	};
 }

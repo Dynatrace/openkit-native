@@ -79,11 +79,14 @@ extern "C" {
 			if (stringLength > 0)
 			{
 				stringCopy = (char*)malloc(stringLength + 1);
+				if (stringCopy != nullptr)
+				{
 #if defined(_WIN32) || defined(WIN32)
-				strcpy_s(stringCopy, stringLength + 1, str);
+					strcpy_s(stringCopy, stringLength + 1, str);
 #else
-				strncpy(stringCopy, str, stringLength + 1);
+					strncpy(stringCopy, str, stringLength + 1);
 #endif
+				}
 			}
 		}
 

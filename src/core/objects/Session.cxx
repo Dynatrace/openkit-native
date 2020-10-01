@@ -36,6 +36,7 @@ Session::Session(
 	, mIsSessionFinishing(false)
 	, mIsSessionFinished(false)
 	, mMutex()
+	, mSplitByEventsGracePeriodEndTimeInMillis(-1)
 {
 }
 
@@ -58,7 +59,7 @@ std::shared_ptr<openkit::IRootAction> Session::enterAction(const char* actionNam
 	}
 
 	{ // synchronized scope
-		std::lock_guard<std::mutex> lock(mMutex);
+		std::lock_guard<std::recursive_mutex> lock(mMutex);
 
 		if (!isFinishingOrFinished())
 		{
@@ -94,7 +95,7 @@ void Session::identifyUser(const char* userTag)
 	}
 
 	{ // synchronized scope
-		std::lock_guard<std::mutex> lock(mMutex);
+		std::lock_guard<std::recursive_mutex> lock(mMutex);
 
 		if (!isFinishingOrFinished())
 		{
@@ -123,7 +124,7 @@ void Session::reportCrash(const char* errorName, const char* reason, const char*
 	}
 
 	{ // synchronized scope
-		std::lock_guard<std::mutex> lock(mMutex);
+		std::lock_guard<std::recursive_mutex> lock(mMutex);
 
 		if (!isFinishingOrFinished())
 		{
@@ -151,7 +152,7 @@ std::shared_ptr<openkit::IWebRequestTracer> Session::traceWebRequest(const char*
 	}
 
 	{ // synchronized block
-		std::lock_guard<std::mutex> lock(mMutex);
+		std::lock_guard<std::recursive_mutex> lock(mMutex);
 
 		if(!isFinishingOrFinished())
 		{
@@ -178,7 +179,7 @@ void Session::end()
 	}
 
 	{ // synchronized scope
-		std::lock_guard<std::mutex> lock(mMutex);
+		std::lock_guard<std::recursive_mutex> lock(mMutex);
 
 		if (!markAsIsFinishing())
 		{
@@ -196,7 +197,7 @@ void Session::end()
 	mBeacon->endSession();
 
 	{ // synchronized scope
-		std::lock_guard<std::mutex> lock(mMutex);
+		std::lock_guard<std::recursive_mutex> lock(mMutex);
 
 		markAsFinished();
 	}
@@ -225,6 +226,34 @@ void Session::clearCapturedData()
 	mBeacon->clearData();
 }
 
+bool Session::tryEnd()
+{
+	std::lock_guard<std::recursive_mutex> lock(mMutex);
+
+	if (isFinishingOrFinished())
+	{
+		return true;
+	}
+
+	if (getChildCount() == 0)
+	{
+		end();
+		return true;
+	}
+
+	return false;
+}
+
+int64_t Session::getSplitByEventsGracePeriodEndTimeInMillis()
+{
+	return mSplitByEventsGracePeriodEndTimeInMillis;
+}
+
+void Session::setSplitByEventsGracePeriodEndTimeInMillis(int64_t splitByEventsGracePeriodEndTimeInMillis)
+{
+	mSplitByEventsGracePeriodEndTimeInMillis = splitByEventsGracePeriodEndTimeInMillis;
+}
+
 void Session::updateServerConfiguration(std::shared_ptr<core::configuration::IServerConfiguration> serverConfig)
 {
 	mBeacon->updateServerConfiguration(serverConfig);
@@ -233,7 +262,7 @@ void Session::updateServerConfiguration(std::shared_ptr<core::configuration::ISe
 void Session::onChildClosed(std::shared_ptr<core::objects::IOpenKitObject> childObject)
 {
 	{ // synchronized scope
-		std::lock_guard<std::mutex> lock(mMutex);
+		std::lock_guard<std::recursive_mutex> lock(mMutex);
 
 		removeChildFromList(childObject);
 	}
@@ -283,7 +312,7 @@ const std::string Session::toString() const
 bool Session::isConfigured()
 {
 	{ // synchronized scope
-		std::lock_guard<std::mutex> lock(mMutex);
+		std::lock_guard<std::recursive_mutex> lock(mMutex);
 
 		return hasServerConfigurationSet();
 	}
@@ -292,7 +321,7 @@ bool Session::isConfigured()
 bool Session::isConfiguredAndFinished()
 {
 	{ // synchronized scope
-		std::lock_guard<std::mutex> lock(mMutex);
+		std::lock_guard<std::recursive_mutex> lock(mMutex);
 
 		return hasServerConfigurationSet() && mIsSessionFinished;
 	}
@@ -301,7 +330,7 @@ bool Session::isConfiguredAndFinished()
 bool Session::isConfiguredAndOpen()
 {
 	{ // synchronized scope
-		std::lock_guard<std::mutex> lock(mMutex);
+		std::lock_guard<std::recursive_mutex> lock(mMutex);
 
 		return hasServerConfigurationSet() && !mIsSessionFinished;
 	}
@@ -310,7 +339,7 @@ bool Session::isConfiguredAndOpen()
 bool Session::isFinished()
 {
 	{ // synchronized scope
-		std::lock_guard<std::mutex> lock(mMutex);
+		std::lock_guard<std::recursive_mutex> lock(mMutex);
 
 		return mIsSessionFinished;
 	}

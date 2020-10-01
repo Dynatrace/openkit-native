@@ -40,6 +40,7 @@
 #include <memory>
 #include <atomic>
 #include <mutex>
+#include <cstdint>
 
 namespace protocol
 {
@@ -105,6 +106,12 @@ namespace core
 
 			void clearCapturedData() override;
 
+			bool tryEnd() override;
+
+			int64_t getSplitByEventsGracePeriodEndTimeInMillis() override;
+
+			void setSplitByEventsGracePeriodEndTimeInMillis(int64_t splitByEventsGracePeriodEndTimeInMillis) override;
+
 			void updateServerConfiguration(
 				std::shared_ptr<core::configuration::IServerConfiguration> serverConfig
 			) override;
@@ -168,7 +175,7 @@ namespace core
 			/// Logger to write traces to
 			const std::shared_ptr<openkit::ILogger> mLogger;
 
-			// parent object of this session
+			/// parent object of this session
 			const std::shared_ptr<core::objects::IOpenKitComposite> mParent;
 
 			/// beacon used for serialization
@@ -183,8 +190,10 @@ namespace core
 			/// indicator if the session was ended
 			std::atomic<bool> mIsSessionFinished;
 
-			// mutex used for synchronization
-			std::mutex mMutex;
+			/// mutex used for synchronization
+			std::recursive_mutex mMutex;
+			
+			std::atomic<int64_t> mSplitByEventsGracePeriodEndTimeInMillis;
 		};
 	}
 }

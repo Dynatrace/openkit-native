@@ -17,12 +17,13 @@
 #ifndef _CORE_COMMUNICATION_BEACONSENDINGCONTEXT_H
 #define _CORE_COMMUNICATION_BEACONSENDINGCONTEXT_H
 
+#include "OpenKit/ILogger.h"
 #include "IBeaconSendingContext.h"
 #include "IBeaconSendingState.h"
-#include "OpenKit/ILogger.h"
 #include "core/configuration/IHTTPClientConfiguration.h"
 #include "core/objects/SessionInternals.h"
 #include "core/util/CountDownLatch.h"
+#include "core/util/IInterruptibleThreadSuspender.h"
 #include "core/util/SynchronizedQueue.h"
 #include "protocol/IStatusResponse.h"
 #include "providers/IHTTPClientProvider.h"
@@ -30,9 +31,7 @@
 
 #include <atomic>
 #include <memory>
-#include <mutex>
-#include <condition_variable>
-#include <chrono>
+#include <cstdint>
 
 namespace core
 {
@@ -56,7 +55,8 @@ namespace core
 				std::shared_ptr<openkit::ILogger> logger,
 				std::shared_ptr<core::configuration::IHTTPClientConfiguration> httpClientConfiguration,
 				std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
-				std::shared_ptr<providers::ITimingProvider> timingProvider
+				std::shared_ptr<providers::ITimingProvider> timingProvider,
+				std::shared_ptr<core::util::IInterruptibleThreadSuspender> threadSuspender
 			);
 
 			///
@@ -72,6 +72,7 @@ namespace core
 				std::shared_ptr<core::configuration::IHTTPClientConfiguration> httpClientConfiguration,
 				std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
 				std::shared_ptr<providers::ITimingProvider> timingProvider,
+				std::shared_ptr<core::util::IInterruptibleThreadSuspender> threadSuspender,
 				std::unique_ptr<IBeaconSendingState> initialState
 			);
 
@@ -173,13 +174,7 @@ namespace core
 			std::shared_ptr<IBeaconSendingState> mNextState;
 
 			/// Boolean indicating shutdown flag.
-			bool mShutdown;
-
-			/// mutex used for synchronisation access to mShutdown
-			mutable std::mutex mShutdownMutex;
-
-			/// condition variable used to wait on when calling sleep.
-			std::condition_variable mSleepConditionVariable;
+			std::atomic<bool> mShutdown;
 
 			/// Atomic flag for successful initialization
 			std::atomic<bool> mInitSucceeded;
@@ -225,6 +220,11 @@ namespace core
 
 			/// countdown latch used for wait-on-initialization
 			core::util::CountDownLatch mInitCountdownLatch;
+
+			///
+			/// instance for suspending the thread for a certain time span.
+			///
+			std::shared_ptr<core::util::IInterruptibleThreadSuspender> mThreadSuspender;
 
 			/// container storing all session wrappers
 			core::util::SynchronizedQueue<std::shared_ptr<core::objects::SessionInternals>> mSessions;

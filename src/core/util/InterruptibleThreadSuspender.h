@@ -14,31 +14,38 @@
  * limitations under the License.
  */
 
-#include "OpenKitComposite.h"
+#ifndef _CORE_UTIL_INTERRUPTIBLETHREADSUSPENDER_H
+#define _CORE_UTIL_INTERRUPTIBLETHREADSUSPENDER_H
 
-using namespace core::objects;
+#include "IInterruptibleThreadSuspender.h"
 
-IOpenKitComposite::ChildList OpenKitComposite::getCopyOfChildObjects()
+#include <mutex>
+#include <condition_variable>
+
+namespace core
 {
-	return mChildren;
+	namespace util
+	{
+		class InterruptibleThreadSuspender
+			: public IInterruptibleThreadSuspender
+		{
+		public:
+
+			InterruptibleThreadSuspender();
+
+			~InterruptibleThreadSuspender() override = default;
+
+			void sleep(int64_t millis) override;
+
+			void wakeup() override;
+
+		private:
+
+			bool mSignaled;
+			std::mutex mMutex;
+			std::condition_variable mConditionVariable;
+		};
+	}
 }
 
-IOpenKitComposite::ChildList::size_type OpenKitComposite::getChildCount()
-{
-	return mChildren.size();
-}
-
-void OpenKitComposite::storeChildInList(std::shared_ptr<IOpenKitObject> childObject)
-{
-	mChildren.push_back(childObject);
-}
-
-void OpenKitComposite::removeChildFromList(std::shared_ptr<IOpenKitObject> childObject)
-{
-	mChildren.remove(childObject);
-}
-
-int32_t OpenKitComposite::getActionId() const
-{
-	return DEFAULT_ACTION_ID;
-}
+#endif
