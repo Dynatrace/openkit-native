@@ -64,6 +64,9 @@ TEST_F(ThreadSurrogateTest, startExecutesGivenThreadFunction)
 	// then
 	ASSERT_THAT(obtained, testing::Eq(std::future_status::ready));
 	ASSERT_THAT(mFuture.get(), testing::Eq(UpdatedValue));
+
+	// cleanup
+	target.join(100);
 }
 
 TEST_F(ThreadSurrogateTest, startReturnsTrueOnSuccess)
@@ -77,6 +80,9 @@ TEST_F(ThreadSurrogateTest, startReturnsTrueOnSuccess)
 
 	// then
 	ASSERT_THAT(obtained, testing::Eq(true));
+
+	// cleanup
+	target.join(100);
 }
 
 TEST_F(ThreadSurrogateTest, startCanOnlyBeUsedOnce)
@@ -92,6 +98,9 @@ TEST_F(ThreadSurrogateTest, startCanOnlyBeUsedOnce)
 	// then
 	ASSERT_THAT(obtained, testing::Eq(false));
 	ASSERT_THAT(mThreadCallCount, testing::Eq(1));
+
+	// cleanup
+	target.join(100);
 }
 
 TEST_F(ThreadSurrogateTest, joinOnANotStartedThreadDoesNothing)
