@@ -120,7 +120,7 @@ void OpenKit::logOpenKitInstanceCreation(
 	}
 	if (logger->isDebugEnabled())
 	{
-		logger->debug("OpenKit() - applicationName=%s, applicationID=%s, deviceID=%ld, origDeviceID=%s, endpointURL=%s",
+		logger->debug("OpenKit() - applicationName=%s, applicationID=%s, deviceID=%" PRId64  ", origDeviceID=%s, endpointURL=%s",
 			openKitConfiguration->getApplicationName().getStringData().c_str(),
 			openKitConfiguration->getApplicationId().getStringData().c_str(),
 			openKitConfiguration->getDeviceId(),
@@ -192,7 +192,7 @@ std::shared_ptr<openkit::ISession> OpenKit::createSession(const char* clientIPAd
 		}
 	}
 
-	return NullSession::INSTANCE;
+	return NullSession::instance();
 }
 
 std::shared_ptr<openkit::ISession> OpenKit::createSession()

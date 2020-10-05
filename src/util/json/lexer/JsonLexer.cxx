@@ -91,17 +91,17 @@ const JsonLexer::JsonTokenPtr JsonLexer::doParseNextToken()
 	switch (nextChar)
 	{
 		case LEFT_SQUARE_BRACKET:
-			return JsonToken::LEFT_SQUARE_BRACKET_TOKEN;
+			return JsonToken::leftSquareBracketToken();
 		case RIGHT_SQUARE_BRACKET:
-			return JsonToken::RIGHT_SQUARE_BRACKET_TOKEN;
+			return JsonToken::rightSquareBracketToken();
 		case LEFT_BRACE:
-			return JsonToken::LEFT_BRACE_TOKEN;
+			return JsonToken::leftBraceToken();
 		case RIGHT_BRACE:
-			return JsonToken::RIGHT_BRACE_TOKEN;
+			return JsonToken::rightBraceToken();
 		case COLON:
-			return JsonToken::COLON_TOKEN;
+			return JsonToken::colonToken();
 		case COMMA:
-			return JsonToken::COMMA_TOKEN;
+			return JsonToken::commaToken();
 		case TRUE_LITERAL_START: // fallthrough
 		case FALSE_LITERAL_START:
 			// could be a boolean literal (true|false)
@@ -135,11 +135,11 @@ const JsonLexer::JsonTokenPtr JsonLexer::tryParseBooleanLiteral()
 	auto literal = parseLiteral();
 	if (literal == util::json::constants::JsonLiterals::BOOLEAN_TRUE_LITERAL)
 	{
-		return JsonToken::BOOLEAN_TRUE_TOKEN;
+		return JsonToken::booleanTrueToken();
 	}
 	else if (literal == util::json::constants::JsonLiterals::BOOLEAN_FALSE_LITERAL)
 	{
-		return JsonToken::BOOLEAN_FALSE_TOKEN;
+		return JsonToken::booleanFalseToken();
 	}
 
 	// not a valid boolean literal
@@ -151,7 +151,7 @@ const JsonLexer::JsonTokenPtr JsonLexer::tryParseNullLiteral()
 	auto literal = parseLiteral();
 	if (literal == util::json::constants::JsonLiterals::NULL_LITERAL)
 	{
-		return JsonToken::NULL_TOKEN;
+		return JsonToken::nullToken();
 	}
 
 	// not a valid null literal

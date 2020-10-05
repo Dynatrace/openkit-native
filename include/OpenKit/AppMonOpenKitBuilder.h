@@ -33,7 +33,7 @@ namespace openkit
 
 		static constexpr int32_t DEFAULT_SERVER_ID = 1;
 
-		static const std::string OPENKIT_TYPE;
+		static constexpr const char* OPENKIT_TYPE = "AppMonOpenKit";
 
 		///
 		/// Constructor
@@ -70,6 +70,9 @@ namespace openkit
 
 		/// application name
 		std::string mApplicationName;
+
+		/// openkit type
+		std::string mOpenKitType;
 	};
 }
 

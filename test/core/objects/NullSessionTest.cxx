@@ -32,7 +32,7 @@ class NullSessionTest : public testing::Test
 TEST_F(NullSessionTest, enterActionReturnsNullRootAction)
 {
 	// given
-	auto target = NullSession_t::INSTANCE;
+	auto target = NullSession_t::instance();
 
 	// when
 	auto obtained = target->enterAction("action name");
@@ -40,13 +40,13 @@ TEST_F(NullSessionTest, enterActionReturnsNullRootAction)
 	// then
 	auto nullRootAction = std::dynamic_pointer_cast<NullRootAction_t>(obtained);
 	ASSERT_THAT(nullRootAction, testing::NotNull());
-	ASSERT_THAT(nullRootAction, testing::Eq(NullRootAction_t::INSTANCE));
+	ASSERT_THAT(nullRootAction, testing::Eq(NullRootAction_t::instance()));
 }
 
 TEST_F(NullSessionTest, traceWebRequestReturnsNullWebRequestTracer)
 {
 	// given
-	auto target = NullSession_t::INSTANCE;
+	auto target = NullSession_t::instance();
 
 	// when
 	auto obtained = target->traceWebRequest("https://localhost");
@@ -54,5 +54,5 @@ TEST_F(NullSessionTest, traceWebRequestReturnsNullWebRequestTracer)
 	// then
 	auto nullTracer = std::dynamic_pointer_cast<NullWebRequestTracer_t>(obtained);
 	ASSERT_THAT(nullTracer, testing::NotNull());
-	ASSERT_THAT(nullTracer, testing::Eq(NullWebRequestTracer_t::INSTANCE));
+	ASSERT_THAT(nullTracer, testing::Eq(NullWebRequestTracer_t::instance()));
 }

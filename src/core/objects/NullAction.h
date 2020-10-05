@@ -73,7 +73,7 @@ namespace core
 
 			std::shared_ptr<openkit::IWebRequestTracer> traceWebRequest(const char* /*url*/) override
 			{
-				return NullWebRequestTracer::INSTANCE;
+				return NullWebRequestTracer::instance();
 			}
 
 			std::shared_ptr<openkit::IRootAction> leaveAction() override

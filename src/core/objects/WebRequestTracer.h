@@ -64,7 +64,7 @@ namespace core
 				const core::UTF8String& url
 			);
 
-			static const std::string UNKNOWN_URL;
+			static constexpr const char* UNKNOWN_URL = "<unknown>";
 
 			///
 			/// Test if given @c url contains a valid URL scheme according to RFC3986.

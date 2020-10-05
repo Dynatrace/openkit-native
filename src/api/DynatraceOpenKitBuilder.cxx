@@ -18,12 +18,11 @@
 
 using namespace openkit;
 
-const std::string DynatraceOpenKitBuilder::OPENKIT_TYPE = "DynatraceOpenKit";
-
 DynatraceOpenKitBuilder::DynatraceOpenKitBuilder(const char* endpointURL, const char* applicationID, int64_t deviceID)
 	: AbstractOpenKitBuilder(endpointURL, deviceID)
 	, mApplicationID(applicationID)
 	, mApplicationName()
+	, mOpenKitType(OPENKIT_TYPE)
 {
 }
 
@@ -31,6 +30,7 @@ DynatraceOpenKitBuilder::DynatraceOpenKitBuilder(const char* endpointURL, const 
 	: AbstractOpenKitBuilder(endpointURL, deviceID)
 	, mApplicationID(applicationID)
 	, mApplicationName()
+	, mOpenKitType(OPENKIT_TYPE)
 {
 }
 
@@ -45,7 +45,7 @@ DynatraceOpenKitBuilder& DynatraceOpenKitBuilder::withApplicationName(const char
 
 const std::string& DynatraceOpenKitBuilder::getOpenKitType() const
 {
-	return OPENKIT_TYPE;
+	return mOpenKitType;
 }
 
 const std::string& DynatraceOpenKitBuilder::getApplicationID() const

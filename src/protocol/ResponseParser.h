@@ -33,8 +33,18 @@ namespace protocol
 	{
 	public:
 
-		static const std::string KEY_VALUE_RESPONSE_TYPE_MOBILE;
-		static const std::string KEY_VALUE_RESPONSE_TYPE_MOBILE_WITH_SEPARATOR;
+		///
+		/// Default constructor not allowed, as it's a static utility class
+		///
+		ResponseParser() = delete;
+
+		///
+		/// Destructor not allowed, as it's a static utility class
+		///
+		~ResponseParser() = delete;
+
+		static constexpr const char* KEY_VALUE_RESPONSE_TYPE_MOBILE = "type=m";
+		static constexpr const char* KEY_VALUE_RESPONSE_TYPE_MOBILE_WITH_SEPARATOR = "type=m&";
 
 		static std::shared_ptr<IResponseAttributes> parseResponse(const core::UTF8String& responseString);
 

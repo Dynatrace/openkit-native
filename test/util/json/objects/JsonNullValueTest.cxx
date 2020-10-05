@@ -29,5 +29,5 @@ class JsonNullValueTest : public ::testing::Test
 TEST_F(JsonNullValueTest, isNullType)
 {
 	// when, then
-	ASSERT_THAT(JsonNullValue::NULL_VALUE->getValueType(), testing::Eq(JsonValueType::NULL_VALUE));
+	ASSERT_THAT(JsonNullValue::nullValue()->getValueType(), testing::Eq(JsonValueType::NULL_VALUE));
 }

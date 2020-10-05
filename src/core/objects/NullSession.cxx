@@ -20,11 +20,16 @@
 
 using namespace core::objects;
 
-const std::shared_ptr<NullSession> NullSession::INSTANCE = std::make_shared<NullSession>();
+const std::shared_ptr<NullSession> NullSession::instance()
+{
+	static const auto instance = std::make_shared<NullSession>();
+
+	return instance;
+}
 
 std::shared_ptr<openkit::IRootAction> NullSession::enterAction(const char* /*actionName*/)
 {
-	return NullRootAction::INSTANCE;
+	return NullRootAction::instance();
 }
 
 void NullSession::identifyUser(const char* /*userTag*/)
@@ -39,7 +44,7 @@ void NullSession::reportCrash(const char* /*errorName*/, const char* /*reason*/,
 
 std::shared_ptr<openkit::IWebRequestTracer> NullSession::traceWebRequest(const char* /*url*/)
 {
-	return NullWebRequestTracer::INSTANCE;
+	return NullWebRequestTracer::instance();
 }
 
 void NullSession::end()

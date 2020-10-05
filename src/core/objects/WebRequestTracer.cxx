@@ -25,8 +25,6 @@ using namespace core::objects;
 
 static const std::regex SCHEMA_VALIDATION_PATTERN("^[a-zA-Z][a-zA-Z0-9+\\-.]*://.+$", std::regex::optimize | std::regex::ECMAScript);
 
-const std::string WebRequestTracer::UNKNOWN_URL = "<unknown>";
-
 WebRequestTracer::WebRequestTracer
 (
 	std::shared_ptr<openkit::ILogger> logger,

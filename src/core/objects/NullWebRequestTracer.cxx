@@ -18,7 +18,12 @@
 
 using namespace core::objects;
 
-const std::shared_ptr<NullWebRequestTracer> NullWebRequestTracer::INSTANCE = std::make_shared<NullWebRequestTracer>();
+const std::shared_ptr<NullWebRequestTracer> NullWebRequestTracer::instance()
+{
+	static const auto instance = std::make_shared<NullWebRequestTracer>();
+
+	return instance;
+}
 
 const char* NullWebRequestTracer::getTag() const
 {

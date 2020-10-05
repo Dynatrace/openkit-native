@@ -39,7 +39,7 @@ namespace core
 		{
 		public:
 
-			static const std::shared_ptr<NullWebRequestTracer> INSTANCE;
+			static const std::shared_ptr<NullWebRequestTracer> instance();
 
 			const char* getTag() const override;
 

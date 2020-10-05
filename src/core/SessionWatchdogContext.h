@@ -43,7 +43,8 @@ namespace core
 		///
 		/// the default sleep time if no session is to be split / closed.
 		///
-		static const std::chrono::milliseconds DEFAULT_SLEEP_TIME_MILLISECONDS;
+		static constexpr std::chrono::milliseconds DEFAULT_SLEEP_TIME_MILLISECONDS
+			= std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::seconds(5));
 
 		void execute() override;
 

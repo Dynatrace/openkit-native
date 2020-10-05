@@ -35,7 +35,7 @@ namespace core
 		{
 		public:
 
-			static const std::shared_ptr<NullSession> INSTANCE;
+			static const std::shared_ptr<NullSession> instance();
 
 			std::shared_ptr<openkit::IRootAction> enterAction(const char* /*actionName*/) override;
 

@@ -36,9 +36,9 @@ namespace util
 			public: // members
 
 				///
-				/// the sole instance of this class.
+				/// Gets the sole instance of this class.
 				///
-				static const std::shared_ptr<JsonNullValue> NULL_VALUE;
+				static const std::shared_ptr<JsonNullValue> nullValue();
 
 			public:
 

@@ -20,6 +20,9 @@
 #include "core/configuration/IServerConfiguration.h"
 #include "protocol/IResponseAttributes.h"
 
+#include <memory>
+#include <cstdint>
+
 namespace core
 {
 	namespace configuration
@@ -32,11 +35,6 @@ namespace core
 			class Builder
 			{
 			public:
-
-				///
-				/// Default constructor
-				///
-				Builder();
 
 				///
 				/// Creates a new builder instance with pre-initialized fields from the given IResponseAttributes.
@@ -80,16 +78,6 @@ namespace core
 				/// @return @c this
 				///
 				Builder& withErrorReporting(bool errorReportingState);
-
-				int32_t getSendIntervalInMilliseconds() const;
-
-				///
-				/// Configures the send interval.
-				///
-				/// @param sendIntervalInMilliseconds the send interval in milliseconds.
-				/// @return @c this
-				///
-				Builder& withSendIntervalInMilliseconds(int32_t sendIntervalInMilliseconds);
 
 				int32_t getServerId() const;
 
@@ -169,7 +157,6 @@ namespace core
 				bool mIsCaptureEnabled;
 				bool mIsCrashReportingEnabled;
 				bool mIsErrorReportingEnabled;
-				int32_t mSendIntervalInMilliseconds;
 				int32_t mServerId;
 				int32_t mBeaconSizeInBytes;
 				int32_t mMultiplicity;
@@ -185,46 +172,17 @@ namespace core
 			///
 			ServerConfiguration(ServerConfiguration::Builder& builder);
 
-			/// Default server configuration instance.
-			static const std::shared_ptr<core::configuration::IServerConfiguration> DEFAULT;
-
-			/// by default capturing is enabled
-			static constexpr bool DEFAULT_CAPTURE_ENABLED = true;
-
-			/// by default crash reporting is enabled
-			static constexpr bool DEFAULT_CRASH_REPORTING_ENABLED = true;
-
-			/// by default error reporting is enabled
-			static constexpr bool DEFAULT_ERROR_REPORTING_ENABLED = true;
-
-			/// default send interval is not defined
-			static constexpr int32_t DEFAULT_SEND_INTERVAL = -1;
-
-			/// default server ID depends on the backend
-			static constexpr int32_t DEFAULT_SERVER_ID = -1;
-
-			/// default beacon size is not defined
-			static constexpr int32_t DEFAULT_BEACON_SIZE = -1;
-
-			// default multiplicity is 1
-			static constexpr int32_t DEFAULT_MULTIPLICITY = 1;
-
-			// by default split by session duration is disabled, thus value is -1
-			static constexpr int32_t DEFAULT_MAX_SESSION_DURATION = -1;
-
-			// by default split by events is disabled,thus value is -1
-			static constexpr int32_t DEFAULT_MAX_EVENTS_PER_SESSION = -1;
-
-			// by default split by events is disabled
-			static constexpr bool DEFAULT_IS_SESSION_SPLIT_BY_EVENTS_ENABLED = false;
-
-			// by default session split by timeout is disabled, thus value is -1
-			static constexpr int32_t DEFAULT_SESSION_TIMEOUT = -1;
-
-			// default visit store version is 1
-			static constexpr int32_t DEFAULT_VISIT_STORE_VERSION = 1;
-
 			~ServerConfiguration() override = default;
+
+			///
+			/// Gets the default server configuration values
+			///
+			static const std::shared_ptr<protocol::IResponseAttributes> defaultValues();
+
+			///
+			/// Gets the default server configuration instance.
+			///
+			static const std::shared_ptr<core::configuration::IServerConfiguration> defaultInstance();
 
 			///
 			/// Creates a new serer configuration from the given IResponseAttributes.
@@ -241,8 +199,6 @@ namespace core
 			bool isCrashReportingEnabled() const override;
 
 			bool isErrorReportingEnabled() const override;
-
-			int32_t getSendIntervalInMilliseconds() const override;
 
 			int32_t getServerId() const override;
 
@@ -280,9 +236,6 @@ namespace core
 
 			/// indicator whether error reporting is enabled by backend or not.
 			const bool mIsErrorReportingEnabled;
-
-			/// value specifying the send interval in milliseconds
-			const int32_t mSendIntervalInMilliseconds;
 
 			/// the server ID to send future requests to
 			const int32_t mServerId;

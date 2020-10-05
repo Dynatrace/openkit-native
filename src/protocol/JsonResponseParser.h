@@ -32,24 +32,24 @@ namespace protocol
 	{
 	public:
 
-		static const std::string RESPONSE_KEY_AGENT_CONFIG;
-		static const std::string RESPONSE_KEY_MAX_BEACON_SIZE_IN_KB;
-		static const std::string RESPONSE_KEY_MAX_SESSION_DURATION_IN_MIN;
-		static const std::string RESPONSE_KEY_MAX_EVENTS_PER_SESSION;
-		static const std::string RESPONSE_KEY_SESSION_TIMEOUT_IN_SEC;
-		static const std::string RESPONSE_KEY_SEND_INTERVAL_IN_SEC;
-		static const std::string RESPONSE_KEY_VISIT_STORE_VERSION;
+		static constexpr const char* RESPONSE_KEY_AGENT_CONFIG = "mobileAgentConfig";
+		static constexpr const char* RESPONSE_KEY_MAX_BEACON_SIZE_IN_KB = "maxBeaconSizeKb";
+		static constexpr const char* RESPONSE_KEY_MAX_SESSION_DURATION_IN_MIN = "maxSessionDurationInMins";
+		static constexpr const char* RESPONSE_KEY_MAX_EVENTS_PER_SESSION = "maxEventsPerSession";
+		static constexpr const char* RESPONSE_KEY_SESSION_TIMEOUT_IN_SEC = "sessionTimeoutSec";
+		static constexpr const char* RESPONSE_KEY_SEND_INTERVAL_IN_SEC = "sendIntervalSec";
+		static constexpr const char* RESPONSE_KEY_VISIT_STORE_VERSION = "visitStoreVersion";
 
-		static const std::string RESPONSE_KEY_APP_CONFIG;
-		static const std::string RESPONSE_KEY_CAPTURE;
-		static const std::string RESPONSE_KEY_REPORT_CRASHES;
-		static const std::string RESPONSE_KEY_REPORT_ERRORS;
+		static constexpr const char* RESPONSE_KEY_APP_CONFIG = "appConfig";
+		static constexpr const char* RESPONSE_KEY_CAPTURE = "capture";
+		static constexpr const char* RESPONSE_KEY_REPORT_CRASHES = "reportCrashes";
+		static constexpr const char* RESPONSE_KEY_REPORT_ERRORS = "reportErrors";
 
-		static const std::string RESPONSE_KEY_DYNAMIC_CONFIG;
-		static const std::string RESPONSE_KEY_MULTIPLICITY;
-		static const std::string RESPONSE_KEY_SERVER_ID;
+		static constexpr const char* RESPONSE_KEY_DYNAMIC_CONFIG = "dynamicConfig";
+		static constexpr const char* RESPONSE_KEY_MULTIPLICITY = "multiplicity";
+		static constexpr const char* RESPONSE_KEY_SERVER_ID = "serverId";
 
-		static const std::string RESPONSE_KEY_TIMESTAMP_IN_MILLIS;
+		static constexpr const char* RESPONSE_KEY_TIMESTAMP_IN_MILLIS = "timestamp";
 
 		static std::shared_ptr<protocol::IResponseAttributes> parse(const core::UTF8String& jsonResponse);
 

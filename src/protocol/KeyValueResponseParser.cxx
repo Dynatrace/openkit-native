@@ -18,16 +18,6 @@
 
 using namespace protocol;
 
-const std::string KeyValueResponseParser::RESPONSE_KEY_MAX_BEACON_SIZE_IN_KB = "bl";
-const std::string KeyValueResponseParser::RESPONSE_KEY_SEND_INTERVAL_IN_SEC = "si";
-
-const std::string KeyValueResponseParser::RESPONSE_KEY_CAPTURE = "cp";
-const std::string KeyValueResponseParser::RESPONSE_KEY_REPORT_CRASHES = "cr";
-const std::string KeyValueResponseParser::RESPONSE_KEY_REPORT_ERRORS = "er";
-
-const std::string KeyValueResponseParser::RESPONSE_KEY_SERVER_ID = "id";
-const std::string KeyValueResponseParser::RESPONSE_KEY_MULTIPLICITY = "mp";
-
 std::shared_ptr<IResponseAttributes> KeyValueResponseParser::parse(const core::UTF8String& keyValuePairResponse)
 {
 	auto keyValuePairs = std::unordered_map<std::string, std::string>();

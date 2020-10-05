@@ -28,9 +28,9 @@ namespace protocol
 	{
 	public:
 
-		static const std::shared_ptr<IResponseAttributes> JSON_RESPONSE;
-		static const std::shared_ptr<IResponseAttributes> KEY_VALUE_RESPONSE;
-		static const std::shared_ptr<IResponseAttributes> UNDEFINED;
+		static const std::shared_ptr<IResponseAttributes> jsonResponse();
+		static const std::shared_ptr<IResponseAttributes> keyValueResponse();
+		static const std::shared_ptr<IResponseAttributes> undefined();
 
 	private:
 

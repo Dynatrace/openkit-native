@@ -81,7 +81,7 @@ namespace core
 			///
 			/// Default sleep time in milliseconds (used by @ref sleep()).
 			///
-			static const std::chrono::milliseconds DEFAULT_SLEEP_TIME_MILLISECONDS;
+			static constexpr std::chrono::milliseconds DEFAULT_SLEEP_TIME_MILLISECONDS = std::chrono::seconds(1);
 
 			void executeCurrentState() override;
 

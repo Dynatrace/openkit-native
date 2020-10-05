@@ -25,32 +25,77 @@ using namespace util::json::lexer;
 using namespace util::json::constants;
 
 
-const std::shared_ptr<JsonToken> JsonToken::BOOLEAN_TRUE_TOKEN =
-		std::shared_ptr<JsonToken>(new JsonToken(JsonTokenType::LITERAL_BOOLEAN, JsonLiterals::BOOLEAN_TRUE_LITERAL));
+const std::shared_ptr<JsonToken> JsonToken::booleanTrueToken()
+{
+	static const auto booleanTrueToken
+		= std::shared_ptr<JsonToken>(new JsonToken(JsonTokenType::LITERAL_BOOLEAN, JsonLiterals::BOOLEAN_TRUE_LITERAL));
 
-const std::shared_ptr<JsonToken> JsonToken::BOOLEAN_FALSE_TOKEN =
-		std::shared_ptr<JsonToken>(new JsonToken(JsonTokenType::LITERAL_BOOLEAN, JsonLiterals::BOOLEAN_FALSE_LITERAL));
+	return booleanTrueToken;
+}
 
-const std::shared_ptr<JsonToken> JsonToken::NULL_TOKEN =
-		std::shared_ptr<JsonToken>(new JsonToken(JsonTokenType::LITERAL_NULL, JsonLiterals::NULL_LITERAL));
+const std::shared_ptr<JsonToken> JsonToken::booleanFalseToken()
+{
+	static const auto booleanFalseToken
+		= std::shared_ptr<JsonToken>(new JsonToken(JsonTokenType::LITERAL_BOOLEAN, JsonLiterals::BOOLEAN_FALSE_LITERAL));
 
-const std::shared_ptr<JsonToken> JsonToken::LEFT_BRACE_TOKEN =
-		std::shared_ptr<JsonToken>(new JsonToken(JsonTokenType::LEFT_BRACE));
+	return booleanFalseToken;
+}
 
-const std::shared_ptr<JsonToken> JsonToken::RIGHT_BRACE_TOKEN =
-		std::shared_ptr<JsonToken>(new JsonToken(JsonTokenType::RIGHT_BRACE));
+const std::shared_ptr<JsonToken> JsonToken::nullToken()
+{
+	static const auto nullToken
+		= std::shared_ptr<JsonToken>(new JsonToken(JsonTokenType::LITERAL_NULL, JsonLiterals::NULL_LITERAL));
 
-const std::shared_ptr<JsonToken> JsonToken::LEFT_SQUARE_BRACKET_TOKEN =
-		std::shared_ptr<JsonToken>(new JsonToken(JsonTokenType::LEFT_SQUARE_BRACKET));
+	return nullToken;
+}
 
-const std::shared_ptr<JsonToken> JsonToken::RIGHT_SQUARE_BRACKET_TOKEN =
-		std::shared_ptr<JsonToken>(new JsonToken(JsonTokenType::RIGHT_SQUARE_BRACKET));
+const std::shared_ptr<JsonToken> JsonToken::leftBraceToken()
+{
+	static const auto leftBraceToken
+		= std::shared_ptr<JsonToken>(new JsonToken(JsonTokenType::LEFT_BRACE));
 
-const std::shared_ptr<JsonToken> JsonToken::COMMA_TOKEN =
-		std::shared_ptr<JsonToken>(new JsonToken(JsonTokenType::COMMA));
+	return leftBraceToken;
+}
 
-const std::shared_ptr<JsonToken> JsonToken::COLON_TOKEN =
-		std::shared_ptr<JsonToken>(new JsonToken(JsonTokenType::COLON));
+const std::shared_ptr<JsonToken> JsonToken::rightBraceToken()
+{
+	static const auto rightBraceToken
+		= std::shared_ptr<JsonToken>(new JsonToken(JsonTokenType::RIGHT_BRACE));
+
+	return rightBraceToken;
+}
+
+const std::shared_ptr<JsonToken> JsonToken::leftSquareBracketToken()
+{
+	static const auto leftSquareBracketToken
+		= std::shared_ptr<JsonToken>(new JsonToken(JsonTokenType::LEFT_SQUARE_BRACKET));
+
+	return leftSquareBracketToken;
+}
+
+const std::shared_ptr<JsonToken> JsonToken::rightSquareBracketToken()
+{
+	static const auto rightSquareBracketToken
+		= std::shared_ptr<JsonToken>(new JsonToken(JsonTokenType::RIGHT_SQUARE_BRACKET));
+
+	return rightSquareBracketToken;
+}
+
+const std::shared_ptr<JsonToken> JsonToken::commaToken()
+{
+	static const auto commaToken
+		= std::shared_ptr<JsonToken>(new JsonToken(JsonTokenType::COMMA));
+
+	return commaToken;
+}
+
+const std::shared_ptr<JsonToken> JsonToken::colonToken()
+{
+	static const auto colonToken
+		= std::shared_ptr<JsonToken>(new JsonToken(JsonTokenType::COLON));
+
+	return colonToken;
+}
 
 
 JsonToken::JsonToken(JsonTokenType tokenType)

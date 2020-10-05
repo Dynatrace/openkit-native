@@ -32,6 +32,15 @@ namespace core
 		class URLEncoding
 		{
 		public:
+
+			///
+			/// No default constructor, since it's a static utility class
+			///
+			URLEncoding() = delete;
+
+			/// No destructor, since it's a static utility class
+			~URLEncoding() = delete;
+
 			///
 			/// URL-Encode the given string
 			/// @returns url-encoded version of the current string
@@ -54,9 +63,6 @@ namespace core
 			/// @returns url-decoded version of the current string
 			///
 			static core::UTF8String urldecode(const core::UTF8String& string);
-		private:
-			/// list of characters that don't need escaping
-			static const std::unordered_set<unsigned char> sUnreservedCharactersRFC3986;
 		};
 	}
 }

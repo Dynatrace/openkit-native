@@ -140,7 +140,7 @@ TEST_F(NullActionTest, traceWebRequestReturnsNullWebRequestTracer)
 	ASSERT_THAT(obtained, testing::NotNull());
 	auto nullTracer = std::dynamic_pointer_cast<NullWebRequestTracer_t>(obtained);
 	ASSERT_THAT(nullTracer, testing::NotNull());
-	ASSERT_THAT(nullTracer, testing::Eq(NullWebRequestTracer_t::INSTANCE));
+	ASSERT_THAT(nullTracer, testing::Eq(NullWebRequestTracer_t::instance()));
 }
 
 TEST_F(NullActionTest, leaveActionWithNullParent)

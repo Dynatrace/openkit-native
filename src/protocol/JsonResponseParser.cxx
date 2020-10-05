@@ -21,24 +21,6 @@
 
 using namespace protocol;
 
-const std::string JsonResponseParser::RESPONSE_KEY_AGENT_CONFIG = "mobileAgentConfig";
-const std::string JsonResponseParser::RESPONSE_KEY_MAX_BEACON_SIZE_IN_KB = "maxBeaconSizeKb";
-const std::string JsonResponseParser::RESPONSE_KEY_MAX_SESSION_DURATION_IN_MIN = "maxSessionDurationInMins";
-const std::string JsonResponseParser::RESPONSE_KEY_MAX_EVENTS_PER_SESSION = "maxEventsPerSession";
-const std::string JsonResponseParser::RESPONSE_KEY_SESSION_TIMEOUT_IN_SEC = "sessionTimeoutSec";
-const std::string JsonResponseParser::RESPONSE_KEY_SEND_INTERVAL_IN_SEC = "sendIntervalSec";
-const std::string JsonResponseParser::RESPONSE_KEY_VISIT_STORE_VERSION = "visitStoreVersion";
-
-const std::string JsonResponseParser::RESPONSE_KEY_APP_CONFIG = "appConfig";
-const std::string JsonResponseParser::RESPONSE_KEY_CAPTURE = "capture";
-const std::string JsonResponseParser::RESPONSE_KEY_REPORT_CRASHES = "reportCrashes";
-const std::string JsonResponseParser::RESPONSE_KEY_REPORT_ERRORS = "reportErrors";
-
-const std::string JsonResponseParser::RESPONSE_KEY_DYNAMIC_CONFIG = "dynamicConfig";
-const std::string JsonResponseParser::RESPONSE_KEY_MULTIPLICITY = "multiplicity";
-const std::string JsonResponseParser::RESPONSE_KEY_SERVER_ID = "serverId";
-
-const std::string JsonResponseParser::RESPONSE_KEY_TIMESTAMP_IN_MILLIS = "timestamp";
 
 std::shared_ptr<protocol::IResponseAttributes> JsonResponseParser::parse(const core::UTF8String& jsonResponse)
 {

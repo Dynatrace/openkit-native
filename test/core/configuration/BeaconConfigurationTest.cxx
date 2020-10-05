@@ -61,7 +61,6 @@ protected:
 		ON_CALL(*serverConfig, isCaptureEnabled()).WillByDefault(testing::Return(enableCapture));
 		ON_CALL(*serverConfig, isCrashReportingEnabled()).WillByDefault(testing::Return(true));
 		ON_CALL(*serverConfig, isErrorReportingEnabled()).WillByDefault(testing::Return(true));
-		ON_CALL(*serverConfig, getSendIntervalInMilliseconds()).WillByDefault(testing::Return(999));
 		ON_CALL(*serverConfig, getServerId()).WillByDefault(testing::Return(73));
 		ON_CALL(*serverConfig, getBeaconSizeInBytes()).WillByDefault(testing::Return(1024));
 		ON_CALL(*serverConfig, getMultiplicity()).WillByDefault(testing::Return(37));
@@ -126,7 +125,7 @@ TEST_F(BeaconConfigurationTest, newInstanceReturnsDefaultServerConfiguration)
 	auto obtained = target->getServerConfiguration();
 
 	// then
-	ASSERT_THAT(obtained, testing::Eq(ServerConfiguration_t::DEFAULT));
+	ASSERT_THAT(obtained, testing::Eq(ServerConfiguration_t::defaultInstance()));
 }
 
 TEST_F(BeaconConfigurationTest, newInstanceReturnsIsServerConfigurationSetFalse)
@@ -261,7 +260,7 @@ TEST_F(BeaconConfigurationTest, updateServerConfigurationWithNullDoesNothing)
 
 	// then
 	ASSERT_THAT(target->isServerConfigurationSet(), testing::Eq(false));
-	ASSERT_THAT(target->getServerConfiguration(), testing::Eq(ServerConfiguration_t::DEFAULT));
+	ASSERT_THAT(target->getServerConfiguration(), testing::Eq(ServerConfiguration_t::defaultInstance()));
 }
 
 TEST_F(BeaconConfigurationTest, updateServerConfigurationDoesInvokeCallbackIfCallbackIsSet)
@@ -330,7 +329,7 @@ TEST_F(BeaconConfigurationTest, enableCaptureUpdatesServerConfigIfCaptureIsDisab
 
 	// then
 	ASSERT_THAT(obtained, testing::Ne(initialServerConfig));
-	ASSERT_THAT(obtained, testing::Ne(ServerConfiguration_t::DEFAULT));
+	ASSERT_THAT(obtained, testing::Ne(ServerConfiguration_t::defaultInstance()));
 	ASSERT_THAT(obtained->isCaptureEnabled(), testing::Eq(true));
 }
 
@@ -351,7 +350,6 @@ TEST_F(BeaconConfigurationTest, enableCaptureDoesOnlyModifyCaptureFlag)
 	ASSERT_THAT(obtained->isCaptureEnabled(), testing::Ne(initialServerConfig->isCaptureEnabled()));
 	ASSERT_THAT(obtained->isCrashReportingEnabled(), testing::Eq(initialServerConfig->isCrashReportingEnabled()));
 	ASSERT_THAT(obtained->isErrorReportingEnabled(), testing::Eq(initialServerConfig->isErrorReportingEnabled()));
-	ASSERT_THAT(obtained->getSendIntervalInMilliseconds(), testing::Eq(initialServerConfig->getSendIntervalInMilliseconds()));
 	ASSERT_THAT(obtained->getServerId(), testing::Eq(initialServerConfig->getServerId()));
 	ASSERT_THAT(obtained->getBeaconSizeInBytes(), testing::Eq(initialServerConfig->getBeaconSizeInBytes()));
 	ASSERT_THAT(obtained->getMultiplicity(), testing::Eq(initialServerConfig->getMultiplicity()));
@@ -384,7 +382,7 @@ TEST_F(BeaconConfigurationTest, disableCaptureUpdatesServerConfigIfCaptureGetsDi
 
 	// then
 	ASSERT_THAT(obtained, testing::Ne(initialServerConfig));
-	ASSERT_THAT(obtained, testing::Ne(ServerConfiguration_t::DEFAULT));
+	ASSERT_THAT(obtained, testing::Ne(ServerConfiguration_t::defaultInstance()));
 	ASSERT_THAT(obtained->isCaptureEnabled(), testing::Eq(false));
 }
 
@@ -405,7 +403,6 @@ TEST_F(BeaconConfigurationTest, disableCaptureDoesOnlyModifyCaptureFlag)
 	ASSERT_THAT(obtained->isCaptureEnabled(), testing::Ne(initialServerConfig->isCaptureEnabled()));
 	ASSERT_THAT(obtained->isCrashReportingEnabled(), testing::Eq(initialServerConfig->isCrashReportingEnabled()));
 	ASSERT_THAT(obtained->isErrorReportingEnabled(), testing::Eq(initialServerConfig->isCrashReportingEnabled()));
-	ASSERT_THAT(obtained->getSendIntervalInMilliseconds(), testing::Eq(initialServerConfig->getSendIntervalInMilliseconds()));
 	ASSERT_THAT(obtained->getServerId(), testing::Eq(initialServerConfig->getServerId()));
 	ASSERT_THAT(obtained->getBeaconSizeInBytes(), testing::Eq(initialServerConfig->getBeaconSizeInBytes()));
 	ASSERT_THAT(obtained->getMultiplicity(), testing::Eq(initialServerConfig->getMultiplicity()));

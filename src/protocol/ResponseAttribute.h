@@ -90,7 +90,7 @@ namespace protocol
 	///
 	/// Holds all literals of @ref ResponseAttribute
 	///
-	static const ResponseAttribute ALL_RESPONSE_ATTRIBUTES[] =
+	static constexpr ResponseAttribute ALL_RESPONSE_ATTRIBUTES[] =
 	{
 		ResponseAttribute::MAX_BEACON_SIZE,
 		ResponseAttribute::MAX_SESSION_DURATION,

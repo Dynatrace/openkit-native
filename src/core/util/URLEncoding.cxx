@@ -23,10 +23,10 @@
 
 using namespace core::util;
 
-const std::unordered_set<unsigned char> URLEncoding::sUnreservedCharactersRFC3986 = std::unordered_set<unsigned char>({ 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
-																					'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i',
-																					'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1',
-																					'2', '3', '4', '5', '6', '7', '8', '9', '-', '_', '.', '~' });
+static const std::unordered_set<unsigned char> UNRESERVED_CHARACTERS_RFC3986 = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
+																				 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i',
+																				 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1',
+																				 '2', '3', '4', '5', '6', '7', '8', '9', '-', '_', '.', '~' };
 
 const char HEX_CHARACTERS[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
@@ -45,7 +45,7 @@ core::UTF8String URLEncoding::urlencode(const core::UTF8String& string, const st
 	for (auto it = stringData.begin(); it < stringData.end(); it++)
 	{
 		auto character = *it;
-		if (sUnreservedCharactersRFC3986.find(character) != sUnreservedCharactersRFC3986.end()     // character is in the list of unreserved characters -> copy
+		if (UNRESERVED_CHARACTERS_RFC3986.find(character) != UNRESERVED_CHARACTERS_RFC3986.end()     // character is in the list of unreserved characters -> copy
 			&& additionalReservedCharacters.find(character) == additionalReservedCharacters.end()) // character is not additionally marked as reserved
 		{
 			encoded += character;

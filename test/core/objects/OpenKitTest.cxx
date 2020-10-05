@@ -457,7 +457,7 @@ TEST_F(OpenKitTest, createSessionAfterShutdownHasBeenCalledReturnsNullSession)
 	ASSERT_THAT(obtained, testing::NotNull());
 	auto nullSession = std::dynamic_pointer_cast<NullSession_t>(obtained);
 	ASSERT_THAT(nullSession, testing::NotNull());
-	ASSERT_THAT(nullSession, testing::Eq(NullSession_t::INSTANCE));
+	ASSERT_THAT(nullSession, testing::Eq(NullSession_t::instance()));
 }
 
 TEST_F(OpenKitTest, DISABLED_createSessionWithoutIpAfterShutdownHasBeenCalledReturnsNullSession)
@@ -473,7 +473,7 @@ TEST_F(OpenKitTest, DISABLED_createSessionWithoutIpAfterShutdownHasBeenCalledRet
 	ASSERT_THAT(obtained, testing::NotNull());
 	auto nullSession = std::dynamic_pointer_cast<NullSession_t>(obtained);
 	ASSERT_THAT(nullSession, testing::NotNull());
-	ASSERT_THAT(nullSession, testing::Eq(NullSession_t::INSTANCE));
+	ASSERT_THAT(nullSession, testing::Eq(NullSession_t::instance()));
 }
 
 TEST_F(OpenKitTest, onChildClosedRemovesArgumentFromListOfChildren)

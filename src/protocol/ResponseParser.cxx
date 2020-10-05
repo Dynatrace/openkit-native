@@ -20,9 +20,6 @@
 
 using namespace protocol;
 
-const std::string ResponseParser::KEY_VALUE_RESPONSE_TYPE_MOBILE = "type=m";
-const std::string ResponseParser::KEY_VALUE_RESPONSE_TYPE_MOBILE_WITH_SEPARATOR = "type=m&";
-
 std::shared_ptr<IResponseAttributes> ResponseParser::parseResponse(const core::UTF8String& responseString)
 {
 	if (isKeyValuePairResponse(responseString))

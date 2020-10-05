@@ -19,7 +19,13 @@
 using namespace util::json::objects;
 
 
-const std::shared_ptr<JsonNullValue> JsonNullValue::NULL_VALUE  = std::shared_ptr<JsonNullValue>(new JsonNullValue());
+const std::shared_ptr<JsonNullValue> JsonNullValue::nullValue()
+{
+	static const auto instance = std::shared_ptr<JsonNullValue>(new JsonNullValue());
+
+	return instance;
+}
+
 
 JsonNullValue::JsonNullValue()
 {

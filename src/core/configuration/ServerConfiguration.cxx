@@ -16,15 +16,14 @@
 
 #include "ServerConfiguration.h"
 
-using namespace core::configuration;
+#include "protocol/ResponseAttributesDefaults.h"
 
-const std::shared_ptr<IServerConfiguration> ServerConfiguration::DEFAULT = ServerConfiguration::Builder().build();
+using namespace core::configuration;
 
 ServerConfiguration::ServerConfiguration(Builder& builder)
 	: mIsCaptureEnabled(builder.isCaptureEnabled())
 	, mIsCrashReportingEnabled(builder.isCrashReportingEnabled())
 	, mIsErrorReportingEnabled(builder.isErrorReportingEnabled())
-	, mSendIntervalInMilliseconds(builder.getSendIntervalInMilliseconds())
 	, mServerId(builder.getServerId())
 	, mBeaconSizeInBytes(builder.getBeaconSizeInBytes())
 	, mMultiplicity(builder.getMultiplicity())
@@ -34,6 +33,18 @@ ServerConfiguration::ServerConfiguration(Builder& builder)
 	, mSessionTimeoutInMilliseconds(builder.getSessionTimeoutInMilliseconds())
 	, mVisitStoreVersion(builder.getVisitStoreVersion())
 {
+}
+
+const std::shared_ptr<protocol::IResponseAttributes> ServerConfiguration::defaultValues()
+{
+	return protocol::ResponseAttributesDefaults::undefined();
+}
+
+const std::shared_ptr<IServerConfiguration> ServerConfiguration::defaultInstance()
+{
+	static const auto defaultInstance = ServerConfiguration::from(ServerConfiguration::defaultValues());
+
+	return defaultInstance;
 }
 
 std::shared_ptr<core::configuration::IServerConfiguration> ServerConfiguration::from(
@@ -62,11 +73,6 @@ bool ServerConfiguration::isCrashReportingEnabled() const
 bool ServerConfiguration::isErrorReportingEnabled() const
 {
 	return mIsErrorReportingEnabled;
-}
-
-int32_t ServerConfiguration::getSendIntervalInMilliseconds() const
-{
-	return mSendIntervalInMilliseconds;
 }
 
 int32_t ServerConfiguration::getServerId() const
@@ -140,27 +146,10 @@ std::shared_ptr<core::configuration::IServerConfiguration> ServerConfiguration::
 /// Builder implementation
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ServerConfiguration::Builder::Builder()
-	: mIsCaptureEnabled(ServerConfiguration::DEFAULT_CAPTURE_ENABLED)
-	, mIsCrashReportingEnabled(ServerConfiguration::DEFAULT_CRASH_REPORTING_ENABLED)
-	, mIsErrorReportingEnabled(ServerConfiguration::DEFAULT_ERROR_REPORTING_ENABLED)
-	, mSendIntervalInMilliseconds(ServerConfiguration::DEFAULT_SEND_INTERVAL)
-	, mServerId(ServerConfiguration::DEFAULT_SERVER_ID)
-	, mBeaconSizeInBytes(ServerConfiguration::DEFAULT_BEACON_SIZE)
-	, mMultiplicity(ServerConfiguration::DEFAULT_MULTIPLICITY)
-	, mMaxSessionDurationInMilliseconds(ServerConfiguration::DEFAULT_MAX_SESSION_DURATION)
-	, mMaxEventsPerSession(ServerConfiguration::DEFAULT_MAX_EVENTS_PER_SESSION)
-	, mIsSessionSplitByEventsEnabled(ServerConfiguration::DEFAULT_IS_SESSION_SPLIT_BY_EVENTS_ENABLED)
-	, mSessionIdleTimeout(ServerConfiguration::DEFAULT_SESSION_TIMEOUT)
-	, mVisitStoreVersion(ServerConfiguration::DEFAULT_VISIT_STORE_VERSION)
-{
-}
-
 ServerConfiguration::Builder::Builder(std::shared_ptr<protocol::IResponseAttributes> responseAttributes)
 	: mIsCaptureEnabled(responseAttributes->isCapture())
 	, mIsCrashReportingEnabled(responseAttributes->isCaptureCrashes())
 	, mIsErrorReportingEnabled(responseAttributes->isCaptureErrors())
-	, mSendIntervalInMilliseconds(responseAttributes->getSendIntervalInMilliseconds())
 	, mServerId(responseAttributes->getServerId())
 	, mBeaconSizeInBytes(responseAttributes->getMaxBeaconSizeInBytes())
 	, mMultiplicity(responseAttributes->getMultiplicity())
@@ -176,7 +165,6 @@ ServerConfiguration::Builder::Builder(std::shared_ptr<core::configuration::IServ
 	: mIsCaptureEnabled(serverConfiguration->isCaptureEnabled())
 	, mIsCrashReportingEnabled(serverConfiguration->isCrashReportingEnabled())
 	, mIsErrorReportingEnabled(serverConfiguration->isErrorReportingEnabled())
-	, mSendIntervalInMilliseconds(serverConfiguration->getSendIntervalInMilliseconds())
 	, mServerId(serverConfiguration->getServerId())
 	, mBeaconSizeInBytes(serverConfiguration->getBeaconSizeInBytes())
 	, mMultiplicity(serverConfiguration->getMultiplicity())
@@ -218,19 +206,6 @@ bool ServerConfiguration::Builder::isErrorReportingEnabled() const
 ServerConfiguration::Builder& ServerConfiguration::Builder::withErrorReporting(bool errorReportingState)
 {
 	mIsErrorReportingEnabled = errorReportingState;
-	return *this;
-}
-
-int32_t ServerConfiguration::Builder::getSendIntervalInMilliseconds() const
-{
-	return mSendIntervalInMilliseconds;
-}
-
-ServerConfiguration::Builder& ServerConfiguration::Builder::withSendIntervalInMilliseconds(
-	int32_t sendIntervalInMilliseconds
-)
-{
-	mSendIntervalInMilliseconds = sendIntervalInMilliseconds;
 	return *this;
 }
 

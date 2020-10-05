@@ -39,47 +39,47 @@ namespace util
 				///
 				/// @ref JsonToken to be used for boolean @c true literal
 				///
-				static const std::shared_ptr<JsonToken> BOOLEAN_TRUE_TOKEN;
+				static const std::shared_ptr<JsonToken> booleanTrueToken();
 
 				///
 				/// @ref JsonToken to be used for boolean @c false literal
 				///
-				static const std::shared_ptr<JsonToken> BOOLEAN_FALSE_TOKEN;
+				static const std::shared_ptr<JsonToken> booleanFalseToken();
 
 				///
 				/// @ref JsonToken to be used for null literal
 				///
-				static const std::shared_ptr<JsonToken> NULL_TOKEN;
+				static const std::shared_ptr<JsonToken> nullToken();
 
 				///
 				/// @ref JsonToken to be used for left brace
 				///
-				static const std::shared_ptr<JsonToken> LEFT_BRACE_TOKEN;
+				static const std::shared_ptr<JsonToken> leftBraceToken();
 
 				///
 				/// @ref JsonToken to be used for right brace
 				///
-				static const std::shared_ptr<JsonToken> RIGHT_BRACE_TOKEN;
+				static const std::shared_ptr<JsonToken> rightBraceToken();
 
 				///
 				/// @ref JsonToken to be used for left square bracket
 				///
-				static const std::shared_ptr<JsonToken> LEFT_SQUARE_BRACKET_TOKEN;
+				static const std::shared_ptr<JsonToken> leftSquareBracketToken();
 
 				///
 				/// @ref JsonToken to be used for right square bracket
 				///
-				static const std::shared_ptr<JsonToken> RIGHT_SQUARE_BRACKET_TOKEN;
+				static const std::shared_ptr<JsonToken> rightSquareBracketToken();
 
 				///
 				/// @ref JsonToken to be used for comma
 				///
-				static const std::shared_ptr<JsonToken> COMMA_TOKEN;
+				static const std::shared_ptr<JsonToken> commaToken();
 
 				///
 				/// @ref JsonToken to be used for colon
 				///
-				static const std::shared_ptr<JsonToken> COLON_TOKEN;
+				static const std::shared_ptr<JsonToken> colonToken();
 
 			public: // functions
 

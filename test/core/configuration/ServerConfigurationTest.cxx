@@ -43,124 +43,115 @@ protected:
 
 	void SetUp() override
 	{
-		defaultValues = ResponseAttributesDefaults_t::UNDEFINED;
+		defaultValues = ResponseAttributesDefaults_t::undefined();
 		mockAttributes = MockIResponseAttributes::createNice();
 		ON_CALL(*mockAttributes, isCapture())
-			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_CAPTURE_ENABLED));
+			.WillByDefault(testing::Return(defaultValues->isCapture()));
 		ON_CALL(*mockAttributes, isCaptureCrashes())
-			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_CRASH_REPORTING_ENABLED));
+			.WillByDefault(testing::Return(defaultValues->isCaptureCrashes()));
 		ON_CALL(*mockAttributes, isCaptureErrors())
-			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_ERROR_REPORTING_ENABLED));
-		ON_CALL(*mockAttributes, getSendIntervalInMilliseconds())
-			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_SEND_INTERVAL));
+			.WillByDefault(testing::Return(defaultValues->isCaptureErrors()));
 		ON_CALL(*mockAttributes, getServerId())
-			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_SERVER_ID));
+			.WillByDefault(testing::Return(defaultValues->getServerId()));
 		ON_CALL(*mockAttributes, getMaxBeaconSizeInBytes())
-			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_BEACON_SIZE));
+			.WillByDefault(testing::Return(defaultValues->getMaxBeaconSizeInBytes()));
 		ON_CALL(*mockAttributes, getMultiplicity())
-			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_MULTIPLICITY));
+			.WillByDefault(testing::Return(defaultValues->getMultiplicity()));
 		ON_CALL(*mockAttributes, getMaxSessionDurationInMilliseconds())
-			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_MAX_SESSION_DURATION));
+			.WillByDefault(testing::Return(defaultValues->getMaxSessionDurationInMilliseconds()));
 		ON_CALL(*mockAttributes, getMaxEventsPerSession())
-			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_MAX_EVENTS_PER_SESSION));
+			.WillByDefault(testing::Return(defaultValues->getMaxEventsPerSession()));
 		ON_CALL(*mockAttributes, getSessionTimeoutInMilliseconds())
-			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_SESSION_TIMEOUT));
+			.WillByDefault(testing::Return(defaultValues->getSessionTimeoutInMilliseconds()));
 		ON_CALL(*mockAttributes, getVisitStoreVersion())
-			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_VISIT_STORE_VERSION));
+			.WillByDefault(testing::Return(defaultValues->getVisitStoreVersion()));
 
 		mockServerConfiguration = MockIServerConfiguration::createNice();
 		ON_CALL(*mockServerConfiguration, isCaptureEnabled())
-			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_CAPTURE_ENABLED));
+			.WillByDefault(testing::Return(defaultValues->isCapture()));
 		ON_CALL(*mockServerConfiguration, isCrashReportingEnabled())
-			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_CRASH_REPORTING_ENABLED));
+			.WillByDefault(testing::Return(defaultValues->isCaptureCrashes()));
 		ON_CALL(*mockServerConfiguration, isErrorReportingEnabled())
-			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_ERROR_REPORTING_ENABLED));
-		ON_CALL(*mockServerConfiguration, getSendIntervalInMilliseconds())
-			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_SEND_INTERVAL));
+			.WillByDefault(testing::Return(defaultValues->isCaptureErrors()));
 		ON_CALL(*mockServerConfiguration, getServerId())
-			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_SERVER_ID));
+			.WillByDefault(testing::Return(defaultValues->getServerId()));
 		ON_CALL(*mockServerConfiguration, getBeaconSizeInBytes())
-			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_BEACON_SIZE));
+			.WillByDefault(testing::Return(defaultValues->getMaxBeaconSizeInBytes()));
 		ON_CALL(*mockServerConfiguration, getMultiplicity())
-			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_MULTIPLICITY));
+			.WillByDefault(testing::Return(defaultValues->getMultiplicity()));
 		ON_CALL(*mockServerConfiguration, getMaxSessionDurationInMilliseconds())
-			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_MAX_SESSION_DURATION));
+			.WillByDefault(testing::Return(defaultValues->getMaxSessionDurationInMilliseconds()));
 		ON_CALL(*mockServerConfiguration, getMaxEventsPerSession())
-			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_MAX_EVENTS_PER_SESSION));
+			.WillByDefault(testing::Return(defaultValues->getMaxEventsPerSession()));
 		ON_CALL(*mockServerConfiguration, isSessionSplitByEventsEnabled())
-			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_IS_SESSION_SPLIT_BY_EVENTS_ENABLED));
+			.WillByDefault(testing::Return(false));
 		ON_CALL(*mockServerConfiguration, getSessionTimeoutInMilliseconds())
-			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_SESSION_TIMEOUT));
+			.WillByDefault(testing::Return(defaultValues->getSessionTimeoutInMilliseconds()));
 		ON_CALL(*mockServerConfiguration, getVisitStoreVersion())
-			.WillByDefault(testing::Return(ServerConfiguration_t::DEFAULT_VISIT_STORE_VERSION));
+			.WillByDefault(testing::Return(defaultValues->getVisitStoreVersion()));
 	}
 };
 
 TEST_F(ServerConfigurationTest, inDefaultServerConfigurationCapturingIsEnabled)
 {
-	ASSERT_THAT(ServerConfiguration_t::DEFAULT->isCaptureEnabled(), testing::Eq(true));
+	ASSERT_THAT(ServerConfiguration_t::defaultInstance()->isCaptureEnabled(), testing::Eq(true));
 }
 
 TEST_F(ServerConfigurationTest, isDefaultServerConfigurationCrashReportingIsEnabled)
 {
-	ASSERT_THAT(ServerConfiguration_t::DEFAULT->isCrashReportingEnabled(), testing::Eq(true));
+	ASSERT_THAT(ServerConfiguration_t::defaultInstance()->isCrashReportingEnabled(), testing::Eq(true));
 }
 
 TEST_F(ServerConfigurationTest, isDefaultServerConfigurationErrorReportingIsEnabled)
 {
-	ASSERT_THAT(ServerConfiguration_t::DEFAULT->isErrorReportingEnabled(), testing::Eq(true));
-}
-
-TEST_F(ServerConfigurationTest, inDefaultServerConfigurationSendIntervalIsMinusOne)
-{
-	ASSERT_THAT(ServerConfiguration_t::DEFAULT->getSendIntervalInMilliseconds(), testing::Eq(-1));
+	ASSERT_THAT(ServerConfiguration_t::defaultInstance()->isErrorReportingEnabled(), testing::Eq(true));
 }
 
 TEST_F(ServerConfigurationTest, inDefaultServerConfigurationServerIdIsMinusOne)
 {
-	ASSERT_THAT(ServerConfiguration_t::DEFAULT->getServerId(), testing::Eq(-1));
+	ASSERT_THAT(ServerConfiguration_t::defaultInstance()->getServerId(), testing::Eq(-1));
 }
 
-TEST_F(ServerConfigurationTest, inDefaultServerConfigurationBeaconSizeIsMinusOne)
+TEST_F(ServerConfigurationTest, inDefaultServerConfigurationBeaconSizeIsThirtyKb)
 {
-	ASSERT_THAT(ServerConfiguration_t::DEFAULT->getBeaconSizeInBytes(), testing::Eq(-1));
+	ASSERT_THAT(ServerConfiguration_t::defaultInstance()->getBeaconSizeInBytes(), testing::Eq(30 * 1024));
 }
 
 TEST_F(ServerConfigurationTest, inDefaultServerConfigurationMultiplicityIsOne)
 {
-	ASSERT_THAT(ServerConfiguration_t::DEFAULT->getMultiplicity(), testing::Eq(1));
+	ASSERT_THAT(ServerConfiguration_t::defaultInstance()->getMultiplicity(), testing::Eq(1));
 }
 
 TEST_F(ServerConfigurationTest, inDefaultServerConfigurationMaxSessionDurationIsMinusOne)
 {
-	ASSERT_THAT(ServerConfiguration_t::DEFAULT->getMaxSessionDurationInMilliseconds(), testing::Eq(-1));
+	ASSERT_THAT(ServerConfiguration_t::defaultInstance()->getMaxSessionDurationInMilliseconds(), testing::Eq(-1));
 }
 
 TEST_F(ServerConfigurationTest, inDefaultServerConfigurationMaxEventsPerSessionIsMinusOne)
 {
-	ASSERT_THAT(ServerConfiguration_t::DEFAULT->getMaxEventsPerSession(), testing::Eq(-1));
+	ASSERT_THAT(ServerConfiguration_t::defaultInstance()->getMaxEventsPerSession(), testing::Eq(-1));
 }
 
 TEST_F(ServerConfigurationTest, inDefaultServerConfigurationIsSessionSplitByEventsEnabledIsFalse)
 {
-	ASSERT_THAT(ServerConfiguration_t::DEFAULT->isSessionSplitByEventsEnabled(), testing::Eq(false));
+	ASSERT_THAT(ServerConfiguration_t::defaultInstance()->isSessionSplitByEventsEnabled(), testing::Eq(false));
 }
 
 TEST_F(ServerConfigurationTest, inDefaultServerConfigurationSessionTimeoutIsMinusOne)
 {
-	ASSERT_THAT(ServerConfiguration_t::DEFAULT->getSessionTimeoutInMilliseconds(), testing::Eq(-1));
+	ASSERT_THAT(ServerConfiguration_t::defaultInstance()->getSessionTimeoutInMilliseconds(), testing::Eq(-1));
 }
 
-TEST_F(ServerConfigurationTest, inDefaultServerConfigurationVisitStoreVersionIsMinusOne)
+TEST_F(ServerConfigurationTest, inDefaultServerConfigurationVisitStoreVersionIsOne)
 {
-	ASSERT_THAT(ServerConfiguration_t::DEFAULT->getVisitStoreVersion(), testing::Eq(1));
+	ASSERT_THAT(ServerConfiguration_t::defaultInstance()->getVisitStoreVersion(), testing::Eq(1));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// creation via 'from' factory tests
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromNullStatusResponseGivesNull)
+TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromNullResponseAttributesGivesNull)
 {
 	ASSERT_THAT(ServerConfiguration_t::from(nullptr), testing::Eq(nullptr));
 }
@@ -205,23 +196,6 @@ TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttribut
 
 	// then
 	ASSERT_THAT(target->isErrorReportingEnabled(), testing::Eq(false));
-}
-
-TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttributesCopiesSendingIntervalSettings)
-{
-	// with
-	int32_t sendInterval = 1234;
-
-	// expect
-	EXPECT_CALL(*mockAttributes, getSendIntervalInMilliseconds())
-		.Times(1)
-		.WillOnce(testing::Return(sendInterval));
-
-	// when
-	auto target = ServerConfiguration_t::from(mockAttributes);
-
-	// then
-	ASSERT_THAT(target->getSendIntervalInMilliseconds(), testing::Eq(sendInterval));
 }
 
 TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttributesCopiesServerIdSettings)
@@ -275,7 +249,7 @@ TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttribut
 	ASSERT_THAT(target->getMultiplicity(), testing::Eq(multiplicity));
 }
 
-TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromStatusResponseCopiesSessionDuration)
+TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttributesCopiesSessionDuration)
 {
 	// with
 	int32_t sessionDuration = 73;
@@ -292,7 +266,7 @@ TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromStatusResponseCo
 	ASSERT_THAT(target->getMaxSessionDurationInMilliseconds(), testing::Eq(sessionDuration));
 }
 
-TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromStatusResponseCopiesMaxEventsPerSession)
+TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttributesCopiesMaxEventsPerSession)
 {
 	// with
 	int32_t eventsPerSession = 37;
@@ -309,7 +283,7 @@ TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromStatusResponseCo
 	ASSERT_THAT(target->getMaxEventsPerSession(), testing::Eq(eventsPerSession));
 }
 
-TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromStatusResponseHasSplitBySessionEnabledIfMaxEventsGreaterZero)
+TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttributesHasSplitBySessionEnabledIfMaxEventsGreaterZero)
 {
 	// with
 	int32_t eventsPerSession = 1;
@@ -329,7 +303,7 @@ TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromStatusResponseHa
 	ASSERT_THAT(target->isSessionSplitByEventsEnabled(), testing::Eq(true));
 }
 
-TEST_F(ServerConfigurationTest, creatingAServerConfigurationStatusResponseHasSplitBySessionDisabledIfMaxEventsZero)
+TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttributesHasSplitBySessionDisabledIfMaxEventsZero)
 {
 	// with
 	int32_t eventsPerSession = 0;
@@ -349,7 +323,7 @@ TEST_F(ServerConfigurationTest, creatingAServerConfigurationStatusResponseHasSpl
 	ASSERT_THAT(target->isSessionSplitByEventsEnabled(), testing::Eq(false));
 }
 
-TEST_F(ServerConfigurationTest, creatingAServerConfigurationStatusResponseHasSplitBySessionDisabledIfMaxEventsEventsSmallerZero)
+TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttributesHasSplitBySessionDisabledIfMaxEventsEventsSmallerZero)
 {
 	// with
 	int32_t eventsPerSession = -1;
@@ -369,7 +343,7 @@ TEST_F(ServerConfigurationTest, creatingAServerConfigurationStatusResponseHasSpl
 	ASSERT_THAT(target->isSessionSplitByEventsEnabled(), testing::Eq(false));
 }
 
-TEST_F(ServerConfigurationTest, creatingAServerConfigurationStatusResponseHasSplitBySessionDisabledIfMaxEventsIsNotSet)
+TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttributesHasSplitBySessionDisabledIfMaxEventsIsNotSet)
 {
 	// with
 	int32_t eventsPerSession = 1;
@@ -389,7 +363,7 @@ TEST_F(ServerConfigurationTest, creatingAServerConfigurationStatusResponseHasSpl
 	ASSERT_THAT(target->isSessionSplitByEventsEnabled(), testing::Eq(false));
 }
 
-TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromStatusResponseCopiesSessionTimeout)
+TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttributesCopiesSessionTimeout)
 {
 	// with
 	int32_t sessionTimeout = 42;
@@ -406,7 +380,7 @@ TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromStatusResponseCo
 	ASSERT_THAT(target->getSessionTimeoutInMilliseconds(), testing::Eq(sessionTimeout));
 }
 
-TEST_F(ServerConfigurationTest, creatingASessionConfigurationFromStatusResponseCopiesVisitStoreVersion)
+TEST_F(ServerConfigurationTest, creatingASessionConfigurationFromResponseAttributesCopiesVisitStoreVersion)
 {
 	// with
 	int32_t visitStoreVersion = 73;
@@ -616,20 +590,6 @@ TEST_F(ServerConfigurationTest, builderFromServerConfigCopiesErrorReportingSetti
 
 	// then
 	ASSERT_THAT(target->isErrorReportingEnabled(), testing::Eq(false));
-}
-
-TEST_F(ServerConfigurationTest, builderFromServerConfigCopiesSendingIntervalSettings)
-{
-	// expect
-	EXPECT_CALL(*mockServerConfiguration, getSendIntervalInMilliseconds())
-		.Times(1)
-		.WillOnce(testing::Return(1234));
-
-	// given
-	auto target = ServerConfiguration_t::Builder(mockServerConfiguration).build();
-
-	// then
-	ASSERT_THAT(target->getSendIntervalInMilliseconds(), testing::Eq(1234));
 }
 
 TEST_F(ServerConfigurationTest, builderFromServerConfigCopiesServerIdSettings)
@@ -988,8 +948,8 @@ TEST_F(ServerConfigurationTest, BuilderFromServerConfigSendingErrorsToTheServerI
 TEST_F(ServerConfigurationTest, mergeTakesOverEnabledCapture)
 {
 	// given
-	auto target = ServerConfiguration_t::Builder().withCapture(false).build();
-	auto other = ServerConfiguration_t::Builder().withCapture(true).build();
+	auto target = ServerConfiguration_t::Builder(defaultValues).withCapture(false).build();
+	auto other = ServerConfiguration_t::Builder(defaultValues).withCapture(true).build();
 
 	// when
 	auto obtained = target->merge(other);
@@ -1001,8 +961,8 @@ TEST_F(ServerConfigurationTest, mergeTakesOverEnabledCapture)
 TEST_F(ServerConfigurationTest, mergeTakesOverDisabledCapture)
 {
 	// given
-	auto target = ServerConfiguration_t::Builder().withCapture(true).build();
-	auto other = ServerConfiguration_t::Builder().withCapture(false).build();
+	auto target = ServerConfiguration_t::Builder(defaultValues).withCapture(true).build();
+	auto other = ServerConfiguration_t::Builder(defaultValues).withCapture(false).build();
 
 	// when
 	auto obtained = target->merge(other);
@@ -1014,8 +974,8 @@ TEST_F(ServerConfigurationTest, mergeTakesOverDisabledCapture)
 TEST_F(ServerConfigurationTest, mergeTakesOverEnabledCrashReporting)
 {
 	// given
-	auto target = ServerConfiguration_t::Builder().withCrashReporting(false).build();
-	auto other = ServerConfiguration_t::Builder().withCrashReporting(true).build();
+	auto target = ServerConfiguration_t::Builder(defaultValues).withCrashReporting(false).build();
+	auto other = ServerConfiguration_t::Builder(defaultValues).withCrashReporting(true).build();
 
 	// when
 	auto obtained = target->merge(other);
@@ -1027,8 +987,8 @@ TEST_F(ServerConfigurationTest, mergeTakesOverEnabledCrashReporting)
 TEST_F(ServerConfigurationTest, mergeTakesOverDisabledCrashReporting)
 {
 	// given
-	auto target = ServerConfiguration_t::Builder().withCrashReporting(true).build();
-	auto other = ServerConfiguration_t::Builder().withCrashReporting(false).build();
+	auto target = ServerConfiguration_t::Builder(defaultValues).withCrashReporting(true).build();
+	auto other = ServerConfiguration_t::Builder(defaultValues).withCrashReporting(false).build();
 
 	// when
 	auto obtained = target->merge(other);
@@ -1040,8 +1000,8 @@ TEST_F(ServerConfigurationTest, mergeTakesOverDisabledCrashReporting)
 TEST_F(ServerConfigurationTest, mergeTakesOverEnabledErrorReporting)
 {
 	// given
-	auto target = ServerConfiguration_t::Builder().withErrorReporting(false).build();
-	auto other = ServerConfiguration_t::Builder().withErrorReporting(true).build();
+	auto target = ServerConfiguration_t::Builder(defaultValues).withErrorReporting(false).build();
+	auto other = ServerConfiguration_t::Builder(defaultValues).withErrorReporting(true).build();
 
 	// when
 	auto obtained = target->merge(other);
@@ -1053,8 +1013,8 @@ TEST_F(ServerConfigurationTest, mergeTakesOverEnabledErrorReporting)
 TEST_F(ServerConfigurationTest, mergeTakesOverDisabledErrorReporting)
 {
 	// given
-	auto target = ServerConfiguration_t::Builder().withErrorReporting(true).build();
-	auto other = ServerConfiguration_t::Builder().withErrorReporting(false).build();
+	auto target = ServerConfiguration_t::Builder(defaultValues).withErrorReporting(true).build();
+	auto other = ServerConfiguration_t::Builder(defaultValues).withErrorReporting(false).build();
 
 	// when
 	auto obtained = target->merge(other);
@@ -1063,26 +1023,12 @@ TEST_F(ServerConfigurationTest, mergeTakesOverDisabledErrorReporting)
 	ASSERT_THAT(obtained->isErrorReportingEnabled(), testing::Eq(false));
 }
 
-TEST_F(ServerConfigurationTest, mergeTakesOverSendInterval)
-{
-	// given
-	int32_t sendInterval = 73;
-	auto target = ServerConfiguration_t::Builder().withSendIntervalInMilliseconds(37).build();
-	auto other = ServerConfiguration_t::Builder().withSendIntervalInMilliseconds(sendInterval).build();
-
-	// when
-	auto obtained = target->merge(other);
-
-	// then
-	ASSERT_THAT(obtained->getSendIntervalInMilliseconds(), testing::Eq(sendInterval));
-}
-
 TEST_F(ServerConfigurationTest, mergeTakesOverBeaconSize)
 {
 	// given
 	int32_t beaconSize = 73;
-	auto target = ServerConfiguration_t::Builder().withBeaconSizeInBytes(37).build();
-	auto other = ServerConfiguration_t::Builder().withBeaconSizeInBytes(beaconSize).build();
+	auto target = ServerConfiguration_t::Builder(defaultValues).withBeaconSizeInBytes(37).build();
+	auto other = ServerConfiguration_t::Builder(defaultValues).withBeaconSizeInBytes(beaconSize).build();
 
 	// when
 	auto obtained = target->merge(other);
@@ -1095,8 +1041,8 @@ TEST_F(ServerConfigurationTest, mergeIgnoresMultiplicity)
 {
 	// given
 	int32_t multiplicity = 73;
-	auto target = ServerConfiguration_t::Builder().withMultiplicity(multiplicity).build();
-	auto other = ServerConfiguration_t::Builder().withMultiplicity(37).build();
+	auto target = ServerConfiguration_t::Builder(defaultValues).withMultiplicity(multiplicity).build();
+	auto other = ServerConfiguration_t::Builder(defaultValues).withMultiplicity(37).build();
 
 	// when
 	auto obtained = target->merge(other);
@@ -1109,8 +1055,8 @@ TEST_F(ServerConfigurationTest, mergeIgnoresServerId)
 {
 	// given
 	int32_t serverId = 73;
-	auto target = ServerConfiguration_t::Builder().withServerId(serverId).build();
-	auto other = ServerConfiguration_t::Builder().withServerId(37).build();
+	auto target = ServerConfiguration_t::Builder(defaultValues).withServerId(serverId).build();
+	auto other = ServerConfiguration_t::Builder(defaultValues).withServerId(37).build();
 
 	// when
 	auto obtained = target->merge(other);
@@ -1123,8 +1069,8 @@ TEST_F(ServerConfigurationTest, mergeTakesOverMaxSessionDuration)
 {
 	// given
 	int32_t sessionDuration = 73;
-	auto target = ServerConfiguration_t::Builder().withMaxSessionDurationInMilliseconds(37).build();
-	auto other = ServerConfiguration_t::Builder().withMaxSessionDurationInMilliseconds(sessionDuration).build();
+	auto target = ServerConfiguration_t::Builder(defaultValues).withMaxSessionDurationInMilliseconds(37).build();
+	auto other = ServerConfiguration_t::Builder(defaultValues).withMaxSessionDurationInMilliseconds(sessionDuration).build();
 
 	// when
 	auto obtained = target->merge(other);
@@ -1137,8 +1083,8 @@ TEST_F(ServerConfigurationTest, mergeTakesOverMaxEventsPerSession)
 {
 	// given
 	int32_t eventsPerSession = 73;
-	auto target = ServerConfiguration_t::Builder().withMaxEventsPerSession(37).build();
-	auto other = ServerConfiguration_t::Builder().withMaxEventsPerSession(eventsPerSession).build();
+	auto target = ServerConfiguration_t::Builder(defaultValues).withMaxEventsPerSession(37).build();
+	auto other = ServerConfiguration_t::Builder(defaultValues).withMaxEventsPerSession(eventsPerSession).build();
 
 	// when
 	auto obtained = target->merge(other);
@@ -1161,7 +1107,7 @@ TEST_F(ServerConfigurationTest, mergeTakesOverIsSessionSplitByEventsEnabledWhenM
 		.WillOnce(testing::Return(eventsPerSession));
 
 	// given
-	auto target = ServerConfiguration_t::Builder().build();
+	auto target = ServerConfiguration_t::Builder(defaultValues).build();
 	auto other = ServerConfiguration_t::from(mockAttributes);
 
 	// when
@@ -1185,7 +1131,7 @@ TEST_F(ServerConfigurationTest, mergeTakesOverIsSessionSplitByEventsEnabledWhenM
 		.WillOnce(testing::Return(eventsPerSession));
 
 	// given
-	auto target = ServerConfiguration_t::Builder().build();
+	auto target = ServerConfiguration_t::Builder(defaultValues).build();
 	auto other = ServerConfiguration_t::from(mockAttributes);
 
 	// when
@@ -1209,7 +1155,7 @@ TEST_F(ServerConfigurationTest, mergeTakesOverIsSessionSplitByEventsEnabledWhenM
 		.WillOnce(testing::Return(eventsPerSession));
 
 	// given
-	auto target = ServerConfiguration_t::Builder().build();
+	auto target = ServerConfiguration_t::Builder(defaultValues).build();
 	auto other = ServerConfiguration_t::from(mockAttributes);
 
 	// when
@@ -1233,7 +1179,7 @@ TEST_F(ServerConfigurationTest, mergeTakesOverIsSessionSplitByEventsEnabledWhenM
 		.WillOnce(testing::Return(eventsPerSession));
 
 	// given
-	auto target = ServerConfiguration_t::Builder().build();
+	auto target = ServerConfiguration_t::Builder(defaultValues).build();
 	auto other = ServerConfiguration_t::from(mockAttributes);
 
 	// when
@@ -1247,8 +1193,8 @@ TEST_F(ServerConfigurationTest, mergeTakesOverSessionTimeout)
 {
 	// given
 	int32_t sessionTimeout = 73;
-	auto target = ServerConfiguration_t::Builder().withSessionTimeoutInMilliseconds(37).build();
-	auto other = ServerConfiguration_t::Builder().withSessionTimeoutInMilliseconds(sessionTimeout).build();
+	auto target = ServerConfiguration_t::Builder(defaultValues).withSessionTimeoutInMilliseconds(37).build();
+	auto other = ServerConfiguration_t::Builder(defaultValues).withSessionTimeoutInMilliseconds(sessionTimeout).build();
 
 	// when
 	auto obtained = target->merge(other);
@@ -1261,8 +1207,8 @@ TEST_F(ServerConfigurationTest, mergeTakesOverVisitStoreVersion)
 {
 	// given
 	int32_t visitStoreVersion = 73;
-	auto target = ServerConfiguration_t::Builder().withVisitStoreVersion(37).build();
-	auto other = ServerConfiguration_t::Builder().withVisitStoreVersion(visitStoreVersion).build();
+	auto target = ServerConfiguration_t::Builder(defaultValues).withVisitStoreVersion(37).build();
+	auto other = ServerConfiguration_t::Builder(defaultValues).withVisitStoreVersion(visitStoreVersion).build();
 
 	// when
 	auto obtained = target->merge(other);
@@ -1281,7 +1227,7 @@ TEST_F(ServerConfigurationTest, buildPropagatesCaptureEnabledToInstance)
 	const bool capture = true;
 
 	// when
-	auto obtained = ServerConfiguration_t::Builder().withCapture(capture).build();
+	auto obtained = ServerConfiguration_t::Builder(defaultValues).withCapture(capture).build();
 
 	// then
 	ASSERT_THAT(obtained->isCaptureEnabled(), testing::Eq(capture));
@@ -1293,7 +1239,7 @@ TEST_F(ServerConfigurationTest, buildPropagatesCaptureDisabledToInstance)
 	const bool capture = false;
 
 	// when
-	auto obtained = ServerConfiguration_t::Builder().withCapture(capture).build();
+	auto obtained = ServerConfiguration_t::Builder(defaultValues).withCapture(capture).build();
 
 	// then
 	ASSERT_THAT(obtained->isCaptureEnabled(), testing::Eq(capture));
@@ -1305,7 +1251,7 @@ TEST_F(ServerConfigurationTest, buildPropagatesCrashReportingEnabledToInstance)
 	const bool crashReporting = true;
 
 	// when
-	auto obtained = ServerConfiguration_t::Builder().withCrashReporting(crashReporting).build();
+	auto obtained = ServerConfiguration_t::Builder(defaultValues).withCrashReporting(crashReporting).build();
 
 	// then
 	ASSERT_THAT(obtained->isCrashReportingEnabled(), testing::Eq(crashReporting));
@@ -1317,7 +1263,7 @@ TEST_F(ServerConfigurationTest, buildPropagatesCrashReportingDisabledToInstance)
 	const bool crashReporting = false;
 
 	// when
-	auto obtained = ServerConfiguration_t::Builder().withCrashReporting(crashReporting).build();
+	auto obtained = ServerConfiguration_t::Builder(defaultValues).withCrashReporting(crashReporting).build();
 
 	// then
 	ASSERT_THAT(obtained->isCrashReportingEnabled(), testing::Eq(crashReporting));
@@ -1329,7 +1275,7 @@ TEST_F(ServerConfigurationTest, buildPropagatesErrorReportingEnabledToInstance)
 	const bool errorReporting = true;
 
 	// when
-	auto obtained = ServerConfiguration_t::Builder().withErrorReporting(errorReporting).build();
+	auto obtained = ServerConfiguration_t::Builder(defaultValues).withErrorReporting(errorReporting).build();
 
 	// then
 	ASSERT_THAT(obtained->isErrorReportingEnabled(), testing::Eq(errorReporting));
@@ -1341,22 +1287,10 @@ TEST_F(ServerConfigurationTest, buildPropagatesErrorReportingDisabledToInstance)
 	const bool errorReporting = false;
 
 	// when
-	auto obtained = ServerConfiguration_t::Builder().withErrorReporting(errorReporting).build();
+	auto obtained = ServerConfiguration_t::Builder(defaultValues).withErrorReporting(errorReporting).build();
 
 	// then
 	ASSERT_THAT(obtained->isErrorReportingEnabled(), testing::Eq(errorReporting));
-}
-
-TEST_F(ServerConfigurationTest, buildPropagatesSendIntervalToInstance)
-{
-	// given
-	const int32_t sendInterval = 73;
-
-	// when
-	auto obtained = ServerConfiguration_t::Builder().withSendIntervalInMilliseconds(sendInterval).build();
-
-	// then
-	ASSERT_THAT(obtained->getSendIntervalInMilliseconds(), testing::Eq(sendInterval));
 }
 
 TEST_F(ServerConfigurationTest, buildPropagatesServerIdToInstance)
@@ -1365,7 +1299,7 @@ TEST_F(ServerConfigurationTest, buildPropagatesServerIdToInstance)
 	const int32_t serverId = 73;
 
 	// when
-	auto obtained = ServerConfiguration_t::Builder().withServerId(serverId).build();
+	auto obtained = ServerConfiguration_t::Builder(defaultValues).withServerId(serverId).build();
 
 	// then
 	ASSERT_THAT(obtained->getServerId(), testing::Eq(serverId));
@@ -1377,7 +1311,7 @@ TEST_F(ServerConfigurationTest, buildPropagatesBeaconSizeToInstance)
 	const int32_t beaconSize = 73;
 
 	// when
-	auto obtained = ServerConfiguration_t::Builder().withBeaconSizeInBytes(beaconSize).build();
+	auto obtained = ServerConfiguration_t::Builder(defaultValues).withBeaconSizeInBytes(beaconSize).build();
 
 	// then
 	ASSERT_THAT(obtained->getBeaconSizeInBytes(), testing::Eq(beaconSize));
@@ -1389,8 +1323,56 @@ TEST_F(ServerConfigurationTest, buildPropagatesMultiplicityToInstance)
 	const int32_t multiplicity = 73;
 
 	// when
-	auto obtained = ServerConfiguration_t::Builder().withMultiplicity(multiplicity).build();
+	auto obtained = ServerConfiguration_t::Builder(defaultValues).withMultiplicity(multiplicity).build();
 
 	// then
 	ASSERT_THAT(obtained->getMultiplicity(), testing::Eq(multiplicity));
+}
+
+TEST_F(ServerConfigurationTest, buildPropagatesMaxSessionDurationToInstance)
+{
+	// given
+	const int32_t sessionDuration = 73;
+
+	// when
+	auto obtained = ServerConfiguration_t::Builder(defaultValues).withMaxSessionDurationInMilliseconds(sessionDuration).build();
+
+	// then
+	ASSERT_THAT(obtained->getMaxSessionDurationInMilliseconds(), testing::Eq(sessionDuration));
+}
+
+TEST_F(ServerConfigurationTest, buildPropagatesMaxEventsPerSessionToInstance)
+{
+	// given
+	const int32_t eventsPerSession = 73;
+
+	// when
+	auto obtained = ServerConfiguration_t::Builder(defaultValues).withMaxEventsPerSession(eventsPerSession).build();
+
+	// then
+	ASSERT_THAT(obtained->getMaxEventsPerSession(), testing::Eq(eventsPerSession));
+}
+
+TEST_F(ServerConfigurationTest, buildPropagatesSessionTimeoutToInstance)
+{
+	// given
+	const int32_t sessionTimeout = 73;
+
+	// when
+	auto obtained = ServerConfiguration_t::Builder(defaultValues).withSessionTimeoutInMilliseconds(sessionTimeout).build();
+
+	// then
+	ASSERT_THAT(obtained->getSessionTimeoutInMilliseconds(), testing::Eq(sessionTimeout));
+}
+
+TEST_F(ServerConfigurationTest, buildPropagatesVisitStoreVersionToInstance)
+{
+	// given
+	const int32_t visitStoreVersion = 73;
+
+	// when
+	auto obtained = ServerConfiguration_t::Builder(defaultValues).withVisitStoreVersion(visitStoreVersion).build();
+
+	// then
+	ASSERT_THAT(obtained->getVisitStoreVersion(), testing::Eq(visitStoreVersion));
 }

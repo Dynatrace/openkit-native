@@ -21,8 +21,18 @@ using namespace util::json::objects;
 using namespace util::json::constants;
 
 
-const std::shared_ptr<JsonBooleanValue> JsonBooleanValue::TRUE = std::shared_ptr<JsonBooleanValue>(new JsonBooleanValue(true));
-const std::shared_ptr<JsonBooleanValue> JsonBooleanValue::FALSE = std::shared_ptr<JsonBooleanValue>(new JsonBooleanValue(false));
+const std::shared_ptr<JsonBooleanValue> JsonBooleanValue::trueValue()
+{
+	static const auto trueValue = std::shared_ptr<JsonBooleanValue>(new JsonBooleanValue(true));
+
+	return trueValue;
+}
+const std::shared_ptr<JsonBooleanValue> JsonBooleanValue::falseValue()
+{
+	static const auto falseValue = std::shared_ptr<JsonBooleanValue>(new JsonBooleanValue(false));
+
+	return falseValue;
+}
 
 JsonBooleanValue::JsonBooleanValue(bool value)
 	: mValue(value)
@@ -31,18 +41,18 @@ JsonBooleanValue::JsonBooleanValue(bool value)
 
 std::shared_ptr<JsonBooleanValue> JsonBooleanValue::fromValue(bool value)
 {
-	return value ? JsonBooleanValue::TRUE : JsonBooleanValue::FALSE;
+	return value ? JsonBooleanValue::trueValue() : JsonBooleanValue::falseValue();
 }
 
 std::shared_ptr<JsonBooleanValue> JsonBooleanValue::fromLiteral(const std::string& value)
 {
 	if (value == JsonLiterals::BOOLEAN_TRUE_LITERAL)
 	{
-		return JsonBooleanValue::TRUE;
+		return JsonBooleanValue::trueValue();
 	}
 	else if (value == JsonLiterals::BOOLEAN_FALSE_LITERAL)
 	{
-		return JsonBooleanValue::FALSE;
+		return JsonBooleanValue::falseValue();
 	}
 
 	return NULL;

@@ -234,7 +234,7 @@ std::shared_ptr<openkit::IWebRequestTracer> ActionCommonImpl::traceWebRequest(co
 	if (urlString.empty())
 	{
 		mLogger->warning("%s traceWebRequest (string): url must not be null or empty", toString().c_str());
-		return NullWebRequestTracer::INSTANCE;
+		return NullWebRequestTracer::instance();
 	}
 	if (!WebRequestTracer::isValidURLScheme(urlString))
 	{
@@ -242,7 +242,7 @@ std::shared_ptr<openkit::IWebRequestTracer> ActionCommonImpl::traceWebRequest(co
 			toString().c_str(),
 			urlString.getStringData().c_str()
 		);
-		return NullWebRequestTracer::INSTANCE;
+		return NullWebRequestTracer::instance();
 	}
 	if (mLogger->isDebugEnabled())
 	{
@@ -262,7 +262,7 @@ std::shared_ptr<openkit::IWebRequestTracer> ActionCommonImpl::traceWebRequest(co
 		}
 	}
 
-	return NullWebRequestTracer::INSTANCE;
+	return NullWebRequestTracer::instance();
 }
 
 bool ActionCommonImpl::leaveAction()

@@ -39,7 +39,7 @@ protected:
 TEST_F(KeyValueResponseParserTest, parsingAnEmptyStringReturnsResponseWithDefaultValues)
 {
 	// given
-	auto defaults = ResponseAttributesDefaults_t::KEY_VALUE_RESPONSE;
+	auto defaults = ResponseAttributesDefaults_t::keyValueResponse();
 
 	// when
 	auto obtained = KeyValueResponseParser_t::parse("");
@@ -203,7 +203,7 @@ TEST_F(KeyValueResponseParserTest, parseExtractsMultiplicity)
 TEST_F(KeyValueResponseParserTest, parseResponseWithAllParametersSet)
 {
 	// given
-	auto defaults = ResponseAttributesDefaults_t::KEY_VALUE_RESPONSE;
+	auto defaults = ResponseAttributesDefaults_t::keyValueResponse();
 	const int32_t beaconSize = 73;
 	const int32_t sendInterval = 74;
 	const int32_t serverId = 75;

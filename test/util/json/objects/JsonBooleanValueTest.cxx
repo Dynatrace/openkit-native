@@ -28,14 +28,14 @@ class JsonBooleanValueTest : public testing::Test
 TEST_F(JsonBooleanValueTest, isBooleanType)
 {
 	// when, then
-	ASSERT_THAT(JsonBooleanValue::TRUE->getValueType(), testing::Eq(JsonValueType::BOOLEAN_VALUE));
+	ASSERT_THAT(JsonBooleanValue::trueValue()->getValueType(), testing::Eq(JsonValueType::BOOLEAN_VALUE));
 }
 
 TEST_F(JsonBooleanValueTest, getValueReturnsAppropriateBooleanValue)
 {
 	// when,then
-	ASSERT_THAT(JsonBooleanValue::TRUE->getValue(), testing::Eq(true));
-	ASSERT_THAT(JsonBooleanValue::FALSE->getValue(), testing::Eq(false));
+	ASSERT_THAT(JsonBooleanValue::trueValue()->getValue(), testing::Eq(true));
+	ASSERT_THAT(JsonBooleanValue::falseValue()->getValue(), testing::Eq(false));
 }
 
 TEST_F(JsonBooleanValueTest, fromValueReturnsTrueSingletonValue)
@@ -44,7 +44,7 @@ TEST_F(JsonBooleanValueTest, fromValueReturnsTrueSingletonValue)
 	auto obtained = JsonBooleanValue::fromValue(true);
 
 	// then the singleton TRUE instance is returned
-	ASSERT_THAT(obtained, testing::Eq(JsonBooleanValue::TRUE));
+	ASSERT_THAT(obtained, testing::Eq(JsonBooleanValue::trueValue()));
 }
 
 TEST_F(JsonBooleanValueTest, fromValueReturnsFalseSingletonValue)
@@ -53,7 +53,7 @@ TEST_F(JsonBooleanValueTest, fromValueReturnsFalseSingletonValue)
 	auto obtained = JsonBooleanValue::fromValue(false);
 
 	// then the singleton FALSE instance is returned
-	ASSERT_THAT(obtained, testing::Eq(JsonBooleanValue::FALSE));
+	ASSERT_THAT(obtained, testing::Eq(JsonBooleanValue::falseValue()));
 }
 
 TEST_F(JsonBooleanValueTest, fromLiteralReturnsTrueSingletonValueForTrueLiteral)
@@ -65,7 +65,7 @@ TEST_F(JsonBooleanValueTest, fromLiteralReturnsTrueSingletonValueForTrueLiteral)
 	auto obtained = JsonBooleanValue::fromLiteral(trueLiteral);
 
 	// then the singleton TRUE instance is returned
-	ASSERT_THAT(obtained, testing::Eq(JsonBooleanValue::TRUE));
+	ASSERT_THAT(obtained, testing::Eq(JsonBooleanValue::trueValue()));
 }
 
 TEST_F(JsonBooleanValueTest, fromLiteralReturnsFalseSingletonValueForFalseLiteral)
@@ -77,7 +77,7 @@ TEST_F(JsonBooleanValueTest, fromLiteralReturnsFalseSingletonValueForFalseLitera
 	auto obtained = JsonBooleanValue::fromLiteral(falseLiteral);
 
 	// then the singleton FALSE instance is returned
-	ASSERT_THAT(obtained, testing::Eq(JsonBooleanValue::FALSE));
+	ASSERT_THAT(obtained, testing::Eq(JsonBooleanValue::falseValue()));
 }
 
 TEST_F(JsonBooleanValueTest, fromLiteralReturnsNullForNonBooleanLiterals)

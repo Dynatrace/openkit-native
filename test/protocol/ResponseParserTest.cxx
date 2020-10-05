@@ -96,7 +96,7 @@ TEST_F(ResponseParserTest, parseWithPartiallyMatchingKeyValuePrefixThrowsExcepti
 TEST_F(ResponseParserTest, parseWithOnlyKeyValuePrefixReturnsDefaultResponse)
 {
 	// given
-	auto defaults = ResponseAttributesDefaults_t::KEY_VALUE_RESPONSE;
+	auto defaults = ResponseAttributesDefaults_t::keyValueResponse();
 
 	// when
 	auto obtained = ResponseParser_t::parseResponse("type=m");

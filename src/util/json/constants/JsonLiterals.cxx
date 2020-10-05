@@ -19,14 +19,6 @@
 using namespace util::json::constants;
 
 
-const char* JsonLiterals::BOOLEAN_TRUE_LITERAL = "true";
-
-const char* JsonLiterals::BOOLEAN_FALSE_LITERAL = "false";
-
-const char* JsonLiterals::NULL_LITERAL = "null";
-
-const char* JsonLiterals::NUMBER_PATTERN_STRING = "^-?(0|[1-9]\\d*)(\\.\\d+)?([eE][+-]?\\d+)?$";
-
 const std::regex& JsonLiterals::getNumberPattern()
 {
 	static std::regex numberPattern(JsonLiterals::NUMBER_PATTERN_STRING, std::regex::optimize);

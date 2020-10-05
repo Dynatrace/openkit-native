@@ -28,7 +28,7 @@ class NullWebRequestTracerTest : public testing::Test
 TEST_F(NullWebRequestTracerTest, getTagReturnsEmptyString)
 {
 	// given
-	auto target = NullWebRequestTracer_t::INSTANCE;
+	auto target = NullWebRequestTracer_t::instance();
 
 	// when
 	auto obtained = target->getTag();
@@ -40,7 +40,7 @@ TEST_F(NullWebRequestTracerTest, getTagReturnsEmptyString)
 TEST_F(NullWebRequestTracerTest, setResponseCodeReturnsSelf)
 {
 	// given
-	auto target = NullWebRequestTracer_t::INSTANCE;
+	auto target = NullWebRequestTracer_t::instance();
 
 	// when
 	auto obtained = target->setResponseCode(200);
@@ -54,7 +54,7 @@ TEST_F(NullWebRequestTracerTest, setResponseCodeReturnsSelf)
 TEST_F(NullWebRequestTracerTest, setBytesSentReturnsSelf)
 {
 	// given
-	auto target = NullWebRequestTracer_t::INSTANCE;
+	auto target = NullWebRequestTracer_t::instance();
 
 	// when
 	auto obtained = target->setBytesSent(37);
@@ -68,7 +68,7 @@ TEST_F(NullWebRequestTracerTest, setBytesSentReturnsSelf)
 TEST_F(NullWebRequestTracerTest, setBytesReceivedReturnsSelf)
 {
 	// given
-	auto target = NullWebRequestTracer_t::INSTANCE;
+	auto target = NullWebRequestTracer_t::instance();
 
 	// when
 	auto obtained = target->setBytesReceived(73);
@@ -82,7 +82,7 @@ TEST_F(NullWebRequestTracerTest, setBytesReceivedReturnsSelf)
 TEST_F(NullWebRequestTracerTest, startReturnsSelf)
 {
 	// given
-	auto target = NullWebRequestTracer_t::INSTANCE;
+	auto target = NullWebRequestTracer_t::instance();
 
 	// when
 	auto obtained = target->start();

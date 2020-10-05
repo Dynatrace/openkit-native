@@ -18,23 +18,23 @@
 
 using namespace openkit;
 
-const std::string AppMonOpenKitBuilder::OPENKIT_TYPE = "AppMonOpenKit";
-
 AppMonOpenKitBuilder::AppMonOpenKitBuilder(const char* endpointURL, const char* applicationName, int64_t deviceID)
 	: AbstractOpenKitBuilder(endpointURL, deviceID)
 	, mApplicationName(applicationName)
+	, mOpenKitType(OPENKIT_TYPE)
 {
 }
 
 AppMonOpenKitBuilder::AppMonOpenKitBuilder(const char* endpointURL, const char* applicationName, const char* deviceID)
 	: AbstractOpenKitBuilder(endpointURL, deviceID)
 	, mApplicationName(applicationName)
+	, mOpenKitType(OPENKIT_TYPE)
 {
 }
 
 const std::string& AppMonOpenKitBuilder::getOpenKitType() const
 {
-	return OPENKIT_TYPE;
+	return mOpenKitType;
 }
 
 const std::string& AppMonOpenKitBuilder::getApplicationID() const

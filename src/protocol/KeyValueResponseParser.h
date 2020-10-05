@@ -30,15 +30,15 @@ namespace protocol
 	{
 	public:
 
-		static const std::string RESPONSE_KEY_MAX_BEACON_SIZE_IN_KB;
-		static const std::string RESPONSE_KEY_SEND_INTERVAL_IN_SEC;
+		static constexpr const char* RESPONSE_KEY_MAX_BEACON_SIZE_IN_KB = "bl";
+		static constexpr const char* RESPONSE_KEY_SEND_INTERVAL_IN_SEC = "si";
 
-		static const std::string RESPONSE_KEY_CAPTURE;
-		static const std::string RESPONSE_KEY_REPORT_CRASHES;
-		static const std::string RESPONSE_KEY_REPORT_ERRORS;
+		static constexpr const char* RESPONSE_KEY_CAPTURE = "cp";
+		static constexpr const char* RESPONSE_KEY_REPORT_CRASHES = "cr";
+		static constexpr const char* RESPONSE_KEY_REPORT_ERRORS = "er";
 
-		static const std::string RESPONSE_KEY_SERVER_ID;
-		static const std::string RESPONSE_KEY_MULTIPLICITY;
+		static constexpr const char* RESPONSE_KEY_SERVER_ID = "id";
+		static constexpr const char* RESPONSE_KEY_MULTIPLICITY = "mp";
 
 		static std::shared_ptr<IResponseAttributes> parse(const core::UTF8String& keyValuePairResponse);
 

@@ -38,17 +38,17 @@ ResponseAttributes::ResponseAttributes(Builder& builder)
 
 ResponseAttributes::Builder ResponseAttributes::withKeyValueDefaults()
 {
-	return ResponseAttributes::Builder(*ResponseAttributesDefaults::KEY_VALUE_RESPONSE);
+	return ResponseAttributes::Builder(*ResponseAttributesDefaults::keyValueResponse());
 }
 
 ResponseAttributes::Builder ResponseAttributes::withJsonDefaults()
 {
-	return ResponseAttributes::Builder(*ResponseAttributesDefaults::JSON_RESPONSE);
+	return ResponseAttributes::Builder(*ResponseAttributesDefaults::jsonResponse());
 }
 
 ResponseAttributes::Builder ResponseAttributes::withUndefinedDefaults()
 {
-	return ResponseAttributes::Builder(*ResponseAttributesDefaults::UNDEFINED);
+	return ResponseAttributes::Builder(*ResponseAttributesDefaults::undefined());
 }
 
 int32_t ResponseAttributes::getMaxBeaconSizeInBytes() const

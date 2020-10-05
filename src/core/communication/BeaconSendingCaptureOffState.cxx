@@ -29,12 +29,12 @@
 using namespace core::communication;
 
 /// number of retries for the status request
-constexpr int32_t STATUS_REQUEST_RETRIES = 5;
+static constexpr int32_t STATUS_REQUEST_RETRIES = 5;
 
-const std::chrono::milliseconds BeaconSendingCaptureOffState::INITIAL_RETRY_SLEEP_TIME_MILLISECONDS(std::chrono::seconds(1));
+static constexpr std::chrono::milliseconds STATUS_CHECK_INTERVAL_MILLISECONDS = std::chrono::hours(2);
+static constexpr int64_t STATUS_CHECK_INTERVAL = STATUS_CHECK_INTERVAL_MILLISECONDS.count();
 
-const std::chrono::milliseconds STATUS_CHECK_INTERVAL_MILLISECONDS = std::chrono::hours(2);
-const int64_t STATUS_CHECK_INTERVAL = STATUS_CHECK_INTERVAL_MILLISECONDS.count();
+constexpr std::chrono::milliseconds BeaconSendingCaptureOffState::INITIAL_RETRY_SLEEP_TIME_MILLISECONDS;
 
 BeaconSendingCaptureOffState::BeaconSendingCaptureOffState()
 	: BeaconSendingCaptureOffState(int64_t(-1))

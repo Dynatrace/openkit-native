@@ -39,7 +39,7 @@ TEST_F(JsonObjectValueTest, sizeReturnsSizeOfUnderlyingMap)
 {
 	// given
 	auto jsonValueMap = std::make_shared<JsonObjectValue::JsonObjectMap>();
-	jsonValueMap->insert({"first", JsonBooleanValue::TRUE});
+	jsonValueMap->insert({"first", JsonBooleanValue::trueValue()});
 
 	auto target = JsonObjectValue::fromMap(jsonValueMap);
 
@@ -50,7 +50,7 @@ TEST_F(JsonObjectValueTest, sizeReturnsSizeOfUnderlyingMap)
 	ASSERT_THAT(obtained, testing::Eq(1));
 
 	// and when
-	jsonValueMap->insert({"second", JsonBooleanValue::FALSE});
+	jsonValueMap->insert({"second", JsonBooleanValue::falseValue()});
 	target = JsonObjectValue::fromMap(jsonValueMap);
 	obtained = target->size();
 
@@ -63,7 +63,7 @@ TEST_F(JsonObjectValueTest, containsKeyDelegatesTheCallToTheUnderlyingMap)
 {
 	// given
 	auto jsonValueMap = std::make_shared<JsonObjectValue::JsonObjectMap>();
-	jsonValueMap->insert({{"first", JsonBooleanValue::TRUE}, {"second", JsonBooleanValue::FALSE}});
+	jsonValueMap->insert({{"first", JsonBooleanValue::trueValue()}, {"second", JsonBooleanValue::falseValue()}});
 
 	auto target = JsonObjectValue::fromMap(jsonValueMap);
 
@@ -90,7 +90,7 @@ TEST_F(JsonObjectValueTest, findReturnsValueOfUnderlyingMap)
 {
 	// given
 	auto jsonValueMap = std::make_shared<JsonObjectValue::JsonObjectMap>();
-	jsonValueMap->insert({{"first", JsonBooleanValue::TRUE}, {"second", JsonBooleanValue::FALSE}});
+	jsonValueMap->insert({{"first", JsonBooleanValue::trueValue()}, {"second", JsonBooleanValue::falseValue()}});
 
 	auto target = JsonObjectValue::fromMap(jsonValueMap);
 
@@ -98,13 +98,13 @@ TEST_F(JsonObjectValueTest, findReturnsValueOfUnderlyingMap)
 	auto obtained = target->find("first");
 
 	// then
-	ASSERT_THAT(obtained->second, testing::Eq(JsonBooleanValue::TRUE));
+	ASSERT_THAT(obtained->second, testing::Eq(JsonBooleanValue::trueValue()));
 
 	// and when
 	obtained = target->find("second");
 
 	// then
-	ASSERT_THAT(obtained->second, testing::Eq(JsonBooleanValue::FALSE));
+	ASSERT_THAT(obtained->second, testing::Eq(JsonBooleanValue::falseValue()));
 
 	// and when
 	obtained = target->find("third");
@@ -117,7 +117,7 @@ TEST_F(JsonObjectValueTest, indexOperatorReturnsValueOfUnderlyingMap)
 {
 	// given
 	auto jsonValueMap = std::make_shared<JsonObjectValue::JsonObjectMap>();
-	jsonValueMap->insert({{"first", JsonBooleanValue::TRUE}, {"second", JsonBooleanValue::FALSE}});
+	jsonValueMap->insert({{"first", JsonBooleanValue::trueValue()}, {"second", JsonBooleanValue::falseValue()}});
 
 	auto target = JsonObjectValue::fromMap(jsonValueMap);
 
@@ -125,13 +125,13 @@ TEST_F(JsonObjectValueTest, indexOperatorReturnsValueOfUnderlyingMap)
 	auto obtained = (*target)["first"];
 
 	// then
-	ASSERT_THAT(obtained, testing::Eq(JsonBooleanValue::TRUE));
+	ASSERT_THAT(obtained, testing::Eq(JsonBooleanValue::trueValue()));
 
 	// and when
 	obtained = (*target)["second"];
 
 	// then
-	ASSERT_THAT(obtained, testing::Eq(JsonBooleanValue::FALSE));
+	ASSERT_THAT(obtained, testing::Eq(JsonBooleanValue::falseValue()));
 
 	// and when
 	obtained = (*target)["third"];
@@ -144,7 +144,7 @@ TEST_F(JsonObjectValueTest, beginReturnsIteratorToUnderlyingMap)
 {
 	// given
 	auto jsonValueMap = std::make_shared<JsonObjectValue::JsonObjectMap>();
-	jsonValueMap->insert({{"first",  JsonBooleanValue::TRUE}, {"second", JsonBooleanValue::FALSE}});
+	jsonValueMap->insert({{"first",  JsonBooleanValue::trueValue()}, {"second", JsonBooleanValue::falseValue()}});
 
 	auto target = JsonObjectValue::fromMap(jsonValueMap);
 
@@ -152,13 +152,13 @@ TEST_F(JsonObjectValueTest, beginReturnsIteratorToUnderlyingMap)
 	auto obtained = target->begin();
 
 	// then
-	ASSERT_THAT(obtained->second, testing::AnyOf(JsonBooleanValue::TRUE, JsonBooleanValue::FALSE));
+	ASSERT_THAT(obtained->second, testing::AnyOf(JsonBooleanValue::trueValue(), JsonBooleanValue::falseValue()));
 
 	// and when
 	obtained++;
 
 	// then
-	ASSERT_THAT(obtained->second, testing::AnyOf(JsonBooleanValue::TRUE, JsonBooleanValue::FALSE));
+	ASSERT_THAT(obtained->second, testing::AnyOf(JsonBooleanValue::trueValue(), JsonBooleanValue::falseValue()));
 
 	// and when
 	obtained++;

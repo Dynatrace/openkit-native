@@ -30,18 +30,10 @@
 
 using namespace core::communication;
 
-constexpr uint32_t MAX_INITIAL_STATUS_REQUEST_RETRIES = 5;
+static constexpr uint32_t MAX_INITIAL_STATUS_REQUEST_RETRIES = 5;
 
-const std::vector<std::chrono::milliseconds> BeaconSendingInitialState::REINIT_DELAY_MILLISECONDS =
-{
-	std::chrono::minutes(1),
-	std::chrono::minutes(5),
-	std::chrono::minutes(15),
-	std::chrono::hours(1),
-	std::chrono::hours(2)
-};
-
-const std::chrono::milliseconds BeaconSendingInitialState::INITIAL_RETRY_SLEEP_TIME_MILLISECONDS(std::chrono::seconds(1));
+constexpr std::chrono::milliseconds BeaconSendingInitialState::INITIAL_RETRY_SLEEP_TIME_MILLISECONDS;
+constexpr const std::array<std::chrono::milliseconds, 5> BeaconSendingInitialState::REINIT_DELAY_MILLISECONDS;
 
 BeaconSendingInitialState::BeaconSendingInitialState()
 	: AbstractBeaconSendingState(IBeaconSendingState::StateType::BEACON_SENDING_INIT_STATE)

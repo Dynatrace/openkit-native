@@ -21,8 +21,7 @@
 
 using namespace core;
 
-const std::chrono::milliseconds SessionWatchdogContext::DEFAULT_SLEEP_TIME_MILLISECONDS
-	= std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::seconds(5));
+constexpr std::chrono::milliseconds SessionWatchdogContext::DEFAULT_SLEEP_TIME_MILLISECONDS;
 
 SessionWatchdogContext::SessionWatchdogContext(std::shared_ptr<providers::ITimingProvider> timingProvider,
 	std::shared_ptr<core::util::IInterruptibleThreadSuspender> threadSuspender)

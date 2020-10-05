@@ -60,7 +60,7 @@ TEST_F(ResponseAttributesTest, buildWithKeyValueDefaultsHasNoAttributeSetOnInsta
 TEST_F(ResponseAttributesTest, buildForwardsJsonDefaultsToInstance)
 {
 	// given
-	auto defaults = ResponseAttributesDefaults_t::JSON_RESPONSE;
+	auto defaults = ResponseAttributesDefaults_t::jsonResponse();
 	auto target = ResponseAttributes_t::withJsonDefaults();
 
 	// when
@@ -88,7 +88,7 @@ TEST_F(ResponseAttributesTest, buildForwardsJsonDefaultsToInstance)
 TEST_F(ResponseAttributesTest, buildForwardsKeyValueDefaultsToInstance)
 {
 	// given
-	auto defaults = ResponseAttributesDefaults_t::JSON_RESPONSE;
+	auto defaults = ResponseAttributesDefaults_t::jsonResponse();
 	auto target = ResponseAttributes_t::withJsonDefaults();
 
 	// when
@@ -332,7 +332,7 @@ TEST_F(ResponseAttributesTest, withVisitStoreVersionSetsAttributeOnInstance)
 TEST_F(ResponseAttributesTest, buildPropagatesIsCaptureToInstance)
 {
 	// given
-	auto isCapture = !ResponseAttributesDefaults_t::JSON_RESPONSE->isCapture();
+	auto isCapture = !ResponseAttributesDefaults_t::jsonResponse()->isCapture();
 	auto target = ResponseAttributes_t::withJsonDefaults();
 
 	// when
@@ -349,7 +349,7 @@ TEST_F(ResponseAttributesTest, ithCaptureSetsAttributeOnInstance)
 	auto target = ResponseAttributes_t::withJsonDefaults();
 
 	// when
-	auto obtained = target.withCapture(!ResponseAttributesDefaults_t::JSON_RESPONSE->isCapture()).build();
+	auto obtained = target.withCapture(!ResponseAttributesDefaults_t::jsonResponse()->isCapture()).build();
 
 	// then
 	ASSERT_THAT(obtained->isAttributeSet(attribute), testing::Eq(true));
@@ -368,7 +368,7 @@ TEST_F(ResponseAttributesTest, ithCaptureSetsAttributeOnInstance)
 TEST_F(ResponseAttributesTest, buildPropagatesIsCaptureCrashesToInstance)
 {
 	// given
-	auto isCaptureCrashes = !ResponseAttributesDefaults_t::JSON_RESPONSE->isCaptureCrashes();
+	auto isCaptureCrashes = !ResponseAttributesDefaults_t::jsonResponse()->isCaptureCrashes();
 	auto target = ResponseAttributes_t::withJsonDefaults();
 
 	// when
@@ -385,7 +385,7 @@ TEST_F(ResponseAttributesTest, withCaptureCrashesSetsAttributeOnInstance)
 	auto target = ResponseAttributes_t::withJsonDefaults();
 
 	// when
-	auto obtained = target.withCaptureCrashes(!ResponseAttributesDefaults_t::JSON_RESPONSE->isCaptureCrashes()).build();
+	auto obtained = target.withCaptureCrashes(!ResponseAttributesDefaults_t::jsonResponse()->isCaptureCrashes()).build();
 
 	// then
 	ASSERT_THAT(obtained->isAttributeSet(attribute), testing::Eq(true));
@@ -404,7 +404,7 @@ TEST_F(ResponseAttributesTest, withCaptureCrashesSetsAttributeOnInstance)
 TEST_F(ResponseAttributesTest, buildPropagatesIsCaptureErrorsToInstance)
 {
 	// given
-	auto isCaptureErrors = !ResponseAttributesDefaults_t::JSON_RESPONSE->isCaptureErrors();
+	auto isCaptureErrors = !ResponseAttributesDefaults_t::jsonResponse()->isCaptureErrors();
 	auto target = ResponseAttributes_t::withJsonDefaults();
 
 	// when
@@ -421,7 +421,7 @@ TEST_F(ResponseAttributesTest, withCaptureErrorsSetsAttributeOnInstance)
 	auto target = ResponseAttributes_t::withJsonDefaults();
 
 	// when
-	auto obtained = target.withCaptureErrors(!ResponseAttributesDefaults_t::JSON_RESPONSE->isCaptureErrors()).build();
+	auto obtained = target.withCaptureErrors(!ResponseAttributesDefaults_t::jsonResponse()->isCaptureErrors()).build();
 
 	// then
 	ASSERT_THAT(obtained->isAttributeSet(attribute), testing::Eq(true));
@@ -866,7 +866,7 @@ TEST_F(ResponseAttributesTest, ergeTakesVisitStoreVersionFromMergeSourceIfSetInS
 TEST_F(ResponseAttributesTest, mergeTakesCaptureFromMergeTargetIfNotSetInSource)
 {
 	// given
-	auto capture = !ResponseAttributesDefaults_t::UNDEFINED->isCapture();
+	auto capture = !ResponseAttributesDefaults_t::undefined()->isCapture();
 	auto source = ResponseAttributes_t::withUndefinedDefaults().build();
 	auto target = ResponseAttributes_t::withUndefinedDefaults().withCapture(capture).build();
 
@@ -881,7 +881,7 @@ TEST_F(ResponseAttributesTest, mergeTakesCaptureFromMergeTargetIfNotSetInSource)
 TEST_F(ResponseAttributesTest, mergeTakesCaptureFromMergeSourceIfSetInSource)
 {
 	// given
-	auto capture = !ResponseAttributesDefaults_t::UNDEFINED->isCapture();
+	auto capture = !ResponseAttributesDefaults_t::undefined()->isCapture();
 	auto source = ResponseAttributes_t::withUndefinedDefaults().withCapture(capture).build();
 	auto target = ResponseAttributes_t::withUndefinedDefaults().build();
 
@@ -896,7 +896,7 @@ TEST_F(ResponseAttributesTest, mergeTakesCaptureFromMergeSourceIfSetInSource)
 TEST_F(ResponseAttributesTest, mergeTakesCaptureFromMergeSourceIfSetInSourceAndTarget)
 {
 	// given
-	auto capture = !ResponseAttributesDefaults_t::UNDEFINED->isCapture();
+	auto capture = !ResponseAttributesDefaults_t::undefined()->isCapture();
 	auto source = ResponseAttributes_t::withUndefinedDefaults().withCapture(capture).build();
 	auto target = ResponseAttributes_t::withUndefinedDefaults().withCapture(!capture).build();
 
@@ -911,7 +911,7 @@ TEST_F(ResponseAttributesTest, mergeTakesCaptureFromMergeSourceIfSetInSourceAndT
 TEST_F(ResponseAttributesTest, mergeTakesCaptureCrashesFromMergeTargetIfNotSetInSource)
 {
 	// given
-	auto captureCrashes = !ResponseAttributesDefaults_t::UNDEFINED->isCaptureCrashes();
+	auto captureCrashes = !ResponseAttributesDefaults_t::undefined()->isCaptureCrashes();
 	auto source = ResponseAttributes_t::withUndefinedDefaults().build();
 	auto target = ResponseAttributes_t::withUndefinedDefaults().withCaptureCrashes(captureCrashes).build();
 
@@ -926,7 +926,7 @@ TEST_F(ResponseAttributesTest, mergeTakesCaptureCrashesFromMergeTargetIfNotSetIn
 TEST_F(ResponseAttributesTest, mergeTakesCaptureCrashesFromMergeSourceIfSetInSource)
 {
 	// given
-	auto captureCrashes = !ResponseAttributesDefaults_t::UNDEFINED->isCaptureCrashes();
+	auto captureCrashes = !ResponseAttributesDefaults_t::undefined()->isCaptureCrashes();
 	auto source = ResponseAttributes_t::withUndefinedDefaults().withCaptureCrashes(captureCrashes).build();
 	auto target = ResponseAttributes_t::withUndefinedDefaults().build();
 
@@ -941,7 +941,7 @@ TEST_F(ResponseAttributesTest, mergeTakesCaptureCrashesFromMergeSourceIfSetInSou
 TEST_F(ResponseAttributesTest, mergeTakesCaptureCrashesFromMergeSourceIfSetInSourceAndTarget)
 {
 	// given
-	auto captureCrashes = !ResponseAttributesDefaults_t::UNDEFINED->isCaptureCrashes();
+	auto captureCrashes = !ResponseAttributesDefaults_t::undefined()->isCaptureCrashes();
 	auto source = ResponseAttributes_t::withUndefinedDefaults().withCaptureCrashes(captureCrashes).build();
 	auto target = ResponseAttributes_t::withUndefinedDefaults().withCaptureCrashes(!captureCrashes).build();
 
@@ -956,7 +956,7 @@ TEST_F(ResponseAttributesTest, mergeTakesCaptureCrashesFromMergeSourceIfSetInSou
 TEST_F(ResponseAttributesTest, mergeTakesCaptureErrorsFromMergeTargetIfNotSetInSource)
 {
 	// given
-	auto captureErrors = !ResponseAttributesDefaults_t::UNDEFINED->isCaptureErrors();
+	auto captureErrors = !ResponseAttributesDefaults_t::undefined()->isCaptureErrors();
 	auto source = ResponseAttributes_t::withUndefinedDefaults().build();
 	auto target = ResponseAttributes_t::withUndefinedDefaults().withCaptureErrors(captureErrors).build();
 
@@ -971,7 +971,7 @@ TEST_F(ResponseAttributesTest, mergeTakesCaptureErrorsFromMergeTargetIfNotSetInS
 TEST_F(ResponseAttributesTest, mergeTakesCaptureErrorsFromMergeSourceIfSetInSource)
 {
 	// given
-	auto captureErrors = !ResponseAttributesDefaults_t::UNDEFINED->isCaptureErrors();
+	auto captureErrors = !ResponseAttributesDefaults_t::undefined()->isCaptureErrors();
 	auto source = ResponseAttributes_t::withUndefinedDefaults().withCaptureErrors(captureErrors).build();
 	auto target = ResponseAttributes_t::withUndefinedDefaults().build();
 
@@ -986,7 +986,7 @@ TEST_F(ResponseAttributesTest, mergeTakesCaptureErrorsFromMergeSourceIfSetInSour
 TEST_F(ResponseAttributesTest, mergeTakesCaptureErrorsFromMergeSourceIfSetInSourceAndTarget)
 {
 	// given
-	auto captureErrors = !ResponseAttributesDefaults_t::UNDEFINED->isCaptureErrors();
+	auto captureErrors = !ResponseAttributesDefaults_t::undefined()->isCaptureErrors();
 	auto source = ResponseAttributes_t::withUndefinedDefaults().withCaptureErrors(captureErrors).build();
 	auto target = ResponseAttributes_t::withUndefinedDefaults().withCaptureErrors(!captureErrors).build();
 

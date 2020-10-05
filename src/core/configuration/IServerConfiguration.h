@@ -52,11 +52,6 @@ namespace core
 			virtual bool isErrorReportingEnabled() const = 0;
 
 			///
-			/// Returns the send interval in milliseconds.
-			///
-			virtual int32_t getSendIntervalInMilliseconds() const = 0;
-
-			///
 			/// Returns the ID of the server which is communicated with.
 			///
 			virtual int32_t getServerId() const = 0;

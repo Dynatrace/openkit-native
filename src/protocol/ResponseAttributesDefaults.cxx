@@ -18,14 +18,26 @@
 
 using namespace protocol;
 
-const std::shared_ptr<IResponseAttributes> ResponseAttributesDefaults::JSON_RESPONSE
-	= std::make_shared<ResponseAttributesDefaults::JsonResponseDefaults>();
+const std::shared_ptr<IResponseAttributes> ResponseAttributesDefaults::jsonResponse()
+{
+	static const auto jsonResponseDefaults = std::make_shared<ResponseAttributesDefaults::JsonResponseDefaults>();
 
-const std::shared_ptr<IResponseAttributes> ResponseAttributesDefaults::KEY_VALUE_RESPONSE
-	= std::make_shared<ResponseAttributesDefaults::KeyValueResponseDefaults>();
+	return jsonResponseDefaults;
+}
 
-const std::shared_ptr<IResponseAttributes> ResponseAttributesDefaults::UNDEFINED
-	= std::make_shared<ResponseAttributesDefaults::UndefinedDefaults>();
+const std::shared_ptr<IResponseAttributes> ResponseAttributesDefaults::keyValueResponse()
+{
+	static const auto keyValueResponseDefaults = std::make_shared<ResponseAttributesDefaults::KeyValueResponseDefaults>();
+
+	return keyValueResponseDefaults;
+}
+
+const std::shared_ptr<IResponseAttributes> ResponseAttributesDefaults::undefined()
+{
+	static const auto undefinedDefaults = std::make_shared<ResponseAttributesDefaults::UndefinedDefaults>();
+
+	return undefinedDefaults;
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// AbstractResponseDefaults

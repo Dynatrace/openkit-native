@@ -59,7 +59,7 @@ std::shared_ptr<openkit::IRootAction> SessionProxy::enterAction(const char* acti
 	if (actionNameString.empty())
 	{
 		mLogger->warning("%s enterAction: actionName must not be null or empty", toString().c_str());
-		return NullRootAction::INSTANCE;
+		return NullRootAction::instance();
 	}
 	if (mLogger->isDebugEnabled())
 	{
@@ -71,7 +71,7 @@ std::shared_ptr<openkit::IRootAction> SessionProxy::enterAction(const char* acti
 
 		if (mIsFinished)
 		{
-			return NullRootAction::INSTANCE;
+			return NullRootAction::instance();
 		}
 
 		auto session = getOrSplitCurrentSession();
@@ -146,12 +146,12 @@ std::shared_ptr<openkit::IWebRequestTracer> SessionProxy::traceWebRequest(const 
 	if (urlString.empty())
 	{
 		mLogger->warning("%s traceWebRequest: url must not be null or empty", toString().c_str());
-		return NullWebRequestTracer::INSTANCE;
+		return NullWebRequestTracer::instance();
 	}
 	if (!WebRequestTracer::isValidURLScheme(urlString))
 	{
 		mLogger->warning("%s traceWebRequest: url \"%s\" does not have a valid scheme", toString().c_str(), urlString.getStringData().c_str());
-		return NullWebRequestTracer::INSTANCE;
+		return NullWebRequestTracer::instance();
 	}
 	if (mLogger->isDebugEnabled())
 	{
@@ -163,7 +163,7 @@ std::shared_ptr<openkit::IWebRequestTracer> SessionProxy::traceWebRequest(const 
 
 		if (mIsFinished)
 		{
-			return NullWebRequestTracer::INSTANCE;
+			return NullWebRequestTracer::instance();
 		}
 
 		auto session = getOrSplitCurrentSession();

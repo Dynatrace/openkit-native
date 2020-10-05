@@ -357,12 +357,12 @@ namespace util
 			///
 			/// error message used for exception when a JSON array is not terminated
 			///
-			static const char* UNTERMINATED_JSON_ARRAY_ERROR;
+			static constexpr const char* UNTERMINATED_JSON_ARRAY_ERROR = "Unterminated JSON array";
 
 			///
 			/// error message used for exception when a JSON object is not terminated
 			///
-			static const char* UNTERMINATED_JSON_OBJECT_ERROR;
+			static constexpr const char* UNTERMINATED_JSON_OBJECT_ERROR = "Unterminated JSON object";
 
 			///
 			/// lexical analyzer

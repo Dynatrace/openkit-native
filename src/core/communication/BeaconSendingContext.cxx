@@ -26,7 +26,7 @@
 
 using namespace core::communication;
 
-const std::chrono::milliseconds BeaconSendingContext::DEFAULT_SLEEP_TIME_MILLISECONDS(std::chrono::seconds(1));
+constexpr std::chrono::milliseconds BeaconSendingContext::DEFAULT_SLEEP_TIME_MILLISECONDS;
 
 BeaconSendingContext::BeaconSendingContext(
 	std::shared_ptr<openkit::ILogger> logger,
@@ -41,7 +41,7 @@ BeaconSendingContext::BeaconSendingContext(
 	, mNextState(nullptr)
 	, mShutdown(false)
 	, mInitSucceeded(false)
-	, mServerConfiguration(core::configuration::ServerConfiguration::DEFAULT)
+	, mServerConfiguration(core::configuration::ServerConfiguration::defaultInstance())
 	, mHTTPClientConfiguration(httpClientConfig)
 	, mHTTPClientProvider(httpClientProvider)
 	, mTimingProvider(timingProvider)
@@ -194,7 +194,7 @@ void BeaconSendingContext::setLastStatusCheckTime(int64_t lastStatusCheckTime)
 
 int64_t BeaconSendingContext::getSendInterval() const
 {
-	return mServerConfiguration->getSendIntervalInMilliseconds();
+	return mLastResponseAttributes->getSendIntervalInMilliseconds();
 }
 
 void BeaconSendingContext::disableCaptureAndClear()

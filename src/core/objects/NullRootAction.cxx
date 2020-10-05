@@ -19,7 +19,12 @@
 
 using namespace core::objects;
 
-const std::shared_ptr<NullRootAction> NullRootAction::INSTANCE = std::make_shared<NullRootAction>();
+const std::shared_ptr<NullRootAction> NullRootAction::instance()
+{
+	static const auto instance = std::make_shared<NullRootAction>();
+
+	return instance;
+}
 
 std::shared_ptr<openkit::IAction> NullRootAction::enterAction(const char* /*actionName*/)
 {
@@ -53,7 +58,7 @@ std::shared_ptr<openkit::IRootAction> NullRootAction::reportError(const char* /*
 
 std::shared_ptr<openkit::IWebRequestTracer> NullRootAction::traceWebRequest(const char* /*url*/)
 {
-	return NullWebRequestTracer::INSTANCE;
+	return NullWebRequestTracer::instance();
 }
 
 void NullRootAction::leaveAction()

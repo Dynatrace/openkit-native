@@ -51,7 +51,7 @@ std::shared_ptr<openkit::IRootAction> Session::enterAction(const char* actionNam
 	if (actionNameString.empty())
 	{
 		mLogger->warning("%s enterAction: actionName must not be null or empty", toString().c_str());
-		return NullRootAction::INSTANCE;
+		return NullRootAction::instance();
 	}
 	if (mLogger->isDebugEnabled())
 	{
@@ -77,7 +77,7 @@ std::shared_ptr<openkit::IRootAction> Session::enterAction(const char* actionNam
 		}
 	}
 
-	return NullRootAction::INSTANCE;
+	return NullRootAction::instance();
 }
 
 void Session::identifyUser(const char* userTag)
@@ -139,12 +139,12 @@ std::shared_ptr<openkit::IWebRequestTracer> Session::traceWebRequest(const char*
 	if (urlString.empty())
 	{
 		mLogger->warning("%s traceWebRequest: url must not be null or empty", toString().c_str());
-		return NullWebRequestTracer::INSTANCE;
+		return NullWebRequestTracer::instance();
 	}
 	if (!WebRequestTracer::isValidURLScheme(urlString))
 	{
 		mLogger->warning("%s traceWebRequest: url \"%s\" does not have a valid scheme", toString().c_str(), urlString.getStringData().c_str());
-		return NullWebRequestTracer::INSTANCE;
+		return NullWebRequestTracer::instance();
 	}
 	if (mLogger->isDebugEnabled())
 	{
@@ -168,7 +168,7 @@ std::shared_ptr<openkit::IWebRequestTracer> Session::traceWebRequest(const char*
 		}
 	}
 
-	return NullWebRequestTracer::INSTANCE;
+	return NullWebRequestTracer::instance();
 }
 
 void Session::end()

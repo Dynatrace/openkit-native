@@ -56,7 +56,7 @@ TEST_F(JsonResponseParserTest, parsingAnEmptyStringThrowsException)
 TEST_F(JsonResponseParserTest, parsingAnEmptyObjectReturnsInstanceWithDefaultValues)
 {
 	// given
-	auto defaults = ResponseAttributesDefaults_t::JSON_RESPONSE;
+	auto defaults = ResponseAttributesDefaults_t::jsonResponse();
 
 	// when
 	auto obtained = JsonResponseParser_t::parse("{}");

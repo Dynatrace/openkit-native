@@ -75,7 +75,7 @@ std::shared_ptr<IServerConfiguration> BeaconConfiguration::getServerConfiguratio
 std::shared_ptr<IServerConfiguration> BeaconConfiguration::getServerConfigurationOrDefault()
 {
 	auto serverConfig = mServerConfiguration;
-	return serverConfig != nullptr ? serverConfig : ServerConfiguration::DEFAULT;
+	return serverConfig != nullptr ? serverConfig : ServerConfiguration::defaultInstance();
 }
 
 void BeaconConfiguration::updateServerConfiguration(

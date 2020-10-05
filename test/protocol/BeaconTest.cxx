@@ -79,7 +79,7 @@ constexpr int64_t DEVICE_ID = 456;
 constexpr int32_t THREAD_ID = 1234567;
 constexpr int32_t SESSION_ID = 73;
 const Utf8String_t TRACER_URL("https://localhost");
-constexpr int32_t MULTIPLICITY = 37;
+constexpr int32_t MULTIPLICITY = 1;
 
 class BeaconTest : public testing::Test
 {

@@ -40,7 +40,7 @@ TEST_F(JsonArrayValueTest, sizeReturnsSizeOfUnderlyingList)
 {
 	// given
 	auto jsonValues = std::make_shared<JsonArrayValue::JsonValueList>();
-	jsonValues->push_back(JsonBooleanValue::TRUE);
+	jsonValues->push_back(JsonBooleanValue::trueValue());
 
 	auto target = JsonArrayValue::fromList(jsonValues);
 
@@ -51,7 +51,7 @@ TEST_F(JsonArrayValueTest, sizeReturnsSizeOfUnderlyingList)
 	ASSERT_THAT(obtained, testing::Eq(1));
 
 	// and when
-	jsonValues->push_back(JsonBooleanValue::FALSE);
+	jsonValues->push_back(JsonBooleanValue::falseValue());
 	target = JsonArrayValue::fromList(jsonValues);
 
 	obtained = target->size();
@@ -64,8 +64,8 @@ TEST_F(JsonArrayValueTest, beginReturnsIteratorOfUnderlyingList)
 {
 	// given
 	auto jsonValues = std::make_shared<JsonArrayValue::JsonValueList>();
-	jsonValues->push_back(JsonBooleanValue::TRUE);
-	jsonValues->push_back(JsonBooleanValue::FALSE);
+	jsonValues->push_back(JsonBooleanValue::trueValue());
+	jsonValues->push_back(JsonBooleanValue::falseValue());
 
 	auto target = JsonArrayValue::fromList(jsonValues);
 
@@ -73,13 +73,13 @@ TEST_F(JsonArrayValueTest, beginReturnsIteratorOfUnderlyingList)
 	auto obtained = target->begin();
 
 	// then
-	ASSERT_THAT(*obtained, testing::Eq(JsonBooleanValue::TRUE));
+	ASSERT_THAT(*obtained, testing::Eq(JsonBooleanValue::trueValue()));
 
 	// and when
 	obtained++;
 
 	// then
-	ASSERT_THAT(*obtained, testing::Eq(JsonBooleanValue::FALSE));
+	ASSERT_THAT(*obtained, testing::Eq(JsonBooleanValue::falseValue()));
 
 	// and when
 	obtained++;

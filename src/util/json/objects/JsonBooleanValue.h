@@ -37,14 +37,14 @@ namespace util
 			public: // members
 
 				///
-				/// singleton instance representing true
+				/// Gets sole instance representing true
 				///
-				static const std::shared_ptr<JsonBooleanValue> TRUE;
+				static const std::shared_ptr<JsonBooleanValue> trueValue();
 
 				///
-				/// singleton instance representing false
+				/// Gets sole instance representing false
 				///
-				static const std::shared_ptr<JsonBooleanValue> FALSE;
+				static const std::shared_ptr<JsonBooleanValue> falseValue();
 
 			public: // functions
 

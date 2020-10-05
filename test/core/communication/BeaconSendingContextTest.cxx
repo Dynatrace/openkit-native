@@ -39,6 +39,7 @@
 #include "core/configuration/ServerConfiguration.h"
 #include "protocol/StatusResponse.h"
 #include "protocol/ResponseAttributes.h"
+#include "protocol/ResponseAttributesDefaults.h"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -58,6 +59,7 @@ using MockNiceSession_t = testing::NiceMock<MockSessionInternals>;
 using MockStrictSession_t = testing::StrictMock<MockSessionInternals>;
 using MockStrictIBeaconSendingState_sp = std::shared_ptr<testing::StrictMock<MockIBeaconSendingState>>;
 using MockIInterruptibleThreadSuspender_sp = std::shared_ptr<testing::NiceMock<MockIInterruptibleThreadSuspender>>;
+using ResponseAttributesDefaults_t = protocol::ResponseAttributesDefaults;
 using ServerConfiguration_t = core::configuration::ServerConfiguration;
 using Utf8String_t = core::UTF8String;
 
@@ -295,7 +297,7 @@ TEST_F(BeaconSendingContextTest, isCaptureOnIsTakenFromDefaultServerConfig)
 	auto target = createBeaconSendingContext()->build();
 
 	// then
-	ASSERT_THAT(target->isCaptureOn(), testing::Eq(ServerConfiguration_t::DEFAULT->isCaptureEnabled()));
+	ASSERT_THAT(target->isCaptureOn(), testing::Eq(ServerConfiguration_t::defaultInstance()->isCaptureEnabled()));
 }
 
 
@@ -335,7 +337,7 @@ TEST_F(BeaconSendingContextTest, setAndGetLastStatusCheckTime)
 	ASSERT_EQ(target->getLastStatusCheckTime(), 5678L);
 }
 
-TEST_F(BeaconSendingContextTest, getSendIntervalIsTakeFromDefaultSessionConfig)
+TEST_F(BeaconSendingContextTest, sendIntervalIsTakenFromDefaultResponseAttributes)
 {
 	// given
 	auto target = createBeaconSendingContext()->build();
@@ -344,7 +346,7 @@ TEST_F(BeaconSendingContextTest, getSendIntervalIsTakeFromDefaultSessionConfig)
 	auto obtained = target->getSendInterval();
 
 	// then
-	ASSERT_THAT(obtained, testing::Eq(ServerConfiguration_t::DEFAULT->getSendIntervalInMilliseconds()));
+	ASSERT_THAT(obtained, testing::Eq(ResponseAttributesDefaults_t::undefined()->getSendIntervalInMilliseconds()));
 }
 
 TEST_F(BeaconSendingContextTest, getHTTPClientProvider)

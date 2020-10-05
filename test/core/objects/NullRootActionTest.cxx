@@ -32,7 +32,7 @@ class NullRootActionTest : public testing::Test
 TEST_F(NullRootActionTest, enterActionReturnsNewNullAction)
 {
 	// given
-	auto target = NullRootAction_t::INSTANCE;
+	auto target = NullRootAction_t::instance();
 
 	// when
 	auto obtained = target->enterAction("action name");
@@ -45,7 +45,7 @@ TEST_F(NullRootActionTest, enterActionReturnsNewNullAction)
 TEST_F(NullRootActionTest, enteredActionHasNullRootActionAsParent)
 {
 	// given
-	auto target = NullRootAction_t::INSTANCE;
+	auto target = NullRootAction_t::instance();
 
 	// when
 	auto action = target->enterAction("action name");
@@ -60,7 +60,7 @@ TEST_F(NullRootActionTest, enteredActionHasNullRootActionAsParent)
 TEST_F(NullRootActionTest, reportEventReturnsSelf)
 {
 	// given
-	auto target = NullRootAction_t::INSTANCE;
+	auto target = NullRootAction_t::instance();
 
 	// when
 	auto obtained = target->reportEvent("event name");
@@ -74,7 +74,7 @@ TEST_F(NullRootActionTest, reportEventReturnsSelf)
 TEST_F(NullRootActionTest, reportIntValueReturnsSelf)
 {
 	// given
-	auto target = NullRootAction_t::INSTANCE;
+	auto target = NullRootAction_t::instance();
 
 	// when
 	auto obtained = target->reportValue("value name", 12);
@@ -88,7 +88,7 @@ TEST_F(NullRootActionTest, reportIntValueReturnsSelf)
 TEST_F(NullRootActionTest, reportDoubleValueReturnsSelf)
 {
 	// given
-	auto target = NullRootAction_t::INSTANCE;
+	auto target = NullRootAction_t::instance();
 
 	// when
 	auto obtained = target->reportValue("value name", 37.73);
@@ -102,7 +102,7 @@ TEST_F(NullRootActionTest, reportDoubleValueReturnsSelf)
 TEST_F(NullRootActionTest, reportStringValueReturnsSelf)
 {
 	// given
-	auto target = NullRootAction_t::INSTANCE;
+	auto target = NullRootAction_t::instance();
 
 	// when
 	auto obtained = target->reportValue("value name", "value");
@@ -116,7 +116,7 @@ TEST_F(NullRootActionTest, reportStringValueReturnsSelf)
 TEST_F(NullRootActionTest, traceWebRequestReturnsNullWebRequestTracer)
 {
 	// given
-	auto target = NullRootAction_t::INSTANCE;
+	auto target = NullRootAction_t::instance();
 
 	// when
 	auto obtained = target->traceWebRequest("https://localhost");
@@ -124,5 +124,5 @@ TEST_F(NullRootActionTest, traceWebRequestReturnsNullWebRequestTracer)
 	// then
 	auto nullRootAction = std::dynamic_pointer_cast<NullWebRequestTracer_t>(obtained);
 	ASSERT_THAT(nullRootAction, testing::NotNull());
-	ASSERT_THAT(nullRootAction, testing::Eq(NullWebRequestTracer_t::INSTANCE));
+	ASSERT_THAT(nullRootAction, testing::Eq(NullWebRequestTracer_t::instance()));
 }

@@ -31,61 +31,61 @@ class JsonTokenTest : public testing::Test
 TEST_F(JsonTokenTest, tokenTypesOfPredefinedTokensAreCorrect)
 {
 	// when boolean true token, then
-	ASSERT_THAT(JsonToken::BOOLEAN_TRUE_TOKEN->getTokenType(), testing::Eq(JsonTokenType::LITERAL_BOOLEAN));
+	ASSERT_THAT(JsonToken::booleanTrueToken()->getTokenType(), testing::Eq(JsonTokenType::LITERAL_BOOLEAN));
 
 	// when boolean false token, then
-	ASSERT_THAT(JsonToken::BOOLEAN_FALSE_TOKEN->getTokenType(), testing::Eq(JsonTokenType::LITERAL_BOOLEAN));
+	ASSERT_THAT(JsonToken::booleanFalseToken()->getTokenType(), testing::Eq(JsonTokenType::LITERAL_BOOLEAN));
 
 	// when null token, then
-	ASSERT_THAT(JsonToken::NULL_TOKEN->getTokenType(), testing::Eq(JsonTokenType::LITERAL_NULL));
+	ASSERT_THAT(JsonToken::nullToken()->getTokenType(), testing::Eq(JsonTokenType::LITERAL_NULL));
 
 	// when left brace token, then
-	ASSERT_THAT(JsonToken::LEFT_BRACE_TOKEN->getTokenType(), testing::Eq(JsonTokenType::LEFT_BRACE));
+	ASSERT_THAT(JsonToken::leftBraceToken() ->getTokenType(), testing::Eq(JsonTokenType::LEFT_BRACE));
 
 	// when right brace token, then
-	ASSERT_THAT(JsonToken::RIGHT_BRACE_TOKEN->getTokenType(), testing::Eq(JsonTokenType::RIGHT_BRACE));
+	ASSERT_THAT(JsonToken::rightBraceToken()->getTokenType(), testing::Eq(JsonTokenType::RIGHT_BRACE));
 
 	// when left square bracket token, then
-	ASSERT_THAT(JsonToken::LEFT_SQUARE_BRACKET_TOKEN->getTokenType(), testing::Eq(JsonTokenType::LEFT_SQUARE_BRACKET));
+	ASSERT_THAT(JsonToken::leftSquareBracketToken()->getTokenType(), testing::Eq(JsonTokenType::LEFT_SQUARE_BRACKET));
 
 	// when right square bracket token,then
-	ASSERT_THAT(JsonToken::RIGHT_SQUARE_BRACKET_TOKEN->getTokenType(), testing::Eq(JsonTokenType::RIGHT_SQUARE_BRACKET));
+	ASSERT_THAT(JsonToken::rightSquareBracketToken()->getTokenType(), testing::Eq(JsonTokenType::RIGHT_SQUARE_BRACKET));
 
 	// when comma token, then
-	ASSERT_THAT(JsonToken::COMMA_TOKEN->getTokenType(), testing::Eq(JsonTokenType::COMMA));
+	ASSERT_THAT(JsonToken::commaToken()->getTokenType(), testing::Eq(JsonTokenType::COMMA));
 
 	// when colon token, then
-	ASSERT_THAT(JsonToken::COLON_TOKEN->getTokenType(), testing::Eq(JsonTokenType::COLON));
+	ASSERT_THAT(JsonToken::colonToken()->getTokenType(), testing::Eq(JsonTokenType::COLON));
 }
 
 TEST_F(JsonTokenTest, tokenValuesOfPredefinedTokensAreCorrect)
 {
 	// when boolean true token, then
-	ASSERT_THAT(JsonToken::BOOLEAN_TRUE_TOKEN->getValue(), testing::Eq(JsonLiterals::BOOLEAN_TRUE_LITERAL));
+	ASSERT_THAT(JsonToken::booleanTrueToken()->getValue(), testing::Eq(JsonLiterals::BOOLEAN_TRUE_LITERAL));
 
 	// when boolean false token, then
-	ASSERT_THAT(JsonToken::BOOLEAN_FALSE_TOKEN->getValue(), testing::Eq(JsonLiterals::BOOLEAN_FALSE_LITERAL));
+	ASSERT_THAT(JsonToken::booleanFalseToken()->getValue(), testing::Eq(JsonLiterals::BOOLEAN_FALSE_LITERAL));
 
 	// when null token, then
-	ASSERT_THAT(JsonToken::NULL_TOKEN->getValue(), testing::Eq(JsonLiterals::NULL_LITERAL));
+	ASSERT_THAT(JsonToken::nullToken()->getValue(), testing::Eq(JsonLiterals::NULL_LITERAL));
 
 	// when left brace token, then
-	ASSERT_THAT(JsonToken::LEFT_BRACE_TOKEN->getValue(), testing::Eq(""));
+	ASSERT_THAT(JsonToken::leftBraceToken()->getValue(), testing::Eq(""));
 
 	// when right brace token, then
-	ASSERT_THAT(JsonToken::RIGHT_BRACE_TOKEN->getValue(), testing::Eq(""));
+	ASSERT_THAT(JsonToken::rightBraceToken()->getValue(), testing::Eq(""));
 
 	// when left square bracket token, then
-	ASSERT_THAT(JsonToken::LEFT_SQUARE_BRACKET_TOKEN->getValue(), testing::Eq(""));
+	ASSERT_THAT(JsonToken::leftSquareBracketToken()->getValue(), testing::Eq(""));
 
 	// when right square bracket token, then
-	ASSERT_THAT(JsonToken::RIGHT_SQUARE_BRACKET_TOKEN->getValue(), testing::Eq(""));
+	ASSERT_THAT(JsonToken::rightSquareBracketToken()->getValue(), testing::Eq(""));
 
 	// when comma token, then
-	ASSERT_THAT(JsonToken::COMMA_TOKEN->getValue(), testing::Eq(""));
+	ASSERT_THAT(JsonToken::commaToken()->getValue(), testing::Eq(""));
 
 	// when colon token, then
-	ASSERT_THAT(JsonToken::COLON_TOKEN->getValue(), testing::Eq(""));
+	ASSERT_THAT(JsonToken::colonToken()->getValue(), testing::Eq(""));
 }
 
 TEST_F(JsonTokenTest, createStringTokenReturnsAppropriateJsonToken)
@@ -146,7 +146,7 @@ TEST_F(JsonTokenTest, tokenTypeToStringReturnsAppropriateStringRepresentation)
 TEST_F(JsonTokenTest, toStringForTokenWithoutValueGivesAppropriateStringRepresentation)
 {
 	// given a token that does not store a value
-	auto target = JsonToken::COLON_TOKEN;
+	auto target = JsonToken::colonToken();
 
 	// when
 	auto obtained = target->toString();

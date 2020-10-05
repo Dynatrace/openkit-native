@@ -34,19 +34,17 @@ namespace test
 		MockIServerConfiguration()
 		{
 			ON_CALL(*this, isCaptureEnabled())
-				.WillByDefault(testing::Return(core::configuration::ServerConfiguration::DEFAULT_CAPTURE_ENABLED));
+				.WillByDefault(testing::Return(core::configuration::ServerConfiguration::defaultValues()->isCapture()));
 			ON_CALL(*this, isCrashReportingEnabled())
-				.WillByDefault(testing::Return(core::configuration::ServerConfiguration::DEFAULT_CRASH_REPORTING_ENABLED));
+				.WillByDefault(testing::Return(core::configuration::ServerConfiguration::defaultValues()->isCaptureCrashes()));
 			ON_CALL(*this, isErrorReportingEnabled())
-				.WillByDefault(testing::Return(core::configuration::ServerConfiguration::DEFAULT_ERROR_REPORTING_ENABLED));
-			ON_CALL(*this, getSendIntervalInMilliseconds())
-				.WillByDefault(testing::Return(core::configuration::ServerConfiguration::DEFAULT_SEND_INTERVAL));
+				.WillByDefault(testing::Return(core::configuration::ServerConfiguration::defaultValues()->isCaptureErrors()));
 			ON_CALL(*this, getServerId())
-				.WillByDefault(testing::Return(core::configuration::ServerConfiguration::DEFAULT_SERVER_ID));
+				.WillByDefault(testing::Return(core::configuration::ServerConfiguration::defaultValues()->getServerId()));
 			ON_CALL(*this, getBeaconSizeInBytes())
-				.WillByDefault(testing::Return(core::configuration::ServerConfiguration::DEFAULT_BEACON_SIZE));
+				.WillByDefault(testing::Return(core::configuration::ServerConfiguration::defaultValues()->getMaxBeaconSizeInBytes()));
 			ON_CALL(*this, getMultiplicity())
-				.WillByDefault(testing::Return(core::configuration::ServerConfiguration::DEFAULT_MULTIPLICITY));
+				.WillByDefault(testing::Return(core::configuration::ServerConfiguration::defaultValues()->getMultiplicity()));
 			ON_CALL(*this, isSendingDataAllowed())
 				.WillByDefault(testing::Return(true));
 			ON_CALL(*this, isSendingCrashesAllowed())
@@ -72,8 +70,6 @@ namespace test
 		MOCK_CONST_METHOD0(isCrashReportingEnabled, bool());
 
 		MOCK_CONST_METHOD0(isErrorReportingEnabled, bool());
-
-		MOCK_CONST_METHOD0(getSendIntervalInMilliseconds, int32_t());
 
 		MOCK_CONST_METHOD0(getServerId, int32_t());
 

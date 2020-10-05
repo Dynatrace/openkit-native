@@ -33,22 +33,22 @@ namespace util
 				///
 				/// boolean true literal
 				///
-				static const char* BOOLEAN_TRUE_LITERAL;
+				static constexpr const char* BOOLEAN_TRUE_LITERAL = "true";
 
 				///
 				/// boolean false literal
 				///
-				static const char* BOOLEAN_FALSE_LITERAL;
+				static constexpr const char* BOOLEAN_FALSE_LITERAL = "false";
 
 				///
 				/// null literal
 				///
-				static const char* NULL_LITERAL;
+				static constexpr const char* NULL_LITERAL = "null";
 
 				///
 				/// regex pattern for parsing number literals
 				///
-				static const char* NUMBER_PATTERN_STRING;
+				static constexpr const char* NUMBER_PATTERN_STRING = "^-?(0|[1-9]\\d*)(\\.\\d+)?([eE][+-]?\\d+)?$";
 
 				///
 				/// Get sole instance of JSON number pattern regex.

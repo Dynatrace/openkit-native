@@ -33,9 +33,6 @@ using namespace util::json::parser;
 using JsonTokenType = util::json::lexer::JsonTokenType;
 
 
-const char* JsonParser::UNTERMINATED_JSON_ARRAY_ERROR = "Unterminated JSON array";
-const char* JsonParser::UNTERMINATED_JSON_OBJECT_ERROR = "Unterminated JSON object";
-
 JsonParser::JsonParser(const std::string& input)
 	: JsonParser(std::make_shared<util::json::lexer::JsonLexer>(input))
 {
@@ -494,7 +491,7 @@ const JsonParser::JsonValuePtr JsonParser::tokenToSimpleJsonValue(const JsonToke
 	switch (token->getTokenType())
 	{
 		case JsonTokenType::LITERAL_NULL:
-			return objects::JsonNullValue::NULL_VALUE;
+			return objects::JsonNullValue::nullValue();
 		case JsonTokenType::LITERAL_BOOLEAN:
 			return objects::JsonBooleanValue::fromLiteral(token->getValue());
 		case JsonTokenType::VALUE_STRING:
