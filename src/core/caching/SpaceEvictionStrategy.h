@@ -43,13 +43,13 @@ namespace core
 			/// @param[in] logger to write traces to
 			/// @param[in] beaconCache The beacon cache to evict if necessary.
 			/// @param[in] configuration The configuration providing the boundary settings for this strategy.
-			/// @param[in] isAlive function to check whether the eviction thread is running or not
+			/// @param[in] isStopRequested function to check whether the eviction thread stop was requested or not
 			///
 			SpaceEvictionStrategy(
 				std::shared_ptr<openkit::ILogger> logger,
 				std::shared_ptr<IBeaconCache> beaconCache,
 				std::shared_ptr<configuration::IBeaconCacheConfiguration> configuration,
-				std::function<bool()> isAlive
+				std::function<bool()> isStopRequested
 			);
 
 			///
@@ -108,8 +108,8 @@ namespace core
 			/// The configuration providing the boundary settings for this strategy.
 			std::shared_ptr<configuration::IBeaconCacheConfiguration> mConfiguration;
 
-			/// Function to check whether the eviction thread is running or not
-			std::function<bool()> mIsAliveFunction;
+			/// Function to check whether the eviction thread should be stopped or not
+			std::function<bool()> mIsStopRequested;
 
 			/// Flag to suppress cyclic log output
 			bool mInfoShown;

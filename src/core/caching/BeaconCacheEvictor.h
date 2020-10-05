@@ -23,16 +23,13 @@
 #include "IBeaconCacheEvictor.h"
 #include "IBeaconCacheEvictionStrategy.h"
 #include "core/configuration/IBeaconCacheConfiguration.h"
+#include "core/util/ThreadSurrogate.h"
 #include "providers/ITimingProvider.h"
 
-#include <cstdint>
 #include <memory>
 #include <vector>
-#include <initializer_list>
-#include <thread>
 #include <mutex>
 #include <condition_variable>
-#include <atomic>
 
 namespace core
 {
@@ -95,11 +92,11 @@ namespace core
 			bool stop(std::chrono::milliseconds timeout) override;
 
 			///
-			/// Stops the eviction thread and joins.
-			/// This function is indented for unit testing only as it potentially joins endlessly.
-			/// @return @c true if stopping was successful, @c false if eviction thread is not running.
+			/// Checks if BeaconCacheEvictor stop was requested.
+			/// 
+			/// @return @c true if stop was requested, @c false otherwise.
 			///
-			bool stopAndJoin();
+			bool isStopRequested();
 
 			///
 			/// Checks if the eviction thread is running or not.
@@ -128,10 +125,7 @@ namespace core
 			std::vector<std::shared_ptr<IBeaconCacheEvictionStrategy>> mStrategies;
 
 			/// Thread being responsible for evicting records from the cache, based on an eviction strategy
-			std::unique_ptr<std::thread> mEvictionThread;
-
-			/// Flag indicating if the eviction thread is currently running
-			bool mRunning;
+			std::unique_ptr<core::util::ThreadSurrogate> mEvictionThread;
 
 			/// Flag to stop the eviction thread
 			bool mStop;

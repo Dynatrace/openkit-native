@@ -25,12 +25,12 @@ SpaceEvictionStrategy::SpaceEvictionStrategy
 	std::shared_ptr<openkit::ILogger> logger,
 	std::shared_ptr<IBeaconCache> beaconCache,
 	std::shared_ptr<core::configuration::IBeaconCacheConfiguration> configuration,
-	std::function<bool()> isAlive
+	std::function<bool()> isStopRequested
 )
 	: mLogger(logger)
 	, mBeaconCache(beaconCache)
 	, mConfiguration(configuration)
-	, mIsAliveFunction(isAlive)
+	, mIsStopRequested(isStopRequested)
 	, mInfoShown(false)
 {
 }
@@ -70,11 +70,11 @@ bool SpaceEvictionStrategy::shouldRun() const
 void SpaceEvictionStrategy::doExecute()
 {
 	std::map<int32_t, uint32_t> removedRecordsPerBeacon;
-	while (mIsAliveFunction() && mBeaconCache->getNumBytesInCache() > mConfiguration->getCacheSizeLowerBound())
+	while (!mIsStopRequested() && mBeaconCache->getNumBytesInCache() > mConfiguration->getCacheSizeLowerBound())
 	{
 		auto beaconIDs = mBeaconCache->getBeaconIDs();
 		auto it = beaconIDs.begin();
-		while (mIsAliveFunction() && it != beaconIDs.end() && mBeaconCache->getNumBytesInCache() > mConfiguration->getCacheSizeLowerBound())
+		while (!mIsStopRequested() && it != beaconIDs.end() && mBeaconCache->getNumBytesInCache() > mConfiguration->getCacheSizeLowerBound())
 		{
 			auto beaconID = *it;
 

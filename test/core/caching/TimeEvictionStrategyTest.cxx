@@ -38,19 +38,6 @@ using MockStrictILogger_sp = std::shared_ptr<testing::StrictMock<MockILogger>>;
 using MockStrictITimingProvider_sp = std::shared_ptr<testing::StrictMock<MockITimingProvider>>;
 using TimeEvictionStrategy_t = core::caching::TimeEvictionStrategy;
 
-// To mock a change in the isAlive() method we need to create a dummy mock class holding the mocked isAlive method.
-class MockIsAlive
-{
-public:
-	MockIsAlive()
-	{
-	}
-
-	virtual ~MockIsAlive() {}
-
-	MOCK_METHOD0(isAlive, bool());
-};
-
 class TimeEvictionStrategyTest : public testing::Test
 {
 protected:
@@ -89,11 +76,10 @@ protected:
 
 public:
 
-	bool mockedIsAliveFunctionAlwaysTrue()
+	bool mockedIsStopRequestedFunctionAlwaysFalse()
 	{
-		return true;
+		return false;
 	}
-
 };
 
 TEST_F(TimeEvictionStrategyTest, theInitialLastRunTimestampIsMinusOne)
@@ -105,7 +91,7 @@ TEST_F(TimeEvictionStrategyTest, theInitialLastRunTimestampIsMinusOne)
 		mockBeaconCacheNice,
 		configuration,
 		mockTimingProviderNice,
-		std::bind(&TimeEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this)
+		std::bind(&TimeEvictionStrategyTest::mockedIsStopRequestedFunctionAlwaysFalse, this)
 	);
 
 	// then
@@ -121,7 +107,7 @@ TEST_F(TimeEvictionStrategyTest, theStrategyIsDisabledIfBeaconMaxAgeIsSetToLessT
 		mockBeaconCacheStrict,
 		configuration,
 		mockTimingProviderStrict,
-		std::bind(&TimeEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this)
+		std::bind(&TimeEvictionStrategyTest::mockedIsStopRequestedFunctionAlwaysFalse, this)
 	);
 
 	// then
@@ -137,7 +123,7 @@ TEST_F(TimeEvictionStrategyTest, theStrategyIsDisabledIfBeaconMaxAgeIsSetToZero)
 		mockBeaconCacheStrict,
 		configuration,
 		mockTimingProviderStrict,
-		std::bind(&TimeEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this)
+		std::bind(&TimeEvictionStrategyTest::mockedIsStopRequestedFunctionAlwaysFalse, this)
 	);
 
 	// then
@@ -153,7 +139,7 @@ TEST_F(TimeEvictionStrategyTest, theStrategyIsNotDisabledIFMaxRecordAgeIsGreater
 		mockBeaconCacheStrict,
 		configuration,
 		mockTimingProviderStrict,
-		std::bind(&TimeEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this)
+		std::bind(&TimeEvictionStrategyTest::mockedIsStopRequestedFunctionAlwaysFalse, this)
 	);
 
 	// then
@@ -169,7 +155,7 @@ TEST_F(TimeEvictionStrategyTest, shouldRunGivesFalseIfLastRunIsLessThanMaxAgeMil
 		mockBeaconCacheNice,
 		configuration,
 		mockTimingProviderNice,
-		std::bind(&TimeEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this)
+		std::bind(&TimeEvictionStrategyTest::mockedIsStopRequestedFunctionAlwaysFalse, this)
 	);
 
 	target.setLastRunTimestamp(1000);
@@ -189,7 +175,7 @@ TEST_F(TimeEvictionStrategyTest, shouldRunGivesTrueIfLastRunIsExactlyMaxAgeMilli
 		mockBeaconCacheNice,
 		configuration,
 		mockTimingProviderNice,
-		std::bind(&TimeEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this)
+		std::bind(&TimeEvictionStrategyTest::mockedIsStopRequestedFunctionAlwaysFalse, this)
 	);
 
 	target.setLastRunTimestamp(1000);
@@ -209,7 +195,7 @@ TEST_F(TimeEvictionStrategyTest, shouldRunGivesTrueIfLastRunIsMoreThanMaxAgeMill
 		mockBeaconCacheNice,
 		configuration,
 		mockTimingProviderNice,
-		std::bind(&TimeEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this)
+		std::bind(&TimeEvictionStrategyTest::mockedIsStopRequestedFunctionAlwaysFalse, this)
 	);
 
 	target.setLastRunTimestamp(1000);
@@ -235,7 +221,7 @@ TEST_F(TimeEvictionStrategyTest, executeEvictionLogsAMessageOnceAndReturnsIfStra
 		mockBeaconCacheStrict,
 		configuration,
 		mockTimingProviderStrict,
-		std::bind(&TimeEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this)
+		std::bind(&TimeEvictionStrategyTest::mockedIsStopRequestedFunctionAlwaysFalse, this)
 	);
 
 	// when executing 2 times
@@ -256,7 +242,7 @@ TEST_F(TimeEvictionStrategyTest, executeEvictionDoesNotLogIfStrategyIsDisabledAn
 		mockBeaconCacheStrict,
 		configuration,
 		mockTimingProviderStrict,
-		std::bind(&TimeEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this)
+		std::bind(&TimeEvictionStrategyTest::mockedIsStopRequestedFunctionAlwaysFalse, this)
 	);
 
 	// expect
@@ -283,7 +269,7 @@ TEST_F(TimeEvictionStrategyTest, lastRuntimeStampIsAdjustedDuringFirstExecution)
 		mockBeaconCacheNice,
 		configuration,
 		mockTimingProviderNice,
-		std::bind(&TimeEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this)
+		std::bind(&TimeEvictionStrategyTest::mockedIsStopRequestedFunctionAlwaysFalse, this)
 	);
 
 	// expect
@@ -313,7 +299,7 @@ TEST_F(TimeEvictionStrategyTest, executeEvictionStopsIfNoBeaconIdsAreAvailableIn
 		mockBeaconCacheStrict,
 		configuration,
 		mockTimingProviderStrict,
-		std::bind(&TimeEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this)
+		std::bind(&TimeEvictionStrategyTest::mockedIsStopRequestedFunctionAlwaysFalse, this)
 	);
 	ON_CALL(*mockBeaconCacheStrict, getBeaconIDs())
 		.WillByDefault(testing::Return(std::unordered_set<int32_t>()));
@@ -340,7 +326,7 @@ TEST_F(TimeEvictionStrategyTest, executeEvictionCallsEvictionForEachBeaconSepara
 		mockBeaconCacheStrict,
 		configuration,
 		mockTimingProviderStrict,
-		std::bind(&TimeEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this)
+		std::bind(&TimeEvictionStrategyTest::mockedIsStopRequestedFunctionAlwaysFalse, this)
 	);
 	ON_CALL(*mockBeaconCacheStrict, getBeaconIDs())
 		.WillByDefault(testing::Return(std::unordered_set<int32_t>({ 1, 42 } )));
@@ -381,7 +367,7 @@ TEST_F(TimeEvictionStrategyTest, executeEvictionLogsTheNumberOfRecordsRemoved)
 		mockBeaconCacheNice,
 		configuration,
 		mockTimingProviderNice,
-		std::bind(&TimeEvictionStrategyTest::mockedIsAliveFunctionAlwaysTrue, this)
+		std::bind(&TimeEvictionStrategyTest::mockedIsStopRequestedFunctionAlwaysFalse, this)
 	);
 
 	EXPECT_CALL(*mockTimingProviderNice, provideTimestampInMilliseconds())
@@ -399,28 +385,23 @@ TEST_F(TimeEvictionStrategyTest, executeEvictionLogsTheNumberOfRecordsRemoved)
 	target.execute();
 }
 
-TEST_F(TimeEvictionStrategyTest, executeEvictionIsStoppedIfThreadGetsInterrupted)
+TEST_F(TimeEvictionStrategyTest, executeEvictionIsStoppedIfStopIsRequested)
 {
 	// given
 	auto configuration = createBeaconCacheConfig(1000L, 1000L, 2000L);
-	auto mockIsAlive = std::make_shared<testing::NiceMock<MockIsAlive>>();
+	uint32_t callCountIsStopRequested = 0;
+	auto isStopRequested = [&callCountIsStopRequested]() -> bool {
+		// isStopRequested shall return "true" after the 1st call
+		return ++callCountIsStopRequested != 1;
+	};
 	TimeEvictionStrategy_t target(
 		mockLoggerNice,
 		mockBeaconCacheStrict,
 		configuration,
 		mockTimingProviderStrict,
-		std::bind(&MockIsAlive::isAlive, mockIsAlive)
+		isStopRequested
 	);
 
-	uint32_t callCountIsAlive = 0;
-	ON_CALL(*mockIsAlive, isAlive())
-		.WillByDefault(testing::Invoke(
-			[&callCountIsAlive]() -> bool {
-				// isAlive shall return "false" after the 1st call
-				callCountIsAlive++;
-				return callCountIsAlive == 1;
-			}
-		));
 	ON_CALL(*mockBeaconCacheStrict, getBeaconIDs())
 		.WillByDefault(testing::Return(std::unordered_set<int32_t>({ 1, 42 })));
 

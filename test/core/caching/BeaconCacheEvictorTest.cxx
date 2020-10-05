@@ -66,21 +66,6 @@ TEST_F(BeaconCacheEvictorTest, aDefaultConstructedBeaconCacheEvictorIsNotAlive)
 	ASSERT_FALSE(evictor.isAlive());
 }
 
-TEST_F(BeaconCacheEvictorTest, afterStartingABeaconCacheEvictorItIsAlive)
-{
-	// given
-	BeaconCacheEvictor_t evictor(mockLogger, mockBeaconCache, {});
-	auto obtained = evictor.start();
-
-	// then
-	ASSERT_TRUE(obtained);
-	ASSERT_TRUE(evictor.isAlive());
-
-	evictor.stopAndJoin();
-}
-
-
-
 TEST_F(BeaconCacheEvictorTest, startingAnAlreadyAliveBeaconCacheEvictorDoesNothing)
 {
 	// given
