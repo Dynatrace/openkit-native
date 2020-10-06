@@ -110,6 +110,8 @@ namespace protocol
 
 		void reportValue(int32_t actionID, const core::UTF8String& valueName, int32_t value) override;
 
+		void reportValue(int32_t actionID, const core::UTF8String& valueName, int64_t value) override;
+
 		void reportValue(int32_t actionID, const core::UTF8String& valueName, double value) override;
 
 		void reportValue(int32_t actionID, const core::UTF8String& valueName, const core::UTF8String& value) override;

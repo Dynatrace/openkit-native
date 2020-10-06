@@ -379,13 +379,22 @@ extern "C" {
 	OPENKIT_EXPORT void reportEventOnRootAction(struct RootActionHandle* rootActionHandle, const char* eventName);
 
 	///
-	/// Reports an int value with a specified name.
+	/// Reports a 32-bit int value with a specified name.
 	///
 	/// @param[in] rootActionHandle	the handle returned by @ref enterRootAction
 	/// @param[in] valueName		name of this value
 	/// @param[in] value			value itself
 	///
 	OPENKIT_EXPORT void reportIntValueOnRootAction(struct RootActionHandle* rootActionHandle, const char* valueName, int32_t value);
+
+	///
+	/// Reports a 64-bit int value with a specified name.
+	///
+	/// @param[in] rootActionHandle	the handle returned by @ref enterRootAction
+	/// @param[in] valueName		name of this value
+	/// @param[in] value			value itself
+	///
+	OPENKIT_EXPORT void reportInt64ValueOnRootAction(struct RootActionHandle* rootActionHandle, const char* valueName, int64_t value);
 
 	///
 	/// Reports a double value with a specified name.
@@ -447,13 +456,22 @@ extern "C" {
 	OPENKIT_EXPORT void reportEventOnAction(struct ActionHandle* actionHandle, const char* eventName);
 
 	///
-	/// Reports an int value with a specified name.
+	/// Reports a 32-bit int value with a specified name.
 	///
 	/// @param[in] actionHandle	the handle returned by @ref enterAction
 	/// @param[in] valueName	name of this value
 	/// @param[in] value		value itself
 	///
 	OPENKIT_EXPORT void reportIntValueOnAction(struct ActionHandle* actionHandle, const char* valueName, int32_t value);
+
+	///
+	/// Reports a 64-bit int value with a specified name.
+	///
+	/// @param[in] actionHandle	the handle returned by @ref enterAction
+	/// @param[in] valueName	name of this value
+	/// @param[in] value		value itself
+	///
+	OPENKIT_EXPORT void reportInt64ValueOnAction(struct ActionHandle* actionHandle, const char* valueName, int64_t value);
 
 	///
 	/// Reports a double value with a specified name.

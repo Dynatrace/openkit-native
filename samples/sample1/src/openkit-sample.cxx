@@ -76,6 +76,8 @@ int32_t main(int32_t argc, char** argv)
 
 		rootAction1->reportValue("the answer", 42);
 
+		rootAction1->reportValue("the long answer", int64_t(42));
+
 		childAction1->reportValue("some string", "1337.3.1415");
 
 		auto webRequest = childAction1->traceWebRequest("http://www.stackoverflow.com/");

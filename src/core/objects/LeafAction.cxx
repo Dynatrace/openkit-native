@@ -49,6 +49,12 @@ std::shared_ptr<openkit::IAction> LeafAction::reportValue(const char* valueName,
 	return shared_from_this();
 }
 
+std::shared_ptr<openkit::IAction> LeafAction::reportValue(const char* valueName, int64_t value)
+{
+	mActionImpl->reportValue(valueName, value);
+	return shared_from_this();
+}
+
 std::shared_ptr<openkit::IAction> LeafAction::reportValue(const char* valueName, double value)
 {
 	mActionImpl->reportValue(valueName, value);

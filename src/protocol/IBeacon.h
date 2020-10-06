@@ -103,6 +103,18 @@ namespace protocol
 		///
 		/// Add key-value-pair to Beacon.
 		///
+		/// The serialized data is added to @ref core::caching::BeaconCache.
+		///
+		/// @param actionID The id of the @ref core::objects::RootAction or @ref core::objects::LeafAction on which
+		///   this value was reported.
+		/// @param valueName Value's name.
+		/// @param value Actual value to report.
+		///
+		virtual void reportValue(int32_t actionID, const core::UTF8String& valueName, int64_t value) = 0;
+
+		///
+		/// Add key-value-pair to Beacon.
+		///
 		/// The serialized data is added to @ref caching::BeaconCache.
 		///
 		/// @param actionID The id of the @ref core::objects::RootAction or @ref core::objects::LeafAction on which

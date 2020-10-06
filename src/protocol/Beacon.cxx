@@ -332,6 +332,11 @@ void Beacon::endSession()
 
 void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, int32_t value)
 {
+	reportValue(actionID, valueName, static_cast<int64_t>(value));
+}
+
+void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, int64_t value)
+{
 	if (!mBeaconConfiguration->getPrivacyConfiguration()->isValueReportingAllowed())
 	{
 		return;

@@ -77,6 +77,14 @@ namespace core
 			/// @param valueName the name of the reported value
 			/// @param value  the reported value
 			///
+			virtual void reportValue(const char* valueName, int64_t value) = 0;
+
+			///
+			/// Adds a key-value pair to the beacon.
+			///
+			/// @param valueName the name of the reported value
+			/// @param value  the reported value
+			///
 			virtual void reportValue(const char* valueName, double value) = 0;
 
 			///

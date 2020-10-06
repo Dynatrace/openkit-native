@@ -157,7 +157,7 @@ TEST_F(ActionCommonImplTest, reportEventLogsInvocation)
 	target->reportEvent(eventName);
 }
 
-TEST_F(ActionCommonImplTest, reportValueIntWithNullNameDoesNotReportValue)
+TEST_F(ActionCommonImplTest, reportValueInt32WithNullNameDoesNotReportValue)
 {
 	// given
 	const char* eventName = nullptr;
@@ -166,7 +166,7 @@ TEST_F(ActionCommonImplTest, reportValueIntWithNullNameDoesNotReportValue)
 
 	// expect
 	std::stringstream stream;
-	stream << target->toString() << " reportValue (int): valueName must not be null or empty";
+	stream << target->toString() << " reportValue (int32_t): valueName must not be null or empty";
 	EXPECT_CALL(*mockNiceLogger, mockWarning(stream.str()))
 		.Times(testing::Exactly(1));
 	EXPECT_CALL(*mockNiceBeacon, reportValue(testing::_, testing::_, testing::An<int32_t>()))
@@ -176,7 +176,7 @@ TEST_F(ActionCommonImplTest, reportValueIntWithNullNameDoesNotReportValue)
 	target->reportValue(eventName, value);
 }
 
-TEST_F(ActionCommonImplTest, reportValueIntWithEmptyNameDoesNotReportValue)
+TEST_F(ActionCommonImplTest, reportValueInt32WithEmptyNameDoesNotReportValue)
 {
 	// given
 	const char* eventName = "";
@@ -185,7 +185,7 @@ TEST_F(ActionCommonImplTest, reportValueIntWithEmptyNameDoesNotReportValue)
 
 	// expect
 	std::stringstream stream;
-	stream << target->toString() << " reportValue (int): valueName must not be null or empty";
+	stream << target->toString() << " reportValue (int32_t): valueName must not be null or empty";
 	EXPECT_CALL(*mockNiceLogger, mockWarning(stream.str()))
 		.Times(testing::Exactly(1));
 	EXPECT_CALL(*mockNiceBeacon, reportValue(testing::_, testing::_, testing::An<int32_t>()))
@@ -195,10 +195,10 @@ TEST_F(ActionCommonImplTest, reportValueIntWithEmptyNameDoesNotReportValue)
 	target->reportValue(eventName, value);
 }
 
-TEST_F(ActionCommonImplTest, reportValueIntWithValidValue)
+TEST_F(ActionCommonImplTest, reportValueInt32WithValidValue)
 {
 	// with
-	const char* eventName = "IntegerValue";
+	const char* eventName = "32bitIntegerValue";
 	const int32_t value = 42;
 
 	// expect
@@ -215,10 +215,10 @@ TEST_F(ActionCommonImplTest, reportValueIntWithValidValue)
 	target->reportValue(eventName, value);
 }
 
-TEST_F(ActionCommonImplTest, reportValueIntLogsInvocation)
+TEST_F(ActionCommonImplTest, reportValueInt32LogsInvocation)
 {
 	// with
-	const char* eventName = "IntegerValue";
+	const char* eventName = "32bitIntegerValue";
 	const int32_t value = 42;
 
 	// given
@@ -226,7 +226,83 @@ TEST_F(ActionCommonImplTest, reportValueIntLogsInvocation)
 
 	// expect
 	std::stringstream stream;
-	stream << target->toString() << " reportValue (int) (" << eventName << ", " << value << ")";
+	stream << target->toString() << " reportValue (int32_t) (" << eventName << ", " << value << ")";
+	EXPECT_CALL(*mockNiceLogger, mockDebug(stream.str()));
+
+	// when
+	target->reportValue(eventName, value);
+}
+
+TEST_F(ActionCommonImplTest, reportValueInt64WithNullNameDoesNotReportValue)
+{
+	// given
+	const char* eventName = nullptr;
+	const int64_t value = int64_t(42);
+	auto target = createAction();
+
+	// expect
+	std::stringstream stream;
+	stream << target->toString() << " reportValue (int64_t): valueName must not be null or empty";
+	EXPECT_CALL(*mockNiceLogger, mockWarning(stream.str()))
+		.Times(testing::Exactly(1));
+	EXPECT_CALL(*mockNiceBeacon, reportValue(testing::_, testing::_, testing::An<int64_t>()))
+		.Times(testing::Exactly(0));
+
+	// when
+	target->reportValue(eventName, value);
+}
+
+TEST_F(ActionCommonImplTest, reportValueInt64WithEmptyNameDoesNotReportValue)
+{
+	// given
+	const char* eventName = "";
+	const int64_t value = int64_t(42);
+	auto target = createAction();
+
+	// expect
+	std::stringstream stream;
+	stream << target->toString() << " reportValue (int64_t): valueName must not be null or empty";
+	EXPECT_CALL(*mockNiceLogger, mockWarning(stream.str()))
+		.Times(testing::Exactly(1));
+	EXPECT_CALL(*mockNiceBeacon, reportValue(testing::_, testing::_, testing::An<int64_t>()))
+		.Times(testing::Exactly(0));
+
+	// when
+	target->reportValue(eventName, value);
+}
+
+TEST_F(ActionCommonImplTest, reportValueInt64WithValidValue)
+{
+	// with
+	const char* eventName = "64bitIntegerValue";
+	const int64_t value = int64_t(42);
+
+	// expect
+	EXPECT_CALL(*mockNiceBeacon, reportValue(
+		testing::Eq(ACTION_ID),
+		testing::Eq(eventName),
+		testing::TypedEq<int64_t>(value)
+	)).Times(testing::Exactly(1));
+
+	// given
+	auto target = createAction();
+
+	// when
+	target->reportValue(eventName, value);
+}
+
+TEST_F(ActionCommonImplTest, reportValueInt64LogsInvocation)
+{
+	// with
+	const char* eventName = "64bitIntegerValue";
+	const int64_t value = int64_t(42);
+
+	// given
+	auto target = createAction();
+
+	// expect
+	std::stringstream stream;
+	stream << target->toString() << " reportValue (int64_t) (" << eventName << ", " << value << ")";
 	EXPECT_CALL(*mockNiceLogger, mockDebug(stream.str()));
 
 	// when

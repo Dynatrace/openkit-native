@@ -93,6 +93,14 @@ namespace test
 			void(
 				int32_t, /* actionID */
 				const core::UTF8String&, /* valueName */
+				int64_t /* value */
+			)
+		);
+
+		MOCK_METHOD3(reportValue,
+			void(
+				int32_t, /* actionID */
+				const core::UTF8String&, /* valueName */
 				double /* value */
 			)
 		);

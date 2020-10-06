@@ -41,6 +41,11 @@ std::shared_ptr<openkit::IRootAction> NullRootAction::reportValue(const char* /*
 	return shared_from_this();
 }
 
+std::shared_ptr<openkit::IRootAction> NullRootAction::reportValue(const char* /*valueName*/, int64_t /*value*/)
+{
+	return shared_from_this();
+}
+
 std::shared_ptr<openkit::IRootAction> NullRootAction::reportValue(const char* /*valueName*/, double /*value*/)
 {
 	return shared_from_this();

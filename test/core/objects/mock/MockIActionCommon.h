@@ -77,6 +77,13 @@ namespace test
 		MOCK_METHOD2(reportValue,
 			void(
 				const char*,
+				int64_t
+			)
+		);
+
+		MOCK_METHOD2(reportValue,
+			void(
+				const char*,
 				double
 			)
 		);

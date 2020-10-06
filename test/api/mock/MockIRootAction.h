@@ -66,6 +66,13 @@ namespace test
 		MOCK_METHOD2(reportValue,
 			std::shared_ptr<openkit::IRootAction>(
 				const char*,
+				int64_t
+			)
+		);
+
+		MOCK_METHOD2(reportValue,
+			std::shared_ptr<openkit::IRootAction>(
+				const char*,
 				double
 			)
 		);

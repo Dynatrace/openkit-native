@@ -56,6 +56,11 @@ namespace core
 				return shared_from_this();
 			}
 
+			std::shared_ptr<IAction> reportValue(const char* /*valueName*/, int64_t /*value*/) override
+			{
+				return shared_from_this();
+			}
+
 			std::shared_ptr<IAction> reportValue(const char* /*valueName*/, double /*value*/) override
 			{
 				return shared_from_this();

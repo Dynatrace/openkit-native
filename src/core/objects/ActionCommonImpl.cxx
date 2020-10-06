@@ -20,6 +20,7 @@
 #include "core/objects/WebRequestTracer.h"
 
 #include <sstream>
+#include <cinttypes>
 
 using namespace core::objects;
 
@@ -117,12 +118,12 @@ void ActionCommonImpl::reportValue(const char* valueName, int32_t value)
 	UTF8String valueNameString(valueName);
 	if (valueNameString.empty())
 	{
-		mLogger->warning("%s reportValue (int): valueName must not be null or empty", toString().c_str());
+		mLogger->warning("%s reportValue (int32_t): valueName must not be null or empty", toString().c_str());
 		return;
 	}
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("%s reportValue (int) (%s, %d)",
+		mLogger->debug("%s reportValue (int32_t) (%s, %d)",
 			toString().c_str(),
 			valueNameString.getStringData().c_str(),
 			value
@@ -138,7 +139,34 @@ void ActionCommonImpl::reportValue(const char* valueName, int32_t value)
 			mBeacon->reportValue(mActionID, valueNameString, value);
 		}
 	}
+}
 
+void ActionCommonImpl::reportValue(const char* valueName, int64_t value)
+{
+	UTF8String valueNameString(valueName);
+	if (valueNameString.empty())
+	{
+		mLogger->warning("%s reportValue (int64_t): valueName must not be null or empty", toString().c_str());
+		return;
+	}
+	if (mLogger->isDebugEnabled())
+	{
+		mLogger->debug("%s reportValue (int64_t) (%s, %" PRId64 ")",
+			toString().c_str(),
+			valueNameString.getStringData().c_str(),
+			value
+		);
+	}
+
+	// synchronized scope
+	{
+		std::lock_guard<Mutex_t> lock(mMutex);
+
+		if (!isActionLeft())
+		{
+			mBeacon->reportValue(mActionID, valueNameString, value);
+		}
+	}
 }
 
 void ActionCommonImpl::reportValue(const char* valueName, double value)

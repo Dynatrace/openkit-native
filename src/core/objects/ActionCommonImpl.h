@@ -80,6 +80,8 @@ namespace core
 
 			void reportValue(const char* valueName, int32_t value) override;
 
+			void reportValue(const char* valueName, int64_t value) override;
+
 			void reportValue(const char* valueName, double value) override;
 
 			void reportValue(const char* valueName, const char* value) override;

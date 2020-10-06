@@ -78,14 +78,31 @@ TEST_F(RootActionTest, reportEventDelegatesToCommonImpl)
 	target->reportEvent(eventName);
 }
 
-TEST_F(RootActionTest, reportValueIntDelegatsToCommonImpl)
+TEST_F(RootActionTest, reportValueInt32DelegatsToCommonImpl)
 {
 	// with
-	const char* valueName = "IntValue";
+	const char* valueName = "Int32Value";
 	int32_t value = 42;
 
 	// expect
 	EXPECT_CALL(*mockActionImpl, reportValue(testing::Eq(valueName), testing::TypedEq<int32_t>(value)))
+		.Times(testing::Exactly(1));
+
+	// given
+	auto target = createAction();
+
+	// when
+	target->reportValue(valueName, value);
+}
+
+TEST_F(RootActionTest, reportValueInt64DelegatsToCommonImpl)
+{
+	// with
+	const char* valueName = "Int64Value";
+	int64_t value = 21;
+
+	// expect
+	EXPECT_CALL(*mockActionImpl, reportValue(testing::Eq(valueName), testing::TypedEq<int64_t>(value)))
 		.Times(testing::Exactly(1));
 
 	// given

@@ -446,17 +446,24 @@ reportEventOnRootAction(rootAction, eventName);
 Key-value pairs can also be reported via an `IRootAction` or an `IAction` as shown in the example below.
 Overloaded methods exist for the following value types:
 * `int32_t`
+* `int64_t`
 * `double`
 * `const char*`
 
 ```c++
 // C++ API
 
-// first report an int value
-const char* keyIntType = "intType";
-int32_t valueInt = 42;
-action->reportValue(keyIntType, valueInt);
-rootAction->reportValue(keyIntType, valueInt);
+// first report a 32-bit int value
+const char* keyInt32Type = "int32Type";
+int32_t valueInt32 = 42;
+action->reportValue(keyInt32Type, valueInt32);
+rootAction->reportValue(keyInt32Type, valueInt32);
+
+// let's also report a 64-bit int value 
+const char* keyInt64Type = "int64Type";
+int64_t valueInt64 = 21;
+action->reportValue(keyInt64Type, valueInt64);
+rootAction->reportValue(keyInt64Type, valueInt64);
 
 // then let's report a double value
 const char* keyDoubleType = "doubleType";
@@ -477,10 +484,16 @@ The same can be achieved using the OpenKit C API as demonstrated below.
 // C API
 
 // first report an int value
-const char* keyIntType = "intType";
-int32_t valueInt = 42;
-reportIntValueOnAction(action, keyIntType, valueInt);
-reportIntValueOnRootAction(rootAction, keyIntType, valueInt);
+const char* keyInt32Type = "intType";
+int32_t valueInt32 = 42;
+reportIntValueOnAction(action, keyInt32Type, valueInt32);
+reportIntValueOnRootAction(rootAction, keyInt32Type, valueInt32);
+
+// let's also report a 64-bit int value 
+const char* keyInt64Type = "int64Type";
+int64_t valueInt64 = 21;
+reportInt64ValueOnAction(action, keyInt64Type, valueInt64)
+reportInt64ValueOnRootAction(rootAction, keyInt64Type, valueInt64);
 
 // then let's report a double value
 const char* keyDoubleType = "doubleType";

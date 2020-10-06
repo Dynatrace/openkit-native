@@ -842,6 +842,20 @@ extern "C" {
 		CATCH_AND_LOG(rootActionHandle)
 	}
 
+	void reportInt64ValueOnRootAction(RootActionHandle* rootActionHandle, const char* valueName, int64_t value)
+	{
+		TRY
+		{
+			if (rootActionHandle)
+			{
+				// retrieve the RootAction instance from the handle and call the respective method
+				assert(rootActionHandle->sharedPointer != nullptr);
+				rootActionHandle->sharedPointer->reportValue(valueName, value);
+			}
+		}
+		CATCH_AND_LOG(rootActionHandle)
+	}
+
 	void reportDoubleValueOnRootAction(RootActionHandle* rootActionHandle, const char* valueName, double value)
 	{
 		TRY
@@ -957,6 +971,20 @@ extern "C" {
 	}
 
 	void reportIntValueOnAction(ActionHandle* actionHandle, const char* valueName, int32_t value)
+	{
+		TRY
+		{
+			if (actionHandle)
+			{
+				// retrieve the Action instance from the handle and call the respective method
+				assert(actionHandle->sharedPointer != nullptr);
+				actionHandle->sharedPointer->reportValue(valueName, value);
+			}
+		}
+		CATCH_AND_LOG(actionHandle)
+	}
+
+	void reportInt64ValueOnAction(ActionHandle* actionHandle, const char* valueName, int64_t value)
 	{
 		TRY
 		{

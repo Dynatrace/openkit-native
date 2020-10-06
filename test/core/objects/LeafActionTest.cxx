@@ -73,14 +73,35 @@ TEST_F(LeafActionTest, reportEventDelegatesToCommonImpl)
 	ASSERT_THAT(obtained, testing::Eq(target));
 }
 
-TEST_F(LeafActionTest, reportValueIntDelegatesToCommonImpl)
+TEST_F(LeafActionTest, reportValueInt32DelegatesToCommonImpl)
 {
 	// with
-	const char* valueName = "IntValue";
+	const char* valueName = "Int32Value";
 	const int32_t value = 42;
 
 	// expect
 	EXPECT_CALL(*mockActionImpl, reportValue(testing::Eq(valueName), testing::TypedEq<int32_t>(value)))
+		.Times(testing::Exactly(1));
+
+	// given
+	auto target = createAction();
+
+	// when
+	auto obtained = target->reportValue(valueName, value);
+
+	// then
+	ASSERT_THAT(obtained, testing::NotNull());
+	ASSERT_THAT(obtained, testing::Eq(target));
+}
+
+TEST_F(LeafActionTest, reportValueInt64DelegatesToCommonImpl)
+{
+	// with
+	const char* valueName = "Int64Value";
+	const int64_t value = 21;
+
+	// expect
+	EXPECT_CALL(*mockActionImpl, reportValue(testing::Eq(valueName), testing::TypedEq<int64_t>(value)))
 		.Times(testing::Exactly(1));
 
 	// given

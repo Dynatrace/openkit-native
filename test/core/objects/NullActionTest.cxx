@@ -68,13 +68,28 @@ TEST_F(NullActionTest, reportEventReturnsSelf)
 	ASSERT_THAT(nullAction, testing::Eq(target));
 }
 
-TEST_F(NullActionTest, reportIntValueReturnsSelf)
+TEST_F(NullActionTest, reportInt32ValueReturnsSelf)
 {
 	// given
 	auto target = createNullAction();
 
 	// when
-	auto obtained = target->reportValue("value name", 12);
+	auto obtained = target->reportValue("value name", int32_t(12));
+
+	// then
+	ASSERT_THAT(obtained, testing::NotNull());
+	auto nullAction = std::dynamic_pointer_cast<NullAction_t>(obtained);
+	ASSERT_THAT(nullAction, testing::NotNull());
+	ASSERT_THAT(nullAction, testing::Eq(target));
+}
+
+TEST_F(NullActionTest, reportInt64ValueReturnsSelf)
+{
+	// given
+	auto target = createNullAction();
+
+	// when
+	auto obtained = target->reportValue("value name", int64_t(24));
 
 	// then
 	ASSERT_THAT(obtained, testing::NotNull());

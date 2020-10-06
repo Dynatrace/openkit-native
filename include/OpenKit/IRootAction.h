@@ -54,13 +54,22 @@ namespace openkit
 		virtual std::shared_ptr<IRootAction> reportEvent(const char* eventName) = 0;
 
 		///
-		/// Reports an int value with a specified name.
+		/// Reports a 32-bit int value with a specified name.
 		///
 		/// @param valueName name of this value
 		/// @param value     value itself
 		/// @return this Action (for usage as fluent API)
 		///
 		virtual std::shared_ptr<IRootAction> reportValue(const char* valueName, int32_t value) = 0;
+
+		///
+		/// Reports a 64-bit int value with a specified name.
+		///
+		/// @param valueName name of this value
+		/// @param value     value itself
+		/// @return this Action (for usage as fluent API)
+		///
+		virtual std::shared_ptr<IRootAction> reportValue(const char* valueName, int64_t value) = 0;
 
 		///
 		/// Reports a double value with a specified name.
