@@ -34,7 +34,7 @@ namespace protocol
 
 		static constexpr const char* RESPONSE_KEY_AGENT_CONFIG = "mobileAgentConfig";
 		static constexpr const char* RESPONSE_KEY_MAX_BEACON_SIZE_IN_KB = "maxBeaconSizeKb";
-		static constexpr const char* RESPONSE_KEY_MAX_SESSION_DURATION_IN_MIN = "maxSessionDurationInMins";
+		static constexpr const char* RESPONSE_KEY_MAX_SESSION_DURATION_IN_MIN = "maxSessionDurationMins";
 		static constexpr const char* RESPONSE_KEY_MAX_EVENTS_PER_SESSION = "maxEventsPerSession";
 		static constexpr const char* RESPONSE_KEY_SESSION_TIMEOUT_IN_SEC = "sessionTimeoutSec";
 		static constexpr const char* RESPONSE_KEY_SEND_INTERVAL_IN_SEC = "sendIntervalSec";
