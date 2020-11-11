@@ -63,9 +63,6 @@ namespace core
 
 			const char* getStateName() const override;
 
-			/// The initial delay which is later on doubled between one unsuccessful attempt and the next retry
-			static constexpr std::chrono::milliseconds INITIAL_RETRY_SLEEP_TIME_MILLISECONDS = std::chrono::seconds(1);
-
 			///
 			/// Gets the sleep time set in the constructor.
 			/// @remarks This returns -1, if the default sleep behavior (default constructor) is used.

@@ -28,9 +28,8 @@ namespace core
 	{
 		///
 		/// The default @ref BeaconCacheConfiguration when user does not override it.
-		/// Default settings allow beacons which are max 2 hours old and unbounded memory limits.
 		///
-		static constexpr std::chrono::milliseconds DEFAULT_MAX_RECORD_AGE_IN_MILLIS = std::chrono::minutes(105); // 1 hour and 45 minutes.
+		static constexpr int64_t DEFAULT_MAX_RECORD_AGE_IN_MILLIS = 105 * 60 * 1000;				// 1 hour and 45 minutes
 
 		///
 		/// Defines the default upper memory bound of the beacon cache

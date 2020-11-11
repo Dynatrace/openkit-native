@@ -31,10 +31,8 @@ using namespace core::communication;
 /// number of retries for the status request
 static constexpr int32_t STATUS_REQUEST_RETRIES = 5;
 
-static constexpr std::chrono::milliseconds STATUS_CHECK_INTERVAL_MILLISECONDS = std::chrono::hours(2);
-static constexpr int64_t STATUS_CHECK_INTERVAL = STATUS_CHECK_INTERVAL_MILLISECONDS.count();
-
-constexpr std::chrono::milliseconds BeaconSendingCaptureOffState::INITIAL_RETRY_SLEEP_TIME_MILLISECONDS;
+static const std::chrono::milliseconds STATUS_CHECK_INTERVAL_MILLISECONDS = std::chrono::hours(2);
+static const std::chrono::milliseconds INITIAL_RETRY_SLEEP_TIME_MILLISECONDS = std::chrono::seconds(1);
 
 BeaconSendingCaptureOffState::BeaconSendingCaptureOffState()
 	: BeaconSendingCaptureOffState(int64_t(-1))
@@ -56,7 +54,7 @@ void BeaconSendingCaptureOffState::doExecute(IBeaconSendingContext& context)
 
 	auto delta = mSleepTimeInMilliseconds > int64_t(0)
 		? mSleepTimeInMilliseconds
-		: STATUS_CHECK_INTERVAL - (currentTime - context.getLastStatusCheckTime());
+		: STATUS_CHECK_INTERVAL_MILLISECONDS.count() - (currentTime - context.getLastStatusCheckTime());
 	if (delta > 0 && !context.isShutdownRequested())
 	{
 		context.sleep(delta);

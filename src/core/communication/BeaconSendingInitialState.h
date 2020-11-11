@@ -57,18 +57,16 @@ namespace core
 			std::shared_ptr<IBeaconSendingState> getShutdownState() override;
 
 			const char* getStateName() const override;
+			
+			///
+			/// Returns the initial delay which is later on doubled between one unsuccessful attempt and the next retry
+			///
+			static const std::chrono::milliseconds& getInitialRetrySleepTimeMilliseconds();
 
-			/// The initial delay which is later on doubled between one unsuccessful attempt and the next retry
-			static constexpr std::chrono::milliseconds INITIAL_RETRY_SLEEP_TIME_MILLISECONDS = std::chrono::seconds(1);
-
-			/// Times to use as delay between consecutive re-executions of this state, when no state transition is performed
-			static constexpr const std::array<std::chrono::milliseconds, 5> REINIT_DELAY_MILLISECONDS = { {
-				std::chrono::minutes(1),
-				std::chrono::minutes(5),
-				std::chrono::minutes(15),
-				std::chrono::hours(1),
-				std::chrono::hours(2)
-			} };
+			///
+			/// Returns times to use as delay between consecutive re-executions of this state, when no state transition is performed
+			///
+			static const std::array<std::chrono::milliseconds, 5>& getReInitDelayMilliseconds();
 
 		private:
 

@@ -468,7 +468,7 @@ TEST_F(AbstractOpenKitBuilderTest, getBeaconCacheMaxRecordAgeReturnsADefaultValu
 	auto obtained = target.getBeaconCacheMaxRecordAge();
 
 	// then
-	ASSERT_THAT(obtained, testing::Eq(core::configuration::DEFAULT_MAX_RECORD_AGE_IN_MILLIS.count()));
+	ASSERT_THAT(obtained, testing::Eq(core::configuration::DEFAULT_MAX_RECORD_AGE_IN_MILLIS));
 }
 
 TEST_F(AbstractOpenKitBuilderTest, getBeaconCacheMaxRecordAgeGivesChangedValue)

@@ -41,10 +41,9 @@ namespace core
 		~SessionWatchdogContext() override = default;
 
 		///
-		/// the default sleep time if no session is to be split / closed.
+		/// Returns the default sleep time if no session is to be split / closed.
 		///
-		static constexpr std::chrono::milliseconds DEFAULT_SLEEP_TIME_MILLISECONDS
-			= std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::seconds(5));
+		static const std::chrono::milliseconds& getDefaultSleepTime();
 
 		void execute() override;
 

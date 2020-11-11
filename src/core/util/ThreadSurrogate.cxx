@@ -20,7 +20,6 @@
 
 using namespace core::util;
 
-
 ThreadSurrogate::ThreadSurrogate()
 	: mMutex()
 	, mStopConditionVariable()
@@ -29,7 +28,7 @@ ThreadSurrogate::ThreadSurrogate()
 {
 }
 
-bool ThreadSurrogate::start(ThreadFunction threadFunction)
+bool ThreadSurrogate::start(const ThreadFunction& threadFunction)
 {
 	std::unique_lock<std::mutex> lock(mMutex);
 
@@ -48,7 +47,7 @@ bool ThreadSurrogate::start(ThreadFunction threadFunction)
 bool ThreadSurrogate::join(int64_t waitTimeInMillis)
 {
 	std::unique_lock<std::mutex> lock(mMutex);
-	
+
 	if (mThread == nullptr)
 	{
 		// start was not called so far
@@ -79,14 +78,15 @@ bool ThreadSurrogate::isAlive() const
 }
 
 #ifdef _MSC_VER
+// Make MS C++ compiler happy - https://docs.microsoft.com/en-us/cpp/code-quality/c26115
 _Acquires_lock_(this->mMutex)
 #endif
-void ThreadSurrogate::threadWrapperFunction(ThreadFunction threadFunction)
+void ThreadSurrogate::threadWrapperFunction(const ThreadFunction& threadFunction)
 {
 	// execute real thread function
 	threadFunction();
 
-	{
+	{ // thread is about to exit
 		std::unique_lock<std::mutex> lock(mMutex);
 
 		mIsThreadStopped = true;

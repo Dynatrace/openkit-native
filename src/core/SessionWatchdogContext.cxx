@@ -21,7 +21,7 @@
 
 using namespace core;
 
-constexpr std::chrono::milliseconds SessionWatchdogContext::DEFAULT_SLEEP_TIME_MILLISECONDS;
+static const std::chrono::milliseconds DEFAULT_SLEEP_TIME_MILLISECONDS = std::chrono::seconds(5);
 
 SessionWatchdogContext::SessionWatchdogContext(std::shared_ptr<providers::ITimingProvider> timingProvider,
 	std::shared_ptr<core::util::IInterruptibleThreadSuspender> threadSuspender)
@@ -30,6 +30,11 @@ SessionWatchdogContext::SessionWatchdogContext(std::shared_ptr<providers::ITimin
 	, mThreadSuspender(threadSuspender)
 	, mSessionsToClose()
 {
+}
+
+const std::chrono::milliseconds& SessionWatchdogContext::getDefaultSleepTime()
+{
+    return DEFAULT_SLEEP_TIME_MILLISECONDS;
 }
 
 void SessionWatchdogContext::execute()
@@ -74,7 +79,7 @@ std::vector<std::shared_ptr<core::objects::SessionInternals>> SessionWatchdogCon
 
 int64_t SessionWatchdogContext::closeExpiredSessions()
 {
-    auto sleepTime = SessionWatchdogContext::DEFAULT_SLEEP_TIME_MILLISECONDS.count();
+    auto sleepTime = DEFAULT_SLEEP_TIME_MILLISECONDS.count();
     auto allSessions = mSessionsToClose.toStdVector();
     std::list<std::shared_ptr<core::objects::SessionInternals>> closableSessions;
 

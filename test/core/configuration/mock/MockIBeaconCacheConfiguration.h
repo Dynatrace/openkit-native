@@ -34,7 +34,7 @@ namespace test
 		MockIBeaconCacheConfiguration()
 		{
 			ON_CALL(*this, getMaxRecordAge())
-				.WillByDefault(testing::Return(core::configuration::DEFAULT_MAX_RECORD_AGE_IN_MILLIS.count()));
+				.WillByDefault(testing::Return(core::configuration::DEFAULT_MAX_RECORD_AGE_IN_MILLIS));
 			ON_CALL(*this, getCacheSizeLowerBound())
 				.WillByDefault(testing::Return(core::configuration::DEFAULT_LOWER_MEMORY_BOUNDARY_IN_BYTES));
 			ON_CALL(*this, getCacheSizeUpperBound())

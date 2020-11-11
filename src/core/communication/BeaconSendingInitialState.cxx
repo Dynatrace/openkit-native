@@ -32,8 +32,16 @@ using namespace core::communication;
 
 static constexpr uint32_t MAX_INITIAL_STATUS_REQUEST_RETRIES = 5;
 
-constexpr std::chrono::milliseconds BeaconSendingInitialState::INITIAL_RETRY_SLEEP_TIME_MILLISECONDS;
-constexpr const std::array<std::chrono::milliseconds, 5> BeaconSendingInitialState::REINIT_DELAY_MILLISECONDS;
+static const std::chrono::milliseconds INITIAL_RETRY_SLEEP_TIME_MILLISECONDS = std::chrono::seconds(1);
+
+static const std::array<std::chrono::milliseconds, 5> REINIT_DELAY_MILLISECONDS = { {
+	std::chrono::minutes(1),
+	std::chrono::minutes(5),
+	std::chrono::minutes(15),
+	std::chrono::hours(1),
+	std::chrono::hours(2)
+} };
+
 
 BeaconSendingInitialState::BeaconSendingInitialState()
 	: AbstractBeaconSendingState(IBeaconSendingState::StateType::BEACON_SENDING_INIT_STATE)
@@ -120,4 +128,14 @@ std::shared_ptr<protocol::IStatusResponse> BeaconSendingInitialState::executeSta
 	}
 
 	return statusResponse;
+}
+
+const std::chrono::milliseconds& BeaconSendingInitialState::getInitialRetrySleepTimeMilliseconds()
+{
+	return INITIAL_RETRY_SLEEP_TIME_MILLISECONDS;
+}
+
+const std::array<std::chrono::milliseconds, 5>& BeaconSendingInitialState::getReInitDelayMilliseconds()
+{
+	return REINIT_DELAY_MILLISECONDS;
 }

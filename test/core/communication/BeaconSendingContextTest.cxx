@@ -405,7 +405,7 @@ TEST_F(BeaconSendingContextTest, getCurrentTimestamp)
 TEST_F(BeaconSendingContextTest, sleepDefaultTime)
 {
 	// expect
-	EXPECT_CALL(*mockThreadSuspender, sleep(BeaconSendingContext_t::DEFAULT_SLEEP_TIME_MILLISECONDS.count()))
+	EXPECT_CALL(*mockThreadSuspender, sleep(BeaconSendingContext_t::getDefaultSleepTime().count()))
 		.Times(1);
 
 	// given

@@ -203,7 +203,7 @@ TEST_F(BeaconSendingInitialStateTest, reinitializeSleepsBeforeSendingStatusReque
 	{
 		testing::InSequence s;
 
-		int64_t initialSleep = BeaconSendingInitialState_t::INITIAL_RETRY_SLEEP_TIME_MILLISECONDS.count();
+		int64_t initialSleep = BeaconSendingInitialState_t::getInitialRetrySleepTimeMilliseconds().count();
 
 		// from first round
 		EXPECT_CALL(*mockContext, sleep(testing::Eq(initialSleep))).Times(1);
@@ -212,7 +212,7 @@ TEST_F(BeaconSendingInitialStateTest, reinitializeSleepsBeforeSendingStatusReque
 		EXPECT_CALL(*mockContext, sleep(testing::Eq(initialSleep * 8))).Times(1);
 		EXPECT_CALL(*mockContext, sleep(testing::Eq(initialSleep * 16))).Times(1);
 		// delay between first and second attempt
-		EXPECT_CALL(*mockContext, sleep(testing::Eq(BeaconSendingInitialState_t::REINIT_DELAY_MILLISECONDS[0].count())))
+		EXPECT_CALL(*mockContext, sleep(testing::Eq(BeaconSendingInitialState_t::getReInitDelayMilliseconds()[0].count())))
 				.Times(1);
 		// and again
 		EXPECT_CALL(*mockContext, sleep(testing::Eq(initialSleep))).Times(1);
@@ -221,7 +221,7 @@ TEST_F(BeaconSendingInitialStateTest, reinitializeSleepsBeforeSendingStatusReque
 		EXPECT_CALL(*mockContext, sleep(testing::Eq(initialSleep * 8))).Times(1);
 		EXPECT_CALL(*mockContext, sleep(testing::Eq(initialSleep * 16))).Times(1);
 		// delay between second and third attempt
-		EXPECT_CALL(*mockContext, sleep(testing::Eq(BeaconSendingInitialState_t::REINIT_DELAY_MILLISECONDS[1].count())))
+		EXPECT_CALL(*mockContext, sleep(testing::Eq(BeaconSendingInitialState_t::getReInitDelayMilliseconds()[1].count())))
 				.Times(1);
 		// and again
 		EXPECT_CALL(*mockContext, sleep(testing::Eq(initialSleep))).Times(1);
@@ -230,7 +230,7 @@ TEST_F(BeaconSendingInitialStateTest, reinitializeSleepsBeforeSendingStatusReque
 		EXPECT_CALL(*mockContext, sleep(testing::Eq(initialSleep * 8))).Times(1);
 		EXPECT_CALL(*mockContext, sleep(testing::Eq(initialSleep * 16))).Times(1);
 		// delay between third and fourth attempt
-		EXPECT_CALL(*mockContext, sleep(testing::Eq(BeaconSendingInitialState_t::REINIT_DELAY_MILLISECONDS[2].count())))
+		EXPECT_CALL(*mockContext, sleep(testing::Eq(BeaconSendingInitialState_t::getReInitDelayMilliseconds()[2].count())))
 				.Times(1);
 		// and again
 		EXPECT_CALL(*mockContext, sleep(testing::Eq(initialSleep))).Times(1);
@@ -239,7 +239,7 @@ TEST_F(BeaconSendingInitialStateTest, reinitializeSleepsBeforeSendingStatusReque
 		EXPECT_CALL(*mockContext, sleep(testing::Eq(initialSleep * 8))).Times(1);
 		EXPECT_CALL(*mockContext, sleep(testing::Eq(initialSleep * 16))).Times(1);
 		// delay between fourth and fifth attempt
-		EXPECT_CALL(*mockContext, sleep(testing::Eq(BeaconSendingInitialState_t::REINIT_DELAY_MILLISECONDS[3].count())))
+		EXPECT_CALL(*mockContext, sleep(testing::Eq(BeaconSendingInitialState_t::getReInitDelayMilliseconds()[3].count())))
 				.Times(1);
 		// and again
 		EXPECT_CALL(*mockContext, sleep(testing::Eq(initialSleep))).Times(1);
@@ -248,7 +248,7 @@ TEST_F(BeaconSendingInitialStateTest, reinitializeSleepsBeforeSendingStatusReque
 		EXPECT_CALL(*mockContext, sleep(testing::Eq(initialSleep * 8))).Times(1);
 		EXPECT_CALL(*mockContext, sleep(testing::Eq(initialSleep * 16))).Times(1);
 		// delay between fifth and sixth attempt
-		EXPECT_CALL(*mockContext, sleep(testing::Eq(BeaconSendingInitialState_t::REINIT_DELAY_MILLISECONDS[4].count())))
+		EXPECT_CALL(*mockContext, sleep(testing::Eq(BeaconSendingInitialState_t::getReInitDelayMilliseconds()[4].count())))
 				.Times(1);
 		// and again
 		EXPECT_CALL(*mockContext, sleep(testing::Eq(initialSleep))).Times(1);
@@ -257,7 +257,7 @@ TEST_F(BeaconSendingInitialStateTest, reinitializeSleepsBeforeSendingStatusReque
 		EXPECT_CALL(*mockContext, sleep(testing::Eq(initialSleep * 8))).Times(1);
 		EXPECT_CALL(*mockContext, sleep(testing::Eq(initialSleep * 16))).Times(1);
 		// delay between sixth and seventh attempt
-		EXPECT_CALL(*mockContext, sleep(testing::Eq(BeaconSendingInitialState_t::REINIT_DELAY_MILLISECONDS[4].count())))
+		EXPECT_CALL(*mockContext, sleep(testing::Eq(BeaconSendingInitialState_t::getReInitDelayMilliseconds()[4].count())))
 				.Times(1);
 		EXPECT_CALL(*mockContext, sleep(testing::Eq(initialSleep))).Times(1);
 		EXPECT_CALL(*mockContext, sleep(testing::Eq(initialSleep * 2))).Times(1);
@@ -265,7 +265,7 @@ TEST_F(BeaconSendingInitialStateTest, reinitializeSleepsBeforeSendingStatusReque
 		EXPECT_CALL(*mockContext, sleep(testing::Eq(initialSleep * 8))).Times(1);
 		EXPECT_CALL(*mockContext, sleep(testing::Eq(initialSleep * 16))).Times(1);
 
-		EXPECT_CALL(*mockContext, sleep(BeaconSendingInitialState_t::REINIT_DELAY_MILLISECONDS[4].count()))
+		EXPECT_CALL(*mockContext, sleep(BeaconSendingInitialState_t::getReInitDelayMilliseconds()[4].count()))
 			.Times(::testing::Exactly(1));
 
 		EXPECT_CALL(*mockContext, sleep(testing::_))
@@ -304,14 +304,14 @@ TEST_F(BeaconSendingInitialStateTest, sleepTimeIsDoubledBetweenStatusRequestRetr
 	{
 		testing::InSequence s;
 
-		int64_t initialSleep = BeaconSendingInitialState_t::INITIAL_RETRY_SLEEP_TIME_MILLISECONDS.count();
+		int64_t initialSleep = BeaconSendingInitialState_t::getInitialRetrySleepTimeMilliseconds().count();
 		EXPECT_CALL(*mockContext, sleep(testing::Eq(initialSleep))).Times(1);
 		EXPECT_CALL(*mockContext, sleep(testing::Eq(initialSleep * 2))).Times(1);
 		EXPECT_CALL(*mockContext, sleep(testing::Eq(initialSleep * 4))).Times(1);
 		EXPECT_CALL(*mockContext, sleep(testing::Eq(initialSleep * 8))).Times(1);
 		EXPECT_CALL(*mockContext, sleep(testing::Eq(initialSleep * 16))).Times(1);
 
-		EXPECT_CALL(*mockContext, sleep(BeaconSendingInitialState_t::REINIT_DELAY_MILLISECONDS[0].count()))
+		EXPECT_CALL(*mockContext, sleep(BeaconSendingInitialState_t::getReInitDelayMilliseconds()[0].count()))
 			.Times(::testing::Exactly(1));
 
 		EXPECT_CALL(*mockContext, sleep(testing::_))

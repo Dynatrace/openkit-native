@@ -34,82 +34,72 @@ public:
 	void threadFunction()
 	{
 		mThreadCallCount.fetch_add(1);
-		mPromise.set_value_at_thread_exit(UpdatedValue);
+		mPromise.set_value(UpdatedValue);
 	}
 
 protected:
 
+	const int64_t TearDownJoinTimeout = 1000; // up to 1 sec
 	const int32_t UpdatedValue = 10;
 
 	void SetUp() override
 	{
-		mThreadCallCount.store(0);
+		mThreadCallCount = 0;
 		mFuture = mPromise.get_future();
+		mTarget.reset(new ThreadSurrogate_t());
+	}
+
+	void TearDown() override
+	{
+		mTarget->join(TearDownJoinTimeout);
+		mTarget.reset(nullptr);
 	}
 
 	std::promise<int32_t> mPromise;
 	std::future<int32_t> mFuture;
 	std::atomic<int32_t> mThreadCallCount;
+	std::unique_ptr<ThreadSurrogate_t> mTarget;
 };
 
 TEST_F(ThreadSurrogateTest, startExecutesGivenThreadFunction)
 {
-	// given
-	ThreadSurrogate_t target;
-
 	// when
-	target.start(std::bind(&ThreadSurrogateTest::threadFunction, this));
+	mTarget->start(std::bind(&ThreadSurrogateTest::threadFunction, this));
 	auto obtained = mFuture.wait_for(std::chrono::milliseconds(100));
 
 	// then
 	ASSERT_THAT(obtained, testing::Eq(std::future_status::ready));
 	ASSERT_THAT(mFuture.get(), testing::Eq(UpdatedValue));
-
-	// cleanup
-	target.join(100);
 }
 
 TEST_F(ThreadSurrogateTest, startReturnsTrueOnSuccess)
 {
-	// given
-	ThreadSurrogate_t target;
-
 	// when
-	auto obtained = target.start(std::bind(&ThreadSurrogateTest::threadFunction, this));
+	auto obtained = mTarget->start(std::bind(&ThreadSurrogateTest::threadFunction, this));
 	mFuture.wait_for(std::chrono::milliseconds(100));
 
 	// then
 	ASSERT_THAT(obtained, testing::Eq(true));
-
-	// cleanup
-	target.join(100);
 }
 
 TEST_F(ThreadSurrogateTest, startCanOnlyBeUsedOnce)
 {
 	// given
-	ThreadSurrogate_t target;
-	target.start(std::bind(&ThreadSurrogateTest::threadFunction, this)); // start immediately
+	mTarget->start(std::bind(&ThreadSurrogateTest::threadFunction, this)); // start immediately
 
 	// when started the second time
-	auto obtained = target.start(std::bind(&ThreadSurrogateTest::threadFunction, this));
+	auto obtained = mTarget->start(std::bind(&ThreadSurrogateTest::threadFunction, this));
 	mFuture.wait_for(std::chrono::milliseconds(100));
 
 	// then
 	ASSERT_THAT(obtained, testing::Eq(false));
 	ASSERT_THAT(mThreadCallCount, testing::Eq(1));
-
-	// cleanup
-	target.join(100);
 }
 
 TEST_F(ThreadSurrogateTest, joinOnANotStartedThreadDoesNothing)
 {
-	// given
-	ThreadSurrogate_t target;
-
 	// when
-	auto obtained = target.join(10);
+	auto obtained = mTarget->join(10);
 
 	// then
 	ASSERT_THAT(obtained, testing::Eq(true));
@@ -119,11 +109,10 @@ TEST_F(ThreadSurrogateTest, joinOnANotStartedThreadDoesNothing)
 TEST_F(ThreadSurrogateTest, joinWaitsForTheThreadToFinish)
 {
 	// given
-	ThreadSurrogate_t target;
-	target.start(std::bind(&ThreadSurrogateTest::threadFunction, this));
+	mTarget->start(std::bind(&ThreadSurrogateTest::threadFunction, this));
 
 	// when
-	auto obtained = target.join(100);
+	auto obtained = mTarget->join(100);
 
 	// then
 	ASSERT_THAT(obtained, testing::Eq(true));
@@ -133,18 +122,17 @@ TEST_F(ThreadSurrogateTest, joinWaitsForTheThreadToFinish)
 TEST_F(ThreadSurrogateTest, joinCanBeCalledOnFinishedThread)
 {
 	// given
-	ThreadSurrogate_t target;
-	target.start(std::bind(&ThreadSurrogateTest::threadFunction, this));
+	mTarget->start(std::bind(&ThreadSurrogateTest::threadFunction, this));
 
 	// when joining first time
-	auto obtained = target.join(100);
+	auto obtained = mTarget->join(100);
 
 	// then
 	ASSERT_THAT(obtained, testing::Eq(true));
 	ASSERT_THAT(mThreadCallCount, testing::Eq(1));
 
 	// and when joining second time
-	obtained = target.join(100);
+	obtained = mTarget->join(100);
 
 	// then
 	ASSERT_THAT(obtained, testing::Eq(true));
@@ -153,11 +141,8 @@ TEST_F(ThreadSurrogateTest, joinCanBeCalledOnFinishedThread)
 
 TEST_F(ThreadSurrogateTest, isStartedReturnsFalseIfThreadWasNotStarted)
 {
-	// given
-	ThreadSurrogate_t target;
-
 	// when
-	auto obtained = target.isStarted();
+	auto obtained = mTarget->isStarted();
 
 	// then
 	ASSERT_THAT(obtained, testing::Eq(false));
@@ -167,8 +152,7 @@ TEST_F(ThreadSurrogateTest, isStartedReturnsTrueIfThreadIsRunning)
 {
 	// given
 	std::atomic<bool> shutdown(false);
-	ThreadSurrogate_t target;
-	target.start([&shutdown]
+	mTarget->start([&shutdown]
 		{
 			while (!shutdown)
 			{
@@ -177,9 +161,9 @@ TEST_F(ThreadSurrogateTest, isStartedReturnsTrueIfThreadIsRunning)
 		});
 
 	// when
-	auto obtained = target.isStarted();
+	auto obtained = mTarget->isStarted();
 	shutdown = true;
-	target.join(100);
+	mTarget->join(TearDownJoinTimeout);
 
 	// then
 	ASSERT_THAT(obtained, testing::Eq(true));
@@ -188,12 +172,11 @@ TEST_F(ThreadSurrogateTest, isStartedReturnsTrueIfThreadIsRunning)
 TEST_F(ThreadSurrogateTest, isStartedReturnsTrueIfThreadIsAlreadyTerminated)
 {
 	// given
-	ThreadSurrogate_t target;
-	target.start(std::bind(&ThreadSurrogateTest::threadFunction, this));
+	mTarget->start(std::bind(&ThreadSurrogateTest::threadFunction, this));
 
 	// when
-	target.join(100);
-	auto obtained = target.isStarted();
+	mTarget->join(TearDownJoinTimeout);
+	auto obtained = mTarget->isStarted();
 
 	// then
 	ASSERT_THAT(obtained, testing::Eq(true));
@@ -201,11 +184,8 @@ TEST_F(ThreadSurrogateTest, isStartedReturnsTrueIfThreadIsAlreadyTerminated)
 
 TEST_F(ThreadSurrogateTest, isAliveReturnsFalseIfThreadWasNotStarted)
 {
-	// given
-	ThreadSurrogate_t target;
-
 	// when
-	auto obtained = target.isAlive();
+	auto obtained = mTarget->isAlive();
 
 	// then
 	ASSERT_THAT(obtained, testing::Eq(false));
@@ -215,8 +195,7 @@ TEST_F(ThreadSurrogateTest, isAliveReturnsTrueIfThreadIsRunning)
 {
 	// given
 	std::atomic<bool> shutdown(false);
-	ThreadSurrogate_t target;
-	target.start([&shutdown]
+	mTarget->start([&shutdown]
 		{
 			while (!shutdown)
 			{
@@ -225,9 +204,9 @@ TEST_F(ThreadSurrogateTest, isAliveReturnsTrueIfThreadIsRunning)
 		});
 
 	// when
-	auto obtained = target.isAlive();
+	auto obtained = mTarget->isAlive();
 	shutdown = true;
-	target.join(100);
+	mTarget->join(TearDownJoinTimeout);
 
 	// then
 	ASSERT_THAT(obtained, testing::Eq(true));
@@ -236,12 +215,11 @@ TEST_F(ThreadSurrogateTest, isAliveReturnsTrueIfThreadIsRunning)
 TEST_F(ThreadSurrogateTest, isAliveReturnsFalseIfThreadIsAlreadyTerminated)
 {
 	// given
-	ThreadSurrogate_t target;
-	target.start(std::bind(&ThreadSurrogateTest::threadFunction, this));
+	mTarget->start(std::bind(&ThreadSurrogateTest::threadFunction, this));
 
 	// when
-	target.join(100);
-	auto obtained = target.isAlive();
+	mTarget->join(TearDownJoinTimeout);
+	auto obtained = mTarget->isAlive();
 
 	// then
 	ASSERT_THAT(obtained, testing::Eq(false));

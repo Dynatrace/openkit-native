@@ -45,7 +45,7 @@ AbstractOpenKitBuilder::AbstractOpenKitBuilder(const char* endpointURL, int64_t 
 	, mDeviceID(deviceID)
 	, mOrigDeviceID(origDeviceID)
 	, mTrustManager(std::make_shared<protocol::SSLStrictTrustManager>())
-	, mBeaconCacheMaxRecordAge(core::configuration::DEFAULT_MAX_RECORD_AGE_IN_MILLIS.count())
+	, mBeaconCacheMaxRecordAge(core::configuration::DEFAULT_MAX_RECORD_AGE_IN_MILLIS)
 	, mBeaconCacheLowerMemoryBoundary(core::configuration::DEFAULT_LOWER_MEMORY_BOUNDARY_IN_BYTES)
 	, mBeaconCacheUpperMemoryBoundary(core::configuration::DEFAULT_UPPER_MEMORY_BOUNDARY_IN_BYTES)
 	, mDataCollectionLevel(core::configuration::DEFAULT_DATA_COLLECTION_LEVEL)

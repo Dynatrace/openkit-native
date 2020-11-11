@@ -50,7 +50,7 @@ namespace core
 			///
 			/// @return @c false if this method was already called before, @c true otherwise.
 			///
-			bool start(ThreadFunction threadFunction);
+			bool start(const ThreadFunction& threadFunction);
 
 			///
 			/// Joins the thread for a given amount of time.
@@ -90,7 +90,7 @@ namespace core
 			// Make MS C++ compiler happy - https://docs.microsoft.com/en-us/cpp/code-quality/c26115
 			_Acquires_lock_(this->mMutex)
 #endif
-			void threadWrapperFunction(ThreadFunction threadFunction);
+			void threadWrapperFunction(const ThreadFunction& threadFunction);
 
 			mutable std::mutex mMutex;
 			std::condition_variable mStopConditionVariable;

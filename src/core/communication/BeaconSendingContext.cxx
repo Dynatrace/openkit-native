@@ -26,7 +26,7 @@
 
 using namespace core::communication;
 
-constexpr std::chrono::milliseconds BeaconSendingContext::DEFAULT_SLEEP_TIME_MILLISECONDS;
+static const std::chrono::milliseconds DEFAULT_SLEEP_TIME_MILLISECONDS = std::chrono::seconds(1);
 
 BeaconSendingContext::BeaconSendingContext(
 	std::shared_ptr<openkit::ILogger> logger,
@@ -71,6 +71,11 @@ BeaconSendingContext::BeaconSendingContext
 	std::unique_ptr<IBeaconSendingState>(new BeaconSendingInitialState())
 )
 {
+}
+
+const std::chrono::milliseconds& BeaconSendingContext::getDefaultSleepTime()
+{
+	return DEFAULT_SLEEP_TIME_MILLISECONDS;
 }
 
 void BeaconSendingContext::executeCurrentState()

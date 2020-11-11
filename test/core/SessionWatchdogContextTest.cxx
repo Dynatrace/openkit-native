@@ -242,7 +242,7 @@ TEST_F(SessionWatchdogContextTest, executeDoesNotEndSessionsWhenGracePeriodIsNot
 TEST_F(SessionWatchdogContextTest, executeSleepsDefaultTimeIfNoSessionToCloseExists)
 {
 	// expect
-	EXPECT_CALL(*mockThreadSuspender, sleep(SessionWatchdogContext_t::DEFAULT_SLEEP_TIME_MILLISECONDS.count()))
+	EXPECT_CALL(*mockThreadSuspender, sleep(SessionWatchdogContext_t::getDefaultSleepTime().count()))
 		.Times(1);
 
 	// given
@@ -257,7 +257,7 @@ TEST_F(SessionWatchdogContextTest, executeSleepsDefaultTimeIfSessionIsExpiredAnd
 	// expect
 	EXPECT_CALL(*mockSession, end())
 		.Times(1);
-	EXPECT_CALL(*mockThreadSuspender, sleep(SessionWatchdogContext_t::DEFAULT_SLEEP_TIME_MILLISECONDS.count()))
+	EXPECT_CALL(*mockThreadSuspender, sleep(SessionWatchdogContext_t::getDefaultSleepTime().count()))
 		.Times(1);
 
 	// given
@@ -326,12 +326,12 @@ TEST_F(SessionWatchdogContextTest, executeSleepsMinimumTimeToNextSessionGraceEnd
 TEST_F(SessionWatchdogContextTest, executeDoesNotSleepLongerThanDefaultSleepTime)
 {
 	// expect
-	EXPECT_CALL(*mockThreadSuspender, sleep(SessionWatchdogContext_t::DEFAULT_SLEEP_TIME_MILLISECONDS.count()))
+	EXPECT_CALL(*mockThreadSuspender, sleep(SessionWatchdogContext_t::getDefaultSleepTime().count()))
 		.Times(1);
 
 	// given
 	auto target = std::dynamic_pointer_cast<ISessionWatchdogContext_t>(createContext());
-	target->closeOrEnqueueForClosing(mockSession, SessionWatchdogContext_t::DEFAULT_SLEEP_TIME_MILLISECONDS.count() + 10);
+	target->closeOrEnqueueForClosing(mockSession, SessionWatchdogContext_t::getDefaultSleepTime().count() + 10);
 
 	// when
 	target->execute();
