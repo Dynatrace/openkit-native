@@ -104,12 +104,14 @@ This includes device specific information like operating system, manufacturer, o
 | `withManufacturer`  | sets the manufacturer | `"Dynatrace"` |
 | `withModelID`  | sets the model id  | `"OpenKitDevice"` |
 | `withBeaconCacheMaxRecordAge`  | sets the maximum age of an entry in the beacon cache in milliseconds | 1 h 45 min |
-| `withBeaconCacheLowerMemoryBoundary`  | sets the lower memory boundary of the beacon cache in bytes  | 100 MB |
-| `withBeaconCacheUpperMemoryBoundary`  |  sets the upper memory boundary of the beacon cache in bytes | 80 MB |
+| `withBeaconCacheLowerMemoryBoundary`  | sets the lower memory boundary of the beacon cache in bytes  | 80 MB |
+| `withBeaconCacheUpperMemoryBoundary`  |  sets the upper memory boundary of the beacon cache in bytes | 100 MB |
 | `withDataCollectionLevel` | sets the data collection level (enum DataCollectionLevel) | USER_BEHAVIOR |
 | `withCrashReportingLevel` | sets the crash reporting level (enum CrashReportingLevel) | OPT_IN_CRASHES |
-| `enableVerbose`  | enables extended log output for OpenKit if the default logger is used  | `false` |
+| `withTrustManager` | sets a custom `ISSLTrustManager` instance, replacing the builtin default instance.<br>Details are described in section [SSL/TLS Security in OpenKit](#ssltls-security-in-openkit). | `SSLStrictTrustManager` |
+| `enableVerbose`  | *Deprecated*, use `withLogLevel` instead.<br>Enables extended log output for OpenKit if the default logger is used.<br>Is equivalent to `withLogLevel(LogLevel.DEBUG)`. | `false` |
 | `withLogLevel` | sets the log level if the default logger is used | `LogLevel.WARN` |
+| `withLogger` | sets a custom logger, replacing the builtin default logger.<br>Details are described in section [Logging](#logging). | `DefaultLogger` |
 
 When using the OpenKit C API, additional configuration can applied to the configuration created with the
 'createOpenKitConfiguration' function.
@@ -120,16 +122,15 @@ When using the OpenKit C API, additional configuration can applied to the config
 | `useOperatingSystemForConfiguration`  | sets the operating system name | `"OpenKit 1.2.0"` is used when argument is `NULL` |
 | `useManufacturerForConfiguration`  | sets the manufacturer | `"Dynatrace"` is used when argument is `NULL` |
 | `useModelIDForConfiguration`  | sets the model id  | `"OpenKitDevice"` is used when argument is `NULL` |
-| `useBeaconCacheMaxRecordAgeForConfiguration`  | sets the maximum age of an entry in the beacon cache in milliseconds | 1 h 45 min when argument is less than 0 |
-| `useBeaconCacheLowerMemoryBoundaryForConfiguration`  | sets the lower memory boundary of the beacon cache in bytes  | 100 MB when argument is less than 0 |
-| `useBeaconCacheUpperMemoryBoundaryForConfiguration`  |  sets the upper memory boundary of the beacon cache in bytes | 80 MB when argument is less than 0 |
+| `useBeaconCacheBehaviorForConfiguration` | sets caching behavior for the beacon cache              | 1 h 45 min retention, 80 MB lower memory boundary, 100 MB upper memory boundary |
+| `useLoggerForConfiguration` | sets a custom logger | A default logger, logging to stdout, is used as fallback |
+| `useTrustModeForConfiguration`           | sets a custom `ISSLTrustManager` replacing previous one | `STRICT_TRUST` |
 | `useDataCollectionLevelForConfiguration` | sets the data collection level (enum DataCollectionLevel) | USER_BEHAVIOR |
 | `useCrashReportingLevelForConfiguration` | sets the crash reporting level (enum CrashReportingLevel) | OPT_IN_CRASHES |
-| `useLoggerForConfiguration` | sets a custom logger | A default logger, logging to stdout, is used as fallback |
 
-When passing a non-NULL `logger`, custom logging can be enabled. Further information is described in Logger.
+When passing a non-NULL `logger`, custom logging can be enabled. Further information is described in [Logging](#logging).
 When passing a non-NULL `trustManagerHandle`, custom SSL/TLS certificate verification can be enabled.
-Further details are described in SSL/TLS Security in OpenKit.
+Further details are described in [SSL/TLS Security in OpenKit](#ssltls-security-in-openkit).
 
 
 :grey_exclamation: Please refer to the the Doxygen API documentation for more information regarding possible configuration values.
@@ -154,7 +155,7 @@ logging can be enabled by calling `enableVerbose` in the builder. By enabling ve
 messages are logged. This only applies to the C++ API.
 
 A custom logger can be set by calling `withLogger` in the builder. When a custom logger is used, a call to 
-`enableVerbose` has no effect. In that case, debug and info logs are logged depending on the values returned 
+`withLogLevel` has no effect. In that case, debug and info logs are logged depending on the values returned 
 in `isDebugEnabled` and `isInfoEnabled`.
 
 When using the OpenKit C API a custom logger can be set by invoking `createLogger` function to create one.
