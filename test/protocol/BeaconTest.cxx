@@ -168,6 +168,10 @@ protected:
 	}
 };
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// generic defaults, instance creation and smaller getters/creators
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 TEST_F(BeaconTest, defaultBeaconConfigurationDoesNotDisableCapturing)
 {
 	// given
@@ -293,6 +297,10 @@ TEST_F(BeaconTest, createSequenceNumbers)
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// createTag - creating web request tag tests
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 TEST_F(BeaconTest, createWebRequestTag)
 {
 	// given
@@ -317,7 +325,7 @@ TEST_F(BeaconTest, createWebRequestTag)
 	ASSERT_THAT(obtained, testing::Eq(s.str()));
 }
 
-TEST_F(BeaconTest, createTagEncodesDeviceIDPropperly)
+TEST_F(BeaconTest, createTagEncodesDeviceIDProperly)
 {
 	// given
 	int32_t deviceId = -42;
@@ -346,6 +354,117 @@ TEST_F(BeaconTest, createTagEncodesDeviceIDPropperly)
 
 	ASSERT_THAT(obtained, testing::Eq(s.str()));
 }
+
+TEST_F(BeaconTest, beaconReturnsEmptyTagIfWebRequestTracingDisallowed)
+{
+	// with
+	ON_CALL(*mockPrivacyConfiguration, isWebRequestTracingAllowed())
+		.WillByDefault(testing::Return(false));
+
+	//given
+	auto target = createBeacon()->build();
+
+	// when
+	auto obtained = target->createTag(ACTION_ID, 1);
+
+	//then
+	ASSERT_THAT(obtained, testing::Eq(""));
+}
+
+TEST_F(BeaconTest, beaconReturnsValidTagIfWebRequestTracingIsAllowed)
+{
+	// with
+	int32_t sequenceNo = 1;
+
+	ON_CALL(*mockPrivacyConfiguration, isWebRequestTracingAllowed())
+		.WillByDefault(testing::Return(true));
+
+	auto target = createBeacon()->build();
+
+	// when
+	auto tagString = target->createTag(ACTION_ID, sequenceNo);
+
+	//then
+	std::stringstream str;
+	str << "MT"						// tag prefix
+		<< "_" << protocol::PROTOCOL_VERSION	// protocol version
+		<< "_" << SERVER_ID						// server ID
+		<< "_" << DEVICE_ID						// device ID
+		<< "_" << SESSION_ID					// session number
+		<< "_" << APP_ID.getStringData()		// application ID
+		<< "_" << ACTION_ID						// parent action ID
+		<< "_" << THREAD_ID						// thread ID
+		<< "_" << sequenceNo					// sequence number
+		;
+
+	ASSERT_THAT(tagString.getStringData(), testing::Eq(str.str()));
+}
+
+TEST_F(BeaconTest, beaconReturnsValidTagWithSessionNumberIfSessionNumberReportingAllowed)
+{
+	// with
+	int32_t sequenceNo = 1;
+
+	ON_CALL(*mockPrivacyConfiguration, isSessionNumberReportingAllowed())
+		.WillByDefault(testing::Return(true));
+	ON_CALL(*mockPrivacyConfiguration, isWebRequestTracingAllowed())
+		.WillByDefault(testing::Return(true));
+
+	auto target = createBeacon()->build();
+
+	// when
+	auto tagString = target->createTag(ACTION_ID, sequenceNo);
+
+	//then
+	std::stringstream str;
+	str << "MT"						// tag prefix
+		<< "_" << protocol::PROTOCOL_VERSION	// protocol version
+		<< "_" << SERVER_ID						// server ID
+		<< "_" << DEVICE_ID						// device ID
+		<< "_" << SESSION_ID					// session number
+		<< "_" << APP_ID.getStringData()		// application ID
+		<< "_" << ACTION_ID						// parent action ID
+		<< "_" << THREAD_ID						// thread ID
+		<< "_" << sequenceNo					// sequence number
+		;
+
+	ASSERT_THAT(tagString.getStringData(), testing::Eq(str.str()));
+}
+
+TEST_F(BeaconTest, beaconReturnsValidTagWithSessionNumberOneIfSessionNumberReportinDisallowed)
+{
+	// with
+	int32_t sequenceNo = 1;
+
+	ON_CALL(*mockPrivacyConfiguration, isSessionNumberReportingAllowed())
+		.WillByDefault(testing::Return(false));
+	ON_CALL(*mockPrivacyConfiguration, isWebRequestTracingAllowed())
+		.WillByDefault(testing::Return(true));
+
+	auto target = createBeacon()->build();
+
+	// when
+	auto tagString = target->createTag(ACTION_ID, sequenceNo);
+
+	//then
+	std::stringstream str;
+	str << "MT"						// tag prefix
+		<< "_" << protocol::PROTOCOL_VERSION	// protocol version
+		<< "_" << SERVER_ID						// server ID
+		<< "_" << DEVICE_ID						// device ID
+		<< "_1"									// session number (must always be 1 if session number reporting disallowed)
+		<< "_" << APP_ID.getStringData()		// application ID
+		<< "_" << ACTION_ID						// parent action ID
+		<< "_" << THREAD_ID						// thread ID
+		<< "_" << sequenceNo					// sequence number
+		;
+
+	ASSERT_THAT(tagString.getStringData(), testing::Eq(str.str()));
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// addAction tests
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 TEST_F(BeaconTest, addValidActionEvent)
 {
@@ -385,6 +504,140 @@ TEST_F(BeaconTest, addValidActionEvent)
 	target->addAction(action);
 }
 
+TEST_F(BeaconTest, actionNotReportedIfCapturingIsDisabled)
+{
+	// with
+	ON_CALL(*mockServerConfiguration, isCaptureEnabled())
+		.WillByDefault(testing::Return(false));
+
+	Utf8String_t actionName("action");
+	auto action = MockIActionCommon::createNice();
+	ON_CALL(*action, getName())
+		.WillByDefault(testing::ReturnRef(actionName));
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addActionData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when, expect no interaction with beacon cache
+	target->addAction(action);
+}
+
+TEST_F(BeaconTest, actionNotReportedIfActionReportingDisallowed)
+{
+	// with
+	ON_CALL(*mockPrivacyConfiguration, isActionReportingAllowed())
+		.WillByDefault(testing::Return(false));
+
+	auto actionMock = MockIActionCommon::createStrict();
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addActionData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when, expect no interaction with beacon cache
+	target->addAction(actionMock);
+}
+
+TEST_F(BeaconTest, actionNotReportedIfDataSendingDisallowed)
+{
+	// with
+	ON_CALL(*mockServerConfiguration, isSendingDataAllowed())
+		.WillByDefault(testing::Return(false));
+
+	auto actionMock = MockIActionCommon::createStrict();
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addActionData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when, expect no interaction with beacon cache
+	target->addAction(actionMock);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// startSession tests
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+TEST_F(BeaconTest, addStartSessionEvent)
+{
+	// expect
+	std::stringstream s;
+	s << "et=" << static_cast<int32_t>(EventType_t::SESSION_START)	// event type
+		<< "&it=" << THREAD_ID										// thread ID
+		<< "&pa=0"													// parent action ID
+		<< "&s0=1"													// start session sequence number
+		<< "&t0=0"													// session start time
+		;
+	EXPECT_CALL(*mockBeaconCache, addEventData(
+		SESSION_ID,									// session ID
+		0,											// session end time
+		testing::Eq(s.str())
+	)).Times(1);
+
+	//given
+	auto target = createBeacon()->build();
+
+	// when
+	target->startSession();
+}
+
+TEST_F(BeaconTest, sessionStartIsReportedRegardlessOfPrivacyConfiguration)
+{
+	// with
+	auto privacyConfig = MockIPrivacyConfiguration::createStrict();
+
+	ON_CALL(*mockBeaconConfiguration, getPrivacyConfiguration())
+		.WillByDefault(testing::Return(privacyConfig));
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(1);
+	EXPECT_CALL(*privacyConfig, isDeviceIdSendingAllowed())
+		.Times(1); // beacon constructor, checking if device ID should be randomized
+	EXPECT_CALL(*privacyConfig, isSessionNumberReportingAllowed())
+		.Times(1); // beacon constructor, checking if session number can be sent
+	EXPECT_CALL(*privacyConfig, getDataCollectionLevel())
+		.Times(1); // beacon constructor, creating immutable beacon string
+	EXPECT_CALL(*privacyConfig, getCrashReportingLevel())
+		.Times(1); // beacon constructor, creating immutable beacon string
+
+	//given
+	auto target = createBeacon()->build();
+
+	// when
+	target->startSession();
+}
+
+TEST_F(BeaconTest, noSessionStartIsReportedIfCapturingDisabled)
+{
+	//given
+	ON_CALL(*mockServerConfiguration, isCaptureEnabled())
+		.WillByDefault(testing::Return(false));
+
+	auto target = createBeacon()->build();
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addActionData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	// when, expect on interaction on beacon cache
+	target->startSession();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// endSession tests
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 TEST_F(BeaconTest, addEndSessionEvent)
 {
 	// expect
@@ -394,7 +647,7 @@ TEST_F(BeaconTest, addEndSessionEvent)
 		<< "&pa=0"									// parent action
 		<< "&s0=1"									// end sequence number
 		<< "&t0=0"									// session end time
-	;
+		;
 	EXPECT_CALL(*mockBeaconCache, addEventData(
 		SESSION_ID,									// session ID
 		0,											// session end time
@@ -407,6 +660,61 @@ TEST_F(BeaconTest, addEndSessionEvent)
 	// when
 	target->endSession();
 }
+
+TEST_F(BeaconTest, sessionNotReportedIfCapturingDisabled)
+{
+	// with
+	ON_CALL(*mockServerConfiguration, isCaptureEnabled())
+		.WillByDefault(testing::Return(false));
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when, expect no interaction with beacon cache
+	target->endSession();
+}
+
+TEST_F(BeaconTest, sessionNotReportedIfSessionReportingDisallowed)
+{
+	// with
+	ON_CALL(*mockPrivacyConfiguration, isSessionReportingAllowed())
+		.WillByDefault(testing::Return(false));
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	//given
+	auto target = createBeacon()->build();
+
+	// when, expect no interaction with beacon cache
+	target->endSession();
+}
+
+TEST_F(BeaconTest, sessionNotReportedIfDataSendingDisallowed)
+{
+	// with
+	ON_CALL(*mockServerConfiguration, isSendingDataAllowed())
+		.WillByDefault(testing::Return(false));
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addActionData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	//given
+	auto target = createBeacon()->build();
+
+	// when, expect no interaction with beacon cache
+	target->endSession();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// reportValue(int32_t) tests
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 TEST_F(BeaconTest, reportValidValueInt32)
 {
@@ -437,6 +745,70 @@ TEST_F(BeaconTest, reportValidValueInt32)
 	target->reportValue(ACTION_ID, valueName, value);
 }
 
+TEST_F(BeaconTest, int32ValueIsNotReportedIfCapturingIsDisabled)
+{
+	// with
+	ON_CALL(*mockServerConfiguration, isCaptureEnabled())
+		.WillByDefault(testing::Return(false));
+
+	int32_t value = 42;
+	Utf8String_t valueName("Int32Value");
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when, expect no interaction with beacon cache
+	target->reportValue(ACTION_ID, valueName, value);
+}
+
+TEST_F(BeaconTest, int32ValueIsNotReportedIfReportValueDisallowed)
+{
+	// with
+	ON_CALL(*mockPrivacyConfiguration, isValueReportingAllowed())
+		.WillByDefault(testing::Return(false));
+
+	Utf8String_t valueName("Int32Value");
+	int32_t value = 42;
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	//given
+	auto target = createBeacon()->build();
+
+	// when, expect no interaction with beacon cache
+	target->reportValue(1, valueName, value);
+}
+
+TEST_F(BeaconTest, int32ValueIsNotReportedIfDataSendingDisallowed)
+{
+	// with
+	ON_CALL(*mockServerConfiguration, isSendingDataAllowed())
+		.WillByDefault(testing::Return(false));
+
+	Utf8String_t valueName("Int32Value");
+	int32_t value = 42;
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	//given
+	auto target = createBeacon()->build();
+
+	// when, expect no interaction with beacon cache
+	target->reportValue(1, valueName, value);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// reportValue(int64_t) tests
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 TEST_F(BeaconTest, reportValidValueInt64)
 {
 	// with
@@ -466,6 +838,70 @@ TEST_F(BeaconTest, reportValidValueInt64)
 	target->reportValue(ACTION_ID, valueName, value);
 }
 
+TEST_F(BeaconTest, int64ValueIsNotReportedIfCapturingIsDisabled)
+{
+	// with
+	ON_CALL(*mockServerConfiguration, isCaptureEnabled())
+		.WillByDefault(testing::Return(false));
+
+	int64_t value = 42;
+	Utf8String_t valueName("Int64Value");
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when, expect no interaction with beacon cache
+	target->reportValue(ACTION_ID, valueName, value);
+}
+
+TEST_F(BeaconTest, int64ValueIsNotReportedIfReportValueDisallowed)
+{
+	// with
+	ON_CALL(*mockPrivacyConfiguration, isValueReportingAllowed())
+		.WillByDefault(testing::Return(false));
+
+	Utf8String_t valueName("Int64Value");
+	int64_t value = 42;
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	//given
+	auto target = createBeacon()->build();
+
+	// when, expect no interaction with beacon cache
+	target->reportValue(1, valueName, value);
+}
+
+TEST_F(BeaconTest, int64ValueIsNotReportedIfDataSendingDisallowed)
+{
+	// with
+	ON_CALL(*mockServerConfiguration, isSendingDataAllowed())
+		.WillByDefault(testing::Return(false));
+
+	Utf8String_t valueName("Int64Value");
+	int64_t value = 42;
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	//given
+	auto target = createBeacon()->build();
+
+	// when, expect no interaction with beacon cache
+	target->reportValue(1, valueName, value);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// reportValue(double) tests
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 TEST_F(BeaconTest, reportValidValueDouble)
 {
 	// with
@@ -494,6 +930,70 @@ TEST_F(BeaconTest, reportValidValueDouble)
 	// when
 	target->reportValue(ACTION_ID, valueName, value);
 }
+
+TEST_F(BeaconTest, doubleValueIsNotReportedIfCapturingIsDisabled)
+{
+	// with
+	ON_CALL(*mockServerConfiguration, isCaptureEnabled())
+		.WillByDefault(testing::Return(false));
+
+	double value = 42.1337;
+	Utf8String_t valueName("DoubleValue");
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when, expect no interaction with beacon cache
+	target->reportValue(ACTION_ID, valueName, value);
+}
+
+TEST_F(BeaconTest, doubleValueIsNotReportedIfReportValueDisallowed)
+{
+	// with
+	ON_CALL(*mockPrivacyConfiguration, isValueReportingAllowed())
+		.WillByDefault(testing::Return(false));
+
+	Utf8String_t valueName("DoubleValue");
+	double value = 42.1337;
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addActionData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	//given
+	auto target = createBeacon()->build();
+
+	// when, expect no interaction with beacon cache
+	target->reportValue(1, valueName, value);
+}
+
+TEST_F(BeaconTest, doubleValueIsNotReportedIfDataSendingDisallowed)
+{
+	// with
+	ON_CALL(*mockServerConfiguration, isSendingDataAllowed())
+		.WillByDefault(testing::Return(false));
+
+	Utf8String_t valueName("DoubleValue");
+	double value = 42.1337;
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addActionData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	//given
+	auto target = createBeacon()->build();
+
+	// when, expect no interaction with beacon cache
+	target->reportValue(1, valueName, value);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// reportValue(string) tests
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 TEST_F(BeaconTest, reportValidValueString)
 {
@@ -579,6 +1079,70 @@ TEST_F(BeaconTest, reportValueStringWithValueNullAndNameNull)
 	target->reportValue(ACTION_ID, valueName, value);
 }
 
+TEST_F(BeaconTest, stringValueIsNotIfCapturingIsDisabled)
+{
+	// with
+	ON_CALL(*mockServerConfiguration, isCaptureEnabled())
+		.WillByDefault(testing::Return(false));
+
+	Utf8String_t value("HelloWorld");
+	Utf8String_t valueName("StringValue");
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when, expect no interaction with beacon cache
+	target->reportValue(ACTION_ID, valueName, value);
+}
+
+TEST_F(BeaconTest, stringValueIsNotReportedIfValueReportingDisallowed)
+{
+	// with
+	ON_CALL(*mockPrivacyConfiguration, isValueReportingAllowed())
+		.WillByDefault(testing::Return(false));
+
+	Utf8String_t valueName("StringValue");
+	Utf8String_t value("HelloWorld");
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addActionData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	//given
+	auto target = createBeacon()->build();
+
+	// when, expect no interaction with beacon cache
+	target->reportValue(1, valueName, value);
+}
+
+TEST_F(BeaconTest, stringValueIsNotReportedIfDataSendingDisallowed)
+{
+	// with
+	ON_CALL(*mockServerConfiguration, isSendingDataAllowed())
+		.WillByDefault(testing::Return(false));
+
+	Utf8String_t valueName("StringValue");
+	Utf8String_t value("HelloWorld");
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addActionData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	//given
+	auto target = createBeacon()->build();
+
+	// when, expect no interaction with beacon cache
+	target->reportValue(1, valueName, value);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// reportEvent tests
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 TEST_F(BeaconTest, reportValidEvent)
 {
 	// with
@@ -631,6 +1195,67 @@ TEST_F(BeaconTest, reportEventWithNameNull)
 	// when
 	target->reportEvent(ACTION_ID, eventName);
 }
+
+TEST_F(BeaconTest, namedEventNotReportedIfCapturingDisabled)
+{
+	// with
+	ON_CALL(*mockServerConfiguration, isCaptureEnabled())
+		.WillByDefault(testing::Return(false));
+
+	Utf8String_t eventName("event name");
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when, expect no interaction with beacon cache
+	target->reportEvent(ACTION_ID, eventName);
+}
+
+TEST_F(BeaconTest, namedEventNotReportedIfDataSendingIsDisallowed)
+{
+	// with
+	ON_CALL(*mockServerConfiguration, isSendingDataAllowed())
+		.WillByDefault(testing::Return(false));
+
+	Utf8String_t eventName("event name");
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when, expect no interaction with beacon cache
+	target->reportEvent(ACTION_ID, eventName);
+}
+
+TEST_F(BeaconTest, namedEventNotReportedIfEventReportingDisallowed)
+{
+	// with
+	ON_CALL(*mockPrivacyConfiguration, isEventReportingAllowed())
+		.WillByDefault(testing::Return(false));
+
+	Utf8String_t eventName("some event");
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addActionData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	//given
+	auto target = createBeacon()->build();
+
+	// when, expect no interaction with beacon cache
+	target->reportEvent(ACTION_ID, eventName);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// reportError tests
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 TEST_F(BeaconTest, reportError)
 {
@@ -694,6 +1319,73 @@ TEST_F(BeaconTest, reportErrorWithoutName)
 	target->reportError(ACTION_ID, errorName, errorCode, reason);
 }
 
+TEST_F(BeaconTest, errorNotReportedIfCapturingDisabled)
+{
+	// with
+	ON_CALL(*mockServerConfiguration, isCaptureEnabled())
+		.WillByDefault(testing::Return(false));
+
+	Utf8String_t eventName("event name");
+	int32_t errorCode = 123;
+	Utf8String_t reason("error reason");
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when, expect no interaction with beacon cache
+	target->reportError(ACTION_ID, eventName, errorCode, reason);
+}
+
+TEST_F(BeaconTest, errorNotReportedIfSendingErrorDataDisallowed)
+{
+	// with
+	ON_CALL(*mockServerConfiguration, isSendingErrorsAllowed())
+		.WillByDefault(testing::Return(false));
+
+	Utf8String_t eventName("event name");
+	int32_t errorCode = 123;
+	Utf8String_t reason("error reason");
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when, expect no interaction with beacon cache
+	target->reportError(ACTION_ID, eventName, errorCode, reason);
+}
+
+TEST_F(BeaconTest, errorNotReportedIfErrorReportingDisallowed)
+{
+	// with
+	ON_CALL(*mockPrivacyConfiguration, isErrorReportingAllowed())
+		.WillByDefault(testing::Return(false));
+
+	Utf8String_t eventName("error name");
+	int32_t errorCode = 132;
+	Utf8String_t reason("error reason");
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	//given
+	auto target = createBeacon()->build();
+
+	// when, expect no interaction with beacon cache
+	target->reportError(ACTION_ID, eventName, errorCode, reason);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// reportCrash tests
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 TEST_F(BeaconTest, reportValidCrash)
 {
 	// with
@@ -756,6 +1448,73 @@ TEST_F(BeaconTest, reportCrashWithDetailsNull)
 	target->reportCrash(errorName, reason, stacktrace);
 }
 
+TEST_F(BeaconTest, crashNotReportedIfCapturingIsDisabled)
+{
+	// with
+	ON_CALL(*mockServerConfiguration, isCaptureEnabled())
+		.WillByDefault(testing::Return(false));
+
+	Utf8String_t eventName("event name");
+	Utf8String_t reason("some reason");
+	Utf8String_t stacktrace("some stacktrace");
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when, expect no interaction with beacon cache
+	target->reportCrash(eventName, reason, stacktrace);
+}
+
+TEST_F(BeaconTest, crashNotReportedIfSendingCrashDataDisallowed)
+{
+	// with
+	ON_CALL(*mockServerConfiguration, isSendingCrashesAllowed())
+		.WillByDefault(testing::Return(false));
+
+	Utf8String_t eventName("event name");
+	Utf8String_t reason("some reason");
+	Utf8String_t stacktrace("some stacktrace");
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when, expect no interaction with beacon cache
+	target->reportCrash(eventName, reason, stacktrace);
+}
+
+TEST_F(BeaconTest, crashNotReportedIfCrashReportingDisallowed)
+{
+	// with
+	ON_CALL(*mockPrivacyConfiguration, isCrashReportingAllowed())
+		.WillByDefault(testing::Return(false));
+
+	Utf8String_t eventName("crash name");
+	Utf8String_t reason("some reason");
+	Utf8String_t stacktrace("in some dark code segment");
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	//given
+	auto target = createBeacon()->build();
+
+	// when, expect no interaction with beacon cache
+	target->reportCrash(eventName, reason, stacktrace);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// addWebRequest tests
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 TEST_F(BeaconTest, addWebRequest)
 {
 	// given
@@ -798,6 +1557,296 @@ TEST_F(BeaconTest, addWebRequest)
 	// when
 	target->addWebRequest(ACTION_ID, tracer);
 }
+
+TEST_F(BeaconTest, canAddSentBytesEqualToZeroToWebRequest)
+{
+	// given
+	int32_t numBytesReceived = 14;
+	int32_t responseCode = 15;
+
+	auto target = createBeacon()->build();
+
+	auto tracer = MockIWebRequestTracerInternals::createNice();
+	ON_CALL(*tracer, getURL())
+		.WillByDefault(testing::Return(TRACER_URL));
+	ON_CALL(*tracer, getBytesSent())
+		.WillByDefault(testing::Return(0));
+	ON_CALL(*tracer, getBytesReceived())
+		.WillByDefault(testing::Return(numBytesReceived));
+	ON_CALL(*tracer, getResponseCode())
+		.WillByDefault(testing::Return(responseCode));
+
+	// expect
+	std::stringstream s;
+	s << "et=" << static_cast<int32_t>(EventType_t::WEBREQUEST)	// event type
+		<< "&na=" << UrlEncoding_t::urlencode(TRACER_URL, { '_' }).getStringData() // tracer url
+		<< "&it=" << THREAD_ID						// thread ID
+		<< "&pa=" << ACTION_ID						// parent action
+		<< "&s0=0"									// web request start sequence number
+		<< "&t0=0"									// web request start time (since session start)
+		<< "&s1=0"									// web request end sequence number
+		<< "&t1=0"									// web request end time (relative to start time)
+		<< "&bs=" << 0								// number of bytes sent
+		<< "&br=" << numBytesReceived				// number of bytes received
+		<< "&rc=" << responseCode					// response code
+		;
+	EXPECT_CALL(*mockBeaconCache, addEventData(
+		SESSION_ID,									// session ID
+		0,											// timestamp when web request tracer was reported
+		testing::Eq(s.str())
+	)).Times(1);
+
+	// when
+	target->addWebRequest(ACTION_ID, tracer);
+}
+
+TEST_F(BeaconTest, cannotAddSentBytesLessThanZeroToWebRequest)
+{
+	// given
+	int32_t numBytesReceived = 14;
+	int32_t responseCode = 15;
+
+	auto target = createBeacon()->build();
+
+	auto tracer = MockIWebRequestTracerInternals::createNice();
+	ON_CALL(*tracer, getURL())
+		.WillByDefault(testing::Return(TRACER_URL));
+	ON_CALL(*tracer, getBytesSent())
+		.WillByDefault(testing::Return(-1));
+	ON_CALL(*tracer, getBytesReceived())
+		.WillByDefault(testing::Return(numBytesReceived));
+	ON_CALL(*tracer, getResponseCode())
+		.WillByDefault(testing::Return(responseCode));
+
+	// expect
+	std::stringstream s;
+	s << "et=" << static_cast<int32_t>(EventType_t::WEBREQUEST)	// event type
+		<< "&na=" << UrlEncoding_t::urlencode(TRACER_URL, { '_' }).getStringData() // tracer url
+		<< "&it=" << THREAD_ID						// thread ID
+		<< "&pa=" << ACTION_ID						// parent action
+		<< "&s0=0"									// web request start sequence number
+		<< "&t0=0"									// web request start time (since session start)
+		<< "&s1=0"									// web request end sequence number
+		<< "&t1=0"									// web request end time (relative to start time)
+		<< "&br=" << numBytesReceived				// number of bytes received
+		<< "&rc=" << responseCode					// response code
+		;
+	EXPECT_CALL(*mockBeaconCache, addEventData(
+		SESSION_ID,									// session ID
+		0,											// timestamp when web request tracer was reported
+		testing::Eq(s.str())
+	)).Times(1);
+
+	// when
+	target->addWebRequest(ACTION_ID, tracer);
+}
+
+TEST_F(BeaconTest, canAddReceivedBytesEqualToZeroToWebRequest)
+{
+	// given
+	int32_t numBytesSent = 13;
+	int32_t responseCode = 15;
+
+	auto target = createBeacon()->build();
+
+	auto tracer = MockIWebRequestTracerInternals::createNice();
+	ON_CALL(*tracer, getURL())
+		.WillByDefault(testing::Return(TRACER_URL));
+	ON_CALL(*tracer, getBytesSent())
+		.WillByDefault(testing::Return(numBytesSent));
+	ON_CALL(*tracer, getBytesReceived())
+		.WillByDefault(testing::Return(0));
+	ON_CALL(*tracer, getResponseCode())
+		.WillByDefault(testing::Return(responseCode));
+
+	// expect
+	std::stringstream s;
+	s << "et=" << static_cast<int32_t>(EventType_t::WEBREQUEST)	// event type
+		<< "&na=" << UrlEncoding_t::urlencode(TRACER_URL, { '_' }).getStringData() // tracer url
+		<< "&it=" << THREAD_ID						// thread ID
+		<< "&pa=" << ACTION_ID						// parent action
+		<< "&s0=0"									// web request start sequence number
+		<< "&t0=0"									// web request start time (since session start)
+		<< "&s1=0"									// web request end sequence number
+		<< "&t1=0"									// web request end time (relative to start time)
+		<< "&bs=" << numBytesSent					// number of bytes sent
+		<< "&br=" << 0								// number of bytes received
+		<< "&rc=" << responseCode					// response code
+		;
+	EXPECT_CALL(*mockBeaconCache, addEventData(
+		SESSION_ID,									// session ID
+		0,											// timestamp when web request tracer was reported
+		testing::Eq(s.str())
+	)).Times(1);
+
+	// when
+	target->addWebRequest(ACTION_ID, tracer);
+}
+
+TEST_F(BeaconTest, cannotAddReceivedBytesLessThanZeroToWebRequest)
+{
+	// given
+	int32_t numBytesSent = 13;
+	int32_t responseCode = 15;
+
+	auto target = createBeacon()->build();
+
+	auto tracer = MockIWebRequestTracerInternals::createNice();
+	ON_CALL(*tracer, getURL())
+		.WillByDefault(testing::Return(TRACER_URL));
+	ON_CALL(*tracer, getBytesSent())
+		.WillByDefault(testing::Return(numBytesSent));
+	ON_CALL(*tracer, getBytesReceived())
+		.WillByDefault(testing::Return(-1));
+	ON_CALL(*tracer, getResponseCode())
+		.WillByDefault(testing::Return(responseCode));
+
+	// expect
+	std::stringstream s;
+	s << "et=" << static_cast<int32_t>(EventType_t::WEBREQUEST)	// event type
+		<< "&na=" << UrlEncoding_t::urlencode(TRACER_URL, { '_' }).getStringData() // tracer url
+		<< "&it=" << THREAD_ID						// thread ID
+		<< "&pa=" << ACTION_ID						// parent action
+		<< "&s0=0"									// web request start sequence number
+		<< "&t0=0"									// web request start time (since session start)
+		<< "&s1=0"									// web request end sequence number
+		<< "&t1=0"									// web request end time (relative to start time)
+		<< "&bs=" << numBytesSent					// number of bytes sent
+		<< "&rc=" << responseCode					// response code
+		;
+	EXPECT_CALL(*mockBeaconCache, addEventData(
+		SESSION_ID,									// session ID
+		0,											// timestamp when web request tracer was reported
+		testing::Eq(s.str())
+	)).Times(1);
+
+	// when
+	target->addWebRequest(ACTION_ID, tracer);
+}
+
+TEST_F(BeaconTest, canAddResponseCodeEqualToZeroToWebRequest)
+{
+	// given
+	int32_t numBytesSent = 13;
+	int32_t numBytesReceived = 14;
+
+	auto target = createBeacon()->build();
+
+	auto tracer = MockIWebRequestTracerInternals::createNice();
+	ON_CALL(*tracer, getURL())
+		.WillByDefault(testing::Return(TRACER_URL));
+	ON_CALL(*tracer, getBytesSent())
+		.WillByDefault(testing::Return(numBytesSent));
+	ON_CALL(*tracer, getBytesReceived())
+		.WillByDefault(testing::Return(numBytesReceived));
+	ON_CALL(*tracer, getResponseCode())
+		.WillByDefault(testing::Return(0));
+
+	// expect
+	std::stringstream s;
+	s << "et=" << static_cast<int32_t>(EventType_t::WEBREQUEST)	// event type
+		<< "&na=" << UrlEncoding_t::urlencode(TRACER_URL, { '_' }).getStringData() // tracer url
+		<< "&it=" << THREAD_ID						// thread ID
+		<< "&pa=" << ACTION_ID						// parent action
+		<< "&s0=0"									// web request start sequence number
+		<< "&t0=0"									// web request start time (since session start)
+		<< "&s1=0"									// web request end sequence number
+		<< "&t1=0"									// web request end time (relative to start time)
+		<< "&bs=" << numBytesSent					// number of bytes sent
+		<< "&br=" << numBytesReceived				// number of bytes received
+		<< "&rc=" << 0								// response code
+		;
+	EXPECT_CALL(*mockBeaconCache, addEventData(
+		SESSION_ID,									// session ID
+		0,											// timestamp when web request tracer was reported
+		testing::Eq(s.str())
+	)).Times(1);
+
+	// when
+	target->addWebRequest(ACTION_ID, tracer);
+}
+
+TEST_F(BeaconTest, cannotAddResponseCodeLessThanZeroToWebRequest)
+{
+	// given
+	int32_t numBytesSent = 13;
+	int32_t numBytesReceived = 14;
+
+	auto target = createBeacon()->build();
+
+	auto tracer = MockIWebRequestTracerInternals::createNice();
+	ON_CALL(*tracer, getURL())
+		.WillByDefault(testing::Return(TRACER_URL));
+	ON_CALL(*tracer, getBytesSent())
+		.WillByDefault(testing::Return(numBytesSent));
+	ON_CALL(*tracer, getBytesReceived())
+		.WillByDefault(testing::Return(numBytesReceived));
+	ON_CALL(*tracer, getResponseCode())
+		.WillByDefault(testing::Return(-1));
+
+	// expect
+	std::stringstream s;
+	s << "et=" << static_cast<int32_t>(EventType_t::WEBREQUEST)	// event type
+		<< "&na=" << UrlEncoding_t::urlencode(TRACER_URL, { '_' }).getStringData() // tracer url
+		<< "&it=" << THREAD_ID						// thread ID
+		<< "&pa=" << ACTION_ID						// parent actiond
+		<< "&s0=0"									// web request start sequence number
+		<< "&t0=0"									// web request start time (since session start)
+		<< "&s1=0"									// web request end sequence number
+		<< "&t1=0"									// web request end time (relative to start time)
+		<< "&bs=" << numBytesSent					// number of bytes sent
+		<< "&br=" << numBytesReceived				// number of bytes received
+		;
+	EXPECT_CALL(*mockBeaconCache, addEventData(
+		SESSION_ID,									// session ID
+		0,											// timestamp when web request tracer was reported
+		testing::Eq(s.str())
+	)).Times(1);
+
+	// when
+	target->addWebRequest(ACTION_ID, tracer);
+}
+
+TEST_F(BeaconTest, webRequestNotReportedIfCapturingDisabled)
+{
+	// with
+	ON_CALL(*mockServerConfiguration, isCaptureEnabled())
+		.WillByDefault(testing::Return(false));
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	// given
+	auto target = createBeacon()
+		->build();
+	auto tracer = MockIWebRequestTracerInternals::createNice();
+
+	// when, expect no interaction with beacon cache
+	target->addWebRequest(ACTION_ID, tracer);
+}
+
+TEST_F(BeaconTest, webRequestNotReportedIfWebRequestTracingDisallowed)
+{
+	// with
+	ON_CALL(*mockPrivacyConfiguration, isWebRequestTracingAllowed())
+		.WillByDefault(testing::Return(false));
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	// given
+	auto target = createBeacon()->build();
+	auto tracer = MockIWebRequestTracerInternals::createNice();
+
+	// when, expect no interaction with beacon cache
+	target->addWebRequest(ACTION_ID, tracer);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// identifyUser tests
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 TEST_F(BeaconTest, addUserIdentifyEvent)
 {
@@ -852,294 +1901,41 @@ TEST_F(BeaconTest, addUserIdentifyWithNullUserIDEvent)
 	target->identifyUser(userID);
 }
 
-TEST_F(BeaconTest, canAddSentBytesToWebRequestTracer)
-{
-	// with
-	Utf8String_t url("https://localhost");
-	int32_t numBytesSent = 12321;
-
-	// expect
-	std::stringstream s;
-	s << "et=" << static_cast<int32_t>(EventType_t::WEBREQUEST)	// event type
-		<< "&na=" << UrlEncoding_t::urlencode(url, {'_'}).getStringData() // reported URL
-		<< "&it=" << THREAD_ID						// thread ID
-		<< "&pa=0"									// parent action
-		<< "&s0=1"									// web request start sequence number
-		<< "&t0=0"									// web request start timestamp (relative to session start)
-		<< "&s1=2"									// web request end sequence number
-		<< "&t1=0"									// web request end timestamp (relative to start time)
-		<< "&bs=" << numBytesSent					// number of bytes sent
-	;
-	EXPECT_CALL(*mockBeaconCache, addEventData(
-		SESSION_ID,									// session ID
-		0,											// timestamp of web request tracer event
-		testing::Eq(s.str())
-	)).Times(1);
-
-	// given
-	auto target = createBeacon()->build();
-
-	auto tracer = std::make_shared<WebRequestTracer_t>(mockLogger, mockParent, target, url);
-
-	// when
-	tracer->start()->setBytesSent(numBytesSent)->stop(-1); // will add the web request to the beacon
-}
-
-TEST_F(BeaconTest, canAddSentBytesValueZeroToWebRequestTracer)
-{
-	// with
-	Utf8String_t url("https://localhost");
-	int32_t numBytesSent = 0;
-
-	// expect
-	std::stringstream s;
-	s << "et=" << static_cast<int32_t>(EventType_t::WEBREQUEST)	// event type
-		<< "&na=" << UrlEncoding_t::urlencode(url, {'_'}).getStringData() // reported URL
-		<< "&it=" << THREAD_ID						// thread ID
-		<< "&pa=0"									// parent action
-		<< "&s0=1"									// web request start sequence number
-		<< "&t0=0"									// web request start timestamp (relative to session start)
-		<< "&s1=2"									// web request end sequence number
-		<< "&t1=0"									// web request end timestamp (relative to start time)
-		<< "&bs=" << numBytesSent					// number of bytes sent
-	;
-	EXPECT_CALL(*mockBeaconCache, addEventData(
-		SESSION_ID,									// session ID
-		0,											// timestamp of web request tracer event
-		testing::Eq(s.str())
-	)).Times(1);
-
-	// given
-	auto target = createBeacon()->build();
-
-	auto tracer = std::make_shared<WebRequestTracer_t>(mockLogger, mockParent, target, url);
-
-	// when
-	tracer->start()->setBytesSent(numBytesSent)->stop(-1); // will add the web request to the beacon
-}
-
-TEST_F(BeaconTest, cannotAddSentBytesWithInvalidValueSmallerZeroToWebRequestTracer)
-{
-	// with
-	Utf8String_t url("https://localhost");
-	int32_t numBytesSent = -5;
-
-	// expect
-	std::stringstream s;
-	s << "et=" << static_cast<int32_t>(EventType_t::WEBREQUEST)	// event type
-		<< "&na=" << UrlEncoding_t::urlencode(url, {'_'}).getStringData() // reported URL
-		<< "&it=" << THREAD_ID						// thread ID
-		<< "&pa=0"									// parent action
-		<< "&s0=1"									// web request start sequence number
-		<< "&t0=0"									// web request start timestamp (relative to session start)
-		<< "&s1=2"									// web request end sequence number
-		<< "&t1=0"									// web request end timestamp (relative to start time)
-	;
-	EXPECT_CALL(*mockBeaconCache, addEventData(
-		SESSION_ID,									// session ID
-		0,											// timestamp of web request tracer event
-		testing::Eq(s.str())
-	)).Times(1);
-
-	// given
-	auto target = createBeacon()->build();
-
-	auto tracer = std::make_shared<WebRequestTracer_t>(mockLogger, mockParent, target, url);
-
-	// when
-	tracer->start()->setBytesSent(numBytesSent)->stop(-1); // will add the web request to the beacon
-}
-
-TEST_F(BeaconTest, canAddReceivedBytesToWebRequestTracer)
-{
-	// with
-	Utf8String_t url("https://localhost");
-	int32_t numBytesReceived = 12321;
-
-	// expect
-	std::stringstream s;
-	s << "et=" << static_cast<int32_t>(EventType_t::WEBREQUEST)	// event type
-		<< "&na=" << UrlEncoding_t::urlencode(url, {'_'}).getStringData() // reported URL
-		<< "&it=" << THREAD_ID						// thread ID
-		<< "&pa=0"									// parent action
-		<< "&s0=1"									// web request start sequence number
-		<< "&t0=0"									// web request start timestamp (relative to session start)
-		<< "&s1=2"									// web request end sequence number
-		<< "&t1=0"									// web request end timestamp (relative to start time)
-		<< "&br=" << numBytesReceived				// number of received bytes
-	;
-	EXPECT_CALL(*mockBeaconCache, addEventData(
-		SESSION_ID,									// session ID
-		0,											// timestamp of web request tracer event
-		testing::Eq(s.str())
-	)).Times(1);
-
-	// given
-	auto target = createBeacon()->build();
-
-	auto tracer = std::make_shared<WebRequestTracer_t>(mockLogger, mockParent, target, url);
-
-	// when
-	tracer->start()->setBytesReceived(numBytesReceived)->stop(-1); // will add the web request to the beacon
-}
-
-TEST_F(BeaconTest, canAddReceivedBytesValueZeroToWebRequestTracer)
-{
-	// with
-	Utf8String_t url("https://localhost");
-	int32_t numBytesReceived = 0;
-
-	// expect
-	std::stringstream s;
-	s << "et=" << static_cast<int32_t>(EventType_t::WEBREQUEST)	// event type
-		<< "&na=" << UrlEncoding_t::urlencode(url, {'_'}).getStringData() // reported URL
-		<< "&it=" << THREAD_ID						// thread ID
-		<< "&pa=0"									// parent action
-		<< "&s0=1"									// web request start sequence number
-		<< "&t0=0"									// web request start timestamp (relative to session start)
-		<< "&s1=2"									// web request end sequence number
-		<< "&t1=0"									// web request end timestamp (relative to start time)
-		<< "&br=" << numBytesReceived				// number of received bytes
-	;
-	EXPECT_CALL(*mockBeaconCache, addEventData(
-		SESSION_ID,									// session ID
-		0,											// timestamp of web request tracer event
-		testing::Eq(s.str())
-	)).Times(1);
-
-	// given
-	auto target = createBeacon()->build();
-
-	auto tracer = std::make_shared<WebRequestTracer_t>(mockLogger, mockParent, target, url);
-
-	// when
-	tracer->start()->setBytesReceived(numBytesReceived)->stop(-1); // will add the web request to the beacon
-}
-
-TEST_F(BeaconTest, cannotAddReceivedBytesWithInvalidValueSmallerZeroToWebRequestTracer)
-{
-	// with
-	Utf8String_t url("https://localhost");
-	int32_t numBytesReceived = -5;
-
-	// expect
-	std::stringstream s;
-	s << "et=" << static_cast<int32_t>(EventType_t::WEBREQUEST)	// event type
-		<< "&na=" << UrlEncoding_t::urlencode(url, {'_'}).getStringData() // reported URL
-		<< "&it=" << THREAD_ID						// thread ID
-		<< "&pa=0"									// parent action
-		<< "&s0=1"									// web request start sequence number
-		<< "&t0=0"									// web request start timestamp (relative to session start)
-		<< "&s1=2"									// web request end sequence number
-		<< "&t1=0"									// web request end timestamp (relative to start time)
-	;
-	EXPECT_CALL(*mockBeaconCache, addEventData(
-		SESSION_ID,									// session ID
-		0,											// timestamp of web request tracer event
-		testing::Eq(s.str())
-	)).Times(1);
-
-	// given
-	auto target = createBeacon()->build();
-
-	auto tracer = std::make_shared<WebRequestTracer_t>(mockLogger, mockParent, target, url);
-
-	// when
-	tracer->start()->setBytesReceived(numBytesReceived)->stop(-1); // will add the web request to the beacon
-}
-
-TEST_F(BeaconTest, canAddBothSentBytesAndReceivedBytesToWebRequestTracer)
-{
-	// with
-	Utf8String_t url("https://localhost");
-	int32_t numBytesSent = 12321;
-	int32_t numBytesReceived = 123;
-
-	// expect
-	std::stringstream s;
-	s << "et=" << static_cast<int32_t>(EventType_t::WEBREQUEST)	// event type
-		<< "&na=" << UrlEncoding_t::urlencode(url, {'_'}).getStringData() // reported URL
-		<< "&it=" << THREAD_ID						// thread ID
-		<< "&pa=0"									// parent action
-		<< "&s0=1"									// web request start sequence number
-		<< "&t0=0"									// web request start timestamp (relative to session start)
-		<< "&s1=2"									// web request end sequence number
-		<< "&t1=0"									// web request end timestamp (relative to start time)
-		<< "&bs=" << numBytesSent					// number of received bytes
-		<< "&br=" << numBytesReceived				// number of received bytes
-	;
-	EXPECT_CALL(*mockBeaconCache, addEventData(
-		SESSION_ID,									// session ID
-		0,											// timestamp of web request tracer event
-		testing::Eq(s.str())
-	)).Times(1);
-
-	// given
-	auto target = createBeacon()->build();
-
-	auto tracer = std::make_shared<WebRequestTracer_t>(mockLogger, mockParent, target, url);
-
-	// when
-	tracer->start()
-		->setBytesSent(numBytesSent)
-		->setBytesReceived(numBytesReceived)
-		->stop(-1); // will add the web request to the beacon
-}
-
-TEST_F(BeaconTest, canAddActionIfDataSendingIsAllowed)
-{
-	// with
-	Utf8String_t actionName("action");
-	auto action = MockIActionCommon::createNice();
-	ON_CALL(*action, getName())
-		.WillByDefault(testing::ReturnRef(actionName));
-
-	// expect
-	std::stringstream s;
-	s << "et=" << static_cast<int32_t>(EventType_t::ACTION)	// event type
-		<< "&na=" << actionName.getStringData()		// action name
-		<< "&it=" << THREAD_ID						// thread ID
-		<< "&ca=0"									// action ID
-		<< "&pa=0"									// parent action
-		<< "&s0=0"									// action start sequence number
-		<< "&t0=0"									// action start time (relative to session start)
-		<< "&s1=0"									// action end sequence number
-		<< "&t1=0"									// action end time (relative to start time)
-	;
-	EXPECT_CALL(*mockBeaconCache, addActionData(
-		SESSION_ID,									// session ID
-		0,											// timestamp of web request tracer event
-		testing::Eq(s.str())
-	)).Times(1);
-
-	// given
-	auto target = createBeacon()->build();
-
-	// when
-	target->addAction(action);
-}
-
-TEST_F(BeaconTest, cannotAddActionIfCapturingIsDisabled)
+TEST_F(BeaconTest, cannotIdentifyUserIfCapturingDisabled)
 {
 	// with
 	ON_CALL(*mockServerConfiguration, isCaptureEnabled())
 		.WillByDefault(testing::Return(false));
 
-	Utf8String_t actionName("action");
-	auto action = MockIActionCommon::createNice();
-	ON_CALL(*action, getName())
-		.WillByDefault(testing::ReturnRef(actionName));
+	Utf8String_t userID("jane.doe@acmoe.com");
 
 	// expect
-	EXPECT_CALL(*mockBeaconCache, addActionData(testing::_, testing::_, testing::_))
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
 		.Times(0);
 
 	// given
 	auto target = createBeacon()->build();
 
 	// when, expect no interaction with beacon cache
-	target->addAction(action);
+	target->identifyUser(userID);
 }
+
+TEST_F(BeaconTest, cannotIdentifyUserIfUserIdentificationDisabled)
+{
+	// with
+	ON_CALL(*mockPrivacyConfiguration, isUserIdentificationAllowed())
+		.WillByDefault(testing::Return(false));
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when, expect no interaction with beacon cache
+	target->identifyUser("jane@doe.com");
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// send tests
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 TEST_F(BeaconTest, canHandleNoDataInBeaconSend)
 {
@@ -1240,6 +2036,10 @@ TEST_F(BeaconTest, sendDataAndFakeErrorResponse)
 	ASSERT_THAT(obtained->getResponseCode(), testing::Eq(responseCode));
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// misc tests
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 TEST_F(BeaconTest, clearDataFromBeaconCache)
 {
 	// given
@@ -1279,463 +2079,6 @@ TEST_F(BeaconTest, clearDataForwardsCallToBeaconCache)
 
 	// when
 	target->clearData();
-}
-
-TEST_F(BeaconTest, noSessionIsAddedIfCapturingDisabled)
-{
-	// with
-	ON_CALL(*mockServerConfiguration, isCaptureEnabled())
-		.WillByDefault(testing::Return(false));
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
-		.Times(0);
-
-	// given
-	auto target = createBeacon()->build();
-
-	// when, expect no interaction with beacon cache
-	target->endSession();
-}
-
-TEST_F(BeaconTest, noActionIsAddedIfCapturingDisabled)
-{
-	// with
-	ON_CALL(*mockServerConfiguration, isCaptureEnabled())
-		.WillByDefault(testing::Return(false));
-
-	auto action = MockIActionCommon::createNice();
-	ON_CALL(*action, getID())
-		.WillByDefault(testing::Return(ACTION_ID));
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addActionData(testing::_, testing::_, testing::_))
-		.Times(0);
-
-	// given
-	auto target = createBeacon()->build();
-
-	// when, expect no interaction with beacon cache
-	target->addAction(action);
-}
-
-TEST_F(BeaconTest, noInt32ValueIsReportedIfCapturingIsDisabled)
-{
-	// with
-	ON_CALL(*mockServerConfiguration, isCaptureEnabled())
-		.WillByDefault(testing::Return(false));
-
-	int32_t value = 42;
-	Utf8String_t valueName("Int32Value");
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
-		.Times(0);
-
-	// given
-	auto target = createBeacon()->build();
-
-	// when, expect no interaction with beacon cache
-	target->reportValue(ACTION_ID, valueName, value);
-}
-
-TEST_F(BeaconTest, noInt64ValueIsReportedIfCapturingIsDisabled)
-{
-	// with
-	ON_CALL(*mockServerConfiguration, isCaptureEnabled())
-		.WillByDefault(testing::Return(false));
-
-	int64_t value = 42;
-	Utf8String_t valueName("Int64Value");
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
-		.Times(0);
-
-	// given
-	auto target = createBeacon()->build();
-
-	// when, expect no interaction with beacon cache
-	target->reportValue(ACTION_ID, valueName, value);
-}
-
-TEST_F(BeaconTest, noDoubleValueIsReportedIfCapturingIsDisabled)
-{
-	// with
-	ON_CALL(*mockServerConfiguration, isCaptureEnabled())
-		.WillByDefault(testing::Return(false));
-
-	double value = 42.1337;
-	Utf8String_t valueName("DoubleValue");
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
-		.Times(0);
-
-	// given
-	auto target = createBeacon()->build();
-
-	// when, expect no interaction with beacon cache
-	target->reportValue(ACTION_ID, valueName, value);
-}
-
-TEST_F(BeaconTest, noStringValueIsReportedIfCapturingIsDisabled)
-{
-	// with
-	ON_CALL(*mockServerConfiguration, isCaptureEnabled())
-		.WillByDefault(testing::Return(false));
-
-	Utf8String_t value("HelloWorld");
-	Utf8String_t valueName("StringValue");
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
-		.Times(0);
-
-	// given
-	auto target = createBeacon()->build();
-
-	// when, expect no interaction with beacon cache
-	target->reportValue(ACTION_ID, valueName, value);
-}
-
-TEST_F(BeaconTest, noEventIsReportedIfCapturingDisabled)
-{
-	// with
-	ON_CALL(*mockServerConfiguration, isCaptureEnabled())
-		.WillByDefault(testing::Return(false));
-
-	Utf8String_t eventName("event name");
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
-		.Times(0);
-
-	// given
-	auto target = createBeacon()->build();
-
-	// when, expect no interaction with beacon cache
-	target->reportEvent(ACTION_ID, eventName);
-}
-
-TEST_F(BeaconTest, noEventIsReportedIfDataSendingIsDisallowed)
-{
-	// with
-	ON_CALL(*mockServerConfiguration, isSendingDataAllowed())
-		.WillByDefault(testing::Return(false));
-
-	Utf8String_t eventName("event name");
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
-		.Times(0);
-
-	// given
-	auto target = createBeacon()->build();
-
-	// when, expect no interaction with beacon cache
-	target->reportEvent(ACTION_ID, eventName);
-}
-
-TEST_F(BeaconTest, noErrorIsReportedIfCapturingDisabled)
-{
-	// with
-	ON_CALL(*mockServerConfiguration, isCaptureEnabled())
-		.WillByDefault(testing::Return(false));
-
-	Utf8String_t eventName("event name");
-	int32_t errorCode = 123;
-	Utf8String_t reason("error reason");
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
-		.Times(0);
-
-	// given
-	auto target = createBeacon()->build();
-
-	// when, expect no interaction with beacon cache
-	target->reportError(ACTION_ID, eventName, errorCode, reason);
-}
-
-TEST_F(BeaconTest, noErrorIsReportedIfSendingErrorDataDisallowed)
-{
-	// with
-	ON_CALL(*mockServerConfiguration, isSendingErrorsAllowed())
-		.WillByDefault(testing::Return(false));
-
-	Utf8String_t eventName("event name");
-	int32_t errorCode = 123;
-	Utf8String_t reason("error reason");
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
-		.Times(0);
-
-	// given
-	auto target = createBeacon()->build();
-
-	// when, expect no interaction with beacon cache
-	target->reportError(ACTION_ID, eventName, errorCode, reason);
-}
-
-TEST_F(BeaconTest, noCrashIsReportedIfCapturingIsDisabled)
-{
-	// with
-	ON_CALL(*mockServerConfiguration, isCaptureEnabled())
-		.WillByDefault(testing::Return(false));
-
-	Utf8String_t eventName("event name");
-	Utf8String_t reason("some reason");
-	Utf8String_t stacktrace("some stacktrace");
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
-		.Times(0);
-
-	// given
-	auto target = createBeacon()->build();
-
-	// when, expect no interaction with beacon cache
-	target->reportCrash(eventName, reason, stacktrace);
-}
-
-TEST_F(BeaconTest, noCrashIsReportedIfSendingCrashDataDisallowed)
-{
-	// with
-	ON_CALL(*mockServerConfiguration, isSendingCrashesAllowed())
-		.WillByDefault(testing::Return(false));
-
-	Utf8String_t eventName("event name");
-	Utf8String_t reason("some reason");
-	Utf8String_t stacktrace("some stacktrace");
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
-		.Times(0);
-
-	// given
-	auto target = createBeacon()->build();
-
-	// when, expect no interaction with beacon cache
-	target->reportCrash(eventName, reason, stacktrace);
-}
-
-TEST_F(BeaconTest, noWebRequestIsReportedIfCapturingDisabled)
-{
-	// with
-	ON_CALL(*mockServerConfiguration, isCaptureEnabled())
-		.WillByDefault(testing::Return(false));
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
-		.Times(0);
-
-	// given
-	auto target = createBeacon()
-			->build();
-	auto tracer = MockIWebRequestTracerInternals::createNice();
-
-	// when, expect no interaction with beacon cache
-	target->addWebRequest(ACTION_ID, tracer);
-}
-
-TEST_F(BeaconTest, noUserIdentificationIsReportedIfCapturingDisabled)
-{
-	// with
-	ON_CALL(*mockServerConfiguration, isCaptureEnabled())
-		.WillByDefault(testing::Return(false));
-
-	Utf8String_t userID("jane.doe@acmoe.com");
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
-		.Times(0);
-
-	// given
-	auto target = createBeacon()->build();
-
-	// when, expect no interaction with beacon cache
-	target->identifyUser(userID);
-}
-
-TEST_F(BeaconTest, noWebRequestIsReportedIfWebRequestTracingDisallowed)
-{
-	// with
-	ON_CALL(*mockPrivacyConfiguration, isWebRequestTracingAllowed())
-		.WillByDefault(testing::Return(false));
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
-		.Times(0);
-
-	// given
-	auto target = createBeacon()->build();
-	auto tracer = MockIWebRequestTracerInternals::createNice();
-
-	// when, expect no interaction with beacon cache
-	target->addWebRequest(ACTION_ID, tracer);
-}
-
-TEST_F(BeaconTest, webRequestIsReportedForIfWebRequestTracingAllowed)
-{
-	// with
-	ON_CALL(*mockPrivacyConfiguration, isWebRequestTracingAllowed())
-		.WillByDefault(testing::Return(true));
-	auto mockWebRequestTracer = MockIWebRequestTracerInternals::createNice();
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(SESSION_ID, 0, testing::_))
-		.Times(1);
-	EXPECT_CALL(*mockWebRequestTracer, getBytesReceived())
-		.Times(1);
-	EXPECT_CALL(*mockWebRequestTracer, getBytesSent())
-		.Times(1);
-	EXPECT_CALL(*mockWebRequestTracer, getResponseCode())
-		.Times(1);
-
-	//given
-	auto target = createBeacon()->build();
-
-	// when
-	target->addWebRequest(ACTION_ID, mockWebRequestTracer);
-}
-
-TEST_F(BeaconTest, beaconReturnsEmptyTagIfWebRequestTracingDisallowed)
-{
-	// with
-	ON_CALL(*mockPrivacyConfiguration, isWebRequestTracingAllowed())
-		.WillByDefault(testing::Return(false));
-
-	//given
-	auto target = createBeacon()->build();
-
-	// when
-	auto obtained = target->createTag(ACTION_ID, 1);
-
-	//then
-	ASSERT_THAT(obtained, testing::Eq(""));
-}
-
-TEST_F(BeaconTest, beaconReturnsValidTagIfWebRequestTracingIsAllowed)
-{
-	// with
-	int32_t sequenceNo = 1;
-
-	ON_CALL(*mockPrivacyConfiguration, isWebRequestTracingAllowed())
-		.WillByDefault(testing::Return(true));
-
-	auto target = createBeacon()->build();
-
-	// when
-	auto tagString = target->createTag(ACTION_ID, sequenceNo);
-
-	//then
-	std::stringstream str;
-	str << "MT"						// tag prefix
-		<< "_" << protocol::PROTOCOL_VERSION	// protocol version
-		<< "_" << SERVER_ID						// server ID
-		<< "_" << DEVICE_ID						// device ID
-		<< "_" << SESSION_ID					// session number
-		<< "_" << APP_ID.getStringData()		// application ID
-		<< "_" << ACTION_ID						// parent action ID
-		<< "_" << THREAD_ID						// thread ID
-		<< "_" << sequenceNo					// sequence number
-	;
-
-	ASSERT_THAT(tagString.getStringData(), testing::Eq(str.str()));
-}
-
-TEST_F(BeaconTest, beaconReturnsValidTagWithSessionNumberIfSessionNumberReportingAllowed)
-{
-	// with
-	int32_t sequenceNo = 1;
-
-	ON_CALL(*mockPrivacyConfiguration, isSessionNumberReportingAllowed())
-		.WillByDefault(testing::Return(true));
-	ON_CALL(*mockPrivacyConfiguration, isWebRequestTracingAllowed())
-		.WillByDefault(testing::Return(true));
-
-	auto target = createBeacon()->build();
-
-	// when
-	auto tagString = target->createTag(ACTION_ID, sequenceNo);
-
-	//then
-	std::stringstream str;
-	str << "MT"						// tag prefix
-		<< "_" << protocol::PROTOCOL_VERSION	// protocol version
-		<< "_" << SERVER_ID						// server ID
-		<< "_" << DEVICE_ID						// device ID
-		<< "_" << SESSION_ID					// session number
-		<< "_" << APP_ID.getStringData()		// application ID
-		<< "_" << ACTION_ID						// parent action ID
-		<< "_" << THREAD_ID						// thread ID
-		<< "_" << sequenceNo					// sequence number
-	;
-
-	ASSERT_THAT(tagString.getStringData(), testing::Eq(str.str()));
-}
-
-TEST_F(BeaconTest, beaconReturnsValidTagWithSessionNumberOneIfSessionNumberReportinDisallowed)
-{
-	// with
-	int32_t sequenceNo = 1;
-
-	ON_CALL(*mockPrivacyConfiguration, isSessionNumberReportingAllowed())
-		.WillByDefault(testing::Return(false));
-	ON_CALL(*mockPrivacyConfiguration, isWebRequestTracingAllowed())
-		.WillByDefault(testing::Return(true));
-
-	auto target = createBeacon()->build();
-
-	// when
-	auto tagString = target->createTag(ACTION_ID, sequenceNo);
-
-	//then
-	std::stringstream str;
-	str << "MT"						// tag prefix
-		<< "_" << protocol::PROTOCOL_VERSION	// protocol version
-		<< "_" << SERVER_ID						// server ID
-		<< "_" << DEVICE_ID						// device ID
-		<< "_1"									// session number (must always be 1 if session number reporting disallowed)
-		<< "_" << APP_ID.getStringData()		// application ID
-		<< "_" << ACTION_ID						// parent action ID
-		<< "_" << THREAD_ID						// thread ID
-		<< "_" << sequenceNo					// sequence number
-	;
-
-	ASSERT_THAT(tagString.getStringData(), testing::Eq(str.str()));
-}
-
-TEST_F(BeaconTest, cannotIdentifyUserIfUserIdentificationDisabled)
-{
-	// with
-	ON_CALL(*mockPrivacyConfiguration, isUserIdentificationAllowed())
-		.WillByDefault(testing::Return(false));
-
-	// given
-	auto target = createBeacon()->build();
-
-	// when, expect no interaction with beacon cache
-	target->identifyUser("jane@doe.com");
-}
-
-TEST_F(BeaconTest, canIdentifyUserIfUserIdentificationAllowed)
-{
-	// with
-	ON_CALL(*mockPrivacyConfiguration, isUserIdentificationAllowed())
-		.WillByDefault(testing::Return(true));
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
-		.Times(1);
-
-	// given
-	auto target = createBeacon()->build();
-
-	// when, expect no interaction with beacon cache
-	target->identifyUser("jane@doe.com");
 }
 
 TEST_F(BeaconTest, deviceIDIsRandomizedIfDeviceIdSendingDisallowed)
@@ -1819,538 +2162,6 @@ TEST_F(BeaconTest, sessionIDIsValueFromSessionIDProviderIfSessionNumberReporting
 
 	// then
 	ASSERT_THAT(obtained, testing::Eq(SESSION_ID));
-}
-
-TEST_F(BeaconTest, reportCrashDoesNotReportIfCrashReportingDisallowed)
-{
-	// with
-	ON_CALL(*mockPrivacyConfiguration, isCrashReportingAllowed())
-		.WillByDefault(testing::Return(false));
-
-	Utf8String_t eventName("crash name");
-	Utf8String_t reason("some reason");
-	Utf8String_t stacktrace("in some dark code segment");
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
-		.Times(0);
-
-	//given
-	auto target = createBeacon()->build();
-
-	// when, expect no interaction with beacon cache
-	target->reportCrash(eventName, reason, stacktrace);
-}
-
-TEST_F(BeaconTest, reportCrashDoesReportIfCrashReportingIsAllowed)
-{
-	// with
-	ON_CALL(*mockPrivacyConfiguration, isCrashReportingAllowed())
-		.WillByDefault(testing::Return(true));
-
-	Utf8String_t eventName("crash name");
-	Utf8String_t reason("some reason");
-	Utf8String_t stacktrace("in some dark code segment");
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
-			.Times(1);
-
-	//given
-	auto target = createBeacon()->build();
-
-	// when
-	target->reportCrash(eventName, reason, stacktrace);
-}
-
-TEST_F(BeaconTest, actionNotReportedIfActionReportingDisallowed)
-{
-	// with
-	ON_CALL(*mockPrivacyConfiguration, isActionReportingAllowed())
-		.WillByDefault(testing::Return(false));
-
-	auto actionMock = MockIActionCommon::createStrict();
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addActionData(testing::_, testing::_, testing::_))
-		.Times(0);
-
-	// given
-	auto target = createBeacon()->build();
-
-	// when, expect no interaction with beacon cache
-	target->addAction(actionMock);
-}
-
-TEST_F(BeaconTest, actionNotReportedIfDataSendingDisallowed)
-{
-	// with
-	ON_CALL(*mockServerConfiguration, isSendingDataAllowed())
-		.WillByDefault(testing::Return(false));
-
-	auto actionMock = MockIActionCommon::createStrict();
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addActionData(testing::_, testing::_, testing::_))
-		.Times(0);
-
-	// given
-	auto target = createBeacon()->build();
-
-	// when, expect no interaction with beacon cache
-	target->addAction(actionMock);
-}
-
-TEST_F(BeaconTest, actionReportedIfActionReportingAllowed)
-{
-	// with
-	ON_CALL(*mockPrivacyConfiguration, isActionReportingAllowed())
-		.WillByDefault(testing::Return(true));
-
-	auto actionMock = MockIActionCommon::createNice();
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addActionData(testing::_, testing::_, testing::_))
-		.Times(1);
-	EXPECT_CALL(*actionMock, getID())
-		.Times(1);
-
-	//given
-	auto target = createBeacon()->build();
-
-	// when
-	target->addAction(actionMock);
-}
-
-TEST_F(BeaconTest, sessionNotReportedIfSessionReportingDisallowed)
-{
-	// with
-	ON_CALL(*mockPrivacyConfiguration, isSessionReportingAllowed())
-		.WillByDefault(testing::Return(false));
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
-		.Times(0);
-
-	//given
-	auto target = createBeacon()->build();
-
-	// when, expect no interaction with beacon cache
-	target->endSession();
-}
-
-TEST_F(BeaconTest, sessionNotReportedIfDataSendingDisallowed)
-{
-	// with
-	ON_CALL(*mockServerConfiguration, isSendingDataAllowed())
-		.WillByDefault(testing::Return(false));
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addActionData(testing::_, testing::_, testing::_))
-		.Times(0);
-
-	//given
-	auto target = createBeacon()->build();
-
-	// when, expect no interaction with beacon cache
-	target->endSession();
-}
-
-TEST_F(BeaconTest, sessionReportedIfSessionReportingAllowed)
-{
-	// with
-	ON_CALL(*mockPrivacyConfiguration, isSessionReportingAllowed())
-		.WillByDefault(testing::Return(true));
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
-		.Times(1);
-
-	//given
-	auto target = createBeacon()->build();
-
-	// when
-	target->endSession();
-}
-
-TEST_F(BeaconTest, errorNotReportedIfErrorReportingDisallowed)
-{
-	// with
-	ON_CALL(*mockPrivacyConfiguration, isErrorReportingAllowed())
-		.WillByDefault(testing::Return(false));
-
-	Utf8String_t eventName("error name");
-	int32_t errorCode = 132;
-	Utf8String_t reason("error reason");
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
-		.Times(0);
-
-	//given
-	auto target = createBeacon()->build();
-
-	// when, expect no interaction with beacon cache
-	target->reportError(ACTION_ID, eventName, errorCode, reason);
-}
-
-TEST_F(BeaconTest, errorReportedIfErrorReportingAllowed)
-{
-	// with
-	ON_CALL(*mockPrivacyConfiguration, isErrorReportingAllowed())
-		.WillByDefault(testing::Return(true));
-
-	Utf8String_t eventName("error name");
-	int32_t errorCode = 132;
-	Utf8String_t reason("error reason");
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
-		.Times(1);
-
-	//given
-	auto target = createBeacon()->build();
-
-	// when
-	target->reportError(ACTION_ID, eventName, errorCode, reason);
-}
-
-TEST_F(BeaconTest, int32ValueIsNotReportedIfReportValueDisallowed)
-{
-	// with
-	ON_CALL(*mockPrivacyConfiguration, isValueReportingAllowed())
-		.WillByDefault(testing::Return(false));
-
-	Utf8String_t valueName("Int32Value");
-	int32_t value = 42;
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
-		.Times(0);
-
-	//given
-	auto target = createBeacon()->build();
-
-	// when, expect no interaction with beacon cache
-	target->reportValue(1, valueName, value);
-}
-
-TEST_F(BeaconTest, int32ValueIsNotReportedIfDataSendingDisallowed)
-{
-	// with
-	ON_CALL(*mockServerConfiguration, isSendingDataAllowed())
-		.WillByDefault(testing::Return(false));
-
-	Utf8String_t valueName("Int32Value");
-	int32_t value = 42;
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
-		.Times(0);
-
-	//given
-	auto target = createBeacon()->build();
-
-	// when, expect no interaction with beacon cache
-	target->reportValue(1, valueName, value);
-}
-
-
-TEST_F(BeaconTest, int32ValueIsReportedIfReportValueAllowed)
-{
-	// with
-	ON_CALL(*mockPrivacyConfiguration, isValueReportingAllowed())
-		.WillByDefault(testing::Return(true));
-
-	Utf8String_t valueName("Int32Value");
-	int32_t value = 42;
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
-		.Times(1);
-
-	//given
-	auto target = createBeacon()->build();
-
-	// when
-	target->reportValue(1, valueName, value);
-}
-
-TEST_F(BeaconTest, int64ValueIsNotReportedIfReportValueDisallowed)
-{
-	// with
-	ON_CALL(*mockPrivacyConfiguration, isValueReportingAllowed())
-		.WillByDefault(testing::Return(false));
-
-	Utf8String_t valueName("Int64Value");
-	int64_t value = 42;
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
-		.Times(0);
-
-	//given
-	auto target = createBeacon()->build();
-
-	// when, expect no interaction with beacon cache
-	target->reportValue(1, valueName, value);
-}
-
-TEST_F(BeaconTest, intValueIsNotReportedIfDataSendingDisallowed)
-{
-	// with
-	ON_CALL(*mockServerConfiguration, isSendingDataAllowed())
-		.WillByDefault(testing::Return(false));
-
-	Utf8String_t valueName("Int64Value");
-	int64_t value = 42;
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
-		.Times(0);
-
-	//given
-	auto target = createBeacon()->build();
-
-	// when, expect no interaction with beacon cache
-	target->reportValue(1, valueName, value);
-}
-
-
-TEST_F(BeaconTest, intValueIsReportedIfReportValueAllowed)
-{
-	// with
-	ON_CALL(*mockPrivacyConfiguration, isValueReportingAllowed())
-		.WillByDefault(testing::Return(true));
-
-	Utf8String_t valueName("Int64Value");
-	int64_t value = 42;
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
-		.Times(1);
-
-	//given
-	auto target = createBeacon()->build();
-
-	// when
-	target->reportValue(1, valueName, value);
-}
-
-TEST_F(BeaconTest, doubleValueIsNotReportedIfReportValueDisallowed)
-{
-	// with
-	ON_CALL(*mockPrivacyConfiguration, isValueReportingAllowed())
-		.WillByDefault(testing::Return(false));
-
-	Utf8String_t valueName("DoubleValue");
-	double value = 42.1337;
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addActionData(testing::_, testing::_, testing::_))
-		.Times(0);
-
-	//given
-	auto target = createBeacon()->build();
-
-	// when, expect no interaction with beacon cache
-	target->reportValue(1, valueName, value);
-}
-
-TEST_F(BeaconTest, doubleValueIsNotReportedIfDataSendingDisallowed)
-{
-	// with
-	ON_CALL(*mockServerConfiguration, isSendingDataAllowed())
-		.WillByDefault(testing::Return(false));
-
-	Utf8String_t valueName("DoubleValue");
-	double value = 42.1337;
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addActionData(testing::_, testing::_, testing::_))
-		.Times(0);
-
-	//given
-	auto target = createBeacon()->build();
-
-	// when, expect no interaction with beacon cache
-	target->reportValue(1, valueName, value);
-}
-
-
-TEST_F(BeaconTest, doubleValueIsReportedIfValueReportingAllowed)
-{
-	// with
-	ON_CALL(*mockPrivacyConfiguration, isValueReportingAllowed())
-		.WillByDefault(testing::Return(true));
-
-	Utf8String_t valueName("DoubleValue");
-	double value = 42.1337;
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
-		.Times(1);
-
-	//given
-	auto target = createBeacon()->build();
-
-	// when
-	target->reportValue(1, valueName, value);
-}
-
-TEST_F(BeaconTest, stringValueIsNotReportedIfValueReportingDisallowed)
-{
-	// with
-	ON_CALL(*mockPrivacyConfiguration, isValueReportingAllowed())
-		.WillByDefault(testing::Return(false));
-
-	Utf8String_t valueName("StringValue");
-	Utf8String_t value("HelloWorld");
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addActionData(testing::_, testing::_, testing::_))
-		.Times(0);
-
-	//given
-	auto target = createBeacon()->build();
-
-	// when, expect no interaction with beacon cache
-	target->reportValue(1, valueName, value);
-}
-
-TEST_F(BeaconTest, stringValueIsNotReportedIfDataSendingDisallowed)
-{
-	// with
-	ON_CALL(*mockServerConfiguration, isSendingDataAllowed())
-		.WillByDefault(testing::Return(false));
-
-	Utf8String_t valueName("StringValue");
-	Utf8String_t value("HelloWorld");
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addActionData(testing::_, testing::_, testing::_))
-		.Times(0);
-
-	//given
-	auto target = createBeacon()->build();
-
-	// when, expect no interaction with beacon cache
-	target->reportValue(1, valueName, value);
-}
-
-TEST_F(BeaconTest, stringValueIsReportedIfValueReportingAllowed)
-{
-	// with
-	ON_CALL(*mockPrivacyConfiguration, isValueReportingAllowed())
-		.WillByDefault(testing::Return(true));
-
-	Utf8String_t valueName("DoubleValue");
-	Utf8String_t value("HelloWorld");
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
-		.Times(1);
-
-	//given
-	auto target = createBeacon()->build();
-
-	// when
-	target->reportValue(1, valueName, value);
-}
-
-TEST_F(BeaconTest, namedEventNotReportedIfEventReportingDisallowed)
-{
-	// with
-	ON_CALL(*mockPrivacyConfiguration, isEventReportingAllowed())
-		.WillByDefault(testing::Return(false));
-
-	Utf8String_t eventName("some event");
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addActionData(testing::_, testing::_, testing::_))
-		.Times(0);
-
-	//given
-	auto target = createBeacon()->build();
-
-	// when, expect no interaction with beacon cache
-	target->reportEvent(ACTION_ID, eventName);
-}
-
-TEST_F(BeaconTest, namedEventIsReportedIfErrorReportingAllowed)
-{
-	// with
-	ON_CALL(*mockPrivacyConfiguration, isEventReportingAllowed())
-		.WillByDefault(testing::Return(true));
-
-	Utf8String_t eventName("some event");
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
-		.Times(1);
-
-	//given
-	auto target = createBeacon()
-			->build();
-
-	// when
-	target->reportEvent(ACTION_ID, eventName);
-}
-
-TEST_F(BeaconTest, sessionStartIsReported)
-{
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
-		.Times(1);
-
-	//given
-	auto target = createBeacon()->build();
-
-	// when
-	target->startSession();
-}
-
-TEST_F(BeaconTest, sessionStartIsReportedRegardlessOfPrivacyConfiguration)
-{
-	// with
-	auto privacyConfig = MockIPrivacyConfiguration::createStrict();
-
-	ON_CALL(*mockBeaconConfiguration, getPrivacyConfiguration())
-		.WillByDefault(testing::Return(privacyConfig));
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
-		.Times(1);
-	EXPECT_CALL(*privacyConfig, isDeviceIdSendingAllowed())
-		.Times(1); // beacon constructor, checking if device ID should be randomized
-	EXPECT_CALL(*privacyConfig, isSessionNumberReportingAllowed())
-		.Times(1); // beacon constructor, checking if session number can be sent
-	EXPECT_CALL(*privacyConfig, getDataCollectionLevel())
-		.Times(1); // beacon constructor, creating immutable beacon string
-	EXPECT_CALL(*privacyConfig, getCrashReportingLevel())
-		.Times(1); // beacon constructor, creating immutable beacon string
-
-	//given
-	auto target = createBeacon()->build();
-
-	// when
-	target->startSession();
-}
-
-TEST_F(BeaconTest, noSessionStartIsReportedIfCapturingDisabled)
-{
-	//given
-	ON_CALL(*mockServerConfiguration, isCaptureEnabled())
-		.WillByDefault(testing::Return(false));
-
-	auto target = createBeacon()->build();
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addActionData(testing::_, testing::_, testing::_))
-		.Times(0);
-
-	// when, expect on interaction on beacon cache
-	target->startSession();
 }
 
 TEST_F(BeaconTest, updateServerConfigurationDelegatesToBeaconConfig)
