@@ -37,8 +37,7 @@ TEST_F(FixedSessionIDProviderTest, getNextSessionIdReturnsAlwaysTheSameNumber)
 	auto sessionIdProviderMock = MockISessionIDProvider_t::createNice();
 	EXPECT_CALL(*sessionIdProviderMock, getNextSessionID())
 		.Times(1)
-		.WillOnce(testing::Return(sessionId))
-		.WillRepeatedly(testing::Return(1));
+		.WillOnce(testing::Return(sessionId));
 
 	FixedSessionIDProvider_t target(sessionIdProviderMock);
 

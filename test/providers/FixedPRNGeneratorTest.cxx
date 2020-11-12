@@ -35,8 +35,7 @@ TEST_F(FixedPRNGeneratorTest, nextPositiveInt32AlwaysReturnsTheSameNumber)
 	auto rngMock = MockIPRNGenerator_t::createNice();
 	EXPECT_CALL(*rngMock, nextPositiveInt32())
 		.Times(1)
-		.WillOnce(testing::Return(randomInt32))
-		.WillRepeatedly(testing::Return(1));
+		.WillOnce(testing::Return(randomInt32));
 
 	FixedPRNGenerator_t target(rngMock);
 
@@ -56,8 +55,7 @@ TEST_F(FixedPRNGeneratorTest, nextPositiveInt64AlwaysReturnsTheSameNumber)
 	auto rngMock = MockIPRNGenerator_t::createNice();
 	EXPECT_CALL(*rngMock, nextPositiveInt64())
 		.Times(1)
-		.WillOnce(testing::Return(randomInt64))
-		.WillRepeatedly(testing::Return(1));
+		.WillOnce(testing::Return(randomInt64));
 
 	FixedPRNGenerator_t target(rngMock);
 

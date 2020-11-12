@@ -203,8 +203,7 @@ TEST_F(SessionCreatorTest, createSessionGivesSessionsWithAlwaysSameSessionNumber
     // expect
     EXPECT_CALL(*mockSessionIdProvider, getNextSessionID())
         .Times(1)
-        .WillOnce(testing::Return(SessionId))
-        .WillRepeatedly(testing::Return(1));
+        .WillOnce(testing::Return(SessionId));
 
     // given
     ON_CALL(*mockPrivacyConfiguration, isDeviceIdSendingAllowed())

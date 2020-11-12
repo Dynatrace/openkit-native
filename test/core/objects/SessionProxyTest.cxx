@@ -327,8 +327,7 @@ TEST_F(SessionProxyTest, enterActionSplitsSessionIfSessionSplitByEventsEnabled)
     EXPECT_CALL(*mockSessionCreator, createSession(testing::_))
         .Times(2)
         .WillOnce(testing::Return(mockSession))
-        .WillOnce(testing::Return(mockSplitSession1))
-        .WillRepeatedly(testing::ReturnNull());
+        .WillOnce(testing::Return(mockSplitSession1));
 
     // given
     ON_CALL(*mockServerConfiguration, isSessionSplitByEventsEnabled())
@@ -353,8 +352,7 @@ TEST_F(SessionProxyTest, enterActionSplitsSessionEveryNthEvent)
         .Times(3)
         .WillOnce(testing::Return(mockSession))
         .WillOnce(testing::Return(mockSplitSession1))
-        .WillOnce(testing::Return(mockSplitSession2))
-        .WillRepeatedly(testing::ReturnNull());
+        .WillOnce(testing::Return(mockSplitSession2));
 
     // given
     const int32_t maxEventCount = 3;
@@ -382,8 +380,7 @@ TEST_F(SessionProxyTest, EnterActionSplitsSessionEveryNthEventFromFirstServerCon
         .Times(3)
         .WillOnce(testing::Return(mockSession))
         .WillOnce(testing::Return(mockSplitSession1))
-        .WillOnce(testing::Return(mockSplitSession2))
-        .WillRepeatedly(testing::ReturnNull());
+        .WillOnce(testing::Return(mockSplitSession2));
 
     // given
     const int32_t maxEventCount = 3;
@@ -420,8 +417,7 @@ TEST_F(SessionProxyTest, enterActionCallsWatchdogToCloseOldSessionOnSplitByEvent
     EXPECT_CALL(*mockSessionCreator, createSession(testing::_))
         .Times(2)
         .WillOnce(testing::Return(mockSession))
-        .WillOnce(testing::Return(mockSplitSession1))
-        .WillRepeatedly(testing::ReturnNull());
+        .WillOnce(testing::Return(mockSplitSession1));
     EXPECT_CALL(*mockSessionWatchdog, closeOrEnqueueForClosing(testing::Eq(mockSession), sessionDuration / 2))
         .Times(1);
 
@@ -448,8 +444,7 @@ TEST_F(SessionProxyTest, enterActionAddsSplitSessionToBeaconSenderOnSplitByEvent
     EXPECT_CALL(*mockSessionCreator, createSession(testing::_))
         .Times(2)
         .WillOnce(testing::Return(mockSession))
-        .WillOnce(testing::Return(mockSplitSession1))
-        .WillRepeatedly(testing::ReturnNull());
+        .WillOnce(testing::Return(mockSplitSession1));
     EXPECT_CALL(*mockBeaconSender, addSession(testing::Eq(mockSession)))
         .Times(1);
     EXPECT_CALL(*mockBeaconSender, addSession(testing::Eq(mockSplitSession1)))
@@ -589,8 +584,7 @@ TEST_F(SessionProxyTest, identifyUserDoesNotSplitSession)
     // expect
     EXPECT_CALL(*mockSessionCreator, createSession(testing::_))
         .Times(1)
-        .WillOnce(testing::Return(mockSession))
-        .WillRepeatedly(testing::ReturnNull());
+        .WillOnce(testing::Return(mockSession));
 
     // given
     ON_CALL(*mockServerConfiguration, isSessionSplitByEventsEnabled())
