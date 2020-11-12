@@ -44,7 +44,7 @@ protected:
 	void SetUp() override
 	{
 		mockHTTPClient = MockIHTTPClient::createNice();
-		ON_CALL(*mockHTTPClient, sendStatusRequest())
+		ON_CALL(*mockHTTPClient, sendStatusRequest(testing::_))
 			.WillByDefault(testing::Return(MockIStatusResponse::createNice()));
 
 		mockContext = MockIBeaconSendingContext::createNice();
@@ -168,7 +168,7 @@ TEST_F(BeaconSendingCaptureOffStateTest, aBeaconSendingCaptureOffStateStaysInOff
 	ON_CALL(*statusResponse, getRetryAfterInMilliseconds())
 		.WillByDefault(testing::Return(sleepTime));
 
-	ON_CALL(*mockHTTPClient, sendStatusRequest())
+	ON_CALL(*mockHTTPClient, sendStatusRequest(testing::_))
 		.WillByDefault(testing::Return(statusResponse));
 
 	ON_CALL(*mockContext, isCaptureOn())

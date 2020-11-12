@@ -27,6 +27,7 @@
 #include "../core/objects/mock/MockIOpenKitComposite.h"
 #include "../core/objects/mock/MockSessionInternals.h"
 #include "../core/objects/mock/MockIWebRequestTracerInternals.h"
+#include "../protocol/mock/MockIAdditionalQueryParameters.h"
 #include "../protocol/mock/MockIStatusResponse.h"
 #include "../providers/mock/MockIHTTPClientProvider.h"
 #include "../providers/mock/MockIPRNGenerator.h"
@@ -61,6 +62,7 @@ using MockIOpenKitConfiguration_sp = std::shared_ptr<MockIOpenKitConfiguration>;
 using MockIPrivacyConfiguration_sp = std::shared_ptr<MockIPrivacyConfiguration>;
 using MockIPRNGenerator_sp = std::shared_ptr<MockIPRNGenerator>;
 using MockIServerConfiguration_sp = std::shared_ptr<MockIServerConfiguration>;
+using MockIAdditionalQueryParameters_sp = std::shared_ptr<MockIAdditionalQueryParameters>;
 using MockISessionIDProvider_sp = std::shared_ptr<MockISessionIDProvider>;
 using MockIThreadIDProvider_sp = std::shared_ptr<MockIThreadIDProvider>;
 using MockITimingProvider_sp = std::shared_ptr<MockITimingProvider>;
@@ -89,6 +91,8 @@ protected:
 	MockIOpenKitConfiguration_sp mockOpenKitConfiguration;
 	MockIPrivacyConfiguration_sp mockPrivacyConfiguration;
 	MockIServerConfiguration_sp mockServerConfiguration;
+
+	MockIAdditionalQueryParameters_sp mockAdditionalQueryParameters;
 
 	MockISessionIDProvider_sp mockSessionIDProvider;
 	MockIThreadIDProvider_sp mockThreadIdProvider;
@@ -135,6 +139,8 @@ protected:
 			.WillByDefault(testing::Return(mockServerConfiguration));
 		ON_CALL(*mockBeaconConfiguration, getHTTPClientConfiguration())
 			.WillByDefault(testing::Return(mockHttpClientConfig));
+
+		mockAdditionalQueryParameters = MockIAdditionalQueryParameters::createNice();
 
 		mockSessionIDProvider = MockISessionIDProvider::createNice();
 		ON_CALL(*mockSessionIDProvider, getNextSessionID())
@@ -1952,7 +1958,7 @@ TEST_F(BeaconTest, canHandleNoDataInBeaconSend)
 	auto target = createBeacon()->build();
 
 	// when
-	auto obtained = target->send(httpClientProvider);
+	auto obtained = target->send(httpClientProvider, *mockAdditionalQueryParameters);
 
 	// then
 	ASSERT_THAT(obtained, testing::IsNull());
@@ -1970,7 +1976,7 @@ TEST_F(BeaconTest, sendValidData)
 		.WillByDefault(testing::Return(responseCode));
 
 	auto httpClient = MockIHTTPClient::createNice();
-	ON_CALL(*httpClient, sendBeaconRequest(testing::_, testing::_))
+	ON_CALL(*httpClient, sendBeaconRequest(testing::_, testing::_, testing::_))
 		.WillByDefault(testing::Return(statusResponse));
 
 	auto httpClientProvider = MockIHTTPClientProvider::createNice();
@@ -1978,7 +1984,7 @@ TEST_F(BeaconTest, sendValidData)
 		.WillByDefault(testing::Return(httpClient));
 
 	// expect
-	EXPECT_CALL(*httpClient, sendBeaconRequest(testing::Eq(ipAddress), testing::_))
+	EXPECT_CALL(*httpClient, sendBeaconRequest(testing::Eq(ipAddress), testing::_, testing::Ref(*mockAdditionalQueryParameters)))
 		.Times(1);
 
 	// given
@@ -1989,7 +1995,7 @@ TEST_F(BeaconTest, sendValidData)
 
 	// when
 	target->reportCrash("errorName", "errorReason", "errorStackTrace");
-	auto obtained = target->send(httpClientProvider);
+	auto obtained = target->send(httpClientProvider, *mockAdditionalQueryParameters);
 
 	// then
 	ASSERT_THAT(obtained, testing::NotNull());
@@ -2010,7 +2016,7 @@ TEST_F(BeaconTest, sendDataAndFakeErrorResponse)
 		.WillByDefault(testing::Return(true));
 
 	auto httpClient = MockIHTTPClient::createNice();
-	ON_CALL(*httpClient, sendBeaconRequest(testing::_, testing::_))
+	ON_CALL(*httpClient, sendBeaconRequest(testing::_, testing::_, testing::_))
 		.WillByDefault(testing::Return(statusResponse));
 
 	auto httpClientProvider = MockIHTTPClientProvider::createNice();
@@ -2018,7 +2024,7 @@ TEST_F(BeaconTest, sendDataAndFakeErrorResponse)
 		.WillByDefault(testing::Return(httpClient));
 
 	// expect
-	EXPECT_CALL(*httpClient, sendBeaconRequest(testing::Eq(ipAddress), testing::_))
+	EXPECT_CALL(*httpClient, sendBeaconRequest(testing::Eq(ipAddress), testing::_, testing::Ref(*mockAdditionalQueryParameters)))
 		.Times(1);
 
 	// given
@@ -2029,7 +2035,7 @@ TEST_F(BeaconTest, sendDataAndFakeErrorResponse)
 
 	// when
 	target->reportCrash("errorName", "errorReason", "errorStackTrace");
-	auto obtained = target->send(httpClientProvider);
+	auto obtained = target->send(httpClientProvider, *mockAdditionalQueryParameters);
 
 	// then
 	ASSERT_THAT(obtained, testing::NotNull());

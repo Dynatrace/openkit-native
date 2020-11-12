@@ -22,6 +22,7 @@
 #include "core/configuration/IBeaconConfiguration.h"
 #include "core/objects/IOpenKitObject.h"
 #include "core/objects/SessionInternals.h"
+#include "protocol/IAdditionalQueryParameters.h"
 #include "protocol/IStatusResponse.h"
 #include "providers/IHTTPClientProvider.h"
 
@@ -38,9 +39,9 @@ namespace test
 
 		MockSessionInternals()
 		{
-			ON_CALL(*this, enterAction(testing::_)).WillByDefault(testing::Return(nullptr));
-			ON_CALL(*this, traceWebRequest(testing::_)).WillByDefault(testing::Return(nullptr));
-			ON_CALL(*this, sendBeacon(testing::_)).WillByDefault(testing::Return(nullptr));
+			ON_CALL(*this, enterAction(testing::_)).WillByDefault(testing::ReturnNull());
+			ON_CALL(*this, traceWebRequest(testing::_)).WillByDefault(testing::ReturnNull());
+			ON_CALL(*this, sendBeacon(testing::_, testing::_)).WillByDefault(testing::ReturnNull());
 		}
 
 		~MockSessionInternals() override = default;
@@ -85,9 +86,10 @@ namespace test
 
 		MOCK_METHOD0(startSession, void());
 
-		MOCK_METHOD1(sendBeacon,
+		MOCK_METHOD2(sendBeacon,
 			std::shared_ptr<protocol::IStatusResponse>(
-				std::shared_ptr<providers::IHTTPClientProvider>
+				std::shared_ptr<providers::IHTTPClientProvider>,
+				const protocol::IAdditionalQueryParameters&
 			)
 		);
 

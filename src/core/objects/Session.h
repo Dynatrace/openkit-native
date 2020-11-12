@@ -99,7 +99,8 @@ namespace core
 			void startSession() override;
 
 			std::shared_ptr<protocol::IStatusResponse> sendBeacon(
-				std::shared_ptr<providers::IHTTPClientProvider> clientProvider
+				std::shared_ptr<providers::IHTTPClientProvider> clientProvider,
+				const protocol::IAdditionalQueryParameters& additionalParameters
 			) override;
 
 			bool isEmpty() const override;

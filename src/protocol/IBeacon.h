@@ -22,6 +22,7 @@
 #include "core/configuration/IBeaconConfiguration.h"
 #include "core/objects/IActionCommon.h"
 #include "core/objects/IWebRequestTracerInternals.h"
+#include "protocol/IAdditionalQueryParameters.h"
 #include "protocol/IStatusResponse.h"
 #include "providers/IHTTPClientProvider.h"
 
@@ -190,9 +191,13 @@ namespace protocol
 		///
 		/// Sends the current Beacon state
 		/// @param[in] clientProvider the @ref providers::IHTTPClientProvider to use for sending
+		/// @param[in] additionalParameters 
 		/// @returns the status response returned for the Beacon data
 		///
-		virtual std::shared_ptr<IStatusResponse> send(std::shared_ptr<providers::IHTTPClientProvider> clientProvider) = 0;
+		virtual std::shared_ptr<IStatusResponse> send(
+			std::shared_ptr<providers::IHTTPClientProvider> clientProvider,
+			const protocol::IAdditionalQueryParameters& additionalParameters
+		) = 0;
 
 		///
 		/// Checks if the Beacon is empty

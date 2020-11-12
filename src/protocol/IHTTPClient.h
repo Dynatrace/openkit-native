@@ -18,6 +18,7 @@
 #define _PROTOCOL_IHTTPCLIENT_H
 
 #include "core/UTF8String.h"
+#include "protocol/IAdditionalQueryParameters.h"
 #include "protocol/IStatusResponse.h"
 
 #include <memory>
@@ -40,23 +41,30 @@ namespace protocol
 
 		///
 		/// sends a status check request and returns a status response
+		/// @param[in] additional parameters that will be send with the beacon request
 		/// @returns a status response with the response data for the request or @c nullptr on error
 		///
-		virtual std::shared_ptr<IStatusResponse> sendStatusRequest() = 0;
+		virtual std::shared_ptr<IStatusResponse> sendStatusRequest(const protocol::IAdditionalQueryParameters& additionalParameters) = 0;
 
 		///
 		/// sends a beacon send request and returns a status response
 		/// @param[in] clientIPAddress the client IP address
 		/// @param[in] beaconData the beacon payload
+		/// @param[in] additional parameters that will be send with the beacon request
 		/// @returns a status response with the response data for the request or @c nullptr on error
 		///
-		virtual std::shared_ptr<IStatusResponse> sendBeaconRequest(const core::UTF8String& clientIPAddress, const core::UTF8String& beaconData) = 0;
+		virtual std::shared_ptr<IStatusResponse> sendBeaconRequest(
+			const core::UTF8String& clientIPAddress,
+			const core::UTF8String& beaconData,
+			const protocol::IAdditionalQueryParameters& additionalParameters
+		) = 0;
 
 		///
 		/// sends a new session request and returns a status response
+		/// @param[in] additional parameters that will be send with the beacon request
 		/// @returns a status response with the response data for the request or @c nullptr on error
 		///
-		virtual std::shared_ptr<IStatusResponse> sendNewSessionRequest() = 0;
+		virtual std::shared_ptr<IStatusResponse> sendNewSessionRequest(const protocol::IAdditionalQueryParameters& additionalParameters) = 0;
 	};
 }
 #endif

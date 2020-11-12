@@ -17,6 +17,7 @@
 #ifndef _TEST_PROTOCOL_MOCK_MOCKIHTTPCLIENT_H
 #define _TEST_PROTOCOL_MOCK_MOCKIHTTPCLIENT_H
 
+#include "protocol/IAdditionalQueryParameters.h"
 #include "protocol/IHTTPClient.h"
 #include "protocol/IStatusResponse.h"
 
@@ -33,12 +34,12 @@ namespace test
 
 		MockIHTTPClient()
 		{
-			ON_CALL(*this, sendStatusRequest())
-				.WillByDefault(testing::Return(nullptr));
-			ON_CALL(*this, sendBeaconRequest(testing::_, testing::_))
-				.WillByDefault(testing::Return(nullptr));
-			ON_CALL(*this, sendNewSessionRequest())
-				.WillByDefault(testing::Return(nullptr));
+			ON_CALL(*this, sendStatusRequest(testing::_))
+				.WillByDefault(testing::ReturnNull());
+			ON_CALL(*this, sendBeaconRequest(testing::_, testing::_, testing::_))
+				.WillByDefault(testing::ReturnNull());
+			ON_CALL(*this, sendNewSessionRequest(testing::_))
+				.WillByDefault(testing::ReturnNull());
 		}
 
 		///
@@ -56,16 +57,25 @@ namespace test
 			return std::make_shared<testing::StrictMock<MockIHTTPClient>>();
 		}
 
-		MOCK_METHOD0(sendStatusRequest, std::shared_ptr<protocol::IStatusResponse>());
-
-		MOCK_METHOD2(sendBeaconRequest,
+		MOCK_METHOD1(sendStatusRequest,
 			std::shared_ptr<protocol::IStatusResponse>(
-				const core::UTF8String&, /* clientIPAddress */
-				const core::UTF8String& /*beaconData */
+				const protocol::IAdditionalQueryParameters& /* additionalParameters */
 			)
 		);
 
-		MOCK_METHOD0(sendNewSessionRequest, std::shared_ptr<protocol::IStatusResponse>());
+		MOCK_METHOD3(sendBeaconRequest,
+			std::shared_ptr<protocol::IStatusResponse>(
+				const core::UTF8String&, /* clientIPAddress */
+				const core::UTF8String&, /* beaconData */
+				const protocol::IAdditionalQueryParameters& /* additionalParameters */
+			)
+		);
+
+		MOCK_METHOD1(sendNewSessionRequest,
+			std::shared_ptr<protocol::IStatusResponse>(
+				const protocol::IAdditionalQueryParameters& /* additionalParameters */
+			)
+		);
 	};
 }
 

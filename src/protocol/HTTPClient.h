@@ -82,14 +82,15 @@ namespace protocol
 		///
 		HTTPClient& operator = (const HTTPClient &) = delete;
 
-		std::shared_ptr<IStatusResponse> sendStatusRequest() override;
+		std::shared_ptr<IStatusResponse> sendStatusRequest(const protocol::IAdditionalQueryParameters& additionalParameters) override;
 
 		std::shared_ptr<IStatusResponse> sendBeaconRequest(
 			const core::UTF8String& clientIPAddress,
-			const core::UTF8String& beaconData
+			const core::UTF8String& beaconData,
+			const protocol::IAdditionalQueryParameters& additionalParameters
 		) override;
 
-		std::shared_ptr<IStatusResponse> sendNewSessionRequest() override;
+		std::shared_ptr<IStatusResponse> sendNewSessionRequest(const protocol::IAdditionalQueryParameters& additionalParameters) override;
 
 		///
 		/// Perform global initialization.
@@ -126,6 +127,8 @@ namespace protocol
 		static void buildMonitorURL(core::UTF8String& monitorURL, const core::UTF8String& baseURL, const core::UTF8String& applicationID, uint32_t serverID);
 
 		static void buildNewSessionURL(core::UTF8String& newSessionURL, const core::UTF8String& baseURL, const core::UTF8String& applicationID, uint32_t serverID);
+
+		static core::UTF8String appendAdditionalQueryParameters(const core::UTF8String& baseUrl, const protocol::IAdditionalQueryParameters& parameters);
 
 		static void appendQueryParam(core::UTF8String& url, const char* key, const core::UTF8String& value);
 

@@ -59,6 +59,7 @@ using MockNiceSession_t = testing::NiceMock<MockSessionInternals>;
 using MockStrictSession_t = testing::StrictMock<MockSessionInternals>;
 using MockStrictIBeaconSendingState_sp = std::shared_ptr<testing::StrictMock<MockIBeaconSendingState>>;
 using MockIInterruptibleThreadSuspender_sp = std::shared_ptr<testing::NiceMock<MockIInterruptibleThreadSuspender>>;
+using ResponseAttributes_t = protocol::ResponseAttributes;
 using ResponseAttributesDefaults_t = protocol::ResponseAttributesDefaults;
 using ServerConfiguration_t = core::configuration::ServerConfiguration;
 using Utf8String_t = core::UTF8String;
@@ -78,7 +79,7 @@ protected:
 		mockLogger = MockILogger::createNice();
 
 		auto httpClient = MockIHTTPClient::createNice();
-		ON_CALL(*httpClient, sendBeaconRequest(testing::_, testing::_))
+		ON_CALL(*httpClient, sendBeaconRequest(testing::_, testing::_, testing::_))
 			.WillByDefault(testing::Return(MockIStatusResponse::createNice()));
 
 		mockHTTPClientProvider = MockIHTTPClientProvider::createNice();
@@ -664,7 +665,7 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseRemovesFinishedSessionsIfRe
 TEST_F(BeaconSendingContextTest, handleStatusResponseClearsSessionDataIfResponseIsCaptureOff)
 {
 	// with
-	auto responseAttributes = protocol::ResponseAttributes::withUndefinedDefaults().withCapture(false).build();
+	auto responseAttributes = ResponseAttributes_t::withUndefinedDefaults().withCapture(false).build();
 	auto response = protocol::StatusResponse::createSuccessResponse(
 		mockLogger,
 		responseAttributes,
@@ -691,7 +692,7 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseClearsSessionDataIfResponse
 TEST_F(BeaconSendingContextTest, handleStatusResponseRemovesFinishedSessionsIfResponseIsCaptureOff)
 {
 	// with
-	auto responseAttributes = protocol::ResponseAttributes::withUndefinedDefaults().withCapture(false).build();
+	auto responseAttributes = ResponseAttributes_t::withUndefinedDefaults().withCapture(false).build();
 	auto response = protocol::StatusResponse::createSuccessResponse(
 		mockLogger,
 		responseAttributes,
@@ -724,7 +725,7 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseUpdatesSendInterval)
 	// given
 	const int32_t sendInterval = 999;
 
-	auto responseAttributes = protocol::ResponseAttributes::withUndefinedDefaults()
+	auto responseAttributes = ResponseAttributes_t::withUndefinedDefaults()
 		.withCapture(true)
 		.withSendIntervalInMilliseconds(sendInterval)
 		.build();
@@ -752,7 +753,7 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseUpdatesSendInterval)
 TEST_F(BeaconSendingContextTest, handleStatusResponseUpdatesCaptureStateToFalse)
 {
 	// with
-	auto responseAttributes = protocol::ResponseAttributes::withUndefinedDefaults()
+	auto responseAttributes = ResponseAttributes_t::withUndefinedDefaults()
 		.withCapture(false)
 		.build();
 	auto response = protocol::StatusResponse::createSuccessResponse(
@@ -782,7 +783,7 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseUpdatesCaptureStateToFalse)
 TEST_F(BeaconSendingContextTest, handleStatusResponseUpdatesCaptureStateToTrue)
 {
 	// given
-	auto responseAttributes = protocol::ResponseAttributes::withUndefinedDefaults()
+	auto responseAttributes = ResponseAttributes_t::withUndefinedDefaults()
 		.withCapture(true)
 		.build();
 	auto response = protocol::StatusResponse::createSuccessResponse(
@@ -815,7 +816,7 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseUpdatesHttpClientConfig)
 	auto trustManager = MockISslTrustManager::createNice();
 
 	const int32_t serverId = 73;
-	auto responseAttributes = protocol::ResponseAttributes::withUndefinedDefaults()
+	auto responseAttributes = ResponseAttributes_t::withUndefinedDefaults()
 		.withCapture(true)
 		.withServerId(serverId)
 		.build();
@@ -986,3 +987,35 @@ TEST_F(BeaconSendingContextTest, getCurrentServerIdReturnsServerIdOfHttpClientCo
 	ASSERT_THAT(obtained, testing::Eq(serverId));
 }
 
+TEST_F(BeaconSendingContextTest, configurationTimestampReturnsZeroOnDefault)
+{
+	// given
+	auto target = createBeaconSendingContext()->build();
+
+	// when
+	auto obtained = target->getConfigurationTimestamp();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(0));
+}
+
+TEST_F(BeaconSendingContextTest, configurationTimestampReturnsValueFromResponseAttributes)
+{
+	// given
+	const int64_t timestamp = 1234;
+	auto responseAttributes = ResponseAttributes_t::withUndefinedDefaults().withTimestampInMilliseconds(timestamp).build();
+	auto response = protocol::StatusResponse::createSuccessResponse(
+		mockLogger,
+		responseAttributes,
+		200,
+		protocol::IStatusResponse::ResponseHeaders()
+	);
+
+	auto target = createBeaconSendingContext()->build();
+
+	// when
+	target->updateLastResponseAttributesFrom(response);
+
+	// then
+	ASSERT_THAT(target->getConfigurationTimestamp(), testing::Eq(timestamp));
+}

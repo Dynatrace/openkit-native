@@ -180,6 +180,8 @@ class MockIBeaconSendingContext
 		);
 
 		MOCK_CONST_METHOD0(getCurrentStateType, core::communication::IBeaconSendingState::StateType());
+
+		MOCK_CONST_METHOD0(getConfigurationTimestamp, int64_t());
 	};
 }
 #endif

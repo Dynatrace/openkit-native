@@ -73,9 +73,10 @@ HTTPClient::HTTPClient
 	}
 }
 
-std::shared_ptr<IStatusResponse> HTTPClient::sendStatusRequest()
+std::shared_ptr<IStatusResponse> HTTPClient::sendStatusRequest(const protocol::IAdditionalQueryParameters& additionalParameters)
 {
-	auto response = sendRequestInternal(RequestType::STATUS, mMonitorURL, core::UTF8String(""), core::UTF8String(""), HttpMethod::GET);
+	auto url = appendAdditionalQueryParameters(mMonitorURL, additionalParameters);
+	auto response = sendRequestInternal(RequestType::STATUS, url, core::UTF8String(), core::UTF8String(), HttpMethod::GET);
 	if (response == nullptr)
 	{
 		response = StatusResponse::createErrorResponse(mLogger, std::numeric_limits<int32_t>::max());
@@ -84,9 +85,13 @@ std::shared_ptr<IStatusResponse> HTTPClient::sendStatusRequest()
 	return response;
 }
 
-std::shared_ptr<IStatusResponse> HTTPClient::sendBeaconRequest(const core::UTF8String& clientIPAddress, const core::UTF8String& beaconData)
+std::shared_ptr<IStatusResponse> HTTPClient::sendBeaconRequest(
+	const core::UTF8String& clientIPAddress,
+	const core::UTF8String& beaconData,
+	const protocol::IAdditionalQueryParameters& additionalParameters)
 {
-	auto response = sendRequestInternal(RequestType::BEACON, mMonitorURL, clientIPAddress, beaconData, HttpMethod::POST);
+	auto url = appendAdditionalQueryParameters(mMonitorURL, additionalParameters);
+	auto response = sendRequestInternal(RequestType::BEACON, url, clientIPAddress, beaconData, HttpMethod::POST);
 	if (response == nullptr)
 	{
 		response = StatusResponse::createErrorResponse(mLogger, std::numeric_limits<int32_t>::max());
@@ -95,9 +100,10 @@ std::shared_ptr<IStatusResponse> HTTPClient::sendBeaconRequest(const core::UTF8S
 	return response;
 }
 
-std::shared_ptr<IStatusResponse> HTTPClient::sendNewSessionRequest()
+std::shared_ptr<IStatusResponse> HTTPClient::sendNewSessionRequest(const protocol::IAdditionalQueryParameters& additionalParameters)
 {
-	auto response = sendRequestInternal(RequestType::NEW_SESSION, mNewSessionURL, core::UTF8String(""), core::UTF8String(""), HttpMethod::GET);
+	auto url = appendAdditionalQueryParameters(mNewSessionURL, additionalParameters);
+	auto response = sendRequestInternal(RequestType::NEW_SESSION, url, core::UTF8String(), core::UTF8String(), HttpMethod::GET);
 	if (response == nullptr)
 	{
 		response = StatusResponse::createErrorResponse(mLogger, std::numeric_limits<int32_t>::max());
@@ -362,6 +368,7 @@ void HTTPClient::buildMonitorURL(core::UTF8String& monitorURL, const core::UTF8S
 	appendQueryParam(monitorURL, QUERY_KEY_VERSION, OPENKIT_VERSION);
 	appendQueryParam(monitorURL, QUERY_KEY_PLATFORM_TYPE, PLATFORM_TYPE_OPENKIT);
 	appendQueryParam(monitorURL, QUERY_KEY_AGENT_TECHNOLOGY_TYPE, AGENT_TECHNOLOGY_TYPE);
+	appendQueryParam(monitorURL, QUERY_KEY_RESPONSE_TYPE, RESPONSE_TYPE_JSON);
 }
 
 void HTTPClient::buildNewSessionURL(core::UTF8String& newSessionURL, const core::UTF8String& baseURL, const core::UTF8String& applicationID, uint32_t serverID)
@@ -370,6 +377,13 @@ void HTTPClient::buildNewSessionURL(core::UTF8String& newSessionURL, const core:
 	appendQueryParam(newSessionURL, QUERY_KEY_NEW_SESSION, "1");
 }
 
+core::UTF8String HTTPClient::appendAdditionalQueryParameters(const core::UTF8String& baseUrl, const protocol::IAdditionalQueryParameters& parameters)
+{
+	auto newUrl = core::UTF8String(baseUrl);
+	appendQueryParam(newUrl, QUERY_KEY_CONFIG_TIMESTAMP, core::util::StringUtil::toInvariantString(parameters.getConfigurationTimestamp()));
+
+	return newUrl;
+}
 
 void HTTPClient::appendQueryParam(core::UTF8String& url, const char* key, const core::UTF8String& value)
 {

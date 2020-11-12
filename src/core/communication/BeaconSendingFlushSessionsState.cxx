@@ -52,7 +52,7 @@ void BeaconSendingFlushSessionsState::doExecute(IBeaconSendingContext& context)
 	{
 		if (!tooManyRequestsReceived && finishedSession->isDataSendingAllowed())
 		{
-			auto response = finishedSession->sendBeacon(context.getHTTPClientProvider());
+			auto response = finishedSession->sendBeacon(context.getHTTPClientProvider(), context);
 			if (BeaconSendingResponseUtil::isTooManyRequestsResponse(response))
 			{
 				tooManyRequestsReceived = true;

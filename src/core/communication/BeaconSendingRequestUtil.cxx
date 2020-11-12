@@ -34,7 +34,7 @@ std::shared_ptr<IStatusResponse> BeaconSendingRequestUtil::sendStatusRequest(IBe
 			break;
 		}
 
-		statusResponse = httpClient->sendStatusRequest();
+		statusResponse = httpClient->sendStatusRequest(context);
 		if (BeaconSendingResponseUtil::isSuccessfulResponse(statusResponse)
 			|| BeaconSendingResponseUtil::isTooManyRequestsResponse(statusResponse) // is handled by the states
 			|| retry >= numRetries)

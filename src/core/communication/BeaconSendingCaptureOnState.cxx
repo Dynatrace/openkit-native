@@ -114,7 +114,7 @@ std::shared_ptr<protocol::IStatusResponse> BeaconSendingCaptureOnState::sendFini
 	for (auto session : context.getAllFinishedAndConfiguredSessions())
 	{
 		if (session->isDataSendingAllowed()) {
-			statusResponse = session->sendBeacon(context.getHTTPClientProvider());
+			statusResponse = session->sendBeacon(context.getHTTPClientProvider(), context);
 			if (!BeaconSendingResponseUtil::isSuccessfulResponse(statusResponse))
 			{
 				// something went wrong,
@@ -146,7 +146,7 @@ std::shared_ptr<protocol::IStatusResponse> BeaconSendingCaptureOnState::sendOpen
 	{
 		if (session->isDataSendingAllowed())
 		{
-			statusResponse = session->sendBeacon(context.getHTTPClientProvider());
+			statusResponse = session->sendBeacon(context.getHTTPClientProvider(), context);
 			if (BeaconSendingResponseUtil::isTooManyRequestsResponse(statusResponse))
 			{
 				// server is currently overloaded, return immediately
@@ -196,7 +196,7 @@ std::shared_ptr<protocol::IStatusResponse> BeaconSendingCaptureOnState::sendNewS
 			continue;
 		}
 
-		statusResponse = context.getHTTPClient()->sendNewSessionRequest();
+		statusResponse = context.getHTTPClient()->sendNewSessionRequest(context);
 		if (BeaconSendingResponseUtil::isSuccessfulResponse(statusResponse))
 		{
 			auto updatedAttributes = context.updateLastResponseAttributesFrom(statusResponse);

@@ -24,6 +24,7 @@
 #include "core/configuration/IBeaconConfiguration.h"
 #include "core/objects/IOpenKitObject.h"
 #include "core/objects/OpenKitComposite.h"
+#include "protocol/IAdditionalQueryParameters.h"
 #include "protocol/IBeacon.h"
 #include "protocol/IStatusResponse.h"
 #include "providers/IHTTPClientProvider.h"
@@ -60,10 +61,12 @@ namespace core
 			///
 			/// Sends the current Beacon state
 			/// @param[in] clientProvider the IHTTPClientProvider to use for sending
+			/// @param[in] additionalParameters additional parameters that will be appended to the beacon request
 			/// @returns the status response returned for the Beacon data
 			///
 			virtual std::shared_ptr<protocol::IStatusResponse> sendBeacon(
-				std::shared_ptr<providers::IHTTPClientProvider> clientProvider
+				std::shared_ptr<providers::IHTTPClientProvider> clientProvider,
+				const protocol::IAdditionalQueryParameters& additionalParameters
 			) = 0;
 
 			///

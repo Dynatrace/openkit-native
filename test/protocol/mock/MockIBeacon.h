@@ -40,8 +40,8 @@ namespace test
 		{
 			ON_CALL(*this, createTag(testing::_, testing::_))
 				.WillByDefault(testing::Return(DefaultValues::UTF8_EMPTY_STRING));
-			ON_CALL(*this, send(testing::_))
-				.WillByDefault(testing::Return(nullptr));
+			ON_CALL(*this, send(testing::_, testing::_))
+				.WillByDefault(testing::ReturnNull());
 			ON_CALL(*this, getClientIPAddress())
 				.WillByDefault(testing::ReturnRefOfCopy(DefaultValues::UTF8_EMPTY_STRING));
 		}
@@ -150,9 +150,10 @@ namespace test
 			)
 		);
 
-		MOCK_METHOD1(send,
+		MOCK_METHOD2(send,
 			std::shared_ptr<protocol::IStatusResponse>(
-				std::shared_ptr<providers::IHTTPClientProvider> /* clientProvider */
+				std::shared_ptr<providers::IHTTPClientProvider>, /* clientProvider */
+				const protocol::IAdditionalQueryParameters& /* additionalParameters */
 			)
 		);
 

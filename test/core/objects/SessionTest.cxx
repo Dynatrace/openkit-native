@@ -23,6 +23,7 @@
 #include "../configuration/mock/MockIPrivacyConfiguration.h"
 #include "../configuration/mock/MockIServerConfiguration.h"
 #include "../../api/mock/MockILogger.h"
+#include "../../protocol/mock/MockIAdditionalQueryParameters.h"
 #include "../../protocol/mock/MockIBeacon.h"
 #include "../../providers/mock/MockIHTTPClientProvider.h"
 
@@ -45,6 +46,7 @@ using namespace test;
 using IOpenKitObject_t = core::objects::IOpenKitObject;
 using MockIBeaconSender_sp = std::shared_ptr<MockIBeaconSender>;
 using MockILogger_sp = std::shared_ptr<MockILogger>;
+using MockIAdditionalQueryParameters_sp = std::shared_ptr<MockIAdditionalQueryParameters>;
 using NullRootAction_t = core::objects::NullRootAction;
 using NullWebRequestTracer_t = core::objects::NullWebRequestTracer;
 using RootAction_t = core::objects::RootAction;
@@ -61,10 +63,12 @@ class SessionTest : public testing::Test
 protected:
 
 	MockILogger_sp mockLogger;
+	MockIAdditionalQueryParameters_sp mockAdditionalParameters;
 
 	void SetUp() override
 	{
 		mockLogger = MockILogger::createNice();
+		mockAdditionalParameters = MockIAdditionalQueryParameters::createNice();
 	}
 
 	SessionBuilder_sp createSession()
@@ -766,7 +770,7 @@ TEST_F(SessionTest, sendBeaconForwardsCallToBeacon)
 	auto mockHTTPClientProvider = MockIHTTPClientProvider::createNice();
 
 	// expect
-	EXPECT_CALL(*mockBeaconStrict, send(testing::Eq(mockHTTPClientProvider)))
+	EXPECT_CALL(*mockBeaconStrict, send(testing::Eq(mockHTTPClientProvider), testing::Ref(*mockAdditionalParameters)))
 		.Times(1);
 
 	// given
@@ -775,7 +779,7 @@ TEST_F(SessionTest, sendBeaconForwardsCallToBeacon)
 		.build();
 
 	// when
-	target->sendBeacon(mockHTTPClientProvider);
+	target->sendBeacon(mockHTTPClientProvider, *mockAdditionalParameters);
 }
 
 TEST_F(SessionTest, clearCapturedDataForwardsCallToBeacon)

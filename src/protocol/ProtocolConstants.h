@@ -16,27 +16,32 @@
 
 #ifndef _PROTOCOL_CONSTANTS_H
 #define _PROTOCOL_CONSTANTS_H
+
 namespace protocol
 {
 	// request type constants
-	constexpr char REQUEST_TYPE_MOBILE[] = "type=m";
+	constexpr const char* REQUEST_TYPE_MOBILE = "type=m";
 
 	// query parameter constants
-	constexpr char QUERY_KEY_SERVER_ID[] = "srvid";
-	constexpr char QUERY_KEY_APPLICATION[] = "app";
-	constexpr char QUERY_KEY_VERSION[] = "va";
-	constexpr char QUERY_KEY_PLATFORM_TYPE[] = "pt";
-	constexpr char QUERY_KEY_AGENT_TECHNOLOGY_TYPE[] = "tt";
-	constexpr char QUERY_KEY_NEW_SESSION[] = "ns";
+	constexpr const char* QUERY_KEY_SERVER_ID = "srvid";
+	constexpr const char* QUERY_KEY_APPLICATION = "app";
+	constexpr const char* QUERY_KEY_VERSION = "va";
+	constexpr const char* QUERY_KEY_PLATFORM_TYPE = "pt";
+	constexpr const char* QUERY_KEY_AGENT_TECHNOLOGY_TYPE = "tt";
+	constexpr const char* QUERY_KEY_RESPONSE_TYPE = "resp";
+	constexpr const char* QUERY_KEY_CONFIG_TIMESTAMP = "cts";
+	constexpr const char* QUERY_KEY_NEW_SESSION = "ns";
 
 	// constant query parameter values
-	constexpr char OPENKIT_VERSION[] = "7.0.0000";
-	constexpr char PLATFORM_TYPE_OPENKIT[] = "1";
-	constexpr char AGENT_TECHNOLOGY_TYPE[] = "okc";
+	constexpr const char* OPENKIT_VERSION = "7.0.0000";
+	constexpr const char* PLATFORM_TYPE_OPENKIT = "1";
+	constexpr const char* AGENT_TECHNOLOGY_TYPE = "okc";
 	constexpr int32_t PROTOCOL_VERSION = 3;
-	constexpr char ERROR_TECHNOLOGY_TYPE[] = "c";
+	constexpr const char* ERROR_TECHNOLOGY_TYPE = "c";
+	constexpr const char* RESPONSE_TYPE_JSON = "json";
 
 	//maximum supported name length
 	constexpr int32_t MAX_NAME_LEN = 250;
 }
+
 #endif /* _PROTOCOL_CONSTANTS_H */

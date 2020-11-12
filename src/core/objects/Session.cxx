@@ -211,9 +211,11 @@ void Session::close()
 	end();
 }
 
-std::shared_ptr<protocol::IStatusResponse> Session::sendBeacon(std::shared_ptr<providers::IHTTPClientProvider> clientProvider)
+std::shared_ptr<protocol::IStatusResponse> Session::sendBeacon(
+	std::shared_ptr<providers::IHTTPClientProvider> clientProvider,
+	const protocol::IAdditionalQueryParameters& additionalParameters)
 {
-	return mBeacon->send(clientProvider);
+	return mBeacon->send(clientProvider, additionalParameters);
 }
 
 bool Session::isEmpty() const

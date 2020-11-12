@@ -337,3 +337,8 @@ IBeaconSendingState::StateType BeaconSendingContext::getCurrentStateType() const
 {
 	return mCurrentState->getStateType();
 }
+
+int64_t BeaconSendingContext::getConfigurationTimestamp() const
+{
+	return mLastResponseAttributes->getTimestampInMilliseconds();
+}

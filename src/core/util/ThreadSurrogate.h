@@ -86,10 +86,6 @@ namespace core
 
 		private:
 
-#ifdef _MSC_VER
-			// Make MS C++ compiler happy - https://docs.microsoft.com/en-us/cpp/code-quality/c26115
-			_Acquires_lock_(this->mMutex)
-#endif
 			void threadWrapperFunction(const ThreadFunction& threadFunction);
 
 			mutable std::mutex mMutex;

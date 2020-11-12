@@ -151,6 +151,7 @@ namespace core
 
 			IBeaconSendingState::StateType getCurrentStateType() const override;
 
+			int64_t getConfigurationTimestamp() const override;
 
 		private:
 

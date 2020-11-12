@@ -77,10 +77,6 @@ bool ThreadSurrogate::isAlive() const
 	return mThread != nullptr && !mIsThreadStopped;
 }
 
-#ifdef _MSC_VER
-// Make MS C++ compiler happy - https://docs.microsoft.com/en-us/cpp/code-quality/c26115
-_Acquires_lock_(this->mMutex)
-#endif
 void ThreadSurrogate::threadWrapperFunction(const ThreadFunction& threadFunction)
 {
 	// execute real thread function
@@ -90,6 +86,6 @@ void ThreadSurrogate::threadWrapperFunction(const ThreadFunction& threadFunction
 		std::unique_lock<std::mutex> lock(mMutex);
 
 		mIsThreadStopped = true;
-		std::notify_all_at_thread_exit(mStopConditionVariable, std::move(lock));
+		mStopConditionVariable.notify_all();
 	}
 }

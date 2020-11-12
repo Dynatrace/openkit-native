@@ -50,7 +50,7 @@ protected:
 		mockStatusResponse = MockIStatusResponse::createNice();
 
 		mockHTTPClient = MockIHTTPClient::createStrict();
-		ON_CALL(*mockHTTPClient, sendStatusRequest())
+		ON_CALL(*mockHTTPClient, sendStatusRequest(testing::_))
 			.WillByDefault(testing::Return(mockStatusResponse));
 
 		mockContextNice = MockIBeaconSendingContext::createNice();
@@ -81,7 +81,7 @@ TEST_F(BeaconSendingRequestUtilTest, sendStatusRequestIsAbortedWhenShutdownIsReq
 	EXPECT_CALL(*mockContextStrict, sleep(testing::_))
 		.Times(1);
 
-	EXPECT_CALL(*mockHTTPClient, sendStatusRequest())
+	EXPECT_CALL(*mockHTTPClient, sendStatusRequest(testing::Ref(*mockContextStrict)))
 		.Times(1);
 
 	// given, when
@@ -107,7 +107,7 @@ TEST_F(BeaconSendingRequestUtilTest, sendStatusRequestIsAbortedIfTheNumberOfRetr
 	EXPECT_CALL(*mockContextNice, sleep(testing::_))
 		.Times(3);
 
-	EXPECT_CALL(*mockHTTPClient, sendStatusRequest())
+	EXPECT_CALL(*mockHTTPClient, sendStatusRequest(testing::Ref(*mockContextNice)))
 		.Times(4);
 
 	// given, when
@@ -125,7 +125,7 @@ TEST_F(BeaconSendingRequestUtilTest, sendStatusRequestIsDoneWhenHttpClientReturn
 		.WillRepeatedly(testing::Return(false));
 	EXPECT_CALL(*mockContextStrict, getHTTPClient())
 		.Times(::testing::Exactly(1));
-	EXPECT_CALL(*mockHTTPClient, sendStatusRequest())
+	EXPECT_CALL(*mockHTTPClient, sendStatusRequest(testing::Ref(*mockContextStrict)))
 		.Times(::testing::Exactly(1));
 
 	// given, when
@@ -155,7 +155,7 @@ TEST_F(BeaconSendingRequestUtilTest, sleepTimeIsDoubledBetweenConsecutiveRetries
 		EXPECT_CALL(*mockContextNice, sleep(16000L));
 	}
 
-	EXPECT_CALL(*mockHTTPClient, sendStatusRequest())
+	EXPECT_CALL(*mockHTTPClient, sendStatusRequest(testing::Ref(*mockContextNice)))
 		.Times((6));
 	EXPECT_CALL(*mockContextNice, getHTTPClient())
 		.Times(6);
@@ -172,15 +172,15 @@ TEST_F(BeaconSendingRequestUtilTest, sendStatusRequestHandlesNullResponsesSameAs
 	// with
 	ON_CALL(*mockContextNice, isShutdownRequested())
 		.WillByDefault(testing::Return(false));
-	ON_CALL(*mockHTTPClient, sendStatusRequest())
-		.WillByDefault(testing::Return(nullptr));
+	ON_CALL(*mockHTTPClient, sendStatusRequest(testing::_))
+		.WillByDefault(testing::ReturnNull());
 
 	// expect
 	EXPECT_CALL(*mockContextNice, getHTTPClient())
 		.Times(::testing::Exactly(4));
 	EXPECT_CALL(*mockContextNice, sleep(testing::_))
 		.Times(::testing::Exactly(3));
-	EXPECT_CALL(*mockHTTPClient, sendStatusRequest())
+	EXPECT_CALL(*mockHTTPClient, sendStatusRequest(testing::Ref(*mockContextNice)))
 		.Times(::testing::Exactly(4));
 
 	// given, when
@@ -207,7 +207,7 @@ TEST_F(BeaconSendingRequestUtilTest, sendStatusRequestReturnsTooManyRequestsResp
 		.Times(::testing::Exactly(1));
 	EXPECT_CALL(*mockContextNice, sleep(testing::_))
 		.Times(::testing::Exactly(0));
-	EXPECT_CALL(*mockHTTPClient, sendStatusRequest())
+	EXPECT_CALL(*mockHTTPClient, sendStatusRequest(testing::Ref(*mockContextNice)))
 		.Times(::testing::Exactly(1));
 
 	// given, when

@@ -61,7 +61,7 @@ Beacon::Beacon(
 	: mLogger(logger)
 	, mBeaconCache(beaconCache)
 	, mBeaconConfiguration(configuration)
-	, mClientIPAddress(core::UTF8String(""))
+	, mClientIPAddress(core::UTF8String())
 	, mThreadIDProvider(threadIDProvider)
 	, mTimingProvider(timingProvider)
 	, mRandomGenerator(randomGenerator)
@@ -233,7 +233,7 @@ core::UTF8String Beacon::createTag(int32_t parentActionID, int32_t sequenceNumbe
 {
 	if (!mBeaconConfiguration->getPrivacyConfiguration()->isWebRequestTracingAllowed())
 	{
-		return core::UTF8String("");
+		return core::UTF8String();
 	}
 
 	auto serverId = mBeaconConfiguration->getServerConfiguration()->getServerId();
@@ -551,7 +551,8 @@ core::UTF8String Beacon::getMutableBeaconData()
 	return mutableBeaconData;
 }
 
-std::shared_ptr<protocol::IStatusResponse> Beacon::send(std::shared_ptr<providers::IHTTPClientProvider> clientProvider)
+std::shared_ptr<protocol::IStatusResponse> Beacon::send(std::shared_ptr<providers::IHTTPClientProvider> clientProvider,
+	const protocol::IAdditionalQueryParameters& additionalParameters)
 {
 	auto httpClient = clientProvider->createClient(mLogger, mBeaconConfiguration->getHTTPClientConfiguration());
 
@@ -575,7 +576,7 @@ std::shared_ptr<protocol::IStatusResponse> Beacon::send(std::shared_ptr<provider
 		}
 
 		// send the request
-		response = httpClient->sendBeaconRequest(mClientIPAddress, chunk);
+		response = httpClient->sendBeaconRequest(mClientIPAddress, chunk, additionalParameters);
 		if (response == nullptr || response->isErroneousResponse())
 		{
 			// error happened - but don't know what exactly

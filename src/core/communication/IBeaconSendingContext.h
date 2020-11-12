@@ -19,6 +19,7 @@
 
 #include "IBeaconSendingState.h"
 #include "core/objects/SessionInternals.h"
+#include "protocol/IAdditionalQueryParameters.h"
 #include "protocol/IHTTPClient.h"
 #include "protocol/IStatusResponse.h"
 #include "protocol/IResponseAttributes.h"
@@ -33,6 +34,7 @@ namespace core
 	namespace communication
 	{
 		class IBeaconSendingContext
+			: public protocol::IAdditionalQueryParameters
 		{
 		public:
 

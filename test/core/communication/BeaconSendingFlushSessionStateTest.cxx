@@ -62,11 +62,11 @@ protected:
 		mockContext = MockIBeaconSendingContext::createNice();
 
 		auto mockStatusResponse = MockIStatusResponse::createNice();
-		ON_CALL(*mockSession1Open, sendBeacon(testing::_))
+		ON_CALL(*mockSession1Open, sendBeacon(testing::_, testing::_))
 			.WillByDefault(testing::Return(mockStatusResponse));
-		ON_CALL(*mockSession2Open, sendBeacon(testing::_))
+		ON_CALL(*mockSession2Open, sendBeacon(testing::_, testing::_))
 				.WillByDefault(testing::Return(mockStatusResponse));
-		ON_CALL(*mockSession3Closed, sendBeacon(testing::_))
+		ON_CALL(*mockSession3Closed, sendBeacon(testing::_, testing::_))
 				.WillByDefault(testing::Return(mockStatusResponse));
 
 		auto mockHTTPClient = MockIHTTPClient::createNice();
@@ -171,11 +171,11 @@ TEST_F(BeaconSendingFlushSessionsStateTest, aBeaconSendingFlushSessionsStateClos
 TEST_F(BeaconSendingFlushSessionsStateTest, aBeaconSendingFlushSessionStateSendsAllOpenAndClosedBeacons)
 {
 	// expect
-	EXPECT_CALL(*mockSession1Open, sendBeacon(testing::_))
+	EXPECT_CALL(*mockSession1Open, sendBeacon(testing::_, testing::_))
 		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockSession2Open, sendBeacon(testing::_))
+	EXPECT_CALL(*mockSession2Open, sendBeacon(testing::_, testing::_))
 		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockSession3Closed, sendBeacon(testing::_))
+	EXPECT_CALL(*mockSession3Closed, sendBeacon(testing::_, testing::_))
 		.Times(testing::Exactly(1));
 
 	// given
@@ -196,15 +196,15 @@ TEST_F(BeaconSendingFlushSessionsStateTest, aBeaconSendingFlushSessionStateDoesN
 		.WillByDefault(testing::Return(false));
 
 	// expect
-	EXPECT_CALL(*mockSession1Open, sendBeacon(testing::_))
+	EXPECT_CALL(*mockSession1Open, sendBeacon(testing::_, testing::_))
 		.Times(testing::Exactly(0));
 	EXPECT_CALL(*mockSession1Open, clearCapturedData())
 		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockSession2Open, sendBeacon(testing::_))
+	EXPECT_CALL(*mockSession2Open, sendBeacon(testing::_, testing::_))
 		.Times(testing::Exactly(0));
 	EXPECT_CALL(*mockSession2Open, clearCapturedData())
 		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockSession3Closed, sendBeacon(testing::_))
+	EXPECT_CALL(*mockSession3Closed, sendBeacon(testing::_, testing::_))
 		.Times(testing::Exactly(0));
 	EXPECT_CALL(*mockSession3Closed, clearCapturedData())
 		.Times(testing::Exactly(1));
@@ -227,19 +227,19 @@ TEST_F(BeaconSendingFlushSessionsStateTest, aBeaconSendingFlushSessionStateStops
 	ON_CALL(*errorResponse, isErroneousResponse())
 		.WillByDefault(testing::Return(true));
 
-	ON_CALL(*mockSession3Closed, sendBeacon(testing::_))
+	ON_CALL(*mockSession3Closed, sendBeacon(testing::_, testing::_))
 		.WillByDefault(testing::Return(errorResponse));
 
 	// expect
-	EXPECT_CALL(*mockSession1Open, sendBeacon(testing::_))
+	EXPECT_CALL(*mockSession1Open, sendBeacon(testing::_, testing::_))
 		.Times(testing::Exactly(0));
 	EXPECT_CALL(*mockSession1Open, clearCapturedData())
 			.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockSession2Open, sendBeacon(testing::_))
+	EXPECT_CALL(*mockSession2Open, sendBeacon(testing::_, testing::_))
 		.Times(testing::Exactly(0));
 	EXPECT_CALL(*mockSession2Open, clearCapturedData())
 		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockSession3Closed, sendBeacon(testing::_))
+	EXPECT_CALL(*mockSession3Closed, sendBeacon(testing::_, testing::_))
 		.Times(testing::Exactly(1));
 	EXPECT_CALL(*mockSession3Closed, clearCapturedData())
 		.Times(testing::Exactly(1));

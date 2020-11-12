@@ -54,7 +54,7 @@ protected:
 			.WillByDefault(testing::Return(mockAttributes));
 
 		mockHTTPClient = MockIHTTPClient::createNice();
-		ON_CALL(*mockHTTPClient, sendStatusRequest())
+		ON_CALL(*mockHTTPClient, sendStatusRequest(testing::_))
 			.WillByDefault(testing::Return(mockStatusResponse));
 
 		mockContext = MockIBeaconSendingContext::createNice();
@@ -161,7 +161,7 @@ TEST_F(BeaconSendingInitialStateTest, executeSetsLastStatusCheckTime)
 TEST_F(BeaconSendingInitialStateTest, initIsTerminatedIfShutdownRequestedWithValidResponse)
 {
 	// with
-	ON_CALL(*mockHTTPClient, sendStatusRequest())
+	ON_CALL(*mockHTTPClient, sendStatusRequest(testing::_))
 		.WillByDefault(testing::Return(MockIStatusResponse::createNice()));
 	ON_CALL(*mockContext, isShutdownRequested())
 		.WillByDefault(testing::Return(true));
@@ -188,7 +188,7 @@ TEST_F(BeaconSendingInitialStateTest, reinitializeSleepsBeforeSendingStatusReque
 	ON_CALL(*errorResponse, isErroneousResponse())
 			.WillByDefault(testing::Return(true));
 
-	ON_CALL(*mockHTTPClient, sendStatusRequest())
+	ON_CALL(*mockHTTPClient, sendStatusRequest(testing::_))
 			.WillByDefault(testing::Return(errorResponse));
 
 	uint32_t callCount = 0;
@@ -288,7 +288,7 @@ TEST_F(BeaconSendingInitialStateTest, sleepTimeIsDoubledBetweenStatusRequestRetr
 	ON_CALL(*errorResponse, isErroneousResponse())
 			.WillByDefault(testing::Return(true));
 
-	ON_CALL(*mockHTTPClient, sendStatusRequest())
+	ON_CALL(*mockHTTPClient, sendStatusRequest(testing::_))
 			.WillByDefault(testing::Return(errorResponse));
 
 	uint32_t callCount = 0;
@@ -334,7 +334,7 @@ TEST_F(BeaconSendingInitialStateTest, initialStatusRequestGivesUpWhenShutdownReq
 	ON_CALL(*errorResponse, isErroneousResponse())
 			.WillByDefault(testing::Return(true));
 
-	ON_CALL(*mockHTTPClient, sendStatusRequest())
+	ON_CALL(*mockHTTPClient, sendStatusRequest(testing::_))
 			.WillByDefault(testing::Return(errorResponse));
 
 	uint32_t callCount = 0;
@@ -354,7 +354,7 @@ TEST_F(BeaconSendingInitialStateTest, initialStatusRequestGivesUpWhenShutdownReq
 		.Times(1);
 	EXPECT_CALL(*mockContext, getHTTPClient())
 		.Times(3);
-	EXPECT_CALL(*mockHTTPClient, sendStatusRequest())
+	EXPECT_CALL(*mockHTTPClient, sendStatusRequest(testing::Ref(*mockContext)))
 		.Times(3);
 
 	EXPECT_CALL(*mockContext, sleep(testing::_))
@@ -453,7 +453,7 @@ TEST_F(BeaconSendingInitialStateTest, receivingTooManyRequestsResponseUsesSleepT
 	ON_CALL(*errorResponse, getRetryAfterInMilliseconds())
 		.WillByDefault(testing::Return(sleepTime));
 
-	ON_CALL(*mockHTTPClient, sendStatusRequest())
+	ON_CALL(*mockHTTPClient, sendStatusRequest(testing::_))
 		.WillByDefault(testing::Return(errorResponse));
 	EXPECT_CALL(*mockContext, isShutdownRequested())
 		.WillOnce(testing::Return(false))
@@ -485,7 +485,7 @@ TEST_F(BeaconSendingInitialStateTest, receivingTooManyRequestsResponseDisablesCa
 	ON_CALL(*errorResponse, getRetryAfterInMilliseconds())
 		.WillByDefault(testing::Return(sleepTime));
 
-	ON_CALL(*mockHTTPClient, sendStatusRequest())
+	ON_CALL(*mockHTTPClient, sendStatusRequest(testing::_))
 		.WillByDefault(testing::Return(errorResponse));
 	EXPECT_CALL(*mockContext, isShutdownRequested())
 		.WillOnce(testing::Return(false))
