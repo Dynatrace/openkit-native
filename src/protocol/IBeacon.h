@@ -221,11 +221,25 @@ namespace protocol
 		virtual int32_t getSessionNumber() const = 0;
 
 		///
+		/// Returns the sequence number of the session.
+		/// @par
+		/// The session sequence number is a consecutive number which is increased when a session is split due to
+        /// exceeding the maximum number of allowed events. The split session will have the same session number but an
+        /// increased session sequence number.
+		///
+		virtual int32_t getSessionSequenceNumber() const = 0;
+
+		///
 		/// Returns the device id
 		/// @returns device id
 		///
 		virtual int64_t getDeviceID() const = 0;
 
+		///
+		/// Get boolean flag indicating if client IP should be used (sent) or not.
+		/// @returns @c true if client IP should be used, @c false otherwise.
+		///
+		virtual bool useClientIPAddress() const = 0;
 
 		///
 		/// Get the client IP address.

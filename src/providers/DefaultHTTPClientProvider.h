@@ -17,7 +17,6 @@
 #ifndef _PROVIDERS_DEFAULTHTTPCLIENTPROVIDER_H
 #define _PROVIDERS_DEFAULTHTTPCLIENTPROVIDER_H
 
-#include "core/configuration/IHTTPClientConfiguration.h"
 #include "providers/IHTTPClientProvider.h"
 
 namespace providers
@@ -29,12 +28,21 @@ namespace providers
 	{
 	public:
 
+		DefaultHTTPClientProvider(
+			std::shared_ptr<openkit::ILogger> logger,
+			std::shared_ptr<core::util::IInterruptibleThreadSuspender> threadSuspender
+		);
+
 		~DefaultHTTPClientProvider() override = default;
 
 		std::shared_ptr<protocol::IHTTPClient> createClient(
-			std::shared_ptr<openkit::ILogger> logger,
 			std::shared_ptr<core::configuration::IHTTPClientConfiguration> configuration
 		) override;
+
+	private:
+
+		std::shared_ptr<openkit::ILogger> mLogger;
+		std::shared_ptr<core::util::IInterruptibleThreadSuspender> mThreadSuspender;
 	};
 }
 

@@ -159,7 +159,7 @@ std::shared_ptr<providers::IHTTPClientProvider> BeaconSendingContext::getHTTPCli
 
 std::shared_ptr<protocol::IHTTPClient> BeaconSendingContext::getHTTPClient()
 {
-	return mHTTPClientProvider->createClient(mLogger, mHTTPClientConfiguration);
+	return mHTTPClientProvider->createClient(mHTTPClientConfiguration);
 }
 
 int64_t BeaconSendingContext::getCurrentTimestamp() const

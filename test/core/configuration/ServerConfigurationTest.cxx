@@ -1065,12 +1065,16 @@ TEST_F(ServerConfigurationTest, mergeIgnoresServerId)
 	ASSERT_THAT(obtained->getServerId(), testing::Eq(serverId));
 }
 
-TEST_F(ServerConfigurationTest, mergeTakesOverMaxSessionDuration)
+TEST_F(ServerConfigurationTest, mergeKeepsOriginalMaxSessionDuration)
 {
 	// given
 	int32_t sessionDuration = 73;
-	auto target = ServerConfiguration_t::Builder(defaultValues).withMaxSessionDurationInMilliseconds(37).build();
-	auto other = ServerConfiguration_t::Builder(defaultValues).withMaxSessionDurationInMilliseconds(sessionDuration).build();
+	auto target = ServerConfiguration_t::Builder(defaultValues)
+		.withMaxSessionDurationInMilliseconds(sessionDuration)
+		.build();
+	auto other = ServerConfiguration_t::Builder(defaultValues)
+		.withMaxSessionDurationInMilliseconds(1234)
+		.build();
 
 	// when
 	auto obtained = target->merge(other);
@@ -1079,12 +1083,16 @@ TEST_F(ServerConfigurationTest, mergeTakesOverMaxSessionDuration)
 	ASSERT_THAT(obtained->getMaxSessionDurationInMilliseconds(), testing::Eq(sessionDuration));
 }
 
-TEST_F(ServerConfigurationTest, mergeTakesOverMaxEventsPerSession)
+TEST_F(ServerConfigurationTest, mergeKeepsOriginalMaxEventsPerSession)
 {
 	// given
 	int32_t eventsPerSession = 73;
-	auto target = ServerConfiguration_t::Builder(defaultValues).withMaxEventsPerSession(37).build();
-	auto other = ServerConfiguration_t::Builder(defaultValues).withMaxEventsPerSession(eventsPerSession).build();
+	auto target = ServerConfiguration_t::Builder(defaultValues)
+		.withMaxEventsPerSession(eventsPerSession)
+		.build();
+	auto other = ServerConfiguration_t::Builder(defaultValues)
+		.withMaxEventsPerSession(1234)
+		.build();
 
 	// when
 	auto obtained = target->merge(other);
@@ -1093,7 +1101,7 @@ TEST_F(ServerConfigurationTest, mergeTakesOverMaxEventsPerSession)
 	ASSERT_THAT(obtained->getMaxEventsPerSession(), testing::Eq(eventsPerSession));
 }
 
-TEST_F(ServerConfigurationTest, mergeTakesOverIsSessionSplitByEventsEnabledWhenMaxEventsIsGreaterZeroAndAttributeIsSet)
+TEST_F(ServerConfigurationTest, mergeKeepsIsSessionSplitByEventsEnabledWhenMaxEventsIsGreaterZeroAndAttributeIsSet)
 {
 	// with
 	int32_t eventsPerSession = 73;
@@ -1107,8 +1115,11 @@ TEST_F(ServerConfigurationTest, mergeTakesOverIsSessionSplitByEventsEnabledWhenM
 		.WillOnce(testing::Return(eventsPerSession));
 
 	// given
-	auto target = ServerConfiguration_t::Builder(defaultValues).build();
-	auto other = ServerConfiguration_t::from(mockAttributes);
+	auto target = ServerConfiguration_t::from(mockAttributes);
+	auto other = ServerConfiguration_t::Builder(defaultValues).build();
+
+	ASSERT_THAT(other->isSessionSplitByEventsEnabled(), testing::Eq(false));
+	ASSERT_THAT(target->isSessionSplitByEventsEnabled(), testing::Eq(true));
 
 	// when
 	auto obtained = target->merge(other);
@@ -1117,7 +1128,7 @@ TEST_F(ServerConfigurationTest, mergeTakesOverIsSessionSplitByEventsEnabledWhenM
 	ASSERT_THAT(obtained->isSessionSplitByEventsEnabled(), testing::Eq(true));
 }
 
-TEST_F(ServerConfigurationTest, mergeTakesOverIsSessionSplitByEventsEnabledWhenMaxEventsIsEqualToZeroButAttributeIsSet)
+TEST_F(ServerConfigurationTest, mergeKeepsIsSessionSplitByEventsEnabledWhenMaxEventsIsEqualZeroAndAttributeIsSet)
 {
 	// with
 	int32_t eventsPerSession = 0;
@@ -1131,8 +1142,12 @@ TEST_F(ServerConfigurationTest, mergeTakesOverIsSessionSplitByEventsEnabledWhenM
 		.WillOnce(testing::Return(eventsPerSession));
 
 	// given
-	auto target = ServerConfiguration_t::Builder(defaultValues).build();
-	auto other = ServerConfiguration_t::from(mockAttributes);
+	auto target = ServerConfiguration_t::from(mockAttributes);
+	auto other = MockIServerConfiguration::createNice();
+	ON_CALL(*other, isSessionSplitByEventsEnabled())
+		.WillByDefault(testing::Return(true));
+
+	ASSERT_THAT(target->isSessionSplitByEventsEnabled(), testing::Eq(false));
 
 	// when
 	auto obtained = target->merge(other);
@@ -1141,7 +1156,7 @@ TEST_F(ServerConfigurationTest, mergeTakesOverIsSessionSplitByEventsEnabledWhenM
 	ASSERT_THAT(obtained->isSessionSplitByEventsEnabled(), testing::Eq(false));
 }
 
-TEST_F(ServerConfigurationTest, mergeTakesOverIsSessionSplitByEventsEnabledWhenMaxEventsIsSmallerZeroButAttributeIsSet)
+TEST_F(ServerConfigurationTest, mergeKeepsIsSessionSplitByEventsEnabledWhenMaxEventsIsLessThanZeroAndAttributeIsSet)
 {
 	// with
 	int32_t eventsPerSession = -1;
@@ -1155,8 +1170,12 @@ TEST_F(ServerConfigurationTest, mergeTakesOverIsSessionSplitByEventsEnabledWhenM
 		.WillOnce(testing::Return(eventsPerSession));
 
 	// given
-	auto target = ServerConfiguration_t::Builder(defaultValues).build();
-	auto other = ServerConfiguration_t::from(mockAttributes);
+	auto target = ServerConfiguration_t::from(mockAttributes);
+	auto other = MockIServerConfiguration::createNice();
+	ON_CALL(*other, isSessionSplitByEventsEnabled())
+		.WillByDefault(testing::Return(true));
+
+	ASSERT_THAT(target->isSessionSplitByEventsEnabled(), testing::Eq(false));
 
 	// when
 	auto obtained = target->merge(other);
@@ -1165,7 +1184,7 @@ TEST_F(ServerConfigurationTest, mergeTakesOverIsSessionSplitByEventsEnabledWhenM
 	ASSERT_THAT(obtained->isSessionSplitByEventsEnabled(), testing::Eq(false));
 }
 
-TEST_F(ServerConfigurationTest, mergeTakesOverIsSessionSplitByEventsEnabledWhenMaxEventsIsGreaterZeroButAttributeIsNotSet)
+TEST_F(ServerConfigurationTest, mergeKeepsIsSessionSplitByEventsEnabledWhenMaxEventsIsGreaterZeroAndAttributeIsNotSet)
 {
 	// with
 	int32_t eventsPerSession = 73;
@@ -1179,8 +1198,12 @@ TEST_F(ServerConfigurationTest, mergeTakesOverIsSessionSplitByEventsEnabledWhenM
 		.WillOnce(testing::Return(eventsPerSession));
 
 	// given
-	auto target = ServerConfiguration_t::Builder(defaultValues).build();
-	auto other = ServerConfiguration_t::from(mockAttributes);
+	auto target = ServerConfiguration_t::from(mockAttributes);
+	auto other = MockIServerConfiguration::createNice();
+	ON_CALL(*other, isSessionSplitByEventsEnabled())
+		.WillByDefault(testing::Return(true));
+
+	ASSERT_THAT(target->isSessionSplitByEventsEnabled(), testing::Eq(false));
 
 	// when
 	auto obtained = target->merge(other);
@@ -1189,12 +1212,12 @@ TEST_F(ServerConfigurationTest, mergeTakesOverIsSessionSplitByEventsEnabledWhenM
 	ASSERT_THAT(obtained->isSessionSplitByEventsEnabled(), testing::Eq(false));
 }
 
-TEST_F(ServerConfigurationTest, mergeTakesOverSessionTimeout)
+TEST_F(ServerConfigurationTest, mergeKeepsOriginalSessionTimeout)
 {
 	// given
 	int32_t sessionTimeout = 73;
-	auto target = ServerConfiguration_t::Builder(defaultValues).withSessionTimeoutInMilliseconds(37).build();
-	auto other = ServerConfiguration_t::Builder(defaultValues).withSessionTimeoutInMilliseconds(sessionTimeout).build();
+	auto target = ServerConfiguration_t::Builder(defaultValues).withSessionTimeoutInMilliseconds(sessionTimeout).build();
+	auto other = ServerConfiguration_t::Builder(defaultValues).withSessionTimeoutInMilliseconds(456).build();
 
 	// when
 	auto obtained = target->merge(other);
@@ -1203,12 +1226,12 @@ TEST_F(ServerConfigurationTest, mergeTakesOverSessionTimeout)
 	ASSERT_THAT(obtained->getSessionTimeoutInMilliseconds(), testing::Eq(sessionTimeout));
 }
 
-TEST_F(ServerConfigurationTest, mergeTakesOverVisitStoreVersion)
+TEST_F(ServerConfigurationTest, mergeKeepsOriginalVisitStoreVersion)
 {
 	// given
 	int32_t visitStoreVersion = 73;
-	auto target = ServerConfiguration_t::Builder(defaultValues).withVisitStoreVersion(37).build();
-	auto other = ServerConfiguration_t::Builder(defaultValues).withVisitStoreVersion(visitStoreVersion).build();
+	auto target = ServerConfiguration_t::Builder(defaultValues).withVisitStoreVersion(visitStoreVersion).build();
+	auto other = ServerConfiguration_t::Builder(defaultValues).withVisitStoreVersion(234).build();
 
 	// when
 	auto obtained = target->merge(other);

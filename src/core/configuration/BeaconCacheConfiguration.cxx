@@ -18,7 +18,7 @@
 
 using namespace core::configuration;
 
-BeaconCacheConfiguration::BeaconCacheConfiguration(openkit::IOpenKitBuilder& builder)
+BeaconCacheConfiguration::BeaconCacheConfiguration(const openkit::IOpenKitBuilder& builder)
 	: mMaxRecordAge(builder.getBeaconCacheMaxRecordAge())
 	, mCacheSizeLowerBound(builder.getBeaconCacheLowerMemoryBoundary())
 	, mCacheSizeUpperBound(builder.getBeaconCacheUpperMemoryBoundary())
@@ -26,9 +26,8 @@ BeaconCacheConfiguration::BeaconCacheConfiguration(openkit::IOpenKitBuilder& bui
 }
 
 std::shared_ptr<IBeaconCacheConfiguration> BeaconCacheConfiguration::from(
-		openkit::IOpenKitBuilder& builder)
+		const openkit::IOpenKitBuilder& builder)
 {
-
 	return std::make_shared<BeaconCacheConfiguration>(builder);
 }
 

@@ -60,6 +60,7 @@ set(OPENKIT_SOURCES_TEST_CORE_OBJECTS
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/NullRootActionTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/NullSessionTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/NullWebRequestTracerTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/OpenKitInitializerTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/OpenKitTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/RootActionTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/SessionCreatorTest.cxx
@@ -71,6 +72,7 @@ set(OPENKIT_SOURCES_TEST_CORE_OBJECTS
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/builder/TestSessionBuilder.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockIActionCommon.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockIOpenKitComposite.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockIOpenKitInitializer.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockIOpenKitObject.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockISessionCreator.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockISessionCreatorInput.h
@@ -102,6 +104,7 @@ set(OPENKIT_SOURCES_TEST_PROTOCOL
     ${CMAKE_CURRENT_LIST_DIR}/protocol/builder/TestBeaconBuilder.h
     ${CMAKE_CURRENT_LIST_DIR}/protocol/mock/MockIAdditionalQueryParameters.h
     ${CMAKE_CURRENT_LIST_DIR}/protocol/mock/MockIBeacon.h
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/mock/MockIBeaconInitializer.h
     ${CMAKE_CURRENT_LIST_DIR}/protocol/mock/MockIHTTPClient.h
     ${CMAKE_CURRENT_LIST_DIR}/protocol/mock/MockIResponseAttributes.h
     ${CMAKE_CURRENT_LIST_DIR}/protocol/mock/MockIStatusResponse.h

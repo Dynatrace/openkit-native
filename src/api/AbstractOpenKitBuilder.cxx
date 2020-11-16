@@ -19,8 +19,11 @@
 #include "core/configuration/ConfigurationDefaults.h"
 #include "core/util/DefaultLogger.h"
 #include "core/util/StringUtil.h"
+#include "core/objects/OpenKitInitializer.h"
 #include "core/objects/OpenKit.h"
 #include "protocol/ssl/SSLStrictTrustManager.h"
+
+#include <cstring>
 
 using namespace openkit;
 
@@ -147,8 +150,10 @@ AbstractOpenKitBuilder& AbstractOpenKitBuilder::withCrashReportingLevel(CrashRep
 
 std::shared_ptr<openkit::IOpenKit> AbstractOpenKitBuilder::build()
 {
-	auto openKit = std::make_shared<core::objects::OpenKit>(*this);
+	core::objects::OpenKitInitializer initializer(*this);
+	auto openKit = std::make_shared<core::objects::OpenKit>(initializer);
 	openKit->initialize();
+
 	return openKit;
 }
 

@@ -17,6 +17,7 @@
 #include "SessionCreator.h"
 
 #include "core/configuration/BeaconConfiguration.h"
+#include "core/objects/Session.h"
 #include "protocol/Beacon.h"
 #include "providers/FixedPRNGenerator.h"
 #include "providers/FixedSessionIDProvider.h"
@@ -31,7 +32,7 @@ SessionCreator::SessionCreator(ISessionCreatorInput& sessionCreatorInput, const 
 	, mThreadIdProvider(sessionCreatorInput.getThreadIdProvider())
 	, mTimingProvider(sessionCreatorInput.getTimingProvider())
 	, mBeaconCache(sessionCreatorInput.getBeaconCache())
-	, mUseServerSideIpDetermination(clientIpAddress == nullptr)
+	, mUseClientIpAddress(clientIpAddress != nullptr)
 	, mClientIpAddress(clientIpAddress)
 	, mServerId(sessionCreatorInput.getCurrentServerId())
 	, mSessionIdProvider(std::make_shared<providers::FixedSessionIDProvider>(sessionCreatorInput.getSessionIdProvider()))
@@ -43,19 +44,47 @@ SessionCreator::SessionCreator(ISessionCreatorInput& sessionCreatorInput, const 
 std::shared_ptr<SessionInternals> SessionCreator::createSession(std::shared_ptr<IOpenKitComposite> parent)
 {
 	auto configuration = core::configuration::BeaconConfiguration::from(mOpenKitConfiguration, mPrivacyConfiguration, mServerId);
-	auto beacon = std::make_shared<protocol::Beacon>(mLogger,
-		mBeaconCache,
-		configuration,
-		mUseServerSideIpDetermination ? nullptr : mClientIpAddress.getStringData().c_str(),
-		mSessionIdProvider,
-		mThreadIdProvider,
-		mTimingProvider,
-		mRandomNumberGenerator);
+	auto beacon = std::make_shared<protocol::Beacon>(*this, configuration);
 
 	auto session = std::make_shared<Session>(mLogger, parent, beacon);
 	mSessionSequenceNumber++;
 
 	return session;
+}
+
+std::shared_ptr<openkit::ILogger> SessionCreator::getLogger() const
+{
+	return mLogger;
+}
+
+std::shared_ptr<core::caching::IBeaconCache> SessionCreator::getBeaconCache() const
+{
+	return mBeaconCache;
+}
+
+bool SessionCreator::useClientIpAddress() const
+{
+	return mUseClientIpAddress;
+}
+
+const core::UTF8String& SessionCreator::getClientIpAddress() const
+{
+	return mClientIpAddress;
+}
+
+std::shared_ptr<providers::ISessionIDProvider> SessionCreator::getSessionIdProvider() const
+{
+	return mSessionIdProvider;
+}
+
+std::shared_ptr<providers::IThreadIDProvider> SessionCreator::getThreadIdProvider() const
+{
+	return mThreadIdProvider;
+}
+
+std::shared_ptr<providers::ITimingProvider> SessionCreator::getTiminigProvider() const
+{
+	return mTimingProvider;
 }
 
 std::shared_ptr<providers::IPRNGenerator> SessionCreator::getRandomNumberGenerator() const

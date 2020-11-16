@@ -35,10 +35,12 @@ namespace protocol
 	constexpr const char* BEACON_KEY_AGENT_TECHNOLOGY_TYPE = "tt";
 	constexpr const char* BEACON_KEY_VISITOR_ID = "vi";
 	constexpr const char* BEACON_KEY_SESSION_NUMBER = "sn";
+	constexpr const char* BEACON_KEY_SESSION_SEQUENCE = "ss";
 	constexpr const char* BEACON_KEY_CLIENT_IP_ADDRESS = "ip";
 	constexpr const char* BEACON_KEY_MULTIPLICITY = "mp";
 	constexpr const char* BEACON_KEY_DATA_COLLECTION_LEVEL = "dl";
 	constexpr const char* BEACON_KEY_CRASH_REPORTING_LEVEL = "cl";
+	constexpr const char* BEACON_KEY_VISIT_STORE_VERSION = "vs";
 
 	//device data constants
 	constexpr const char BEACON_KEY_DEVICE_OS[] = "os";

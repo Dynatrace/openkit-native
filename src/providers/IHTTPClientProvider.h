@@ -17,12 +17,13 @@
 #ifndef _PROVIDERS_IHTTPCLIENTPROVIDER_H
 #define _PROVIDERS_IHTTPCLIENTPROVIDER_H
 
+#include "OpenKit/ILogger.h"
+
+#include "core/configuration/IHTTPClientConfiguration.h"
+#include "core/util/IInterruptibleThreadSuspender.h"
 #include "protocol/HTTPClient.h"
 
 #include <memory>
-
-#include "OpenKit/ILogger.h"
-#include "core/configuration/IHTTPClientConfiguration.h"
 
 namespace providers
 {
@@ -40,11 +41,10 @@ namespace providers
 
 		///
 		/// Returns an HTTPClient based on the provided configuration.
-		/// @param[in] logger to write traces to
+		///
 		/// @param[in] configuration configuration parameters for the HTTP connection
 		///
 		virtual std::shared_ptr<protocol::IHTTPClient> createClient(
-			std::shared_ptr<openkit::ILogger> logger,
 			std::shared_ptr<core::configuration::IHTTPClientConfiguration> configuration
 		) = 0;
 	};

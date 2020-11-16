@@ -26,70 +26,33 @@
 
 using namespace protocol;
 
-Beacon::Beacon(
-	std::shared_ptr<openkit::ILogger> logger,
-	std::shared_ptr<core::caching::IBeaconCache> beaconCache,
-	std::shared_ptr<core::configuration::IBeaconConfiguration> configuration,
-	const char* clientIPAddress,
-	std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider,
-	std::shared_ptr<providers::IThreadIDProvider> threadIDProvider,
-	std::shared_ptr<providers::ITimingProvider> timingProvider
-)
-: Beacon(
-	logger,
-	beaconCache,
-	configuration,
-	clientIPAddress,
-	sessionIDProvider,
-	threadIDProvider,
-	timingProvider,
-	std::make_shared<providers::DefaultPRNGenerator>()
-)
-{
-}
-
-Beacon::Beacon(
-	std::shared_ptr<openkit::ILogger> logger,
-	std::shared_ptr<core::caching::IBeaconCache> beaconCache,
-	std::shared_ptr<core::configuration::IBeaconConfiguration> configuration,
-	const char* clientIPAddress,
-	std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider,
-	std::shared_ptr<providers::IThreadIDProvider> threadIDProvider,
-	std::shared_ptr<providers::ITimingProvider> timingProvider,
-	std::shared_ptr<providers::IPRNGenerator> randomGenerator
-)
-	: mLogger(logger)
-	, mBeaconCache(beaconCache)
+Beacon::Beacon(const protocol::IBeaconInitializer& initializer, const std::shared_ptr<core::configuration::IBeaconConfiguration> configuration)
+	: mLogger(initializer.getLogger())
+	, mBeaconCache(initializer.getBeaconCache())
 	, mBeaconConfiguration(configuration)
-	, mClientIPAddress(core::UTF8String())
-	, mThreadIDProvider(threadIDProvider)
-	, mTimingProvider(timingProvider)
-	, mRandomGenerator(randomGenerator)
+	, mUseClientIpAddress(initializer.useClientIpAddress())
+	, mClientIPAddress(initializer.getClientIpAddress())
+	, mThreadIDProvider(initializer.getThreadIdProvider())
+	, mTimingProvider(initializer.getTiminigProvider())
+	, mRandomGenerator(initializer.getRandomNumberGenerator())
 	, mDeviceID()
 	, mSequenceNumber(0)
 	, mID(0)
-	, mBeaconId(sessionIDProvider->getNextSessionID())
+	, mBeaconId(initializer.getSessionIdProvider()->getNextSessionID())
 	, mSessionNumber()
-	, mSessionStartTime(timingProvider->provideTimestampInMilliseconds())
+	, mSessionSequenceNumber(0)
+	, mSessionStartTime(initializer.getTiminigProvider()->provideTimestampInMilliseconds())
 	, mImmutableBasicBeaconData()
 
 {
-	core::UTF8String internalClientIPAddress(clientIPAddress);
-	if (clientIPAddress == nullptr)
+	if (mUseClientIpAddress && !core::util::InetAddressValidator::IsValidIP(mClientIPAddress))
 	{
-		// A client IP address, which is a nullptr, is valid.
-		// The real IP address is determined on the server side.
-	}
-	else if (core::util::InetAddressValidator::IsValidIP(internalClientIPAddress))
-	{
-		mClientIPAddress = internalClientIPAddress;
-	}
-	else
-	{
-		if (logger->isWarningEnabled())
+		if (mLogger->isWarningEnabled())
 		{
-			logger->warning("Beacon() - Client IP address validation failed: %s", internalClientIPAddress.getStringData().c_str());
+			mLogger->warning("Beacon() - Client IP address validation failed: %s", mClientIPAddress.getStringData().c_str());
 		}
+		
+		mUseClientIpAddress = false; // determined on server side
 	}
 
 	auto privacyConfig = configuration->getPrivacyConfiguration();
@@ -123,7 +86,8 @@ core::UTF8String Beacon::createImmutableBeaconData()
 	// device/visitor ID, session number and IP address
 	addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_VISITOR_ID, getDeviceID());
 	addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_SESSION_NUMBER, getSessionNumber());
-	if (!mClientIPAddress.empty())
+	addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_SESSION_SEQUENCE, getSessionSequenceNumber());
+	if (mUseClientIpAddress)
 	{
 		addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_CLIENT_IP_ADDRESS, mClientIPAddress);
 	}
@@ -229,7 +193,7 @@ int32_t Beacon::createID()
 	return ++mID;
 }
 
-core::UTF8String Beacon::createTag(int32_t parentActionID, int32_t sequenceNumber)
+core::UTF8String Beacon::createTag(int32_t parentActionID, int32_t tracerSequenceNumber)
 {
 	if (!mBeaconConfiguration->getPrivacyConfiguration()->isWebRequestTracingAllowed())
 	{
@@ -248,6 +212,11 @@ core::UTF8String Beacon::createTag(int32_t parentActionID, int32_t sequenceNumbe
 	webRequestTag.concatenate(core::util::StringUtil::toInvariantString(getDeviceID()));
 	webRequestTag.concatenate("_");
 	webRequestTag.concatenate(core::util::StringUtil::toInvariantString(mSessionNumber));
+	if (getVisitStoreVersion() > 1)
+	{
+		webRequestTag.concatenate("-");
+		webRequestTag.concatenate(core::util::StringUtil::toInvariantString(mSessionSequenceNumber));
+	}
 	webRequestTag.concatenate("_");
 	webRequestTag.concatenate(mBeaconConfiguration->getOpenKitConfiguration()->getApplicationIdPercentEncoded());
 	webRequestTag.concatenate("_");
@@ -255,7 +224,7 @@ core::UTF8String Beacon::createTag(int32_t parentActionID, int32_t sequenceNumbe
 	webRequestTag.concatenate("_");
 	webRequestTag.concatenate(core::util::StringUtil::toInvariantString(mThreadIDProvider->getThreadID()));
 	webRequestTag.concatenate("_");
-	webRequestTag.concatenate(core::util::StringUtil::toInvariantString(sequenceNumber));
+	webRequestTag.concatenate(core::util::StringUtil::toInvariantString(tracerSequenceNumber));
 
 	return webRequestTag;
 }
@@ -542,6 +511,11 @@ core::UTF8String Beacon::getMutableBeaconData()
 	core::UTF8String delimiter = core::UTF8String(BEACON_DATA_DELIMITER);
 
 	core::UTF8String mutableBeaconData;
+	
+	mutableBeaconData.concatenate(delimiter);
+
+	auto visitStoreVersion = getVisitStoreVersion();
+	addKeyValuePair(mutableBeaconData, BEACON_KEY_VISIT_STORE_VERSION, visitStoreVersion);
 
 	mutableBeaconData.concatenate(delimiter);
 	mutableBeaconData.concatenate(createTimestampData());
@@ -554,7 +528,7 @@ core::UTF8String Beacon::getMutableBeaconData()
 std::shared_ptr<protocol::IStatusResponse> Beacon::send(std::shared_ptr<providers::IHTTPClientProvider> clientProvider,
 	const protocol::IAdditionalQueryParameters& additionalParameters)
 {
-	auto httpClient = clientProvider->createClient(mLogger, mBeaconConfiguration->getHTTPClientConfiguration());
+	auto httpClient = clientProvider->createClient(mBeaconConfiguration->getHTTPClientConfiguration());
 
 	std::shared_ptr<protocol::IStatusResponse> response = nullptr;
 
@@ -632,9 +606,19 @@ int32_t Beacon::getSessionNumber() const
 	return mSessionNumber;
 }
 
+int32_t Beacon::getSessionSequenceNumber() const
+{
+	return mSessionSequenceNumber;
+}
+
 int64_t Beacon::getDeviceID() const
 {
 	return mDeviceID;
+}
+
+bool Beacon::useClientIPAddress() const
+{
+	return mUseClientIpAddress;
 }
 
 const core::UTF8String& Beacon::getClientIPAddress() const
@@ -670,4 +654,9 @@ void Beacon::disableCapture()
 void Beacon::setServerConfigurationUpdateCallback(core::configuration::ServerConfigurationUpdateCallback serverConfigurationUpdateCallback)
 {
 	mBeaconConfiguration->setServerConfigurationUpdateCallback(serverConfigurationUpdateCallback);
+}
+
+int32_t Beacon::getVisitStoreVersion()
+{
+	return mBeaconConfiguration->getServerConfiguration()->getVisitStoreVersion();
 }

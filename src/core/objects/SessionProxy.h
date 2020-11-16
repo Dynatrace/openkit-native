@@ -111,6 +111,8 @@ namespace core
 
 			std::shared_ptr<SessionInternals> createSession(std::shared_ptr<core::configuration::IServerConfiguration> sessionServerConfig);
 
+			void updateCurrentSessionIdentifier();
+
 			bool isSessionSplitRequired() const;
 
 			void recordTopLevelEventInteraction();
@@ -151,6 +153,13 @@ namespace core
 			/// the current session instance
 			///
 			std::shared_ptr<SessionInternals> mCurrentSession;
+
+			///
+			/// Tuple containiner session number/session sequence number of current session.
+			/// @remarks
+			/// Used for logging purposes, without the need for a strong pointer to session
+			///
+			std::pair<int32_t, int32_t> mCurrentSessionIdentifier;
 
 			///
 			/// holds the number of received calls \see SessionProxy::enterAction(const char*)

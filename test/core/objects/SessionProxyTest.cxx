@@ -17,6 +17,8 @@
 #include "core/objects/SessionProxy.h"
 #include "core/objects/NullRootAction.h"
 #include "core/objects/NullWebRequestTracer.h"
+#include "core/configuration/ServerConfiguration.h"
+#include "protocol/ResponseAttributes.h"
 
 #include "mock/MockISessionCreator.h"
 #include "mock/MockIOpenKitComposite.h"
@@ -43,6 +45,8 @@ using SessionInternals_sp = std::shared_ptr<SessionInternals_t>;
 using IOpenKitComposite_sp = std::shared_ptr<core::objects::IOpenKitComposite>;
 using NullRootAction_t = core::objects::NullRootAction;
 using NullWebRequestTracer_t = core::objects::NullWebRequestTracer;
+using ServerConfiguration_t = core::configuration::ServerConfiguration;
+using ResponseAttributes_t = protocol::ResponseAttributes;
 using MockILogger_sp = std::shared_ptr<MockILogger>;
 using MockIOpenKitComposite_sp = std::shared_ptr<MockIOpenKitComposite>;
 using MockSessionInternals_sp = std::shared_ptr<MockSessionInternals>;
@@ -164,7 +168,7 @@ TEST_F(SessionProxyTest, initiallyCreatedSessionIsAddedToTheBeaconSender)
 TEST_F(SessionProxyTest, enterActionWithNullActionNameGivesNullRootActionObject)
 {
     // expect
-    EXPECT_CALL(*mockLogger, mockWarning("SessionProxy enterAction: actionName must not be null or empty"))
+    EXPECT_CALL(*mockLogger, mockWarning("SessionProxy [sn=0, seq=0] enterAction: actionName must not be null or empty"))
         .Times(1);
 
     // given
@@ -181,7 +185,7 @@ TEST_F(SessionProxyTest, enterActionWithNullActionNameGivesNullRootActionObject)
 TEST_F(SessionProxyTest, enterActionWithEmptyActionNameGivesNullRootActionObject)
 {
     // expect
-    EXPECT_CALL(*mockLogger, mockWarning("SessionProxy enterAction: actionName must not be null or empty"))
+    EXPECT_CALL(*mockLogger, mockWarning("SessionProxy [sn=0, seq=0] enterAction: actionName must not be null or empty"))
         .Times(1);
 
     // given
@@ -219,7 +223,7 @@ TEST_F(SessionProxyTest, enterActionLogsInvocation)
     // expect
     EXPECT_CALL(*mockLogger, isDebugEnabled())
         .Times(1);
-    EXPECT_CALL(*mockLogger, mockDebug(std::string("SessionProxy enterAction(") + actionName + ")"))
+    EXPECT_CALL(*mockLogger, mockDebug(std::string("SessionProxy [sn=0, seq=0] enterAction(") + actionName + ")"))
         .Times(1);
 
     // given
@@ -384,13 +388,14 @@ TEST_F(SessionProxyTest, EnterActionSplitsSessionEveryNthEventFromFirstServerCon
 
     // given
     const int32_t maxEventCount = 3;
-    ON_CALL(*mockServerConfiguration, isSessionSplitByEventsEnabled())
-        .WillByDefault(testing::Return(true));
-    ON_CALL(*mockServerConfiguration, getMaxEventsPerSession())
-        .WillByDefault(testing::Return(maxEventCount));
+    auto serverConfig = ServerConfiguration_t::from(
+        ResponseAttributes_t::withUndefinedDefaults().withMaxEventsPerSession(maxEventCount).build()
+    );
+
+    ASSERT_THAT(serverConfig->isSessionSplitByEventsEnabled(), testing::Eq(true));
 
     auto target = createSessionProxy();
-    target->onServerConfigurationUpdate(mockServerConfiguration);
+    target->onServerConfigurationUpdate(serverConfig);
 
     auto ignoredServerConfig = MockIServerConfiguration::createNice();
     ON_CALL(*ignoredServerConfig, isSessionSplitByEventsEnabled())
@@ -472,7 +477,7 @@ TEST_F(SessionProxyTest, enterActionAddsSplitSessionToBeaconSenderOnSplitByEvent
 TEST_F(SessionProxyTest, identifyUserWithNullTagDoesNothing)
 {
     // expect
-    EXPECT_CALL(*mockLogger, mockWarning("SessionProxy identifyUser: userTag must not be null or empty"))
+    EXPECT_CALL(*mockLogger, mockWarning("SessionProxy [sn=0, seq=0] identifyUser: userTag must not be null or empty"))
         .Times(1);
     EXPECT_CALL(*mockSession, identifyUser(testing::_))
         .Times(0);
@@ -487,7 +492,7 @@ TEST_F(SessionProxyTest, identifyUserWithNullTagDoesNothing)
 TEST_F(SessionProxyTest, identifyUserWithEmptyTagDoesNothing)
 {
     // expect
-    EXPECT_CALL(*mockLogger, mockWarning("SessionProxy identifyUser: userTag must not be null or empty"))
+    EXPECT_CALL(*mockLogger, mockWarning("SessionProxy [sn=0, seq=0] identifyUser: userTag must not be null or empty"))
         .Times(1);
     EXPECT_CALL(*mockSession, identifyUser(testing::_))
         .Times(0);
@@ -523,7 +528,7 @@ TEST_F(SessionProxyTest, identifyUserLogsInvocation)
     const char* userTag = "user";
 
     // expect
-    EXPECT_CALL(*mockLogger, mockDebug(std::string("SessionProxy identifyUser(") + userTag + ")"))
+    EXPECT_CALL(*mockLogger, mockDebug(std::string("SessionProxy [sn=0, seq=0] identifyUser(") + userTag + ")"))
         .Times(1);
     EXPECT_CALL(*mockLogger, isDebugEnabled())
         .Times(1);
@@ -612,7 +617,7 @@ TEST_F(SessionProxyTest, identifyUserDoesNotSplitSession)
 TEST_F(SessionProxyTest, reportingCrashWithNullErrorNameDoesNotReportAnything)
 {
     // expect
-    EXPECT_CALL(*mockLogger, mockWarning("SessionProxy reportCrash: errorName must not be null or empty"))
+    EXPECT_CALL(*mockLogger, mockWarning("SessionProxy [sn=0, seq=0] reportCrash: errorName must not be null or empty"))
         .Times(1);
     EXPECT_CALL(*mockSession, reportCrash(testing::_, testing::_, testing::_))
         .Times(0);
@@ -627,7 +632,7 @@ TEST_F(SessionProxyTest, reportingCrashWithNullErrorNameDoesNotReportAnything)
 TEST_F(SessionProxyTest, reportingCrashWithEmptyErrorNameDoesNotReportAnything)
 {
     // expect
-    EXPECT_CALL(*mockLogger, mockWarning("SessionProxy reportCrash: errorName must not be null or empty"))
+    EXPECT_CALL(*mockLogger, mockWarning("SessionProxy [sn=0, seq=0] reportCrash: errorName must not be null or empty"))
         .Times(1);
     EXPECT_CALL(*mockSession, reportCrash(testing::_, testing::_, testing::_))
         .Times(0);
@@ -685,7 +690,7 @@ TEST_F(SessionProxyTest, reportCrashLogsInvocation)
     // expect
     EXPECT_CALL(*mockLogger, isDebugEnabled())
         .Times(1);
-    EXPECT_CALL(*mockLogger, mockDebug(std::string("SessionProxy reportCrash(") + errorName + ", " + reason + ", " + stacktrace + ")"))
+    EXPECT_CALL(*mockLogger, mockDebug(std::string("SessionProxy [sn=0, seq=0] reportCrash(") + errorName + ", " + reason + ", " + stacktrace + ")"))
         .Times(1);
 
     // given
@@ -789,7 +794,7 @@ TEST_F(SessionProxyTest, traceWebRequestWithValidUrlStringDelegatesToRealSession
 TEST_F(SessionProxyTest, tracingANullStringWebRequestIsNotAllowed)
 {
     // expect
-    EXPECT_CALL(*mockLogger, mockWarning("SessionProxy traceWebRequest: url must not be null or empty"))
+    EXPECT_CALL(*mockLogger, mockWarning("SessionProxy [sn=0, seq=0] traceWebRequest: url must not be null or empty"))
         .Times(1);
     EXPECT_CALL(*mockSession, traceWebRequest(testing::_))
         .Times(0);
@@ -808,7 +813,7 @@ TEST_F(SessionProxyTest, tracingANullStringWebRequestIsNotAllowed)
 TEST_F(SessionProxyTest, tracingAnEmptyStringWebRequestIsNotAllowed)
 {
     // expect
-    EXPECT_CALL(*mockLogger, mockWarning("SessionProxy traceWebRequest: url must not be null or empty"))
+    EXPECT_CALL(*mockLogger, mockWarning("SessionProxy [sn=0, seq=0] traceWebRequest: url must not be null or empty"))
         .Times(1);
     EXPECT_CALL(*mockSession, traceWebRequest(testing::_))
         .Times(0);
@@ -827,7 +832,7 @@ TEST_F(SessionProxyTest, tracingAnEmptyStringWebRequestIsNotAllowed)
 TEST_F(SessionProxyTest, tracingAStringWebRequestWithInvalidUrlIsNotAllowed)
 {
     // expect
-    EXPECT_CALL(*mockLogger, mockWarning("SessionProxy traceWebRequest: url \"foobar/://\" does not have a valid scheme"))
+    EXPECT_CALL(*mockLogger, mockWarning("SessionProxy [sn=0, seq=0] traceWebRequest: url \"foobar/://\" does not have a valid scheme"))
         .Times(1);
     EXPECT_CALL(*mockSession, traceWebRequest(testing::_))
         .Times(0);
@@ -865,7 +870,7 @@ TEST_F(SessionProxyTest, traceWebRequestWithStringLogsInvocation)
     // expect
     EXPECT_CALL(*mockLogger, isDebugEnabled())
         .Times(1);
-    EXPECT_CALL(*mockLogger, mockDebug(std::string("SessionProxy traceWebRequest(") + url + ")"))
+    EXPECT_CALL(*mockLogger, mockDebug(std::string("SessionProxy [sn=0, seq=0] traceWebRequest(") + url + ")"))
         .Times(1);
 
     // given
@@ -987,7 +992,7 @@ TEST_F(SessionProxyTest, endingASessionImplicitlyClosesAllOpenChildObjects)
 TEST_F(SessionProxyTest, endLogsInvocation)
 {
     // expect
-    EXPECT_CALL(*mockLogger, mockDebug("SessionProxy end()"))
+    EXPECT_CALL(*mockLogger, mockDebug("SessionProxy [sn=0, seq=0] end()"))
         .Times(1);
 
     // given
@@ -1055,11 +1060,15 @@ TEST_F(SessionProxyTest, onChildClosedCallsDequeueOnSessionWatchdog)
 TEST_F(SessionProxyTest, toStringReturnsAppropriateResult)
 {
     // given
+    ON_CALL(*mockBeacon, getSessionNumber())
+        .WillByDefault(testing::Return(37));
+    ON_CALL(*mockBeacon, getSessionSequenceNumber())
+        .WillByDefault(testing::Return(73));
     auto target = createSessionProxy();
 
     // when
     auto obtained = target->toString();
 
     // then
-    ASSERT_THAT(obtained, testing::Eq("SessionProxy"));
+    ASSERT_THAT(obtained, testing::Eq("SessionProxy [sn=37, seq=73]"));
 }

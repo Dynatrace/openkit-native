@@ -83,7 +83,7 @@ protected:
 			.WillByDefault(testing::Return(MockIStatusResponse::createNice()));
 
 		mockHTTPClientProvider = MockIHTTPClientProvider::createNice();
-		ON_CALL(*mockHTTPClientProvider, createClient(testing::_, testing::_))
+		ON_CALL(*mockHTTPClientProvider, createClient(testing::_))
 			.WillByDefault(testing::Return(httpClient));
 
 		mockTimingProvider = MockITimingProvider::createNice();
@@ -367,7 +367,7 @@ TEST_F(BeaconSendingContextTest, getHTTPClient)
 	// given
 	auto mockClient = MockIHTTPClient::createStrict();
 	auto httpClientProvider = MockIHTTPClientProvider::createStrict();
-	EXPECT_CALL(*httpClientProvider, createClient(testing::_, testing::_))
+	EXPECT_CALL(*httpClientProvider, createClient(testing::_))
 		.Times(testing::Exactly(1))
 		.WillOnce(testing::Return(mockClient));
 
@@ -842,11 +842,11 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseUpdatesHttpClientConfig)
 		.WillRepeatedly(testing::Return(trustManager));
 
 	IHTTPClientConfiguration_sp httpConfigCapture = nullptr;
-	EXPECT_CALL(*mockHTTPClientProvider, createClient(testing::_, testing::_))
+	EXPECT_CALL(*mockHTTPClientProvider, createClient(testing::_))
 		.Times(1)
 		.WillOnce(
 			testing::DoAll(
-				testing::SaveArg<1>(&httpConfigCapture),
+				testing::SaveArg<0>(&httpConfigCapture),
 				testing::Return(MockIHTTPClient::createNice())
 			)
 		);

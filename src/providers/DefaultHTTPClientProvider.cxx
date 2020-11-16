@@ -19,10 +19,18 @@
 
 using namespace providers;
 
-std::shared_ptr<protocol::IHTTPClient> DefaultHTTPClientProvider::createClient(
+DefaultHTTPClientProvider::DefaultHTTPClientProvider(
 	std::shared_ptr<openkit::ILogger> logger,
+	std::shared_ptr<core::util::IInterruptibleThreadSuspender> threadSuspender
+)
+	: mLogger(logger)
+	, mThreadSuspender(threadSuspender)
+{
+}
+
+std::shared_ptr<protocol::IHTTPClient> DefaultHTTPClientProvider::createClient(
 	std::shared_ptr<core::configuration::IHTTPClientConfiguration> configuration
 )
 {
-	return std::make_shared<protocol::HTTPClient>(logger, configuration);
+	return std::make_shared<protocol::HTTPClient>(mLogger, configuration, mThreadSuspender);
 }

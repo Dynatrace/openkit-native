@@ -118,6 +118,14 @@ namespace core
 
 				int32_t getMaxEventsPerSession() const;
 
+				///
+				/// Configures whether session split by events is enabled or disabled.
+				///
+				/// @param sessionSplitByEventsEnabled @c true if session split by events is enabled
+				///                                    @c false if session split by events is disabled
+				/// @return @c this
+				Builder& withSessionSplitByEventsEnabled(bool sessionSplitByEventsEnabled);
+
 				bool isSessionSplitByEventsEnabled() const;
 
 				///

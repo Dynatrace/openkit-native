@@ -32,7 +32,7 @@
 #include <string>
 #include <cctype>
 #include <limits>
-#include <string.h>
+#include <cstring>
 
 // connection constants
 constexpr uint32_t MAX_SEND_RETRIES = 3; // max number of retries of the HTTP GET or POST operation
@@ -46,9 +46,11 @@ using namespace base::util;
 HTTPClient::HTTPClient
 (
 	std::shared_ptr<openkit::ILogger> logger,
-	const std::shared_ptr<core::configuration::IHTTPClientConfiguration> configuration
+	const std::shared_ptr<core::configuration::IHTTPClientConfiguration> configuration,
+	std::shared_ptr<core::util::IInterruptibleThreadSuspender> threadSuspender
 )
 	: mLogger(logger)
+	, mThreadSuspender(threadSuspender)
 	, mCurl(nullptr)
 	, mServerID(configuration->getServerID())
 	, mMonitorURL()
@@ -304,7 +306,7 @@ std::shared_ptr<IStatusResponse> HTTPClient::sendRequestInternal(HTTPClient::Req
 		{
 			// For CURL related errors, we retry. Note that HTTP status codes >= 400 are returned with CURLE_OK.
 			retryCount++;
-			std::this_thread::sleep_for(std::chrono::milliseconds(RETRY_SLEEP_TIME));
+			mThreadSuspender->sleep(RETRY_SLEEP_TIME);
 			curl_easy_reset(mCurl);
 		}
 

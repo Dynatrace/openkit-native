@@ -17,7 +17,9 @@
 #ifndef _CORE_OBJECTS_BUILDER_TESTOPENKITBUILDER_H
 #define _CORE_OBJECTS_BUILDER_TESTOPENKITBUILDER_H
 
+#include "../mock/MockIOpenKitInitializer.h"
 #include "../../mock/MockIBeaconSender.h"
+#include "../../mock/MockISessionWatchdog.h"
 #include "../../caching/mock/MockIBeaconCache.h"
 #include "../../caching/mock/MockIBeaconCacheEvictor.h"
 #include "../../configuration/mock/MockIOpenKitConfiguration.h"
@@ -29,6 +31,7 @@
 
 #include "OpenKit/ILogger.h"
 #include "core/IBeaconSender.h"
+#include "core/ISessionWatchdog.h"
 #include "core/caching/IBeaconCache.h"
 #include "core/caching/IBeaconCacheEvictor.h"
 #include "core/configuration/IOpenKitConfiguration.h"
@@ -56,10 +59,9 @@ namespace test
 			, mBeaconCache(nullptr)
 			, mBeaconSender(nullptr)
 			, mBeaconCacheEvictor(nullptr)
+			, mSessionWatchdog(nullptr)
 		{
 		}
-
-		~TestOpenKitBuilder() = default;
 
 		TestOpenKitBuilder& with(std::shared_ptr<openkit::ILogger> logger)
 		{
@@ -115,6 +117,12 @@ namespace test
 			return *this;
 		}
 
+		TestOpenKitBuilder& with(std::shared_ptr<core::ISessionWatchdog> sessionWatchdog)
+		{
+			mSessionWatchdog = sessionWatchdog;
+			return *this;
+		}
+
 		std::shared_ptr<core::objects::OpenKit> build()
 		{
 			auto logger = mLogger != nullptr
@@ -144,18 +152,33 @@ namespace test
 			auto beaconCacheEvictor = mBeaconCacheEvictor != nullptr
 				? mBeaconCacheEvictor
 				: MockIBeaconCacheEvictor::createNice();
+			auto sessionWatchdog = mSessionWatchdog != nullptr
+				? mSessionWatchdog
+				: MockISessionWatchdog::createNice();
 
-			return std::make_shared<core::objects::OpenKit>(
-				logger,
-				privacyConfig,
-				openKitConfig,
-				timingProvider,
-				threadIdProvider,
-				sessionIdProvider,
-				beaconCache,
-				beaconSender,
-				beaconCacheEvictor
-			);
+			auto openKitInitializer = MockIOpenKitInitializer::createNice();
+			ON_CALL(*openKitInitializer, getLogger())
+				.WillByDefault(testing::Return(logger));
+			ON_CALL(*openKitInitializer, getPrivacyConfiguration())
+				.WillByDefault(testing::Return(privacyConfig));
+			ON_CALL(*openKitInitializer, getOpenKitConfiguration())
+				.WillByDefault(testing::Return(openKitConfig));
+			ON_CALL(*openKitInitializer, getTimingProvider())
+				.WillByDefault(testing::Return(timingProvider));
+			ON_CALL(*openKitInitializer, getThreadIdProvider())
+				.WillByDefault(testing::Return(threadIdProvider));
+			ON_CALL(*openKitInitializer, getSessionIdProvider())
+				.WillByDefault(testing::Return(sessionIdProvider));
+			ON_CALL(*openKitInitializer, getBeaconCache())
+				.WillByDefault(testing::Return(beaconCache));
+			ON_CALL(*openKitInitializer, getBeaconCacheEvictor())
+				.WillByDefault(testing::Return(beaconCacheEvictor));
+			ON_CALL(*openKitInitializer, getBeaconSender())
+				.WillByDefault(testing::Return(beaconSender));
+			ON_CALL(*openKitInitializer, getSessionWatchdog())
+				.WillByDefault(testing::Return(sessionWatchdog));
+
+			return std::make_shared<core::objects::OpenKit>(*openKitInitializer);
 		}
 
 	private:
@@ -169,6 +192,7 @@ namespace test
 		std::shared_ptr<core::caching::IBeaconCache> mBeaconCache;
 		std::shared_ptr<core::IBeaconSender> mBeaconSender;
 		std::shared_ptr<core::caching::IBeaconCacheEvictor> mBeaconCacheEvictor;
+		std::shared_ptr<core::ISessionWatchdog> mSessionWatchdog;
 	};
 }
 

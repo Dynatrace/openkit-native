@@ -38,7 +38,7 @@ namespace core
 			///
 			/// Constructor taking over the values from the given builder
 			///
-			OpenKitConfiguration(openkit::IOpenKitBuilder& builder);
+			OpenKitConfiguration(const openkit::IOpenKitBuilder& builder);
 
 			///
 			/// Destructor
@@ -51,7 +51,7 @@ namespace core
 			/// @param builder the OpenKit builder for which to create an OpenKit configuration instance.
 			/// @return a newly created OpenKit configuration instance.
 			///
-			static std::shared_ptr<core::configuration::IOpenKitConfiguration> from(openkit::IOpenKitBuilder& builder);
+			static std::shared_ptr<core::configuration::IOpenKitConfiguration> from(const openkit::IOpenKitBuilder& builder);
 
 			const core::UTF8String& getEndpointUrl() const override;
 

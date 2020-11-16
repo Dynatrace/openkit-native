@@ -24,9 +24,9 @@
 
 #include "OpenKit/OpenKitConstants.h"
 #include "OpenKit/IOpenKit.h"
-#include "OpenKit/IOpenKitBuilder.h"
 #include "OpenKit/ILogger.h"
 #include "core/objects/IOpenKitObject.h"
+#include "core/objects/IOpenKitInitializer.h"
 #include "core/objects/ISessionCreatorInput.h"
 #include "core/objects/OpenKitComposite.h"
 #include "providers/ISessionIDProvider.h"
@@ -35,6 +35,7 @@
 #include "core/caching/IBeaconCache.h"
 #include "core/caching/IBeaconCacheEvictor.h"
 #include "core/IBeaconSender.h"
+#include "core/ISessionWatchdog.h"
 
 #include <atomic>
 #include <mutex>
@@ -56,36 +57,9 @@ namespace core
 
 			///
 			/// Constructor using the default providers for the last the arguments of the specialized constructor
-			/// @param[in] logger logging context
-			/// @param[in] configuration Configuration object used to build the OpenKit
+			/// @param[in] initializer provider to get all OpenKit related configuration parameters.
 			///
-			OpenKit(
-				openkit::IOpenKitBuilder& builder
-			);
-
-			///
-			/// Constructor not using defaults at all
-			/// @param[in] logger logging context
-			/// @param[in] privacyConfig configuration holding privacy related details.
-			/// @param[in] openKitConfig configuration holding application related details.
-			/// @param[in] timingProvider timing provider
-			/// @param[in] threadIDProvider provider for thread ids
-			/// @param[in] sessionIDProvider provider for new session IDs
-			/// @param[in] beaconCache cache where beacon data is stored.
-			/// @param[in] beaconSender responsible for sending beacon related data.
-			/// @param[in] beaconCacheEvictor evictor to prevent memory over-consumption due to full cache
-			///
-			OpenKit(
-				std::shared_ptr<openkit::ILogger> logger,
-				std::shared_ptr<core::configuration::IPrivacyConfiguration> privacyConfig,
-				std::shared_ptr<core::configuration::IOpenKitConfiguration> openKitConfig,
-				std::shared_ptr<providers::ITimingProvider> timingProvider,
-				std::shared_ptr<providers::IThreadIDProvider> threadIDProvider,
-				std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider,
-				std::shared_ptr<core::caching::IBeaconCache> beaconCache,
-				std::shared_ptr<core::IBeaconSender> beaconSender,
-				std::shared_ptr<core::caching::IBeaconCacheEvictor> beaconCacheEvictor
-			);
+			OpenKit(const core::objects::IOpenKitInitializer& initializer);
 
 			~OpenKit() override;
 
@@ -182,6 +156,9 @@ namespace core
 			/// beacon cache evictor
 			const std::shared_ptr<caching::IBeaconCacheEvictor> mBeaconCacheEvictor;
 
+			/// Watchdog thread to perform certain actions on a session after a specific time.
+			const std::shared_ptr<core::ISessionWatchdog> mSessionWatchdog;
+
 			std::mutex mMutex;
 
 			/// atomic flag for shutdown state
@@ -192,7 +169,6 @@ namespace core
 
 			/// mutex used for global init & de-init
 			static std::mutex gInitLock;
-
 		};
 	}
 }

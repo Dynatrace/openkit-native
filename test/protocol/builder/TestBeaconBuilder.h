@@ -17,11 +17,7 @@
 #ifndef _TEST_PROTOCOL_BUILDER_TESTBEACONBUILDER_H
 #define _TEST_PROTOCOL_BUILDER_TESTBEACONBUILDER_H
 
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wnon-virtual-dtor" // enable_shared_from_this has a public non virtual destructor throwing a false positive in this code
-#endif
-
+#include "../mock/MockIBeaconInitializer.h"
 #include "../../api/mock/MockILogger.h"
 #include "../../core/caching/mock/MockIBeaconCache.h"
 #include "../../core/configuration/mock/MockIBeaconConfiguration.h"
@@ -50,12 +46,13 @@ namespace test
 			, mBeaconCache(nullptr)
 			, mConfiguration(nullptr)
 			, mClientIPAddress("127.0.0.1")
+			, mSessionIDProvider(nullptr)
+			, mSessionSequenceNumber(0)
 			, mThreadIDProvider(nullptr)
 			, mTimingProvider(nullptr)
+			, mPRNGenerator(nullptr)
 		{
 		}
-
-		virtual ~TestBeaconBuilder() = default;
 
 		TestBeaconBuilder& with(std::shared_ptr<openkit::ILogger> logger)
 		{
@@ -89,6 +86,12 @@ namespace test
 		TestBeaconBuilder& with(std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider)
 		{
 			mSessionIDProvider = sessionIDProvider;
+			return *this;
+		}
+
+		TestBeaconBuilder& withSessionSequenceNumber(int32_t sessionSequenceNumber)
+		{
+			mSessionSequenceNumber = sessionSequenceNumber;
 			return *this;
 		}
 
@@ -130,30 +133,32 @@ namespace test
 			auto timingProvider = (mTimingProvider != nullptr)
 				? mTimingProvider
 				: MockITimingProvider::createNice();
+			auto prnGenerator = (mPRNGenerator != nullptr)
+				? mPRNGenerator
+				: MockIPRNGenerator::createNice();
 
-			if(mPRNGenerator != nullptr)
-			{
-				return std::make_shared<protocol::Beacon>(
-					logger,
-					beaconCache,
-					configuration,
-					mClientIPAddress,
-					sessionIDProvider,
-					threadIDProvider,
-					timingProvider,
-					mPRNGenerator
-				);
-			}
+			auto ipAddress = core::UTF8String(mClientIPAddress);
+			auto beaconInitializer = MockIBeaconInitializer::createNice();
+			ON_CALL(*beaconInitializer, getLogger())
+				.WillByDefault(testing::Return(logger));
+			ON_CALL(*beaconInitializer, getBeaconCache())
+				.WillByDefault(testing::Return(beaconCache));
+			ON_CALL(*beaconInitializer, useClientIpAddress())
+				.WillByDefault(testing::Return(mClientIPAddress != nullptr));
+			ON_CALL(*beaconInitializer, useClientIpAddress())
+				.WillByDefault(testing::Return(ipAddress != nullptr));
+			ON_CALL(*beaconInitializer, getClientIpAddress())
+				.WillByDefault(testing::ReturnRef(ipAddress));
+			ON_CALL(*beaconInitializer, getSessionIdProvider())
+				.WillByDefault(testing::Return(sessionIDProvider));
+			ON_CALL(*beaconInitializer, getThreadIdProvider())
+				.WillByDefault(testing::Return(threadIDProvider));
+			ON_CALL(*beaconInitializer, getTiminigProvider())
+				.WillByDefault(testing::Return(timingProvider));
+			ON_CALL(*beaconInitializer, getRandomNumberGenerator())
+				.WillByDefault(testing::Return(prnGenerator));
 
-			return std::make_shared<protocol::Beacon>(
-				logger,
-				beaconCache,
-				configuration,
-				mClientIPAddress,
-				sessionIDProvider,
-				threadIDProvider,
-				timingProvider
-			);
+			return std::make_shared<protocol::Beacon>(*beaconInitializer, mConfiguration);
 		}
 
 	private:
@@ -163,14 +168,11 @@ namespace test
 		std::shared_ptr<core::configuration::IBeaconConfiguration> mConfiguration;
 		const char* mClientIPAddress;
 		std::shared_ptr<providers::ISessionIDProvider> mSessionIDProvider;
+		int32_t mSessionSequenceNumber;
 		std::shared_ptr<providers::IThreadIDProvider> mThreadIDProvider;
 		std::shared_ptr<providers::ITimingProvider> mTimingProvider;
 		std::shared_ptr<providers::IPRNGenerator> mPRNGenerator;
 	};
 }
-
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
 
 #endif

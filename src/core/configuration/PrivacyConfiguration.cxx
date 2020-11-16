@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-#include "ConfigurationDefaults.h"
 #include "PrivacyConfiguration.h"
+#include "ConfigurationDefaults.h"
 
 using namespace core::configuration;
 
 PrivacyConfiguration::PrivacyConfiguration(
-	openkit::IOpenKitBuilder& builder
+	const openkit::IOpenKitBuilder& builder
 )
 	: mDataCollectionLevel(builder.getDataCollectionLevel())
 	, mCrashReportingLevel(builder.getCrashReportingLevel())
 {
 }
 
-std::shared_ptr<IPrivacyConfiguration> PrivacyConfiguration::from(openkit::IOpenKitBuilder& builder)
+std::shared_ptr<IPrivacyConfiguration> PrivacyConfiguration::from(const openkit::IOpenKitBuilder& builder)
 {
 	return std::make_shared<PrivacyConfiguration>(builder);
 }

@@ -22,6 +22,7 @@
 #include "core/IBeaconSender.h"
 #include "core/configuration/IHTTPClientConfiguration.h"
 #include "core/objects/SessionInternals.h"
+#include "core/util/IInterruptibleThreadSuspender.h"
 #include "core/util/ThreadSurrogate.h"
 #include "providers/IHTTPClientProvider.h"
 #include "providers/ITimingProvider.h"
@@ -50,7 +51,8 @@ namespace core
 			std::shared_ptr<openkit::ILogger> logger,
 			std::shared_ptr<core::configuration::IHTTPClientConfiguration> httpClientConfiguration,
 			std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
-			std::shared_ptr<providers::ITimingProvider> timingProvider
+			std::shared_ptr<providers::ITimingProvider> timingProvider,
+			std::shared_ptr<core::util::IInterruptibleThreadSuspender> threadSuspender
 		);
 
 		~BeaconSender() override = default;

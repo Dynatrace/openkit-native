@@ -37,7 +37,7 @@ namespace core
 			/// Constructor
 			/// @param[in] builder OpenKit builder providing the necessary beacon cache configuration details
 			///
-			BeaconCacheConfiguration(openkit::IOpenKitBuilder& builder);
+			BeaconCacheConfiguration(const openkit::IOpenKitBuilder& builder);
 
 			///
 			/// Creates a beacon cache configuration from the given OpenKit builder.
@@ -46,7 +46,7 @@ namespace core
 			/// @return a newly created beacon cache configuration instance or @c nullptr if the given argument is
 			/// @c nullptr
 			///
-			static std::shared_ptr<IBeaconCacheConfiguration> from(openkit::IOpenKitBuilder& builder);
+			static std::shared_ptr<IBeaconCacheConfiguration> from(const openkit::IOpenKitBuilder& builder);
 
 			///
 			/// Get maximum record age.

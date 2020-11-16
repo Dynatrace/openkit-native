@@ -19,7 +19,7 @@
 
 using namespace core::configuration;
 
-OpenKitConfiguration::OpenKitConfiguration(openkit::IOpenKitBuilder& builder)
+OpenKitConfiguration::OpenKitConfiguration(const openkit::IOpenKitBuilder& builder)
 	: mEndpointUrl(builder.getEndpointURL())
 	, mDeviceId(builder.getDeviceID())
 	, mOrigDeviceId(builder.getOrigDeviceID())
@@ -37,7 +37,7 @@ OpenKitConfiguration::OpenKitConfiguration(openkit::IOpenKitBuilder& builder)
 }
 
 std::shared_ptr<core::configuration::IOpenKitConfiguration> OpenKitConfiguration::from(
-	openkit::IOpenKitBuilder& builder
+	const openkit::IOpenKitBuilder& builder
 )
 {
 	return std::make_shared<OpenKitConfiguration>(builder);

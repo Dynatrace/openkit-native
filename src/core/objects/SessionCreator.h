@@ -25,6 +25,7 @@
 #include "core/UTF8String.h"
 #include "core/configuration/IOpenKitConfiguration.h"
 #include "core/configuration/IPrivacyConfiguration.h"
+#include "protocol/IBeaconInitializer.h"
 #include "providers/IThreadIDProvider.h"
 #include "providers/ITimingProvider.h"
 #include "providers/ISessionIDProvider.h"
@@ -38,7 +39,9 @@ namespace core
 {
 	namespace objects
 	{
-		class SessionCreator : public ISessionCreator
+		class SessionCreator 
+			: public ISessionCreator
+			, public protocol::IBeaconInitializer
 		{
 		public:
 
@@ -48,9 +51,23 @@ namespace core
 
 			std::shared_ptr<SessionInternals> createSession(std::shared_ptr<IOpenKitComposite> parent) override;
 
-			std::shared_ptr<providers::IPRNGenerator> getRandomNumberGenerator() const;
+			std::shared_ptr<openkit::ILogger> getLogger() const override;
 
-			int32_t getSessionSequenceNumber() const;
+			std::shared_ptr<core::caching::IBeaconCache> getBeaconCache() const override;
+
+			bool useClientIpAddress() const override;
+
+			const core::UTF8String& getClientIpAddress() const override;
+
+			std::shared_ptr<providers::ISessionIDProvider> getSessionIdProvider() const override;
+
+			int getSessionSequenceNumber() const override;
+
+			std::shared_ptr<providers::IThreadIDProvider> getThreadIdProvider() const override;
+
+			std::shared_ptr<providers::ITimingProvider> getTiminigProvider() const override;
+
+			std::shared_ptr<providers::IPRNGenerator> getRandomNumberGenerator() const override;
 
 		private:
 
@@ -68,7 +85,7 @@ namespace core
 
 			const std::shared_ptr<core::caching::IBeaconCache> mBeaconCache;
 
-			const bool mUseServerSideIpDetermination;
+			const bool mUseClientIpAddress;
 			const core::UTF8String mClientIpAddress;
 			const int32_t mServerId;
 

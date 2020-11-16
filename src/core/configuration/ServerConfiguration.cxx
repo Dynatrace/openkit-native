@@ -138,6 +138,11 @@ std::shared_ptr<core::configuration::IServerConfiguration> ServerConfiguration::
 	// take everything from other instance except multiplicity and server ID.
 	builder.withMultiplicity(getMultiplicity());
 	builder.withServerId(getServerId());
+	builder.withMaxSessionDurationInMilliseconds(getMaxSessionDurationInMilliseconds());
+	builder.withMaxEventsPerSession(getMaxEventsPerSession());
+	builder.withSessionTimeoutInMilliseconds(getSessionTimeoutInMilliseconds());
+	builder.withVisitStoreVersion(getVisitStoreVersion());
+	builder.withSessionSplitByEventsEnabled(isSessionSplitByEventsEnabled());
 
 	return builder.build();
 }
@@ -257,6 +262,13 @@ ServerConfiguration::Builder& ServerConfiguration::Builder::withMaxSessionDurati
 int32_t ServerConfiguration::Builder::getMaxEventsPerSession() const
 {
 	return mMaxEventsPerSession;
+}
+
+ServerConfiguration::Builder& ServerConfiguration::Builder::withSessionSplitByEventsEnabled(
+	bool sessionSplitByEventsEnabled)
+{
+	mIsSessionSplitByEventsEnabled = sessionSplitByEventsEnabled;
+	return *this;
 }
 
 bool ServerConfiguration::Builder::isSessionSplitByEventsEnabled() const

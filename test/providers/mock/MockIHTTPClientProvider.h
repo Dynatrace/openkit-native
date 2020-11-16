@@ -36,8 +36,8 @@ namespace test {
 		///
 		MockIHTTPClientProvider()
 		{
-			ON_CALL(*this, createClient(testing::_, testing::_))
-				.WillByDefault(testing::Return(nullptr));
+			ON_CALL(*this, createClient(testing::_))
+				.WillByDefault(testing::ReturnNull());
 		}
 
 		~MockIHTTPClientProvider() override = default;
@@ -52,9 +52,8 @@ namespace test {
 			return std::make_shared<testing::StrictMock<MockIHTTPClientProvider>>();
 		}
 
-		MOCK_METHOD2(createClient,
+		MOCK_METHOD1(createClient,
 			std::shared_ptr<protocol::IHTTPClient>(
-				std::shared_ptr<openkit::ILogger>,
 				std::shared_ptr<core::configuration::IHTTPClientConfiguration>
 			)
 		);

@@ -19,6 +19,8 @@
 #include "WebRequestTracer.h"
 #include "NullWebRequestTracer.h"
 
+#include <sstream>
+
 using namespace core::objects;
 
 SessionProxy::SessionProxy(std::shared_ptr<openkit::ILogger> logger,
@@ -33,6 +35,7 @@ SessionProxy::SessionProxy(std::shared_ptr<openkit::ILogger> logger,
 	, mBeaconSender(beaconSender)
 	, mSessionWatchdog(sessionWatchdog)
 	, mCurrentSession(nullptr)
+	, mCurrentSessionIdentifier(-1, -1)
 	, mTopLevelActionCount(0)
 	, mLastInteractionTime(0)
 	, mServerConfiguration(nullptr)
@@ -200,6 +203,10 @@ void SessionProxy::end()
 
 	// detach from parent
 	mParent->onChildClosed(thisSession);
+
+	// avoid memory leak by resetting curent session
+	// TODO stefan.eberl - refactor this by using a weak pointer
+	mCurrentSession = nullptr;
 }
 
 bool SessionProxy::isFinished()
@@ -231,6 +238,7 @@ void SessionProxy::onChildClosed(std::shared_ptr<IOpenKitObject> childObject)
 void SessionProxy::createInitialSession()
 {
 	mCurrentSession = createSession(nullptr);
+	updateCurrentSessionIdentifier();
 }
 
 std::shared_ptr<openkit::ISession> SessionProxy::getOrSplitCurrentSession()
@@ -245,6 +253,7 @@ std::shared_ptr<openkit::ISession> SessionProxy::getOrSplitCurrentSession()
 		mSessionWatchdog->closeOrEnqueueForClosing(mCurrentSession, closeGracePeriodMillis);
 
 		mCurrentSession = newSession;
+		updateCurrentSessionIdentifier();
 	}
 
 	return mCurrentSession;
@@ -278,6 +287,13 @@ std::shared_ptr<SessionInternals> SessionProxy::createSession(std::shared_ptr<co
 	return session;
 }
 
+void SessionProxy::updateCurrentSessionIdentifier()
+{
+	auto beacon = mCurrentSession->getBeacon();
+	mCurrentSessionIdentifier.first = beacon->getSessionNumber();
+	mCurrentSessionIdentifier.second = beacon->getSessionSequenceNumber();
+}
+
 void SessionProxy::recordTopLevelEventInteraction()
 {
 	mLastInteractionTime = mCurrentSession->getBeacon()->getCurrentTimestamp();
@@ -308,9 +324,15 @@ void SessionProxy::onServerConfigurationUpdate(std::shared_ptr<core::configurati
 	{
 		mServerConfiguration = serverConfig;
 	}
+	else
+	{
+		mServerConfiguration = mServerConfiguration->merge(serverConfig);
+	}
 }
 
 const std::string SessionProxy::toString() const
 {
-	return "SessionProxy";
+	std::stringstream ss;
+	ss << "SessionProxy [sn=" << mCurrentSessionIdentifier.first << ", seq=" << mCurrentSessionIdentifier.second << "]";
+	return ss.str();
 }

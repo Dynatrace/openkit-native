@@ -42,6 +42,8 @@ namespace test
 				.WillByDefault(testing::Return(DefaultValues::UTF8_EMPTY_STRING));
 			ON_CALL(*this, send(testing::_, testing::_))
 				.WillByDefault(testing::ReturnNull());
+			ON_CALL(*this, useClientIPAddress())
+				.WillByDefault(testing::Return(false));
 			ON_CALL(*this, getClientIPAddress())
 				.WillByDefault(testing::ReturnRefOfCopy(DefaultValues::UTF8_EMPTY_STRING));
 		}
@@ -163,7 +165,11 @@ namespace test
 
 		MOCK_CONST_METHOD0(getSessionNumber, int32_t());
 
+		MOCK_CONST_METHOD0(getSessionSequenceNumber, int32_t());
+
 		MOCK_CONST_METHOD0(getDeviceID, int64_t());
+
+		MOCK_CONST_METHOD0(useClientIPAddress, bool());
 
 		MOCK_CONST_METHOD0(getClientIPAddress, core::UTF8String&());
 

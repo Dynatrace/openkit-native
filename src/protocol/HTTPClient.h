@@ -20,18 +20,19 @@
 #include "OpenKit/ILogger.h"
 #include "OpenKit/ISSLTrustManager.h"
 #include "core/configuration/IHTTPClientConfiguration.h"
+#include "core/util/IInterruptibleThreadSuspender.h"
 #include "protocol/IHTTPClient.h"
 
 #include "curl/curl.h"
 
 #include <vector>
-#include <string.h>
+#include <memory>
 
 namespace protocol
 {
 	///
 	/// HTTP client which abstracts the 2 basic request types:
-	/// - status check
+	/// - status checkd
 	/// - beacon send
 	///
 	class HTTPClient : public IHTTPClient
@@ -64,7 +65,8 @@ namespace protocol
 		///
 		HTTPClient(
 			std::shared_ptr<openkit::ILogger> logger,
-			std::shared_ptr<core::configuration::IHTTPClientConfiguration> configuration
+			std::shared_ptr<core::configuration::IHTTPClientConfiguration> configuration,
+			std::shared_ptr<core::util::IInterruptibleThreadSuspender> threadSuspender
 		);
 
 		///
@@ -142,6 +144,9 @@ namespace protocol
 
 		/// Logger to write traces to
 		std::shared_ptr<openkit::ILogger> mLogger;
+
+		/// interruptable thread suspender
+		std::shared_ptr<core::util::IInterruptibleThreadSuspender> mThreadSuspender;
 
 		/// easy handle to the CURL session
 		CURL * mCurl;

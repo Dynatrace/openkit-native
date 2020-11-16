@@ -15,21 +15,9 @@
  */
 
 #include "OpenKit.h"
-#include "protocol/Beacon.h"
-#include "protocol/HTTPClient.h"
-#include "providers/DefaultHTTPClientProvider.h"
-#include "providers/DefaultSessionIDProvider.h"
-#include "providers/DefaultTimingProvider.h"
-#include "providers/DefaultThreadIDProvider.h"
-#include "core/BeaconSender.h"
-#include "core/caching/BeaconCache.h"
-#include "core/caching/BeaconCacheEvictor.h"
-#include "core/configuration/BeaconCacheConfiguration.h"
-#include "core/configuration/BeaconConfiguration.h"
-#include "core/configuration/HTTPClientConfiguration.h"
-#include "core/configuration/PrivacyConfiguration.h"
-#include "core/configuration/OpenKitConfiguration.h"
 #include "core/objects/NullSession.h"
+#include "core/objects/SessionCreator.h"
+#include "core/objects/SessionProxy.h"
 
 #include <inttypes.h> // for PRId64 macro
 
@@ -39,66 +27,23 @@ using namespace core::objects;
 int32_t OpenKit::gInstanceCount = 0;
 std::mutex OpenKit::gInitLock;
 
-OpenKit::OpenKit(
-	openkit::IOpenKitBuilder& builder
-)
-	: mLogger(builder.getLogger())
-	, mPrivacyConfiguration(core::configuration::PrivacyConfiguration::from(builder))
-	, mOpenKitConfiguration(core::configuration::OpenKitConfiguration::from(builder))
-	, mTimingProvider(std::make_shared<providers::DefaultTimingProvider>())
-	, mThreadIDProvider(std::make_shared<providers::DefaultThreadIDProvider>())
-	, mSessionIDProvider(std::make_shared<providers::DefaultSessionIDProvider>())
-	, mBeaconCache(std::make_shared<core::caching::BeaconCache>(mLogger))
-	, mBeaconSender(
-		std::make_shared<core::BeaconSender>(
-			mLogger,
-			core::configuration::HTTPClientConfiguration::from(mOpenKitConfiguration),
-			std::make_shared<providers::DefaultHTTPClientProvider>(),
-			mTimingProvider
-		)
-	)
-	, mBeaconCacheEvictor(
-		std::make_shared<core::caching::BeaconCacheEvictor>(
-			mLogger,
-			mBeaconCache,
-			core::configuration::BeaconCacheConfiguration::from(builder),
-			mTimingProvider
-		)
-	)
+OpenKit::OpenKit(const core::objects::IOpenKitInitializer& initializer)
+	: mLogger(initializer.getLogger())
+	, mPrivacyConfiguration(initializer.getPrivacyConfiguration())
+	, mOpenKitConfiguration(initializer.getOpenKitConfiguration())
+	, mTimingProvider(initializer.getTimingProvider())
+	, mThreadIDProvider(initializer.getThreadIdProvider())
+	, mSessionIDProvider(initializer.getSessionIdProvider())
+	, mBeaconCache(initializer.getBeaconCache())
+	, mBeaconSender(initializer.getBeaconSender())
+	, mBeaconCacheEvictor(initializer.getBeaconCacheEvictor())
+	, mSessionWatchdog(initializer.getSessionWatchdog())
 	, mMutex()
 	, mIsShutdown(0)
 {
 	globalInit();
 	logOpenKitInstanceCreation(mLogger, mOpenKitConfiguration);
 }
-
-OpenKit::OpenKit(
-	std::shared_ptr<openkit::ILogger> logger,
-	std::shared_ptr<core::configuration::IPrivacyConfiguration> privacyConfiguration,
-	std::shared_ptr<core::configuration::IOpenKitConfiguration> openKitConfiguration,
-	std::shared_ptr<providers::ITimingProvider> timingProvider,
-	std::shared_ptr<providers::IThreadIDProvider> threadIDProvider,
-	std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider,
-	std::shared_ptr<core::caching::IBeaconCache> beaconCache,
-	std::shared_ptr<core::IBeaconSender> beaconSender,
-	std::shared_ptr<core::caching::IBeaconCacheEvictor> beaconCacheEvictor
-)
-	: mLogger(logger)
-	, mPrivacyConfiguration(privacyConfiguration)
-	, mOpenKitConfiguration(openKitConfiguration)
-	, mTimingProvider(timingProvider)
-	, mThreadIDProvider(threadIDProvider)
-	, mSessionIDProvider(sessionIDProvider)
-	, mBeaconCache(beaconCache)
-	, mBeaconSender(beaconSender)
-	, mBeaconCacheEvictor(beaconCacheEvictor)
-	, mMutex()
-	, mIsShutdown(0)
-{
-	globalInit();
-	logOpenKitInstanceCreation(logger, openKitConfiguration);
-}
-
 
 OpenKit::~OpenKit()
 {
@@ -132,6 +77,7 @@ void OpenKit::logOpenKitInstanceCreation(
 void OpenKit::initialize()
 {
 	mBeaconCacheEvictor->start();
+	mSessionWatchdog->initialize();
 	mBeaconSender->initialize();
 }
 
@@ -160,39 +106,24 @@ std::shared_ptr<openkit::ISession> OpenKit::createSession(const char* clientIPAd
 	{ // synchronized scope
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		if (!mIsShutdown)
+		if (mIsShutdown)
 		{
-			auto serverId = mBeaconSender->getCurrentServerID();
-			auto beaconConfiguration = core::configuration::BeaconConfiguration::from(
-					mOpenKitConfiguration,
-					mPrivacyConfiguration,
-					serverId
-			);
-
-			auto beacon = std::make_shared<protocol::Beacon>(
-					mLogger,
-					mBeaconCache,
-					beaconConfiguration,
-					clientIPAddress,
-					mSessionIDProvider,
-					mThreadIDProvider,
-					mTimingProvider
-			);
-			auto newSession = std::make_shared<core::objects::Session>(
-				mLogger,
-				shared_from_this(),
-				beacon
-			);
-			newSession->startSession();
-			mBeaconSender->addSession(newSession);
-
-			storeChildInList(newSession);
-
-			return newSession;
+			return NullSession::instance();
 		}
-	}
 
-	return NullSession::instance();
+		auto sessionCreator = std::make_shared<core::objects::SessionCreator>(*this, clientIPAddress);
+		auto sessionProxy = core::objects::SessionProxy::createSessionProxy(
+			mLogger,
+			shared_from_this(),
+			sessionCreator,
+			mBeaconSender,
+			mSessionWatchdog
+		);
+
+		storeChildInList(sessionProxy);
+
+		return sessionProxy;
+	}
 }
 
 std::shared_ptr<openkit::ISession> OpenKit::createSession()
@@ -226,6 +157,7 @@ void OpenKit::shutdown()
 	}
 
 	mBeaconCacheEvictor->stop();
+	mSessionWatchdog->shutdown();
 	mBeaconSender->shutdown();
 }
 

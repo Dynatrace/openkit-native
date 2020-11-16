@@ -202,7 +202,8 @@ TEST_F(BeaconTest, createInstanceWithInvalidIpAddress)
 		.build();
 
 	// then
-	ASSERT_THAT(target->getClientIPAddress(), testing::Eq(""));
+	ASSERT_THAT(target->getClientIPAddress(), testing::Eq("invalid"));
+	ASSERT_THAT(target->useClientIPAddress(), testing::Eq(false));
 }
 
 TEST_F(BeaconTest, createInstanceWithNullIpAddress)
@@ -221,6 +222,7 @@ TEST_F(BeaconTest, createInstanceWithNullIpAddress)
 
 	// then
 	ASSERT_THAT(target->getClientIPAddress(), testing::Eq(""));
+	ASSERT_THAT(target->useClientIPAddress(), testing::Eq(false));
 }
 
 TEST_F(BeaconTest, createInstanceWithEmptyIpAddress)
@@ -235,6 +237,7 @@ TEST_F(BeaconTest, createInstanceWithEmptyIpAddress)
 
 	// then
 	ASSERT_THAT(obtained, testing::Eq(""));
+	ASSERT_THAT(target->useClientIPAddress(), testing::Eq(false));
 }
 
 TEST_F(BeaconTest, createInstanceWithValidIpAddress)
@@ -250,6 +253,7 @@ TEST_F(BeaconTest, createInstanceWithValidIpAddress)
 
 	// then
 	ASSERT_THAT(obtained, testing::Eq(ipAddress));
+	ASSERT_THAT(target->useClientIPAddress(), testing::Eq(true));
 }
 
 TEST_F(BeaconTest, createIDs)
@@ -1952,7 +1956,7 @@ TEST_F(BeaconTest, canHandleNoDataInBeaconSend)
 	// given
 	auto httpClient = MockIHTTPClient::createNice();
 	auto httpClientProvider = MockIHTTPClientProvider::createNice();
-	ON_CALL(*httpClientProvider, createClient(testing::_, testing::_))
+	ON_CALL(*httpClientProvider, createClient(testing::_))
 		.WillByDefault(testing::Return(httpClient));
 
 	auto target = createBeacon()->build();
@@ -1980,7 +1984,7 @@ TEST_F(BeaconTest, sendValidData)
 		.WillByDefault(testing::Return(statusResponse));
 
 	auto httpClientProvider = MockIHTTPClientProvider::createNice();
-	ON_CALL(*httpClientProvider, createClient(testing::_, testing::_))
+	ON_CALL(*httpClientProvider, createClient(testing::_))
 		.WillByDefault(testing::Return(httpClient));
 
 	// expect
@@ -2020,7 +2024,7 @@ TEST_F(BeaconTest, sendDataAndFakeErrorResponse)
 		.WillByDefault(testing::Return(statusResponse));
 
 	auto httpClientProvider = MockIHTTPClientProvider::createNice();
-	ON_CALL(*httpClientProvider, createClient(testing::_, testing::_))
+	ON_CALL(*httpClientProvider, createClient(testing::_))
 		.WillByDefault(testing::Return(httpClient));
 
 	// expect

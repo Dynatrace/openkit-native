@@ -40,7 +40,7 @@ namespace core
 			/// @param builder instance providing privacy relevant configuration details.
 			///
 			PrivacyConfiguration(
-				openkit::IOpenKitBuilder& builder
+				const openkit::IOpenKitBuilder& builder
 			);
 
 			~PrivacyConfiguration() override = default;
@@ -51,7 +51,7 @@ namespace core
 			/// @param builder the OpenKit builder from which to create the privacy configuration instance.
 			/// @return a newly created privacy configuration instance or @c nullptr if the given argument is @c nullptr
 			///
-			static std::shared_ptr<IPrivacyConfiguration> from(openkit::IOpenKitBuilder& builder);
+			static std::shared_ptr<IPrivacyConfiguration> from(const openkit::IOpenKitBuilder& builder);
 
 			///
 			/// Returns the data collection level which was set in the constructor.

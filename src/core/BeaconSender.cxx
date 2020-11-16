@@ -18,7 +18,6 @@
 
 #include "communication/BeaconSendingInitialState.h"
 #include "communication/BeaconSendingContext.h"
-#include "core/util/InterruptibleThreadSuspender.h"
 
 #include <memory>
 #include <chrono>
@@ -35,7 +34,8 @@ BeaconSender::BeaconSender
 	std::shared_ptr<openkit::ILogger> logger,
 	std::shared_ptr<core::configuration::IHTTPClientConfiguration> httpClientConfiguration,
 	std::shared_ptr<providers::IHTTPClientProvider> httpClientProvider,
-	std::shared_ptr<providers::ITimingProvider> timingProvider
+	std::shared_ptr<providers::ITimingProvider> timingProvider,
+	std::shared_ptr<core::util::IInterruptibleThreadSuspender> threadSuspender
 )
 	: mLogger(logger)
 	, mBeaconSendingContext(
@@ -44,7 +44,7 @@ BeaconSender::BeaconSender
 			httpClientConfiguration,
 			httpClientProvider,
 			timingProvider,
-			std::make_shared<core::util::InterruptibleThreadSuspender>()
+			threadSuspender
 		)
 	)
 	, mSendingThread(new core::util::ThreadSurrogate())

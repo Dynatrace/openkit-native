@@ -18,23 +18,13 @@
 #define _PROTOCOL_BEACON_H
 
 #include "IBeacon.h"
-#include "OpenKit/ILogger.h"
-#include "core/UTF8String.h"
-#include "providers/ISessionIDProvider.h"
-#include "providers/ITimingProvider.h"
-#include "providers/IThreadIDProvider.h"
-#include "providers/IPRNGenerator.h"
 #include "core/configuration/IBeaconConfiguration.h"
-#include "core/configuration/IHTTPClientConfiguration.h"
-#include "core/configuration/IPrivacyConfiguration.h"
-#include "core/objects/IActionCommon.h"
-#include "core/objects/Session.h"
-#include "core/objects/IWebRequestTracerInternals.h"
-#include "core/caching/BeaconCache.h"
-#include "protocol/IStatusResponse.h"
-#include "EventType.h"
+#include "protocol/EventType.h"
+#include "protocol/IBeaconInitializer.h"
+#include "providers/IPRNGenerator.h"
 
 #include <memory>
+#include <atomic>
 #include <map>
 
 namespace protocol
@@ -49,44 +39,12 @@ namespace protocol
 
 		///
 		/// Constructor for Beacon
-		/// @param[in] logger to write traces to
-		/// @param[in] beaconCache Cache storing beacon related data.
-		/// @param[in] configuration Configuration object
-		/// @param[in] clientIPAddress IP Address of the client
-		/// @param[in] sessionIDProvider provider for retrieving a unique session number
-		/// @param[in] threadIDProvider provider for thread ids
-		/// @param[in] timingProvider timing provider used to retrieve timestamps
+		/// @param[in] initializer provider of relevant parameters to initialize / create the beacon
+		/// @param[in] configuration provides beacon specific configuration
 		///
 		Beacon(
-			std::shared_ptr<openkit::ILogger> logger,
-			std::shared_ptr<core::caching::IBeaconCache> beaconCache,
-			std::shared_ptr<core::configuration::IBeaconConfiguration> configuration,
-			const char* clientIPAddress,
-			std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider,
-			std::shared_ptr<providers::IThreadIDProvider> threadIDProvider,
-			std::shared_ptr<providers::ITimingProvider> timingProvider
-		);
-
-		///
-		/// Constructor for Beacon
-		/// @param[in] logger to write traces to
-		/// @param[in] beaconCache Cache storing beacon related data.
-		/// @param[in] configuration Configuration object
-		/// @param[in] clientIPAddress IP Address of the client
-		/// @param[in] sessionIDProvider provider for retrieving a unique session number
-		/// @param[in] threadIDProvider provider for thread ids
-		/// @param[in] timingProvider timing provider used to retrieve timestamps
-		/// @param[in] randomGenerator random number generator
-		///
-		Beacon(
-			std::shared_ptr<openkit::ILogger> logger,
-			std::shared_ptr<core::caching::IBeaconCache> beaconCache,
-			std::shared_ptr<core::configuration::IBeaconConfiguration> configuration,
-			const char* clientIPAddress,
-			std::shared_ptr<providers::ISessionIDProvider> sessionIDProvider,
-			std::shared_ptr<providers::IThreadIDProvider> threadIDProvider,
-			std::shared_ptr<providers::ITimingProvider> timingProvider,
-			std::shared_ptr<providers::IPRNGenerator> randomGenerator
+			const protocol::IBeaconInitializer& initializer,
+			const std::shared_ptr<core::configuration::IBeaconConfiguration> configuration
 		);
 
 		///
@@ -100,7 +58,7 @@ namespace protocol
 
 		int32_t createID() override;
 
-		core::UTF8String createTag(int32_t parentActionID, int32_t sequenceNumber) override;
+		core::UTF8String createTag(int32_t parentActionID, int32_t tracerSequenceNumber) override;
 
 		void addAction(std::shared_ptr<core::objects::IActionCommon> action) override;
 
@@ -151,7 +109,11 @@ namespace protocol
 
 		int32_t getSessionNumber() const override;
 
+		int32_t getSessionSequenceNumber() const override;
+
 		int64_t getDeviceID() const override;
+
+		bool useClientIPAddress() const override;
 
 		const core::UTF8String& getClientIPAddress() const override;
 
@@ -294,6 +256,11 @@ namespace protocol
 		///
 		core::UTF8String createMultiplicityData();
 
+		///
+		/// Returns visit store version.
+		///
+		int32_t getVisitStoreVersion();
+
 	private:
 		/// Logger to write traces to
 		const std::shared_ptr<openkit::ILogger> mLogger;
@@ -303,6 +270,9 @@ namespace protocol
 
 		/// configuration object required for this beacon
 		const std::shared_ptr<core::configuration::IBeaconConfiguration> mBeaconConfiguration;
+
+		/// use client specified IP address
+		bool mUseClientIpAddress;
 
 		/// client IP Address
 		core::UTF8String mClientIPAddress;
@@ -330,6 +300,9 @@ namespace protocol
 
 		/// session number
 		int32_t mSessionNumber;
+
+		/// session sequence number
+		int32_t mSessionSequenceNumber;
 
 		/// session start time
 		int64_t mSessionStartTime;

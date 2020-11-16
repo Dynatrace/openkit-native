@@ -16,6 +16,7 @@
 
 #include "builder/TestOpenKitBuilder.h"
 #include "mock/MockIOpenKitObject.h"
+#include "../mock/MockISessionWatchdog.h"
 #include "../mock/MockIBeaconSender.h"
 #include "../caching/mock/MockIBeaconCache.h"
 #include "../caching/mock/MockIBeaconCacheEvictor.h"
@@ -31,7 +32,7 @@
 #include "core/objects/IOpenKitObject.h"
 #include "core/objects/NullSession.h"
 #include "core/objects/OpenKit.h"
-#include "core/objects/Session.h"
+#include "core/objects/SessionProxy.h"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -45,6 +46,7 @@ using NullSession_t = core::objects::NullSession;
 using MockIBeaconCache_sp = std::shared_ptr<MockIBeaconCache>;
 using MockIBeaconCacheEvictor_sp = std::shared_ptr<MockIBeaconCacheEvictor>;
 using MockIBeaconSender_sp = std::shared_ptr<MockIBeaconSender>;
+using MockISessionWatchdog_sp = std::shared_ptr<MockISessionWatchdog>;
 using MockILogger_sp = std::shared_ptr<MockILogger>;
 using MockIOpenKitConfiguration_sp = std::shared_ptr<MockIOpenKitConfiguration>;
 using MockIPrivacyConfiguration_sp = std::shared_ptr<MockIPrivacyConfiguration>;
@@ -52,7 +54,7 @@ using MockITimingProvider_sp = std::shared_ptr<MockITimingProvider>;
 using MockIThreadIDProvider_sp = std::shared_ptr<MockIThreadIDProvider>;
 using MockISessionIDProvider_sp = std::shared_ptr<MockISessionIDProvider>;
 using OpenKit_sp = std::shared_ptr<core::objects::OpenKit>;
-using Session_t = core::objects::Session;
+using SessionProxy_t = core::objects::SessionProxy;
 using Utf8String_t = core::UTF8String;
 
 const Utf8String_t APP_ID("appID");
@@ -72,6 +74,7 @@ protected:
 	MockIBeaconCache_sp mockBeaconCache;
 	MockIBeaconSender_sp mockBeaconSender;
 	MockIBeaconCacheEvictor_sp mockBeaconCacheEvictor;
+	MockISessionWatchdog_sp mockSessionWatchdog;
 
 	void SetUp() override
 	{
@@ -98,6 +101,7 @@ protected:
 		mockBeaconCache = MockIBeaconCache::createNice();
 		mockBeaconSender = MockIBeaconSender::createNice();
 		mockBeaconCacheEvictor = MockIBeaconCacheEvictor::createNice();
+		mockSessionWatchdog = MockISessionWatchdog::createNice();
 	}
 
 	std::shared_ptr<TestOpenKitBuilder> createOpenKit()
@@ -113,6 +117,7 @@ protected:
 			.with(mockBeaconCache)
 			.with(mockBeaconSender)
 			.with(mockBeaconCacheEvictor)
+			.with(mockSessionWatchdog)
 		;
 
 		return builder;
@@ -152,6 +157,24 @@ TEST_F(OpenKitTest, initializeInitializesBeaconSender)
 	// when
 	target->initialize();
 }
+
+TEST_F(OpenKitTest, initializeInitializesSessionWatchdog)
+{
+	// with
+	auto sessionWatchdog = MockISessionWatchdog::createStrict();
+
+	// expect
+	EXPECT_CALL(*sessionWatchdog, initialize()).Times(1);
+
+	// given
+	auto target = createOpenKit()
+		->with(sessionWatchdog)
+		.build();
+
+	// when
+	target->initialize();
+}
+
 
 TEST_F(OpenKitTest, waitForInitCompletionForwardsCallToBeaconSender)
 {
@@ -276,6 +299,23 @@ TEST_F(OpenKitTest, shutdownShutsDownBeaconSender)
 	target->shutdown();
 }
 
+TEST_F(OpenKitTest, shutdownShutsDownSessionWatchdog)
+{
+	// with
+	auto sessionWatchdog = MockISessionWatchdog::createStrict();
+
+	// expect
+	EXPECT_CALL(*sessionWatchdog, shutdown()).Times(1);
+
+	// given
+	auto target = createOpenKit()
+		->with(sessionWatchdog)
+		.build();
+
+	// when
+	target->shutdown();
+}
+
 TEST_F(OpenKitTest, shutdownClosesAllChildObjects)
 {
 	// with
@@ -342,33 +382,33 @@ TEST_F(OpenKitTest, callingShutdownASecondTimeReturnsImmediately)
 	target->shutdown();
 }
 
-TEST_F(OpenKitTest, createSessionReturnsSessionObject)
+TEST_F(OpenKitTest, createSessionReturnsSessionProxyObject)
 {
 	// given
-	auto target  = createOpenKit()->build();
+	auto target = createOpenKit()->build();
 
 	// when
 	auto obtained = target->createSession("127.0.0.1");
 
 	// then
 	ASSERT_THAT(obtained, testing::NotNull());
-	ASSERT_THAT(std::dynamic_pointer_cast<Session_t>(obtained), testing::NotNull());
+	ASSERT_THAT(std::dynamic_pointer_cast<SessionProxy_t>(obtained), testing::NotNull());
 
 	// break dependency cycle: session as child in OpenKit
 	obtained->end();
 }
 
-TEST_F(OpenKitTest, DISABLED_createSessionWithoutIpReturnsSessionObject)
+TEST_F(OpenKitTest, createSessionWithoutIpReturnsSessionProxyObject)
 {
 	// given
-	auto target  = createOpenKit()->build();
+	auto target = createOpenKit()->build();
 
 	// when
-	auto obtained = target->createSession(nullptr);
+	auto obtained = target->createSession();
 
 	// then
 	ASSERT_THAT(obtained, testing::NotNull());
-	ASSERT_THAT(std::dynamic_pointer_cast<Session_t>(obtained), testing::NotNull());
+	ASSERT_THAT(std::dynamic_pointer_cast<SessionProxy_t>(obtained), testing::NotNull());
 
 	// break dependency cycle: session as child in OpenKit
 	obtained->end();
@@ -409,13 +449,13 @@ TEST_F(OpenKitTest, createSessionAddsNewlyCreatedSessionToListOfChildren)
 	obtainedTwo->end();
 }
 
-TEST_F(OpenKitTest, DISABLED_createSesionWithoutIpAddsNewlyCreatedSessionToListOfChildren)
+TEST_F(OpenKitTest, createSesionWithoutIpAddsNewlyCreatedSessionToListOfChildren)
 {
 	// given
 	auto target = createOpenKit()->build();
 
 	// when
-	auto obtainedOne = target->createSession(nullptr);
+	auto obtainedOne = target->createSession();
 
 	// then
 	ASSERT_THAT(obtainedOne, testing::NotNull());
@@ -427,7 +467,7 @@ TEST_F(OpenKitTest, DISABLED_createSesionWithoutIpAddsNewlyCreatedSessionToListO
 	ASSERT_THAT(objectOne, testing::Eq(*childObjects.begin()));
 
 	// and when
-	auto obtainedTwo = target->createSession(nullptr);
+	auto obtainedTwo = target->createSession();
 
 	// then
 	ASSERT_THAT(obtainedTwo, testing::NotNull());
@@ -460,14 +500,14 @@ TEST_F(OpenKitTest, createSessionAfterShutdownHasBeenCalledReturnsNullSession)
 	ASSERT_THAT(nullSession, testing::Eq(NullSession_t::instance()));
 }
 
-TEST_F(OpenKitTest, DISABLED_createSessionWithoutIpAfterShutdownHasBeenCalledReturnsNullSession)
+TEST_F(OpenKitTest, createSessionWithoutIpAfterShutdownHasBeenCalledReturnsNullSession)
 {
 	// given
 	auto target = createOpenKit()->build();
 	target->shutdown();
 
 	// when
-	auto obtained = target->createSession(nullptr);
+	auto obtained = target->createSession();
 
 	// then
 	ASSERT_THAT(obtained, testing::NotNull());

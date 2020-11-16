@@ -160,6 +160,7 @@ set(OPENKIT_SOURCES_CORE_OBJECTS
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/ActionCommonImpl.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/IActionCommon.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/IOpenKitComposite.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/IOpenKitInitializer.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/IOpenKitObject.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/ISessionCreator.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/ISessionCreatorInput.h
@@ -178,6 +179,8 @@ set(OPENKIT_SOURCES_CORE_OBJECTS
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/OpenKit.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/OpenKitComposite.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/OpenKitComposite.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/OpenKitInitializer.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/OpenKitInitializer.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/RootAction.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/RootAction.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/Session.cxx
@@ -209,6 +212,7 @@ set(OPENKIT_SOURCES_PROTOCOL
     ${CMAKE_CURRENT_LIST_DIR}/protocol/HTTPResponseParser.h
     ${CMAKE_CURRENT_LIST_DIR}/protocol/IAdditionalQueryParameters.h
     ${CMAKE_CURRENT_LIST_DIR}/protocol/IBeacon.h
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/IBeaconInitializer.h
     ${CMAKE_CURRENT_LIST_DIR}/protocol/IHTTPClient.h
     ${CMAKE_CURRENT_LIST_DIR}/protocol/IResponseAttributes.h
     ${CMAKE_CURRENT_LIST_DIR}/protocol/IStatusResponse.h
