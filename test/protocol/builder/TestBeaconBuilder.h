@@ -151,6 +151,8 @@ namespace test
 				.WillByDefault(testing::ReturnRef(ipAddress));
 			ON_CALL(*beaconInitializer, getSessionIdProvider())
 				.WillByDefault(testing::Return(sessionIDProvider));
+			ON_CALL(*beaconInitializer, getSessionSequenceNumber())
+				.WillByDefault(testing::Return(mSessionSequenceNumber));
 			ON_CALL(*beaconInitializer, getThreadIdProvider())
 				.WillByDefault(testing::Return(threadIDProvider));
 			ON_CALL(*beaconInitializer, getTiminigProvider())

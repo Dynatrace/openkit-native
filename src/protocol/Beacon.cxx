@@ -38,9 +38,9 @@ Beacon::Beacon(const protocol::IBeaconInitializer& initializer, const std::share
 	, mDeviceID()
 	, mSequenceNumber(0)
 	, mID(0)
-	, mBeaconId(initializer.getSessionIdProvider()->getNextSessionID())
-	, mSessionNumber()
-	, mSessionSequenceNumber(0)
+	, mBeaconKey(initializer.getSessionIdProvider()->getNextSessionID(), initializer.getSessionSequenceNumber())
+	, mSessionNumber(0)
+	, mSessionSequenceNumber(initializer.getSessionSequenceNumber())
 	, mSessionStartTime(initializer.getTiminigProvider()->provideTimestampInMilliseconds())
 	, mImmutableBasicBeaconData()
 
@@ -61,7 +61,7 @@ Beacon::Beacon(const protocol::IBeaconInitializer& initializer, const std::share
 		? openKitConfig->getDeviceId()
 		: mRandomGenerator->nextPositiveInt64();
 	mSessionNumber = privacyConfig->isSessionNumberReportingAllowed()
-		? mBeaconId
+		? mBeaconKey.getBeaconId()
 		: 1;
 
 	mImmutableBasicBeaconData = createImmutableBeaconData();
@@ -257,7 +257,7 @@ void Beacon::addActionData(int64_t timestamp, const core::UTF8String& actionData
 {
 	if (isCaptureEnabled())
 	{
-		mBeaconCache->addActionData(mBeaconId, timestamp, actionData);
+		mBeaconCache->addActionData(mBeaconKey, timestamp, actionData);
 	}
 }
 
@@ -539,7 +539,7 @@ std::shared_ptr<protocol::IStatusResponse> Beacon::send(std::shared_ptr<provider
 		prefix.concatenate( getMutableBeaconData());
 
 		auto chunk = mBeaconCache->getNextBeaconChunk(
-			mBeaconId,
+			mBeaconKey,
 			prefix,
 			mBeaconConfiguration->getServerConfiguration()->getBeaconSizeInBytes() - 1024,
 			BEACON_DATA_DELIMITER
@@ -555,13 +555,13 @@ std::shared_ptr<protocol::IStatusResponse> Beacon::send(std::shared_ptr<provider
 		{
 			// error happened - but don't know what exactly
 			// reset the previously retrieved chunk (restore it in internal cache) & retry another time
-			mBeaconCache->resetChunkedData(mBeaconId);
+			mBeaconCache->resetChunkedData(mBeaconKey);
 			break;
 		}
 		else
 		{
 			// worked -> remove previously retrieved chunk from cache
-			mBeaconCache->removeChunkedData(mBeaconId);
+			mBeaconCache->removeChunkedData(mBeaconKey);
 		}
 	}
 
@@ -572,7 +572,7 @@ void Beacon::addEventData(int64_t timestamp, const core::UTF8String& eventData)
 {
 	if (isCaptureEnabled())
 	{
-		mBeaconCache->addEventData(mBeaconId, timestamp, eventData);
+		mBeaconCache->addEventData(mBeaconKey, timestamp, eventData);
 	}
 }
 
@@ -592,13 +592,13 @@ int64_t Beacon::getTimeSinceSessionStartTime(int64_t timestamp)
 
 bool Beacon::isEmpty() const
 {
-	return mBeaconCache->isEmpty(mBeaconId);
+	return mBeaconCache->isEmpty(mBeaconKey);
 }
 
 void Beacon::clearData()
 {
 	// remove all cached data for this Beacon from the cache
-	mBeaconCache->deleteCacheEntry(mBeaconId);
+	mBeaconCache->deleteCacheEntry(mBeaconKey);
 }
 
 int32_t Beacon::getSessionNumber() const

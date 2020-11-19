@@ -74,6 +74,16 @@ namespace core
 			///
 			void unsetSending();
 
+			///
+			/// Equality operator.
+			///
+			bool operator == (const BeaconCacheRecord& rhs) const;
+
+			///
+			/// Inequality operator.
+			///
+			bool operator != (const BeaconCacheRecord& rhs) const;
+
 		private:
 			/// The data's timestamp
 			int64_t mTimestamp;

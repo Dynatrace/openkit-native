@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
+#include "core/caching/SpaceEvictionStrategy.h"
+#include "core/caching/BeaconKey.h"
+
 #include "mock/MockIBeaconCache.h"
 #include "../configuration/mock/MockIBeaconCacheConfiguration.h"
 #include "../../api/mock/MockILogger.h"
-
-#include "core/caching/SpaceEvictionStrategy.h"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -32,6 +33,8 @@ using MockNiceIBeaconCacheConfiguration_sp = std::shared_ptr<testing::NiceMock<M
 using MockNiceILogger_sp = std::shared_ptr<testing::NiceMock<MockILogger>>;
 using MockStrictILogger_sp = std::shared_ptr<testing::StrictMock<MockILogger>>;
 using SpaceEvictionStrategy_t = core::caching::SpaceEvictionStrategy;
+using BeaconKey_t = core::caching::BeaconKey;
+using BeaconKeySet_t = std::unordered_set<BeaconKey_t, BeaconKey_t::Hash>;
 
 class SpaceEvictionStrategyTest : public testing::Test
 {
@@ -83,7 +86,7 @@ TEST_F(SpaceEvictionStrategyTest, theStrategyIsDisabledIfCacheSizeLowerBoundIsEq
 	);
 
 	// then
-	ASSERT_TRUE(target.isStrategyDisabled());
+	ASSERT_THAT(target.isStrategyDisabled(), testing::Eq(true));
 }
 
 TEST_F(SpaceEvictionStrategyTest, theStrategyIsDisabledIfCacheSizeLowerBoundIsLessThanZero)
@@ -98,7 +101,7 @@ TEST_F(SpaceEvictionStrategyTest, theStrategyIsDisabledIfCacheSizeLowerBoundIsLe
 	);
 
 	// then
-	ASSERT_TRUE(target.isStrategyDisabled());
+	ASSERT_THAT(target.isStrategyDisabled(), testing::Eq(true));
 }
 
 TEST_F(SpaceEvictionStrategyTest, theStrategyIsDisabledIfCacheSizeUpperBoundIsEqualToZero)
@@ -113,7 +116,7 @@ TEST_F(SpaceEvictionStrategyTest, theStrategyIsDisabledIfCacheSizeUpperBoundIsEq
 	);
 
 	// then
-	ASSERT_TRUE(target.isStrategyDisabled());
+	ASSERT_THAT(target.isStrategyDisabled(), testing::Eq(true));
 }
 
 TEST_F(SpaceEvictionStrategyTest, theStrategyIsDisabledIfCacheSizeUpperBoundIsLessThanZero)
@@ -143,7 +146,7 @@ TEST_F(SpaceEvictionStrategyTest, theStrategyIsDisabledIfCacheSizeUpperBoundIsLe
 	);
 
 	// then
-	ASSERT_TRUE(target.isStrategyDisabled());
+	ASSERT_THAT(target.isStrategyDisabled(), testing::Eq(true));
 }
 
 TEST_F(SpaceEvictionStrategyTest, shouldRunGivesTrueIfNumBytesInCacheIsGreaterThanUpperBoundLimit)
@@ -162,7 +165,7 @@ TEST_F(SpaceEvictionStrategyTest, shouldRunGivesTrueIfNumBytesInCacheIsGreaterTh
 		.WillByDefault(testing::Return(configuration->getCacheSizeUpperBound() + 1));
 
 	// then
-	ASSERT_TRUE(target.shouldRun());
+	ASSERT_THAT(target.shouldRun(), testing::Eq(true));
 }
 
 TEST_F(SpaceEvictionStrategyTest, shouldRunGivesFalseIfNumBytesInCacheIsEqualToUpperBoundLimit)
@@ -181,7 +184,7 @@ TEST_F(SpaceEvictionStrategyTest, shouldRunGivesFalseIfNumBytesInCacheIsEqualToU
 		.WillByDefault(testing::Return(configuration->getCacheSizeUpperBound()));
 
 	// then
-	ASSERT_FALSE(target.shouldRun());
+	ASSERT_THAT(target.shouldRun(), testing::Eq(false));
 }
 
 TEST_F(SpaceEvictionStrategyTest, shouldRunGivesFalseIfNumBytesInCacheIsLessThanUpperBoundLimit)
@@ -230,6 +233,10 @@ TEST_F(SpaceEvictionStrategyTest, executeEvictionDoesNotLogIfStrategyIsDisabledA
 	ON_CALL(*mockLoggerStrict, isInfoEnabled())
 		.WillByDefault(testing::Return(false));
 
+	// expect
+	EXPECT_CALL(*mockLoggerStrict, isInfoEnabled())
+		.Times(1);
+
 	// given
 	auto configuration = createBeaconCacheConfig(1000L, 1000L, -1L);
 	SpaceEvictionStrategy_t target(
@@ -238,10 +245,6 @@ TEST_F(SpaceEvictionStrategyTest, executeEvictionDoesNotLogIfStrategyIsDisabledA
 		configuration,
 		std::bind(&SpaceEvictionStrategyTest::mockedIsStopRequestedFunctionAlwaysFalse, this)
 	);
-
-	// expect
-	EXPECT_CALL(*mockLoggerStrict, isInfoEnabled())
-		.Times(1);
 
 	// when
 	target.execute();
@@ -256,6 +259,22 @@ TEST_F(SpaceEvictionStrategyTest, executeEvictionDoesNotLogIfStrategyIsDisabledA
 
 TEST_F(SpaceEvictionStrategyTest, executeEvictionCallsCacheMethodForEachBeacon)
 {
+	// with
+	BeaconKey_t keyOne(1, 0);
+	BeaconKey_t keyTwo(42, 0);
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, getNumBytesInCache())
+		.WillOnce(testing::Return(2001L))		// 2001 for SpaceEvictionStrategy::shouldRun()
+		.WillOnce(testing::Return(2001L))		// 2001 for outer while loop in SpaceEvictionStrategy::doExecute()
+		.WillOnce(testing::Return(2001L))		// 2001 for inner while loop in SpaceEvictionStrategy::doExecute() which evicts beaconID 1
+		.WillOnce(testing::Return(2001L))		// 2001 for inner while loop in SpaceEvictionStrategy::doExecute() which evicts beaconID 42
+		.WillOnce(testing::Return(0L));			// 0 for outer while loop in SpaceEvictionStrategy::doExecute() (to exit the while loop)
+	EXPECT_CALL(*mockBeaconCache, evictRecordsByNumber(keyOne, 1))
+		.Times(testing::Exactly(1));
+	EXPECT_CALL(*mockBeaconCache, evictRecordsByNumber(keyTwo, 1))
+		.Times(testing::Exactly(1));
+
 	// given
 	auto configuration = createBeaconCacheConfig(1000L, 1000L, 2000L);
 	SpaceEvictionStrategy_t target(
@@ -264,20 +283,8 @@ TEST_F(SpaceEvictionStrategyTest, executeEvictionCallsCacheMethodForEachBeacon)
 		configuration,
 		std::bind(&SpaceEvictionStrategyTest::mockedIsStopRequestedFunctionAlwaysFalse, this)
 	);
-	ON_CALL(*mockBeaconCache, getBeaconIDs())
-		.WillByDefault(testing::Return(std::unordered_set<int32_t>({ 1, 42 })));
-
-	// then
-	EXPECT_CALL(*mockBeaconCache, getNumBytesInCache())
-		.WillOnce(testing::Return(2001L))		// 2001 for SpaceEvictionStrategy::shouldRun()
-		.WillOnce(testing::Return(2001L))		// 2001 for outer while loop in SpaceEvictionStrategy::doExecute()
-		.WillOnce(testing::Return(2001L))		// 2001 for inner while loop in SpaceEvictionStrategy::doExecute() which evicts beaconID 1
-		.WillOnce(testing::Return(2001L))		// 2001 for inner while loop in SpaceEvictionStrategy::doExecute() which evicts beaconID 42
-		.WillOnce(testing::Return(0L));			// 0 for outer while loop in SpaceEvictionStrategy::doExecute() (to exit the while loop)
-	EXPECT_CALL(*mockBeaconCache, evictRecordsByNumber(1, 1))
-		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockBeaconCache, evictRecordsByNumber(42, 1))
-		.Times(testing::Exactly(1));
+	ON_CALL(*mockBeaconCache, getBeaconKeys())
+		.WillByDefault(testing::Return(BeaconKeySet_t({ keyOne, keyTwo })));
 
 	// when
 	target.execute();
@@ -285,13 +292,23 @@ TEST_F(SpaceEvictionStrategyTest, executeEvictionCallsCacheMethodForEachBeacon)
 
 TEST_F(SpaceEvictionStrategyTest, executeEvictionLogsEvictionResultIfDebugIsEnabled)
 {
+	// with
+	BeaconKey_t keyOne(1, 0);
+	BeaconKey_t keyTwo(42, 14);
+
 	// expect
 	EXPECT_CALL(*mockLoggerStrict, isDebugEnabled())
 		.Times(3);
-	EXPECT_CALL(*mockLoggerStrict, mockDebug("SpaceEvictionStrategy doExecute() - Removed 5 records from Beacon with ID 1"))
+	EXPECT_CALL(*mockLoggerStrict, mockDebug("SpaceEvictionStrategy doExecute() - Removed 5 records from Beacon with key [sn=1, seq=0]"))
 		.Times(1);
-	EXPECT_CALL(*mockLoggerStrict, mockDebug("SpaceEvictionStrategy doExecute() - Removed 1 records from Beacon with ID 42"))
+	EXPECT_CALL(*mockLoggerStrict, mockDebug("SpaceEvictionStrategy doExecute() - Removed 1 records from Beacon with key [sn=42, seq=14]"))
 		.Times(1);
+	EXPECT_CALL(*mockBeaconCache, getNumBytesInCache())
+		.WillOnce(testing::Return(2001L))		// 2001 for SpaceEvictionStrategy::shouldRun()
+		.WillOnce(testing::Return(2001L))		// 2001 for outer while loop in SpaceEvictionStrategy::doExecute()
+		.WillOnce(testing::Return(2001L))		// 2001 for inner while loop in SpaceEvictionStrategy::doExecute() which evicts beaconID 1
+		.WillOnce(testing::Return(2001L))		// 2001 for inner while loop in SpaceEvictionStrategy::doExecute() which evicts beaconID 42
+		.WillOnce(testing::Return(0L));			// 0 for outer while loop in SpaceEvictionStrategy::doExecute() (to exit the while loop)
 
 	// given
 	auto configuration = createBeaconCacheConfig(1000L, 1000L, 2000L);
@@ -302,17 +319,11 @@ TEST_F(SpaceEvictionStrategyTest, executeEvictionLogsEvictionResultIfDebugIsEnab
 		std::bind(&SpaceEvictionStrategyTest::mockedIsStopRequestedFunctionAlwaysFalse, this)
 	);
 
-	EXPECT_CALL(*mockBeaconCache, getNumBytesInCache())
-		.WillOnce(testing::Return(2001L))		// 2001 for SpaceEvictionStrategy::shouldRun()
-		.WillOnce(testing::Return(2001L))		// 2001 for outer while loop in SpaceEvictionStrategy::doExecute()
-		.WillOnce(testing::Return(2001L))		// 2001 for inner while loop in SpaceEvictionStrategy::doExecute() which evicts beaconID 1
-		.WillOnce(testing::Return(2001L))		// 2001 for inner while loop in SpaceEvictionStrategy::doExecute() which evicts beaconID 42
-		.WillOnce(testing::Return(0L));			// 0 for outer while loop in SpaceEvictionStrategy::doExecute() (to exit the while loop)
-	ON_CALL(*mockBeaconCache, getBeaconIDs())
-		.WillByDefault(testing::Return(std::unordered_set<int32_t>({ 1, 42 })));
-	ON_CALL(*mockBeaconCache, evictRecordsByNumber(1, testing::_))
+	ON_CALL(*mockBeaconCache, getBeaconKeys())
+		.WillByDefault(testing::Return(BeaconKeySet_t({ keyOne, keyTwo })));
+	ON_CALL(*mockBeaconCache, evictRecordsByNumber(keyOne, testing::_))
 		.WillByDefault(testing::Return(5));
-	ON_CALL(*mockBeaconCache, evictRecordsByNumber(42, testing::_))
+	ON_CALL(*mockBeaconCache, evictRecordsByNumber(keyTwo, testing::_))
 		.WillByDefault(testing::Return(1));
 
 	// when executing
@@ -328,6 +339,12 @@ TEST_F(SpaceEvictionStrategyTest, executeEvictionDoesNotLogEvictionResultIfDebug
 	// expect
 	EXPECT_CALL(*mockLoggerStrict, isDebugEnabled())
 		.Times(3);
+	EXPECT_CALL(*mockBeaconCache, getNumBytesInCache())
+		.WillOnce(testing::Return(2001L))		// 2001 for SpaceEvictionStrategy::shouldRun()
+		.WillOnce(testing::Return(2001L))		// 2001 for outer while loop in SpaceEvictionStrategy::doExecute()
+		.WillOnce(testing::Return(2001L))		// 2001 for inner while loop in SpaceEvictionStrategy::doExecute() which evicts beaconID 1
+		.WillOnce(testing::Return(2001L))		// 2001 for inner while loop in SpaceEvictionStrategy::doExecute() which evicts beaconID 42
+		.WillOnce(testing::Return(0L));			// 0 for outer while loop in SpaceEvictionStrategy::doExecute() (to exit the while loop)
 
 	// given
 	auto configuration = createBeaconCacheConfig(1000L, 1000L, 2000L);
@@ -338,17 +355,14 @@ TEST_F(SpaceEvictionStrategyTest, executeEvictionDoesNotLogEvictionResultIfDebug
 		std::bind(&SpaceEvictionStrategyTest::mockedIsStopRequestedFunctionAlwaysFalse, this)
 	);
 
-	EXPECT_CALL(*mockBeaconCache, getNumBytesInCache())
-		.WillOnce(testing::Return(2001L))		// 2001 for SpaceEvictionStrategy::shouldRun()
-		.WillOnce(testing::Return(2001L))		// 2001 for outer while loop in SpaceEvictionStrategy::doExecute()
-		.WillOnce(testing::Return(2001L))		// 2001 for inner while loop in SpaceEvictionStrategy::doExecute() which evicts beaconID 1
-		.WillOnce(testing::Return(2001L))		// 2001 for inner while loop in SpaceEvictionStrategy::doExecute() which evicts beaconID 42
-		.WillOnce(testing::Return(0L));			// 0 for outer while loop in SpaceEvictionStrategy::doExecute() (to exit the while loop)
-	ON_CALL(*mockBeaconCache, getBeaconIDs())
-		.WillByDefault(testing::Return(std::unordered_set<int32_t>({ 1, 42 })));
-	ON_CALL(*mockBeaconCache, evictRecordsByNumber(1, testing::_))
+	BeaconKey_t keyOne(1, 0);
+	BeaconKey_t keyTwo(42, 0);
+
+	ON_CALL(*mockBeaconCache, getBeaconKeys())
+		.WillByDefault(testing::Return(BeaconKeySet_t({ keyOne, keyTwo })));
+	ON_CALL(*mockBeaconCache, evictRecordsByNumber(keyOne, testing::_))
 		.WillByDefault(testing::Return(5));
-	ON_CALL(*mockBeaconCache, evictRecordsByNumber(42, testing::_))
+	ON_CALL(*mockBeaconCache, evictRecordsByNumber(keyTwo, testing::_))
 		.WillByDefault(testing::Return(1));
 
 	// when executing
@@ -357,6 +371,16 @@ TEST_F(SpaceEvictionStrategyTest, executeEvictionDoesNotLogEvictionResultIfDebug
 
 TEST_F(SpaceEvictionStrategyTest, executeEvictionRunsUntilTheCacheSizeIsLessThanOrEqualToLowerBound)
 {
+	// with
+	BeaconKey_t keyOne(1, 0);
+	BeaconKey_t keyTwo(42, 0);
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, evictRecordsByNumber(keyOne, 1))
+		.Times(testing::Exactly(2));
+	EXPECT_CALL(*mockBeaconCache, evictRecordsByNumber(keyTwo, 1))
+		.Times(testing::Exactly(2));
+
 	// given
 	auto configuration = createBeaconCacheConfig(1000L, 1000L, 2000L);
 	SpaceEvictionStrategy_t target(
@@ -366,8 +390,8 @@ TEST_F(SpaceEvictionStrategyTest, executeEvictionRunsUntilTheCacheSizeIsLessThan
 		std::bind(&SpaceEvictionStrategyTest::mockedIsStopRequestedFunctionAlwaysFalse, this)
 	);
 
-	ON_CALL(*mockBeaconCache, getBeaconIDs())
-		.WillByDefault(testing::Return(std::unordered_set<int32_t>({ 1, 42 })));
+	ON_CALL(*mockBeaconCache, getBeaconKeys())
+		.WillByDefault(testing::Return(BeaconKeySet_t({ keyOne, keyTwo })));
 
 	// then
 	EXPECT_CALL(*mockBeaconCache, getNumBytesInCache())
@@ -380,10 +404,6 @@ TEST_F(SpaceEvictionStrategyTest, executeEvictionRunsUntilTheCacheSizeIsLessThan
 		.WillOnce(testing::Return(1500L))		// 1500 for inner while loop in SpaceEvictionStrategy::doExecute() which evicts beaconID 42
 		.WillOnce(testing::Return(1000L))		// 1000 for outer while loop in SpaceEvictionStrategy::doExecute() (to exit the while loop)
 		.WillRepeatedly(testing::Return(0L));	// just for safety
-	EXPECT_CALL(*mockBeaconCache, evictRecordsByNumber(1, 1))
-		.Times(testing::Exactly(2));
-	EXPECT_CALL(*mockBeaconCache, evictRecordsByNumber(42, 1))
-		.Times(testing::Exactly(2));
 
 	// when
 	target.execute();
@@ -391,6 +411,15 @@ TEST_F(SpaceEvictionStrategyTest, executeEvictionRunsUntilTheCacheSizeIsLessThan
 
 TEST_F(SpaceEvictionStrategyTest, executeEvictionStopsIfThreadGetsInterruptedBetweenTwoBeacons)
 {
+	// expect
+	EXPECT_CALL(*mockBeaconCache, getNumBytesInCache())
+		.WillOnce(testing::Return(2001L))		// 2001 for SpaceEvictionStrategy::shouldRun()
+		.WillOnce(testing::Return(2000L))		// 2000 for outer while loop in SpaceEvictionStrategy::doExecute()
+		.WillOnce(testing::Return(2000L))		// 2000 for inner while loop in SpaceEvictionStrategy::doExecute() which evicts beaconID 1
+		.WillRepeatedly(testing::Return(0L));	// just for safety
+	EXPECT_CALL(*mockBeaconCache, evictRecordsByNumber(testing::_, 1))
+		.Times(testing::Exactly(1));
+
 	// given
 	auto configuration = createBeaconCacheConfig(1000L, 1000L, 2000L);
 	uint32_t callCountIsStopRequested = 0;
@@ -405,17 +434,11 @@ TEST_F(SpaceEvictionStrategyTest, executeEvictionStopsIfThreadGetsInterruptedBet
 		isStopRequested
 	);
 
-	ON_CALL(*mockBeaconCache, getBeaconIDs())
-		.WillByDefault(testing::Return(std::unordered_set<int32_t>({ 1, 42 })));
+	BeaconKey_t keyOne(1, 0);
+	BeaconKey_t keyTwo(42, 0);
 
-	// then
-	EXPECT_CALL(*mockBeaconCache, getNumBytesInCache())
-		.WillOnce(testing::Return(2001L))		// 2001 for SpaceEvictionStrategy::shouldRun()
-		.WillOnce(testing::Return(2000L))		// 2000 for outer while loop in SpaceEvictionStrategy::doExecute()
-		.WillOnce(testing::Return(2000L))		// 2000 for inner while loop in SpaceEvictionStrategy::doExecute() which evicts beaconID 1
-		.WillRepeatedly(testing::Return(0L));	// just for safety
-	EXPECT_CALL(*mockBeaconCache, evictRecordsByNumber(testing::_, 1))
-		.Times(testing::Exactly(1));
+	ON_CALL(*mockBeaconCache, getBeaconKeys())
+		.WillByDefault(testing::Return(BeaconKeySet_t({ keyOne, keyTwo })));
 
 	// when
 	target.execute();
@@ -423,17 +446,6 @@ TEST_F(SpaceEvictionStrategyTest, executeEvictionStopsIfThreadGetsInterruptedBet
 
 TEST_F(SpaceEvictionStrategyTest, executeEvictionStopsIfNumBytesInCacheFallsBelowLowerBoundBetweenTwoBeacons)
 {
-	// given
-	auto configuration = createBeaconCacheConfig(1000L, 1000L, 2000L);
-	SpaceEvictionStrategy_t target(
-		mockLoggerNice,
-		mockBeaconCache,
-		configuration,
-		std::bind(&SpaceEvictionStrategyTest::mockedIsStopRequestedFunctionAlwaysFalse, this)
-	);
-	ON_CALL(*mockBeaconCache, getBeaconIDs())
-		.WillByDefault(testing::Return(std::unordered_set<int32_t>({ 1, 42 })));
-
 	// then
 	EXPECT_CALL(*mockBeaconCache, getNumBytesInCache())
 		.WillOnce(testing::Return(2001L))		// 2001 for SpaceEvictionStrategy::shouldRun()
@@ -444,8 +456,23 @@ TEST_F(SpaceEvictionStrategyTest, executeEvictionStopsIfNumBytesInCacheFallsBelo
 		.WillOnce(testing::Return(1500L))		// 1500 for inner while loop in SpaceEvictionStrategy::doExecute() which evicts beaconID 1
 		.WillOnce(testing::Return(1000L))		// 1000 for outer while loop in SpaceEvictionStrategy::doExecute() (to exit the while loop)
 		.WillRepeatedly(testing::Return(0L));	// just for safety
-	EXPECT_CALL(*mockBeaconCache, evictRecordsByNumber(testing::An<int32_t>(), 1))
+	EXPECT_CALL(*mockBeaconCache, evictRecordsByNumber(testing::An<const BeaconKey_t&>(), 1))
 		.Times(testing::Exactly(3));
+
+	// given
+	auto configuration = createBeaconCacheConfig(1000L, 1000L, 2000L);
+	SpaceEvictionStrategy_t target(
+		mockLoggerNice,
+		mockBeaconCache,
+		configuration,
+		std::bind(&SpaceEvictionStrategyTest::mockedIsStopRequestedFunctionAlwaysFalse, this)
+	);
+
+	BeaconKey_t keyOne(1, 0);
+	BeaconKey_t keyTwo(42, 0);
+
+	ON_CALL(*mockBeaconCache, getBeaconKeys())
+		.WillByDefault(testing::Return(BeaconKeySet_t({ keyOne, keyTwo })));
 
 	// when
 	target.execute();

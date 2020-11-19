@@ -18,11 +18,11 @@
 #define _CORE_CACHING_BEACONCACHE_H
 
 #include "OpenKit/ILogger.h"
-#include "IObserver.h"
 #include "IBeaconCache.h"
+#include "BeaconCacheEntry.h"
+
 #include "core/util/ScopedReadLock.h"
 #include "core/util/ScopedWriteLock.h"
-#include "BeaconCacheEntry.h"
 
 #include <unordered_set>
 #include <unordered_map>
@@ -65,85 +65,88 @@ namespace core
 
 			void addObserver(IObserver* observer) override;
 
-			void addEventData(int32_t beaconID, int64_t timestamp, const core::UTF8String& data) override;
+			void addEventData(const BeaconKey& beaconKey, int64_t timestamp, const core::UTF8String& data) override;
 
-			void addActionData(int32_t beaconID, int64_t timestamp, const core::UTF8String& data) override;
+			void addActionData(const BeaconKey& beaconKey, int64_t timestamp, const core::UTF8String& data) override;
 
-			void deleteCacheEntry(int32_t beaconID) override;
+			void deleteCacheEntry(const BeaconKey& beaconKey) override;
 
-			const core::UTF8String getNextBeaconChunk(int32_t beaconID, const core::UTF8String& chunkPrefix, int32_t maxSize, const core::UTF8String& delimiter) override;
+			const core::UTF8String getNextBeaconChunk(const BeaconKey& beaconKey, const core::UTF8String& chunkPrefix, int32_t maxSize, const core::UTF8String& delimiter) override;
 
-			void removeChunkedData(int32_t beaconID) override;
+			void removeChunkedData(const BeaconKey& beaconKey) override;
 
-			void resetChunkedData(int32_t beaconID) override;
+			void resetChunkedData(const BeaconKey& beaconKey) override;
 
 			///
 			/// Get a deep copy of events collected so far.
 			///
 			/// Although this method is intended for debugging purposes only, it still does appropriate locking.
 			///
-			/// @param[in] beaconID The beacon id for which to retrieve the events.
+			/// @param[in] beaconKey The beacon key for which to retrieve the events.
 			/// @return List of event data.
 			///
-			const std::vector<core::UTF8String> getEvents(int32_t beaconID);
+			const std::vector<core::UTF8String> getEvents(const BeaconKey& beaconKey);
 
 			///
 			/// Get a deep copy of events that are about to be sent.
 			///
 			/// This method is only intended for internal unit tests.
 			///
-			/// @param[in] beaconID The beacon id for which to retrieve the events.
+			/// @param[in] beaconKey The beacon key for which to retrieve the events.
 			/// @return List of event data.
 			///
-			const std::list<BeaconCacheRecord> getEventsBeingSent(int32_t beaconID);
+			const std::list<BeaconCacheRecord> getEventsBeingSent(const BeaconKey& beaconKey);
 
 			///
 			/// Get a deep copy of actions collected so far.
 			///
 			/// Although this method is intended for debugging purposes only, it still does appropriate locking.
 			///
-			/// @param[in] beaconID The beacon id for which to retrieve the actions.
+			/// @param[in] beaconKey The beacon key for which to retrieve the actions.
 			/// @return List of action data.
 			///
-			const std::vector<core::UTF8String> getActions(int32_t beaconID);
+			const std::vector<core::UTF8String> getActions(const BeaconKey& beaconKey);
 
 			///
 			/// Get a deep copy of actions that are about to be sent.
 			///
 			/// This method is only intended for internal unit tests.
 			///
-			/// @param[in] beaconID The beacon id for which to retrieve the actions.
+			/// @param[in] beaconKey The beacon key for which to retrieve the actions.
 			/// @return List of action data.
 			///
-			const std::list<BeaconCacheRecord> getActionsBeingSent(int32_t beaconID);
+			const std::list<BeaconCacheRecord> getActionsBeingSent(const BeaconKey& beaconKey);
 
-			const std::unordered_set<int32_t> getBeaconIDs() override;
+			const std::unordered_set<BeaconKey, BeaconKey::Hash> getBeaconKeys() override;
 
-			uint32_t evictRecordsByAge(int32_t beaconID, int64_t minTimestamp) override;
+			uint32_t evictRecordsByAge(const BeaconKey& beaconKey, int64_t minTimestamp) override;
 
-			uint32_t evictRecordsByNumber(int32_t beaconID, uint32_t numRecords) override;
+			uint32_t evictRecordsByNumber(const BeaconKey& beaconKey, uint32_t numRecords) override;
 
 			int64_t getNumBytesInCache() const override;
 
-			bool isEmpty(int32_t beaconID) override;
+			bool isEmpty(const BeaconKey& beaconKey) override;
 
 		private:
 			///
-			/// Get cached @ref BeaconCacheEntry or insert new one if nothing exists for given @c beaconID.
-			/// @param beaconID The beacon id to search for.
+			/// Get cached @ref BeaconCacheEntry or insert new one if nothing exists for given BeaconKey.
+			/// 
+			/// @param beaconKey[in] The beacon key to search for.
 			/// @return The already cached entry or newly created one.
 			///
-			std::shared_ptr<BeaconCacheEntry> getCachedEntryOrInsert(int beaconID);
+			std::shared_ptr<BeaconCacheEntry> getCachedEntryOrInsert(const BeaconKey& beaconKey);
 
 			///
-			/// Get cached @ref BeaconCacheEntry or @c nullptr if nothing exists for given @c beaconID.
-			/// @param beaconID The beacon id to search for.
+			/// Get cached @ref BeaconCacheEntry or @c nullptr if nothing exists for given BeaconKey.
+			/// 
+			/// @param beaconKey[in] The beacon key to search for.
 			/// @return The cached entry or @c nullptr.
 			///
-			std::shared_ptr<BeaconCacheEntry> getCachedEntry(int32_t beaconID);
+			std::shared_ptr<BeaconCacheEntry> getCachedEntry(const BeaconKey& beaconKey);
 
 			///
 			/// Helper method to extract the data from the provided records.
+			/// 
 			/// @param[in] eventData the records from which to extract the data
 			/// @return the extracted data
 			///
@@ -165,7 +168,7 @@ namespace core
 			core::util::ReadWriteLock mGlobalCacheLock;
 
 			/// The central part of the cache are the beacons (key=beaconID, value=
-			std::unordered_map<int32_t, std::shared_ptr<BeaconCacheEntry>> mBeacons;
+			std::unordered_map<BeaconKey, std::shared_ptr<BeaconCacheEntry>, BeaconKey::Hash> mBeacons;
 
 			/// Sum of all record's data size estimation.
 			std::atomic<int64_t> mCacheSizeInBytes;

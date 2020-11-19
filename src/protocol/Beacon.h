@@ -18,6 +18,7 @@
 #define _PROTOCOL_BEACON_H
 
 #include "IBeacon.h"
+#include "core/caching/BeaconKey.h"
 #include "core/configuration/IBeaconConfiguration.h"
 #include "protocol/EventType.h"
 #include "protocol/IBeaconInitializer.h"
@@ -295,8 +296,8 @@ namespace protocol
 		/// id
 		std::atomic<int32_t> mID;
 
-		/// beacon ID internally used to identifiy the session/beacon (might be equal to mSessionNumber)
-		int32_t mBeaconId;
+		/// beacon key internally used to identifiy the session/beacon
+		core::caching::BeaconKey mBeaconKey;
 
 		/// session number
 		int32_t mSessionNumber;

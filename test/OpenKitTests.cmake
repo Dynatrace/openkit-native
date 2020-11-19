@@ -160,6 +160,7 @@ set(OPENKIT_SOURCES_TEST_CORE_CACHING
     ${CMAKE_CURRENT_LIST_DIR}/core/caching/BeaconCacheRecordTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/caching/BeaconCacheEvictorTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/caching/BeaconCacheTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/caching/BeaconKeyTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/caching/SpaceEvictionStrategyTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/caching/TimeEvictionStrategyTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/caching/mock/MockIBeaconCache.h

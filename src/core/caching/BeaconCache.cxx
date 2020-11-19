@@ -39,15 +39,16 @@ void BeaconCache::addObserver(IObserver* observer)
 	}
 }
 
-void BeaconCache::addEventData(int32_t beaconID, int64_t timestamp, const core::UTF8String& data)
+void BeaconCache::addEventData(const BeaconKey& beaconKey, int64_t timestamp, const core::UTF8String& data)
 {
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("BeaconCache addEventData(sn=%d, timestamp=%" PRId64 ", data='%s')", beaconID, timestamp, data.getStringData().c_str());
+		mLogger->debug("BeaconCache addEventData(sn=%d, seq=%d, timestamp=%" PRId64 ", data='%s')",
+			beaconKey.getBeaconId(), beaconKey.getBeaconSequenceNumber(), timestamp, data.getStringData().c_str());
 	}
 
 	// get a reference to the cache entry
-	auto entry = getCachedEntryOrInsert(beaconID);
+	auto entry = getCachedEntryOrInsert(beaconKey);
 
 	BeaconCacheRecord record(timestamp, data);
 
@@ -62,15 +63,16 @@ void BeaconCache::addEventData(int32_t beaconID, int64_t timestamp, const core::
 	onDataAdded();
 }
 
-void BeaconCache::addActionData(int32_t beaconID, int64_t timestamp, const core::UTF8String& data)
+void BeaconCache::addActionData(const BeaconKey& beaconKey, int64_t timestamp, const core::UTF8String& data)
 {
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("BeaconCache addActionData(sn=%d, timestamp=%" PRId64 ", data='%s')", beaconID, timestamp, data.getStringData().c_str());
+		mLogger->debug("BeaconCache addActionData(sn=%d, seq=%d, timestamp=%" PRId64 ", data='%s')",
+			beaconKey.getBeaconId(), beaconKey.getBeaconSequenceNumber(), timestamp, data.getStringData().c_str());
 	}
 
 	// get a reference to the cache entry
-	auto entry = getCachedEntryOrInsert(beaconID);
+	auto entry = getCachedEntryOrInsert(beaconKey);
 
 	BeaconCacheRecord record(timestamp, data);
 	std::unique_lock<std::mutex> lock(entry->getLock());
@@ -84,15 +86,16 @@ void BeaconCache::addActionData(int32_t beaconID, int64_t timestamp, const core:
 	onDataAdded();
 }
 
-void BeaconCache::deleteCacheEntry(int32_t beaconID)
+void BeaconCache::deleteCacheEntry(const BeaconKey& beaconKey)
 {
 	core::util::ScopedWriteLock lock(mGlobalCacheLock);
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("BeaconCache deleteCacheEntry(sn=%d)", beaconID);
+		mLogger->debug("BeaconCache deleteCacheEntry(sn=%d, seq=%d)",
+			beaconKey.getBeaconId(), beaconKey.getBeaconSequenceNumber());
 	}
 
-	auto it = mBeacons.find(beaconID);
+	auto it = mBeacons.find(beaconKey);
 	if (it != mBeacons.end())
 	{
 		mCacheSizeInBytes -= it->second->getTotalNumberOfBytes();
@@ -102,9 +105,9 @@ void BeaconCache::deleteCacheEntry(int32_t beaconID)
 	lock.unlock();
 }
 
-const core::UTF8String BeaconCache::getNextBeaconChunk(int32_t beaconID, const core::UTF8String& chunkPrefix, int32_t maxSize, const core::UTF8String& delimiter)
+const core::UTF8String BeaconCache::getNextBeaconChunk(const BeaconKey& beaconKey, const core::UTF8String& chunkPrefix, int32_t maxSize, const core::UTF8String& delimiter)
 {
-	auto entry = getCachedEntry(beaconID);
+	auto entry = getCachedEntry(beaconKey);
 	if (entry == nullptr)
 	{
 		// a cache entry for the given beaconID does not exist
@@ -128,9 +131,9 @@ const core::UTF8String BeaconCache::getNextBeaconChunk(int32_t beaconID, const c
 	return entry->getChunk(chunkPrefix, maxSize, delimiter);
 }
 
-void BeaconCache::removeChunkedData(int32_t beaconID)
+void BeaconCache::removeChunkedData(const BeaconKey& beaconKey)
 {
-	auto entry = getCachedEntry(beaconID);
+	auto entry = getCachedEntry(beaconKey);
 	if (entry == nullptr)
 	{
 		// a cache entry for the given beaconID does not exist
@@ -140,9 +143,9 @@ void BeaconCache::removeChunkedData(int32_t beaconID)
 	entry->removeDataMarkedForSending();
 }
 
-void BeaconCache::resetChunkedData(int32_t beaconID)
+void BeaconCache::resetChunkedData(const BeaconKey& beaconKey)
 {
-	auto entry = getCachedEntry(beaconID);
+	auto entry = getCachedEntry(beaconKey);
 	if (entry == nullptr)
 	{
 		// a cache entry for the given beaconID does not exist
@@ -163,20 +166,20 @@ void BeaconCache::resetChunkedData(int32_t beaconID)
 	onDataAdded();
 }
 
-std::shared_ptr<BeaconCacheEntry> BeaconCache::getCachedEntryOrInsert(int beaconID)
+std::shared_ptr<BeaconCacheEntry> BeaconCache::getCachedEntryOrInsert(const BeaconKey& beaconKey)
 {
-	auto entry = getCachedEntry(beaconID);
+	auto entry = getCachedEntry(beaconKey);
 	if (entry == nullptr)
 	{
 		// does not exist, and needs to be inserted
 		core::util::ScopedWriteLock lock(mGlobalCacheLock);
 
 		// double check since this could have been added in the mean time
-		auto it = mBeacons.find(beaconID);
+		auto it = mBeacons.find(beaconKey);
 		if (it == mBeacons.end())
 		{
 			entry = std::make_shared<BeaconCacheEntry>();
-			mBeacons.insert(std::make_pair(beaconID, entry));
+			mBeacons.insert(std::make_pair(beaconKey, entry));
 		}
 		else
 		{
@@ -189,9 +192,9 @@ std::shared_ptr<BeaconCacheEntry> BeaconCache::getCachedEntryOrInsert(int beacon
 	return entry;
 }
 
-const std::vector<core::UTF8String> BeaconCache::getEvents(int32_t beaconID)
+const std::vector<core::UTF8String> BeaconCache::getEvents(const BeaconKey& beaconKey)
 {
-	auto entry = getCachedEntry(beaconID);
+	auto entry = getCachedEntry(beaconKey);
 	if (entry == nullptr)
 	{
 		// entry not found
@@ -205,9 +208,9 @@ const std::vector<core::UTF8String> BeaconCache::getEvents(int32_t beaconID)
 	return events;
 }
 
-const std::list<BeaconCacheRecord> BeaconCache::getEventsBeingSent(int32_t beaconID)
+const std::list<BeaconCacheRecord> BeaconCache::getEventsBeingSent(const BeaconKey& beaconKey)
 {
-	auto entry = getCachedEntry(beaconID);
+	auto entry = getCachedEntry(beaconKey);
 	if (entry == nullptr)
 	{
 		// entry not found
@@ -217,9 +220,9 @@ const std::list<BeaconCacheRecord> BeaconCache::getEventsBeingSent(int32_t beaco
 	return entry->getEventDataBeingSent();
 }
 
-const std::vector<core::UTF8String> BeaconCache::getActions(int32_t beaconID)
+const std::vector<core::UTF8String> BeaconCache::getActions(const BeaconKey& beaconKey)
 {
-	auto entry = getCachedEntry(beaconID);
+	auto entry = getCachedEntry(beaconKey);
 	if (entry == nullptr)
 	{
 		// entry not found
@@ -233,9 +236,9 @@ const std::vector<core::UTF8String> BeaconCache::getActions(int32_t beaconID)
 	return actions;
 }
 
-const std::list<BeaconCacheRecord> BeaconCache::getActionsBeingSent(int32_t beaconID)
+const std::list<BeaconCacheRecord> BeaconCache::getActionsBeingSent(const BeaconKey& beaconKey)
 {
-	auto entry = getCachedEntry(beaconID);
+	auto entry = getCachedEntry(beaconKey);
 	if (entry == nullptr)
 	{
 		// entry not found
@@ -255,13 +258,13 @@ std::vector<core::UTF8String> BeaconCache::extractData(const std::list<BeaconCac
 	return result;
 }
 
-std::shared_ptr<BeaconCacheEntry> BeaconCache::getCachedEntry(int32_t beaconID)
+std::shared_ptr<BeaconCacheEntry> BeaconCache::getCachedEntry(const BeaconKey& beaconKey)
 {
 	std::shared_ptr<BeaconCacheEntry> entry = nullptr;
 
 	// acquire read lock and get the entry
 	core::util::ScopedReadLock lock(mGlobalCacheLock);
-	auto it = mBeacons.find(beaconID);
+	auto it = mBeacons.find(beaconKey);
 	if (it != mBeacons.end())
 	{
 		entry = it->second;
@@ -271,9 +274,9 @@ std::shared_ptr<BeaconCacheEntry> BeaconCache::getCachedEntry(int32_t beaconID)
 	return entry;
 }
 
-const std::unordered_set<int32_t> BeaconCache::getBeaconIDs()
+const std::unordered_set<BeaconKey, BeaconKey::Hash> BeaconCache::getBeaconKeys()
 {
-	std::unordered_set<int32_t> result;
+	std::unordered_set<BeaconKey, BeaconKey::Hash> result;
 
 	core::util::ScopedReadLock lock(mGlobalCacheLock);
 	for (auto const& beacon : mBeacons)
@@ -285,9 +288,9 @@ const std::unordered_set<int32_t> BeaconCache::getBeaconIDs()
 	return result;
 }
 
-uint32_t BeaconCache::evictRecordsByAge(int32_t beaconID, int64_t minTimestamp)
+uint32_t BeaconCache::evictRecordsByAge(const BeaconKey& beaconKey, int64_t minTimestamp)
 {
-	auto entry = getCachedEntry(beaconID);
+	auto entry = getCachedEntry(beaconKey);
 	if (entry == nullptr)
 	{
 		// already removed
@@ -300,15 +303,16 @@ uint32_t BeaconCache::evictRecordsByAge(int32_t beaconID, int64_t minTimestamp)
 
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("BeaconCache evictRecordsByAge(sn=%d, minTimestamp=%" PRId64 ") has evicted %u records", beaconID, minTimestamp, numRecordsRemoved);
+		mLogger->debug("BeaconCache evictRecordsByAge(sn=%d, seq=%d, minTimestamp=%" PRId64 ") has evicted %u records", 
+			beaconKey.getBeaconId(), beaconKey.getBeaconSequenceNumber(), minTimestamp, numRecordsRemoved);
 	}
 
 	return numRecordsRemoved;
 }
 
-uint32_t BeaconCache::evictRecordsByNumber(int32_t beaconID, uint32_t numRecords)
+uint32_t BeaconCache::evictRecordsByNumber(const BeaconKey& beaconKey, uint32_t numRecords)
 {
-	auto entry = getCachedEntry(beaconID);
+	auto entry = getCachedEntry(beaconKey);
 	if (entry == nullptr)
 	{
 		// already removed
@@ -321,7 +325,8 @@ uint32_t BeaconCache::evictRecordsByNumber(int32_t beaconID, uint32_t numRecords
 
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("BeaconCache evictRecordsByNumber(sn=%d, numRecords=%u) has evicted %u records", beaconID, numRecords, numRecordsRemoved);
+		mLogger->debug("BeaconCache evictRecordsByNumber(sn=%d, seq=%d, numRecords=%u) has evicted %u records",
+			beaconKey.getBeaconId(), beaconKey.getBeaconSequenceNumber(), numRecords, numRecordsRemoved);
 	}
 
 	return numRecordsRemoved;
@@ -340,9 +345,9 @@ void BeaconCache::onDataAdded()
 	}
 }
 
-bool BeaconCache::isEmpty(int32_t beaconID)
+bool BeaconCache::isEmpty(const BeaconKey& beaconKey)
 {
-	auto entry = getCachedEntry(beaconID);
+	auto entry = getCachedEntry(beaconKey);
 	if (entry == nullptr)
 	{
 		// already removed

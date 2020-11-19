@@ -59,6 +59,8 @@ set(OPENKIT_SOURCES_CORE_CACHING
     ${CMAKE_CURRENT_LIST_DIR}/core/caching/BeaconCacheEvictor.h
     ${CMAKE_CURRENT_LIST_DIR}/core/caching/BeaconCacheRecord.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/caching/BeaconCacheRecord.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/caching/BeaconKey.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/caching/BeaconKey.h
     ${CMAKE_CURRENT_LIST_DIR}/core/caching/IBeaconCache.h
     ${CMAKE_CURRENT_LIST_DIR}/core/caching/IBeaconCacheEvictor.h
     ${CMAKE_CURRENT_LIST_DIR}/core/caching/IObserver.h
@@ -470,6 +472,12 @@ function(build_open_kit)
     source_group("Source Files\\Protocol" FILES ${OPENKIT_SOURCES_PROTOCOL})
     source_group("Source Files\\Protocol\\SSL" FILES ${OPENKIT_SOURCES_PROTOCOL_SSL})
     source_group("Source Files\\Providers" FILES ${OPENKIT_SOURCES_PROVIDERS})
+    source_group("Source Files\\Json" FILES ${OPENKIT_SOURCES_UTIL_JSON})
+    source_group("Source Files\\Json\\Constants" FILES ${OPENKIT_SOURCES_UTIL_JSON_CONSTANTS})
+    source_group("Source Files\\Json\\Lexer" FILES ${OPENKIT_SOURCES_UTIL_JSON_LEXER})
+    source_group("Source Files\\Json\\Objects" FILES ${OPENKIT_SOURCES_UTIL_JSON_OBJECTS})
+    source_group("Source Files\\Json\\Parser" FILES ${OPENKIT_SOURCES_UTIL_JSON_PARSER})
+    source_group("Source Files\\Json\\Reader" FILES ${OPENKIT_SOURCES_UTIL_JSON_READER})
 
     if (BUILD_SHARED_LIBS AND MSVC)
         # add generated version.rc to Resource Files source group

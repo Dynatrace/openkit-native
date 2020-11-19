@@ -14,6 +14,18 @@
  * limitations under the License.
  */
 
+#include "protocol/Beacon.h"
+#include "OpenKit/CrashReportingLevel.h"
+#include "OpenKit/DataCollectionLevel.h"
+#include "core/UTF8String.h"
+#include "core/caching/BeaconCache.h"
+#include "core/caching/BeaconKey.h"
+#include "core/configuration/ConfigurationDefaults.h"
+#include "core/objects/WebRequestTracer.h"
+#include "core/util/URLEncoding.h"
+#include "protocol/EventType.h"
+#include "protocol/ProtocolConstants.h"
+
 #include "builder/TestBeaconBuilder.h"
 #include "mock/MockIHTTPClient.h"
 #include "../api/mock/MockILogger.h"
@@ -35,16 +47,7 @@
 #include "../providers/mock/MockIThreadIDProvider.h"
 #include "../providers/mock/MockITimingProvider.h"
 
-#include "OpenKit/CrashReportingLevel.h"
-#include "OpenKit/DataCollectionLevel.h"
-#include "core/UTF8String.h"
-#include "core/caching/BeaconCache.h"
-#include "core/configuration/ConfigurationDefaults.h"
-#include "core/objects/WebRequestTracer.h"
-#include "core/util/URLEncoding.h"
-#include "protocol/Beacon.h"
-#include "protocol/EventType.h"
-#include "protocol/ProtocolConstants.h"
+
 
 #include <sstream>
 
@@ -52,6 +55,7 @@ using namespace test;
 
 using BeaconBuilder_sp = std::shared_ptr<TestBeaconBuilder>;
 using BeaconCache_t = core::caching::BeaconCache;
+using BeaconKey_t = core::caching::BeaconKey;
 using CrashReportingLevel_t = openkit::CrashReportingLevel;
 using DataCollectionLevel_t = openkit::DataCollectionLevel;
 using EventType_t = protocol::EventType;
@@ -80,6 +84,7 @@ constexpr int32_t SERVER_ID = 1;
 constexpr int64_t DEVICE_ID = 456;
 constexpr int32_t THREAD_ID = 1234567;
 constexpr int32_t SESSION_ID = 73;
+constexpr int32_t SESSION_SEQUENCE = 13;
 const Utf8String_t TRACER_URL("https://localhost");
 constexpr int32_t MULTIPLICITY = 1;
 
@@ -166,6 +171,7 @@ protected:
 			.with(mockBeaconCache)
 			.with(mockBeaconConfiguration)
 			.with(mockSessionIDProvider)
+			.withSessionSequenceNumber(SESSION_SEQUENCE)
 			.with(mockThreadIdProvider)
 			.with(mockTimingProvider)
 		;
@@ -502,7 +508,7 @@ TEST_F(BeaconTest, addValidActionEvent)
 		<< "&t1=0"									// action duration (time from action start to end)
 	;
 	EXPECT_CALL(*mockBeaconCache, addActionData(
-		SESSION_ID,									// session ID
+		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
 		0,											// action start time
 		testing::Eq(s.str())
 	)).Times(1);
@@ -589,7 +595,7 @@ TEST_F(BeaconTest, addStartSessionEvent)
 		<< "&t0=0"													// session start time
 		;
 	EXPECT_CALL(*mockBeaconCache, addEventData(
-		SESSION_ID,									// session ID
+		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
 		0,											// session end time
 		testing::Eq(s.str())
 	)).Times(1);
@@ -659,7 +665,7 @@ TEST_F(BeaconTest, addEndSessionEvent)
 		<< "&t0=0"									// session end time
 		;
 	EXPECT_CALL(*mockBeaconCache, addEventData(
-		SESSION_ID,									// session ID
+		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
 		0,											// session end time
 		testing::Eq(s.str())
 	)).Times(1);
@@ -743,7 +749,7 @@ TEST_F(BeaconTest, reportValidValueInt32)
 		<< "&vl=" << value							// reported value
 	;
 	EXPECT_CALL(*mockBeaconCache, addEventData(
-		SESSION_ID,									// session ID
+		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
 		0,											// timestamp when value was reported
 		testing::Eq(s.str())
 	)).Times(1);
@@ -836,7 +842,7 @@ TEST_F(BeaconTest, reportValidValueInt64)
 		<< "&vl=" << value							// reported value
 		;
 	EXPECT_CALL(*mockBeaconCache, addEventData(
-		SESSION_ID,									// session ID
+		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
 		0,											// timestamp when value was reported
 		testing::Eq(s.str())
 	)).Times(1);
@@ -929,7 +935,7 @@ TEST_F(BeaconTest, reportValidValueDouble)
 		<< "&vl=3.125"								// reported value
 	;
 	EXPECT_CALL(*mockBeaconCache, addEventData(
-		SESSION_ID,									// session ID
+		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
 		0,											// timestamp when value was reported
 		testing::Eq(s.str())
 	)).Times(1);
@@ -1022,7 +1028,7 @@ TEST_F(BeaconTest, reportValidValueString)
 		<< "&vl=" << value.getStringData()			// reported value
 	;
 	EXPECT_CALL(*mockBeaconCache, addEventData(
-		SESSION_ID,									// session ID
+		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
 		0,											// timestamp when value was reported
 		testing::Eq(s.str())
 	)).Times(1);
@@ -1050,7 +1056,7 @@ TEST_F(BeaconTest, reportValueStringWithValueNull)
 		<< "&t0=0"									// event time since session start
 	;
 	EXPECT_CALL(*mockBeaconCache, addEventData(
-		SESSION_ID,									// session ID
+		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
 		0,											// timestamp when value was reported
 		testing::Eq(s.str())
 	)).Times(1);
@@ -1077,7 +1083,7 @@ TEST_F(BeaconTest, reportValueStringWithValueNullAndNameNull)
 		<< "&t0=0"									// event time since session start
 	;
 	EXPECT_CALL(*mockBeaconCache, addEventData(
-		SESSION_ID,									// session ID
+		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
 		0,											// timestamp when value was reported
 		testing::Eq(s.str())
 	)).Times(1);
@@ -1168,7 +1174,7 @@ TEST_F(BeaconTest, reportValidEvent)
 		<< "&t0=0"									// event time since session start
 	;
 	EXPECT_CALL(*mockBeaconCache, addEventData(
-		SESSION_ID,									// session ID
+		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
 		0,											// event timestamp
 		testing::Eq(s.str())
 	)).Times(1);
@@ -1194,7 +1200,7 @@ TEST_F(BeaconTest, reportEventWithNameNull)
 		<< "&t0=0"									// event time since session start
 	;
 	EXPECT_CALL(*mockBeaconCache, addEventData(
-		SESSION_ID,									// session ID
+		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
 		0,											// event timestamp
 		testing::Eq(s.str())
 	)).Times(1);
@@ -1287,7 +1293,7 @@ TEST_F(BeaconTest, reportError)
 		<< "&tt=c"									// error technology type
 	;
 	EXPECT_CALL(*mockBeaconCache, addEventData(
-		SESSION_ID,									// session ID
+		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
 		0,											// timestamp when error was reported
 		testing::Eq(s.str())
 	)).Times(1);
@@ -1317,7 +1323,7 @@ TEST_F(BeaconTest, reportErrorWithoutName)
 		<< "&tt=c"									// error technology type
 	;
 	EXPECT_CALL(*mockBeaconCache, addEventData(
-		SESSION_ID,									// session ID
+		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
 		0,											// timestamp when error was reported
 		testing::Eq(s.str())
 	)).Times(1);
@@ -1416,7 +1422,7 @@ TEST_F(BeaconTest, reportValidCrash)
 		<< "&tt=c"									// error technology type
 	;
 	EXPECT_CALL(*mockBeaconCache, addEventData(
-		SESSION_ID,									// session ID
+		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
 		0,											// timestamp when crash was reported
 		testing::Eq(s.str())
 	)).Times(1);
@@ -1446,7 +1452,7 @@ TEST_F(BeaconTest, reportCrashWithDetailsNull)
 		<< "&tt=c"									// error technology type
 	;
 	EXPECT_CALL(*mockBeaconCache, addEventData(
-		SESSION_ID,									// session ID
+		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
 		0,											// timestamp when crash was reported
 		testing::Eq(s.str())
 	)).Times(1);
@@ -1559,7 +1565,7 @@ TEST_F(BeaconTest, addWebRequest)
 		<< "&rc=" << responseCode					// response code
 	;
 	EXPECT_CALL(*mockBeaconCache, addEventData(
-		SESSION_ID,									// session ID
+		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
 		0,											// timestamp when web request tracer was reported
 		testing::Eq(s.str())
 	)).Times(1);
@@ -1601,7 +1607,7 @@ TEST_F(BeaconTest, canAddSentBytesEqualToZeroToWebRequest)
 		<< "&rc=" << responseCode					// response code
 		;
 	EXPECT_CALL(*mockBeaconCache, addEventData(
-		SESSION_ID,									// session ID
+		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
 		0,											// timestamp when web request tracer was reported
 		testing::Eq(s.str())
 	)).Times(1);
@@ -1642,7 +1648,7 @@ TEST_F(BeaconTest, cannotAddSentBytesLessThanZeroToWebRequest)
 		<< "&rc=" << responseCode					// response code
 		;
 	EXPECT_CALL(*mockBeaconCache, addEventData(
-		SESSION_ID,									// session ID
+		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
 		0,											// timestamp when web request tracer was reported
 		testing::Eq(s.str())
 	)).Times(1);
@@ -1684,7 +1690,7 @@ TEST_F(BeaconTest, canAddReceivedBytesEqualToZeroToWebRequest)
 		<< "&rc=" << responseCode					// response code
 		;
 	EXPECT_CALL(*mockBeaconCache, addEventData(
-		SESSION_ID,									// session ID
+		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
 		0,											// timestamp when web request tracer was reported
 		testing::Eq(s.str())
 	)).Times(1);
@@ -1725,7 +1731,7 @@ TEST_F(BeaconTest, cannotAddReceivedBytesLessThanZeroToWebRequest)
 		<< "&rc=" << responseCode					// response code
 		;
 	EXPECT_CALL(*mockBeaconCache, addEventData(
-		SESSION_ID,									// session ID
+		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
 		0,											// timestamp when web request tracer was reported
 		testing::Eq(s.str())
 	)).Times(1);
@@ -1767,7 +1773,7 @@ TEST_F(BeaconTest, canAddResponseCodeEqualToZeroToWebRequest)
 		<< "&rc=" << 0								// response code
 		;
 	EXPECT_CALL(*mockBeaconCache, addEventData(
-		SESSION_ID,									// session ID
+		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
 		0,											// timestamp when web request tracer was reported
 		testing::Eq(s.str())
 	)).Times(1);
@@ -1808,7 +1814,7 @@ TEST_F(BeaconTest, cannotAddResponseCodeLessThanZeroToWebRequest)
 		<< "&br=" << numBytesReceived				// number of bytes received
 		;
 	EXPECT_CALL(*mockBeaconCache, addEventData(
-		SESSION_ID,									// session ID
+		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
 		0,											// timestamp when web request tracer was reported
 		testing::Eq(s.str())
 	)).Times(1);
@@ -1873,7 +1879,7 @@ TEST_F(BeaconTest, addUserIdentifyEvent)
 		<< "&t0=0"									// event timestamp since session start
 	;
 	EXPECT_CALL(*mockBeaconCache, addEventData(
-		SESSION_ID,									// session ID
+		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
 		0,											// timestamp of the user identifaction event
 		testing::Eq(s.str())
 	)).Times(1);
@@ -1899,7 +1905,7 @@ TEST_F(BeaconTest, addUserIdentifyWithNullUserIDEvent)
 		<< "&t0=0"									// event timestamp since session start
 	;
 	EXPECT_CALL(*mockBeaconCache, addEventData(
-		SESSION_ID,									// session ID
+		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
 		0,											// timestamp of the user identification event
 		testing::Eq(s.str())
 	)).Times(1);
@@ -1950,7 +1956,7 @@ TEST_F(BeaconTest, cannotIdentifyUserIfUserIdentificationDisabled)
 TEST_F(BeaconTest, canHandleNoDataInBeaconSend)
 {
 	// expect
-	EXPECT_CALL(*mockBeaconCache, getNextBeaconChunk(SESSION_ID, testing::_, testing::_, testing::_))
+	EXPECT_CALL(*mockBeaconCache, getNextBeaconChunk(BeaconKey_t(SESSION_ID, SESSION_SEQUENCE), testing::_, testing::_, testing::_))
 		.Times(1);
 
 	// given
@@ -2081,7 +2087,7 @@ TEST_F(BeaconTest, clearDataFromBeaconCache)
 TEST_F(BeaconTest, clearDataForwardsCallToBeaconCache)
 {
 	// expect
-	EXPECT_CALL(*mockBeaconCache, deleteCacheEntry(SESSION_ID))
+	EXPECT_CALL(*mockBeaconCache, deleteCacheEntry(BeaconKey_t(SESSION_ID, SESSION_SEQUENCE)))
 		.Times(1);
 
 	// given
@@ -2270,7 +2276,8 @@ TEST_F(BeaconTest, useInternalBeaconIdForAccessingBeaconCacheWhenSessionNumberRe
 		.WillByDefault(testing::Return(beaconId));
 
 	// expect
-	EXPECT_CALL(*mockBeaconCache, deleteCacheEntry(beaconId)).Times(1);
+	EXPECT_CALL(*mockBeaconCache, deleteCacheEntry(BeaconKey_t(beaconId, SESSION_SEQUENCE)))
+		.Times(1);
 
 	// given
 	auto target = createBeacon()->build();

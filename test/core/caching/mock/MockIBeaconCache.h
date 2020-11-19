@@ -53,7 +53,7 @@ namespace test
 
 		MOCK_METHOD3(addEventData,
 			void(
-				int32_t,
+				const core::caching::BeaconKey&,
 				int64_t,
 				const core::UTF8String&
 			)
@@ -61,7 +61,7 @@ namespace test
 
 		MOCK_METHOD3(addActionData,
 			void(
-				int32_t,
+				const core::caching::BeaconKey&,
 				int64_t,
 				const core::UTF8String&
 			)
@@ -69,13 +69,13 @@ namespace test
 
 		MOCK_METHOD1(deleteCacheEntry,
 			void(
-				int32_t
+				const core::caching::BeaconKey&
 			)
 		);
 
 		MOCK_METHOD4(getNextBeaconChunk,
 			const core::UTF8String(
-				int32_t,
+				const core::caching::BeaconKey&,
 				const core::UTF8String&,
 				int32_t,
 				const core::UTF8String&
@@ -84,28 +84,28 @@ namespace test
 
 		MOCK_METHOD1(removeChunkedData,
 			void(
-				int32_t
+				const core::caching::BeaconKey&
 			)
 		);
 
 		MOCK_METHOD1(resetChunkedData,
 			void(
-				int32_t
+				const core::caching::BeaconKey&
 			)
 		);
 
-		MOCK_METHOD0(getBeaconIDs, const std::unordered_set<int32_t>());
+		MOCK_METHOD0(getBeaconKeys, const std::unordered_set<core::caching::BeaconKey, core::caching::BeaconKey::Hash>());
 
 		MOCK_METHOD2(evictRecordsByAge,
 			uint32_t(
-				int32_t,
+				const core::caching::BeaconKey&,
 				int64_t
 			)
 		);
 
 		MOCK_METHOD2(evictRecordsByNumber,
 			uint32_t(
-				int32_t,
+				const core::caching::BeaconKey&,
 				uint32_t
 			)
 		);
@@ -114,7 +114,7 @@ namespace test
 
 		MOCK_METHOD1(isEmpty,
 			bool(
-				int32_t
+				const core::caching::BeaconKey&
 			)
 		);
 	};

@@ -16,7 +16,7 @@
 
 #include "SpaceEvictionStrategy.h"
 
-#include <map>
+#include <unordered_map>
 
 using namespace core::caching;
 
@@ -46,6 +46,7 @@ void SpaceEvictionStrategy::execute()
 			// suppress any further log output
 			mInfoShown = true;
 		}
+
 		return;
 	}
 
@@ -69,29 +70,27 @@ bool SpaceEvictionStrategy::shouldRun() const
 
 void SpaceEvictionStrategy::doExecute()
 {
-	std::map<int32_t, uint32_t> removedRecordsPerBeacon;
+	std::unordered_map<BeaconKey, uint32_t, BeaconKey::Hash> removedRecordsPerBeacon;
 	while (!mIsStopRequested() && mBeaconCache->getNumBytesInCache() > mConfiguration->getCacheSizeLowerBound())
 	{
-		auto beaconIDs = mBeaconCache->getBeaconIDs();
-		auto it = beaconIDs.begin();
-		while (!mIsStopRequested() && it != beaconIDs.end() && mBeaconCache->getNumBytesInCache() > mConfiguration->getCacheSizeLowerBound())
+		auto beaconKeys = mBeaconCache->getBeaconKeys();
+		auto it = beaconKeys.begin();
+		while (!mIsStopRequested() && it != beaconKeys.end() && mBeaconCache->getNumBytesInCache() > mConfiguration->getCacheSizeLowerBound())
 		{
-			auto beaconID = *it;
-
 			// remove 1 record from Beacon cache for given beaconID
 			// the result is the number of records removed, which might be in range [0, numRecords=1]
-			uint32_t numRecordsRemoved = mBeaconCache->evictRecordsByNumber(beaconID, 1);
+			uint32_t numRecordsRemoved = mBeaconCache->evictRecordsByNumber(*it, 1);
 
 			if (mLogger->isDebugEnabled())
 			{
-				auto itr = removedRecordsPerBeacon.find(beaconID);
+				auto itr = removedRecordsPerBeacon.find(*it);
 				if (itr == removedRecordsPerBeacon.end())
 				{
-					removedRecordsPerBeacon.insert(std::make_pair(beaconID, numRecordsRemoved));
+					removedRecordsPerBeacon.insert(std::make_pair(*it, numRecordsRemoved));
 				}
 				else
 				{
-					removedRecordsPerBeacon.insert(std::make_pair(beaconID, itr->second + numRecordsRemoved));
+					itr->second += numRecordsRemoved;
 				}
 			}
 
@@ -103,7 +102,8 @@ void SpaceEvictionStrategy::doExecute()
 	{
 		for (auto itr = removedRecordsPerBeacon.begin(); itr != removedRecordsPerBeacon.end(); itr++)
 		{
-			mLogger->debug("SpaceEvictionStrategy doExecute() - Removed %u records from Beacon with ID %d", itr->second, itr->first);
+			mLogger->debug("SpaceEvictionStrategy doExecute() - Removed %u records from Beacon with key [sn=%d, seq=%d]",
+				itr->second, itr->first.getBeaconId(), itr->first.getBeaconSequenceNumber());
 		}
 	}
 }

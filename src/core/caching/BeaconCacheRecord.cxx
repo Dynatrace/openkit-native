@@ -59,3 +59,15 @@ void BeaconCacheRecord::unsetSending()
 {
 	mMarkedForSending = false;
 }
+
+bool BeaconCacheRecord::operator == (const BeaconCacheRecord& rhs) const
+{
+	return getTimestamp() == rhs.getTimestamp()
+		&& getData() == rhs.getData()
+		&& isMarkedForSending() == rhs.isMarkedForSending();
+}
+
+bool BeaconCacheRecord::operator != (const BeaconCacheRecord& rhs) const
+{
+	return !operator == (rhs);
+}

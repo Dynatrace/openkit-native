@@ -20,6 +20,7 @@
 #include "core/UTF8String.h"
 #include "core/caching/BeaconCache.h"
 #include "core/caching/BeaconCacheRecord.h"
+#include "core/caching/BeaconKey.h"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -30,6 +31,8 @@ using namespace test;
 
 using BeaconCache_t = core::caching::BeaconCache;
 using BeaconCacheRecord_t = core::caching::BeaconCacheRecord;
+using BeaconKey_t = core::caching::BeaconKey;
+using BeaconKeySet_t = std::unordered_set<BeaconKey_t, BeaconKey_t::Hash>;
 using MockNiceILogger_sp = std::shared_ptr<testing::NiceMock<MockILogger>>;
 using MockNiceIObserver_t = testing::NiceMock<MockIObserver>;
 using MockStrictIObserver_t = testing::StrictMock<MockIObserver>;
@@ -53,80 +56,78 @@ TEST_F(BeaconCacheTest, aDefaultConstructedCacheDoesNotContainBeacons)
 	BeaconCache_t target(mockLogger);
 
 	// then
-	ASSERT_TRUE(target.getBeaconIDs().empty());
-	ASSERT_EQ(target.getNumBytesInCache(), 0L);
+	ASSERT_THAT(target.getBeaconKeys(), testing::IsEmpty());
+	ASSERT_THAT(target.getNumBytesInCache(), testing::Eq(0));
 }
 
-TEST_F(BeaconCacheTest, addEventDataAddsBeaconIdToCache)
+TEST_F(BeaconCacheTest, addEventDataAddsBeaconKeyToCache)
 {
 	// given
+	BeaconKey_t keyOne(1, 0);
+	BeaconKey_t keyTwo(2, 0);
+
 	 BeaconCache_t target(mockLogger);
 
-	// when adding beacon with id 1
-	target.addEventData(1, 1000L, "a");
+	// when adding beacon with key 1
+	target.addEventData(keyOne, 1000L, "a");
 
 	// then
-	ASSERT_EQ(target.getBeaconIDs().size(), 1);
-	ASSERT_EQ(target.getBeaconIDs().count(1), 1);
-	ASSERT_EQ(target.getEvents(1).size(), 1);
-	ASSERT_TRUE(target.getEvents(1).begin()->equals("a"));
+	ASSERT_THAT(target.getBeaconKeys(), testing::ContainerEq(BeaconKeySet_t{keyOne}));
+	ASSERT_THAT(target.getEvents(keyOne), testing::ContainerEq(std::vector<core::UTF8String>{"a"}));
 
-	// and when adding beacon with id 2
-	target.addEventData(2, 1100L, "b");
+	// and when adding beacon with key 2
+	target.addEventData(keyTwo, 1100L, "b");
 
 	// then
-	ASSERT_EQ(target.getBeaconIDs().size(), 2);
-	ASSERT_EQ(target.getBeaconIDs().count(1), 1);
-	ASSERT_EQ(target.getBeaconIDs().count(2), 1);
-	ASSERT_EQ(target.getEvents(1).size(), 1);
-	ASSERT_TRUE(target.getEvents(1).begin()->equals("a"));
-	ASSERT_EQ(target.getEvents(2).size(), 1);
-	ASSERT_TRUE(target.getEvents(2).begin()->equals("b"));
+	ASSERT_THAT(target.getBeaconKeys(), testing::ContainerEq(BeaconKeySet_t{keyOne, keyTwo}));
+	ASSERT_THAT(target.getEvents(keyOne), testing::ContainerEq(std::vector<core::UTF8String>{"a"}));
+	ASSERT_THAT(target.getEvents(keyTwo), testing::ContainerEq(std::vector<core::UTF8String>{"b"}));
 }
 
-TEST_F(BeaconCacheTest, addEventDataAddsDataToAlreadyExistingBeaconId)
+TEST_F(BeaconCacheTest, addEventDataAddsDataToAlreadyExistingBeaconKey)
 {
 	// given
+	BeaconKey_t key(1, 0);
+
 	 BeaconCache_t target(mockLogger);
 
-	// when adding beacon with id 1
-	target.addEventData(1, 1000L, "a");
+	// when adding beacon with key
+	target.addEventData(key, 1000L, "a");
 
 	// then
-	ASSERT_EQ(target.getBeaconIDs().size(), 1);
-	ASSERT_EQ(target.getBeaconIDs().count(1), 1);
-	ASSERT_EQ(target.getEvents(1).size(), 1);
-	ASSERT_TRUE(target.getEvents(1).begin()->equals("a"));
+	ASSERT_THAT(target.getBeaconKeys(), testing::ContainerEq(BeaconKeySet_t{key}));
+	ASSERT_THAT(target.getEvents(key), testing::ContainerEq(std::vector<core::UTF8String>{"a"}));
 
-	// and when adding other data with beacon id 1
-	target.addEventData(1, 1100L, "bc");
+	// and when adding other data with beacon key
+	target.addEventData(key, 1100L, "bc");
 
 	// then
-	ASSERT_EQ(target.getBeaconIDs().size(), 1);
-	ASSERT_EQ(target.getBeaconIDs().count(1), 1);
-	ASSERT_EQ(target.getEvents(1).size(), 2);
-	auto v = target.getEvents(1);
-	ASSERT_TRUE(std::find(v.begin(), v.end(), Utf8String_t("a")) != v.end());
-	ASSERT_TRUE(std::find(v.begin(), v.end(), Utf8String_t("bc")) != v.end());
+	ASSERT_THAT(target.getBeaconKeys(), testing::ContainerEq(BeaconKeySet_t{key}));
+	ASSERT_THAT(target.getEvents(key), testing::ContainerEq(std::vector<core::UTF8String>{"a", "bc"}));
 }
 
 TEST_F(BeaconCacheTest, addEventDataIncreasesCacheSize)
 {
 	// given
-	 BeaconCache_t target(mockLogger);
+	BeaconKey_t keyOne(1, 0);
+	BeaconKey_t keyTwo(42, 0);
+	BeaconCache_t target(mockLogger);
 
 	// when adding some data
-	target.addEventData(1, 1000L, "a");
-	target.addEventData(42, 1000L, "z");
-	target.addEventData(1, 1000L, "iii");
+	target.addEventData(keyOne, 1000L, "a");
+	target.addEventData(keyTwo, 1000L, "z");
+	target.addEventData(keyOne, 1000L, "iii");
 
 	// then
-	ASSERT_EQ(target.getNumBytesInCache(), BeaconCacheRecord_t(1000L, "a").getDataSizeInBytes() +	BeaconCacheRecord_t(1000L, "z").getDataSizeInBytes() + BeaconCacheRecord_t(1000L, "iii").getDataSizeInBytes());
+	ASSERT_THAT(target.getNumBytesInCache(), 
+		testing::Eq(BeaconCacheRecord_t(1000L, "a").getDataSizeInBytes() +	BeaconCacheRecord_t(1000L, "z").getDataSizeInBytes() + BeaconCacheRecord_t(1000L, "iii").getDataSizeInBytes()));
 }
 
 TEST_F(BeaconCacheTest, addEventDataNotifiesObserver)
 {
 	// given
+	BeaconKey_t keyOne(1, 0);
+	BeaconKey_t keyTwo(666, 0);
 	BeaconCache_t target(mockLogger);
 	MockNiceIObserver_t observer;
 
@@ -135,85 +136,82 @@ TEST_F(BeaconCacheTest, addEventDataNotifiesObserver)
 	// when adding some data (verify observer got notified)
 	EXPECT_CALL(observer, update())
 		.Times(testing::Exactly(1));
-	target.addEventData(1, 1000L, "a");
+	target.addEventData(keyOne, 1000L, "a");
 
 	// when adding some more data (verify observer got notified another two times)
 	EXPECT_CALL(observer, update())
 		.Times(testing::Exactly(2));
-	target.addEventData(1, 1100L, "b");
-	target.addEventData(666, 1200L, "xyz");
+
+	target.addEventData(keyOne, 1100L, "b");
+	target.addEventData(keyTwo, 1200L, "xyz");
 }
 
-TEST_F(BeaconCacheTest, addActionDataAddsBeaconIdToCache)
+TEST_F(BeaconCacheTest, addActionDataAddsBeaconKeyToCache)
 {
 	// given
+	BeaconKey_t keyOne(1, 0);
+	BeaconKey_t keyTwo(2, 0);
 	BeaconCache_t target(mockLogger);
 
-	// when adding beacon with id 1
-	target.addActionData(1, 1000L, "a");
+	// when adding beacon with key 1
+	target.addActionData(keyOne, 1000L, "a");
 
 	// then
-	ASSERT_EQ(target.getBeaconIDs().size(), 1);
-	ASSERT_EQ(target.getBeaconIDs().count(1), 1);
-	ASSERT_EQ(target.getActions(1).size(), 1);
-	ASSERT_TRUE(target.getActions(1).begin()->equals("a"));
+	ASSERT_THAT(target.getBeaconKeys(), testing::ContainerEq(BeaconKeySet_t{keyOne}));
+	ASSERT_THAT(target.getActions(keyOne), testing::ContainerEq(std::vector<core::UTF8String>{"a"}));
 
-	// and when adding beacon with id 2
-	target.addActionData(2, 1100L, "b");
+	// and when adding beacon with key 2
+	target.addActionData(keyTwo, 1100L, "b");
 
 	// then
-	ASSERT_EQ(target.getBeaconIDs().size(), 2);
-	ASSERT_EQ(target.getBeaconIDs().count(1), 1);
-	ASSERT_EQ(target.getBeaconIDs().count(2), 1);
-	ASSERT_EQ(target.getActions(1).size(), 1);
-	ASSERT_TRUE(target.getActions(1).begin()->equals("a"));
-	ASSERT_EQ(target.getActions(2).size(), 1);
-	ASSERT_TRUE(target.getActions(2).begin()->equals("b"));
+	ASSERT_THAT(target.getBeaconKeys(), testing::ContainerEq(BeaconKeySet_t{keyOne, keyTwo}));
+	ASSERT_THAT(target.getActions(keyOne), testing::ContainerEq(std::vector<core::UTF8String>{"a"}));
+	ASSERT_THAT(target.getActions(keyTwo), testing::ContainerEq(std::vector<core::UTF8String>{"b"}));
 }
 
-TEST_F(BeaconCacheTest, addActionDataAddsDataToAlreadyExistingBeaconId)
+TEST_F(BeaconCacheTest, addActionDataAddsDataToAlreadyExistingBeaconKey)
 {
 	// given
+	BeaconKey_t key(1, 0);
 	BeaconCache_t target(mockLogger);
 
-	// when adding beacon with id 1
-	target.addActionData(1, 1000L, "a");
+	// when adding beacon with key
+	target.addActionData(key, 1000L, "a");
 
 	// then
-	ASSERT_EQ(target.getBeaconIDs().size(), 1);
-	ASSERT_EQ(target.getBeaconIDs().count(1), 1);
-	ASSERT_EQ(target.getActions(1).size(), 1);
-	ASSERT_TRUE(target.getActions(1).begin()->equals("a"));
+	ASSERT_THAT(target.getBeaconKeys(), testing::ContainerEq(BeaconKeySet_t{key}));
+	ASSERT_THAT(target.getActions(key), testing::ContainerEq(std::vector<core::UTF8String>{"a"}));
 
-	// and when adding other data with beacon id 1
-	target.addActionData(1, 1100L, "bc");
+	// and when adding other data with beacon key
+	target.addActionData(key, 1100L, "bc");
 
 	// then
-	ASSERT_EQ(target.getBeaconIDs().size(), 1);
-	ASSERT_EQ(target.getBeaconIDs().count(1), 1);
-	ASSERT_EQ(target.getActions(1).size(), 2);
-	auto v = target.getActions(1);
-	ASSERT_TRUE(std::find(v.begin(), v.end(), Utf8String_t("a")) != v.end());
-	ASSERT_TRUE(std::find(v.begin(), v.end(), Utf8String_t("bc")) != v.end());
+	ASSERT_THAT(target.getBeaconKeys(), testing::ContainerEq(BeaconKeySet_t{key}));
+	ASSERT_THAT(target.getActions(key), testing::ContainerEq(std::vector<core::UTF8String>{"a", "bc"}));
 }
 
 TEST_F(BeaconCacheTest, addActionDataIncreasesCacheSize)
 {
 	// given
+	BeaconKey_t keyOne(1, 0);
+	BeaconKey_t keyTwo(42, 0);
 	BeaconCache_t target(mockLogger);
 
 	// when adding some data
-	target.addActionData(1, 1000L, "a");
-	target.addActionData(42, 1000L, "z");
-	target.addActionData(1, 1000L, "iii");
+	target.addActionData(keyOne, 1000L, "a");
+	target.addActionData(keyTwo, 1000L, "z");
+	target.addActionData(keyOne, 1000L, "iii");
 
 	// then
-	ASSERT_EQ(target.getNumBytesInCache(), BeaconCacheRecord_t(1000L, "a").getDataSizeInBytes() + BeaconCacheRecord_t(1000L, "z").getDataSizeInBytes() + BeaconCacheRecord_t(1000L, "iii").getDataSizeInBytes());
+	ASSERT_THAT(target.getNumBytesInCache(), 
+		testing::Eq(BeaconCacheRecord_t(1000L, "a").getDataSizeInBytes() + BeaconCacheRecord_t(1000L, "z").getDataSizeInBytes() + BeaconCacheRecord_t(1000L, "iii").getDataSizeInBytes()));
 }
 
 TEST_F(BeaconCacheTest, addActionDataNotifiesObserver)
 {
 	// given
+	BeaconKey_t keyOne(1, 0);
+	BeaconKey_t keyTwo(666, 0);
 	BeaconCache_t target(mockLogger);
 	MockNiceIObserver_t observer;
 
@@ -222,77 +220,86 @@ TEST_F(BeaconCacheTest, addActionDataNotifiesObserver)
 	// when adding some data (verify observer got notified)
 	EXPECT_CALL(observer, update())
 		.Times(testing::Exactly(1));
-	target.addActionData(1, 1000L, "a");
+	target.addActionData(keyOne, 1000L, "a");
 
 	// when adding some more data (verify observer got notified another two times)
 	EXPECT_CALL(observer, update())
 		.Times(testing::Exactly(2));
-	target.addActionData(1, 1100L, "b");
-	target.addActionData(666, 1200L, "xyz");
+	target.addActionData(keyOne, 1100L, "b");
+	target.addActionData(keyTwo, 1200L, "xyz");
 }
 
 TEST_F(BeaconCacheTest, deleteCacheEntryRemovesTheGivenBeacon)
 {
 	// given
+	BeaconKey_t keyOne(1, 0);
+	BeaconKey_t keyTwo(42, 0);
 	BeaconCache_t target(mockLogger);
-	target.addActionData(1, 1000L, "a");
-	target.addActionData(42, 1000L, "z");
-	target.addEventData(1, 1000L, "iii");
+	target.addActionData(keyOne, 1000L, "a");
+	target.addActionData(keyTwo, 1000L, "z");
+	target.addEventData(keyOne, 1000L, "iii");
 
 	// when removing beacon with id 1
-	target.deleteCacheEntry(1);
+	target.deleteCacheEntry(keyOne);
 
 	// then
-	ASSERT_EQ(target.getBeaconIDs().size(), 1);
-	ASSERT_EQ(target.getBeaconIDs().count(42), 1);
+	ASSERT_THAT(target.getBeaconKeys(), testing::ContainerEq(BeaconKeySet_t{keyTwo}));
 
 	// and when removing beacon with id 42
-	target.deleteCacheEntry(42);
+	target.deleteCacheEntry(keyTwo);
 
 	// then
-	ASSERT_TRUE(target.getBeaconIDs().empty());
+	ASSERT_THAT(target.getBeaconKeys(), testing::IsEmpty());
 }
 
 TEST_F(BeaconCacheTest, deleteCacheEntryDecrementsCacheSize)
 {
 	// given
+	BeaconKey_t keyOne(1, 0);
+	BeaconKey_t keyTwo(42, 0);
 	BeaconCache_t target(mockLogger);
-	target.addActionData(1, 1000L, "a");
-	target.addActionData(42, 1000L, "z");
-	target.addEventData(1, 1000L, "iii");
+	target.addActionData(keyOne, 1000L, "a");
+	target.addActionData(keyTwo, 1000L, "z");
+	target.addEventData(keyOne, 1000L, "iii");
 
 	// when removing beacon with id 42
-	target.deleteCacheEntry(42);
+	target.deleteCacheEntry(keyTwo);
 
 	// then
-	ASSERT_EQ(target.getNumBytesInCache(), BeaconCacheRecord_t(1000L, "a").getDataSizeInBytes() + BeaconCacheRecord_t(1000L, "iii").getDataSizeInBytes());
+	ASSERT_THAT(target.getNumBytesInCache(),
+		testing::Eq(BeaconCacheRecord_t(1000L, "a").getDataSizeInBytes() + BeaconCacheRecord_t(1000L, "iii").getDataSizeInBytes()));
 }
 
 TEST_F(BeaconCacheTest, deleteCacheEntryDoesNotNotifyObservers)
 {
 	// given
+	BeaconKey_t keyOne(1, 0);
+	BeaconKey_t keyTwo(42, 0);
 	BeaconCache_t target(mockLogger);
-	target.addActionData(1, 1000L, "a");
-	target.addActionData(42, 1000L, "z");
-	target.addEventData(1, 1000L, "iii");
+	target.addActionData(keyOne, 1000L, "a");
+	target.addActionData(keyTwo, 1000L, "z");
+	target.addEventData(keyOne, 1000L, "iii");
+
 	MockStrictIObserver_t observer;
+	EXPECT_CALL(observer, update())
+		.Times(testing::Exactly(0));
 
 	target.addObserver(&observer);
 
 	// when deleting both entries
-	target.deleteCacheEntry(1);
-	target.deleteCacheEntry(42);
-
-	// then (StrictMock usage verifies that no methods of the mocked object are called)
+	target.deleteCacheEntry(keyOne);
+	target.deleteCacheEntry(keyTwo);
 }
 
-TEST_F(BeaconCacheTest, deleteCacheEntriesDoesNothingIfGivenBeaconIDIsNotInCache)
+TEST_F(BeaconCacheTest, deleteCacheEntriesDoesNothingIfGivenBeaconKeyIsNotInCache)
 {
 	// given
+	BeaconKey_t keyOne(1, 0);
+	BeaconKey_t keyTwo(42, 0);
 	BeaconCache_t target(mockLogger);
-	target.addActionData(1, 1000L, "a");
-	target.addActionData(42, 1000L, "z");
-	target.addEventData(1, 1000L, "iii");
+	target.addActionData(keyOne, 1000L, "a");
+	target.addActionData(keyTwo, 1000L, "z");
+	target.addEventData(keyOne, 1000L, "iii");
 	MockStrictIObserver_t observer;
 
 	target.addObserver(&observer);
@@ -300,262 +307,265 @@ TEST_F(BeaconCacheTest, deleteCacheEntriesDoesNothingIfGivenBeaconIDIsNotInCache
 	auto cachedSize = target.getNumBytesInCache();
 
 	// when
-	target.deleteCacheEntry(666);
+	target.deleteCacheEntry(BeaconKey_t(666, 0));
 
 	// then
-	ASSERT_EQ(target.getBeaconIDs().size(), 2);
-	ASSERT_EQ(target.getBeaconIDs().count(1), 1);
-	ASSERT_EQ(target.getBeaconIDs().count(42), 1);
-	ASSERT_EQ(target.getNumBytesInCache(), cachedSize);
+	ASSERT_THAT(target.getBeaconKeys(), testing::ContainerEq(BeaconKeySet_t{keyOne, keyTwo}));
+	ASSERT_THAT(target.getNumBytesInCache(), testing::Eq(cachedSize));
 }
 
-TEST_F(BeaconCacheTest, getNextBeaconChunkReturnsNullIfGivenBeaconIDDoesNotExist)
+TEST_F(BeaconCacheTest, getNextBeaconChunkReturnsNullIfGivenBeaconKeyDoesNotExist)
 {
 	// given
+	BeaconKey_t keyOne(1, 0);
+	BeaconKey_t keyTwo(42, 0);
 	BeaconCache_t target(mockLogger);
-	target.addActionData(1, 1000L, "a");
-	target.addActionData(42, 1000L, "z");
-	target.addEventData(1, 1000L, "iii");
+	target.addActionData(keyOne, 1000L, "a");
+	target.addActionData(keyTwo, 1000L, "z");
+	target.addEventData(keyOne, 1000L, "iii");
 
 	// when
-	auto obtained = target.getNextBeaconChunk(666, "", 1024, "&");
+	auto obtained = target.getNextBeaconChunk(BeaconKey_t(666, 0), "", 1024, "&");
 
 	// then
-	ASSERT_TRUE(obtained.empty());
+	ASSERT_THAT(obtained.empty(), testing::Eq(true));
 }
 
 TEST_F(BeaconCacheTest, getNextBeaconChunkCopiesDataForSending)
 {
 	// given
+	BeaconKey_t keyOne(1, 0);
+	BeaconKey_t keyTwo(42, 0);
 	BeaconCache_t target(mockLogger);
-	target.addActionData(1, 1000L, "a");
-	target.addActionData(1, 1001L, "iii");
-	target.addActionData(42, 2000L, "z");
-	target.addEventData(1, 1000L, "b");
-	target.addEventData(1, 1001L, "jjj");
+	target.addActionData(keyOne, 1000L, "a");
+	target.addActionData(keyOne, 1001L, "iii");
+	target.addActionData(keyTwo, 2000L, "z");
+	target.addEventData(keyOne, 1000L, "b");
+	target.addEventData(keyOne, 1001L, "jjj");
 
 	// when
-	auto obtained = target.getNextBeaconChunk(1, "prefix", 0, "&");
+	auto obtained = target.getNextBeaconChunk(keyOne, "prefix", 0, "&");
 
 	// then
-	ASSERT_TRUE(obtained.equals("prefix"));
+	ASSERT_THAT(obtained, testing::Eq(Utf8String_t("prefix")));
 
-	ASSERT_TRUE(target.getActions(1).empty());
-	ASSERT_TRUE(target.getEvents(1).empty());
-	auto v = target.getActionsBeingSent(1);
-	ASSERT_EQ(v.size(), 2);
-	auto it = v.begin();
-	ASSERT_TRUE(it->getData().equals("a"));
-	it++;
-	ASSERT_TRUE(it->getData().equals("iii"));
-
-	auto v2 = target.getEventsBeingSent(1);
-	ASSERT_EQ(v2.size(), 2);
-	auto it2 = v2.begin();
-	ASSERT_TRUE(it2->getData().equals("b"));
-	it2++;
-	ASSERT_TRUE(it2->getData().equals("jjj"));
+	ASSERT_THAT(target.getActions(keyOne), testing::IsEmpty());
+	ASSERT_THAT(target.getEvents(keyOne), testing::IsEmpty());
+	ASSERT_THAT(target.getActionsBeingSent(keyOne), testing::ContainerEq(
+		std::list<BeaconCacheRecord_t>{
+			BeaconCacheRecord_t(1000L, "a"),
+			BeaconCacheRecord_t(1001L, "iii")
+		}
+	));
+	ASSERT_THAT(target.getEventsBeingSent(keyOne), testing::ContainerEq(
+		std::list<BeaconCacheRecord_t>{
+			BeaconCacheRecord_t(1000L, "b"),
+			BeaconCacheRecord_t(1001L, "jjj")
+		}
+	));
 }
 
 TEST_F(BeaconCacheTest, getNextBeaconChunkDecreasesBeaconCacheSize)
 {
 	// given
+	BeaconKey_t keyOne(1, 0);
+	BeaconKey_t keyTwo(42, 0);
 	BeaconCache_t target(mockLogger);
-	target.addActionData(1, 1000L, "a");
-	target.addActionData(1, 1001L, "iii");
-	target.addActionData(42, 2000L, "z");
-	target.addEventData(1, 1000L, "b");
-	target.addEventData(1, 1001L, "jjj");
+	target.addActionData(keyOne, 1000L, "a");
+	target.addActionData(keyOne, 1001L, "iii");
+	target.addActionData(keyTwo, 2000L, "z");
+	target.addEventData(keyOne, 1000L, "b");
+	target.addEventData(keyOne, 1001L, "jjj");
 
 	// when
-	target.getNextBeaconChunk(1, "prefix", 0, "&");
+	target.getNextBeaconChunk(keyOne, "prefix", 0, "&");
 
 	// cache stats are also adjusted
-	ASSERT_EQ(target.getNumBytesInCache(), BeaconCacheRecord_t(2000L, "z").getDataSizeInBytes());
+	ASSERT_THAT(target.getNumBytesInCache(),
+		testing::Eq(BeaconCacheRecord_t(2000L, "z").getDataSizeInBytes()));
 }
 
 TEST_F(BeaconCacheTest, getNextBeaconChunkRetrievesNextChunk)
 {
 	// given
+	BeaconKey_t keyOne(1, 0);
+	BeaconKey_t keyTwo(42, 0);
 	BeaconCache_t target(mockLogger);
-	target.addActionData(1, 1000L, "a");
-	target.addActionData(1, 1001L, "iii");
-	target.addActionData(42, 2000L, "z");
-	target.addEventData(1, 1000L, "b");
-	target.addEventData(1, 1001L, "jjj");
+	target.addActionData(keyOne, 1000L, "a");
+	target.addActionData(keyOne, 1001L, "iii");
+	target.addActionData(keyTwo, 2000L, "z");
+	target.addEventData(keyOne, 1000L, "b");
+	target.addEventData(keyOne, 1001L, "jjj");
 
 	// when
-	auto obtained = target.getNextBeaconChunk(1, "prefix", 10, "&");
+	auto obtained = target.getNextBeaconChunk(keyOne, "prefix", 10, "&");
 
 	// then
-	ASSERT_TRUE(obtained.equals("prefix&b&jjj"));
+	ASSERT_THAT(obtained, testing::Eq(Utf8String_t("prefix&b&jjj")));
 
 	// then
-	auto v = target.getActionsBeingSent(1);
-	ASSERT_EQ(v.size(), 2);
-	auto it = v.begin();
-	ASSERT_TRUE(it->getData().equals("a"));
-	it++;
-	ASSERT_TRUE(it->getData().equals("iii"));
-	ASSERT_EQ(target.getEventsBeingSent(1).size(), 2);
+	ASSERT_THAT(target.getActionsBeingSent(keyOne), testing::ContainerEq(
+		std::list<BeaconCacheRecord_t>{
+			BeaconCacheRecord_t(1000L, "a"),
+			BeaconCacheRecord_t(1001L, "iii")
+		}
+	));
 
-	auto v2 = target.getEventsBeingSent(1);
-	auto it2 = v2.begin();
-	ASSERT_TRUE(it2->getData().equals("b"));
-	ASSERT_TRUE(it2->isMarkedForSending());
-	it2++;
-	ASSERT_TRUE(it2->getData().equals("jjj"));
-	ASSERT_TRUE(it2->isMarkedForSending());
+	BeaconCacheRecord_t expectedOne(1000L, "b");
+	BeaconCacheRecord_t expectedTwo(1001L, "jjj");
+	expectedOne.markForSending();
+	expectedTwo.markForSending();
+	ASSERT_THAT(target.getEventsBeingSent(keyOne), testing::ContainerEq(
+		std::list<BeaconCacheRecord_t>{
+			expectedOne, expectedTwo
+		}
+	));
 }
 
 TEST_F(BeaconCacheTest, removeChunkedDataClearsAlreadyRetrievedChunks)
 {
 	// given
+	BeaconKey_t keyOne(1, 0);
+	BeaconKey_t keyTwo(42, 0);
 	BeaconCache_t target(mockLogger);
-	target.addActionData(1, 1000L, "a");
-	target.addActionData(1, 1001L, "iii");
-	target.addActionData(42, 2000L, "z");
-	target.addEventData(1, 1000L, "b");
-	target.addEventData(1, 1001L, "jjj");
+	target.addActionData(keyOne, 1000L, "a");
+	target.addActionData(keyOne, 1001L, "iii");
+	target.addActionData(keyTwo, 2000L, "z");
+	target.addEventData(keyOne, 1000L, "b");
+	target.addEventData(keyOne, 1001L, "jjj");
 
 	// when retrieving the first chunk and removing retrieved chunks
-	auto obtained = target.getNextBeaconChunk(1, "prefix", 10, "&");
-	target.removeChunkedData(1);
+	auto obtained = target.getNextBeaconChunk(keyOne, "prefix", 10, "&");
+	target.removeChunkedData(keyOne);
 
 	// then
-	ASSERT_TRUE(obtained.equals("prefix&b&jjj"));
+	ASSERT_THAT(obtained, testing::Eq(Utf8String_t("prefix&b&jjj")));
 
 	// then
-	auto v = target.getActionsBeingSent(1);
-	ASSERT_EQ(v.size(), 2);
-	auto it = v.begin();
-	ASSERT_TRUE(it->getData().equals("a"));
-	it++;
-	ASSERT_TRUE(it->getData().equals("iii"));
-	ASSERT_TRUE(target.getEventsBeingSent(1).empty());
+		// then
+	ASSERT_THAT(target.getActionsBeingSent(keyOne), testing::ContainerEq(
+		std::list<BeaconCacheRecord_t>{
+			BeaconCacheRecord_t(1000L, "a"),
+			BeaconCacheRecord_t(1001L, "iii")
+		}
+	));
+	ASSERT_THAT(target.getEventsBeingSent(keyOne), testing::IsEmpty());
 
 	// when retrieving the second chunk and removing retrieved chunks
-	obtained = target.getNextBeaconChunk(1, "prefix", 10, "&");
-	target.removeChunkedData(1);
+	obtained = target.getNextBeaconChunk(keyOne, "prefix", 10, "&");
+	target.removeChunkedData(keyOne);
 
 	// then
-	ASSERT_TRUE(obtained.equals("prefix&a&iii"));
+	ASSERT_THAT(obtained, testing::Eq(Utf8String_t("prefix&a&iii")));
 
-	ASSERT_TRUE(target.getActionsBeingSent(1).empty());
-	ASSERT_TRUE(target.getEventsBeingSent(1).empty());
+	ASSERT_THAT(target.getActionsBeingSent(keyOne), testing::IsEmpty());
+	ASSERT_THAT(target.getEventsBeingSent(keyOne), testing::IsEmpty());
 }
 
-TEST_F(BeaconCacheTest, removeChunkedDataDoesNothingIfCalledWithNonExistingBeaconID)
+TEST_F(BeaconCacheTest, removeChunkedDataDoesNothingIfCalledWithNonExistingBeaconKey)
 {
 	// given
+	BeaconKey_t keyOne(1, 0);
+	BeaconKey_t keyTwo(42, 0);
 	BeaconCache_t target(mockLogger);
-	target.addActionData(1, 1000L, "a");
-	target.addActionData(1, 1001L, "iii");
-	target.addActionData(42, 2000L, "z");
-	target.addEventData(1, 1000L, "b");
-	target.addEventData(1, 1001L, "jjj");
+	target.addActionData(keyOne, 1000L, "a");
+	target.addActionData(keyOne, 1001L, "iii");
+	target.addActionData(keyTwo, 2000L, "z");
+	target.addEventData(keyOne, 1000L, "b");
+	target.addEventData(keyOne, 1001L, "jjj");
 
 	// when retrieving the first chunk and removing retrieved chunks
-	auto obtained = target.getNextBeaconChunk(1, "prefix", 10, "&");
-	target.removeChunkedData(2);
+	auto obtained = target.getNextBeaconChunk(keyOne, "prefix", 10, "&");
+	target.removeChunkedData(keyTwo);
 
 	// then
-	auto v = target.getActionsBeingSent(1);
-	ASSERT_EQ(v.size(), 2);
-	auto it = v.begin();
-	ASSERT_TRUE(it->getData().equals("a"));
-	it++;
-	ASSERT_TRUE(it->getData().equals("iii"));
-	ASSERT_EQ(target.getEventsBeingSent(1).size(), 2);
+	ASSERT_THAT(target.getActionsBeingSent(keyOne), testing::ContainerEq(
+		std::list<BeaconCacheRecord_t>{
+			BeaconCacheRecord_t(1000L, "a"),
+			BeaconCacheRecord_t(1001L, "iii")
+		}
+	));
 
-	auto v2 = target.getEventsBeingSent(1);
-	auto it2 = v2.begin();
-	ASSERT_TRUE(it2->getData().equals("b"));
-	ASSERT_TRUE(it2->isMarkedForSending());
-	it2++;
-	ASSERT_TRUE(it2->getData().equals("jjj"));
-	ASSERT_TRUE(it2->isMarkedForSending());
+	BeaconCacheRecord_t expectedOne(1000L, "b");
+	BeaconCacheRecord_t expectedTwo(1001L, "jjj");
+	expectedOne.markForSending();
+	expectedTwo.markForSending();
+	ASSERT_THAT(target.getEventsBeingSent(keyOne), testing::ContainerEq(
+		std::list<BeaconCacheRecord_t>{
+			expectedOne, expectedTwo
+		}
+	));
 }
 
 TEST_F(BeaconCacheTest, resetChunkedRestoresData)
 {
 	// given
+	BeaconKey_t key(1, 0);
 	BeaconCache_t target(mockLogger);
-	target.addActionData(1, 1000L, "a");
-	target.addActionData(1, 1001L, "iii");
-	target.addEventData(1, 1000L, "b");
-	target.addEventData(1, 1001L, "jjj");
+	target.addActionData(key, 1000L, "a");
+	target.addActionData(key, 1001L, "iii");
+	target.addEventData(key, 1000L, "b");
+	target.addEventData(key, 1001L, "jjj");
 
 	// do same step we'd do when we send the
-	target.getNextBeaconChunk(1, "prefix", 10, "&");
+	target.getNextBeaconChunk(key, "prefix", 10, "&");
 
 	// data has been copied, but still add some new event & action data
-	target.addActionData(1, 6666L, "123");
-	target.addEventData(1, 6666L, "987");
+	target.addActionData(key, 6666L, "123");
+	target.addEventData(key, 6666L, "987");
 
 	// and when resetting the previously copied data
-	target.resetChunkedData(1);
+	target.resetChunkedData(key);
 
 	// then
-	ASSERT_TRUE(target.getActionsBeingSent(1).empty());
-	ASSERT_TRUE(target.getEventsBeingSent(1).empty());
-	auto v = target.getActions(1);
-	ASSERT_EQ(v.size(), 3);
-	auto it = v.begin();
-	ASSERT_TRUE(it->equals("a"));
-	it++;
-	ASSERT_TRUE(it->equals("iii"));
-	it++;
-	ASSERT_TRUE(it->equals("123"));
-
-	auto v2 = target.getEvents(1);
-	ASSERT_EQ(v2.size(), 3);
-	auto it2 = v2.begin();
-	ASSERT_TRUE(it2->equals("b"));
-	it2++;
-	ASSERT_TRUE(it2->equals("jjj"));
-	it2++;
-	ASSERT_TRUE(it2->equals("987"));
+	ASSERT_THAT(target.getActionsBeingSent(key), testing::IsEmpty());
+	ASSERT_THAT(target.getEventsBeingSent(key), testing::IsEmpty());
+	ASSERT_THAT(target.getActions(key), testing::ContainerEq(
+		std::vector<Utf8String_t>{ "a", "iii", "123" }));
+	ASSERT_THAT(target.getEvents(key), testing::ContainerEq(
+		std::vector<Utf8String_t>{ "b", "jjj", "987" }));
 }
 
 TEST_F(BeaconCacheTest, resetChunkedRestoresCacheSize)
 {
 	// given
+	BeaconKey_t key(1, 0);
 	BeaconCache_t target(mockLogger);
-	target.addActionData(1, 1000L, "a");
-	target.addActionData(1, 1001L, "iii");
-	target.addEventData(1, 1000L, "b");
-	target.addEventData(1, 1001L, "jjj");
+	target.addActionData(key, 1000L, "a");
+	target.addActionData(key, 1001L, "iii");
+	target.addEventData(key, 1000L, "b");
+	target.addEventData(key, 1001L, "jjj");
 
 	// do same step we'd do when we send the
-	target.getNextBeaconChunk(1, "prefix", 10, "&");
+	target.getNextBeaconChunk(key, "prefix", 10, "&");
 
 	// data has been copied, but still add some new event & action data
-	target.addActionData(1, 6666L, "123");
-	target.addEventData(1, 6666L, "987");
+	target.addActionData(key, 6666L, "123");
+	target.addEventData(key, 6666L, "987");
 
 	// and when resetting the previously copied data
-	target.resetChunkedData(1);
+	target.resetChunkedData(key);
 
 	// then
-	ASSERT_EQ(target.getNumBytesInCache(), 14L); // aiiibjjj123456
+	ASSERT_THAT(target.getNumBytesInCache(), testing::Eq(14L)); // aiiibjjj123987
 }
 
 TEST_F(BeaconCacheTest, resetChunkedNotifiesObservers)
 {
 	// given
+	BeaconKey_t key(1, 0);
 	BeaconCache_t target(mockLogger);
-	target.addActionData(1, 1000L, "a");
-	target.addActionData(1, 1001L, "iii");
-	target.addEventData(1, 1000L, "b");
-	target.addEventData(1, 1001L, "jjj");
+	target.addActionData(key, 1000L, "a");
+	target.addActionData(key, 1001L, "iii");
+	target.addEventData(key, 1000L, "b");
+	target.addEventData(key, 1001L, "jjj");
 
 	// do same step we'd do when we send the
-	target.getNextBeaconChunk(1, "prefix", 10, "&");
+	target.getNextBeaconChunk(key, "prefix", 10, "&");
 
 	// data has been copied, but still add some new event & action data
-	target.addActionData(1, 6666L, "123");
-	target.addEventData(1, 6666L, "987");
+	target.addActionData(key, 6666L, "123");
+	target.addEventData(key, 6666L, "987");
 
 	MockNiceIObserver_t observer;
 	target.addObserver(&observer);
@@ -563,133 +573,140 @@ TEST_F(BeaconCacheTest, resetChunkedNotifiesObservers)
 	// and when resetting the previously copied data
 	EXPECT_CALL(observer, update())
 		.Times(testing::Exactly(1));
-	target.resetChunkedData(1);
+	target.resetChunkedData(key);
 }
 
 TEST_F(BeaconCacheTest, resetChunkedDoesNothingIfEntryDoesNotExist)
 {
 	// given
+	BeaconKey_t key(1, 0);
 	BeaconCache_t target(mockLogger);
-	target.addActionData(1, 1000L, "a");
-	target.addActionData(1, 1001L, "iii");
-	target.addEventData(1, 1000L, "b");
-	target.addEventData(1, 1001L, "jjj");
+	target.addActionData(key, 1000L, "a");
+	target.addActionData(key, 1001L, "iii");
+	target.addEventData(key, 1000L, "b");
+	target.addEventData(key, 1001L, "jjj");
 
 	// do same step we'd do when we send the
-	target.getNextBeaconChunk(1, "prefix", 10, "&");
+	target.getNextBeaconChunk(key, "prefix", 10, "&");
 
 	// data has been copied, but still add some new event & action data
-	target.addActionData(1, 6666L, "123");
-	target.addEventData(1, 6666L, "987");
+	target.addActionData(key, 6666L, "123");
+	target.addEventData(key, 6666L, "987");
 
 	MockStrictIObserver_t observer;
 	target.addObserver(&observer);
 
 	// resetting not existing data
-	target.resetChunkedData(666);
+	target.resetChunkedData(BeaconKey_t(666, 0));
 
 	// then (StrictMock usage verifies that no methods of the mocked object are called)
-	ASSERT_EQ(target.getNumBytesInCache(), 6L);	// 123987
+	ASSERT_THAT(target.getNumBytesInCache(), testing::Eq(6L));	// 123987
 }
 
 TEST_F(BeaconCacheTest, evictRecordsByAgeDoesNothingAndReturnsZeroIfBeaconIDDoesNotExist)
 {
 	// given
+	BeaconKey_t key(1, 0);
 	BeaconCache_t target(mockLogger);
-	target.addActionData(1, 1000L, "a");
-	target.addActionData(1, 1001L, "iii");
-	target.addEventData(1, 1000L, "b");
-	target.addEventData(1, 1001L, "jjj");
+	target.addActionData(key, 1000L, "a");
+	target.addActionData(key, 1001L, "iii");
+	target.addEventData(key, 1000L, "b");
+	target.addEventData(key, 1001L, "jjj");
 
 	// when
-	auto obtained = target.evictRecordsByAge(666, 0);
+	auto obtained = target.evictRecordsByAge(BeaconKey_t(666, 0), 0);
 
 	// then
-	ASSERT_EQ(obtained, 0);
+	ASSERT_THAT(obtained, testing::Eq(static_cast<uint32_t>(0)));
 }
 
 TEST_F(BeaconCacheTest, evictRecordsByAge)
 {
 	// given
+	BeaconKey_t key(1, 0);
 	BeaconCache_t target(mockLogger);
-	target.addActionData(1, 1000L, "a");
-	target.addActionData(1, 1001L, "iii");
-	target.addEventData(1, 1000L, "b");
-	target.addEventData(1, 1001L, "jjj");
+	target.addActionData(key, 1000L, "a");
+	target.addActionData(key, 1001L, "iii");
+	target.addEventData(key, 1000L, "b");
+	target.addEventData(key, 1001L, "jjj");
 
 	// when
-	auto obtained = target.evictRecordsByAge(1, 1001);
+	auto obtained = target.evictRecordsByAge(key, 1001);
 
 	// then
-	ASSERT_EQ(obtained, 2);
+	ASSERT_THAT(obtained, testing::Eq(static_cast<uint32_t>(2)));
 }
 
 TEST_F(BeaconCacheTest, evictRecordsByNumberDoesNothingAndReturnsZeroIfBeaconIDDoesNotExist)
 {
 	// given
+	BeaconKey_t key(1, 0);
 	BeaconCache_t target(mockLogger);
-	target.addActionData(1, 1000L, "a");
-	target.addActionData(1, 1001L, "iii");
-	target.addEventData(1, 1000L, "b");
-	target.addEventData(1, 1001L, "jjj");
+	target.addActionData(key, 1000L, "a");
+	target.addActionData(key, 1001L, "iii");
+	target.addEventData(key, 1000L, "b");
+	target.addEventData(key, 1001L, "jjj");
 
 	// when
-	auto obtained = target.evictRecordsByNumber(666, 100);
+	auto obtained = target.evictRecordsByNumber(BeaconKey_t(666, 0), 100);
 
 	// then
-	ASSERT_EQ(obtained, 0);
+	ASSERT_THAT(obtained, testing::Eq(static_cast<uint32_t>(0)));
 }
 
 TEST_F(BeaconCacheTest, evictRecordsByNumber)
 {
 	// given
+	BeaconKey_t key(1, 0);
 	BeaconCache_t target(mockLogger);
-	target.addActionData(1, 1000L, "a");
-	target.addActionData(1, 1001L, "iii");
-	target.addEventData(1, 1000L, "b");
-	target.addEventData(1, 1001L, "jjj");
+	target.addActionData(key, 1000L, "a");
+	target.addActionData(key, 1001L, "iii");
+	target.addEventData(key, 1000L, "b");
+	target.addEventData(key, 1001L, "jjj");
 
 	// when
-	auto obtained = target.evictRecordsByNumber(1, 2);
+	auto obtained = target.evictRecordsByNumber(key, 2);
 
 	// then
-	ASSERT_EQ(obtained, 2);
+	ASSERT_THAT(obtained, testing::Eq(static_cast<uint32_t>(2)));
 }
 
 TEST_F(BeaconCacheTest, isEmptyGivesTrueIfBeaconDoesNotExistInCache)
 {
 	// given
+	BeaconKey_t key(1, 0);
 	BeaconCache_t target(mockLogger);
-	target.addActionData(1, 1000L, "a");
-	target.addActionData(1, 1001L, "iii");
-	target.addEventData(1, 1000L, "b");
-	target.addEventData(1, 1001L, "jjj");
+	target.addActionData(key, 1000L, "a");
+	target.addActionData(key, 1001L, "iii");
+	target.addEventData(key, 1000L, "b");
+	target.addEventData(key, 1001L, "jjj");
 
 	// then
-	ASSERT_TRUE(target.isEmpty(666));
+	ASSERT_THAT(target.isEmpty(BeaconKey_t(666, 0)), testing::Eq(true));
 }
 
 TEST_F(BeaconCacheTest, isEmptyGivesFalseIfBeaconDataSizeIsNotEqualToZero)
 {
 	// given
+	BeaconKey_t key(1, 0);
 	BeaconCache_t target(mockLogger);
-	target.addActionData(1, 1000L, "a");
-	target.addEventData(1, 1000L, "b");
+	target.addActionData(key, 1000L, "a");
+	target.addEventData(key, 1000L, "b");
 
 	// then
-	ASSERT_FALSE(target.isEmpty(1));
+	ASSERT_THAT(target.isEmpty(key), testing::Eq(false));
 }
 
 TEST_F(BeaconCacheTest, isEmptyGivesTrueIfBeaconDoesNotContainActiveData)
 {
 	// given
+	BeaconKey_t key(1, 0);
 	BeaconCache_t target(mockLogger);
-	target.addActionData(1, 1000L, "a");
-	target.addEventData(1, 1000L, "b");
+	target.addActionData(key, 1000L, "a");
+	target.addEventData(key, 1000L, "b");
 
-	target.getNextBeaconChunk(1, "prefix", 0, "&");
+	target.getNextBeaconChunk(key, "prefix", 0, "&");
 
 	// then
-	ASSERT_TRUE(target.isEmpty(1));
+	ASSERT_THAT(target.isEmpty(key), testing::Eq(true));
 }
-

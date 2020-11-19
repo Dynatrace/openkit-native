@@ -88,8 +88,8 @@ void TimeEvictionStrategy::setLastRunTimestamp(int64_t lastRunTimestamp)
 
 void TimeEvictionStrategy::doExecute()
 {
-	auto beaconIDs = mBeaconCache->getBeaconIDs();
-	if (beaconIDs.empty())
+	auto beaconKeys = mBeaconCache->getBeaconKeys();
+	if (beaconKeys.empty())
 	{
 		// no beacons - set last run timestamp and return immediately
 		setLastRunTimestamp(mTimingProvider->provideTimestampInMilliseconds());
@@ -101,22 +101,19 @@ void TimeEvictionStrategy::doExecute()
 	int64_t smallestAllowedBeaconTimestamp = currentTimestamp - mConfiguration->getMaxRecordAge();
 
 	// iterate over the previously obtained set and evict for each beacon
-	auto it = beaconIDs.begin();
-	while (!mIsStopRequested() && it != beaconIDs.end())
+	auto it = beaconKeys.begin();
+	while (!mIsStopRequested() && it != beaconKeys.end())
 	{
-		auto beaconID = *it;
-
-		uint32_t numRecordsRemoved = mBeaconCache->evictRecordsByAge(beaconID, smallestAllowedBeaconTimestamp);
+		uint32_t numRecordsRemoved = mBeaconCache->evictRecordsByAge(*it, smallestAllowedBeaconTimestamp);
 
 		if (numRecordsRemoved > 0 && mLogger->isDebugEnabled())
 		{
-			mLogger->debug("TimeEvictionStrategy doExecute() - Removed %u records from Beacon with ID %d", numRecordsRemoved, beaconID);
+			mLogger->debug("TimeEvictionStrategy doExecute() - Removed %u records from Beacon with key [sn=%d, seq=%d]",
+				numRecordsRemoved, it->getBeaconId(), it->getBeaconSequenceNumber());
 		}
 
 		it++;
 	}
-
-
 
 	// last but not least update the last runtime
 	setLastRunTimestamp(currentTimestamp);
