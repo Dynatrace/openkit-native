@@ -763,6 +763,38 @@ TEST_F(SessionTest, tryEndReturnsTrueIfSessionAlreadyEnded)
 	ASSERT_THAT(obtained, testing::Eq(true));
 }
 
+TEST_F(SessionTest, tryEndMarksSessionStateAsWasTriedForEndingIfSessionNotClosable)
+{
+	// given
+	auto target = createSession()->build();
+	target->enterAction("action");
+
+	// when
+	auto obtained = target->tryEnd();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(false));
+	ASSERT_THAT(target->wasTriedForEnding(), testing::Eq(true));
+	ASSERT_THAT(target->isFinished(), testing::Eq(false));
+
+	// cleanup - otherwise the MockIBeacon is leaked
+	target->end();
+}
+
+TEST_F(SessionTest, tryEndDoesNotMarkSessionStateAsWasTriedForEndingIfSessionIsClosable)
+{
+	// given
+	auto target = createSession()->build();
+
+	// when
+	auto obtained = target->tryEnd();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(true));
+	ASSERT_THAT(target->wasTriedForEnding(), testing::Eq(false));
+	ASSERT_THAT(target->isFinished(), testing::Eq(true));
+}
+
 TEST_F(SessionTest, sendBeaconForwardsCallToBeacon)
 {
 	// with
@@ -858,6 +890,14 @@ TEST_F(SessionTest, aNewlyCreatedSessionIsNotInStateConfigured)
 	ASSERT_THAT(target->isConfiguredAndOpen(), testing::Eq(false));
 }
 
+TEST_F(SessionTest, aNewlyCreatedSessionIsNotInStateAsWasTriedForEnding)
+{
+	//given
+	auto target = createSession()->build();
+
+	// when, then
+	ASSERT_THAT(target->wasTriedForEnding(), testing::Eq(false));
+}
 
 TEST_F(SessionTest, aNotConfiguredNotFinishedSessionHasCorrectState)
 {
@@ -1165,7 +1205,7 @@ TEST_F(SessionTest, traceWebRequestLogsInvocation)
 	target->removeChildFromList(std::dynamic_pointer_cast<IOpenKitObject_t>(obtained));
 }
 
-TEST_F(SessionTest, onChildCloseRemovesChildFromList)
+TEST_F(SessionTest, onChildClosedRemovesChildFromList)
 {
 	// given
 	const auto childObject = MockIOpenKitObject::createNice();
@@ -1181,6 +1221,87 @@ TEST_F(SessionTest, onChildCloseRemovesChildFromList)
 	// then
 	numChildObjects = target->getChildCount();
 	ASSERT_THAT(numChildObjects, testing::Eq(0));
+}
+
+TEST_F(SessionTest, onChildClosedEndsSessionWithoutChildrenIfInStateWasTriedForEnding)
+{
+	// with
+	auto mockParent = MockIOpenKitComposite::createNice();
+	auto target = createSession()->with(mockParent).build();
+
+	// expect
+	EXPECT_CALL(*mockParent, onChildClosed(testing::_))
+		.Times(1);
+
+	// given
+	auto childObject = MockIOpenKitObject::createNice();
+	target->storeChildInList(childObject);
+
+	auto wasClosed = target->tryEnd();
+	ASSERT_THAT(wasClosed, testing::Eq(false));
+	ASSERT_THAT(target->wasTriedForEnding(), testing::Eq(true));
+	ASSERT_THAT(target->isFinished(), testing::Eq(false));
+
+	// when
+	target->onChildClosed(childObject);
+
+	// then
+	ASSERT_THAT(target->isFinished(), testing::Eq(true));
+}
+
+
+TEST_F(SessionTest, onChildClosedDoesNotEndSessionWithChildrenIfInStateWasTriedForEnding)
+{
+	// with
+	auto mockParent = MockIOpenKitComposite::createNice();
+	auto target = createSession()->with(mockParent).build();
+
+	// expect
+	EXPECT_CALL(*mockParent, onChildClosed(testing::_))
+		.Times(0);
+
+	// given
+	auto childObjectOne = MockIOpenKitObject::createNice();
+	auto childObjectTwo = MockIOpenKitObject::createNice();
+	target->storeChildInList(childObjectOne);
+	target->storeChildInList(childObjectTwo);
+
+	auto wasClosed = target->tryEnd();
+	ASSERT_THAT(wasClosed, testing::Eq(false));
+	ASSERT_THAT(target->wasTriedForEnding(), testing::Eq(true));
+	ASSERT_THAT(target->isFinished(), testing::Eq(false));
+
+	// when
+	target->onChildClosed(childObjectOne);
+
+	// then
+	ASSERT_THAT(target->isFinished(), testing::Eq(false));
+
+	// cleanup
+	EXPECT_CALL(*mockParent, onChildClosed(testing::_))
+		.Times(1);
+	target->close();
+}
+
+TEST_F(SessionTest, onChildClosedDoesNotEndSessionIfNotInStateWasTriedForEnding)
+{
+	// with
+	auto mockParent = MockIOpenKitComposite::createNice();
+	auto target = createSession()->with(mockParent).build();
+
+	// expect
+	EXPECT_CALL(*mockParent, onChildClosed(testing::_))
+		.Times(0);
+
+	// given
+	auto childObject = MockIOpenKitObject::createNice();
+	target->storeChildInList(childObject);
+
+	// when
+	target->onChildClosed(childObject);
+
+	// then
+	ASSERT_THAT(target->isFinished(), testing::Eq(false));
 }
 
 TEST_F(SessionTest, toStringReturnsAppropriateResult)

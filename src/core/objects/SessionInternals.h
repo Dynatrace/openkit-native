@@ -187,6 +187,11 @@ namespace core
 			/// A session is considered as finished, after @ref end() was called.
 			///
 			virtual bool isFinished() = 0;
+
+			///
+			/// Indicates that the session was tried for ending/closing but could not be closed due to still open child events.
+			///
+			virtual bool wasTriedForEnding() = 0;
 		};
 	}
 }

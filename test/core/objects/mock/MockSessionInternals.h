@@ -143,6 +143,8 @@ namespace test
 		MOCK_METHOD0(isConfiguredAndOpen, bool());
 
 		MOCK_METHOD0(isFinished, bool());
+
+		MOCK_METHOD0(wasTriedForEnding, bool());
 	};
 }
 

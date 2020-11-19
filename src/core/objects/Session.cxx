@@ -35,6 +35,7 @@ Session::Session(
 	, mNumRemainingNewSessionRequests(MAX_NEW_SESSION_REQUESTS)
 	, mIsSessionFinishing(false)
 	, mIsSessionFinished(false)
+	, mWasTriedForEnding(false)
 	, mMutex()
 	, mSplitByEventsGracePeriodEndTimeInMillis(-1)
 {
@@ -243,6 +244,8 @@ bool Session::tryEnd()
 		return true;
 	}
 
+	markAsWasTriedForEnding();
+
 	return false;
 }
 
@@ -263,10 +266,12 @@ void Session::updateServerConfiguration(std::shared_ptr<core::configuration::ISe
 
 void Session::onChildClosed(std::shared_ptr<core::objects::IOpenKitObject> childObject)
 {
-	{ // synchronized scope
-		std::lock_guard<std::recursive_mutex> lock(mMutex);
+	std::lock_guard<std::recursive_mutex> lock(mMutex);
 
-		removeChildFromList(childObject);
+	removeChildFromList(childObject);
+	if (wasTriedForEnding() && getChildCount() == 0)
+	{
+		end();
 	}
 }
 
@@ -313,38 +318,37 @@ const std::string Session::toString() const
 
 bool Session::isConfigured()
 {
-	{ // synchronized scope
-		std::lock_guard<std::recursive_mutex> lock(mMutex);
+	std::lock_guard<std::recursive_mutex> lock(mMutex);
 
-		return hasServerConfigurationSet();
-	}
+	return hasServerConfigurationSet();
 }
 
 bool Session::isConfiguredAndFinished()
 {
-	{ // synchronized scope
-		std::lock_guard<std::recursive_mutex> lock(mMutex);
+	std::lock_guard<std::recursive_mutex> lock(mMutex);
 
-		return hasServerConfigurationSet() && mIsSessionFinished;
-	}
+	return hasServerConfigurationSet() && mIsSessionFinished;
 }
 
 bool Session::isConfiguredAndOpen()
 {
-	{ // synchronized scope
-		std::lock_guard<std::recursive_mutex> lock(mMutex);
+	std::lock_guard<std::recursive_mutex> lock(mMutex);
 
-		return hasServerConfigurationSet() && !mIsSessionFinished;
-	}
+	return hasServerConfigurationSet() && !mIsSessionFinished;
 }
 
 bool Session::isFinished()
 {
-	{ // synchronized scope
-		std::lock_guard<std::recursive_mutex> lock(mMutex);
+	std::lock_guard<std::recursive_mutex> lock(mMutex);
 
-		return mIsSessionFinished;
-	}
+	return mIsSessionFinished;
+}
+
+bool Session::wasTriedForEnding()
+{
+	std::lock_guard<std::recursive_mutex> lock(mMutex);
+
+	return mWasTriedForEnding;
 }
 
 bool Session::markAsIsFinishing()
@@ -361,6 +365,11 @@ bool Session::markAsIsFinishing()
 void Session::markAsFinished()
 {
 	mIsSessionFinished = true;
+}
+
+void Session::markAsWasTriedForEnding()
+{
+	mWasTriedForEnding = true;
 }
 
 bool Session::hasServerConfigurationSet()

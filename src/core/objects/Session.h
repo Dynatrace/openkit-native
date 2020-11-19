@@ -37,10 +37,10 @@
 #include "providers/IHTTPClientProvider.h"
 #include "providers/IHTTPClientProvider.h"
 
-#include <memory>
 #include <atomic>
-#include <mutex>
 #include <cstdint>
+#include <memory>
+#include <mutex>
 
 namespace protocol
 {
@@ -148,6 +148,8 @@ namespace core
 
 			bool isFinished() override;
 
+			bool wasTriedForEnding() override;
+
 		private:
 
 			///
@@ -161,6 +163,11 @@ namespace core
 			/// Marks the session as finished.
 			///
 			void markAsFinished();
+
+			///
+			/// mark that the session was tried to end, but failed due to still open children
+			///
+			void markAsWasTriedForEnding();
 
 			///
 			/// Indicates if this session is configured.
@@ -186,10 +193,13 @@ namespace core
 			int32_t mNumRemainingNewSessionRequests;
 
 			/// indicator that the session is currently finishing/finished.
-			std::atomic<bool> mIsSessionFinishing;
+			bool mIsSessionFinishing;
 
 			/// indicator if the session was ended
-			std::atomic<bool> mIsSessionFinished;
+			bool mIsSessionFinished;
+
+			/// indicator if the session was tried for ending
+			bool mWasTriedForEnding;
 
 			/// mutex used for synchronization
 			std::recursive_mutex mMutex;
