@@ -20,7 +20,7 @@
 
 using namespace core::configuration;
 
-ServerConfiguration::ServerConfiguration(Builder& builder)
+ServerConfiguration::ServerConfiguration(const Builder& builder)
 	: mIsCaptureEnabled(builder.isCaptureEnabled())
 	, mIsCrashReportingEnabled(builder.isCrashReportingEnabled())
 	, mIsErrorReportingEnabled(builder.isErrorReportingEnabled())
@@ -28,9 +28,11 @@ ServerConfiguration::ServerConfiguration(Builder& builder)
 	, mBeaconSizeInBytes(builder.getBeaconSizeInBytes())
 	, mMultiplicity(builder.getMultiplicity())
 	, mMaxSessionDurationInMilliseconds(builder.getMaxSessionDurationInMilliseconds())
+	, mIsSessionSplitBySessionDurationEnabled(builder.isSessionSplitBySessionDurationEnabled())
 	, mMaxEventsPerSession(builder.getMaxEventsPerSession())
 	, mIsSessionSplitByEventsEnabled(builder.isSessionSplitByEventsEnabled())
 	, mSessionTimeoutInMilliseconds(builder.getSessionTimeoutInMilliseconds())
+	, mIsSessionSplitByIdleTimeoutEnabled(builder.isSessionSplitByIdleTimeoutEnabled())
 	, mVisitStoreVersion(builder.getVisitStoreVersion())
 {
 }
@@ -95,6 +97,12 @@ int32_t ServerConfiguration::getMaxSessionDurationInMilliseconds() const
 	return mMaxSessionDurationInMilliseconds;
 }
 
+bool ServerConfiguration::isSessionSplitBySessionDurationEnabled() const
+{
+	return mIsSessionSplitBySessionDurationEnabled
+		&& getMaxSessionDurationInMilliseconds() > 0;
+}
+
 int32_t ServerConfiguration::getMaxEventsPerSession() const
 {
 	return mMaxEventsPerSession;
@@ -108,6 +116,12 @@ bool ServerConfiguration::isSessionSplitByEventsEnabled() const
 int32_t ServerConfiguration::getSessionTimeoutInMilliseconds() const
 {
 	return mSessionTimeoutInMilliseconds;
+}
+
+bool ServerConfiguration::isSessionSplitByIdleTimeoutEnabled() const
+{
+	return mIsSessionSplitByIdleTimeoutEnabled
+		&& getSessionTimeoutInMilliseconds() > 0;
 }
 
 int32_t ServerConfiguration::getVisitStoreVersion() const
@@ -139,8 +153,11 @@ std::shared_ptr<core::configuration::IServerConfiguration> ServerConfiguration::
 	builder.withMultiplicity(getMultiplicity());
 	builder.withServerId(getServerId());
 	builder.withMaxSessionDurationInMilliseconds(getMaxSessionDurationInMilliseconds());
+	builder.withSessionSplitBySessionDurationEnabled(isSessionSplitBySessionDurationEnabled());
 	builder.withMaxEventsPerSession(getMaxEventsPerSession());
+	builder.withSessionSplitByEventsEnabled(isSessionSplitByEventsEnabled());
 	builder.withSessionTimeoutInMilliseconds(getSessionTimeoutInMilliseconds());
+	builder.withSessionSplitByIdleTimeoutEnabled(isSessionSplitByIdleTimeoutEnabled());
 	builder.withVisitStoreVersion(getVisitStoreVersion());
 	builder.withSessionSplitByEventsEnabled(isSessionSplitByEventsEnabled());
 
@@ -159,9 +176,11 @@ ServerConfiguration::Builder::Builder(std::shared_ptr<protocol::IResponseAttribu
 	, mBeaconSizeInBytes(responseAttributes->getMaxBeaconSizeInBytes())
 	, mMultiplicity(responseAttributes->getMultiplicity())
 	, mMaxSessionDurationInMilliseconds(responseAttributes->getMaxSessionDurationInMilliseconds())
+	, mIsSessionSplitBySessionDurationEnabled(responseAttributes->isAttributeSet(protocol::ResponseAttribute::MAX_SESSION_DURATION))
 	, mMaxEventsPerSession(responseAttributes->getMaxEventsPerSession())
 	, mIsSessionSplitByEventsEnabled(responseAttributes->isAttributeSet(protocol::ResponseAttribute::MAX_EVENTS_PER_SESSION))
 	, mSessionIdleTimeout(responseAttributes->getSessionTimeoutInMilliseconds())
+	, mIsSessionSplitByIdleTimeoutEnabled(responseAttributes->isAttributeSet(protocol::ResponseAttribute::SESSION_IDLE_TIMEOUT))
 	, mVisitStoreVersion(responseAttributes->getVisitStoreVersion())
 {
 }
@@ -174,9 +193,11 @@ ServerConfiguration::Builder::Builder(std::shared_ptr<core::configuration::IServ
 	, mBeaconSizeInBytes(serverConfiguration->getBeaconSizeInBytes())
 	, mMultiplicity(serverConfiguration->getMultiplicity())
 	, mMaxSessionDurationInMilliseconds(serverConfiguration->getMaxSessionDurationInMilliseconds())
+	, mIsSessionSplitBySessionDurationEnabled(serverConfiguration->isSessionSplitBySessionDurationEnabled())
 	, mMaxEventsPerSession(serverConfiguration->getMaxEventsPerSession())
 	, mIsSessionSplitByEventsEnabled(serverConfiguration->isSessionSplitByEventsEnabled())
 	, mSessionIdleTimeout(serverConfiguration->getSessionTimeoutInMilliseconds())
+	, mIsSessionSplitByIdleTimeoutEnabled(serverConfiguration->isSessionSplitByIdleTimeoutEnabled())
 	, mVisitStoreVersion(serverConfiguration->getVisitStoreVersion())
 {
 }
@@ -259,6 +280,18 @@ ServerConfiguration::Builder& ServerConfiguration::Builder::withMaxSessionDurati
 	return *this;
 }
 
+ServerConfiguration::Builder& ServerConfiguration::Builder::withSessionSplitBySessionDurationEnabled(
+	bool sessionSplitBySessionDurationEnabled)
+{
+	mIsSessionSplitBySessionDurationEnabled = sessionSplitBySessionDurationEnabled;
+	return *this;
+}
+
+bool ServerConfiguration::Builder::isSessionSplitBySessionDurationEnabled() const
+{
+	return mIsSessionSplitBySessionDurationEnabled;
+}
+
 int32_t ServerConfiguration::Builder::getMaxEventsPerSession() const
 {
 	return mMaxEventsPerSession;
@@ -291,6 +324,18 @@ ServerConfiguration::Builder& ServerConfiguration::Builder::withSessionTimeoutIn
 		int32_t sessionTimeoutInMilliseconds)
 {
 	mSessionIdleTimeout = sessionTimeoutInMilliseconds;
+	return *this;
+}
+
+bool ServerConfiguration::Builder::isSessionSplitByIdleTimeoutEnabled() const
+{
+	return mIsSessionSplitByIdleTimeoutEnabled;
+}
+
+ServerConfiguration::Builder& ServerConfiguration::Builder::withSessionSplitByIdleTimeoutEnabled(
+	bool sessionSplitByTimeoutEnabled)
+{
+	mIsSessionSplitByIdleTimeoutEnabled = sessionSplitByTimeoutEnabled;
 	return *this;
 }
 

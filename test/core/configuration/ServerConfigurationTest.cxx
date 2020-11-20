@@ -65,6 +65,12 @@ protected:
 			.WillByDefault(testing::Return(defaultValues->getSessionTimeoutInMilliseconds()));
 		ON_CALL(*mockAttributes, getVisitStoreVersion())
 			.WillByDefault(testing::Return(defaultValues->getVisitStoreVersion()));
+		ON_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_SESSION_DURATION))
+			.WillByDefault(testing::Return(false));
+		ON_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_EVENTS_PER_SESSION))
+			.WillByDefault(testing::Return(false));
+		ON_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::SESSION_IDLE_TIMEOUT))
+			.WillByDefault(testing::Return(false));
 
 		mockServerConfiguration = MockIServerConfiguration::createNice();
 		ON_CALL(*mockServerConfiguration, isCaptureEnabled())
@@ -81,12 +87,16 @@ protected:
 			.WillByDefault(testing::Return(defaultValues->getMultiplicity()));
 		ON_CALL(*mockServerConfiguration, getMaxSessionDurationInMilliseconds())
 			.WillByDefault(testing::Return(defaultValues->getMaxSessionDurationInMilliseconds()));
+		ON_CALL(*mockServerConfiguration, isSessionSplitBySessionDurationEnabled())
+			.WillByDefault(testing::Return(false));
 		ON_CALL(*mockServerConfiguration, getMaxEventsPerSession())
 			.WillByDefault(testing::Return(defaultValues->getMaxEventsPerSession()));
 		ON_CALL(*mockServerConfiguration, isSessionSplitByEventsEnabled())
 			.WillByDefault(testing::Return(false));
 		ON_CALL(*mockServerConfiguration, getSessionTimeoutInMilliseconds())
 			.WillByDefault(testing::Return(defaultValues->getSessionTimeoutInMilliseconds()));
+		ON_CALL(*mockServerConfiguration, isSessionSplitByIdleTimeoutEnabled())
+			.WillByDefault(testing::Return(false));
 		ON_CALL(*mockServerConfiguration, getVisitStoreVersion())
 			.WillByDefault(testing::Return(defaultValues->getVisitStoreVersion()));
 	}
@@ -127,6 +137,11 @@ TEST_F(ServerConfigurationTest, inDefaultServerConfigurationMaxSessionDurationIs
 	ASSERT_THAT(ServerConfiguration_t::defaultInstance()->getMaxSessionDurationInMilliseconds(), testing::Eq(-1));
 }
 
+TEST_F(ServerConfigurationTest, inDefaultServerConfigurationIsSessionSplitBySessionDurationEnabledIsFalse)
+{
+	ASSERT_THAT(ServerConfiguration_t::defaultInstance()->isSessionSplitBySessionDurationEnabled(), testing::Eq(false));
+}
+
 TEST_F(ServerConfigurationTest, inDefaultServerConfigurationMaxEventsPerSessionIsMinusOne)
 {
 	ASSERT_THAT(ServerConfiguration_t::defaultInstance()->getMaxEventsPerSession(), testing::Eq(-1));
@@ -140,6 +155,11 @@ TEST_F(ServerConfigurationTest, inDefaultServerConfigurationIsSessionSplitByEven
 TEST_F(ServerConfigurationTest, inDefaultServerConfigurationSessionTimeoutIsMinusOne)
 {
 	ASSERT_THAT(ServerConfiguration_t::defaultInstance()->getSessionTimeoutInMilliseconds(), testing::Eq(-1));
+}
+
+TEST_F(ServerConfigurationTest, inDefaultServerConfigurationIsSessionSplitByIdleTimeoutEnabledIsFalse)
+{
+	ASSERT_THAT(ServerConfiguration_t::defaultInstance()->isSessionSplitByIdleTimeoutEnabled(), testing::Eq(false));
 }
 
 TEST_F(ServerConfigurationTest, inDefaultServerConfigurationVisitStoreVersionIsOne)
@@ -266,6 +286,102 @@ TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttribut
 	ASSERT_THAT(target->getMaxSessionDurationInMilliseconds(), testing::Eq(sessionDuration));
 }
 
+TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttributesHasSplitBySessionDurationEnabledIfMaxSessionDurationGreaterZero)
+{
+	// with
+	int32_t sessionDuration = 1;
+
+	// expect
+	EXPECT_CALL(*mockAttributes, getMaxSessionDurationInMilliseconds())
+		.Times(1)
+		.WillOnce(testing::Return(sessionDuration));
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_SESSION_DURATION))
+		.Times(1)
+		.WillOnce(testing::Return(true));
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::SESSION_IDLE_TIMEOUT))
+		.Times(1);
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_EVENTS_PER_SESSION))
+		.Times(1);
+
+	// when
+	auto target = ServerConfiguration_t::from(mockAttributes);
+
+	// then
+	ASSERT_THAT(target->isSessionSplitBySessionDurationEnabled(), testing::Eq(true));
+}
+
+TEST_F(ServerConfigurationTest, creatingAServerConfigurationStatusResponseHasSplitBySessionDurationDisabledIfMaxDurationZero)
+{
+	// with
+	int32_t sessionDuration = 0;
+
+	// expect
+	EXPECT_CALL(*mockAttributes, getMaxSessionDurationInMilliseconds())
+		.Times(1)
+		.WillOnce(testing::Return(sessionDuration));
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_SESSION_DURATION))
+		.Times(1)
+		.WillOnce(testing::Return(true));
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::SESSION_IDLE_TIMEOUT))
+		.Times(1);
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_EVENTS_PER_SESSION))
+		.Times(1);
+
+	// when
+	auto target = ServerConfiguration_t::from(mockAttributes);
+
+	// then
+	ASSERT_THAT(target->isSessionSplitBySessionDurationEnabled(), testing::Eq(false));
+}
+
+TEST_F(ServerConfigurationTest, creatingAServerConfigurationStatusResponseHasSplitBySessionDurationDisabledIfMaxDurationEventsSmallerZero)
+{
+	// with
+	int32_t sessionDuration = -1;
+
+	// expect
+	EXPECT_CALL(*mockAttributes, getMaxSessionDurationInMilliseconds())
+		.Times(1)
+		.WillOnce(testing::Return(sessionDuration));
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_SESSION_DURATION))
+		.Times(1)
+		.WillOnce(testing::Return(true));
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::SESSION_IDLE_TIMEOUT))
+		.Times(1);
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_EVENTS_PER_SESSION))
+		.Times(1);
+
+	// when
+	auto target = ServerConfiguration_t::from(mockAttributes);
+
+	// then
+	ASSERT_THAT(target->isSessionSplitBySessionDurationEnabled(), testing::Eq(false));
+}
+
+TEST_F(ServerConfigurationTest, creatingAServerConfigurationStatusResponseHasSplitBySessionDurationDisabledIfMaxDurationIsNotSet)
+{
+	// with
+	int32_t sessionDuration = 1;
+
+	// expect
+	EXPECT_CALL(*mockAttributes, getMaxSessionDurationInMilliseconds())
+		.Times(1)
+		.WillOnce(testing::Return(sessionDuration));
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_SESSION_DURATION))
+		.Times(1)
+		.WillOnce(testing::Return(false));
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::SESSION_IDLE_TIMEOUT))
+		.Times(1);
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_EVENTS_PER_SESSION))
+		.Times(1);
+
+	// when
+	auto target = ServerConfiguration_t::from(mockAttributes);
+
+	// then
+	ASSERT_THAT(target->isSessionSplitBySessionDurationEnabled(), testing::Eq(false));
+}
+
 TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttributesCopiesMaxEventsPerSession)
 {
 	// with
@@ -283,7 +399,7 @@ TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttribut
 	ASSERT_THAT(target->getMaxEventsPerSession(), testing::Eq(eventsPerSession));
 }
 
-TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttributesHasSplitBySessionEnabledIfMaxEventsGreaterZero)
+TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttributesHasSplitByEventsEnabledIfMaxEventsGreaterZero)
 {
 	// with
 	int32_t eventsPerSession = 1;
@@ -295,6 +411,10 @@ TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttribut
 	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_EVENTS_PER_SESSION))
 		.Times(1)
 		.WillOnce(testing::Return(true));
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_SESSION_DURATION))
+		.Times(1);
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::SESSION_IDLE_TIMEOUT))
+		.Times(1);
 
 	// when
 	auto target = ServerConfiguration_t::from(mockAttributes);
@@ -303,7 +423,7 @@ TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttribut
 	ASSERT_THAT(target->isSessionSplitByEventsEnabled(), testing::Eq(true));
 }
 
-TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttributesHasSplitBySessionDisabledIfMaxEventsZero)
+TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttributesHasSplitByEventsDisabledIfMaxEventsZero)
 {
 	// with
 	int32_t eventsPerSession = 0;
@@ -315,6 +435,10 @@ TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttribut
 	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_EVENTS_PER_SESSION))
 		.Times(1)
 		.WillOnce(testing::Return(true));
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_SESSION_DURATION))
+		.Times(1);
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::SESSION_IDLE_TIMEOUT))
+		.Times(1);
 
 	// when
 	auto target = ServerConfiguration_t::from(mockAttributes);
@@ -323,7 +447,7 @@ TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttribut
 	ASSERT_THAT(target->isSessionSplitByEventsEnabled(), testing::Eq(false));
 }
 
-TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttributesHasSplitBySessionDisabledIfMaxEventsEventsSmallerZero)
+TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttributesHasSplitByEventsDisabledIfMaxEventsEventsSmallerZero)
 {
 	// with
 	int32_t eventsPerSession = -1;
@@ -333,8 +457,11 @@ TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttribut
 		.Times(1)
 		.WillOnce(testing::Return(eventsPerSession));
 	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_EVENTS_PER_SESSION))
-		.Times(1)
 		.WillOnce(testing::Return(true));
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_SESSION_DURATION))
+		.Times(1);
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::SESSION_IDLE_TIMEOUT))
+		.Times(1);
 
 	// when
 	auto target = ServerConfiguration_t::from(mockAttributes);
@@ -343,7 +470,7 @@ TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttribut
 	ASSERT_THAT(target->isSessionSplitByEventsEnabled(), testing::Eq(false));
 }
 
-TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttributesHasSplitBySessionDisabledIfMaxEventsIsNotSet)
+TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttributesHasSplitByEventsDisabledIfMaxEventsIsNotSet)
 {
 	// with
 	int32_t eventsPerSession = 1;
@@ -355,6 +482,10 @@ TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttribut
 	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_EVENTS_PER_SESSION))
 		.Times(1)
 		.WillOnce(testing::Return(false));
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_SESSION_DURATION))
+		.Times(1);
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::SESSION_IDLE_TIMEOUT))
+		.Times(1);
 
 	// when
 	auto target = ServerConfiguration_t::from(mockAttributes);
@@ -378,6 +509,102 @@ TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttribut
 
 	// then
 	ASSERT_THAT(target->getSessionTimeoutInMilliseconds(), testing::Eq(sessionTimeout));
+}
+
+TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttributesHasSplitByIdleTimeoutEnabledIfTimeoutGreaterZero)
+{
+	// with
+	int32_t sessionTimeout = 1;
+
+	// expect
+	EXPECT_CALL(*mockAttributes, getSessionTimeoutInMilliseconds())
+		.Times(1)
+		.WillOnce(testing::Return(sessionTimeout));
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::SESSION_IDLE_TIMEOUT))
+		.Times(1)
+		.WillOnce(testing::Return(true));
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_SESSION_DURATION))
+		.Times(1);
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_EVENTS_PER_SESSION))
+		.Times(1);
+
+	// when
+	auto target = ServerConfiguration_t::from(mockAttributes);
+
+	// then
+	ASSERT_THAT(target->isSessionSplitByIdleTimeoutEnabled(), testing::Eq(true));
+}
+
+TEST_F(ServerConfigurationTest, creatingAServerConfigurationStatusResponseHasSplitByIdleTimeoutDisabledIfTimeoutZero)
+{
+	// with
+	int32_t sessionTimeout = 0;
+
+	// expect
+	EXPECT_CALL(*mockAttributes, getSessionTimeoutInMilliseconds())
+		.Times(1)
+		.WillOnce(testing::Return(sessionTimeout));
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::SESSION_IDLE_TIMEOUT))
+		.Times(1)
+		.WillOnce(testing::Return(true));
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_SESSION_DURATION))
+		.Times(1);
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_EVENTS_PER_SESSION))
+		.Times(1);
+
+	// when
+	auto target = ServerConfiguration_t::from(mockAttributes);
+
+	// then
+	ASSERT_THAT(target->isSessionSplitByIdleTimeoutEnabled(), testing::Eq(false));
+}
+
+TEST_F(ServerConfigurationTest, creatingAServerConfigurationStatusResponseHasSplitByIdleTimeoutDisabledIfTimeoutSmallerZero)
+{
+	// with
+	int32_t sessionTimeout = -1;
+
+	// expect
+	EXPECT_CALL(*mockAttributes, getSessionTimeoutInMilliseconds())
+		.Times(1)
+		.WillOnce(testing::Return(sessionTimeout));
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::SESSION_IDLE_TIMEOUT))
+		.Times(1)
+		.WillOnce(testing::Return(true));
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_SESSION_DURATION))
+		.Times(1);
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_EVENTS_PER_SESSION))
+		.Times(1);
+
+	// when
+	auto target = ServerConfiguration_t::from(mockAttributes);
+
+	// then
+	ASSERT_THAT(target->isSessionSplitByIdleTimeoutEnabled(), testing::Eq(false));
+}
+
+TEST_F(ServerConfigurationTest, creatingAServerConfigurationStatusResponseHasSplitByIdleTimeoutDisabledIfTimeoutIsNotSet)
+{
+	// with
+	int32_t sessionTimeout = 1;
+
+	// expect
+	EXPECT_CALL(*mockAttributes, getSessionTimeoutInMilliseconds())
+		.Times(1)
+		.WillOnce(testing::Return(sessionTimeout));
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::SESSION_IDLE_TIMEOUT))
+		.Times(1)
+		.WillOnce(testing::Return(false));
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_SESSION_DURATION))
+		.Times(1);
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_EVENTS_PER_SESSION))
+		.Times(1);
+
+	// when
+	auto target = ServerConfiguration_t::from(mockAttributes);
+
+	// then
+	ASSERT_THAT(target->isSessionSplitByIdleTimeoutEnabled(), testing::Eq(false));
 }
 
 TEST_F(ServerConfigurationTest, creatingASessionConfigurationFromResponseAttributesCopiesVisitStoreVersion)
@@ -648,6 +875,86 @@ TEST_F(ServerConfigurationTest, builderFromServerConfigCopiesSessionDuration)
 	ASSERT_THAT(target->getMaxSessionDurationInMilliseconds(), testing::Eq(73));
 }
 
+TEST_F(ServerConfigurationTest, builderFromServerConfigHasSplitBySessionDurationEnabledIfMaxEventsGreaterZero)
+{
+	// with
+	const int32_t sessionDuration = 1;
+
+	// expect
+	EXPECT_CALL(*mockServerConfiguration, getMaxSessionDurationInMilliseconds())
+		.Times(1)
+		.WillOnce(testing::Return(sessionDuration));
+	EXPECT_CALL(*mockServerConfiguration, isSessionSplitBySessionDurationEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(true));
+
+	// given
+	auto target = ServerConfiguration_t::Builder(mockServerConfiguration).build();
+
+	// then
+	ASSERT_THAT(target->isSessionSplitBySessionDurationEnabled(), testing::Eq(true));
+}
+
+TEST_F(ServerConfigurationTest, builderFromServerConfigHasSplitBySessionDurationDisabledIfMaxEventsZero)
+{
+	// with
+	const int32_t sessionDuration = 0;
+
+	// expect
+	EXPECT_CALL(*mockServerConfiguration, getMaxSessionDurationInMilliseconds())
+		.Times(1)
+		.WillOnce(testing::Return(sessionDuration));
+	EXPECT_CALL(*mockServerConfiguration, isSessionSplitBySessionDurationEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(true));
+
+	// given
+	auto target = ServerConfiguration_t::Builder(mockServerConfiguration).build();
+
+	// then
+	ASSERT_THAT(target->isSessionSplitBySessionDurationEnabled(), testing::Eq(false));
+}
+
+TEST_F(ServerConfigurationTest, builderFromServerConfigHasSplitBySessionDurationDisabledIfMaxEventsEventsSmallerZero)
+{
+	// with
+	const int32_t sessionDuration = -1;
+
+	// expect
+	EXPECT_CALL(*mockServerConfiguration, getMaxSessionDurationInMilliseconds())
+		.Times(1)
+		.WillOnce(testing::Return(sessionDuration));
+	EXPECT_CALL(*mockServerConfiguration, isSessionSplitBySessionDurationEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(true));
+
+	// given
+	auto target = ServerConfiguration_t::Builder(mockServerConfiguration).build();
+
+	// then
+	ASSERT_THAT(target->isSessionSplitBySessionDurationEnabled(), testing::Eq(false));
+}
+
+TEST_F(ServerConfigurationTest, builderFromServerConfigHasSplitBySessionDurationDisabledIfMaxEventsIsNotSet)
+{
+	// with
+	const int32_t sessionDuration = 1;
+
+	// expect
+	EXPECT_CALL(*mockServerConfiguration, getMaxSessionDurationInMilliseconds())
+		.Times(1)
+		.WillOnce(testing::Return(sessionDuration));
+	EXPECT_CALL(*mockServerConfiguration, isSessionSplitBySessionDurationEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(false));
+
+	// given
+	auto target = ServerConfiguration_t::Builder(mockServerConfiguration).build();
+
+	// then
+	ASSERT_THAT(target->isSessionSplitBySessionDurationEnabled(), testing::Eq(false));
+}
+
 TEST_F(ServerConfigurationTest, builderFromServerConfigCopiesMaxEventsPerSession)
 {
 	// expect
@@ -662,7 +969,7 @@ TEST_F(ServerConfigurationTest, builderFromServerConfigCopiesMaxEventsPerSession
 	ASSERT_THAT(target->getMaxEventsPerSession(), testing::Eq(37));
 }
 
-TEST_F(ServerConfigurationTest, builderFromServerConfigHasSplitBySessionEnabledIfMaxEventsGreaterZero)
+TEST_F(ServerConfigurationTest, builderFromServerConfigHasSplitByEventsEnabledIfMaxEventsGreaterZero)
 {
 	// with
 	int32_t eventsPerSession = 1;
@@ -682,7 +989,7 @@ TEST_F(ServerConfigurationTest, builderFromServerConfigHasSplitBySessionEnabledI
 	ASSERT_THAT(target->isSessionSplitByEventsEnabled(), testing::Eq(true));
 }
 
-TEST_F(ServerConfigurationTest, builderFromServerConfigHasSplitBySessionDisabledIfMaxEventsZero)
+TEST_F(ServerConfigurationTest, builderFromServerConfigHasSplitByEventsDisabledIfMaxEventsZero)
 {
 	// with
 	int32_t eventsPerSession = 0;
@@ -702,7 +1009,7 @@ TEST_F(ServerConfigurationTest, builderFromServerConfigHasSplitBySessionDisabled
 	ASSERT_THAT(target->isSessionSplitByEventsEnabled(), testing::Eq(false));
 }
 
-TEST_F(ServerConfigurationTest, builderFromServerConfigHasSplitBySessionDisabledIfMaxEventsSmallerZero)
+TEST_F(ServerConfigurationTest, builderFromServerConfigHasSplitByEventsDisabledIfMaxEventsSmallerZero)
 {
 	// with
 	int32_t eventsPerSession = -1;
@@ -722,7 +1029,7 @@ TEST_F(ServerConfigurationTest, builderFromServerConfigHasSplitBySessionDisabled
 	ASSERT_THAT(target->isSessionSplitByEventsEnabled(), testing::Eq(false));
 }
 
-TEST_F(ServerConfigurationTest, builderFromServerConfigHasSplitBySessionDisabledIfMaxEventsIsNotSet)
+TEST_F(ServerConfigurationTest, builderFromServerConfigHasSplitByEventsDisabledIfMaxEventsIsNotSet)
 {
 	// with
 	int32_t eventsPerSession = 1;
@@ -754,6 +1061,86 @@ TEST_F(ServerConfigurationTest, builderFromServerConfigCopiesSessionTimeout)
 
 	// then
 	ASSERT_THAT(target->getSessionTimeoutInMilliseconds(), testing::Eq(42));
+}
+
+TEST_F(ServerConfigurationTest, builderFromServerConfigHasSplitByIdleTimeoutEnabledIfMaxEventsGreaterZero)
+{
+	// with
+	const int32_t idleTimeout = 1;
+
+	// expect
+	EXPECT_CALL(*mockServerConfiguration, getSessionTimeoutInMilliseconds())
+		.Times(1)
+		.WillOnce(testing::Return(idleTimeout));
+	EXPECT_CALL(*mockServerConfiguration, isSessionSplitByIdleTimeoutEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(true));
+
+	// given
+	auto target = ServerConfiguration_t::Builder(mockServerConfiguration).build();
+
+	// then
+	ASSERT_THAT(target->isSessionSplitByIdleTimeoutEnabled(), testing::Eq(true));
+}
+
+TEST_F(ServerConfigurationTest, builderFromServerConfigHasSplitByIdleTimeoutDisabledIfMaxEventsZero)
+{
+	// with
+	const int32_t idleTimeout = 0;
+
+	// expect
+	EXPECT_CALL(*mockServerConfiguration, getSessionTimeoutInMilliseconds())
+		.Times(1)
+		.WillOnce(testing::Return(idleTimeout));
+	EXPECT_CALL(*mockServerConfiguration, isSessionSplitByIdleTimeoutEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(true));
+
+	// given
+	auto target = ServerConfiguration_t::Builder(mockServerConfiguration).build();
+
+	// then
+	ASSERT_THAT(target->isSessionSplitByIdleTimeoutEnabled(), testing::Eq(false));
+}
+
+TEST_F(ServerConfigurationTest, builderFromServerConfigHasSplitByIdleTimeoutDisabledIfMaxEventsEventsSmallerZero)
+{
+	// with
+	const int32_t idleTimeout = -1;
+
+	// expect
+	EXPECT_CALL(*mockServerConfiguration, getSessionTimeoutInMilliseconds())
+		.Times(1)
+		.WillOnce(testing::Return(idleTimeout));
+	EXPECT_CALL(*mockServerConfiguration, isSessionSplitByIdleTimeoutEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(true));
+
+	// given
+	auto target = ServerConfiguration_t::Builder(mockServerConfiguration).build();
+
+	// then
+	ASSERT_THAT(target->isSessionSplitByIdleTimeoutEnabled(), testing::Eq(false));
+}
+
+TEST_F(ServerConfigurationTest, builderFromServerConfigHasSplitByIdleTimeoutDisabledIfMaxEventsIsNotSet)
+{
+	// with
+	const int32_t idleTimeout = 1;
+
+	// expect
+	EXPECT_CALL(*mockServerConfiguration, getSessionTimeoutInMilliseconds())
+		.Times(1)
+		.WillOnce(testing::Return(idleTimeout));
+	EXPECT_CALL(*mockServerConfiguration, isSessionSplitByIdleTimeoutEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(false));
+
+	// given
+	auto target = ServerConfiguration_t::Builder(mockServerConfiguration).build();
+
+	// then
+	ASSERT_THAT(target->isSessionSplitByIdleTimeoutEnabled(), testing::Eq(false));
 }
 
 TEST_F(ServerConfigurationTest, builderFromServerConfigCopiesVisitStoreVersion)
@@ -1083,6 +1470,77 @@ TEST_F(ServerConfigurationTest, mergeKeepsOriginalMaxSessionDuration)
 	ASSERT_THAT(obtained->getMaxSessionDurationInMilliseconds(), testing::Eq(sessionDuration));
 }
 
+TEST_F(ServerConfigurationTest, mergeKeepsIsSessionSplitBySessionDurationEnabledWhenMaxEventsIsGreaterZeroAndAttributeIsSet)
+{
+	// given
+	const int32_t sessionDuration = 73;
+
+	ON_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_SESSION_DURATION))
+		.WillByDefault(testing::Return(true));
+	ON_CALL(*mockAttributes, getMaxSessionDurationInMilliseconds())
+		.WillByDefault(testing::Return(sessionDuration));
+
+	auto target = ServerConfiguration_t::from(mockAttributes);
+	auto other = ServerConfiguration_t::Builder(defaultValues).build();
+	
+	ASSERT_THAT(other->isSessionSplitBySessionDurationEnabled(), testing::Eq(false));
+	ASSERT_THAT(target->isSessionSplitBySessionDurationEnabled(), testing::Eq(true));
+
+	// when
+	auto obtained = target->merge(other);
+
+	// then
+	ASSERT_THAT(obtained->isSessionSplitBySessionDurationEnabled(), testing::Eq(true));
+}
+
+TEST_F(ServerConfigurationTest, mergeKeepsIsSessionSplitBySessionDurationEnabledWhenMaxEventsIsSmallerZeroButAttributeIsSet)
+{
+	// given
+	const int32_t sessionDuration = 0;
+
+	ON_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_SESSION_DURATION))
+		.WillByDefault(testing::Return(true));
+	ON_CALL(*mockAttributes, getMaxSessionDurationInMilliseconds())
+		.WillByDefault(testing::Return(sessionDuration));
+
+	auto target = ServerConfiguration_t::from(mockAttributes);
+	auto other = MockIServerConfiguration::createNice();
+	ON_CALL(*other, isSessionSplitBySessionDurationEnabled())
+		.WillByDefault(testing::Return(true));
+
+	ASSERT_THAT(target->isSessionSplitBySessionDurationEnabled(), testing::Eq(false));
+
+	// when
+	auto obtained = target->merge(other);
+
+	// then
+	ASSERT_THAT(obtained->isSessionSplitBySessionDurationEnabled(), testing::Eq(false));
+}
+
+TEST_F(ServerConfigurationTest, mergeKeepsIsSessionSplitBySessionDurationEnabledWhenMaxEventsIsGreaterZeroButAttributeIsNotSet)
+{
+	// given
+	const int32_t sessionDuration = 73;
+
+	ON_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_SESSION_DURATION))
+		.WillByDefault(testing::Return(false));
+	ON_CALL(*mockAttributes, getMaxSessionDurationInMilliseconds())
+		.WillByDefault(testing::Return(sessionDuration));
+
+	auto target = ServerConfiguration_t::from(mockAttributes);
+	auto other = MockIServerConfiguration::createNice();
+	ON_CALL(*other, isSessionSplitBySessionDurationEnabled())
+		.WillByDefault(testing::Return(true));
+
+	ASSERT_THAT(target->isSessionSplitBySessionDurationEnabled(), testing::Eq(false));
+
+	// when
+	auto obtained = target->merge(other);
+
+	// then
+	ASSERT_THAT(obtained->isSessionSplitBySessionDurationEnabled(), testing::Eq(false));
+}
+
 TEST_F(ServerConfigurationTest, mergeKeepsOriginalMaxEventsPerSession)
 {
 	// given
@@ -1110,6 +1568,10 @@ TEST_F(ServerConfigurationTest, mergeKeepsIsSessionSplitByEventsEnabledWhenMaxEv
 	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_EVENTS_PER_SESSION))
 		.Times(1)
 		.WillOnce(testing::Return(true));
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_SESSION_DURATION))
+		.Times(1);
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::SESSION_IDLE_TIMEOUT))
+		.Times(1);
 	EXPECT_CALL(*mockAttributes, getMaxEventsPerSession())
 		.Times(1)
 		.WillOnce(testing::Return(eventsPerSession));
@@ -1137,6 +1599,10 @@ TEST_F(ServerConfigurationTest, mergeKeepsIsSessionSplitByEventsEnabledWhenMaxEv
 	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_EVENTS_PER_SESSION))
 		.Times(1)
 		.WillOnce(testing::Return(true));
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_SESSION_DURATION))
+		.Times(1);
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::SESSION_IDLE_TIMEOUT))
+		.Times(1);
 	EXPECT_CALL(*mockAttributes, getMaxEventsPerSession())
 		.Times(1)
 		.WillOnce(testing::Return(eventsPerSession));
@@ -1165,6 +1631,10 @@ TEST_F(ServerConfigurationTest, mergeKeepsIsSessionSplitByEventsEnabledWhenMaxEv
 	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_EVENTS_PER_SESSION))
 		.Times(1)
 		.WillOnce(testing::Return(true));
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_SESSION_DURATION))
+		.Times(1);
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::SESSION_IDLE_TIMEOUT))
+		.Times(1);
 	EXPECT_CALL(*mockAttributes, getMaxEventsPerSession())
 		.Times(1)
 		.WillOnce(testing::Return(eventsPerSession));
@@ -1193,6 +1663,10 @@ TEST_F(ServerConfigurationTest, mergeKeepsIsSessionSplitByEventsEnabledWhenMaxEv
 	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_EVENTS_PER_SESSION))
 		.Times(1)
 		.WillOnce(testing::Return(false));
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_SESSION_DURATION))
+		.Times(1);
+	EXPECT_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::SESSION_IDLE_TIMEOUT))
+		.Times(1);
 	EXPECT_CALL(*mockAttributes, getMaxEventsPerSession())
 		.Times(1)
 		.WillOnce(testing::Return(eventsPerSession));
@@ -1224,6 +1698,77 @@ TEST_F(ServerConfigurationTest, mergeKeepsOriginalSessionTimeout)
 
 	// then
 	ASSERT_THAT(obtained->getSessionTimeoutInMilliseconds(), testing::Eq(sessionTimeout));
+}
+
+TEST_F(ServerConfigurationTest, mergeKeepsIsSessionSplitByIdleTimeoutEnabledWhenMaxEventsIsGreaterZeroAndAttributeIsSet)
+{
+	// given
+	int idleTimeout = 73;
+
+	ON_CALL(*mockAttributes, getSessionTimeoutInMilliseconds())
+		.WillByDefault(testing::Return(idleTimeout));
+	ON_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::SESSION_IDLE_TIMEOUT))
+		.WillByDefault(testing::Return(true));
+
+	auto target = ServerConfiguration_t::from(mockAttributes);
+	auto other = ServerConfiguration_t::Builder(defaultValues).build();
+
+	ASSERT_THAT(other->isSessionSplitByIdleTimeoutEnabled(), testing::Eq(false));
+	ASSERT_THAT(target->isSessionSplitByIdleTimeoutEnabled(), testing::Eq(true));
+
+	// when
+	auto obtained = target->merge(other);
+
+	// then
+	ASSERT_THAT(obtained->isSessionSplitByIdleTimeoutEnabled(), testing::Eq(true));
+}
+
+TEST_F(ServerConfigurationTest, mergeKeepsIsSessionSplitByIdleTimeoutEnabledWhenMaxEventsIsSmallerZeroButAttributeIsSet)
+{
+	// given
+	const int32_t idleTimeout = 0;
+
+	ON_CALL(*mockAttributes, getSessionTimeoutInMilliseconds())
+		.WillByDefault(testing::Return(idleTimeout));
+	ON_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::SESSION_IDLE_TIMEOUT))
+		.WillByDefault(testing::Return(true));
+
+	auto target = ServerConfiguration_t::from(mockAttributes);
+	auto other = MockIServerConfiguration::createNice();
+	ON_CALL(*other, isSessionSplitByIdleTimeoutEnabled())
+		.WillByDefault(testing::Return(false));
+
+	ASSERT_THAT(other->isSessionSplitByIdleTimeoutEnabled(), testing::Eq(false));
+
+	// when
+	auto obtained = target->merge(other);
+
+	// then
+	ASSERT_THAT(obtained->isSessionSplitByIdleTimeoutEnabled(), testing::Eq(false));
+}
+
+TEST_F(ServerConfigurationTest, mergeKeepsIsSessionSplitByIdleTimeoutEnabledWhenMaxEventsIsGreaterZeroButAttributeIsNotSet)
+{
+	// given
+	const int32_t idleTimeout = 73;
+
+	ON_CALL(*mockAttributes, getSessionTimeoutInMilliseconds())
+		.WillByDefault(testing::Return(idleTimeout));
+	ON_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::SESSION_IDLE_TIMEOUT))
+		.WillByDefault(testing::Return(false));
+
+	auto target = ServerConfiguration_t::from(mockAttributes);
+	auto other = MockIServerConfiguration::createNice();
+	ON_CALL(*other, isSessionSplitByIdleTimeoutEnabled())
+		.WillByDefault(testing::Return(true));
+
+	ASSERT_THAT(target->isSessionSplitByIdleTimeoutEnabled(), testing::Eq(false));
+
+	// when
+	auto obtained = target->merge(other);
+
+	// then
+	ASSERT_THAT(obtained->isSessionSplitByIdleTimeoutEnabled(), testing::Eq(false));
 }
 
 TEST_F(ServerConfigurationTest, mergeKeepsOriginalVisitStoreVersion)

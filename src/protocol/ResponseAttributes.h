@@ -64,6 +64,10 @@ namespace protocol
 
 			int32_t getMaxEventsPerSession() const;
 
+			Builder& withSessionSplitBySessionDurationEnabled(bool isSessionSplitBySessionDurationEnabled);
+
+			bool isSessionSplitBySessionDurationEnabled() const;
+
 			///
 			/// Sets the maximum number of top level actions after which a session is to be split.
 			///

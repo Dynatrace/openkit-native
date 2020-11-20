@@ -79,11 +79,15 @@ namespace test
 
 		MOCK_CONST_METHOD0(getMaxSessionDurationInMilliseconds, int32_t());
 
+		MOCK_CONST_METHOD0(isSessionSplitBySessionDurationEnabled, bool());
+
 		MOCK_CONST_METHOD0(getMaxEventsPerSession, int32_t());
+
+		MOCK_CONST_METHOD0(isSessionSplitByEventsEnabled, bool());
 
 		MOCK_CONST_METHOD0(getSessionTimeoutInMilliseconds, int32_t());
 
-		MOCK_CONST_METHOD0(isSessionSplitByEventsEnabled, bool());
+		MOCK_CONST_METHOD0(isSessionSplitByIdleTimeoutEnabled, bool());
 
 		MOCK_CONST_METHOD0(getVisitStoreVersion, int32_t());
 

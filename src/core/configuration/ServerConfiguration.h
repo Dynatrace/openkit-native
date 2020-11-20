@@ -56,7 +56,7 @@ namespace core
 				/// Enables/disables capturing by setting @ref isCaptureEnabled to the corresponding value.
 				///
 				/// @param capture the capture state to set.
-				/// @return @c this
+				/// @return @c *this
 				///
 				Builder& withCapture(bool capture);
 
@@ -66,7 +66,7 @@ namespace core
 				/// Enables/disables crash reporting by setting @ref isCrashReportingEnabled to the corresponding value.
 				///
 				/// @param crashReportingState the crash reporting state to set.
-				/// @return @c this
+				/// @return @c *this
 				Builder& withCrashReporting(bool crashReportingState);
 
 				bool isErrorReportingEnabled() const;
@@ -75,7 +75,7 @@ namespace core
 				/// Enables/disables error reporting by setting @c isErrorReportingEnabled to the corresponding value.
 				///
 				/// @param errorReportingState the error reporting state to set.
-				/// @return @c this
+				/// @return @c *this
 				///
 				Builder& withErrorReporting(bool errorReportingState);
 
@@ -85,7 +85,7 @@ namespace core
 				/// Configures the server ID.
 				///
 				/// @param serverId the ID of the server to communicate with.
-				/// @return @c this
+				/// @return @c *this
 				Builder& withServerId(int32_t serverId);
 
 				int32_t getBeaconSizeInBytes() const;
@@ -94,7 +94,7 @@ namespace core
 				/// Configures the beacon size in bytes.
 				///
 				/// @param beaconSize the maximum allowed beacon size in bytes.
-				/// @return @c this
+				/// @return @c *this
 				///
 				Builder& withBeaconSizeInBytes(int32_t beaconSize);
 
@@ -104,7 +104,7 @@ namespace core
 				/// Configures the multiplicity factor.
 				///
 				/// @param multiplicity multiplicity factor.
-				/// @return @ this
+				/// @return @ *this
 				Builder& withMultiplicity(int32_t multiplicity);
 
 				int32_t getMaxSessionDurationInMilliseconds() const;
@@ -113,8 +113,18 @@ namespace core
 				/// Configures the maximum duration after which the session gets split.
 				///
 				/// @param maxSessionDurationInMilliseconds the maximum duration of a session in milliseconds
-				/// @return @c this
+				/// @return @c *this
 				Builder& withMaxSessionDurationInMilliseconds(int32_t maxSessionDurationInMilliseconds);
+
+				bool isSessionSplitBySessionDurationEnabled() const;
+
+				///
+				/// Configures whether session split by exceeding maximum session duration is enabled or not.
+				///
+				/// @param sessionSplitBySessionDurationEnabled @c true if session split by exceeding max session duration is enabled
+				///                                             @c false if session split by exceeding max session duration is disabled
+				/// @return @c *this
+				Builder& withSessionSplitBySessionDurationEnabled(bool sessionSplitBySessionDurationEnabled);
 
 				int32_t getMaxEventsPerSession() const;
 
@@ -123,7 +133,7 @@ namespace core
 				///
 				/// @param sessionSplitByEventsEnabled @c true if session split by events is enabled
 				///                                    @c false if session split by events is disabled
-				/// @return @c this
+				/// @return @c *this
 				Builder& withSessionSplitByEventsEnabled(bool sessionSplitByEventsEnabled);
 
 				bool isSessionSplitByEventsEnabled() const;
@@ -132,7 +142,7 @@ namespace core
 				/// Configures the maximum number of top level actions after which the session gets split.
 				///
 				/// @param maxEventsPerSession the maximum number of top level actions after which a session gets split.
-				/// @return @c this
+				/// @return @c *this
 				Builder& withMaxEventsPerSession(int maxEventsPerSession);
 
 				int32_t getSessionTimeoutInMilliseconds() const;
@@ -141,8 +151,18 @@ namespace core
 				/// Configures the idle timeout after which a session gets split.
 				///
 				/// @param sessionTimeoutInMilliseconds the idle timeout in milliseconds after which a session gets split.
-				/// @return @c this
+				/// @return @c *this
 				Builder& withSessionTimeoutInMilliseconds(int32_t sessionTimeoutInMilliseconds);
+
+				bool isSessionSplitByIdleTimeoutEnabled() const;
+
+				///
+				/// Configures whether session split by exceeding the session idle timeout is enabled or disabled.
+				///
+				/// @param sessionSplitByTimeoutEnabled @c true if session split by exceeding the session idle timeout is enabled
+				///                                     @c false if session split by exceeding the session idle timeout is disabled
+				/// @return @c *this
+				Builder& withSessionSplitByIdleTimeoutEnabled(bool sessionSplitByTimeoutEnabled);
 
 				int32_t getVisitStoreVersion() const;
 
@@ -150,7 +170,7 @@ namespace core
 				/// Configures the version of the visit store that is to be used.
 				///
 				/// @param visitStoreVersion the version of the visit store to be used.
-				/// @return @c this
+				/// @return @c *this
 				Builder& withVisitStoreVersion(int32_t visitStoreVersion);
 
 				///
@@ -169,16 +189,18 @@ namespace core
 				int32_t mBeaconSizeInBytes;
 				int32_t mMultiplicity;
 				int32_t mMaxSessionDurationInMilliseconds;
+				bool mIsSessionSplitBySessionDurationEnabled;
 				int32_t mMaxEventsPerSession;
 				bool mIsSessionSplitByEventsEnabled;
 				int32_t mSessionIdleTimeout;
+				bool mIsSessionSplitByIdleTimeoutEnabled;
 				int32_t mVisitStoreVersion;
 			};
 
 			///
 			/// Creates a server configuration from the given builder.
 			///
-			ServerConfiguration(ServerConfiguration::Builder& builder);
+			ServerConfiguration(const ServerConfiguration::Builder& builder);
 
 			~ServerConfiguration() override = default;
 
@@ -216,11 +238,15 @@ namespace core
 
 			int32_t getMaxSessionDurationInMilliseconds() const override;
 
+			bool isSessionSplitBySessionDurationEnabled() const override;
+
 			int32_t getMaxEventsPerSession() const override;
 
 			bool isSessionSplitByEventsEnabled() const override;
 
 			int32_t getSessionTimeoutInMilliseconds() const override;
+
+			bool isSessionSplitByIdleTimeoutEnabled() const override;
 
 			int32_t getVisitStoreVersion() const override;
 
@@ -257,6 +283,9 @@ namespace core
 			/// the maximum duration of a session after which it gets split
 			const int32_t mMaxSessionDurationInMilliseconds;
 
+			/// indicator whether session splitting by exceeding the maximum session duration is enabled or not.
+			const bool mIsSessionSplitBySessionDurationEnabled;
+
 			/// the maximum number of events after which a session gets split
 			const int32_t mMaxEventsPerSession;
 
@@ -265,6 +294,9 @@ namespace core
 
 			/// the idle timeout after which a session gets split
 			const int32_t mSessionTimeoutInMilliseconds;
+
+			/// indicator whether session splitting by exceeding the idle timeout is enabled or not.
+			const bool mIsSessionSplitByIdleTimeoutEnabled;
 
 			/// the version of the visit store being used.
 			const int32_t mVisitStoreVersion;

@@ -76,6 +76,12 @@ namespace core
 			virtual int32_t getMaxSessionDurationInMilliseconds() const = 0;
 
 			///
+			/// Returns @c true if session splitting when exceeding the maximum session duration is enabled,
+			/// @c false otherwise.
+			///
+			virtual bool isSessionSplitBySessionDurationEnabled() const = 0;
+
+			///
 			/// Returns the maximum number of top level actions after which a session is to be split.
 			///
 			virtual int32_t getMaxEventsPerSession() const = 0;
@@ -90,6 +96,11 @@ namespace core
 			/// Returns the idle timeout after which a session is to be split.
 			///
 			virtual int32_t getSessionTimeoutInMilliseconds() const = 0;
+
+			///
+			/// Returns @c true if session splitting by exceeding the idle timeout is enabled, @c false otherwise.
+			///
+			virtual bool isSessionSplitByIdleTimeoutEnabled() const = 0;
 
 			///
 			/// Returns the version of the visit store that is being used.
