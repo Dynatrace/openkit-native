@@ -313,6 +313,22 @@ TEST_F(BeaconTest, createSequenceNumbers)
 	}
 }
 
+TEST_F(BeaconTest, getSessionStartTime)
+{
+	// given
+	const int64_t startTime = 73;
+	ON_CALL(*mockTimingProvider, provideTimestampInMilliseconds())
+		.WillByDefault(testing::Return(startTime));
+
+	auto target = createBeacon()->build();
+
+	// when
+	auto obtained = target->getSessionStartTime();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(startTime));
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// createTag - creating web request tag tests
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

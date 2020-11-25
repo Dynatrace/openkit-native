@@ -29,6 +29,7 @@
 #include "../mock/MockISessionWatchdog.h"
 #include "../../api/mock/MockILogger.h"
 #include "../../protocol/mock/MockIBeacon.h"
+#include "../../providers/mock/MockITimingProvider.h"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -55,6 +56,7 @@ using MockISessionCreator_sp = std::shared_ptr<MockISessionCreator>;
 using MockIServerConfiguration_sp = std::shared_ptr<MockIServerConfiguration>;
 using MockIBeaconSender_sp = std::shared_ptr<MockIBeaconSender>;
 using MockISessionWatchdog_sp = std::shared_ptr<MockISessionWatchdog>;
+using MockITimginProvider_sp = std::shared_ptr<MockITimingProvider>;
 
 
 class SessionProxyTest : public testing::Test
@@ -73,6 +75,7 @@ protected:
     MockIServerConfiguration_sp mockServerConfiguration;
     MockIBeaconSender_sp mockBeaconSender;
     MockISessionWatchdog_sp mockSessionWatchdog;
+    MockITimginProvider_sp mockTimingProvider;
 
     void SetUp() override
     {
@@ -106,11 +109,13 @@ protected:
 
         mockBeaconSender = MockIBeaconSender::createNice();
         mockSessionWatchdog = MockISessionWatchdog::createNice();
+
+        mockTimingProvider = MockITimingProvider::createNice();
     }
 
     SessionProxy_sp createSessionProxy()
     {
-        return SessionProxy_t::createSessionProxy(mockLogger, mockParent, mockSessionCreator, mockBeaconSender, mockSessionWatchdog);
+        return SessionProxy_t::createSessionProxy(mockLogger, mockParent, mockSessionCreator, mockTimingProvider, mockBeaconSender, mockSessionWatchdog);
     }
 };
 
@@ -158,6 +163,20 @@ TEST_F(SessionProxyTest, initiallyCreatedSessionIsAddedToTheBeaconSender)
 
     // given, when
     auto target = createSessionProxy();
+}
+
+TEST_F(SessionProxyTest, initiallyCreatedSessionProvidesStartTimeAsLastInteractionTime)
+{
+    // given
+    const int64_t startTime = 73;
+    ON_CALL(*mockBeacon, getSessionStartTime())
+        .WillByDefault(testing::Return(startTime));
+
+    // when
+    auto target = createSessionProxy();
+
+    // then
+    ASSERT_THAT(target->getLastInteractionTime(), testing::Eq(startTime));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -263,18 +282,21 @@ TEST_F(SessionProxyTest, enterActionIncreasesTopLevelActionCount)
 TEST_F(SessionProxyTest, enterActionSetsLastInterActionTime)
 {
     // given
-    const int64_t timestamp = 17;
-    ON_CALL(*mockBeacon, getCurrentTimestamp())
-        .WillByDefault(testing::Return(timestamp));
+    const int64_t sessionCreationTime = 13;
+    const int64_t lastInteractionTime = 17;
+    ON_CALL(*mockBeacon, getSessionStartTime())
+        .WillByDefault(testing::Return(sessionCreationTime));
+    ON_CALL(*mockTimingProvider, provideTimestampInMilliseconds())
+        .WillByDefault(testing::Return(lastInteractionTime));
     
     auto target = createSessionProxy();
-    ASSERT_THAT(target->getLastInteractionTime(), testing::Eq(0));
+    ASSERT_THAT(target->getLastInteractionTime(), testing::Eq(sessionCreationTime));
 
     // when
     target->enterAction("test");
 
     // then
-    ASSERT_THAT(target->getLastInteractionTime(), testing::Eq(17));
+    ASSERT_THAT(target->getLastInteractionTime(), testing::Eq(lastInteractionTime));
 }
 
 TEST_F(SessionProxyTest, enterActionDoesNotSplitSessionIfNoServerConfigurationIsSet)
@@ -570,18 +592,21 @@ TEST_F(SessionProxyTest, identifyUserDoesNotIncreaseTopLevelEventCount)
 TEST_F(SessionProxyTest, identifyUserSetsLastInterActionTime)
 {
     // given
-    const int64_t timestamp = 17;
-    ON_CALL(*mockBeacon, getCurrentTimestamp())
-        .WillByDefault(testing::Return(timestamp));
+    const long sessionCreationTime = 13;
+    const long lastInteractionTime = 17;
+    ON_CALL(*mockBeacon, getSessionStartTime())
+        .WillByDefault(testing::Return(sessionCreationTime));
+    ON_CALL(*mockTimingProvider, provideTimestampInMilliseconds())
+        .WillByDefault(testing::Return(lastInteractionTime));
 
     auto target = createSessionProxy();
-    ASSERT_THAT(target->getLastInteractionTime(), testing::Eq(0));
+    ASSERT_THAT(target->getLastInteractionTime(), testing::Eq(sessionCreationTime));
 
     // when
     target->identifyUser("Jane Doe");
 
     // then
-    ASSERT_THAT(target->getLastInteractionTime(), testing::Eq(timestamp));
+    ASSERT_THAT(target->getLastInteractionTime(), testing::Eq(lastInteractionTime));
 }
 
 TEST_F(SessionProxyTest, identifyUserDoesNotSplitSession)
@@ -730,18 +755,21 @@ TEST_F(SessionProxyTest, reportCrashDoesNotIncreaseTopLevelEventCount)
 TEST_F(SessionProxyTest, reportCrashSetsLastInterActionTime)
 {
     // given
-    const int64_t timestamp = 17;
-    ON_CALL(*mockBeacon, getCurrentTimestamp())
-        .WillByDefault(testing::Return(timestamp));
+    const long sessionCreationTime = 13;
+    const long lastInteractionTime = 17;
+    ON_CALL(*mockBeacon, getSessionStartTime())
+        .WillByDefault(testing::Return(sessionCreationTime));
+    ON_CALL(*mockTimingProvider, provideTimestampInMilliseconds())
+        .WillByDefault(testing::Return(lastInteractionTime));
 
     auto target = createSessionProxy();
-    ASSERT_THAT(target->getLastInteractionTime(), testing::Eq(0));
+    ASSERT_THAT(target->getLastInteractionTime(), testing::Eq(sessionCreationTime));
 
     // when
     target->reportCrash("errorName", "reason", "stacktrace");
 
     // then
-    ASSERT_THAT(target->getLastInteractionTime(), testing::Eq(timestamp));
+    ASSERT_THAT(target->getLastInteractionTime(), testing::Eq(lastInteractionTime));
 }
 
 TEST_F(SessionProxyTest, reportCrashDoesNotSplitSession)
@@ -896,18 +924,21 @@ TEST_F(SessionProxyTest, traceWebRequestWithStringDoesNotIncreaseTopLevelEventCo
 TEST_F(SessionProxyTest, traceWebRequestWithStringUrlSetsLastInterActionTime)
 {
     // given
-    const int64_t timestamp = 17;
-    ON_CALL(*mockBeacon, getCurrentTimestamp())
-        .WillByDefault(testing::Return(timestamp));
+    const long sessionCreationTime = 13;
+    const long lastInteractionTime = 17;
+    ON_CALL(*mockBeacon, getSessionStartTime())
+        .WillByDefault(testing::Return(sessionCreationTime));
+    ON_CALL(*mockTimingProvider, provideTimestampInMilliseconds())
+        .WillByDefault(testing::Return(lastInteractionTime));
 
     auto target = createSessionProxy();
-    ASSERT_THAT(target->getLastInteractionTime(), testing::Eq(0));
+    ASSERT_THAT(target->getLastInteractionTime(), testing::Eq(sessionCreationTime));
 
     // when
     target->traceWebRequest("https://localhost");
 
     // then
-    ASSERT_THAT(target->getLastInteractionTime(), testing::Eq(timestamp));
+    ASSERT_THAT(target->getLastInteractionTime(), testing::Eq(lastInteractionTime));
 }
 
 TEST_F(SessionProxyTest, traceWebRequestWithStringUrlDoesNotSplitSession)
@@ -1002,6 +1033,19 @@ TEST_F(SessionProxyTest, endLogsInvocation)
     target->end();
 }
 
+TEST_F(SessionProxyTest, endRemovesSessionProxyFromSessionWatchdog)
+{
+    // expect
+    EXPECT_CALL(*mockSessionWatchdog, removeFromSplitByTimeout(testing::_))
+        .Times(1);
+
+    // given
+    auto target = createSessionProxy();
+
+    // when
+    target->end();
+}
+
 TEST_F(SessionProxyTest, closeSessionEndsTheSession)
 {
     // expect
@@ -1013,6 +1057,407 @@ TEST_F(SessionProxyTest, closeSessionEndsTheSession)
 
     // when
     target->close();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// split session by time
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+TEST_F(SessionProxyTest, splitSessionByTimeReturnsMinusOneIfSessionProxyIsFinished)
+{
+    // expect
+    EXPECT_CALL(*mockSessionCreator, createSession(testing::_))
+        .Times(1);
+
+    // given
+    auto target = createSessionProxy();
+    target->end();
+
+    // when
+    auto obtained = target->splitSessionByTime();
+
+    // then
+    ASSERT_THAT(obtained, testing::Eq(-1));
+}
+
+TEST_F(SessionProxyTest, splitSessionByTimeReturnsMinusOneIfServerConfigurationIsNotSet)
+{
+    // expect
+    EXPECT_CALL(*mockSessionCreator, createSession(testing::_))
+        .Times(1);
+
+    // given
+    auto target = createSessionProxy();
+
+    // when
+    auto obtained = target->splitSessionByTime();
+
+    // then
+    ASSERT_THAT(obtained, testing::Eq(-1));
+}
+
+TEST_F(SessionProxyTest, splitByTimeDoesNotPerformSplitIfNeitherSplitByIdleTimeoutNorSplitByDurationEnabled)
+{
+    // expect
+    EXPECT_CALL(*mockSessionCreator, createSession(testing::_))
+        .Times(1);
+
+    // given
+    ON_CALL(*mockServerConfiguration, isSessionSplitByIdleTimeoutEnabled())
+        .WillByDefault(testing::Return(false));
+    ON_CALL(*mockServerConfiguration, isSessionSplitBySessionDurationEnabled())
+        .WillByDefault(testing::Return(false));
+
+    auto target = createSessionProxy();
+
+    target->onServerConfigurationUpdate(mockServerConfiguration);
+
+    // when
+    auto obtained = target->splitSessionByTime();
+
+    // then
+    ASSERT_THAT(obtained, testing::Eq(-1));
+}
+
+TEST_F(SessionProxyTest, splitByTimeSplitsCurrentSessionIfIdleTimeoutReached)
+{
+    // with
+    const int64_t lastInteractionTimeSessionOne = 60;
+    const int32_t idleTimeout = 10; // time to split: last interaction + idle => 70
+    const int64_t currentTime = 70;
+    const int64_t sessionTwoCreationTime = 80;
+
+    // expect
+    EXPECT_CALL(*mockTimingProvider, provideTimestampInMilliseconds())
+        .Times(2)
+        .WillOnce(testing::Return(lastInteractionTimeSessionOne))
+        .WillOnce(testing::Return(currentTime));
+    EXPECT_CALL(*mockSessionCreator, createSession(testing::_))
+        .Times(2)
+        .WillOnce(testing::Return(mockSession))
+        .WillOnce(testing::Return(mockSplitSession1));
+    EXPECT_CALL(*mockSessionCreator, reset())
+        .Times(1);
+    EXPECT_CALL(*mockSession, end())
+        .Times(1);
+
+    // given
+    ON_CALL(*mockSplitBeacon1, getSessionStartTime())
+        .WillByDefault(testing::Return(sessionTwoCreationTime));
+    ON_CALL(*mockServerConfiguration, isSessionSplitByIdleTimeoutEnabled())
+        .WillByDefault(testing::Return(true));
+    ON_CALL(*mockServerConfiguration, getSessionTimeoutInMilliseconds())
+        .WillByDefault(testing::Return(idleTimeout));
+    ON_CALL(*mockServerConfiguration, isSessionSplitBySessionDurationEnabled())
+        .WillByDefault(testing::Return(false));
+
+    auto target = createSessionProxy();
+    
+    target->onServerConfigurationUpdate(mockServerConfiguration);
+
+    target->identifyUser("test"); // update last interaction time
+    ASSERT_THAT(target->getLastInteractionTime(), testing::Eq(lastInteractionTimeSessionOne));
+
+    // when
+    auto obtained = target->splitSessionByTime();
+
+    // then
+    ASSERT_THAT(obtained, testing::Eq(sessionTwoCreationTime + idleTimeout));
+}
+
+TEST_F(SessionProxyTest, splitByTimeSplitsCurrentSessionIfIdleTimeoutExceeded)
+{
+    // with
+    const int64_t lastInteractionTimeSessionOne = 60;
+    const int32_t idleTimeout = 10; // time to split: last interaction + idle => 70
+    const int64_t currentTime = 80;
+    const int64_t sessionTwoCreationTime = 90;
+
+    // expect
+    EXPECT_CALL(*mockTimingProvider, provideTimestampInMilliseconds())
+        .Times(2)
+        .WillOnce(testing::Return(lastInteractionTimeSessionOne))
+        .WillOnce(testing::Return(currentTime));
+    EXPECT_CALL(*mockSessionCreator, createSession(testing::_))
+        .Times(2)
+        .WillOnce(testing::Return(mockSession))
+        .WillOnce(testing::Return(mockSplitSession1));
+    EXPECT_CALL(*mockSessionCreator, reset())
+        .Times(1);
+    EXPECT_CALL(*mockSession, end())
+        .Times(1);
+
+    // given
+    ON_CALL(*mockSplitBeacon1, getSessionStartTime())
+        .WillByDefault(testing::Return(sessionTwoCreationTime));
+    ON_CALL(*mockServerConfiguration, isSessionSplitByIdleTimeoutEnabled())
+        .WillByDefault(testing::Return(true));
+    ON_CALL(*mockServerConfiguration, getSessionTimeoutInMilliseconds())
+        .WillByDefault(testing::Return(idleTimeout));
+    ON_CALL(*mockServerConfiguration, isSessionSplitBySessionDurationEnabled())
+        .WillByDefault(testing::Return(false));
+
+    auto target = createSessionProxy();
+    target->onServerConfigurationUpdate(mockServerConfiguration);
+
+    target->identifyUser("test"); // update last interaction time
+    ASSERT_THAT(target->getLastInteractionTime(), testing::Eq(lastInteractionTimeSessionOne));
+
+    // when
+    auto obtained = target->splitSessionByTime();
+
+    // then
+    ASSERT_THAT(obtained, testing::Eq(sessionTwoCreationTime + idleTimeout));
+}
+
+TEST_F(SessionProxyTest, splitByTimeDoesNotSplitCurrentSessionIfIdleTimeoutNotExpired)
+{
+    // with
+    const int64_t lastInteractionTime = 60;
+    const int32_t idleTimeout = 20; // time to split: list interaction + idle => 80
+    const int64_t currentTime = 70;
+
+    // expect
+    EXPECT_CALL(*mockTimingProvider, provideTimestampInMilliseconds())
+        .Times(2)
+        .WillOnce(testing::Return(lastInteractionTime))
+        .WillOnce(testing::Return(currentTime));
+    EXPECT_CALL(*mockSessionCreator, createSession(testing::_))
+        .Times(1);
+
+    // given
+    ON_CALL(*mockServerConfiguration, isSessionSplitByIdleTimeoutEnabled())
+        .WillByDefault(testing::Return(true));
+    ON_CALL(*mockServerConfiguration, getSessionTimeoutInMilliseconds())
+        .WillByDefault(testing::Return(idleTimeout));
+    ON_CALL(*mockServerConfiguration, isSessionSplitBySessionDurationEnabled())
+        .WillByDefault(testing::Return(false));
+
+    auto target = createSessionProxy();
+    target->onServerConfigurationUpdate(mockServerConfiguration);
+
+    target->identifyUser("test"); // update last interaction time
+    ASSERT_THAT(target->getLastInteractionTime(), testing::Eq(lastInteractionTime));
+
+    // when
+    auto obtained = target->splitSessionByTime();
+
+    // then
+    ASSERT_THAT(obtained, testing::Eq(lastInteractionTime + idleTimeout));
+}
+
+TEST_F(SessionProxyTest, splitByTimeSplitsCurrentSessionIfMaxDurationReached)
+{
+    // expect
+    EXPECT_CALL(*mockSession, end())
+        .Times(1);
+    EXPECT_CALL(*mockSessionCreator, reset())
+        .Times(1);
+    EXPECT_CALL(*mockSessionCreator, createSession(testing::_))
+        .Times(2)
+        .WillOnce(testing::Return(mockSession))
+        .WillOnce(testing::Return(mockSplitSession1));
+
+    // given
+    const int64_t startTimeFirstSession = 60;
+    const int32_t sessionDuration = 10; // split time: session start + duration = 70
+    const int64_t currentTime = 70;
+    const int64_t startTimeSecondSession = 80;
+
+    ON_CALL(*mockTimingProvider, provideTimestampInMilliseconds())
+        .WillByDefault(testing::Return(currentTime));
+    ON_CALL(*mockBeacon, getSessionStartTime())
+        .WillByDefault(testing::Return(startTimeFirstSession));
+    ON_CALL(*mockSplitBeacon1, getSessionStartTime())
+        .WillByDefault(testing::Return(startTimeSecondSession));
+
+    ON_CALL(*mockServerConfiguration, isSessionSplitBySessionDurationEnabled())
+        .WillByDefault(testing::Return(true));
+    ON_CALL(*mockServerConfiguration, getMaxSessionDurationInMilliseconds())
+        .WillByDefault(testing::Return(sessionDuration));
+    ON_CALL(*mockServerConfiguration, isSessionSplitByIdleTimeoutEnabled())
+        .WillByDefault(testing::Return(false));
+
+    auto target = createSessionProxy();
+    target->onServerConfigurationUpdate(mockServerConfiguration);
+
+    // when
+    auto obtained = target->splitSessionByTime();
+
+    // then
+    ASSERT_THAT(obtained, testing::Eq(startTimeSecondSession + sessionDuration));
+}
+
+TEST_F(SessionProxyTest, splitByTimeSplitsCurrentSessionIfMaxDurationExceeded)
+{
+    // expect
+    EXPECT_CALL(*mockSession, end())
+        .Times(1);
+    EXPECT_CALL(*mockSessionCreator, reset())
+        .Times(1);
+    EXPECT_CALL(*mockSessionCreator, createSession(testing::_))
+        .Times(2)
+        .WillOnce(testing::Return(mockSession))
+        .WillOnce(testing::Return(mockSplitSession1));
+
+    // given
+    const int64_t startTimeFirstSession = 60;
+    const int32_t sessionDuration = 10; // split time: session start + duration => 70
+    const int64_t currentTime = 80;
+    const int64_t startTimeSecondSession = 90;
+
+    ON_CALL(*mockTimingProvider, provideTimestampInMilliseconds())
+        .WillByDefault(testing::Return(currentTime));
+    ON_CALL(*mockBeacon, getSessionStartTime())
+        .WillByDefault(testing::Return(startTimeFirstSession));
+    ON_CALL(*mockSplitBeacon1, getSessionStartTime())
+        .WillByDefault(testing::Return(startTimeSecondSession));
+
+    ON_CALL(*mockServerConfiguration, isSessionSplitBySessionDurationEnabled())
+        .WillByDefault(testing::Return(true));
+    ON_CALL(*mockServerConfiguration, getMaxSessionDurationInMilliseconds())
+        .WillByDefault(testing::Return(sessionDuration));
+    ON_CALL(*mockServerConfiguration, isSessionSplitByIdleTimeoutEnabled())
+        .WillByDefault(testing::Return(false));
+
+    ON_CALL(*mockServerConfiguration, isSessionSplitBySessionDurationEnabled())
+        .WillByDefault(testing::Return(true));
+    ON_CALL(*mockServerConfiguration, getMaxSessionDurationInMilliseconds())
+        .WillByDefault(testing::Return(sessionDuration));
+    ON_CALL(*mockServerConfiguration, isSessionSplitByIdleTimeoutEnabled())
+        .WillByDefault(testing::Return(false));
+
+    auto target = createSessionProxy();
+    target->onServerConfigurationUpdate(mockServerConfiguration);
+
+    // when
+    auto obtained = target->splitSessionByTime();
+
+    // then
+    ASSERT_THAT(obtained, testing::Eq(startTimeSecondSession + sessionDuration));
+}
+
+TEST_F(SessionProxyTest, splitByTimeDoesNotSplitCurrentSessionIfMaxDurationNotReached)
+{
+    // expect
+    EXPECT_CALL(*mockSessionCreator, createSession(testing::_))
+        .Times(1)
+        .WillOnce(testing::Return(mockSession));
+
+    // given
+    const int64_t sessionStartTime = 60;
+    const int32_t sessionDuration = 20; // split time: start time + duration => 80
+    const int64_t currentTime = 70;
+
+    ON_CALL(*mockTimingProvider, provideTimestampInMilliseconds())
+        .WillByDefault(testing::Return(currentTime));
+    ON_CALL(*mockBeacon, getSessionStartTime())
+        .WillByDefault(testing::Return(sessionStartTime));
+
+    ON_CALL(*mockServerConfiguration, isSessionSplitBySessionDurationEnabled())
+        .WillByDefault(testing::Return(true));
+    ON_CALL(*mockServerConfiguration, getMaxSessionDurationInMilliseconds())
+        .WillByDefault(testing::Return(sessionDuration));
+    ON_CALL(*mockServerConfiguration, isSessionSplitByIdleTimeoutEnabled())
+        .WillByDefault(testing::Return(false));
+
+    auto target = createSessionProxy();
+    target->onServerConfigurationUpdate(mockServerConfiguration);
+
+    // when
+    auto obtained = target->splitSessionByTime();
+
+    // then
+    ASSERT_THAT(obtained, testing::Eq(sessionStartTime + sessionDuration));
+}
+
+TEST_F(SessionProxyTest, splitBySessionTimeReturnsIdleSplitTimeWhenBeforeSessionDurationSplitTime)
+{
+    // with
+    const int64_t sessionStartTime = 50;
+    const int32_t sessionDuration = 40; // duration split time: start time + duration => 90
+    const int64_t lastInteractionTime = 60;
+    const int32_t idleTimeout = 20; // idle split time: last interaction + idle => 80
+    const int64_t currentTime = 70;
+
+    // expect
+    EXPECT_CALL(*mockSessionCreator, createSession(testing::_))
+        .Times(1)
+        .WillOnce(testing::Return(mockSession));
+
+    EXPECT_CALL(*mockTimingProvider, provideTimestampInMilliseconds())
+        .Times(2)
+        .WillOnce(testing::Return(lastInteractionTime))
+        .WillOnce(testing::Return(currentTime));
+
+    // given
+    ON_CALL(*mockBeacon, getSessionStartTime())
+        .WillByDefault(testing::Return(sessionStartTime));
+
+    ON_CALL(*mockServerConfiguration, isSessionSplitByIdleTimeoutEnabled())
+        .WillByDefault(testing::Return(true));
+    ON_CALL(*mockServerConfiguration, getSessionTimeoutInMilliseconds())
+        .WillByDefault(testing::Return(idleTimeout));
+    ON_CALL(*mockServerConfiguration, isSessionSplitBySessionDurationEnabled())
+        .WillByDefault(testing::Return(true));
+    ON_CALL(*mockServerConfiguration, getMaxSessionDurationInMilliseconds())
+        .WillByDefault(testing::Return(sessionDuration));
+
+    auto target = createSessionProxy();
+    target->onServerConfigurationUpdate(mockServerConfiguration);
+
+    target->identifyUser("test"); // update last interaction time
+
+    // when
+    auto obtained = target->splitSessionByTime();
+
+    // then
+    ASSERT_THAT(obtained, testing::Eq(lastInteractionTime + idleTimeout));
+}
+
+TEST_F(SessionProxyTest, splitBySessionTimeReturnsDurationSplitTimeWhenBeforeIdleSplitTime)
+{
+    // with
+    const int64_t sessionStartTime = 50;
+    const int32_t sessionDuration = 30; // duration split time: start time + duration => 80
+    const int64_t lastInteractionTime = 60;
+    const int32_t idleTimeout = 50; // idle split time: last interaction + idle => 110
+    const int64_t currentTime = 70;
+
+    // expect
+    EXPECT_CALL(*mockSessionCreator, createSession(testing::_))
+        .Times(1)
+        .WillOnce(testing::Return(mockSession));
+
+    EXPECT_CALL(*mockTimingProvider, provideTimestampInMilliseconds())
+        .Times(2)
+        .WillOnce(testing::Return(lastInteractionTime))
+        .WillOnce(testing::Return(currentTime));
+
+    // given
+    ON_CALL(*mockBeacon, getSessionStartTime())
+        .WillByDefault(testing::Return(sessionStartTime));
+
+    ON_CALL(*mockServerConfiguration, isSessionSplitByIdleTimeoutEnabled())
+        .WillByDefault(testing::Return(true));
+    ON_CALL(*mockServerConfiguration, getSessionTimeoutInMilliseconds())
+        .WillByDefault(testing::Return(idleTimeout));
+    ON_CALL(*mockServerConfiguration, isSessionSplitBySessionDurationEnabled())
+        .WillByDefault(testing::Return(true));
+    ON_CALL(*mockServerConfiguration, getMaxSessionDurationInMilliseconds())
+        .WillByDefault(testing::Return(sessionDuration));
+
+    auto target = createSessionProxy();
+    target->onServerConfigurationUpdate(mockServerConfiguration);
+
+    target->identifyUser("test"); // update last interaction time
+
+    // when
+    auto obtained = target->splitSessionByTime();
+
+    // then
+    ASSERT_THAT(obtained, testing::Eq(sessionStartTime + sessionDuration));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1055,6 +1500,120 @@ TEST_F(SessionProxyTest, onChildClosedCallsDequeueOnSessionWatchdog)
 
     // when
     target->onChildClosed(session);
+}
+
+TEST_F(SessionProxyTest, onServerConfigurationUpdateTakesOverServerConfigurationOnFirstCall)
+{
+    // given
+    ON_CALL(*mockServerConfiguration, isSessionSplitByEventsEnabled())
+        .WillByDefault(testing::Return(true));
+    ON_CALL(*mockServerConfiguration, getMaxEventsPerSession())
+        .WillByDefault(testing::Return(1));
+
+    auto target = createSessionProxy();
+    ASSERT_THAT(target->getServerConfiguration(), testing::IsNull());
+
+    // when
+    target->onServerConfigurationUpdate(mockServerConfiguration);
+
+    // then
+    ASSERT_THAT(target->getServerConfiguration(), testing::Eq(mockServerConfiguration));
+}
+
+TEST_F(SessionProxyTest, onServerConfigurationUpdateMergesServerConfigurationOnConsecutiveCalls)
+{
+    // with
+    auto mockFirstConfig = MockIServerConfiguration::createNice();
+    auto mockSecondConfig = MockIServerConfiguration::createStrict();
+
+    // expect
+    EXPECT_CALL(*mockFirstConfig, merge(testing::Eq(mockSecondConfig)))
+        .Times(1);
+    EXPECT_CALL(*mockFirstConfig, isSessionSplitBySessionDurationEnabled())
+        .Times(1);
+    EXPECT_CALL(*mockFirstConfig, isSessionSplitByIdleTimeoutEnabled())
+        .Times(1);
+
+    // given
+    auto target = createSessionProxy();
+
+    // when
+    target->onServerConfigurationUpdate(mockFirstConfig);
+    target->onServerConfigurationUpdate(mockSecondConfig);
+}
+
+TEST_F(SessionProxyTest, onServerConfigurationUpdateAddsSessionProxyToWatchdogIfSplitByDurationEnabled)
+{
+    // expect
+    EXPECT_CALL(*mockSessionWatchdog, addToSplitByTimeout(testing::_))
+        .Times(1);
+
+    // given
+    auto target = createSessionProxy();
+    ON_CALL(*mockServerConfiguration, isSessionSplitBySessionDurationEnabled())
+        .WillByDefault(testing::Return(true));
+
+    // when
+    target->onServerConfigurationUpdate(mockServerConfiguration);
+}
+
+TEST_F(SessionProxyTest, onServerConfigurationUpdateAddsSessionProxyToWatchdogIfSplitByIdleTimeoutEnabled)
+{
+    // expect
+    EXPECT_CALL(*mockSessionWatchdog, addToSplitByTimeout(testing::_))
+        .Times(1);
+
+    // given
+    ON_CALL(*mockServerConfiguration, isSessionSplitByIdleTimeoutEnabled())
+        .WillByDefault(testing::Return(true));
+
+    auto target = createSessionProxy();
+
+    // when
+    target->onServerConfigurationUpdate(mockServerConfiguration);
+}
+
+TEST_F(SessionProxyTest, onServerConfigurationUpdateDoesNotAddSessionProxyToWatchdogIfSplitByIdleTimeoutAndDurationDisabled)
+{
+    // expect
+    EXPECT_CALL(*mockSessionWatchdog, addToSplitByTimeout(testing::_))
+        .Times(0);
+
+    // given
+    ON_CALL(*mockServerConfiguration, isSessionSplitByIdleTimeoutEnabled())
+        .WillByDefault(testing::Return(false));
+    ON_CALL(*mockServerConfiguration, isSessionSplitBySessionDurationEnabled())
+        .WillByDefault(testing::Return(false));
+
+    auto target = createSessionProxy();
+
+    // when
+    target->onServerConfigurationUpdate(mockServerConfiguration);
+}
+
+TEST_F(SessionProxyTest, onServerConfigurationUpdateDoesNotAddSessionProxyToWatchdogOnConsecutiveCalls)
+{
+    // expect
+    EXPECT_CALL(*mockSessionWatchdog, addToSplitByTimeout(testing::_))
+        .Times(0);
+
+    // given
+    ON_CALL(*mockServerConfiguration, isSessionSplitByIdleTimeoutEnabled())
+        .WillByDefault(testing::Return(false));
+    ON_CALL(*mockServerConfiguration, isSessionSplitBySessionDurationEnabled())
+        .WillByDefault(testing::Return(false));
+
+    auto target = createSessionProxy();
+    target->onServerConfigurationUpdate(mockServerConfiguration);
+
+    auto mockServerConfigTwo = MockIServerConfiguration::createNice();
+    ON_CALL(*mockServerConfigTwo, isSessionSplitByIdleTimeoutEnabled())
+        .WillByDefault(testing::Return(true));
+    ON_CALL(*mockServerConfigTwo, isSessionSplitBySessionDurationEnabled())
+        .WillByDefault(testing::Return(true));
+
+    // when
+    target->onServerConfigurationUpdate(mockServerConfigTwo);
 }
 
 TEST_F(SessionProxyTest, toStringReturnsAppropriateResult)

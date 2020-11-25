@@ -57,6 +57,8 @@ namespace protocol
 
 		int64_t getCurrentTimestamp() const override;
 
+		int64_t getSessionStartTime() const override;
+
 		int32_t createID() override;
 
 		core::UTF8String createTag(int32_t parentActionID, int32_t tracerSequenceNumber) override;

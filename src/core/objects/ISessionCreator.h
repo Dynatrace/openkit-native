@@ -41,6 +41,16 @@ namespace core
 			/// @param parent the parent composite of the session to create.
 			///
 			virtual std::shared_ptr<SessionInternals> createSession(std::shared_ptr<IOpenKitComposite> parent) = 0;
+
+			///
+			/// Resets the internal state of this session creator.
+			/// 
+			/// A reset includes the following:
+			/// - resetting the consecutive session sequence number which is increased every time a session is created.
+			/// - use a new session ID (which will stay the same for all newly created sessions).
+			/// - use a new randomized number (which will stay the same for all newly created sessions).
+			///
+			virtual void reset() = 0;
 		};
 	}
 }

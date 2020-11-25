@@ -15,9 +15,9 @@
  */
 
 #include "core/SessionWatchdogContext.h"
-#include "core/objects/SessionInternals.h"
 
 #include "../core/objects/mock/MockSessionInternals.h"
+#include "../core/objects/mock/MockISessionProxy.h"
 #include "../core/util/mock/MockIInterruptibleThreadSuspender.h"
 #include "../providers/mock/MockITimingProvider.h"
 
@@ -32,7 +32,7 @@ using namespace test;
 using MockITimingProvider_sp = std::shared_ptr<MockITimingProvider>;
 using MockIInterruptibleThreadSuspender_sp = std::shared_ptr<MockIInterruptibleThreadSuspender>;
 using MockSessionInternals_sp = std::shared_ptr<MockSessionInternals>;
-using SessionInternals_t = core::objects::SessionInternals;
+using MockISessionProxy_sp = std::shared_ptr<MockISessionProxy>;
 using ISessionWatchdogContext_t = core::ISessionWatchdogContext;
 using SessionWatchdogContext_t = core::SessionWatchdogContext;
 using SessionWatchdogContext_sp = std::shared_ptr< SessionWatchdogContext_t>;
@@ -44,6 +44,7 @@ protected:
 	MockITimingProvider_sp mockTimingProvider;
 	MockIInterruptibleThreadSuspender_sp mockThreadSuspender;
 	MockSessionInternals_sp mockSession;
+	MockISessionProxy_sp mockSessionProxy;
 	int64_t mSplitByEventsGracePeriodEndTimeInMillis = -1;
 
 	void SetUp() override
@@ -57,6 +58,8 @@ protected:
 			.WillByDefault(testing::SaveArg<0>(&mSplitByEventsGracePeriodEndTimeInMillis));
 		ON_CALL(*mockSession, getSplitByEventsGracePeriodEndTimeInMillis())
 			.WillByDefault(testing::ReturnPointee(&mSplitByEventsGracePeriodEndTimeInMillis));
+
+		mockSessionProxy = MockISessionProxy::createNice();
 	}
 
 	SessionWatchdogContext_sp createContext()
@@ -83,6 +86,15 @@ TEST_F(SessionWatchdogContextTest, onDefaultSessionsToCloseIsEmpty)
 	ASSERT_THAT(target->getSessionsToClose().size(), testing::Eq(0));
 }
 
+TEST_F(SessionWatchdogContextTest, onDefaultSessionsToSplitByTimeoutIsEmpty)
+{
+	// given
+	auto target = createContext();
+
+	// then
+	ASSERT_THAT(target->getSessionsToSplitByTimeout(), testing::IsEmpty());
+}
+
 TEST_F(SessionWatchdogContextTest, closeOrEnqueueForClosingDoesNotAddSessionIfItCanBeClosed)
 {
 	// expect
@@ -92,10 +104,9 @@ TEST_F(SessionWatchdogContextTest, closeOrEnqueueForClosingDoesNotAddSessionIfIt
 
 	// given
 	auto target = createContext();
-	auto targetExplicit = std::dynamic_pointer_cast<ISessionWatchdogContext_t>(target);
 
 	// when
-	targetExplicit->closeOrEnqueueForClosing(mockSession, 0);
+	target->closeOrEnqueueForClosing(mockSession, 0);
 
 	// then
 	ASSERT_THAT(target->getSessionsToClose().size(), testing::Eq(0));
@@ -110,10 +121,9 @@ TEST_F(SessionWatchdogContextTest, closeOrEnqueueForClosingAddsSessionIfSessionC
 
 	// given
 	auto target = createContext();
-	auto targetExplicit = std::dynamic_pointer_cast<ISessionWatchdogContext_t>(target);
 
 	// when
-	targetExplicit->closeOrEnqueueForClosing(mockSession, 17);
+	target->closeOrEnqueueForClosing(mockSession, 17);
 
 	// then
 	ASSERT_THAT(target->getSessionsToClose().size(), testing::Eq(1));
@@ -136,25 +146,68 @@ TEST_F(SessionWatchdogContextTest, closeOrEnqueueForClosingSetsSplitByEventsGrac
 		.WillByDefault(testing::Return(false));
 
 	auto target = createContext();
-	auto targetExplicit = std::dynamic_pointer_cast<ISessionWatchdogContext_t>(target);
 
 	// when
-	targetExplicit->closeOrEnqueueForClosing(mockSession, gracePeriod);
+	target->closeOrEnqueueForClosing(mockSession, gracePeriod);
 }
 
 TEST_F(SessionWatchdogContextTest, dequeueFromClosingRemovesSession)
 {
 	// given
 	auto target = createContext();
-	auto targetExplicit = std::dynamic_pointer_cast<ISessionWatchdogContext_t>(target);
-	targetExplicit->closeOrEnqueueForClosing(mockSession, 0);
+	target->closeOrEnqueueForClosing(mockSession, 0);
 	ASSERT_THAT(target->getSessionsToClose().size(), testing::Eq(1));
 
 	// when
-	targetExplicit->dequeueFromClosing(mockSession);
+	target->dequeueFromClosing(mockSession);
 
 	// then
 	ASSERT_THAT(target->getSessionsToClose().size(), testing::Eq(0));
+}
+
+TEST_F(SessionWatchdogContextTest, addToSplitByTimeOutAddsSessionProxyIfNotFinished)
+{
+	// given
+	ON_CALL(*mockSessionProxy, isFinished())
+		.WillByDefault(testing::Return(false));
+
+	auto target = createContext();
+
+	// when
+	target->addToSplitByTimeout(mockSessionProxy);
+
+	// then
+	ASSERT_THAT(target->getSessionsToSplitByTimeout().size(), testing::Eq(1));
+}
+
+TEST_F(SessionWatchdogContextTest, addToSplitByTimeOutDoesNotAddSessionProxyIfFinished)
+{
+	// given
+	ON_CALL(*mockSessionProxy, isFinished())
+		.WillByDefault(testing::Return(true));
+
+	auto target = createContext();
+
+	// when
+	target->addToSplitByTimeout(mockSessionProxy);
+
+	// then
+	ASSERT_THAT(target->getSessionsToSplitByTimeout(), testing::IsEmpty());
+}
+
+TEST_F(SessionWatchdogContextTest, removeFromSplitByTimeoutRemovesSessionProxy)
+{
+	// given
+	auto target = createContext();
+	target->addToSplitByTimeout(mockSessionProxy);
+
+	ASSERT_THAT(target->getSessionsToSplitByTimeout().size(), testing::Eq(1));
+
+	// when
+	target->removeFromSplitByTimeout(mockSessionProxy);
+
+	// then
+	ASSERT_THAT(target->getSessionsToSplitByTimeout(), testing::IsEmpty());
 }
 
 TEST_F(SessionWatchdogContextTest, executeEndsSessionsWithExpiredGracePeriod)
@@ -174,9 +227,8 @@ TEST_F(SessionWatchdogContextTest, executeEndsSessionsWithExpiredGracePeriod)
 		.WillByDefault(testing::Return(false));
 
 	auto target = createContext();
-	auto targetExplicit = std::dynamic_pointer_cast<ISessionWatchdogContext_t>(target);
 
-	targetExplicit->closeOrEnqueueForClosing(mockSession, 4);
+	target->closeOrEnqueueForClosing(mockSession, 4);
 
 	// when
 	target->execute();
@@ -198,9 +250,8 @@ TEST_F(SessionWatchdogContextTest, executeEndsSessionsWithGraceEndTimeSameAsCurr
 		.WillByDefault(testing::Return(false));
 
 	auto target = createContext();
-	auto targetExplicit = std::dynamic_pointer_cast<ISessionWatchdogContext_t>(target);
 
-	targetExplicit->closeOrEnqueueForClosing(mockSession, 0);
+	target->closeOrEnqueueForClosing(mockSession, 0);
 
 	// when
 	target->execute();
@@ -228,28 +279,14 @@ TEST_F(SessionWatchdogContextTest, executeDoesNotEndSessionsWhenGracePeriodIsNot
 		.WillByDefault(testing::Return(false));
 
 	auto target = createContext();
-	auto targetExplicit = std::dynamic_pointer_cast<ISessionWatchdogContext_t>(target);
 
-	targetExplicit->closeOrEnqueueForClosing(mockSession, gracePeriod); // close at now + gracePeriod
+	target->closeOrEnqueueForClosing(mockSession, gracePeriod); // close at now + gracePeriod
 
 	// when
 	target->execute();
 
 	// then
 	ASSERT_THAT(target->getSessionsToClose().size(), testing::Eq(1));
-}
-
-TEST_F(SessionWatchdogContextTest, executeSleepsDefaultTimeIfNoSessionToCloseExists)
-{
-	// expect
-	EXPECT_CALL(*mockThreadSuspender, sleep(SessionWatchdogContext_t::getDefaultSleepTime().count()))
-		.Times(1);
-
-	// given
-	auto target = createContext();
-
-	// when
-	target->execute();
 }
 
 TEST_F(SessionWatchdogContextTest, executeSleepsDefaultTimeIfSessionIsExpiredAndNoFurtherNonExpiredSessions)
@@ -323,14 +360,234 @@ TEST_F(SessionWatchdogContextTest, executeSleepsMinimumTimeToNextSessionGraceEnd
 	target->execute();
 }
 
-TEST_F(SessionWatchdogContextTest, executeDoesNotSleepLongerThanDefaultSleepTime)
+TEST_F(SessionWatchdogContextTest, executeRemovesSessionProxyIfNextSplitTimeIsNegative)
+{
+	// expect
+	EXPECT_CALL(*mockSessionProxy, splitSessionByTime())
+		.Times(1)
+		.WillOnce(testing::Return(-1));
+
+	// given
+	auto target = createContext();
+	target->addToSplitByTimeout(mockSessionProxy);
+
+	// when
+	target->execute();
+
+	// then
+	ASSERT_THAT(target->getSessionsToSplitByTimeout(), testing::IsEmpty());
+}
+
+TEST_F(SessionWatchdogContextTest, executeDoesNotRemoveSessionProxyIfNextSplitTimeIsNegative)
+{
+	// expect
+	EXPECT_CALL(*mockSessionProxy, splitSessionByTime())
+		.Times(1)
+		.WillOnce(testing::Return(10));
+
+	// given
+	auto target = createContext();
+	target->addToSplitByTimeout(mockSessionProxy);
+
+	// when
+	target->execute();
+
+	// then
+	ASSERT_THAT(target->getSessionsToSplitByTimeout().size(), testing::Eq(1));
+}
+
+TEST_F(SessionWatchdogContextTest, executeSleepsDefaultTimeIfSessionProxySplitTimeIsNegativeAndNoFurtherSessionProxyExists)
+{
+	// expect
+	EXPECT_CALL(*mockSessionProxy, splitSessionByTime())
+		.Times(1)
+		.WillOnce(testing::Return(-1));
+	EXPECT_CALL(*mockThreadSuspender, sleep(SessionWatchdogContext_t::getDefaultSleepTime().count()))
+		.Times(1);
+
+	// given
+	auto target = createContext();
+	target->addToSplitByTimeout(mockSessionProxy);
+
+	// when
+	target->execute();
+}
+
+TEST_F(SessionWatchdogContextTest, executeSleepsDefaultTimeIfSleepDurationToNextSplitIsNegativeAndNoFurtherSessionProxyExists)
+{
+	// expect
+	EXPECT_CALL(*mockSessionProxy, splitSessionByTime())
+		.Times(1)
+		.WillOnce(testing::Return(10));
+	EXPECT_CALL(*mockThreadSuspender, sleep(SessionWatchdogContext_t::getDefaultSleepTime().count()))
+		.Times(1);
+
+	// given
+	ON_CALL(*mockTimingProvider, provideTimestampInMilliseconds())
+		.WillByDefault(testing::Return(20));
+
+	auto target = createContext();
+	target->addToSplitByTimeout(mockSessionProxy);
+
+	// when
+	target->execute();
+}
+
+TEST_F(SessionWatchdogContextTest, executeSleepsDurationToNextSplitByTimeout)
+{
+	// with
+	const int64_t nextSplitTime = 100;
+	const int64_t currentTime = 50;
+
+	// expect
+	EXPECT_CALL(*mockSessionProxy, splitSessionByTime())
+		.Times(1)
+		.WillOnce(testing::Return(nextSplitTime));
+	EXPECT_CALL(*mockThreadSuspender, sleep(nextSplitTime - currentTime))
+		.Times(1);
+
+	// given
+	ON_CALL(*mockTimingProvider, provideTimestampInMilliseconds())
+		.WillByDefault(testing::Return(currentTime));
+
+	auto target = createContext();
+	target->addToSplitByTimeout(mockSessionProxy);
+
+	// when
+	target->execute();
+}
+
+TEST_F(SessionWatchdogContextTest, executeDoesNotSleepLongerThanDefaultSleepTimeForDurationToNextSplitByTime)
+{
+	// with
+	auto nextSplitTime = SessionWatchdogContext_t::getDefaultSleepTime().count() + 20;
+	const int64_t currentTime = 5;
+
+	// expect
+	EXPECT_CALL(*mockSessionProxy, splitSessionByTime())
+		.Times(1)
+		.WillOnce(testing::Return(nextSplitTime));
+	EXPECT_CALL(*mockThreadSuspender, sleep(SessionWatchdogContext_t::getDefaultSleepTime().count()))
+		.Times(1);
+
+	// given
+	ON_CALL(*mockTimingProvider, provideTimestampInMilliseconds())
+		.WillByDefault(testing::Return(currentTime));
+
+	auto target = createContext();
+	target->addToSplitByTimeout(mockSessionProxy);
+
+	// when
+	target->execute();
+}
+
+TEST_F(SessionWatchdogContextTest, executeSleepsMinimumTimeToNextSplitByTime)
+{
+	// with
+	const int64_t nextSplitTimeProxy1 = 120;
+	const int64_t nextSplitTimeProxy2 = 100;
+	const int64_t currentTime = 50;
+
+	auto mockSessionProxy2 = MockISessionProxy::createNice();
+
+	// expect
+	EXPECT_CALL(*mockSessionProxy, splitSessionByTime())
+		.Times(1)
+		.WillOnce(testing::Return(nextSplitTimeProxy1));
+	EXPECT_CALL(*mockSessionProxy2, splitSessionByTime())
+		.Times(1)
+		.WillOnce(testing::Return(nextSplitTimeProxy2));
+	EXPECT_CALL(*mockThreadSuspender, sleep(nextSplitTimeProxy2 - currentTime))
+		.Times(1);
+
+	// given
+	ON_CALL(*mockTimingProvider, provideTimestampInMilliseconds())
+		.WillByDefault(testing::Return(currentTime));
+
+	auto target = createContext();
+	target->addToSplitByTimeout(mockSessionProxy);
+	target->addToSplitByTimeout(mockSessionProxy2);
+
+	// when
+	target->execute();
+}
+
+TEST_F(SessionWatchdogContextTest, executeSleepsDefaultTimeIfNoSessionToCloseAndNoSessionProxyToSplitExists)
 {
 	// expect
 	EXPECT_CALL(*mockThreadSuspender, sleep(SessionWatchdogContext_t::getDefaultSleepTime().count()))
 		.Times(1);
 
 	// given
-	auto target = std::dynamic_pointer_cast<ISessionWatchdogContext_t>(createContext());
+	auto target = createContext();
+
+	// when
+	target->execute();
+}
+
+TEST_F(SessionWatchdogContextTest, executeSleepsMinimumDurationToNextSplitByTime)
+{
+	// with
+	const int64_t gracePeriod = 150;
+	const int64_t nextSessionProxySplitTime = 100;
+	const int64_t currentTime = 50;
+
+	// expect
+	EXPECT_CALL(*mockSessionProxy, splitSessionByTime())
+		.Times(1)
+		.WillOnce(testing::Return(nextSessionProxySplitTime));
+	EXPECT_CALL(*mockSession, end())
+		.Times(0);
+	EXPECT_CALL(*mockThreadSuspender, sleep(nextSessionProxySplitTime - currentTime))
+		.Times(1);
+
+	// given
+	ON_CALL(*mockTimingProvider, provideTimestampInMilliseconds())
+		.WillByDefault(testing::Return(currentTime));
+
+	auto target = createContext();
+	target->closeOrEnqueueForClosing(mockSession, gracePeriod);
+	target->addToSplitByTimeout(mockSessionProxy);
+
+	// when
+	target->execute();
+}
+
+TEST_F(SessionWatchdogContextTest, executeSleepsMinimumDurationToNextGracePeriodEnd)
+{
+	// with
+	const int64_t gracePeriod = 100;
+	const int64_t nextSessionProxySplitTime = 200;
+	const int64_t currentTime = 50;
+
+	// expect
+	EXPECT_CALL(*mockSessionProxy, splitSessionByTime())
+		.Times(1)
+		.WillOnce(testing::Return(nextSessionProxySplitTime));
+	EXPECT_CALL(*mockSession, end())
+		.Times(0);
+	EXPECT_CALL(*mockThreadSuspender, sleep(gracePeriod))
+		.Times(1);
+
+	auto target = createContext();
+	target->closeOrEnqueueForClosing(mockSession, gracePeriod);
+	target->addToSplitByTimeout(mockSessionProxy);
+
+	// when
+	target->execute();
+}
+
+TEST_F(SessionWatchdogContextTest, executeDoesNotSleepLongerThanDefaultSleepTimeForDurationToNextSessionClose)
+{
+	// expect
+	EXPECT_CALL(*mockThreadSuspender, sleep(SessionWatchdogContext_t::getDefaultSleepTime().count()))
+		.Times(1);
+
+	// given
+	ON_CALL(*mockSession, tryEnd())
+		.WillByDefault(testing::Return(false));
+
+	auto target = createContext();
 	target->closeOrEnqueueForClosing(mockSession, SessionWatchdogContext_t::getDefaultSleepTime().count() + 10);
 
 	// when

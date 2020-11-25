@@ -46,6 +46,10 @@ namespace core
 
 		void dequeueFromClosing(std::shared_ptr<core::objects::SessionInternals> session) override;
 
+		void addToSplitByTimeout(std::shared_ptr<core::objects::ISessionProxy> sessionProxy) override;
+
+		void removeFromSplitByTimeout(std::shared_ptr<core::objects::ISessionProxy> sessionProxy) override;
+
 	private:
 
 		void watchdogThreadFunction();

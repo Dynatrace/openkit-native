@@ -29,14 +29,16 @@ SessionCreator::SessionCreator(ISessionCreatorInput& sessionCreatorInput, const 
 	: mLogger(sessionCreatorInput.getLogger())
 	, mOpenKitConfiguration(sessionCreatorInput.getOpenKitConfiguration())
 	, mPrivacyConfiguration(sessionCreatorInput.getPrivacyConfiguration())
+	, mContinuousSessionIdProvider(sessionCreatorInput.getSessionIdProvider())
+	, mContinuousRandomNumberGenerator(std::make_shared<providers::DefaultPRNGenerator>())
 	, mThreadIdProvider(sessionCreatorInput.getThreadIdProvider())
 	, mTimingProvider(sessionCreatorInput.getTimingProvider())
 	, mBeaconCache(sessionCreatorInput.getBeaconCache())
 	, mUseClientIpAddress(clientIpAddress != nullptr)
 	, mClientIpAddress(clientIpAddress)
 	, mServerId(sessionCreatorInput.getCurrentServerId())
-	, mSessionIdProvider(std::make_shared<providers::FixedSessionIDProvider>(sessionCreatorInput.getSessionIdProvider()))
-	, mRandomNumberGenerator(std::make_shared<providers::FixedPRNGenerator>(std::make_shared<providers::DefaultPRNGenerator>()))
+	, mSessionIdProvider(std::make_shared<providers::FixedSessionIDProvider>(mContinuousSessionIdProvider))
+	, mRandomNumberGenerator(std::make_shared<providers::FixedPRNGenerator>(mContinuousRandomNumberGenerator))
 	, mSessionSequenceNumber(0)
 {
 }
@@ -50,6 +52,13 @@ std::shared_ptr<SessionInternals> SessionCreator::createSession(std::shared_ptr<
 	mSessionSequenceNumber++;
 
 	return session;
+}
+
+void SessionCreator::reset()
+{
+	mSessionSequenceNumber = 0;
+	mSessionIdProvider = std::make_shared<providers::FixedSessionIDProvider>(mContinuousSessionIdProvider);
+	mRandomNumberGenerator = std::make_shared<providers::FixedPRNGenerator>(mContinuousRandomNumberGenerator);
 }
 
 std::shared_ptr<openkit::ILogger> SessionCreator::getLogger() const

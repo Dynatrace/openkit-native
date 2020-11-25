@@ -51,6 +51,8 @@ namespace core
 
 			std::shared_ptr<SessionInternals> createSession(std::shared_ptr<IOpenKitComposite> parent) override;
 
+			void reset() override;
+
 			std::shared_ptr<openkit::ILogger> getLogger() const override;
 
 			std::shared_ptr<core::caching::IBeaconCache> getBeaconCache() const override;
@@ -80,6 +82,12 @@ namespace core
 			/// private related configuration
 			const std::shared_ptr<core::configuration::IPrivacyConfiguration> mPrivacyConfiguration;
 
+			// provider for continuously retrieving new session IDs
+			const std::shared_ptr<providers::ISessionIDProvider> mContinuousSessionIdProvider;
+			
+			// provider for continuously retrieving new random numbers.
+			const std::shared_ptr<providers::IPRNGenerator> mContinuousRandomNumberGenerator;
+
 			const std::shared_ptr<providers::IThreadIDProvider> mThreadIdProvider;
 			const std::shared_ptr<providers::ITimingProvider> mTimingProvider;
 
@@ -89,8 +97,8 @@ namespace core
 			const core::UTF8String mClientIpAddress;
 			const int32_t mServerId;
 
-			const std::shared_ptr<providers::ISessionIDProvider> mSessionIdProvider;
-			const std::shared_ptr<providers::IPRNGenerator> mRandomNumberGenerator;
+			std::shared_ptr<providers::ISessionIDProvider> mSessionIdProvider;
+			std::shared_ptr<providers::IPRNGenerator> mRandomNumberGenerator;
 
 			int32_t mSessionSequenceNumber;
 		};

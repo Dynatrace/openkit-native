@@ -76,6 +76,7 @@ set(OPENKIT_SOURCES_TEST_CORE_OBJECTS
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockIOpenKitObject.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockISessionCreator.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockISessionCreatorInput.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockISessionProxy.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockIWebRequestTracerInternals.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockSessionInternals.h
 )

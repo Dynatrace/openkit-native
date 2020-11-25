@@ -64,6 +64,8 @@ namespace test
 
 		MOCK_CONST_METHOD0(getCurrentTimestamp, int64_t());
 
+		MOCK_CONST_METHOD0(getSessionStartTime, int64_t());
+
 		MOCK_METHOD0(createID, int32_t());
 
 		MOCK_METHOD2(createTag,

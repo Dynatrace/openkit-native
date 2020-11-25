@@ -75,3 +75,13 @@ void SessionWatchdog::dequeueFromClosing(std::shared_ptr<core::objects::SessionI
 {
 	mContext->dequeueFromClosing(session);
 }
+
+void SessionWatchdog::addToSplitByTimeout(std::shared_ptr<core::objects::ISessionProxy> sessionProxy)
+{
+	mContext->addToSplitByTimeout(sessionProxy);
+}
+
+void SessionWatchdog::removeFromSplitByTimeout(std::shared_ptr<core::objects::ISessionProxy> sessionProxy)
+{
+	mContext->removeFromSplitByTimeout(sessionProxy);
+}

@@ -188,6 +188,11 @@ int64_t Beacon::getCurrentTimestamp() const
 	return mTimingProvider->provideTimestampInMilliseconds();
 }
 
+int64_t Beacon::getSessionStartTime() const
+{
+	return mSessionStartTime;
+}
+
 int32_t Beacon::createID()
 {
 	return ++mID;

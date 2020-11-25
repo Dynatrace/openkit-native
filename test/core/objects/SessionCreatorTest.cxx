@@ -26,10 +26,11 @@
 #include "../../providers/mock/MockIThreadIDProvider.h"
 #include "../../providers/mock/MockITimingProvider.h"
 
+#include <cstdint>
+#include <memory>
+
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-
-#include <memory>
 
 using namespace test;
 
@@ -263,4 +264,96 @@ TEST_F(SessionCreatorTest, createSessionIncreasesSessionSequenceNumber)
 
     // then
     ASSERT_THAT(sessionCreator->getSessionSequenceNumber(), testing::Eq(2));
+}
+
+TEST_F(SessionCreatorTest, resetResetsSessionSequenceNumber)
+{
+    // given
+    SessionCreator_sp sessionCreator = std::make_shared<SessionCreator_t>(*mockInput, IpAddress);
+    ISessionCreator_sp target = sessionCreator;
+
+    for (auto i = 0; i < 5; i++)
+    {
+        // when
+        auto session = target->createSession(mockParent);
+
+        // then
+        ASSERT_THAT(session->getBeacon()->getSessionSequenceNumber(), testing::Eq(i));
+    }
+
+    // and when
+    target->reset();
+
+    // then
+    ASSERT_THAT(sessionCreator->getSessionSequenceNumber(), testing::Eq(0));
+}
+
+TEST_F(SessionCreatorTest, resetMakesFixedSessionIdProviderToUseNextSessionId)
+{
+    // with
+    const int32_t sessionIdBeforeReset = 17;
+    const int32_t sessionIdAfterReset = 42;
+
+    // expect
+    EXPECT_CALL(*mockSessionIdProvider, getNextSessionID())
+        .Times(2)
+        .WillOnce(testing::Return(sessionIdBeforeReset))
+        .WillOnce(testing::Return(sessionIdAfterReset));
+
+    // given
+    ON_CALL(*mockPrivacyConfiguration, isSessionNumberReportingAllowed())
+        .WillByDefault(testing::Return(true));
+
+    ISessionCreator_sp target = std::make_shared<SessionCreator_t>(*mockInput, IpAddress);
+
+    // when
+    for (auto i = 0; i < 5; i++)
+    {
+        auto session = target->createSession(mockParent);
+        auto beacon = session->getBeacon();
+
+        // then
+        ASSERT_THAT(beacon->getSessionNumber(), testing::Eq(sessionIdBeforeReset));
+        ASSERT_THAT(beacon->getSessionSequenceNumber(), testing::Eq(i));
+    }
+
+    // and when
+    target->reset();
+
+    // then
+    for (auto i = 0; i < 5; i++)
+    {
+        auto session = target->createSession(mockParent);
+        auto beacon = session->getBeacon();
+
+        // then
+        ASSERT_THAT(beacon->getSessionNumber(), testing::Eq(sessionIdAfterReset));
+        ASSERT_THAT(beacon->getSessionSequenceNumber(), testing::Eq(i));
+    }
+}
+
+TEST_F(SessionCreatorTest, resetMakesFixedRandomNumberGeneratorToUseNextRandomNumber)
+{
+    // given
+    SessionCreator_sp target = std::make_shared<SessionCreator_t>(*mockInput, IpAddress);
+    ISessionCreator_sp targetExplicit = target;
+    auto randomNumberBeforeReset = target->getRandomNumberGenerator()->nextPositiveInt64();
+
+    // when
+    for (auto i = 0; i < 5; i++)
+    {
+        // then
+        ASSERT_THAT(target->getRandomNumberGenerator()->nextPositiveInt64(), testing::Eq(randomNumberBeforeReset));
+    }
+
+    // and when
+    targetExplicit->reset();
+    auto randomNumberAfterReset = target->getRandomNumberGenerator()->nextPositiveInt64();
+
+    // then
+    ASSERT_THAT(randomNumberBeforeReset, testing::Ne(randomNumberAfterReset));
+    for (auto i = 0; i < 5; i++)
+    {
+        ASSERT_THAT(target->getRandomNumberGenerator()->nextPositiveInt64(), testing::Eq(randomNumberAfterReset));
+    }
 }

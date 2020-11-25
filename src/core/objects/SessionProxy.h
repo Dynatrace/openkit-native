@@ -34,6 +34,7 @@
 #include "core/objects/SessionInternals.h"
 #include "core/objects/OpenKitComposite.h"
 #include "core/configuration/IServerConfiguration.h"
+#include "providers/ITimingProvider.h"
 
 #include <memory>
 #include <mutex>
@@ -62,6 +63,7 @@ namespace core
 			static std::shared_ptr<SessionProxy> createSessionProxy(std::shared_ptr<openkit::ILogger> logger,
 				std::shared_ptr<IOpenKitComposite> parent,
 				std::shared_ptr<ISessionCreator> sessionCreator,
+				std::shared_ptr<providers::ITimingProvider> timingProvider,
 				std::shared_ptr<core::IBeaconSender> beaconSender,
 				std::shared_ptr<core::ISessionWatchdog> sessionWatchdog);
 
@@ -83,11 +85,33 @@ namespace core
 
 			void onChildClosed(std::shared_ptr<IOpenKitObject> childObject) override;
 
-			void onServerConfigurationUpdate(std::shared_ptr<core::configuration::IServerConfiguration> serverConfig);
+			void onServerConfigurationUpdate(std::shared_ptr<core::configuration::IServerConfiguration> serverConfig) override;
 
+			int64_t splitSessionByTime() override;
+
+			///
+			/// Returns the number of top level actions which were made to the current session.
+			///
+			/// @remarks
+			/// Intended to be used by unit tests only.
+			///
 			int32_t getTopLevelActionCount();
 
+			///
+			/// Returns the time when the last top level event was called.
+			///
+			/// @remarks
+			/// Intended to be used by unit tests only.
+			///
 			int64_t getLastInteractionTime();
+
+			///
+			/// Returns the server configuration of this session proxy.
+			///
+			/// @remarks
+			/// Intended to be used by unit tests only.
+			///
+			std::shared_ptr<core::configuration::IServerConfiguration> getServerConfiguration();
 
 			///
 			/// Returns a string describing the object, based on some important fields.
@@ -102,27 +126,49 @@ namespace core
 			SessionProxy(std::shared_ptr<openkit::ILogger> logger,
 				std::shared_ptr<IOpenKitComposite> parent,
 				std::shared_ptr<ISessionCreator> sessionCreator,
+				std::shared_ptr<providers::ITimingProvider> timingProvider,
 				std::shared_ptr<core::IBeaconSender> beaconSender,
 				std::shared_ptr<core::ISessionWatchdog> sessionWatchdog);
 
 			void createInitialSession();
 
-			std::shared_ptr<openkit::ISession> getOrSplitCurrentSession();
+			std::shared_ptr<openkit::ISession> getOrSplitCurrentSessionByEvents();
 
+			///
+			/// Creates a new session and adds it to the beacon sender. In case the given server configuration is not @c nullptr,
+			/// the new session will be initialized with this server configuration.
+			/// The top level action count is reset to zero and the last interaction time is set to the current timestamp.
+			///
+			/// @param sessionServerConfig the server configuration with which the session will be initialized. Can be @c nullptr.
+			/// @return the newly created session.
+			///
 			std::shared_ptr<SessionInternals> createSession(std::shared_ptr<core::configuration::IServerConfiguration> sessionServerConfig);
 
 			void updateCurrentSessionIdentifier();
 
-			bool isSessionSplitRequired() const;
+			///
+			/// Checks if the maximum number of top level actions is reached and session splitting by events needs to be performed.
+			///
+			bool isSessionSplitByEventsRequired() const;
 
 			void recordTopLevelEventInteraction();
 
 			void recordTopLevelActionEvent();
 
 			///
+			/// Calculates and returns the next point in time when the session is to be split.
+			///
+			/// The returned time might either be:
+			/// - the time when the session expires after the max. session duration elapsed.
+			/// - the time when the session expires after being idle.
+			/// , depending on what happens earlier.
+			///
+			int64_t calculateNextSplitTime();
+
+			///
 			/// mutex used for synchronization
 			///
-			std::mutex mLockObject;
+			std::recursive_mutex mLockObject;
 
 			///
 			/// log message reporter
@@ -138,6 +184,11 @@ namespace core
 			/// creator for new sessions
 			///
 			std::shared_ptr<ISessionCreator> mSessionCreator;
+
+			///
+			/// provider to obtain the current time
+			///
+			std::shared_ptr<providers::ITimingProvider> mTimingProvider;
 
 			///
 			/// sender of beacon data

@@ -21,6 +21,7 @@
 
 #include "core/configuration/IServerConfiguration.h"
 
+#include <cstdint>
 #include <memory>
 
 namespace core
@@ -33,6 +34,8 @@ namespace core
 		///
 		class ISessionProxy : public openkit::ISession
 		{
+		public:
+
 			///
 			/// Indicates whether this session proxy was finished or is still open.
 			///
@@ -44,6 +47,20 @@ namespace core
 			/// @param serverConfig the updated server configuration
 			///
 			virtual void onServerConfigurationUpdate(std::shared_ptr<core::configuration::IServerConfiguration> serverConfig) = 0;
+
+			///
+			/// Will end the current active session and start a new one but only if the following conditions are met:
+			/// - this session proxy is not ISessionProxy::isFinished()
+			/// - session splitting by idle timeout is enabled and the current session was idle for longer than the
+			///   configured timeout.
+			/// - session splitting by maximum session duration is enabled and the session was open for longer than the
+			///   maximum configured session duration.
+			/// 
+			/// @return the time when the session might be split next. This can either be the time when the maximum duration
+			///         is reached or the time when the idle timeout expires. In case the session proxy is finished, @c -1
+			///         is returned.
+			///
+			virtual int64_t splitSessionByTime() = 0;
 		};
 	}
 }

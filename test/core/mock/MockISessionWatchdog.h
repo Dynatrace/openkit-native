@@ -56,6 +56,18 @@ namespace test
 				std::shared_ptr<core::objects::SessionInternals> /* session */
 			)
 		);
+
+		MOCK_METHOD1(addToSplitByTimeout,
+			void(
+				std::shared_ptr<core::objects::ISessionProxy> /* sessionProxy */
+			)
+		);
+
+		MOCK_METHOD1(removeFromSplitByTimeout,
+			void(
+				std::shared_ptr<core::objects::ISessionProxy> /* sessionProxy */
+			)
+		);
 	};
 }
 

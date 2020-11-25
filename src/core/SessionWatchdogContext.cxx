@@ -29,6 +29,7 @@ SessionWatchdogContext::SessionWatchdogContext(std::shared_ptr<providers::ITimin
 	, mTimingProvider(timingProvider)
 	, mThreadSuspender(threadSuspender)
 	, mSessionsToClose()
+    , mSessionsToSplitByTimeout()
 {
 }
 
@@ -39,9 +40,10 @@ const std::chrono::milliseconds& SessionWatchdogContext::getDefaultSleepTime()
 
 void SessionWatchdogContext::execute()
 {
-	auto sleepTime = closeExpiredSessions();
+	auto durationToNextCloseInMillis = closeExpiredSessions();
+    auto durationToNextSplitInMillis = splitTimedOutSessions();
 
-	mThreadSuspender->sleep(sleepTime);
+	mThreadSuspender->sleep(std::min(durationToNextCloseInMillis, durationToNextSplitInMillis));
 }
 
 void SessionWatchdogContext::requestShutdown()
@@ -72,38 +74,94 @@ void SessionWatchdogContext::dequeueFromClosing(std::shared_ptr<core::objects::S
     mSessionsToClose.remove(session);
 }
 
+void SessionWatchdogContext::addToSplitByTimeout(std::shared_ptr<core::objects::ISessionProxy> sessionProxy)
+{
+    if (sessionProxy->isFinished())
+    {
+        return;
+    }
+
+    mSessionsToSplitByTimeout.put(sessionProxy);
+}
+
+void SessionWatchdogContext::removeFromSplitByTimeout(std::shared_ptr<core::objects::ISessionProxy> sessionProxy)
+{
+    mSessionsToSplitByTimeout.remove(sessionProxy);
+}
+
 std::vector<std::shared_ptr<core::objects::SessionInternals>> SessionWatchdogContext::getSessionsToClose()
 {
 	return mSessionsToClose.toStdVector();
 }
 
+std::vector<std::shared_ptr<core::objects::ISessionProxy>> SessionWatchdogContext::getSessionsToSplitByTimeout()
+{
+    return mSessionsToSplitByTimeout.toStdVector();
+}
+
 int64_t SessionWatchdogContext::closeExpiredSessions()
 {
-    auto sleepTime = DEFAULT_SLEEP_TIME_MILLISECONDS.count();
+    auto sleepTimeInMillis = DEFAULT_SLEEP_TIME_MILLISECONDS.count();
     auto allSessions = mSessionsToClose.toStdVector();
     std::list<std::shared_ptr<core::objects::SessionInternals>> closableSessions;
 
     // first iteration - get all closeable sessions
-    for (auto session : allSessions)
+    for (auto& session : allSessions)
     {
-        auto now = mTimingProvider->provideTimestampInMilliseconds();
-        auto gracePeriodEndTime = session->getSplitByEventsGracePeriodEndTimeInMillis();
-        auto isGracePeriodExpired = gracePeriodEndTime <= now;
+        auto nowInMillis = mTimingProvider->provideTimestampInMilliseconds();
+        auto gracePeriodEndTimeInMillis = session->getSplitByEventsGracePeriodEndTimeInMillis();
+        auto isGracePeriodExpired = gracePeriodEndTimeInMillis <= nowInMillis;
         if (isGracePeriodExpired)
         {
             closableSessions.push_back(session);
             continue;
         }
 
-        auto sleepTimeToGracePeriodEnd = gracePeriodEndTime - now;
-        sleepTime = std::min(sleepTime, sleepTimeToGracePeriodEnd);
+        auto sleepTimeToGracePeriodEndInMillis = gracePeriodEndTimeInMillis - nowInMillis;
+        sleepTimeInMillis = std::min(sleepTimeInMillis, sleepTimeToGracePeriodEndInMillis);
     }
 
-    for (auto session : closableSessions)
+    // remove the sessions
+    for (auto& session : closableSessions)
     {
         mSessionsToClose.remove(session);
         session->end();
     }
 
-    return sleepTime;
+    return sleepTimeInMillis;
+}
+
+int64_t SessionWatchdogContext::splitTimedOutSessions()
+{
+    auto sleepTimeInMillis = DEFAULT_SLEEP_TIME_MILLISECONDS.count();
+    auto sessionProxiesToRemove = std::list<std::shared_ptr<core::objects::ISessionProxy>>();
+    auto allSessionProxies = mSessionsToSplitByTimeout.toStdVector();
+
+    // first iteration - get all session proxies that can be removed
+    for(auto& sessionProxy : allSessionProxies)
+    {
+        auto nextSessionSplitInMillis = sessionProxy->splitSessionByTime();
+        if (nextSessionSplitInMillis < 0)
+        {
+            sessionProxiesToRemove.push_back(sessionProxy);
+            continue;
+        }
+
+        auto nowInMillis = mTimingProvider->provideTimestampInMilliseconds();
+        auto durationToNextSplit = nextSessionSplitInMillis - nowInMillis;
+        if (durationToNextSplit < 0)
+        {
+            continue;
+        }
+
+        sleepTimeInMillis = std::min(sleepTimeInMillis, durationToNextSplit);
+    }
+
+    // remove previously identified session proxies
+    for(auto& sessionProxy : sessionProxiesToRemove)
+    {
+        mSessionsToSplitByTimeout.remove(sessionProxy);
+    }
+
+    return sleepTimeInMillis;
 }

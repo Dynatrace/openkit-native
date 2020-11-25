@@ -28,7 +28,6 @@
 #include "providers/ITimingProvider.h"
 
 #include <memory>
-#include <future>
 
 namespace core
 {

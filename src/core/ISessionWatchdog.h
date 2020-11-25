@@ -18,6 +18,7 @@
 #ifndef _CORE_ISESSIONWATCHDOG_H
 #define _CORE_ISESSIONWATCHDOG_H
 
+#include "core/objects/ISessionProxy.h"
 #include "core/objects/SessionInternals.h"
 
 #include <cstdint>
@@ -67,6 +68,21 @@ namespace core
 		/// @param session the session to be removed.
 		///
 		virtual void dequeueFromClosing(std::shared_ptr<core::objects::SessionInternals> session) = 0;
+
+		///
+		/// Adds the given session proxy so that it will be automatically split the underlying session when the idle
+		/// timeout or the maximum session duration is reached.
+		///
+		/// @param sessionProxy the session proxy to be added.
+		///
+		virtual void addToSplitByTimeout(std::shared_ptr<core::objects::ISessionProxy> sessionProxy) = 0;
+
+		///
+		/// Removes the given session proxy from automatically splitting it after idle or session max duration expired.
+		///
+		/// @param sessionProxy the session proxy to be removed.
+		///
+		virtual void removeFromSplitByTimeout(std::shared_ptr<core::objects::ISessionProxy> sessionProxy) = 0;
 	};
 }
 

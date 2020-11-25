@@ -45,6 +45,8 @@ namespace test
 
 		MOCK_METHOD1(createSession, std::shared_ptr<core::objects::SessionInternals>(
 			std::shared_ptr<core::objects::IOpenKitComposite> parent));
+
+		MOCK_METHOD0(reset, void());
 	};
 }
 

@@ -19,6 +19,7 @@
 #include "WebRequestTracer.h"
 #include "NullWebRequestTracer.h"
 
+#include <algorithm>
 #include <sstream>
 
 using namespace core::objects;
@@ -26,12 +27,14 @@ using namespace core::objects;
 SessionProxy::SessionProxy(std::shared_ptr<openkit::ILogger> logger,
 	std::shared_ptr<IOpenKitComposite> parent,
 	std::shared_ptr<ISessionCreator> sessionCreator,
+	std::shared_ptr<providers::ITimingProvider> timingProvider,
 	std::shared_ptr<core::IBeaconSender> beaconSender,
 	std::shared_ptr<core::ISessionWatchdog> sessionWatchdog)
 	: mLockObject()
 	, mLogger(logger)
 	, mParent(parent)
 	, mSessionCreator(sessionCreator)
+	, mTimingProvider(timingProvider)
 	, mBeaconSender(beaconSender)
 	, mSessionWatchdog(sessionWatchdog)
 	, mCurrentSession(nullptr)
@@ -47,10 +50,11 @@ SessionProxy::SessionProxy(std::shared_ptr<openkit::ILogger> logger,
 std::shared_ptr<SessionProxy> SessionProxy::createSessionProxy(std::shared_ptr<openkit::ILogger> logger,
 	std::shared_ptr<IOpenKitComposite> parent,
 	std::shared_ptr<ISessionCreator> sessionCreator,
+	std::shared_ptr<providers::ITimingProvider> timingProvider,
 	std::shared_ptr<core::IBeaconSender> beaconSender,
 	std::shared_ptr<core::ISessionWatchdog> sessionWatchdog)
 {
-	auto instance = std::shared_ptr<SessionProxy>(new SessionProxy(logger, parent, sessionCreator, beaconSender, sessionWatchdog));
+	auto instance = std::shared_ptr<SessionProxy>(new SessionProxy(logger, parent, sessionCreator, timingProvider, beaconSender, sessionWatchdog));
 	instance->createInitialSession();
 
 	return instance;
@@ -70,14 +74,14 @@ std::shared_ptr<openkit::IRootAction> SessionProxy::enterAction(const char* acti
 	}
 
 	{ // synchronized scope
-		std::lock_guard<std::mutex> lock(mLockObject);
+		std::lock_guard<std::recursive_mutex> lock(mLockObject);
 
 		if (mIsFinished)
 		{
 			return NullRootAction::instance();
 		}
 
-		auto session = getOrSplitCurrentSession();
+		auto session = getOrSplitCurrentSessionByEvents();
 		recordTopLevelActionEvent();
 		return session->enterAction(actionName);
 	}
@@ -97,14 +101,14 @@ void SessionProxy::identifyUser(const char* userTag)
 	}
 
 	{ // synchronized scope
-		std::lock_guard<std::mutex> lock(mLockObject);
+		std::lock_guard<std::recursive_mutex> lock(mLockObject);
 
 		if (mIsFinished)
 		{
 			return;
 		}
 
-		auto session = getOrSplitCurrentSession();
+		auto session = getOrSplitCurrentSessionByEvents();
 		recordTopLevelEventInteraction();
 		return session->identifyUser(userTag);
 	}
@@ -130,14 +134,14 @@ void SessionProxy::reportCrash(const char* errorName, const char* reason, const 
 	}
 
 	{ // synchronized scope
-		std::lock_guard<std::mutex> lock(mLockObject);
+		std::lock_guard<std::recursive_mutex> lock(mLockObject);
 
 		if (mIsFinished)
 		{
 			return;
 		}
 
-		auto session = getOrSplitCurrentSession();
+		auto session = getOrSplitCurrentSessionByEvents();
 		recordTopLevelEventInteraction();
 		return session->reportCrash(errorName, reason, stacktrace);
 	}
@@ -162,14 +166,14 @@ std::shared_ptr<openkit::IWebRequestTracer> SessionProxy::traceWebRequest(const 
 	}
 
 	{ // synchronized scope
-		std::lock_guard<std::mutex> lock(mLockObject);
+		std::lock_guard<std::recursive_mutex> lock(mLockObject);
 
 		if (mIsFinished)
 		{
 			return NullWebRequestTracer::instance();
 		}
 
-		auto session = getOrSplitCurrentSession();
+		auto session = getOrSplitCurrentSessionByEvents();
 		recordTopLevelEventInteraction();
 		return session->traceWebRequest(url);
 	}
@@ -183,7 +187,7 @@ void SessionProxy::end()
 	}
 
 	{ // synchronized scope
-		std::lock_guard<std::mutex> lock(mLockObject);
+		std::lock_guard<std::recursive_mutex> lock(mLockObject);
 
 		if (mIsFinished)
 		{
@@ -203,6 +207,7 @@ void SessionProxy::end()
 
 	// detach from parent
 	mParent->onChildClosed(thisSession);
+	mSessionWatchdog->removeFromSplitByTimeout(thisSession);
 
 	// avoid memory leak by resetting curent session
 	// TODO stefan.eberl - refactor this by using a weak pointer
@@ -211,7 +216,7 @@ void SessionProxy::end()
 
 bool SessionProxy::isFinished()
 {
-	std::lock_guard<std::mutex> lock(mLockObject);
+	std::lock_guard<std::recursive_mutex> lock(mLockObject);
 
 	return mIsFinished;
 }
@@ -223,7 +228,7 @@ void SessionProxy::close()
 
 void SessionProxy::onChildClosed(std::shared_ptr<IOpenKitObject> childObject)
 {
-	std::lock_guard<std::mutex> lock(mLockObject);
+	std::lock_guard<std::recursive_mutex> lock(mLockObject);
 	
 	removeChildFromList(childObject);
 	
@@ -241,9 +246,9 @@ void SessionProxy::createInitialSession()
 	updateCurrentSessionIdentifier();
 }
 
-std::shared_ptr<openkit::ISession> SessionProxy::getOrSplitCurrentSession()
+std::shared_ptr<openkit::ISession> SessionProxy::getOrSplitCurrentSessionByEvents()
 {
-	if (isSessionSplitRequired())
+	if (isSessionSplitByEventsRequired())
 	{
 		auto newSession = createSession(mServerConfiguration);
 		mTopLevelActionCount = 0;
@@ -259,7 +264,7 @@ std::shared_ptr<openkit::ISession> SessionProxy::getOrSplitCurrentSession()
 	return mCurrentSession;
 }
 
-bool SessionProxy::isSessionSplitRequired() const
+bool SessionProxy::isSessionSplitByEventsRequired() const
 {
 	if (mServerConfiguration == nullptr || !mServerConfiguration->isSessionSplitByEventsEnabled())
 	{
@@ -272,10 +277,15 @@ bool SessionProxy::isSessionSplitRequired() const
 std::shared_ptr<SessionInternals> SessionProxy::createSession(std::shared_ptr<core::configuration::IServerConfiguration> sessionServerConfig)
 {
 	auto session = mSessionCreator->createSession(shared_from_this());
-	session->getBeacon()->setServerConfigurationUpdateCallback(
+	auto beacon = session->getBeacon();
+
+	beacon->setServerConfigurationUpdateCallback(
 		std::bind(&SessionProxy::onServerConfigurationUpdate, this, std::placeholders::_1));
 
 	storeChildInList(session);
+
+	mLastInteractionTime = beacon->getSessionStartTime();
+	mTopLevelActionCount = 0;
 
 	if (sessionServerConfig != nullptr)
 	{
@@ -296,7 +306,7 @@ void SessionProxy::updateCurrentSessionIdentifier()
 
 void SessionProxy::recordTopLevelEventInteraction()
 {
-	mLastInteractionTime = mCurrentSession->getBeacon()->getCurrentTimestamp();
+	mLastInteractionTime = mTimingProvider->provideTimestampInMilliseconds();
 }
 
 void SessionProxy::recordTopLevelActionEvent()
@@ -307,27 +317,90 @@ void SessionProxy::recordTopLevelActionEvent()
 
 int32_t SessionProxy::getTopLevelActionCount()
 {
-	std::lock_guard<std::mutex> lock(mLockObject);
+	std::lock_guard<std::recursive_mutex> lock(mLockObject);
 	return mTopLevelActionCount;
 }
 
 int64_t SessionProxy::getLastInteractionTime()
 {
-	std::lock_guard<std::mutex> lock(mLockObject);
+	std::lock_guard<std::recursive_mutex> lock(mLockObject);
 	return mLastInteractionTime;
+}
+
+std::shared_ptr<core::configuration::IServerConfiguration> SessionProxy::getServerConfiguration()
+{
+	std::lock_guard<std::recursive_mutex> lock(mLockObject);
+	return mServerConfiguration;
 }
 
 void SessionProxy::onServerConfigurationUpdate(std::shared_ptr<core::configuration::IServerConfiguration> serverConfig)
 {
-	std::lock_guard<std::mutex> lock(mLockObject);
-	if (mServerConfiguration == nullptr)
-	{
-		mServerConfiguration = serverConfig;
-	}
-	else
+	std::lock_guard<std::recursive_mutex> lock(mLockObject);
+	if (mServerConfiguration != nullptr)
 	{
 		mServerConfiguration = mServerConfiguration->merge(serverConfig);
+		return;
 	}
+
+	mServerConfiguration = serverConfig;
+	if (mServerConfiguration->isSessionSplitBySessionDurationEnabled()
+		|| mServerConfiguration->isSessionSplitByIdleTimeoutEnabled())
+	{
+		mSessionWatchdog->addToSplitByTimeout(shared_from_this());
+	}
+}
+
+int64_t SessionProxy::splitSessionByTime()
+{
+	std::lock_guard<std::recursive_mutex> lock(mLockObject);
+	if (isFinished())
+	{
+		return -1;
+	}
+
+	auto nextSplitTime = calculateNextSplitTime();
+	auto now = mTimingProvider->provideTimestampInMilliseconds();
+	if (nextSplitTime < 0 || now < nextSplitTime)
+	{
+		return nextSplitTime;
+	}
+
+	mCurrentSession->end();
+
+	mSessionCreator->reset();
+	mCurrentSession = createSession(mServerConfiguration);
+
+	return calculateNextSplitTime();
+}
+
+int64_t SessionProxy::calculateNextSplitTime()
+{
+	if (mServerConfiguration == nullptr)
+	{
+		return -1;
+	}
+
+	auto splitByIdleTimeout = mServerConfiguration->isSessionSplitByIdleTimeoutEnabled();
+	auto splitBySessionDuration = mServerConfiguration->isSessionSplitBySessionDurationEnabled();
+
+	auto idleTimeout = mLastInteractionTime + mServerConfiguration->getSessionTimeoutInMilliseconds();
+	auto sessionMaxTime = mCurrentSession->getBeacon()->getSessionStartTime() +
+		mServerConfiguration->getMaxSessionDurationInMilliseconds();
+
+	if (splitByIdleTimeout && splitBySessionDuration)
+	{
+		return std::min(idleTimeout, sessionMaxTime);
+	}
+	else if (splitByIdleTimeout)
+	{
+		return idleTimeout;
+	}
+	else if (splitBySessionDuration)
+	{
+		return sessionMaxTime;
+	}
+
+	return -1;
 }
 
 const std::string SessionProxy::toString() const

@@ -19,6 +19,7 @@
 #include "mock/MockISessionWatchdogContext.h"
 #include "../api/mock/MockILogger.h"
 #include "../core/objects/mock/MockSessionInternals.h"
+#include "../core/objects/mock/MockISessionProxy.h"
 
 #include <chrono>
 #include <future>
@@ -201,4 +202,36 @@ TEST_F(SessionWatchdogTest, dequeueFromClosingDelegatesToSessionWatchdogContext)
 
 	// when
 	target->dequeueFromClosing(mockSession);
+}
+
+TEST_F(SessionWatchdogTest, addToSplitByTimeoutDelegatesToSessionWatchdogContext)
+{
+	// with
+	auto mockSessionProxy = MockISessionProxy::createNice();
+
+	// expect
+	EXPECT_CALL(*mockContext, addToSplitByTimeout(testing::Eq(mockSessionProxy)))
+		.Times(1);
+
+	// given
+	auto target = createWatchdog();
+
+	// when
+	target->addToSplitByTimeout(mockSessionProxy);
+}
+
+TEST_F(SessionWatchdogTest, removeFromSplitByTimeoutDelegatesToSessionWatchdogContext)
+{
+	// with
+	auto mockSessionProxy = MockISessionProxy::createNice();
+
+	// expect
+	EXPECT_CALL(*mockContext, removeFromSplitByTimeout(testing::Eq(mockSessionProxy)))
+		.Times(1);
+
+	// given
+	auto target = createWatchdog();
+
+	// when
+	target->removeFromSplitByTimeout(mockSessionProxy);
 }

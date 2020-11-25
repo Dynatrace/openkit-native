@@ -54,6 +54,11 @@ namespace protocol
 		virtual int64_t getCurrentTimestamp() const = 0;
 
 		///
+		/// Returns the time when the session was started (in milliseconds).
+		///
+		virtual int64_t getSessionStartTime() const = 0;
+
+		///
 		/// Create a unique identifier.
 		/// -The identifier returned is only unique per Beacon.
 		/// -Calling this method on two different Beacon instances, might give the same result.

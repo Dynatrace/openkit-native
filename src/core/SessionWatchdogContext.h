@@ -55,17 +55,31 @@ namespace core
 
 		void dequeueFromClosing(std::shared_ptr<core::objects::SessionInternals> session) override;
 
+		void addToSplitByTimeout(std::shared_ptr<core::objects::ISessionProxy> sessionProxy) override;
+
+		void removeFromSplitByTimeout(std::shared_ptr<core::objects::ISessionProxy> sessionProxy) override;
+
 		///
-		/// Get a shallow copy of all sessions held by this context.
+		/// Get a shallow copy of all sessions to close held by this context.
 		/// 
 		/// @remarks
 		/// This method is inteded for unit tests.
 		///
 		std::vector<std::shared_ptr<core::objects::SessionInternals>> getSessionsToClose();
 
+		///
+		/// Get a shallow copy of all sessions to split by timeout held by this context.
+		/// 
+		/// @remarks
+		/// This method is inteded for unit tests.
+		///
+		std::vector<std::shared_ptr<core::objects::ISessionProxy>> getSessionsToSplitByTimeout();
+
 	private:
 
 		int64_t closeExpiredSessions();
+
+		int64_t splitTimedOutSessions();
 
 		///
 		/// Indicator whether shutdown was requested or not.
@@ -86,6 +100,11 @@ namespace core
 		/// holds all sessions which are to be closed after a certain grace period.
 		///
 		core::util::SynchronizedQueue<std::shared_ptr<core::objects::SessionInternals>> mSessionsToClose;
+
+		///
+		/// holds all session proxies which are to be split after expiration of either session duration or idle timeout.
+		///
+		core::util::SynchronizedQueue<std::shared_ptr<core::objects::ISessionProxy>> mSessionsToSplitByTimeout;
 	};
 }
 

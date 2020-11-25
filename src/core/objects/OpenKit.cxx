@@ -116,6 +116,7 @@ std::shared_ptr<openkit::ISession> OpenKit::createSession(const char* clientIPAd
 			mLogger,
 			shared_from_this(),
 			sessionCreator,
+			mTimingProvider,
 			mBeaconSender,
 			mSessionWatchdog
 		);
