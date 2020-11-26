@@ -120,6 +120,7 @@ set(OPENKIT_SOURCES_TEST_PROVIDERS
     ${CMAKE_CURRENT_LIST_DIR}/providers/DefaultPRNGeneratorTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/providers/DefaultSessionIDProviderTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/providers/DefaultThreadIDProviderTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/providers/DefaultTimingProviderTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/providers/FixedPRNGeneratorTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/providers/FixedSessionIDProviderTest.cxx
 )

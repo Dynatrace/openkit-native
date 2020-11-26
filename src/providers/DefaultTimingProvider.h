@@ -19,6 +19,8 @@
 
 #include "ITimingProvider.h"
 
+#include <chrono>
+
 namespace providers
 {
 
@@ -29,6 +31,8 @@ namespace providers
 	{
 	public:
 
+		DefaultTimingProvider();
+
 		~DefaultTimingProvider() override = default;
 
 		///
@@ -36,6 +40,12 @@ namespace providers
 		/// @returns the current timestamp
 		///
 		int64_t provideTimestampInMilliseconds() override;
+
+	private:
+
+		static std::chrono::nanoseconds calculateReferenceTimestamp();
+
+		const std::chrono::nanoseconds mReferenceTimestamp;
 	};
 }
 

@@ -17,15 +17,28 @@
 #include "DefaultTimingProvider.h"
 
 #include <chrono>
-#include <thread>
 
 using namespace providers;
 
+DefaultTimingProvider::DefaultTimingProvider()
+	: mReferenceTimestamp(calculateReferenceTimestamp())
+{
+}
+
+
 int64_t DefaultTimingProvider::provideTimestampInMilliseconds()
 {
-	std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-		std::chrono::system_clock::now().time_since_epoch()
-		);
+	auto steadyClockSinceEpoch = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now().time_since_epoch());
+	auto durationSinceEpoch = mReferenceTimestamp + steadyClockSinceEpoch;
 
-	return ms.count();
+	return std::chrono::duration_cast<std::chrono::milliseconds>(durationSinceEpoch).count();
+}
+
+
+std::chrono::nanoseconds DefaultTimingProvider::calculateReferenceTimestamp()
+{
+	auto wallClockSinceEpoch = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch());
+	auto steadyClockSinceEpoch = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now().time_since_epoch());
+
+	return wallClockSinceEpoch - steadyClockSinceEpoch;
 }
