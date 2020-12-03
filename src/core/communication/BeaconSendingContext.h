@@ -31,6 +31,7 @@
 
 #include <atomic>
 #include <memory>
+#include <mutex>
 #include <cstdint>
 
 namespace core
@@ -131,9 +132,11 @@ namespace core
 
 			void handleStatusResponse(std::shared_ptr<protocol::IStatusResponse> response) override;
 
-			std::shared_ptr<protocol::IResponseAttributes> updateLastResponseAttributesFrom(std::shared_ptr<protocol::IStatusResponse> statusResponse) override;
+			std::shared_ptr<protocol::IResponseAttributes> updateFrom(std::shared_ptr<protocol::IStatusResponse> statusResponse) override;
 
 			std::shared_ptr<protocol::IResponseAttributes> getLastResponseAttributes() const override;
+
+			std::shared_ptr<core::configuration::IServerConfiguration> getLastServerConfiguration() const override;
 
 			std::vector<std::shared_ptr<core::objects::SessionInternals>> getAllNotConfiguredSessions() override;
 
@@ -154,6 +157,11 @@ namespace core
 			int64_t getConfigurationTimestamp() const override;
 
 		private:
+
+			///
+			/// synchronization object for updating and reading server configuration and last response attributes
+			///
+			mutable std::mutex mLockObject;
 
 			///
 			/// Disable data capturing.

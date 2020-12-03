@@ -145,7 +145,7 @@ class MockIBeaconSendingContext
 			)
 		);
 
-		MOCK_METHOD1(updateLastResponseAttributesFrom,
+		MOCK_METHOD1(updateFrom,
 			std::shared_ptr<protocol::IResponseAttributes>(
 				std::shared_ptr<protocol::IStatusResponse>
 			)
@@ -153,6 +153,10 @@ class MockIBeaconSendingContext
 
 		MOCK_CONST_METHOD0(getLastResponseAttributes,
 			std::shared_ptr<protocol::IResponseAttributes>()
+		);
+
+		MOCK_CONST_METHOD0(getLastServerConfiguration,
+			std::shared_ptr<core::configuration::IServerConfiguration>()
 		);
 
 		MOCK_METHOD0(clearAllSessionData, void());

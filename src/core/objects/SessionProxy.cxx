@@ -242,15 +242,20 @@ void SessionProxy::onChildClosed(std::shared_ptr<IOpenKitObject> childObject)
 
 void SessionProxy::createInitialSession()
 {
-	mCurrentSession = createSession(nullptr);
+	mCurrentSession = createSession(mBeaconSender->getLastServerConfiguration(), nullptr);
 	updateCurrentSessionIdentifier();
+}
+
+std::shared_ptr<SessionInternals> SessionProxy::createSplitSession(std::shared_ptr<core::configuration::IServerConfiguration> updatedServerConfig)
+{
+	return createSession(nullptr, updatedServerConfig);
 }
 
 std::shared_ptr<openkit::ISession> SessionProxy::getOrSplitCurrentSessionByEvents()
 {
 	if (isSessionSplitByEventsRequired())
 	{
-		auto newSession = createSession(mServerConfiguration);
+		auto newSession = createSplitSession(mServerConfiguration);
 		mTopLevelActionCount = 0;
 
 		// try to close old session or wait half the max session duration and then close it forcefully
@@ -274,7 +279,10 @@ bool SessionProxy::isSessionSplitByEventsRequired() const
 	return mServerConfiguration->getMaxEventsPerSession() <= mTopLevelActionCount;
 }
 
-std::shared_ptr<SessionInternals> SessionProxy::createSession(std::shared_ptr<core::configuration::IServerConfiguration> sessionServerConfig)
+std::shared_ptr<SessionInternals> SessionProxy::createSession(
+	std::shared_ptr<core::configuration::IServerConfiguration> initialServerConfig,
+	std::shared_ptr<core::configuration::IServerConfiguration> updatedServerConfig
+)
 {
 	auto session = mSessionCreator->createSession(shared_from_this());
 	auto beacon = session->getBeacon();
@@ -287,9 +295,13 @@ std::shared_ptr<SessionInternals> SessionProxy::createSession(std::shared_ptr<co
 	mLastInteractionTime = beacon->getSessionStartTime();
 	mTopLevelActionCount = 0;
 
-	if (sessionServerConfig != nullptr)
+	if (initialServerConfig != nullptr)
 	{
-		session->updateServerConfiguration(sessionServerConfig);
+		session->initializeServerConfiguration(initialServerConfig);
+	}
+	if (updatedServerConfig != nullptr)
+	{
+		session->updateServerConfiguration(updatedServerConfig);
 	}
 
 	mBeaconSender->addSession(session);
@@ -368,7 +380,8 @@ int64_t SessionProxy::splitSessionByTime()
 	mCurrentSession->end();
 
 	mSessionCreator->reset();
-	mCurrentSession = createSession(mServerConfiguration);
+	mCurrentSession = createSplitSession(mServerConfiguration);
+	updateCurrentSessionIdentifier();
 
 	return calculateNextSplitTime();
 }

@@ -33,6 +33,7 @@ BeaconConfiguration::BeaconConfiguration(
 			.build()
 	)
 	, mServerConfiguration(nullptr)
+	, mIsServerConfigurationSet(false)
 	, mServerConfigurationUpdateCallback(nullptr)
 	, mMutex()
 {
@@ -68,8 +69,38 @@ std::shared_ptr<IHTTPClientConfiguration> BeaconConfiguration::getHTTPClientConf
 std::shared_ptr<IServerConfiguration> BeaconConfiguration::getServerConfiguration()
 {
 	// synchronized scope
-	std::lock_guard<std::mutex> lock(mMutex);
+	std::lock_guard<std::recursive_mutex> lock(mMutex);
 	return getServerConfigurationOrDefault();
+}
+
+void BeaconConfiguration::initializeServerConfiguration(std::shared_ptr<IServerConfiguration> initialServerConfiguration)
+{
+	if ((initialServerConfiguration == nullptr)
+		|| (initialServerConfiguration == ServerConfiguration::defaultInstance()))
+	{
+		// ignore DEFAULT configuration since server configuration update does not take over certain attributes
+		// when merging and the configuration already exists.
+		return;
+	}
+
+	ServerConfigurationUpdateCallback callback;
+	{ // synchronized scope
+		std::lock_guard<std::recursive_mutex> lock(mMutex);
+
+		if (isServerConfigurationSet())
+		{
+			return;
+		}
+
+		mServerConfiguration = initialServerConfiguration;
+
+		callback = mServerConfigurationUpdateCallback;
+	}
+
+	if (callback != nullptr)
+	{
+		callback(initialServerConfiguration);
+	}
 }
 
 std::shared_ptr<IServerConfiguration> BeaconConfiguration::getServerConfigurationOrDefault()
@@ -88,7 +119,7 @@ void BeaconConfiguration::updateServerConfiguration(
 
 	ServerConfigurationUpdateCallback callback;
 	{ // synchronized scope
-		std::lock_guard<std::mutex> lock(mMutex);
+		std::lock_guard<std::recursive_mutex> lock(mMutex);
 
 		if (mServerConfiguration != nullptr)
 		{
@@ -96,6 +127,7 @@ void BeaconConfiguration::updateServerConfiguration(
 		}
 
 		mServerConfiguration = newServerConfiguration;
+		mIsServerConfigurationSet = true;
 
 		callback = mServerConfigurationUpdateCallback;
 	}
@@ -119,25 +151,27 @@ void BeaconConfiguration::disableCapture()
 
 void BeaconConfiguration::updateCaptureWith(bool captureState)
 {
-	std::lock_guard<std::mutex> lock(mMutex);
+	std::lock_guard<std::recursive_mutex> lock(mMutex);
 
 	auto currentServerConfig = getServerConfigurationOrDefault();
 	mServerConfiguration = ServerConfiguration::Builder(currentServerConfig)
 		.withCapture(captureState)
 		.build();
+
+	mIsServerConfigurationSet = true;
 }
 
 bool BeaconConfiguration::isServerConfigurationSet()
 {
 	//synchronized scope
-	std::lock_guard<std::mutex> lock(mMutex);
+	std::lock_guard<std::recursive_mutex> lock(mMutex);
 
-	return mServerConfiguration != nullptr;
+	return mIsServerConfigurationSet;
 }
 
 void BeaconConfiguration::setServerConfigurationUpdateCallback(ServerConfigurationUpdateCallback serverConfigurationUpdateCallback)
 {
-	std::lock_guard<std::mutex> lock(mMutex);
+	std::lock_guard<std::recursive_mutex> lock(mMutex);
 
 	mServerConfigurationUpdateCallback = serverConfigurationUpdateCallback;
 }

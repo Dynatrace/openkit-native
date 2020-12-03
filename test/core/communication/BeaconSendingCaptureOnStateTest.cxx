@@ -174,7 +174,7 @@ TEST_F(BeaconSendingCaptureOnStateTest, newSessionRequestsAreMadeForAllNotConfig
 		.WillByDefault(testing::Return(mockClient));
 	ON_CALL(*mockContext, getAllNotConfiguredSessions())
 		.WillByDefault(testing::Return(notConfiguredSessions));
-	ON_CALL(*mockContext, updateLastResponseAttributesFrom(testing::_))
+	ON_CALL(*mockContext, updateFrom(testing::_))
 		.WillByDefault(testing::Return(successResponse->getResponseAttributes()));
 
 	EXPECT_CALL(*mockClient, sendNewSessionRequest(testing::Ref(*mockContext)))
@@ -218,7 +218,7 @@ TEST_F(BeaconSendingCaptureOnStateTest, successfulNewSessionRequestUpdateLastRes
 	ON_CALL(*sessionRequestResponse, getResponseAttributes())
 		.WillByDefault(testing::Return(mockResponseAttributes));
 
-	EXPECT_CALL(*mockContext, updateLastResponseAttributesFrom(testing::Eq(sessionRequestResponse)))
+	EXPECT_CALL(*mockContext, updateFrom(testing::Eq(sessionRequestResponse)))
 		.Times(testing::Exactly(1))
 		.WillOnce(testing::Return(mockResponseAttributes));
 

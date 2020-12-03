@@ -631,6 +631,11 @@ const core::UTF8String& Beacon::getClientIPAddress() const
 	return mClientIPAddress;
 }
 
+void Beacon::initializeServerConfiguration(std::shared_ptr<core::configuration::IServerConfiguration> serverConfiguration)
+{
+	mBeaconConfiguration->initializeServerConfiguration(serverConfiguration);
+}
+
 void Beacon::updateServerConfiguration(std::shared_ptr<core::configuration::IServerConfiguration> serverConfig)
 {
 	mBeaconConfiguration->updateServerConfiguration(serverConfig);

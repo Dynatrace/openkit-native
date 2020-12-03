@@ -130,6 +130,25 @@ TEST_F(SessionProxyTest, constructingASessionProxyCreatesASessionInitially)
     auto target = createSessionProxy();
 }
 
+TEST_F(SessionProxyTest, initiallyCreatedSessionIsInitializedWithServerConfiguration)
+{
+    // with
+    auto initialServerConfig = MockIServerConfiguration::createNice();
+
+    // expect
+    EXPECT_CALL(*mockSessionCreator, createSession(testing::_))
+        .Times(1);
+    EXPECT_CALL(*mockSession, initializeServerConfiguration(testing::Eq(initialServerConfig)))
+        .Times(1);
+
+    // given
+    ON_CALL(*mockBeaconSender, getLastServerConfiguration())
+        .WillByDefault(testing::Return(initialServerConfig));
+    
+    // when
+    auto target = createSessionProxy();
+}
+
 TEST_F(SessionProxyTest, aNewlyCreatedSessionProxyIsNotFinished)
 {
     // given

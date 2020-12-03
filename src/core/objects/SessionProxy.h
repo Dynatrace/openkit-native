@@ -132,17 +132,30 @@ namespace core
 
 			void createInitialSession();
 
+			std::shared_ptr<SessionInternals> createSplitSession(std::shared_ptr<core::configuration::IServerConfiguration> updatedServerConfig);
+
 			std::shared_ptr<openkit::ISession> getOrSplitCurrentSessionByEvents();
 
 			///
-			/// Creates a new session and adds it to the beacon sender. In case the given server configuration is not @c nullptr,
-			/// the new session will be initialized with this server configuration.
-			/// The top level action count is reset to zero and the last interaction time is set to the current timestamp.
+			/// Creates a new session and adds it to the beacon sender. The top level action count is reset to zero and the
+			/// last interaction time is set to the current timestamp.
 			///
-			/// @param sessionServerConfig the server configuration with which the session will be initialized. Can be @c nullptr.
-			/// @return the newly created session.
+			/// @par
+			/// In case the given <code>initialServerConfig</code> is not null, the new session will be initialized with
+			/// this server configuration. The created session however will not be in state
+			/// <see cref="ISessionState.IsConfigured">configured</see>, meaning new session requests will be performed for
+			/// this session.
+			/// 
+			/// @par
+			/// In case the given <code>updatedServerConfig</code> is not null, the new session will be updated with this
+			/// server configuration. The created session will be in state
+			/// <see cref="ISessionState.IsConfigured">configured</see>, meaning new session requests will be omitted.
 			///
-			std::shared_ptr<SessionInternals> createSession(std::shared_ptr<core::configuration::IServerConfiguration> sessionServerConfig);
+			/// @param initialServerConfig the server configuration with which the session will be initialized. Can be @c nullptr.
+			/// @param updatedServerConfig the server configuration with which the session will be updated. Can be @c nullptr.
+			///
+			std::shared_ptr<SessionInternals> createSession(std::shared_ptr<core::configuration::IServerConfiguration> initialServerConfig,
+				std::shared_ptr<core::configuration::IServerConfiguration> updatedServerConfig);
 
 			void updateCurrentSessionIdentifier();
 

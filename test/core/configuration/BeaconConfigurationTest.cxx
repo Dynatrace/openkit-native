@@ -164,6 +164,105 @@ TEST_F(BeaconConfigurationTest, newInstanceReturnsHttpClientConfigWithGivenServe
 	ASSERT_THAT(obtained->getServerID(), testing::Eq(serverId));
 }
 
+TEST_F(BeaconConfigurationTest, initializeServerConfigurationDoesNotSetIsServerConfigurationSet)
+{
+	// given
+	auto serverConfig = MockIServerConfiguration::createStrict(); // expect no calls
+	auto target = createBeaconConfig();
+
+	// when
+	target->initializeServerConfiguration(serverConfig);
+
+	// then
+	ASSERT_THAT(target->isServerConfigurationSet(), testing::Eq(false));
+}
+
+TEST_F(BeaconConfigurationTest, initializeServerConfigurationSetsServerConfiguration)
+{
+	// given
+	auto serverConfig = MockIServerConfiguration::createStrict(); // expect no calls
+	auto target = createBeaconConfig();
+
+	// when
+	target->initializeServerConfiguration(serverConfig);
+
+	// then
+	ASSERT_THAT(target->getServerConfiguration(), testing::Eq(serverConfig));
+}
+
+TEST_F(BeaconConfigurationTest, initializeServerConfigurationWithNullConfigurationDoesNothing)
+{
+	// given
+	auto updateServerConfigurationCallbackCalled = false;
+	auto updateServerConfigurationCallback = [&updateServerConfigurationCallbackCalled](IServerConfiguration_sp updatedServerConfiguration) {
+		updateServerConfigurationCallbackCalled = true;
+	};
+
+	auto target = createBeaconConfig();
+	target->setServerConfigurationUpdateCallback(updateServerConfigurationCallback);
+
+	// when
+	target->initializeServerConfiguration(nullptr);
+
+	// then
+	ASSERT_THAT(updateServerConfigurationCallbackCalled, testing::Eq(false));
+	ASSERT_THAT(target->getServerConfiguration(), testing::Eq(ServerConfiguration_t::defaultInstance()));
+}
+
+TEST_F(BeaconConfigurationTest, initializeServerConfigurationWithDefaultConfigurationDoesNothing)
+{
+	// given
+	auto updateServerConfigurationCallbackCalled = false;
+	auto updateServerConfigurationCallback = [&updateServerConfigurationCallbackCalled](IServerConfiguration_sp updatedServerConfiguration) {
+		updateServerConfigurationCallbackCalled = true;
+	};
+
+	auto target = createBeaconConfig();
+	target->setServerConfigurationUpdateCallback(updateServerConfigurationCallback);
+
+	// when
+	target->initializeServerConfiguration(ServerConfiguration_t::defaultInstance());
+
+	// then
+	ASSERT_THAT(updateServerConfigurationCallbackCalled, testing::Eq(false));
+}
+
+TEST_F(BeaconConfigurationTest, initializeServerConfigurationDoesNotSetServerConfigurationIfAlreadySet)
+{
+	// given
+	auto updatedServerConfig = MockIServerConfiguration::createNice();
+	auto initialServerConfig = MockIServerConfiguration::createNice();
+
+	auto target = createBeaconConfig();
+	target->updateServerConfiguration(updatedServerConfig);
+	ASSERT_THAT(target->isServerConfigurationSet(), testing::Eq(true));
+
+	// when
+	target->initializeServerConfiguration(initialServerConfig);
+
+	// then
+	ASSERT_THAT(target->getServerConfiguration(), testing::Eq(updatedServerConfig));
+}
+
+TEST_F(BeaconConfigurationTest, initializeServerConfigurationDoesInvokeCallbackIfCallbackIsSet)
+{
+	// given
+	auto serverConfig = MockIServerConfiguration::createNice();
+	auto updateServerConfigurationCallbackCalled = false;
+	auto updateServerConfigurationCallback = [&updateServerConfigurationCallbackCalled](IServerConfiguration_sp updatedServerConfiguration) {
+		updateServerConfigurationCallbackCalled = true;
+	};
+
+	auto target = createBeaconConfig();
+	target->setServerConfigurationUpdateCallback(updateServerConfigurationCallback);
+
+	// when
+	target->initializeServerConfiguration(serverConfig);
+
+	// then
+	ASSERT_THAT(updateServerConfigurationCallbackCalled, testing::Eq(true));
+}
+
 TEST_F(BeaconConfigurationTest, updateServerConfigurationSetsIsServerConfigurationSet)
 {
 	// given

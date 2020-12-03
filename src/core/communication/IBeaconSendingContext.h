@@ -18,6 +18,7 @@
 #define _CORE_COMMUNICATION_IBEACONSENDINGCONTEXT_H
 
 #include "IBeaconSendingState.h"
+#include "core/configuration/IServerConfiguration.h"
 #include "core/objects/SessionInternals.h"
 #include "protocol/IAdditionalQueryParameters.h"
 #include "protocol/IHTTPClient.h"
@@ -192,12 +193,17 @@ namespace core
 			/// @return in case the given IStatusResponse was successful the updated response attributes are returned. Otherwise
 			/// the current response attributes are returned.
 			///
-			virtual std::shared_ptr<protocol::IResponseAttributes> updateLastResponseAttributesFrom(std::shared_ptr<protocol::IStatusResponse> statusResponse) = 0;
+			virtual std::shared_ptr<protocol::IResponseAttributes> updateFrom(std::shared_ptr<protocol::IStatusResponse> statusResponse) = 0;
 
 			///
 			/// Returns the last attributes received as response from the server.
 			///
 			virtual std::shared_ptr<protocol::IResponseAttributes> getLastResponseAttributes() const = 0;
+
+			///
+			/// Returns the last known IServerConfiguration.
+			///
+			virtual std::shared_ptr<core::configuration::IServerConfiguration> getLastServerConfiguration() const = 0;
 
 			///
 			/// Get all sessions that were not yet configured.

@@ -111,6 +111,11 @@ void BeaconSender::shutdown()
 	// if the thread is still running here it will either finish later or killed when the main process is ended
 }
 
+std::shared_ptr<core::configuration::IServerConfiguration> BeaconSender::getLastServerConfiguration()
+{
+	return mBeaconSendingContext->getLastServerConfiguration();
+}
+
 int32_t BeaconSender::getCurrentServerID() const
 {
 	return mBeaconSendingContext->getCurrentServerID();

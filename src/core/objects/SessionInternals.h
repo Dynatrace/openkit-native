@@ -110,6 +110,12 @@ namespace core
 			virtual void setSplitByEventsGracePeriodEndTimeInMillis(int64_t splitByEventsGracePeriodEndTimeInMillis) = 0;
 
 			///
+			/// Initializes the IBeacon with the given IServerConfiguration.
+			///
+			/// @param initialServerConfig the server configuration passed to IBeacon.
+			virtual void initializeServerConfiguration(std::shared_ptr<core::configuration::IServerConfiguration> initialServerConfig) = 0;
+
+			///
 			/// Updates the this session with the given server configuration.
 			///
 			virtual void updateServerConfiguration(

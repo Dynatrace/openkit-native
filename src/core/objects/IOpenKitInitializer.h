@@ -83,7 +83,7 @@ namespace core
 			virtual std::shared_ptr<core::caching::IBeaconCache> getBeaconCache() const = 0;
 
 			///
-			/// Returns eviction thread to prevent beacon cache form overflowing.
+			/// Returns eviction thread to prevent beacon cache from overflowing.
 			///
 			virtual std::shared_ptr<core::caching::IBeaconCacheEvictor> getBeaconCacheEvictor() const = 0;
 

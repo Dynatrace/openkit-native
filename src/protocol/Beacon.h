@@ -120,6 +120,8 @@ namespace protocol
 
 		const core::UTF8String& getClientIPAddress() const override;
 
+		void initializeServerConfiguration(std::shared_ptr<core::configuration::IServerConfiguration> serverConfiguration) override;
+
 		void updateServerConfiguration(std::shared_ptr<core::configuration::IServerConfiguration> serverConfig) override;
 
 		bool isServerConfigurationSet() override;

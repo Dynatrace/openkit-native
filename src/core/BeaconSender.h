@@ -66,6 +66,8 @@ namespace core
 
 		void shutdown() override;
 
+		std::shared_ptr<core::configuration::IServerConfiguration> getLastServerConfiguration() override;
+
 		int32_t getCurrentServerID() const override;
 
 		void addSession(std::shared_ptr<core::objects::SessionInternals> session) override;

@@ -66,6 +66,8 @@ namespace core
 
 			std::shared_ptr<IServerConfiguration> getServerConfiguration() override;
 
+			void initializeServerConfiguration(std::shared_ptr<IServerConfiguration> initialServerConfiguration) override;
+
 			void enableCapture() override;
 
 			void disableCapture() override;
@@ -99,11 +101,14 @@ namespace core
 			/// server related configuration
 			std::shared_ptr<IServerConfiguration> mServerConfiguration;
 
+			/// indicator if server configuration was set or not
+			bool mIsServerConfigurationSet;
+
 			/// Callback invoked when server configuration is updated
 			ServerConfigurationUpdateCallback mServerConfigurationUpdateCallback;
 
 			/// synchronization
-			std::mutex mMutex;
+			std::recursive_mutex mMutex;
 		};
 	}
 }

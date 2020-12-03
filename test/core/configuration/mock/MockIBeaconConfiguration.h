@@ -64,6 +64,12 @@ namespace test
 
 		MOCK_METHOD0(getServerConfiguration, std::shared_ptr<core::configuration::IServerConfiguration>());
 
+		MOCK_METHOD1(initializeServerConfiguration,
+			void(
+				std::shared_ptr<core::configuration::IServerConfiguration> /* initialServerConfiguration */
+			)
+		);
+
 		MOCK_METHOD0(enableCapture, void());
 
 		MOCK_METHOD0(disableCapture, void());

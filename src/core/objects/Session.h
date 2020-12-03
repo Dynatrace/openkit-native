@@ -113,6 +113,8 @@ namespace core
 
 			void setSplitByEventsGracePeriodEndTimeInMillis(int64_t splitByEventsGracePeriodEndTimeInMillis) override;
 
+			void initializeServerConfiguration(std::shared_ptr<core::configuration::IServerConfiguration> initialServerConfig) override;
+
 			void updateServerConfiguration(
 				std::shared_ptr<core::configuration::IServerConfiguration> serverConfig
 			) override;

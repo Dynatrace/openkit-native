@@ -259,6 +259,11 @@ void Session::setSplitByEventsGracePeriodEndTimeInMillis(int64_t splitByEventsGr
 	mSplitByEventsGracePeriodEndTimeInMillis = splitByEventsGracePeriodEndTimeInMillis;
 }
 
+void Session::initializeServerConfiguration(std::shared_ptr<core::configuration::IServerConfiguration> initialServerConfig)
+{
+	mBeacon->initializeServerConfiguration(initialServerConfig);
+}
+
 void Session::updateServerConfiguration(std::shared_ptr<core::configuration::IServerConfiguration> serverConfig)
 {
 	mBeacon->updateServerConfiguration(serverConfig);

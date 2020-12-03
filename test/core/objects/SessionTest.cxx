@@ -850,6 +850,25 @@ TEST_F(SessionTest, isEmptyForwardsCallToBeacon)
 	target->isEmpty();
 }
 
+TEST_F(SessionTest, initializeServerConfigurationForwardsCallToBeacon)
+{
+	// with
+	auto mockBeaconStrict = MockIBeacon::createStrict();
+	auto mockServerConfig = MockIServerConfiguration::createStrict();
+
+	// expect
+	EXPECT_CALL(*mockBeaconStrict, initializeServerConfiguration(testing::Eq(mockServerConfig)))
+		.Times(1);
+
+	// given
+	auto target = createSession()
+		->with(mockBeaconStrict)
+		.build();
+
+	// when
+	target->initializeServerConfiguration(mockServerConfig);
+}
+
 TEST_F(SessionTest, updateServerConfigurationForwardsCallToBeacon)
 {
 	// with

@@ -253,6 +253,13 @@ namespace protocol
 		virtual const core::UTF8String& getClientIPAddress() const = 0;
 
 		///
+		/// Initializes the beacon with the given IServerConfiguration.
+		///
+		/// @param serverConfiguration the server configuration which will be used for initialization.
+		///
+		virtual void initializeServerConfiguration(std::shared_ptr<core::configuration::IServerConfiguration> serverConfiguration) = 0;
+
+		///
 		/// Updates this beacon with the given server configuration
 		///
 		/// @param serverConfig the server configuration which will be used to update this beacon.

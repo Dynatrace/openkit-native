@@ -175,6 +175,12 @@ namespace test
 
 		MOCK_CONST_METHOD0(getClientIPAddress, core::UTF8String&());
 
+		MOCK_METHOD1(initializeServerConfiguration,
+			void(
+				std::shared_ptr<core::configuration::IServerConfiguration> /* serverConfiguration */
+			)
+		);
+
 		MOCK_METHOD1(updateServerConfiguration,
 			void(
 				std::shared_ptr<core::configuration::IServerConfiguration> /* serverConfig */

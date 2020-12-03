@@ -36,7 +36,8 @@ BeaconSendingContext::BeaconSendingContext(
 	std::shared_ptr<core::util::IInterruptibleThreadSuspender> threadSuspender,
 	std::unique_ptr<IBeaconSendingState> initialState
 )
-	: mLogger(logger)
+	: mLockObject()
+	, mLogger(logger)
 	, mCurrentState(std::move(initialState))
 	, mNextState(nullptr)
 	, mShutdown(false)
@@ -134,6 +135,8 @@ bool BeaconSendingContext::isInTerminalState() const
 
 bool BeaconSendingContext::isCaptureOn() const
 {
+	std::lock_guard<std::mutex> guard(mLockObject);
+
 	return mServerConfiguration->isCaptureEnabled();
 }
 
@@ -199,6 +202,8 @@ void BeaconSendingContext::setLastStatusCheckTime(int64_t lastStatusCheckTime)
 
 int64_t BeaconSendingContext::getSendInterval() const
 {
+	std::lock_guard<std::mutex> guard(mLockObject);
+
 	return mLastResponseAttributes->getSendIntervalInMilliseconds();
 }
 
@@ -211,6 +216,8 @@ void BeaconSendingContext::disableCaptureAndClear()
 
 void BeaconSendingContext::disableCapture()
 {
+	std::lock_guard<std::mutex> guard(mLockObject);
+
 	mServerConfiguration = core::configuration::ServerConfiguration::Builder(mServerConfiguration)
 			.withCapture(false)
 			.build();
@@ -224,13 +231,26 @@ void BeaconSendingContext::handleStatusResponse(std::shared_ptr<protocol::IStatu
 		return;
 	}
 
-	auto updatedAttributes = updateLastResponseAttributesFrom(response);
-	mServerConfiguration = core::configuration::ServerConfiguration::Builder(updatedAttributes).build();
+	auto updatedAttributes = updateFrom(response);
 	if (!isCaptureOn())
 	{
 		// capturing was turned off
 		clearAllSessionData();
 	}
+}
+
+std::shared_ptr<protocol::IResponseAttributes> BeaconSendingContext::updateFrom(std::shared_ptr<protocol::IStatusResponse> statusResponse)
+{
+	std::lock_guard<std::mutex> guard(mLockObject);
+
+	if (!BeaconSendingResponseUtil::isSuccessfulResponse(statusResponse))
+	{
+		return  mLastResponseAttributes;
+	}
+
+	mLastResponseAttributes = mLastResponseAttributes->merge(statusResponse->getResponseAttributes());
+
+	mServerConfiguration = core::configuration::ServerConfiguration::Builder(mLastResponseAttributes).build();
 
 	auto serverId = mServerConfiguration->getServerId();
 	if (serverId != mHTTPClientConfiguration->getServerID())
@@ -239,21 +259,22 @@ void BeaconSendingContext::handleStatusResponse(std::shared_ptr<protocol::IStatu
 			.withServerID(serverId)
 			.build();
 	}
-}
-
-std::shared_ptr<protocol::IResponseAttributes> BeaconSendingContext::updateLastResponseAttributesFrom(std::shared_ptr<protocol::IStatusResponse> statusResponse)
-{
-	if (BeaconSendingResponseUtil::isSuccessfulResponse(statusResponse))
-	{
-		mLastResponseAttributes = mLastResponseAttributes->merge(statusResponse->getResponseAttributes());
-	}
 
 	return mLastResponseAttributes;
 }
 
 std::shared_ptr<protocol::IResponseAttributes> BeaconSendingContext::getLastResponseAttributes() const
 {
+	std::lock_guard<std::mutex> guard(mLockObject);
+
 	return mLastResponseAttributes;
+}
+
+std::shared_ptr<core::configuration::IServerConfiguration> BeaconSendingContext::getLastServerConfiguration() const
+{
+	std::lock_guard<std::mutex> guard(mLockObject);
+
+	return mServerConfiguration;
 }
 
 void BeaconSendingContext::clearAllSessionData()
@@ -340,5 +361,7 @@ IBeaconSendingState::StateType BeaconSendingContext::getCurrentStateType() const
 
 int64_t BeaconSendingContext::getConfigurationTimestamp() const
 {
+	std::lock_guard<std::mutex> guard(mLockObject);
+
 	return mLastResponseAttributes->getTimestampInMilliseconds();
 }

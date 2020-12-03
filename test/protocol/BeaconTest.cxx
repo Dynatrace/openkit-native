@@ -2196,6 +2196,22 @@ TEST_F(BeaconTest, sessionIDIsValueFromSessionIDProviderIfSessionNumberReporting
 	ASSERT_THAT(obtained, testing::Eq(SESSION_ID));
 }
 
+TEST_F(BeaconTest, initializeServerConfigurationDelegatesToBeacon)
+{
+	// with
+	auto serverConfig = MockIServerConfiguration::createStrict();
+
+	// expect
+	EXPECT_CALL(*mockBeaconConfiguration, initializeServerConfiguration(testing::Eq(serverConfig)))
+		.Times(1);
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when
+	target->initializeServerConfiguration(serverConfig);
+}
+
 TEST_F(BeaconTest, updateServerConfigurationDelegatesToBeaconConfig)
 {
 	// with

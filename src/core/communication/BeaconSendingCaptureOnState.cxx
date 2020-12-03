@@ -199,7 +199,7 @@ std::shared_ptr<protocol::IStatusResponse> BeaconSendingCaptureOnState::sendNewS
 		statusResponse = context.getHTTPClient()->sendNewSessionRequest(context);
 		if (BeaconSendingResponseUtil::isSuccessfulResponse(statusResponse))
 		{
-			auto updatedAttributes = context.updateLastResponseAttributesFrom(statusResponse);
+			auto updatedAttributes = context.updateFrom(statusResponse);
 			auto newServerConfig = configuration::ServerConfiguration::from(updatedAttributes);
 			session->updateServerConfiguration(newServerConfig);
 		}

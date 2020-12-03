@@ -57,6 +57,8 @@ namespace test
 
 		MOCK_METHOD0(shutdown, void());
 
+		MOCK_METHOD0(getLastServerConfiguration, std::shared_ptr<core::configuration::IServerConfiguration>());
+
 		MOCK_CONST_METHOD0(getCurrentServerID, int32_t());
 
 		MOCK_METHOD1(addSession,

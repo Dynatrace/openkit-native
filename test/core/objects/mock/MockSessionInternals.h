@@ -110,6 +110,12 @@ namespace test
 			)
 		);
 
+		MOCK_METHOD1(initializeServerConfiguration, 
+			void(
+				std::shared_ptr<core::configuration::IServerConfiguration> /* initialServerConfig */ 
+			)
+		);
+
 		MOCK_METHOD1(updateServerConfiguration,
 			void(
 				std::shared_ptr<core::configuration::IServerConfiguration> /* serverConfig */

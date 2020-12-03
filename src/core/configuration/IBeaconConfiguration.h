@@ -66,12 +66,21 @@ namespace core
 			virtual std::shared_ptr<IServerConfiguration> getServerConfiguration() = 0;
 
 			///
-			/// Enables the capturing and implicitly sets @ref isServerConfigurationSet()
+			/// Initializes this beacon configuration with the given server configuration. This will not set
+			/// IBeaconConfiguration::isServerConfigurationSet to @c true so that new session requests to the server will
+			/// still be done. In case the IBeaconConfiguration::isServerConfigurationSet was already set, this method does nothing.
+			///
+			/// @param initialServerConfiguration the server configuration to initialize this beacon configuration with.
+			///
+			virtual void initializeServerConfiguration(std::shared_ptr<IServerConfiguration> initialServerConfiguration) = 0;
+
+			///
+			/// Enables the capturing and sets @ref isServerConfigurationSet()
 			///
 			virtual void enableCapture() = 0;
 
 			///
-			/// Disables capturing and implicitly sets @ref isServerConfigurationSet()
+			/// Disables capturing and sets @ref isServerConfigurationSet()
 			///
 			virtual void disableCapture() = 0;
 

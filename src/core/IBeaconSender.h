@@ -61,6 +61,11 @@ namespace core
 		virtual void shutdown() = 0;
 
 		///
+		/// Returns the last stored IServerConfiguration
+		///
+		virtual std::shared_ptr<core::configuration::IServerConfiguration> getLastServerConfiguration() = 0;
+
+		///
 		/// Returns the current serverID to be used for creating new sessions.
 		///
 		virtual int32_t getCurrentServerID() const = 0;

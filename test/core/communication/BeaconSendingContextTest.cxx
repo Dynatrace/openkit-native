@@ -987,6 +987,64 @@ TEST_F(BeaconSendingContextTest, getCurrentServerIdReturnsServerIdOfHttpClientCo
 	ASSERT_THAT(obtained, testing::Eq(serverId));
 }
 
+TEST_F(BeaconSendingContextTest, updateFromDoesNothingIfStatusResponseIsNull)
+{
+	// given
+	auto target = createBeaconSendingContext()->build();
+	auto initialAttributes = target->getLastResponseAttributes();
+
+	// when
+	auto obtained = target->updateFrom(nullptr);
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(initialAttributes));
+}
+
+TEST_F(BeaconSendingContextTest, uppdateFromDoesNothingIfStatusResponseIsNotSuccessful)
+{
+	// with
+	auto response = MockIStatusResponse::createNice();
+
+	// expect
+	EXPECT_CALL(*response, isErroneousResponse())
+		.Times(1)
+		.WillOnce(testing::Return(true));
+
+	auto target = createBeaconSendingContext()->build();
+	auto initialAttributes = target->getLastResponseAttributes();
+
+	// when
+	auto obtained = target->updateFrom(response);
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(initialAttributes));
+}
+
+TEST_F(BeaconSendingContextTest, uppdateFromMergesResponseAttributesFromStatusResponse)
+{
+	// given
+	const int32_t serverId = 9999;
+	auto attributes = ResponseAttributes_t::withUndefinedDefaults().withServerId(serverId).build();
+	
+	auto response = MockIStatusResponse::createNice();
+	ON_CALL(*response, getResponseAttributes())
+		.WillByDefault(testing::Return(attributes));
+	ON_CALL(*response, isErroneousResponse())
+		.WillByDefault(testing::Return(false));
+
+	auto target = createBeaconSendingContext()->build();
+	auto initialAttributes = target->getLastResponseAttributes();
+
+	// when
+	auto obtained = target->updateFrom(response);
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(target->getLastResponseAttributes()));
+	ASSERT_THAT(obtained, testing::Ne(initialAttributes));
+	ASSERT_THAT(obtained, testing::Ne(attributes));
+	ASSERT_THAT(obtained->getServerId(), testing::Eq(serverId));
+}
+
 TEST_F(BeaconSendingContextTest, configurationTimestampReturnsZeroOnDefault)
 {
 	// given
@@ -1014,7 +1072,7 @@ TEST_F(BeaconSendingContextTest, configurationTimestampReturnsValueFromResponseA
 	auto target = createBeaconSendingContext()->build();
 
 	// when
-	target->updateLastResponseAttributesFrom(response);
+	target->updateFrom(response);
 
 	// then
 	ASSERT_THAT(target->getConfigurationTimestamp(), testing::Eq(timestamp));
