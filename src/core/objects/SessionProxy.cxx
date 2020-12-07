@@ -380,8 +380,7 @@ int64_t SessionProxy::splitSessionByTime()
 	mCurrentSession->end();
 
 	mSessionCreator->reset();
-	mCurrentSession = createSplitSession(mServerConfiguration);
-	updateCurrentSessionIdentifier();
+	createInitialSession();
 
 	return calculateNextSplitTime();
 }
