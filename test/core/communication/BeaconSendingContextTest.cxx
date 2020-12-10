@@ -1000,7 +1000,7 @@ TEST_F(BeaconSendingContextTest, updateFromDoesNothingIfStatusResponseIsNull)
 	ASSERT_THAT(obtained, testing::Eq(initialAttributes));
 }
 
-TEST_F(BeaconSendingContextTest, uppdateFromDoesNothingIfStatusResponseIsNotSuccessful)
+TEST_F(BeaconSendingContextTest, updateFromDoesNothingIfStatusResponseIsNotSuccessful)
 {
 	// with
 	auto response = MockIStatusResponse::createNice();
@@ -1020,7 +1020,7 @@ TEST_F(BeaconSendingContextTest, uppdateFromDoesNothingIfStatusResponseIsNotSucc
 	ASSERT_THAT(obtained, testing::Eq(initialAttributes));
 }
 
-TEST_F(BeaconSendingContextTest, uppdateFromMergesResponseAttributesFromStatusResponse)
+TEST_F(BeaconSendingContextTest, updateFromMergesResponseAttributesFromStatusResponse)
 {
 	// given
 	const int32_t serverId = 9999;
@@ -1043,6 +1043,32 @@ TEST_F(BeaconSendingContextTest, uppdateFromMergesResponseAttributesFromStatusRe
 	ASSERT_THAT(obtained, testing::Ne(initialAttributes));
 	ASSERT_THAT(obtained, testing::Ne(attributes));
 	ASSERT_THAT(obtained->getServerId(), testing::Eq(serverId));
+}
+
+TEST_F(BeaconSendingContextTest, updateFromDisablesCapturingIfReceivedApplicationIdMismatches)
+{
+	// given
+	auto applicationId = core::UTF8String{ "some application id" };
+	ON_CALL(*mockHttpClientConfig, getApplicationID()).WillByDefault(testing::ReturnRef(applicationId));
+	auto attributes = ResponseAttributes_t::withUndefinedDefaults()
+		.withApplicationId("different application id")
+		.build();
+
+	auto response = MockIStatusResponse::createNice();
+	ON_CALL(*response, getResponseAttributes())
+		.WillByDefault(testing::Return(attributes));
+	ON_CALL(*response, isErroneousResponse())
+		.WillByDefault(testing::Return(false));
+	
+	auto target = createBeaconSendingContext()->build();
+	const auto initialCaptureOn = target->isCaptureOn();
+	
+	// when
+	target->updateFrom(response);
+	
+	// then
+	ASSERT_THAT(initialCaptureOn, testing::Eq(true));
+	ASSERT_THAT(target->isCaptureOn(), testing::Eq(false));
 }
 
 TEST_F(BeaconSendingContextTest, configurationTimestampReturnsZeroOnDefault)
@@ -1076,4 +1102,55 @@ TEST_F(BeaconSendingContextTest, configurationTimestampReturnsValueFromResponseA
 
 	// then
 	ASSERT_THAT(target->getConfigurationTimestamp(), testing::Eq(timestamp));
+}
+
+TEST_F(BeaconSendingContextTest, applicationIdMatchesIfApplicationIdWasNotReceived)
+{
+	// given
+	const auto applicationId = core::UTF8String{ "application id" };
+	ON_CALL(*mockHttpClientConfig, getApplicationID()).WillByDefault(testing::ReturnRef(applicationId));
+	auto attributes = ResponseAttributes_t::withUndefinedDefaults().build();
+
+	auto target = createBeaconSendingContext()->build();
+
+	// when
+	const auto obtained = target->isApplicationIdMismatch(attributes);
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(false));
+}
+
+TEST_F(BeaconSendingContextTest, applicationIdMatchesIfStoredAndReceivedApplicationIdsAreEqual)
+{
+	// given
+	const auto applicationId = core::UTF8String{ "application id" };
+	ON_CALL(*mockHttpClientConfig, getApplicationID()).WillByDefault(testing::ReturnRef(applicationId));
+	auto attributes = ResponseAttributes_t::withUndefinedDefaults()
+	.withApplicationId(applicationId).build();
+	
+	auto target = createBeaconSendingContext()->build();
+
+	// when
+	const auto obtained = target->isApplicationIdMismatch(attributes);
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(false));
+}
+
+TEST_F(BeaconSendingContextTest, applicationIdMismatchesIfStoredAndReceivedApplicationIdsAreNotEqual)
+{
+	// given
+	const auto applicationId = core::UTF8String{ "application id" };
+	const auto applicationIdUpperCase = core::UTF8String{ "application ID" };
+	ON_CALL(*mockHttpClientConfig, getApplicationID()).WillByDefault(testing::ReturnRef(applicationIdUpperCase));
+	auto attributes = ResponseAttributes_t::withUndefinedDefaults()
+		.withApplicationId(applicationId).build();
+
+	auto target = createBeaconSendingContext()->build();
+
+	// when
+	const auto obtained = target->isApplicationIdMismatch(attributes);
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(true));
 }

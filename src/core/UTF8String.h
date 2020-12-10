@@ -129,6 +129,12 @@ namespace core
 		bool empty() const;
 
 		///
+		/// Returns the number bytes used by the string, not the number of character, for that please see getStringLength.
+		/// @returns Byte size of the UTF8 string
+		//
+		size_type size() const;
+
+		///
 		/// Splits the string at the provided ascii separator
 		/// @param[in] delimiter the ASCII character at which to split the string.
 		/// @returns a vector of UTF8 substrings

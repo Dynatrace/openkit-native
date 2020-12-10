@@ -370,6 +370,12 @@ bool UTF8String::empty() const
 	return mStringLength == 0;
 }
 
+
+UTF8String::size_type UTF8String::size() const
+{
+	return mData.size();
+}
+
 std::vector<UTF8String> UTF8String::split(char delimiter) const
 {
 	std::vector<UTF8String> parts;

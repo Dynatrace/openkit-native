@@ -78,6 +78,7 @@ TEST_F(ResponseAttributesTest, buildForwardsJsonDefaultsToInstance)
 	ASSERT_THAT(obtained->isCapture(), testing::Eq(defaults->isCapture()));
 	ASSERT_THAT(obtained->isCaptureCrashes(), testing::Eq(defaults->isCaptureCrashes()));
 	ASSERT_THAT(obtained->isCaptureErrors(), testing::Eq(defaults->isCaptureErrors()));
+	ASSERT_THAT(obtained->getApplicationId(), testing::Eq(defaults->getApplicationId()));
 
 	ASSERT_THAT(obtained->getMultiplicity(), testing::Eq(defaults->getMultiplicity()));
 	ASSERT_THAT(obtained->getServerId(), testing::Eq(defaults->getServerId()));
@@ -106,6 +107,7 @@ TEST_F(ResponseAttributesTest, buildForwardsKeyValueDefaultsToInstance)
 	ASSERT_THAT(obtained->isCapture(), testing::Eq(defaults->isCapture()));
 	ASSERT_THAT(obtained->isCaptureCrashes(), testing::Eq(defaults->isCaptureCrashes()));
 	ASSERT_THAT(obtained->isCaptureErrors(), testing::Eq(defaults->isCaptureErrors()));
+	ASSERT_THAT(obtained->getApplicationId(), testing::Eq(defaults->getApplicationId()));
 
 	ASSERT_THAT(obtained->getMultiplicity(), testing::Eq(defaults->getMultiplicity()));
 	ASSERT_THAT(obtained->getServerId(), testing::Eq(defaults->getServerId()));
@@ -124,6 +126,43 @@ TEST_F(ResponseAttributesTest, buildPropagatesMaxBeaconSizeToInstance)
 
 	// then
 	ASSERT_THAT(obtained->getMaxBeaconSizeInBytes(), testing::Eq(beaconSize));
+}
+
+TEST_F(ResponseAttributesTest, buildPropagatesApplicationIdToInstance)
+{
+	// given
+	const core::UTF8String applicationId{"B7D8995C-F91F-4CAA-A248-7AEC8A05E261"};
+	auto target = ResponseAttributes_t::withJsonDefaults();
+
+	// when
+	const auto obtained = target.withApplicationId(applicationId).build();
+
+	// then
+	ASSERT_THAT(obtained->getApplicationId(), testing::Eq(applicationId));
+}
+
+TEST_F(ResponseAttributesTest, withApplicationIdSetsAttributeOnInstance)
+{
+	// given
+	const auto attribute = ResponseAttribute_t::APPLICATION_ID;
+	const core::UTF8String applicationId{ "B7D8995C-F91F-4CAA-A248-7AEC8A05E261" };
+	auto target = ResponseAttributes_t::withJsonDefaults();
+
+	// when
+	const auto obtained = target.withApplicationId(applicationId).build();
+
+	// then
+	ASSERT_THAT(obtained->getApplicationId(), testing::Eq(applicationId));
+	ASSERT_THAT(obtained->isAttributeSet(attribute), testing::Eq(true));
+
+	for (const auto unsetAttribute : protocol::ALL_RESPONSE_ATTRIBUTES)
+	{
+		if (attribute == unsetAttribute)
+		{
+			continue;
+		}
+		ASSERT_THAT(obtained->isAttributeSet(unsetAttribute), testing::Eq(false));
+	}
 }
 
 TEST_F(ResponseAttributesTest, ithMaxBeaconSizeSetsAttributeOnInstance)
@@ -996,6 +1035,51 @@ TEST_F(ResponseAttributesTest, mergeTakesCaptureErrorsFromMergeSourceIfSetInSour
 	// then
 	ASSERT_THAT(obtained, testing::NotNull());
 	ASSERT_THAT(obtained->isCaptureErrors(), testing::Eq(captureErrors));
+}
+
+TEST_F(ResponseAttributesTest, mergeTakesApplicationIdFromMergeTargetIfNotSetInSource)
+{
+	// given
+	const core::UTF8String applicationId{"034D4C04-899B-458F-8514-268CC735BE7F"};
+	auto source = ResponseAttributes_t::withUndefinedDefaults().build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().withApplicationId(applicationId).build();
+
+	// when
+	auto obtained = target->merge(source);
+
+	// then
+	ASSERT_THAT(obtained, testing::NotNull());
+	ASSERT_THAT(obtained->getApplicationId(), testing::Eq(applicationId));
+}
+
+TEST_F(ResponseAttributesTest, mergeTakesApplicationIdFromMergeSourceIfSetInSource)
+{
+	// given
+	const core::UTF8String applicationId{ "034D4C04-899B-458F-8514-268CC735BE7F" };
+	auto source = ResponseAttributes_t::withUndefinedDefaults().withApplicationId(applicationId).build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().build();
+
+	// when
+	auto obtained = target->merge(source);
+
+	// then
+	ASSERT_THAT(obtained, testing::NotNull());
+	ASSERT_THAT(obtained->getApplicationId(), testing::Eq(applicationId));
+}
+
+TEST_F(ResponseAttributesTest, mergeTakesApplicationIdFromMergeSourceIfSetInSourceAndTarget)
+{
+	// given
+	const core::UTF8String applicationId{ "034D4C04-899B-458F-8514-268CC735BE7F" };
+	auto source = ResponseAttributes_t::withUndefinedDefaults().withApplicationId(applicationId).build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().withApplicationId("C5A175BD-F553-419B-9AD4-B57373676030").build();
+
+	// when
+	auto obtained = target->merge(source);
+
+	// then
+	ASSERT_THAT(obtained, testing::NotNull());
+	ASSERT_THAT(obtained->getApplicationId(), testing::Eq(applicationId));
 }
 
 TEST_F(ResponseAttributesTest, mergeTakesMultiplicityFromMergeTargetIfNotSetInSource)

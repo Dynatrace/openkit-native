@@ -156,6 +156,16 @@ namespace core
 
 			int64_t getConfigurationTimestamp() const override;
 
+			///
+			/// Ensure that the application id coming with the response matches the one that was configured for OpenKit.
+			///
+			/// Mismatch check prevents a rare Jetty bug, where responses might be dispatched to the wrong receiver.
+			/// 
+			/// @param The last response attributes received from Dynatrace/AppMon.
+			/// @returns false if application id is matching, true if a mismatch occurred.
+			/// 
+			bool isApplicationIdMismatch(std::shared_ptr<protocol::IResponseAttributes> lastResponseAttributes) const;
+
 		private:
 
 			///

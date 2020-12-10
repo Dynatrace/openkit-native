@@ -30,6 +30,7 @@ ResponseAttributes::ResponseAttributes(Builder& builder)
 	, mIsCapture(builder.isCapture())
 	, mIsCaptureCrashes(builder.isCaptureCrashes())
 	, mIsCaptureErrors(builder.isCaptureErrors())
+	, mApplicationId(builder.getApplicationId())
 	, mMultiplicity(builder.getMultiplicity())
 	, mServerId(builder.getServerId())
 	, mTimestampInMilliseconds(builder.getTimestampInMilliseconds())
@@ -96,6 +97,11 @@ bool ResponseAttributes::isCaptureErrors() const
 	return mIsCaptureErrors;
 }
 
+const core::UTF8String& ResponseAttributes::getApplicationId() const
+{
+	return mApplicationId;
+}
+
 int32_t ResponseAttributes::getMultiplicity() const
 {
 	return mMultiplicity;
@@ -133,6 +139,7 @@ std::shared_ptr<IResponseAttributes> ResponseAttributes::merge(std::shared_ptr<I
 	applyCapture(builder, attributes);
 	applyCaptureCrashes(builder, attributes);
 	applyCaptureErrors(builder, attributes);
+	applyApplicationId(builder, attributes);
 	applyMultiplicity(builder, attributes);
 	applyServerId(builder, attributes);
 	applyTimestamp(builder, attributes);
@@ -239,6 +246,17 @@ void ResponseAttributes::applyCaptureErrors(
 	}
 }
 
+void ResponseAttributes::applyApplicationId(
+	ResponseAttributes::Builder& builder,
+	std::shared_ptr<IResponseAttributes> attributes
+)
+{
+	if (attributes->isAttributeSet(ResponseAttribute::APPLICATION_ID))
+	{
+		builder.withApplicationId(attributes->getApplicationId());
+	}
+}
+
 void ResponseAttributes::applyMultiplicity(
 	ResponseAttributes::Builder& builder,
 	std::shared_ptr<IResponseAttributes> attributes
@@ -287,6 +305,7 @@ ResponseAttributes::Builder::Builder(const IResponseAttributes& defaults)
 	, mIsCapture(defaults.isCapture())
 	, mIsCaptureCrashes(defaults.isCaptureCrashes())
 	, mIsCaptureErrors(defaults.isCaptureErrors())
+	, mApplicationId(defaults.getApplicationId())
 	, mMultiplicity(defaults.getMultiplicity())
 	, mServerId(defaults.getServerId())
 	, mTimestampInMilliseconds(defaults.getTimestampInMilliseconds())
@@ -404,6 +423,18 @@ ResponseAttributes::Builder& ResponseAttributes::Builder::withCaptureCrashes(boo
 bool ResponseAttributes::Builder::isCaptureErrors() const
 {
 	return mIsCaptureErrors;
+}
+
+ResponseAttributes::Builder& ResponseAttributes::Builder::withApplicationId(core::UTF8String applicationId)
+{
+	mApplicationId = std::move(applicationId);
+	setAttribute(ResponseAttribute::APPLICATION_ID);
+	return *this;
+}
+
+const core::UTF8String& ResponseAttributes::Builder::getApplicationId() const
+{
+	return mApplicationId;
 }
 
 ResponseAttributes::Builder& ResponseAttributes::Builder::withCaptureErrors(bool captureErrors)

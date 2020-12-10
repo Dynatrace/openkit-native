@@ -23,6 +23,7 @@
 #include "core/UTF8String.h"
 #include "util/json/objects/JsonObjectValue.h"
 #include "util/json/objects/JsonNumberValue.h"
+#include "util/json/objects/JsonStringValue.h"
 
 #include <memory>
 
@@ -46,6 +47,7 @@ namespace protocol
 		static constexpr const char* RESPONSE_KEY_REPORT_ERRORS = "reportErrors";
 
 		static constexpr const char* RESPONSE_KEY_DYNAMIC_CONFIG = "dynamicConfig";
+		static constexpr const char* RESPONSE_KEY_APPLICATION_ID = "applicationId";
 		static constexpr const char* RESPONSE_KEY_MULTIPLICITY = "multiplicity";
 		static constexpr const char* RESPONSE_KEY_SERVER_ID = "serverId";
 
@@ -58,6 +60,11 @@ namespace protocol
 		JsonResponseParser() {}
 
 		static std::shared_ptr<util::json::objects::JsonObjectValue> getJsonObjectFrom(
+			std::shared_ptr<util::json::objects::JsonObjectValue> jsonObject,
+			const std::string& key
+		);
+
+		static std::shared_ptr<util::json::objects::JsonStringValue> getJsonStringFrom(
 			std::shared_ptr<util::json::objects::JsonObjectValue> jsonObject,
 			const std::string& key
 		);
@@ -128,6 +135,11 @@ namespace protocol
 		static void applyReportErrors(
 			protocol::ResponseAttributes::Builder& builder,
 			std::shared_ptr<util::json::objects::JsonObjectValue> appConfigObject
+		);
+
+		static void applyApplicationId(
+			protocol::ResponseAttributes::Builder& builder,
+			std::shared_ptr<util::json::objects::JsonObjectValue> dynConfigObject
 		);
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////

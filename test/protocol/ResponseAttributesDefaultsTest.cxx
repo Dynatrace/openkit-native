@@ -101,6 +101,11 @@ TEST_F(ResponseAttributesDefaultsTest, defaultJsonIsCaptureErrors)
 	ASSERT_THAT(ResponseAttributesDefaults_t::jsonResponse()->isCaptureErrors(), testing::Eq(true));
 }
 
+TEST_F(ResponseAttributesDefaultsTest, defaultJsonApplicationId)
+{
+	ASSERT_THAT(ResponseAttributesDefaults_t::jsonResponse()->getApplicationId(), testing::IsEmpty());
+}
+
 TEST_F(ResponseAttributesDefaultsTest, defaultJsonMultiplicity)
 {
 	ASSERT_THAT(ResponseAttributesDefaults_t::jsonResponse()->getMultiplicity(), testing::Eq(1));
@@ -165,6 +170,11 @@ TEST_F(ResponseAttributesDefaultsTest, defaultKeyValueIsCaptureErrors)
 	ASSERT_THAT(ResponseAttributesDefaults_t::keyValueResponse()->isCaptureErrors(), testing::Eq(true));
 }
 
+TEST_F(ResponseAttributesDefaultsTest, defaultKeyValueApplicationId)
+{
+	ASSERT_THAT(ResponseAttributesDefaults_t::keyValueResponse()->getApplicationId(), testing::IsEmpty());
+}
+
 TEST_F(ResponseAttributesDefaultsTest, defaultKeyValueMultiplicity)
 {
 	ASSERT_THAT(ResponseAttributesDefaults_t::keyValueResponse()->getMultiplicity(), testing::Eq(1));
@@ -227,6 +237,11 @@ TEST_F(ResponseAttributesDefaultsTest, defaultUndefinedIsCaptureCrashes)
 TEST_F(ResponseAttributesDefaultsTest, defaultUndefinedIsCaptureErrors)
 {
 	ASSERT_THAT(ResponseAttributesDefaults_t::undefined()->isCaptureErrors(), testing::Eq(true));
+}
+
+TEST_F(ResponseAttributesDefaultsTest, defaultUndefinedApplicationId)
+{
+	ASSERT_THAT(ResponseAttributesDefaults_t::undefined()->getApplicationId(), testing::IsEmpty());
 }
 
 TEST_F(ResponseAttributesDefaultsTest, defaultUndefinedMultiplicity)

@@ -18,10 +18,12 @@
 #define _PROTOCOL_MOCK_MOCKIRESPONSEATTRIBUTES_H
 
 #include "protocol/IResponseAttributes.h"
-
+#include "../../DefaultValues.h"
 #include "gmock/gmock.h"
 
 #include <memory>
+
+
 
 namespace test
 {
@@ -34,6 +36,8 @@ namespace test
 		MockIResponseAttributes()
 		{
 			ON_CALL(*this, merge(testing::_)).WillByDefault(testing::Return(nullptr));
+			ON_CALL(*this, getApplicationId())
+				.WillByDefault(testing::ReturnRef(DefaultValues::UTF8_EMPTY_STRING));
 		}
 
 		~MockIResponseAttributes() override = default;
@@ -66,6 +70,8 @@ namespace test
 
 		MOCK_CONST_METHOD0(isCaptureErrors, bool());
 
+		MOCK_CONST_METHOD0(getApplicationId, const core::UTF8String&());
+		
 		MOCK_CONST_METHOD0(getMultiplicity, int32_t());
 
 		MOCK_CONST_METHOD0(getServerId, int32_t());

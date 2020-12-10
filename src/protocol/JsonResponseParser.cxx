@@ -18,6 +18,7 @@
 #include "util/json/JsonParser.h"
 #include "util/json/objects/JsonNumberValue.h"
 #include "util/json/objects/JsonObjectValue.h"
+#include "util/json/objects/JsonStringValue.h"
 
 using namespace protocol;
 
@@ -51,6 +52,20 @@ std::shared_ptr<util::json::objects::JsonObjectValue> JsonResponseParser::getJso
 	}
 
 	return std::dynamic_pointer_cast<util::json::objects::JsonObjectValue>(entry->second);
+}
+
+std::shared_ptr<util::json::objects::JsonStringValue> JsonResponseParser::getJsonStringFrom(
+	std::shared_ptr<util::json::objects::JsonObjectValue> jsonObject,
+	const std::string& key
+)
+{
+	auto entry = jsonObject->find(key);
+	if (entry == jsonObject->end())
+	{
+		return nullptr;
+	}
+
+	return std::dynamic_pointer_cast<util::json::objects::JsonStringValue>(entry->second);
 }
 
 std::shared_ptr<util::json::objects::JsonNumberValue> JsonResponseParser::getJsonNumberFrom(
@@ -198,6 +213,7 @@ void JsonResponseParser::applyApplicationConfiguration(
 	applyCapture(builder, appConfigObject);
 	applyReportCrashes(builder, appConfigObject);
 	applyReportErrors(builder, appConfigObject);
+	applyApplicationId(builder, appConfigObject);
 }
 
 void JsonResponseParser::applyCapture(
@@ -243,6 +259,18 @@ void JsonResponseParser::applyReportErrors(
 
 	auto reportErrors = numberValue->getInt32Value();
 	builder.withCaptureErrors(reportErrors != 0);
+}
+
+void JsonResponseParser::applyApplicationId(
+	protocol::ResponseAttributes::Builder& builder,
+	std::shared_ptr<util::json::objects::JsonObjectValue> appConfigObject
+)
+{
+	const auto applicationId = getJsonStringFrom(appConfigObject, JsonResponseParser::RESPONSE_KEY_APPLICATION_ID);
+	if (applicationId)
+	{
+		builder.withApplicationId(applicationId->getValue());
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

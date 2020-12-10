@@ -20,6 +20,7 @@
 #include "IResponseAttributes.h"
 #include "ResponseAttribute.h"
 #include "core/util/EnumClassHash.h"
+#include "core/UTF8String.h"
 
 #include <unordered_set>
 #include <memory>
@@ -135,6 +136,15 @@ namespace protocol
 			///
 			Builder& withCaptureErrors(bool captureErrors);
 
+			const core::UTF8String& getApplicationId() const;
+			
+			/// 
+			/// Sets the ID of the application to which this configuration applies.
+			/// @param Used by JSON configuration only, as sanity check to fix a weird Jetty bug.
+			/// @return @ this
+			///
+			Builder& withApplicationId(core::UTF8String applicationId);
+
 			int32_t getMultiplicity() const;
 
 			///
@@ -187,6 +197,7 @@ namespace protocol
 			bool mIsCaptureCrashes;
 			bool mIsCaptureErrors;
 
+			core::UTF8String mApplicationId;
 			int32_t mMultiplicity;
 			int32_t mServerId;
 
@@ -233,6 +244,8 @@ namespace protocol
 
 		bool isCaptureErrors() const override;
 
+		const core::UTF8String& getApplicationId() const override;
+
 		int32_t getMultiplicity() const override;
 
 		int32_t getServerId() const override;
@@ -263,6 +276,8 @@ namespace protocol
 
 		static inline void applyCaptureErrors(Builder& builder, std::shared_ptr<IResponseAttributes> attributes);
 
+		static inline void applyApplicationId(Builder& builder, std::shared_ptr<IResponseAttributes> attributes);
+		
 		static inline void applyMultiplicity(Builder& builder, std::shared_ptr<IResponseAttributes> attributes);
 
 		static inline void applyServerId(Builder& builder, std::shared_ptr<IResponseAttributes> attributes);
@@ -281,6 +296,7 @@ namespace protocol
 		bool mIsCaptureCrashes;
 		bool mIsCaptureErrors;
 
+		core::UTF8String mApplicationId;
 		int32_t mMultiplicity;
 		int32_t mServerId;
 

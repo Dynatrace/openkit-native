@@ -288,6 +288,24 @@ TEST_F(JsonResponseParserTest, parseExtractsReportErrorsDisabled)
 	ASSERT_THAT(obtained->isCaptureErrors(), testing::Eq(false));
 }
 
+TEST_F(JsonResponseParserTest, parseExtractsApplicationId)
+{
+	// given
+	const core::UTF8String applicationId{ "7E405474-D500-43EF-8299-619DEE8BBF92" };
+	input << "{";
+	input << "  \"" << JsonResponseParser_t::RESPONSE_KEY_APP_CONFIG << "\": {";
+	input << "    \"" << JsonResponseParser_t::RESPONSE_KEY_APPLICATION_ID << "\": \"" << applicationId.getStringData() << "\"";
+	input << "  }";
+	input << "}";
+	
+	// when
+	const auto obtained = JsonResponseParser_t::parse(input.str());
+
+	// then
+	ASSERT_THAT(obtained, testing::NotNull());
+	ASSERT_THAT(obtained->getApplicationId(), testing::Eq(applicationId));
+}
+
 TEST_F(JsonResponseParserTest, parseExtractsMultiplicity)
 {
 	// given
@@ -352,7 +370,8 @@ TEST_F(JsonResponseParserTest, parseResponseWithAllValuesSet)
 	const int32_t multiplicity = 79;
 	const int32_t serverId = 80;
 	const int64_t timestamp = 81;
-
+	core::UTF8String applicationId{ "7E405474-D500-43EF-8299-619DEE8BBF93" };
+	
 	input << "{";
 	input << "  \"" << JsonResponseParser_t::RESPONSE_KEY_AGENT_CONFIG << "\": {";
 	input << "    \"" << JsonResponseParser_t::RESPONSE_KEY_MAX_BEACON_SIZE_IN_KB << "\": " << beaconSize;
@@ -366,6 +385,7 @@ TEST_F(JsonResponseParserTest, parseResponseWithAllValuesSet)
 	input << "    \"" << JsonResponseParser_t::RESPONSE_KEY_CAPTURE << "\": 0";
 	input << "   ,\"" << JsonResponseParser_t::RESPONSE_KEY_REPORT_CRASHES << "\": 1";
 	input << "   ,\"" << JsonResponseParser_t::RESPONSE_KEY_REPORT_ERRORS << "\": 0";
+	input << "   ,\"" << JsonResponseParser_t::RESPONSE_KEY_APPLICATION_ID << "\": \"" << applicationId.getStringData() << "\"";
 	input << "  },";
 	input << "  \"" << JsonResponseParser_t::RESPONSE_KEY_DYNAMIC_CONFIG << "\": {";
 	input << "    \"" << JsonResponseParser_t::RESPONSE_KEY_MULTIPLICITY << "\": " << multiplicity;
@@ -388,6 +408,7 @@ TEST_F(JsonResponseParserTest, parseResponseWithAllValuesSet)
 	ASSERT_THAT(obtained->isCapture(), testing::Eq(false));
 	ASSERT_THAT(obtained->isCaptureCrashes(), testing::Eq(true));
 	ASSERT_THAT(obtained->isCaptureErrors(), testing::Eq(false));
+	ASSERT_THAT(obtained->getApplicationId(), testing::Eq(applicationId));
 	ASSERT_THAT(obtained->getMultiplicity(), testing::Eq(multiplicity));
 	ASSERT_THAT(obtained->getServerId(), testing::Eq(serverId));
 	ASSERT_THAT(obtained->getTimestampInMilliseconds(), testing::Eq(timestamp));

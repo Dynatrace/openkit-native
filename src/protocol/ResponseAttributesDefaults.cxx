@@ -16,7 +16,11 @@
 
 #include "ResponseAttributesDefaults.h"
 
+#include "core/UTF8String.h"
+
 using namespace protocol;
+
+const core::UTF8String ResponseAttributesDefaults::emptyString;
 
 const std::shared_ptr<IResponseAttributes> ResponseAttributesDefaults::jsonResponse()
 {
@@ -66,6 +70,11 @@ bool ResponseAttributesDefaults::AbstractResponseDefaults::isCaptureCrashes() co
 bool ResponseAttributesDefaults::AbstractResponseDefaults::isCaptureErrors() const
 {
 	return true;
+}
+
+const core::UTF8String& ResponseAttributesDefaults::AbstractResponseDefaults::getApplicationId() const
+{
+	return emptyString;
 }
 
 int32_t ResponseAttributesDefaults::AbstractResponseDefaults::getMultiplicity() const

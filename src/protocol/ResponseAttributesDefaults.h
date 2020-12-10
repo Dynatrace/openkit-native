@@ -19,6 +19,7 @@
 
 #include "IResponseAttributes.h"
 #include "ResponseAttribute.h"
+#include "core/UTF8String.h"
 
 #include <memory>
 
@@ -33,9 +34,10 @@ namespace protocol
 		static const std::shared_ptr<IResponseAttributes> undefined();
 
 	private:
-
+		static const core::UTF8String emptyString;
+		
 		class AbstractResponseDefaults : public IResponseAttributes
-		{
+		{		
 		public:
 
 			int32_t getMaxBeaconSizeInBytes() const override = 0;
@@ -54,6 +56,8 @@ namespace protocol
 
 			bool isCaptureErrors() const override;
 
+			const core::UTF8String& getApplicationId() const override;
+			
 			int32_t getMultiplicity() const override;
 
 			int32_t getServerId() const override;

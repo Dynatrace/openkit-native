@@ -18,6 +18,7 @@
 #define _CORE_PROTOCOL_IRESPONSEATTRIBUTES_H
 
 #include "ResponseAttribute.h"
+#include "core/UTF8String.h"
 
 #include <memory>
 
@@ -76,6 +77,11 @@ namespace protocol
 		/// Indicator whether errors should be captured or not.
 		///
 		virtual bool isCaptureErrors() const = 0;
+
+		///
+		/// Returns the application UUID to which this configuration belongs to.
+		///
+		virtual const core::UTF8String& getApplicationId() const = 0;
 
 		///
 		/// Returns the multiplicity

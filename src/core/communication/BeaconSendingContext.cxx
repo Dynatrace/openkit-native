@@ -250,9 +250,15 @@ std::shared_ptr<protocol::IResponseAttributes> BeaconSendingContext::updateFrom(
 
 	mLastResponseAttributes = mLastResponseAttributes->merge(statusResponse->getResponseAttributes());
 
-	mServerConfiguration = core::configuration::ServerConfiguration::Builder(mLastResponseAttributes).build();
+	auto builder = core::configuration::ServerConfiguration::Builder(mLastResponseAttributes);
 
-	auto serverId = mServerConfiguration->getServerId();
+	if ( isApplicationIdMismatch(mLastResponseAttributes))
+	{
+		builder.withCapture(false);
+	}
+	mServerConfiguration = builder.build();
+	
+	const auto serverId = mServerConfiguration->getServerId();
 	if (serverId != mHTTPClientConfiguration->getServerID())
 	{
 		mHTTPClientConfiguration = core::configuration::HTTPClientConfiguration::Builder(mHTTPClientConfiguration)
@@ -261,6 +267,18 @@ std::shared_ptr<protocol::IResponseAttributes> BeaconSendingContext::updateFrom(
 	}
 
 	return mLastResponseAttributes;
+}
+
+bool BeaconSendingContext::isApplicationIdMismatch(std::shared_ptr<protocol::IResponseAttributes> lastResponseAttributes) const
+{
+	if (lastResponseAttributes->isAttributeSet(protocol::ResponseAttribute::APPLICATION_ID))
+	{
+		return mHTTPClientConfiguration->getApplicationID() != lastResponseAttributes->getApplicationId();
+	}
+
+	// if it's not set it's either the old response format, or an older Dynatrace version
+	// in this case no mismatch is happening and everything is fine
+	return false;
 }
 
 std::shared_ptr<protocol::IResponseAttributes> BeaconSendingContext::getLastResponseAttributes() const
