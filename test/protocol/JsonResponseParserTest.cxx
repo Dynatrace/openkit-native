@@ -342,6 +342,24 @@ TEST_F(JsonResponseParserTest, parseExtractsServerId)
 	ASSERT_THAT(obtained->getServerId(), testing::Eq(serverId));
 }
 
+TEST_F(JsonResponseParserTest, parseExtractsStatus)
+{
+	// given
+	const core::UTF8String status{ "foobar" };
+	input << "{";
+	input << "  \"" << JsonResponseParser_t::RESPONSE_KEY_DYNAMIC_CONFIG << "\": {";
+	input << "    \"" << JsonResponseParser_t::RESPONSE_KEY_STATUS << "\": \"" << status.getStringData() << "\"";
+	input << "  }";
+	input << "}";
+
+	// when
+	const auto obtained = JsonResponseParser_t::parse(input.str());
+
+	// then
+	ASSERT_THAT(obtained, testing::NotNull());
+	ASSERT_THAT(obtained->getStatus(), testing::Eq(status));
+}
+
 TEST_F(JsonResponseParserTest, parseExtractsTimestamp)
 {
 	// given
@@ -367,10 +385,12 @@ TEST_F(JsonResponseParserTest, parseResponseWithAllValuesSet)
 	const int32_t sessionTimeout = 76;
 	const int32_t sendInterval = 77;
 	const int32_t visitStoreVersion = 78;
+	const core::UTF8String applicationId{ "7E405474-D500-43EF-8299-619DEE8BBF93" };
 	const int32_t multiplicity = 79;
 	const int32_t serverId = 80;
+	const core::UTF8String status{ "some status" };
 	const int64_t timestamp = 81;
-	core::UTF8String applicationId{ "7E405474-D500-43EF-8299-619DEE8BBF93" };
+
 	
 	input << "{";
 	input << "  \"" << JsonResponseParser_t::RESPONSE_KEY_AGENT_CONFIG << "\": {";
@@ -390,6 +410,7 @@ TEST_F(JsonResponseParserTest, parseResponseWithAllValuesSet)
 	input << "  \"" << JsonResponseParser_t::RESPONSE_KEY_DYNAMIC_CONFIG << "\": {";
 	input << "    \"" << JsonResponseParser_t::RESPONSE_KEY_MULTIPLICITY << "\": " << multiplicity;
 	input << "   ,\"" << JsonResponseParser_t::RESPONSE_KEY_SERVER_ID << "\": " << serverId;
+	input << "   ,\"" << JsonResponseParser_t::RESPONSE_KEY_STATUS << "\": \"" << status.getStringData() << "\"";
 	input << "  },";
 	input << "  \"" << JsonResponseParser_t::RESPONSE_KEY_TIMESTAMP_IN_MILLIS << "\": " << timestamp;
 	input << "}";
@@ -411,6 +432,7 @@ TEST_F(JsonResponseParserTest, parseResponseWithAllValuesSet)
 	ASSERT_THAT(obtained->getApplicationId(), testing::Eq(applicationId));
 	ASSERT_THAT(obtained->getMultiplicity(), testing::Eq(multiplicity));
 	ASSERT_THAT(obtained->getServerId(), testing::Eq(serverId));
+	ASSERT_THAT(obtained->getStatus(), testing::Eq(status));
 	ASSERT_THAT(obtained->getTimestampInMilliseconds(), testing::Eq(timestamp));
 	for (const auto attribute : protocol::ALL_RESPONSE_ATTRIBUTES)
 	{

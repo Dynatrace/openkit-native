@@ -82,6 +82,7 @@ TEST_F(ResponseAttributesTest, buildForwardsJsonDefaultsToInstance)
 
 	ASSERT_THAT(obtained->getMultiplicity(), testing::Eq(defaults->getMultiplicity()));
 	ASSERT_THAT(obtained->getServerId(), testing::Eq(defaults->getServerId()));
+	ASSERT_THAT(obtained->getStatus(), testing::Eq(defaults->getStatus()));
 
 	ASSERT_THAT(obtained->getTimestampInMilliseconds(), testing::Eq(defaults->getTimestampInMilliseconds()));
 }
@@ -111,8 +112,45 @@ TEST_F(ResponseAttributesTest, buildForwardsKeyValueDefaultsToInstance)
 
 	ASSERT_THAT(obtained->getMultiplicity(), testing::Eq(defaults->getMultiplicity()));
 	ASSERT_THAT(obtained->getServerId(), testing::Eq(defaults->getServerId()));
+	ASSERT_THAT(obtained->getStatus(), testing::Eq(defaults->getStatus()));
 
 	ASSERT_THAT(obtained->getTimestampInMilliseconds(), testing::Eq(defaults->getTimestampInMilliseconds()));
+}
+
+TEST_F(ResponseAttributesTest, buildPropagatesStatusToInstance)
+{
+	// given
+	const core::UTF8String status{ "status" };
+	auto target = ResponseAttributes_t::withJsonDefaults();
+
+	// when
+	const auto obtained = target.withStatus(status).build();
+
+	// then
+	ASSERT_THAT(obtained->getStatus(), testing::Eq(status));
+}
+
+TEST_F(ResponseAttributesTest, withStatusSetsAttributeOnInstance)
+{
+	// given
+	const auto attribute = ResponseAttribute_t::STATUS;
+	auto target = ResponseAttributes_t::withJsonDefaults();
+
+	// when
+	const auto obtained = target.withStatus("status").build();
+
+	// then
+	ASSERT_THAT(obtained->isAttributeSet(attribute), testing::Eq(true));
+
+	for (const auto unsetAttribute : protocol::ALL_RESPONSE_ATTRIBUTES)
+	{
+		if (attribute == unsetAttribute)
+		{
+			continue;
+		}
+		
+		ASSERT_THAT(obtained->isAttributeSet(unsetAttribute), testing::Eq(false));
+	}
 }
 
 TEST_F(ResponseAttributesTest, buildPropagatesMaxBeaconSizeToInstance)
@@ -559,6 +597,52 @@ TEST_F(ResponseAttributesTest, buildPropagatesTimestampToInstance)
 
 	// then
 	ASSERT_THAT(obtained->getTimestampInMilliseconds(), testing::Eq(timestamp));
+}
+
+TEST_F(ResponseAttributesTest, mergeTakesStatusFromMergeTargetIfNotSetInSource)
+{
+	// given
+	const core::UTF8String status{ "status" };
+	auto source = ResponseAttributes_t::withUndefinedDefaults().build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().withStatus(status).build();
+
+	// when
+	const auto obtained = target->merge(source);
+
+	// then
+	ASSERT_THAT(obtained, testing::NotNull());
+	ASSERT_THAT(obtained->getStatus(), testing::Eq(status));
+}
+
+TEST_F(ResponseAttributesTest, mergeTakesStatusFromMergeSourceIfSetInSource)
+{
+	// given
+	const core::UTF8String status{ "status" };
+	auto source = ResponseAttributes_t::withKeyValueDefaults().withStatus(status).build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().build();
+
+	// when
+	const auto obtained = target->merge(source);
+
+	// then
+	ASSERT_THAT(obtained, testing::NotNull());
+	ASSERT_THAT(obtained->getStatus(), testing::Eq(status));
+}
+
+TEST_F(ResponseAttributesTest, mergeTakesStatusFromMergeSourceIfSetInSourceAndTarget)
+{
+	// given
+	const core::UTF8String status{ "status" };
+	const core::UTF8String foobar{ "foobar" };
+	auto source = ResponseAttributes_t::withKeyValueDefaults().withStatus(status).build();
+	auto target = ResponseAttributes_t::withKeyValueDefaults().withStatus(foobar).build();
+
+	// when
+	const auto obtained = target->merge(source);
+
+	// then
+	ASSERT_THAT(obtained, testing::NotNull());
+	ASSERT_THAT(obtained->getStatus(), testing::Eq(status));
 }
 
 TEST_F(ResponseAttributesTest, withTimestampSetsAttributeOnInstance)

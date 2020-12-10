@@ -24,6 +24,7 @@
 #include "gtest/gtest.h"
 
 #include <cstdint>
+#include <cctype>
 
 using namespace test;
 
@@ -93,6 +94,43 @@ TEST_F(StatusResponseTest, isTooManyRequestsResponseGivesFalseIfResponseCodeIsNo
 
 	// then
 	ASSERT_FALSE(target->isTooManyRequestsResponse());
+}
+
+TEST_F(StatusResponseTest, isErroneousResponseGivesTrueIfStatusResponseAttributeIndicatesError)
+{
+	// given
+	auto atrbts = ResponseAttributes_t::withUndefinedDefaults().withStatus(StatusResponse_t::RESPONSE_STATUS_ERROR).build();
+
+	auto target = StatusResponse_t::createSuccessResponse(logger, atrbts, StatusResponse_t::HTTP_OK, IStatusResponse_t::ResponseHeaders());
+
+	// when, then
+	ASSERT_TRUE(target->isErroneousResponse());
+}
+
+TEST_F(StatusResponseTest, isErroneousResponseGivesFalseIfStatusResponseAttributeDoesNotIndicateError)
+{
+	// given
+	std::string data = StatusResponse_t::RESPONSE_STATUS_ERROR.getStringData();
+	std::transform(data.begin(), data.end(), data.begin(),
+		[](unsigned char c) { return static_cast<unsigned char>(std::tolower(c)); });
+	core::UTF8String status{ data };
+	auto atrbts = ResponseAttributes_t::withUndefinedDefaults().withStatus(status).build();
+
+	auto target = StatusResponse_t::createSuccessResponse(logger, atrbts, StatusResponse_t::HTTP_OK, IStatusResponse_t::ResponseHeaders());
+
+	// when, then
+	ASSERT_FALSE(target->isErroneousResponse());
+}
+
+TEST_F(StatusResponseTest, isErroneousResponseGivesFalseIfStatusResponseAttributeIsNotSet)
+{
+	// given
+	auto atrbts = ResponseAttributes_t::withUndefinedDefaults().build();
+
+	auto target = StatusResponse_t::createSuccessResponse(logger, atrbts, StatusResponse_t::HTTP_OK, IStatusResponse_t::ResponseHeaders());
+
+	// when, then
+	ASSERT_FALSE(target->isErroneousResponse());
 }
 
 TEST_F(StatusResponseTest, responseCodeIsSet)

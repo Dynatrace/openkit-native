@@ -87,6 +87,11 @@ int32_t ResponseAttributesDefaults::AbstractResponseDefaults::getServerId() cons
 	return 1;
 }
 
+const core::UTF8String& ResponseAttributesDefaults::AbstractResponseDefaults::getStatus() const
+{
+	return emptyString;
+}
+
 int64_t ResponseAttributesDefaults::AbstractResponseDefaults::getTimestampInMilliseconds() const
 {
 	return 0;

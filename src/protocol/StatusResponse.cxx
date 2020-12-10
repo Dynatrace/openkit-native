@@ -28,6 +28,7 @@ static constexpr int32_t HTTP_TOO_MANY_REQUESTS = 429;
 
 static constexpr char RESPONSE_KEY_RETRY_AFTER[] = "retry-after";
 static constexpr int64_t DEFAULT_RETRY_AFTER_IN_MILLISECONDS = 10L * 60L * 1000L; // 10 minutes in milliseconds
+const core::UTF8String StatusResponse::RESPONSE_STATUS_ERROR{ "ERROR" };
 
 StatusResponse::StatusResponse
 (
@@ -72,7 +73,10 @@ std::shared_ptr<StatusResponse> StatusResponse::createErrorResponse(
 
 bool StatusResponse::isErroneousResponse() const
 {
-	return getResponseCode() >= HTTP_BAD_REQUEST;
+	const auto isStatusSetToError = [&]() { return getResponseAttributes()->isAttributeSet(ResponseAttribute::STATUS)
+		&& getResponseAttributes()->getStatus() == RESPONSE_STATUS_ERROR; };
+
+	return getResponseCode() >= HTTP_BAD_REQUEST || isStatusSetToError();
 }
 
 bool StatusResponse::isTooManyRequestsResponse() const

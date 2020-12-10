@@ -116,6 +116,11 @@ TEST_F(ResponseAttributesDefaultsTest, defaultJsonServerId)
 	ASSERT_THAT(ResponseAttributesDefaults_t::jsonResponse()->getServerId(), testing::Eq(1));
 }
 
+TEST_F(ResponseAttributesDefaultsTest, defaultJsonStatus)
+{
+	ASSERT_THAT(ResponseAttributesDefaults_t::jsonResponse()->getStatus(), testing::IsEmpty());
+}
+
 TEST_F(ResponseAttributesDefaultsTest, defaultJsonTimestamp)
 {
 	ASSERT_THAT(ResponseAttributesDefaults_t::jsonResponse()->getTimestampInMilliseconds(), testing::Eq(0L));
@@ -185,6 +190,11 @@ TEST_F(ResponseAttributesDefaultsTest, defaultKeyValueServerId)
 	ASSERT_THAT(ResponseAttributesDefaults_t::keyValueResponse()->getServerId(), testing::Eq(1));
 }
 
+TEST_F(ResponseAttributesDefaultsTest, defaultKeyValueStatus)
+{
+	ASSERT_THAT(ResponseAttributesDefaults_t::keyValueResponse()->getStatus(), testing::IsEmpty());
+}
+
 TEST_F(ResponseAttributesDefaultsTest, defaultKeyValueTimestamp)
 {
 	ASSERT_THAT(ResponseAttributesDefaults_t::keyValueResponse()->getTimestampInMilliseconds(), testing::Eq(0L));
@@ -252,6 +262,11 @@ TEST_F(ResponseAttributesDefaultsTest, defaultUndefinedMultiplicity)
 TEST_F(ResponseAttributesDefaultsTest, defaultUndefinedServerId)
 {
 	ASSERT_THAT(ResponseAttributesDefaults_t::undefined()->getServerId(), testing::Eq(-1));
+}
+
+TEST_F(ResponseAttributesDefaultsTest, defaultUndefinedStatus)
+{
+	ASSERT_THAT(ResponseAttributesDefaults_t::undefined()->getStatus(), testing::IsEmpty());
 }
 
 TEST_F(ResponseAttributesDefaultsTest, defaultUndefinedTimestamp)

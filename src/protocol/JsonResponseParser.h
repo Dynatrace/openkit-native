@@ -51,6 +51,8 @@ namespace protocol
 		static constexpr const char* RESPONSE_KEY_MULTIPLICITY = "multiplicity";
 		static constexpr const char* RESPONSE_KEY_SERVER_ID = "serverId";
 
+		static constexpr const char* RESPONSE_KEY_STATUS = "status";
+
 		static constexpr const char* RESPONSE_KEY_TIMESTAMP_IN_MILLIS = "timestamp";
 
 		static std::shared_ptr<protocol::IResponseAttributes> parse(const core::UTF8String& jsonResponse);
@@ -157,6 +159,11 @@ namespace protocol
 		);
 
 		static void applyServerId(
+			protocol::ResponseAttributes::Builder& builder,
+			std::shared_ptr<util::json::objects::JsonObjectValue> dynConfigObject
+		);
+
+		static void applyStatus(
 			protocol::ResponseAttributes::Builder& builder,
 			std::shared_ptr<util::json::objects::JsonObjectValue> dynConfigObject
 		);

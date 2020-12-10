@@ -59,6 +59,9 @@ class MockIBeaconSendingContext
 
 			ON_CALL(*this, getLastResponseAttributes())
 				.WillByDefault(testing::Return(protocol::ResponseAttributes::withUndefinedDefaults().build()));
+
+			ON_CALL(*this, isErroneousResponse())
+				.WillByDefault(testing::Return(false));
 		}
 
 		~MockIBeaconSendingContext() override = default;
@@ -94,6 +97,8 @@ class MockIBeaconSendingContext
 		MOCK_CONST_METHOD0(isInTerminalState, bool());
 
 		MOCK_CONST_METHOD0(isCaptureOn, bool());
+
+		MOCK_CONST_METHOD0(isErroneousResponse, bool());
 
 		MOCK_CONST_METHOD0(getCurrentState, std::shared_ptr<core::communication::IBeaconSendingState>());
 

@@ -94,6 +94,11 @@ namespace protocol
 		virtual int32_t getServerId() const = 0;
 
 		///
+		///  Returns the status of the new session configuration request.
+		///
+		virtual const core::UTF8String& getStatus() const = 0;
+		
+		///
 		/// Returns the timestamp of the attributes which were returned by the server.
 		///
 		virtual int64_t getTimestampInMilliseconds() const = 0;

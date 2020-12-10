@@ -602,7 +602,7 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseDisablesCaptureIfResponseCo
 {
 	// given
 	auto response = MockIStatusResponse::createNice();
-	ON_CALL(*response, getResponseCode()).WillByDefault(testing::Return(404));
+	ON_CALL(*response, isErroneousResponse()).WillByDefault(testing::Return(true));
 
 	auto target = createBeaconSendingContext()->build();
 	ASSERT_THAT(target->isCaptureOn(), testing::Eq(true));
@@ -618,7 +618,7 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseClearsSessionDataIfResponse
 {
 	// with
 	auto response = MockIStatusResponse::createNice();
-	ON_CALL(*response, getResponseCode()).WillByDefault(testing::Return(404));
+	ON_CALL(*response, isErroneousResponse()).WillByDefault(testing::Return(true));
 
 	auto mockSession = MockSessionInternals::createNice();
 
@@ -640,7 +640,7 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseRemovesFinishedSessionsIfRe
 {
 	// with
 	auto response = MockIStatusResponse::createNice();
-	ON_CALL(*response, getResponseCode()).WillByDefault(testing::Return(404));
+	ON_CALL(*response, isErroneousResponse()).WillByDefault(testing::Return(true));
 
 	auto mockSession = MockSessionInternals::createNice();
 

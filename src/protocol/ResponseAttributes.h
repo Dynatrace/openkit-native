@@ -165,6 +165,15 @@ namespace protocol
 			///
 			Builder& withServerId(int32_t serverId);
 
+			const core::UTF8String& getStatus() const;
+
+			/// 
+			/// Sets the status of the new session configuration request.
+			/// @param The status string
+			/// @return @ this
+			///
+			Builder& withStatus(core::UTF8String status);
+			
 			int64_t getTimestampInMilliseconds() const;
 
 			///
@@ -200,6 +209,7 @@ namespace protocol
 			core::UTF8String mApplicationId;
 			int32_t mMultiplicity;
 			int32_t mServerId;
+			core::UTF8String mStatus;
 
 			int64_t mTimestampInMilliseconds;
 		};
@@ -250,6 +260,8 @@ namespace protocol
 
 		int32_t getServerId() const override;
 
+		const core::UTF8String& getStatus() const override;
+
 		int64_t getTimestampInMilliseconds() const override;
 
 		bool isAttributeSet(protocol::ResponseAttribute attribute) const override;
@@ -282,6 +294,8 @@ namespace protocol
 
 		static inline void applyServerId(Builder& builder, std::shared_ptr<IResponseAttributes> attributes);
 
+		static inline void applyStatus(Builder& builder, std::shared_ptr<IResponseAttributes> attributes);
+
 		static inline void applyTimestamp(Builder& builder, std::shared_ptr<IResponseAttributes> attributes);
 
 		AttributeSet mSetAttributes;
@@ -299,6 +313,7 @@ namespace protocol
 		core::UTF8String mApplicationId;
 		int32_t mMultiplicity;
 		int32_t mServerId;
+		core::UTF8String mStatus;
 
 		int64_t mTimestampInMilliseconds;
 	};

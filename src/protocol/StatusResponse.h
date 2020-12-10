@@ -34,6 +34,13 @@ namespace protocol
 	{
 	public:
 
+		/// Response code sent by HTTP server to indicate success.
+		static constexpr int32_t HTTP_OK = 200;
+		
+		/// Value that is sent if response status indicates an error.
+		/// The status is part of the payload, see class ResponseAttributes.
+		static const core::UTF8String RESPONSE_STATUS_ERROR;
+		
 		///
 		/// Creates a success StatusResponse.
 		/// @param[in] logger The logger to write traces to

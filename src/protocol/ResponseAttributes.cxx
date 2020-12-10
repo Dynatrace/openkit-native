@@ -33,6 +33,7 @@ ResponseAttributes::ResponseAttributes(Builder& builder)
 	, mApplicationId(builder.getApplicationId())
 	, mMultiplicity(builder.getMultiplicity())
 	, mServerId(builder.getServerId())
+	, mStatus(builder.getStatus())
 	, mTimestampInMilliseconds(builder.getTimestampInMilliseconds())
 {
 }
@@ -112,6 +113,11 @@ int32_t ResponseAttributes::getServerId() const
 	return mServerId;
 }
 
+const core::UTF8String& ResponseAttributes::getStatus() const
+{
+	return mStatus;
+}
+
 int64_t ResponseAttributes::getTimestampInMilliseconds() const
 {
 	return mTimestampInMilliseconds;
@@ -142,6 +148,7 @@ std::shared_ptr<IResponseAttributes> ResponseAttributes::merge(std::shared_ptr<I
 	applyApplicationId(builder, attributes);
 	applyMultiplicity(builder, attributes);
 	applyServerId(builder, attributes);
+	applyStatus(builder, attributes);
 	applyTimestamp(builder, attributes);
 
 	return builder.build();
@@ -279,6 +286,17 @@ void ResponseAttributes::applyServerId(
 	}
 }
 
+void ResponseAttributes::applyStatus(
+	ResponseAttributes::Builder& builder,
+	std::shared_ptr<IResponseAttributes> attributes
+)
+{
+	if (attributes->isAttributeSet(ResponseAttribute::STATUS))
+	{
+		builder.withStatus(attributes->getStatus());
+	}
+}
+
 void ResponseAttributes::applyTimestamp(
 	ResponseAttributes::Builder& builder,
 	std::shared_ptr<IResponseAttributes> attributes
@@ -308,6 +326,7 @@ ResponseAttributes::Builder::Builder(const IResponseAttributes& defaults)
 	, mApplicationId(defaults.getApplicationId())
 	, mMultiplicity(defaults.getMultiplicity())
 	, mServerId(defaults.getServerId())
+	, mStatus(defaults.getStatus())
 	, mTimestampInMilliseconds(defaults.getTimestampInMilliseconds())
 {
 	for (const auto attribute : ALL_RESPONSE_ATTRIBUTES)
@@ -465,6 +484,18 @@ ResponseAttributes::Builder& ResponseAttributes::Builder::withServerId(int32_t s
 {
 	mServerId = serverId;
 	setAttribute(ResponseAttribute::SERVER_ID);
+	return *this;
+}
+
+const core::UTF8String& ResponseAttributes::Builder::getStatus() const
+{
+	return mStatus;
+}
+
+ResponseAttributes::Builder& ResponseAttributes::Builder::withStatus(core::UTF8String status)
+{
+	mStatus = std::move(status);
+	setAttribute(ResponseAttribute::STATUS);
 	return *this;
 }
 

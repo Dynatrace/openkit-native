@@ -60,6 +60,8 @@ protected:
 		mockContext = MockIBeaconSendingContext::createNice();
 		ON_CALL(*mockContext, getHTTPClient())
 			.WillByDefault(testing::Return(mockHTTPClient));
+		ON_CALL(*mockContext, isErroneousResponse())
+			.WillByDefault(testing::Return(false));
 	}
 
 };

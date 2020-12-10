@@ -225,7 +225,7 @@ void BeaconSendingContext::disableCapture()
 
 void BeaconSendingContext::handleStatusResponse(std::shared_ptr<protocol::IStatusResponse> response)
 {
-	if (response == nullptr || response->getResponseCode() != 200)
+	if (response == nullptr || response->isErroneousResponse())
 	{
 		disableCaptureAndClear();
 		return;

@@ -38,6 +38,8 @@ namespace test
 			ON_CALL(*this, merge(testing::_)).WillByDefault(testing::Return(nullptr));
 			ON_CALL(*this, getApplicationId())
 				.WillByDefault(testing::ReturnRef(DefaultValues::UTF8_EMPTY_STRING));
+			ON_CALL(*this, getStatus())
+				.WillByDefault(testing::ReturnRef(DefaultValues::UTF8_EMPTY_STRING));
 		}
 
 		~MockIResponseAttributes() override = default;
@@ -75,6 +77,8 @@ namespace test
 		MOCK_CONST_METHOD0(getMultiplicity, int32_t());
 
 		MOCK_CONST_METHOD0(getServerId, int32_t());
+
+		MOCK_CONST_METHOD0(getStatus, const core::UTF8String& ());
 
 		MOCK_CONST_METHOD0(getTimestampInMilliseconds, int64_t());
 

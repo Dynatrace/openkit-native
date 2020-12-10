@@ -62,6 +62,8 @@ namespace protocol
 
 			int32_t getServerId() const override;
 
+			const core::UTF8String& getStatus() const override;
+
 			int64_t getTimestampInMilliseconds() const override;
 
 			bool isAttributeSet(ResponseAttribute attribute) const override;

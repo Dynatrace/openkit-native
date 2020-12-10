@@ -290,6 +290,7 @@ void JsonResponseParser::applyDynamicConfiguration(
 
 	applyMultiplicity(builder, dynConfigObject);
 	applyServerId(builder, dynConfigObject);
+	applyStatus(builder, dynConfigObject);
 }
 
 void JsonResponseParser::applyMultiplicity(
@@ -320,6 +321,18 @@ void JsonResponseParser::applyServerId(
 
 	auto serverId = numberValue->getInt32Value();
 	builder.withServerId(serverId);
+}
+
+void JsonResponseParser::applyStatus(
+	protocol::ResponseAttributes::Builder& builder,
+	std::shared_ptr<util::json::objects::JsonObjectValue> dynConfigObject
+)
+{
+	auto status = getJsonStringFrom(dynConfigObject, JsonResponseParser::RESPONSE_KEY_STATUS);
+	if (status)
+	{
+		builder.withStatus(status->getValue());
+	}	
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
