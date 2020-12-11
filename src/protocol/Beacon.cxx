@@ -86,7 +86,7 @@ core::UTF8String Beacon::createImmutableBeaconData()
 	// device/visitor ID, session number and IP address
 	addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_VISITOR_ID, getDeviceID());
 	addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_SESSION_NUMBER, getSessionNumber());
-	addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_SESSION_SEQUENCE, getSessionSequenceNumber());
+	
 	if (mUseClientIpAddress)
 	{
 		addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_CLIENT_IP_ADDRESS, mClientIPAddress);
@@ -142,7 +142,7 @@ void Beacon::appendKey(core::UTF8String& s, const core::UTF8String& key)
 {
 	if (!s.empty())
 	{
-		s.concatenate("&");
+		s.concatenate(BEACON_DATA_DELIMITER);
 	}
 
 	s.concatenate(key);
@@ -513,14 +513,16 @@ core::UTF8String Beacon::createMultiplicityData()
 
 core::UTF8String Beacon::getMutableBeaconData()
 {
-	core::UTF8String delimiter = core::UTF8String(BEACON_DATA_DELIMITER);
+	const auto delimiter = core::UTF8String(BEACON_DATA_DELIMITER);
 
 	core::UTF8String mutableBeaconData;
-	
-	mutableBeaconData.concatenate(delimiter);
 
-	auto visitStoreVersion = getVisitStoreVersion();
+	const auto visitStoreVersion = getVisitStoreVersion();
 	addKeyValuePair(mutableBeaconData, BEACON_KEY_VISIT_STORE_VERSION, visitStoreVersion);
+
+	if( visitStoreVersion > 1 ) {
+		addKeyValuePair(mutableBeaconData, BEACON_KEY_SESSION_SEQUENCE, mSessionSequenceNumber);
+	}
 
 	mutableBeaconData.concatenate(delimiter);
 	mutableBeaconData.concatenate(createTimestampData());
@@ -541,6 +543,7 @@ std::shared_ptr<protocol::IStatusResponse> Beacon::send(std::shared_ptr<provider
 	{
 		// prefix for this chunk - must be built up newly, due to changing timestamps
 		auto prefix = mImmutableBasicBeaconData;
+		prefix.concatenate( BEACON_DATA_DELIMITER );
 		prefix.concatenate( getMutableBeaconData());
 
 		auto chunk = mBeaconCache->getNextBeaconChunk(
