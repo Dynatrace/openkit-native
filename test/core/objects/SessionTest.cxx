@@ -1374,11 +1374,11 @@ TEST_F(SessionTest, canSendNewSessionRequestIsFalseIfAllRequestsAreUsedUp)
 	ASSERT_THAT(target->canSendNewSessionRequest(), testing::Eq(false));
 }
 
-TEST_F(SessionTest, isDataSendingAllowedReturnsTrueForConfiguredAndCaptureEnabledSession)
+TEST_F(SessionTest, isDataSendingAllowedReturnsTrueForConfiguredAndDataCaptureEnabledSession)
 {
 	// with
 	auto mockBeacon = MockIBeacon::createNice();
-	ON_CALL(*mockBeacon, isCaptureEnabled()).WillByDefault(testing::Return(true));
+	ON_CALL(*mockBeacon, isDataCapturingEnabled()).WillByDefault(testing::Return(true));
 	ON_CALL(*mockBeacon, isServerConfigurationSet()).WillByDefault(testing::Return(true));
 
 	auto target = createSession()
@@ -1396,7 +1396,7 @@ TEST_F(SessionTest, isDataSendingAllowedReturnsFalseForNotConfiguredSession)
 {
 	// given
 	auto mockBeacon = MockIBeacon::createNice();
-	ON_CALL(*mockBeacon, isCaptureEnabled()).WillByDefault(testing::Return(true));
+	ON_CALL(*mockBeacon, isDataCapturingEnabled()).WillByDefault(testing::Return(true));
 	ON_CALL(*mockBeacon, isServerConfigurationSet()).WillByDefault(testing::Return(false));
 
 	auto target = createSession()
@@ -1410,11 +1410,11 @@ TEST_F(SessionTest, isDataSendingAllowedReturnsFalseForNotConfiguredSession)
 	ASSERT_THAT(obtained, testing::Eq(false));
 }
 
-TEST_F(SessionTest, isDataSendingAllowedReturnsFalseForCaptureDisabledSession)
+TEST_F(SessionTest, isDataSendingAllowedReturnsFalseForDataCaptureDisabledSession)
 {
 	// given
 	auto mockBeacon = MockIBeacon::createNice();
-	ON_CALL(*mockBeacon, isCaptureEnabled()).WillByDefault(testing::Return(false));
+	ON_CALL(*mockBeacon, isDataCapturingEnabled()).WillByDefault(testing::Return(false));
 	ON_CALL(*mockBeacon, isServerConfigurationSet()).WillByDefault(testing::Return(true));
 
 	auto target = createSession()
@@ -1428,11 +1428,11 @@ TEST_F(SessionTest, isDataSendingAllowedReturnsFalseForCaptureDisabledSession)
 	ASSERT_THAT(obtained, testing::Eq(false));
 }
 
-TEST_F(SessionTest, isDataSendingAllowedReturnsFalseForNotConfiguredAndCaptureDisabledSession)
+TEST_F(SessionTest, isDataSendingAllowedReturnsFalseForNotConfiguredAndDataCaptureDisabledSession)
 {
 		// given
 	auto mockBeacon = MockIBeacon::createNice();
-	ON_CALL(*mockBeacon, isCaptureEnabled()).WillByDefault(testing::Return(false));
+	ON_CALL(*mockBeacon, isDataCapturingEnabled()).WillByDefault(testing::Return(false));
 	ON_CALL(*mockBeacon, isServerConfigurationSet()).WillByDefault(testing::Return(false));
 
 	auto target = createSession()

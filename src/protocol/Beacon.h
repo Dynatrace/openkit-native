@@ -126,7 +126,7 @@ namespace protocol
 
 		bool isServerConfigurationSet() override;
 
-		bool isCaptureEnabled() override;
+		bool isDataCapturingEnabled() override;
 
 		void enableCapture() override;
 

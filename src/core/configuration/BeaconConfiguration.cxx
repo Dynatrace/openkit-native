@@ -121,7 +121,7 @@ void BeaconConfiguration::updateServerConfiguration(
 	{ // synchronized scope
 		std::lock_guard<std::recursive_mutex> lock(mMutex);
 
-		if (mServerConfiguration != nullptr)
+		if (mIsServerConfigurationSet)
 		{
 			newServerConfiguration = mServerConfiguration->merge(newServerConfiguration);
 		}

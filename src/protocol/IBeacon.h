@@ -274,7 +274,7 @@ namespace protocol
 		///
 		/// Indicates whether data capturing for this beacon is currently enabled or not.
 		///
-		virtual bool isCaptureEnabled() = 0;
+		virtual bool isDataCapturingEnabled() = 0;
 
 		///
 		/// Enables capturing for this beacon.

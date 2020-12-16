@@ -260,7 +260,7 @@ void Beacon::addAction(std::shared_ptr<core::objects::IActionCommon> action)
 
 void Beacon::addActionData(int64_t timestamp, const core::UTF8String& actionData)
 {
-	if (isCaptureEnabled())
+	if (isDataCapturingEnabled())
 	{
 		mBeaconCache->addActionData(mBeaconKey, timestamp, actionData);
 	}
@@ -268,7 +268,7 @@ void Beacon::addActionData(int64_t timestamp, const core::UTF8String& actionData
 
 void Beacon::startSession()
 {
-	if (!isCaptureEnabled())
+	if (!isDataCapturingEnabled())
 	{
 		return;
 	}
@@ -446,7 +446,7 @@ void Beacon::addWebRequest(
 		return;
 	}
 
-	if (!isCaptureEnabled())
+	if (!isDataCapturingEnabled())
 	{
 		return;
 	}
@@ -487,7 +487,7 @@ void Beacon::identifyUser(const core::UTF8String& userTag)
 		return;
 	}
 
-	if (!isCaptureEnabled())
+	if (!isDataCapturingEnabled())
 	{
 		return;
 	}
@@ -578,7 +578,7 @@ std::shared_ptr<protocol::IStatusResponse> Beacon::send(std::shared_ptr<provider
 
 void Beacon::addEventData(int64_t timestamp, const core::UTF8String& eventData)
 {
-	if (isCaptureEnabled())
+	if (isDataCapturingEnabled())
 	{
 		mBeaconCache->addEventData(mBeaconKey, timestamp, eventData);
 	}
@@ -649,9 +649,9 @@ bool Beacon::isServerConfigurationSet()
 	return mBeaconConfiguration->isServerConfigurationSet();
 }
 
-bool Beacon::isCaptureEnabled()
+bool Beacon::isDataCapturingEnabled()
 {
-	return mBeaconConfiguration->getServerConfiguration()->isCaptureEnabled();
+	return mBeaconConfiguration->getServerConfiguration()->isSendingDataAllowed();
 }
 
 void Beacon::enableCapture()

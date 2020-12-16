@@ -282,7 +282,7 @@ void Session::onChildClosed(std::shared_ptr<core::objects::IOpenKitObject> child
 
 bool Session::isDataSendingAllowed()
 {
-	return isConfigured() && mBeacon->isCaptureEnabled();
+	return isConfigured() && mBeacon->isDataCapturingEnabled();
 }
 
 void Session::enableCapture()
