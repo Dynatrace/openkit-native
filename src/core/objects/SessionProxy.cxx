@@ -43,8 +43,8 @@ SessionProxy::SessionProxy(std::shared_ptr<openkit::ILogger> logger,
 	, mLastInteractionTime(0)
 	, mServerConfiguration(nullptr)
 	, mIsFinished(false)
+	, mLastUserTag()
 {
-	
 }
 
 std::shared_ptr<SessionProxy> SessionProxy::createSessionProxy(std::shared_ptr<openkit::ILogger> logger,
@@ -110,7 +110,8 @@ void SessionProxy::identifyUser(const char* userTag)
 
 		auto session = getOrSplitCurrentSessionByEvents();
 		recordTopLevelEventInteraction();
-		return session->identifyUser(userTag);
+		session->identifyUser(userTag);
+		mLastUserTag = userTag;
 	}
 }
 
@@ -264,6 +265,8 @@ std::shared_ptr<openkit::ISession> SessionProxy::getOrSplitCurrentSessionByEvent
 
 		mCurrentSession = newSession;
 		updateCurrentSessionIdentifier();
+
+		reTagCurrentSession();
 	}
 
 	return mCurrentSession;
@@ -382,6 +385,8 @@ int64_t SessionProxy::splitSessionByTime()
 	mSessionCreator->reset();
 	createInitialSession();
 
+	reTagCurrentSession();
+
 	return calculateNextSplitTime();
 }
 
@@ -413,6 +418,16 @@ int64_t SessionProxy::calculateNextSplitTime()
 	}
 
 	return -1;
+}
+
+void SessionProxy::reTagCurrentSession()
+{
+	if (mLastUserTag.empty())
+	{
+		return;
+	}
+
+	mCurrentSession->identifyUser(mLastUserTag.getStringData().c_str());
 }
 
 const std::string SessionProxy::toString() const

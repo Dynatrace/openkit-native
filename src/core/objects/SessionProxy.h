@@ -34,6 +34,7 @@
 #include "core/objects/SessionInternals.h"
 #include "core/objects/OpenKitComposite.h"
 #include "core/configuration/IServerConfiguration.h"
+#include "core/UTF8String.h"
 #include "providers/ITimingProvider.h"
 
 #include <memory>
@@ -178,6 +179,8 @@ namespace core
 			///
 			int64_t calculateNextSplitTime();
 
+			void reTagCurrentSession();
+
 			///
 			/// mutex used for synchronization
 			///
@@ -245,6 +248,11 @@ namespace core
 			/// Indiciator if this SessionProxy is already finished or not.
 			///
 			bool mIsFinished;
+
+			///
+			/// last user tag reported via SessionProxy::identifyUser(const char*)
+			/// </summary>
+			core::UTF8String mLastUserTag;
 		};
 	}
 }
