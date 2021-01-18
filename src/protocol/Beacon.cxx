@@ -649,6 +649,11 @@ bool Beacon::isServerConfigurationSet()
 	return mBeaconConfiguration->isServerConfigurationSet();
 }
 
+bool Beacon::isActionReportingAllowedByPrivacySettings()
+{
+	return mBeaconConfiguration->getPrivacyConfiguration()->isActionReportingAllowed();
+}
+
 bool Beacon::isDataCapturingEnabled()
 {
 	return mBeaconConfiguration->getServerConfiguration()->isSendingDataAllowed();

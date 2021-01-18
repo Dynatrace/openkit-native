@@ -82,7 +82,16 @@ std::shared_ptr<openkit::IRootAction> SessionProxy::enterAction(const char* acti
 		}
 
 		auto session = getOrSplitCurrentSessionByEvents();
-		recordTopLevelActionEvent();
+		// avoid session splitting by action count, if user opted out of action collection
+		if (session->getBeacon()->isActionReportingAllowedByPrivacySettings())
+		{
+			recordTopLevelActionEvent();
+		}
+		else
+		{
+			recordTopLevelEventInteraction();
+		}
+		
 		return session->enterAction(actionName);
 	}
 }
@@ -255,7 +264,7 @@ std::shared_ptr<SessionInternals> SessionProxy::createSplitSession(std::shared_p
 	return createSession(nullptr, updatedServerConfig);
 }
 
-std::shared_ptr<openkit::ISession> SessionProxy::getOrSplitCurrentSessionByEvents()
+std::shared_ptr<core::objects::SessionInternals> SessionProxy::getOrSplitCurrentSessionByEvents()
 {
 	if (isSessionSplitByEventsRequired())
 	{

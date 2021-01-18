@@ -126,6 +126,8 @@ namespace protocol
 
 		bool isServerConfigurationSet() override;
 
+		bool isActionReportingAllowedByPrivacySettings() override;
+
 		bool isDataCapturingEnabled() override;
 
 		void enableCapture() override;

@@ -2195,7 +2195,7 @@ TEST_F(BeaconTest, updateServerConfigurationDelegatesToBeaconConfig)
 
 TEST_F(BeaconTest, isServerConfigurationSetDelegatesToBeaconConfig)
 {
-	// with
+	// expect
 	EXPECT_CALL(*mockBeaconConfiguration, isServerConfigurationSet())
 		.Times(2)
 		.WillOnce(testing::Return(false))
@@ -2215,6 +2215,30 @@ TEST_F(BeaconTest, isServerConfigurationSetDelegatesToBeaconConfig)
 
 	// then
 	ASSERT_THAT(obtained, testing::Eq(true));
+}
+
+TEST_F(BeaconTest, isActionReportingAllowedByPrivacySettingsDelegatesToPrivacyConfig)
+{
+	// expect
+	EXPECT_CALL(*mockPrivacyConfiguration, isActionReportingAllowed())
+		.Times(2)
+		.WillOnce(testing::Return(true))
+		.WillOnce(testing::Return(false));
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when
+	auto obtained = target->isActionReportingAllowedByPrivacySettings();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(true));
+
+	// and when
+	obtained = target->isActionReportingAllowedByPrivacySettings();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(false));
 }
 
 TEST_F(BeaconTest, isDataCaptureEnabledReturnsFalseIfDataSendingIsDisallowed)

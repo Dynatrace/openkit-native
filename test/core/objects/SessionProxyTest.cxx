@@ -89,16 +89,22 @@ protected:
         mockServerConfiguration = MockIServerConfiguration::createNice();
 
         mockBeacon = MockIBeacon::createNice();
+        ON_CALL(*mockBeacon, isActionReportingAllowedByPrivacySettings())
+            .WillByDefault(testing::Return(true));
         mockSession = MockSessionInternals::createNice();
         ON_CALL(*mockSession, getBeacon())
             .WillByDefault(testing::Return(mockBeacon));
 
         mockSplitBeacon1 = MockIBeacon::createNice();
+        ON_CALL(*mockSplitBeacon1, isActionReportingAllowedByPrivacySettings())
+            .WillByDefault(testing::Return(true));
         mockSplitSession1 = MockSessionInternals::createNice();
         ON_CALL(*mockSplitSession1, getBeacon())
             .WillByDefault(testing::Return(mockSplitBeacon1));
 
         mockSplitBeacon2 = MockIBeacon::createNice();
+        ON_CALL(*mockSplitBeacon2, isActionReportingAllowedByPrivacySettings())
+            .WillByDefault(testing::Return(true));
         mockSplitSession2 = MockSessionInternals::createNice();
         ON_CALL(*mockSplitSession2, getBeacon())
             .WillByDefault(testing::Return(mockSplitBeacon2));
@@ -509,6 +515,35 @@ TEST_F(SessionProxyTest, enterActionAddsSplitSessionToBeaconSenderOnSplitByEvent
     // when
     target->enterAction("some action");
     target->enterAction("some other action");
+}
+
+TEST_F(SessionProxyTest, enterActionOnlySetsLastInteractionTimeIfActionReportingIsNotAllowed)
+{
+    // expect
+    EXPECT_CALL(*mockSessionCreator, createSession(testing::_))
+        .Times(1)
+        .WillOnce(testing::Return(mockSession));
+
+    // given
+    const int64_t sessionCreationTime = 13;
+    const int64_t lastInteractionTime = 17;
+    ON_CALL(*mockBeacon, getSessionStartTime())
+        .WillByDefault(testing::Return(sessionCreationTime));
+    ON_CALL(*mockBeacon, isActionReportingAllowedByPrivacySettings())
+        .WillByDefault(testing::Return(false));
+    ON_CALL(*mockTimingProvider, provideTimestampInMilliseconds())
+        .WillByDefault(testing::Return(lastInteractionTime));
+
+    auto target = createSessionProxy();
+
+    target->onServerConfigurationUpdate(mockServerConfiguration);
+
+    // when
+    target->enterAction("test");
+
+    // then
+    ASSERT_THAT(target->getTopLevelActionCount(), testing::Eq(0));
+    ASSERT_THAT(target->getLastInteractionTime(), testing::Eq(lastInteractionTime));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

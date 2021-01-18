@@ -272,6 +272,11 @@ namespace protocol
 		virtual bool isServerConfigurationSet() = 0;
 
 		///
+		/// Indicates whether action reporting is allowed by privacy settings or not.
+		///
+		virtual bool isActionReportingAllowedByPrivacySettings() = 0;
+
+		///
 		/// Indicates whether data capturing for this beacon is currently enabled or not.
 		///
 		virtual bool isDataCapturingEnabled() = 0;

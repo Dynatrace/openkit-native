@@ -135,7 +135,7 @@ namespace core
 
 			std::shared_ptr<SessionInternals> createSplitSession(std::shared_ptr<core::configuration::IServerConfiguration> updatedServerConfig);
 
-			std::shared_ptr<openkit::ISession> getOrSplitCurrentSessionByEvents();
+			std::shared_ptr<core::objects::SessionInternals> getOrSplitCurrentSessionByEvents();
 
 			///
 			/// Creates a new session and adds it to the beacon sender. The top level action count is reset to zero and the

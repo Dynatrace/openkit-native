@@ -189,6 +189,8 @@ namespace test
 
 		MOCK_METHOD0(isServerConfigurationSet, bool());
 
+		MOCK_METHOD0(isActionReportingAllowedByPrivacySettings, bool());
+
 		MOCK_METHOD0(isDataCapturingEnabled, bool());
 
 		MOCK_METHOD0(enableCapture, void());
