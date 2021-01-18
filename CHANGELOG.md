@@ -41,6 +41,7 @@
   the root action is added to the `Beacon`.
 - Add IOpenKit::createSession overload without IP address parameter.  
   The IP address is determined in this case on the server side.
+- Reporting a crash causes a session split, which is transparently handled.
 - Provide a more reliable way to determine monotonic timestamps.
 
 ### Improvements

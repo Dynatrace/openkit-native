@@ -71,6 +71,11 @@ namespace core
 			virtual int32_t getMultiplicity() const = 0;
 
 			///
+			/// Returns the send interval in milliseconds.
+			///
+			virtual int32_t getSendIntervalInMilliseconds() const = 0;
+
+			///
 			/// Returns the maximum duration in milliseconds after which a session is to be split.
 			///
 			virtual int32_t getMaxSessionDurationInMilliseconds() const = 0;

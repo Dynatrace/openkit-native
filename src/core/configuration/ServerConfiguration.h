@@ -104,8 +104,17 @@ namespace core
 				/// Configures the multiplicity factor.
 				///
 				/// @param multiplicity multiplicity factor.
-				/// @return @ *this
+				/// @return @c *this
 				Builder& withMultiplicity(int32_t multiplicity);
+
+				int32_t getSendIntervalInMilliseconds() const;
+
+				///
+				/// Configure the send interval in milliseconds.
+				///
+				/// @param sendIntervalInMilliseconds Send interval in milliseconds
+				/// @return @c *this
+				Builder& withSendIntervalInMilliseconds(int32_t sendIntervalInMilliseconds);
 
 				int32_t getMaxSessionDurationInMilliseconds() const;
 
@@ -188,6 +197,7 @@ namespace core
 				int32_t mServerId;
 				int32_t mBeaconSizeInBytes;
 				int32_t mMultiplicity;
+				int32_t mSendIntervalInMilliseconds;
 				int32_t mMaxSessionDurationInMilliseconds;
 				bool mIsSessionSplitBySessionDurationEnabled;
 				int32_t mMaxEventsPerSession;
@@ -236,6 +246,8 @@ namespace core
 
 			int32_t getMultiplicity() const override;
 
+			int32_t getSendIntervalInMilliseconds() const override;
+
 			int32_t getMaxSessionDurationInMilliseconds() const override;
 
 			bool isSessionSplitBySessionDurationEnabled() const override;
@@ -279,6 +291,9 @@ namespace core
 
 			/// the multiplicity value
 			const int32_t mMultiplicity;
+
+			/// send interval in milliseconds
+			const int32_t mSendIntervalInMilliseconds;
 
 			/// the maximum duration of a session after which it gets split
 			const int32_t mMaxSessionDurationInMilliseconds;

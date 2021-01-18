@@ -144,7 +144,10 @@ void SessionProxy::reportCrash(const char* errorName, const char* reason, const 
 
 		auto session = getOrSplitCurrentSessionByEvents();
 		recordTopLevelEventInteraction();
-		return session->reportCrash(errorName, reason, stacktrace);
+		session->reportCrash(errorName, reason, stacktrace);
+
+		// create new session after crash report
+		splitAndCreateNewInitialSession();
 	}
 }
 
@@ -256,16 +259,11 @@ std::shared_ptr<openkit::ISession> SessionProxy::getOrSplitCurrentSessionByEvent
 {
 	if (isSessionSplitByEventsRequired())
 	{
-		auto newSession = createSplitSession(mServerConfiguration);
-		mTopLevelActionCount = 0;
+		closeOrEnqueueCurrentSessionForClosing();
 
-		// try to close old session or wait half the max session duration and then close it forcefully
-		auto closeGracePeriodMillis = mServerConfiguration->getMaxSessionDurationInMilliseconds() / 2;
-		mSessionWatchdog->closeOrEnqueueForClosing(mCurrentSession, closeGracePeriodMillis);
-
-		mCurrentSession = newSession;
+		mCurrentSession = createSplitSession(mServerConfiguration);
+		
 		updateCurrentSessionIdentifier();
-
 		reTagCurrentSession();
 	}
 
@@ -317,6 +315,29 @@ void SessionProxy::updateCurrentSessionIdentifier()
 	auto beacon = mCurrentSession->getBeacon();
 	mCurrentSessionIdentifier.first = beacon->getSessionNumber();
 	mCurrentSessionIdentifier.second = beacon->getSessionSequenceNumber();
+}
+
+void SessionProxy::splitAndCreateNewInitialSession()
+{
+	closeOrEnqueueCurrentSessionForClosing();
+
+	// create a completely new Session
+	mSessionCreator->reset();
+	mCurrentSession = createSession(mServerConfiguration, nullptr);
+
+	updateCurrentSessionIdentifier();
+	reTagCurrentSession();
+}
+
+void SessionProxy::closeOrEnqueueCurrentSessionForClosing()
+{
+	// for grace period use half of the idle timeout
+	// or fallback to session interval if not configured
+	auto closeGracePeriodInMillis = mServerConfiguration->getSessionTimeoutInMilliseconds() > 0
+		? mServerConfiguration->getSessionTimeoutInMilliseconds() / 2
+		: mServerConfiguration->getSendIntervalInMilliseconds();
+
+	mSessionWatchdog->closeOrEnqueueForClosing(mCurrentSession, closeGracePeriodInMillis);
 }
 
 void SessionProxy::recordTopLevelEventInteraction()
@@ -380,12 +401,7 @@ int64_t SessionProxy::splitSessionByTime()
 		return nextSplitTime;
 	}
 
-	mCurrentSession->end();
-
-	mSessionCreator->reset();
-	createInitialSession();
-
-	reTagCurrentSession();
+	splitAndCreateNewInitialSession();
 
 	return calculateNextSplitTime();
 }

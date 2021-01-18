@@ -161,6 +161,19 @@ namespace core
 			void updateCurrentSessionIdentifier();
 
 			///
+			/// Will end the current active session, enque the old one for closing, and create a new session.
+			/// 
+			/// @par
+			/// The new session is created using the <see cref="CreateInitialSession(IServerConfiguration)"/> method.
+			/// 
+			/// @par
+			/// This method must be called only when the <see cref="lockObject"/> is held.
+			///
+			void splitAndCreateNewInitialSession();
+
+			void closeOrEnqueueCurrentSessionForClosing();
+
+			///
 			/// Checks if the maximum number of top level actions is reached and session splitting by events needs to be performed.
 			///
 			bool isSessionSplitByEventsRequired() const;

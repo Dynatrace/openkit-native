@@ -57,6 +57,8 @@ protected:
 			.WillByDefault(testing::Return(defaultValues->getMaxBeaconSizeInBytes()));
 		ON_CALL(*mockAttributes, getMultiplicity())
 			.WillByDefault(testing::Return(defaultValues->getMultiplicity()));
+		ON_CALL(*mockAttributes, getSendIntervalInMilliseconds())
+			.WillByDefault(testing::Return(defaultValues->getSendIntervalInMilliseconds()));
 		ON_CALL(*mockAttributes, getMaxSessionDurationInMilliseconds())
 			.WillByDefault(testing::Return(defaultValues->getMaxSessionDurationInMilliseconds()));
 		ON_CALL(*mockAttributes, getMaxEventsPerSession())
@@ -85,6 +87,8 @@ protected:
 			.WillByDefault(testing::Return(defaultValues->getMaxBeaconSizeInBytes()));
 		ON_CALL(*mockServerConfiguration, getMultiplicity())
 			.WillByDefault(testing::Return(defaultValues->getMultiplicity()));
+		ON_CALL(*mockServerConfiguration, getSendIntervalInMilliseconds())
+			.WillByDefault(testing::Return(defaultValues->getSendIntervalInMilliseconds()));
 		ON_CALL(*mockServerConfiguration, getMaxSessionDurationInMilliseconds())
 			.WillByDefault(testing::Return(defaultValues->getMaxSessionDurationInMilliseconds()));
 		ON_CALL(*mockServerConfiguration, isSessionSplitBySessionDurationEnabled())
@@ -130,6 +134,11 @@ TEST_F(ServerConfigurationTest, inDefaultServerConfigurationBeaconSizeIsThirtyKb
 TEST_F(ServerConfigurationTest, inDefaultServerConfigurationMultiplicityIsOne)
 {
 	ASSERT_THAT(ServerConfiguration_t::defaultInstance()->getMultiplicity(), testing::Eq(1));
+}
+
+TEST_F(ServerConfigurationTest, inDefaultServerConfigurationSendIntervalIs120Seconds)
+{
+	ASSERT_THAT(ServerConfiguration_t::defaultInstance()->getSendIntervalInMilliseconds(), testing::Eq(120 * 1000));
 }
 
 TEST_F(ServerConfigurationTest, inDefaultServerConfigurationMaxSessionDurationIsMinusOne)
@@ -267,6 +276,23 @@ TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttribut
 
 	// then
 	ASSERT_THAT(target->getMultiplicity(), testing::Eq(multiplicity));
+}
+
+TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttributesCopiesSendInterval)
+{
+	// with
+	const int32_t sendInterval = 1234;
+
+	// expect
+	EXPECT_CALL(*mockAttributes, getSendIntervalInMilliseconds())
+		.Times(1)
+		.WillOnce(testing::Return(sendInterval));
+
+	// when
+	auto target = ServerConfiguration_t::from(mockAttributes);
+
+	// then
+	ASSERT_THAT(target->getSendIntervalInMilliseconds(), testing::Eq(sendInterval));
 }
 
 TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttributesCopiesSessionDuration)
@@ -859,6 +885,23 @@ TEST_F(ServerConfigurationTest, builderFromServerConfigCopiesMultiplicitySetting
 
 	// then
 	ASSERT_THAT(target->getMultiplicity(), testing::Eq(7));
+}
+
+TEST_F(ServerConfigurationTest, builderFromServerConfigCopiesSendInterval)
+{
+	// with
+	const int32_t sendInterval = 4321;
+
+	// expect
+	EXPECT_CALL(*mockServerConfiguration, getSendIntervalInMilliseconds())
+		.Times(1)
+		.WillOnce(testing::Return(sendInterval));
+
+	// with
+	auto target = ServerConfiguration_t::Builder(mockServerConfiguration).build();
+
+	// then
+	ASSERT_THAT(target->getSendIntervalInMilliseconds(), testing::Eq(sendInterval));
 }
 
 TEST_F(ServerConfigurationTest, builderFromServerConfigCopiesSessionDuration)
@@ -1895,6 +1938,19 @@ TEST_F(ServerConfigurationTest, buildPropagatesMultiplicityToInstance)
 
 	// then
 	ASSERT_THAT(obtained->getMultiplicity(), testing::Eq(multiplicity));
+}
+
+TEST_F(ServerConfigurationTest, buildPropagatesSendIntervalToInstance)
+{
+	// given
+	const int32_t sendInterval = 777;
+
+	// when
+	auto obtained = ServerConfiguration_t::Builder(defaultValues)
+		.withSendIntervalInMilliseconds(sendInterval).build();
+
+	// then
+	ASSERT_THAT(obtained->getSendIntervalInMilliseconds(), testing::Eq(sendInterval));
 }
 
 TEST_F(ServerConfigurationTest, buildPropagatesMaxSessionDurationToInstance)

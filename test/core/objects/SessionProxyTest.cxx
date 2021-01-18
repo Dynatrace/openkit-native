@@ -457,14 +457,14 @@ TEST_F(SessionProxyTest, EnterActionSplitsSessionEveryNthEventFromFirstServerCon
 TEST_F(SessionProxyTest, enterActionCallsWatchdogToCloseOldSessionOnSplitByEvents)
 {
     // with
-    const int32_t sessionDuration = 10;
+    const int32_t sessionIdleTimeout = 10;
 
     // expect
     EXPECT_CALL(*mockSessionCreator, createSession(testing::_))
         .Times(2)
         .WillOnce(testing::Return(mockSession))
         .WillOnce(testing::Return(mockSplitSession1));
-    EXPECT_CALL(*mockSessionWatchdog, closeOrEnqueueForClosing(testing::Eq(mockSession), sessionDuration / 2))
+    EXPECT_CALL(*mockSessionWatchdog, closeOrEnqueueForClosing(testing::Eq(mockSession), sessionIdleTimeout / 2))
         .Times(1);
 
     // given
@@ -472,8 +472,8 @@ TEST_F(SessionProxyTest, enterActionCallsWatchdogToCloseOldSessionOnSplitByEvent
         .WillByDefault(testing::Return(true));
     ON_CALL(*mockServerConfiguration, getMaxEventsPerSession())
         .WillByDefault(testing::Return(1));
-    ON_CALL(*mockServerConfiguration, getMaxSessionDurationInMilliseconds())
-        .WillByDefault(testing::Return(sessionDuration));
+    ON_CALL(*mockServerConfiguration, getSessionTimeoutInMilliseconds())
+        .WillByDefault(testing::Return(sessionIdleTimeout));
 
     auto target = createSessionProxy();
 
@@ -701,6 +701,7 @@ TEST_F(SessionProxyTest, reportingCrashWithNullReasonAndStacktraceWorks)
 
     // given
     auto target = createSessionProxy();
+    target->onServerConfigurationUpdate(mockServerConfiguration);
 
     // when
     target->reportCrash(errorName, errorReason, stacktrace);
@@ -719,6 +720,7 @@ TEST_F(SessionProxyTest, reportingCrashWithEmptyReasonAndStacktraceStringWorks)
 
     // given
     auto target = createSessionProxy();
+    target->onServerConfigurationUpdate(mockServerConfiguration);
 
     // when
     target->reportCrash(errorName, errorReason, stacktrace);
@@ -739,6 +741,7 @@ TEST_F(SessionProxyTest, reportCrashLogsInvocation)
 
     // given
     auto target = createSessionProxy();
+    target->onServerConfigurationUpdate(mockServerConfiguration);
 
     // when
     target->reportCrash(errorName, reason, stacktrace);
@@ -764,6 +767,8 @@ TEST_F(SessionProxyTest, reportCrashDoesNotIncreaseTopLevelEventCount)
     auto target = createSessionProxy();
     ASSERT_THAT(target->getTopLevelActionCount(), testing::Eq(0));
 
+    target->onServerConfigurationUpdate(mockServerConfiguration);
+
     // when
     target->reportCrash("errorName", "reason", "stacktrace");
 
@@ -771,51 +776,40 @@ TEST_F(SessionProxyTest, reportCrashDoesNotIncreaseTopLevelEventCount)
     ASSERT_THAT(target->getTopLevelActionCount(), testing::Eq(0));
 }
 
-TEST_F(SessionProxyTest, reportCrashSetsLastInterActionTime)
-{
-    // given
-    const long sessionCreationTime = 13;
-    const long lastInteractionTime = 17;
-    ON_CALL(*mockBeacon, getSessionStartTime())
-        .WillByDefault(testing::Return(sessionCreationTime));
-    ON_CALL(*mockTimingProvider, provideTimestampInMilliseconds())
-        .WillByDefault(testing::Return(lastInteractionTime));
-
-    auto target = createSessionProxy();
-    ASSERT_THAT(target->getLastInteractionTime(), testing::Eq(sessionCreationTime));
-
-    // when
-    target->reportCrash("errorName", "reason", "stacktrace");
-
-    // then
-    ASSERT_THAT(target->getLastInteractionTime(), testing::Eq(lastInteractionTime));
-}
-
-TEST_F(SessionProxyTest, reportCrashDoesNotSplitSession)
+TEST_F(SessionProxyTest, reportCrashAlwaysSplitsSessionAfterReportingCrash)
 {
     // expect
     EXPECT_CALL(*mockSessionCreator, createSession(testing::_))
+        .Times(3)
+        .WillOnce(testing::Return(mockSession))
+        .WillOnce(testing::Return(mockSplitSession1))
+        .WillOnce(testing::Return(mockSplitSession2));
+
+    EXPECT_CALL(*mockSession, reportCrash(testing::StrEq("error 1"), testing::StrEq("reason 1"), testing::StrEq("stacktrace 1")))
+        .Times(1);
+    EXPECT_CALL(*mockSplitSession1, reportCrash(testing::StrEq("error 2"), testing::StrEq("reason 2"), testing::StrEq("stacktrace 2")))
+        .Times(1);
+
+    EXPECT_CALL(*mockSessionWatchdog, closeOrEnqueueForClosing(testing::Eq(mockSession), mockServerConfiguration->getSendIntervalInMilliseconds()))
+        .Times(1);
+    EXPECT_CALL(*mockSessionWatchdog, closeOrEnqueueForClosing(testing::Eq(mockSplitSession1), mockServerConfiguration->getSendIntervalInMilliseconds()))
         .Times(1);
 
     // given
+    // explicitly disable session splitting
     ON_CALL(*mockServerConfiguration, isSessionSplitByEventsEnabled())
-        .WillByDefault(testing::Return(true));
-    ON_CALL(*mockServerConfiguration, getMaxEventsPerSession())
-        .WillByDefault(testing::Return(1));
-
-    const int32_t eventCount = 10;
+        .WillByDefault(testing::Return(false));
+    ON_CALL(*mockServerConfiguration, isSessionSplitByIdleTimeoutEnabled())
+        .WillByDefault(testing::Return(false));
+    ON_CALL(*mockServerConfiguration, isSessionSplitBySessionDurationEnabled())
+        .WillByDefault(testing::Return(false));
 
     auto target = createSessionProxy();
     target->onServerConfigurationUpdate(mockServerConfiguration);
 
     // when
-    for (auto i = 0; i < eventCount; i++)
-    {
-        target->reportCrash("error", "reason", "stacktrace");
-    }
-
-    // then
-    ASSERT_THAT(target->getTopLevelActionCount(), testing::Eq(0));
+    target->reportCrash("error 1", "reason 1", "stacktrace 1");
+    target->reportCrash("error 2", "reason 2", "stacktrace 2");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1158,7 +1152,7 @@ TEST_F(SessionProxyTest, splitByTimeSplitsCurrentSessionIfIdleTimeoutReached)
         .WillOnce(testing::Return(mockSplitSession1));
     EXPECT_CALL(*mockSessionCreator, reset())
         .Times(1);
-    EXPECT_CALL(*mockSession, end())
+    EXPECT_CALL(*mockSessionWatchdog, closeOrEnqueueForClosing(testing::Eq(mockSession), idleTimeout / 2))
         .Times(1);
 
     // given
@@ -1204,7 +1198,7 @@ TEST_F(SessionProxyTest, splitByTimeSplitsCurrentSessionIfIdleTimeoutExceeded)
         .WillOnce(testing::Return(mockSplitSession1));
     EXPECT_CALL(*mockSessionCreator, reset())
         .Times(1);
-    EXPECT_CALL(*mockSession, end())
+    EXPECT_CALL(*mockSessionWatchdog, closeOrEnqueueForClosing(testing::Eq(mockSession), idleTimeout / 2))
         .Times(1);
 
     // given
@@ -1268,8 +1262,11 @@ TEST_F(SessionProxyTest, splitByTimeDoesNotSplitCurrentSessionIfIdleTimeoutNotEx
 
 TEST_F(SessionProxyTest, splitByTimeSplitsCurrentSessionIfMaxDurationReached)
 {
+    // with
+    const int32_t sendInterval = 15;
+
     // expect
-    EXPECT_CALL(*mockSession, end())
+    EXPECT_CALL(*mockSessionWatchdog, closeOrEnqueueForClosing(testing::Eq(mockSession), sendInterval))
         .Times(1);
     EXPECT_CALL(*mockSessionCreator, reset())
         .Times(1);
@@ -1297,6 +1294,8 @@ TEST_F(SessionProxyTest, splitByTimeSplitsCurrentSessionIfMaxDurationReached)
         .WillByDefault(testing::Return(sessionDuration));
     ON_CALL(*mockServerConfiguration, isSessionSplitByIdleTimeoutEnabled())
         .WillByDefault(testing::Return(false));
+    ON_CALL(*mockServerConfiguration, getSendIntervalInMilliseconds())
+        .WillByDefault(testing::Return(sendInterval));
 
     auto target = createSessionProxy();
     target->onServerConfigurationUpdate(mockServerConfiguration);
@@ -1310,8 +1309,11 @@ TEST_F(SessionProxyTest, splitByTimeSplitsCurrentSessionIfMaxDurationReached)
 
 TEST_F(SessionProxyTest, splitByTimeSplitsCurrentSessionIfMaxDurationExceeded)
 {
+    // with
+    const int32_t sendInterval = 15;
+
     // expect
-    EXPECT_CALL(*mockSession, end())
+    EXPECT_CALL(*mockSessionWatchdog, closeOrEnqueueForClosing(testing::Eq(mockSession), sendInterval))
         .Times(1);
     EXPECT_CALL(*mockSessionCreator, reset())
         .Times(1);
@@ -1339,13 +1341,8 @@ TEST_F(SessionProxyTest, splitByTimeSplitsCurrentSessionIfMaxDurationExceeded)
         .WillByDefault(testing::Return(sessionDuration));
     ON_CALL(*mockServerConfiguration, isSessionSplitByIdleTimeoutEnabled())
         .WillByDefault(testing::Return(false));
-
-    ON_CALL(*mockServerConfiguration, isSessionSplitBySessionDurationEnabled())
-        .WillByDefault(testing::Return(true));
-    ON_CALL(*mockServerConfiguration, getMaxSessionDurationInMilliseconds())
-        .WillByDefault(testing::Return(sessionDuration));
-    ON_CALL(*mockServerConfiguration, isSessionSplitByIdleTimeoutEnabled())
-        .WillByDefault(testing::Return(false));
+    ON_CALL(*mockServerConfiguration, getSendIntervalInMilliseconds())
+        .WillByDefault(testing::Return(sendInterval));
 
     auto target = createSessionProxy();
     target->onServerConfigurationUpdate(mockServerConfiguration);

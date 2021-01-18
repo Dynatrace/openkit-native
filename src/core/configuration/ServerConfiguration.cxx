@@ -27,6 +27,7 @@ ServerConfiguration::ServerConfiguration(const Builder& builder)
 	, mServerId(builder.getServerId())
 	, mBeaconSizeInBytes(builder.getBeaconSizeInBytes())
 	, mMultiplicity(builder.getMultiplicity())
+	, mSendIntervalInMilliseconds(builder.getSendIntervalInMilliseconds())
 	, mMaxSessionDurationInMilliseconds(builder.getMaxSessionDurationInMilliseconds())
 	, mIsSessionSplitBySessionDurationEnabled(builder.isSessionSplitBySessionDurationEnabled())
 	, mMaxEventsPerSession(builder.getMaxEventsPerSession())
@@ -90,6 +91,11 @@ int32_t ServerConfiguration::getBeaconSizeInBytes() const
 int32_t ServerConfiguration::getMultiplicity() const
 {
 	return mMultiplicity;
+}
+
+int32_t ServerConfiguration::getSendIntervalInMilliseconds() const
+{
+	return mSendIntervalInMilliseconds;
 }
 
 int32_t ServerConfiguration::getMaxSessionDurationInMilliseconds() const
@@ -175,6 +181,7 @@ ServerConfiguration::Builder::Builder(std::shared_ptr<protocol::IResponseAttribu
 	, mServerId(responseAttributes->getServerId())
 	, mBeaconSizeInBytes(responseAttributes->getMaxBeaconSizeInBytes())
 	, mMultiplicity(responseAttributes->getMultiplicity())
+	, mSendIntervalInMilliseconds(responseAttributes->getSendIntervalInMilliseconds())
 	, mMaxSessionDurationInMilliseconds(responseAttributes->getMaxSessionDurationInMilliseconds())
 	, mIsSessionSplitBySessionDurationEnabled(responseAttributes->isAttributeSet(protocol::ResponseAttribute::MAX_SESSION_DURATION))
 	, mMaxEventsPerSession(responseAttributes->getMaxEventsPerSession())
@@ -192,6 +199,7 @@ ServerConfiguration::Builder::Builder(std::shared_ptr<core::configuration::IServ
 	, mServerId(serverConfiguration->getServerId())
 	, mBeaconSizeInBytes(serverConfiguration->getBeaconSizeInBytes())
 	, mMultiplicity(serverConfiguration->getMultiplicity())
+	, mSendIntervalInMilliseconds(serverConfiguration->getSendIntervalInMilliseconds())
 	, mMaxSessionDurationInMilliseconds(serverConfiguration->getMaxSessionDurationInMilliseconds())
 	, mIsSessionSplitBySessionDurationEnabled(serverConfiguration->isSessionSplitBySessionDurationEnabled())
 	, mMaxEventsPerSession(serverConfiguration->getMaxEventsPerSession())
@@ -265,6 +273,17 @@ int32_t ServerConfiguration::Builder::getMultiplicity() const
 ServerConfiguration::Builder& ServerConfiguration::Builder::withMultiplicity(int32_t multiplicity)
 {
 	mMultiplicity = multiplicity;
+	return *this;
+}
+
+int32_t ServerConfiguration::Builder::getSendIntervalInMilliseconds() const
+{
+	return mSendIntervalInMilliseconds;
+}
+
+ServerConfiguration::Builder& ServerConfiguration::Builder::withSendIntervalInMilliseconds(int32_t sendIntervalInMilliseconds)
+{
+	mSendIntervalInMilliseconds = sendIntervalInMilliseconds;
 	return *this;
 }
 

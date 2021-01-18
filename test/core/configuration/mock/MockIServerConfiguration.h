@@ -45,6 +45,8 @@ namespace test
 				.WillByDefault(testing::Return(core::configuration::ServerConfiguration::defaultValues()->getMaxBeaconSizeInBytes()));
 			ON_CALL(*this, getMultiplicity())
 				.WillByDefault(testing::Return(core::configuration::ServerConfiguration::defaultValues()->getMultiplicity()));
+			ON_CALL(*this, getSendIntervalInMilliseconds())
+				.WillByDefault(testing::Return(core::configuration::ServerConfiguration::defaultValues()->getSendIntervalInMilliseconds()));
 			ON_CALL(*this, isSendingDataAllowed())
 				.WillByDefault(testing::Return(true));
 			ON_CALL(*this, isSendingCrashesAllowed())
@@ -76,6 +78,8 @@ namespace test
 		MOCK_CONST_METHOD0(getBeaconSizeInBytes, int32_t());
 
 		MOCK_CONST_METHOD0(getMultiplicity, int32_t());
+
+		MOCK_CONST_METHOD0(getSendIntervalInMilliseconds, int32_t());
 
 		MOCK_CONST_METHOD0(getMaxSessionDurationInMilliseconds, int32_t());
 
