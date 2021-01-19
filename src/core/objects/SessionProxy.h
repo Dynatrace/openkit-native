@@ -131,9 +131,9 @@ namespace core
 				std::shared_ptr<core::IBeaconSender> beaconSender,
 				std::shared_ptr<core::ISessionWatchdog> sessionWatchdog);
 
-			void createInitialSession();
+			void createInitialSessionAndMakeCurrent();
 
-			std::shared_ptr<SessionInternals> createSplitSession(std::shared_ptr<core::configuration::IServerConfiguration> updatedServerConfig);
+			void createSplitSessionAndMakeCurrent(std::shared_ptr<core::configuration::IServerConfiguration> updatedServerConfig);
 
 			std::shared_ptr<core::objects::SessionInternals> getOrSplitCurrentSessionByEvents();
 
@@ -155,7 +155,7 @@ namespace core
 			/// @param initialServerConfig the server configuration with which the session will be initialized. Can be @c nullptr.
 			/// @param updatedServerConfig the server configuration with which the session will be updated. Can be @c nullptr.
 			///
-			std::shared_ptr<SessionInternals> createSession(std::shared_ptr<core::configuration::IServerConfiguration> initialServerConfig,
+			void createAndAssignCurrentSession(std::shared_ptr<core::configuration::IServerConfiguration> initialServerConfig,
 				std::shared_ptr<core::configuration::IServerConfiguration> updatedServerConfig);
 
 			void updateCurrentSessionIdentifier();

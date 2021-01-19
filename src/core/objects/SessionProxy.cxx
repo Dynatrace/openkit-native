@@ -55,7 +55,7 @@ std::shared_ptr<SessionProxy> SessionProxy::createSessionProxy(std::shared_ptr<o
 	std::shared_ptr<core::ISessionWatchdog> sessionWatchdog)
 {
 	auto instance = std::shared_ptr<SessionProxy>(new SessionProxy(logger, parent, sessionCreator, timingProvider, beaconSender, sessionWatchdog));
-	instance->createInitialSession();
+	instance->createInitialSessionAndMakeCurrent();
 
 	return instance;
 }
@@ -257,15 +257,17 @@ void SessionProxy::onChildClosed(std::shared_ptr<IOpenKitObject> childObject)
 	}
 }
 
-void SessionProxy::createInitialSession()
+void SessionProxy::createInitialSessionAndMakeCurrent()
 {
-	mCurrentSession = createSession(mBeaconSender->getLastServerConfiguration(), nullptr);
+	createAndAssignCurrentSession(mBeaconSender->getLastServerConfiguration(), nullptr);
 	updateCurrentSessionIdentifier();
 }
 
-std::shared_ptr<SessionInternals> SessionProxy::createSplitSession(std::shared_ptr<core::configuration::IServerConfiguration> updatedServerConfig)
+void SessionProxy::createSplitSessionAndMakeCurrent(std::shared_ptr<core::configuration::IServerConfiguration> updatedServerConfig)
 {
-	return createSession(nullptr, updatedServerConfig);
+	createAndAssignCurrentSession(nullptr, updatedServerConfig);
+	updateCurrentSessionIdentifier();
+	reTagCurrentSession();
 }
 
 std::shared_ptr<core::objects::SessionInternals> SessionProxy::getOrSplitCurrentSessionByEvents()
@@ -274,10 +276,7 @@ std::shared_ptr<core::objects::SessionInternals> SessionProxy::getOrSplitCurrent
 	{
 		closeOrEnqueueCurrentSessionForClosing();
 
-		mCurrentSession = createSplitSession(mServerConfiguration);
-		
-		updateCurrentSessionIdentifier();
-		reTagCurrentSession();
+		createSplitSessionAndMakeCurrent(mServerConfiguration);
 	}
 
 	return mCurrentSession;
@@ -293,7 +292,7 @@ bool SessionProxy::isSessionSplitByEventsRequired() const
 	return mServerConfiguration->getMaxEventsPerSession() <= mTopLevelActionCount;
 }
 
-std::shared_ptr<SessionInternals> SessionProxy::createSession(
+void SessionProxy::createAndAssignCurrentSession(
 	std::shared_ptr<core::configuration::IServerConfiguration> initialServerConfig,
 	std::shared_ptr<core::configuration::IServerConfiguration> updatedServerConfig
 )
@@ -318,9 +317,14 @@ std::shared_ptr<SessionInternals> SessionProxy::createSession(
 		session->updateServerConfiguration(updatedServerConfig);
 	}
 
-	mBeaconSender->addSession(session);
+	{
+		// synchronized scope
+		std::lock_guard<std::recursive_mutex> lock(mLockObject);
 
-	return session;
+		mCurrentSession = session;
+	}
+
+	mBeaconSender->addSession(mCurrentSession);
 }
 
 void SessionProxy::updateCurrentSessionIdentifier()
@@ -336,7 +340,7 @@ void SessionProxy::splitAndCreateNewInitialSession()
 
 	// create a completely new Session
 	mSessionCreator->reset();
-	mCurrentSession = createSession(mServerConfiguration, nullptr);
+	createAndAssignCurrentSession(mServerConfiguration, nullptr);
 
 	updateCurrentSessionIdentifier();
 	reTagCurrentSession();
@@ -392,6 +396,12 @@ void SessionProxy::onServerConfigurationUpdate(std::shared_ptr<core::configurati
 	}
 
 	mServerConfiguration = serverConfig;
+
+	if (isFinished())
+	{
+		return;
+	}
+
 	if (mServerConfiguration->isSessionSplitBySessionDurationEnabled()
 		|| mServerConfiguration->isSessionSplitByIdleTimeoutEnabled())
 	{
