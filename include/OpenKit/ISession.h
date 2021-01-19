@@ -48,7 +48,13 @@ namespace openkit
 		///
 		/// Tags a session with the provided @c userTag.
 		/// If the given @c userTag is @c nullptr or an empty string,
-		/// no user identification will be reported to the server.
+		/// this is equivalent to logging off the user.
+		/// 
+		/// @par
+		/// The last non-empty {@code userTag} is re-applied to split sessions.
+		/// Details are described in
+		/// https://github.com/Dynatrace/openkit-native/blob/main/docs/internals.md#identify-users-on-split-sessions.
+		/// 
 		/// @param[in] userTag id of the user
 		///
 		virtual void identifyUser(const char* userTag) = 0;

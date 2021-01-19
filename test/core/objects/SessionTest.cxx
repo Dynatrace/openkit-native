@@ -295,16 +295,21 @@ TEST_F(SessionTest, enterActionLogsInvocation)
 	obtained->leaveAction();
 }
 
-TEST_F(SessionTest, identifyUserWithNullTagDoesNothing)
+TEST_F(SessionTest, identifyUserWithNullTagReportsUser)
 {
 	// with
 	auto logger = MockILogger::createStrict();
 	auto mockBeaconStrict = MockIBeacon::createStrict();
 
 	// expect
-	EXPECT_CALL(*logger, mockWarning("Session [sn=0] identifyUser: userTag must not be null or empty"))
+		EXPECT_CALL(*logger, isDebugEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(true));
+	EXPECT_CALL(*logger, mockDebug("Session [sn=0] identifyUser(nullptr)"))
 		.Times(1);
 	EXPECT_CALL(*mockBeaconStrict, getSessionNumber())
+		.Times(1);
+	EXPECT_CALL(*mockBeaconStrict, identifyUser(DefaultValues::UTF8_EMPTY_STRING))
 		.Times(1);
 
 	// given
@@ -317,16 +322,21 @@ TEST_F(SessionTest, identifyUserWithNullTagDoesNothing)
 	target->identifyUser(nullptr);
 }
 
-TEST_F(SessionTest, identifyUserWithEmptyTagDoesNothing)
+TEST_F(SessionTest, identifyUserWithEmptyTagReportsUser)
 {
 	// with
 	auto logger = MockILogger::createStrict();
 	auto mockBeaconStrict = MockIBeacon::createStrict();
 
 	// expect
-	EXPECT_CALL(*logger, mockWarning("Session [sn=0] identifyUser: userTag must not be null or empty"))
+	EXPECT_CALL(*logger, isDebugEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(true));
+	EXPECT_CALL(*logger, mockDebug("Session [sn=0] identifyUser()"))
 		.Times(1);
 	EXPECT_CALL(*mockBeaconStrict, getSessionNumber())
+		.Times(1);
+	EXPECT_CALL(*mockBeaconStrict, identifyUser(DefaultValues::UTF8_EMPTY_STRING))
 		.Times(1);
 
 	// given

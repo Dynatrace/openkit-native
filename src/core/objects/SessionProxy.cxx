@@ -99,14 +99,10 @@ std::shared_ptr<openkit::IRootAction> SessionProxy::enterAction(const char* acti
 void SessionProxy::identifyUser(const char* userTag)
 {
 	core::UTF8String userTagString(userTag);
-	if (userTagString.empty())
-	{
-		mLogger->warning("%s identifyUser: userTag must not be null or empty", toString().c_str());
-		return;
-	}
+
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("%s identifyUser(%s)", toString().c_str(), userTag);
+		mLogger->debug("%s identifyUser(%s)", toString().c_str(), userTag == nullptr ? "nullptr" : userTagString.getStringData().c_str());
 	}
 
 	{ // synchronized scope

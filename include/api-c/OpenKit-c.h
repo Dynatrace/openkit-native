@@ -331,7 +331,13 @@ extern "C" {
 	///
 	/// Tags a session with the provided @c userTag.
 	/// If the given @c userTag is @c NULL or an empty string,
-	/// no user identification will be reported to the server.
+	/// this is equivalent to logging off the user.
+	/// 
+	/// @par
+	/// The last non-empty @c userTag is re-applied to split sessions.
+	/// Details are described in
+	/// https://github.com/Dynatrace/openkit-native/blob/main/docs/internals.md#identify-users-on-split-sessions.
+	/// 
 	/// @param[in] sessionHandle the handle returned by @ref createSession
 	/// @param[in] userTag       id of the user
 	///

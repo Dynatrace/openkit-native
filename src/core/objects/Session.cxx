@@ -85,14 +85,9 @@ void Session::identifyUser(const char* userTag)
 {
 	UTF8String userTagString(userTag);
 
-	if (userTag == nullptr || userTagString.empty())
-	{
-		mLogger->warning("%s identifyUser: userTag must not be null or empty", toString().c_str());
-		return;
-	}
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("%s identifyUser(%s)", toString().c_str(), userTag);
+		mLogger->debug("%s identifyUser(%s)", toString().c_str(), userTag == nullptr ? "nullptr" : userTagString.getStringData().c_str());
 	}
 
 	{ // synchronized scope

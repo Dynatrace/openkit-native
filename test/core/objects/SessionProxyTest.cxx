@@ -550,13 +550,13 @@ TEST_F(SessionProxyTest, enterActionOnlySetsLastInteractionTimeIfActionReporting
 /// identify user tests
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST_F(SessionProxyTest, identifyUserWithNullTagDoesNothing)
+TEST_F(SessionProxyTest, identifyUserWithNullTagReportsUser)
 {
     // expect
-    EXPECT_CALL(*mockLogger, mockWarning("SessionProxy [sn=0, seq=0] identifyUser: userTag must not be null or empty"))
+    EXPECT_CALL(*mockLogger, mockDebug("SessionProxy [sn=0, seq=0] identifyUser(nullptr)"))
         .Times(1);
-    EXPECT_CALL(*mockSession, identifyUser(testing::_))
-        .Times(0);
+    EXPECT_CALL(*mockSession, identifyUser(nullptr))
+        .Times(1);
 
     // given
     auto target = createSessionProxy();
@@ -565,13 +565,13 @@ TEST_F(SessionProxyTest, identifyUserWithNullTagDoesNothing)
     target->identifyUser(nullptr);
 }
 
-TEST_F(SessionProxyTest, identifyUserWithEmptyTagDoesNothing)
+TEST_F(SessionProxyTest, identifyUserWithEmptyTagReportsUser)
 {
     // expect
-    EXPECT_CALL(*mockLogger, mockWarning("SessionProxy [sn=0, seq=0] identifyUser: userTag must not be null or empty"))
+    EXPECT_CALL(*mockLogger, mockDebug("SessionProxy [sn=0, seq=0] identifyUser()"))
         .Times(1);
-    EXPECT_CALL(*mockSession, identifyUser(testing::_))
-        .Times(0);
+    EXPECT_CALL(*mockSession, identifyUser(testing::StrEq("")))
+        .Times(1);
 
     // given
     auto target = createSessionProxy();
