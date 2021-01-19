@@ -55,8 +55,8 @@ using SessionBuilder_sp = std::shared_ptr<TestSessionBuilder>;
 using Utf8String_t = core::UTF8String;
 using WebRequestTracer_t = core::objects::WebRequestTracer;
 
-constexpr char APP_ID[] = "appID";
-constexpr char APP_NAME[] = "appName";
+constexpr const char* APP_ID = "appID";
+constexpr const char* APP_NAME = "appName";
 
 class SessionTest : public testing::Test
 {
@@ -632,6 +632,28 @@ TEST_F(SessionTest, endSessionFinishesSessionOnBeacon)
 
 	// when
 	target->end();
+}
+
+TEST_F(SessionTest, endASessionDoesNotFinishSessionOnBeacon)
+{
+	// with
+	auto mockBeaconNice = MockIBeacon::createNice();
+
+	// expect
+	EXPECT_CALL(*mockBeaconNice, endSession())
+		.Times(0);
+
+	// given
+	const int64_t timestamp = 4321;
+	ON_CALL(*mockBeaconNice, getCurrentTimestamp())
+		.WillByDefault(testing::Return(timestamp));
+
+	auto target = createSession()
+		->with(mockBeaconNice)
+		.build();
+
+	// when
+	target->end(false);
 }
 
 TEST_F(SessionTest, endingAnAlreadyEndedSessionDoesNothing)

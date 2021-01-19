@@ -1107,6 +1107,29 @@ TEST_F(SessionProxyTest, closeSessionEndsTheSession)
     target->close();
 }
 
+TEST_F(SessionProxyTest, endCallsDifferentMethodsForSessions)
+{
+    // with
+    auto childObjectOne = MockSessionInternals::createNice();
+    auto childObjectTwo = MockSessionInternals::createNice();
+
+    // expect
+    EXPECT_CALL(*childObjectOne, end(false))
+        .Times(1);
+    EXPECT_CALL(*childObjectTwo, end(false))
+        .Times(1);
+    EXPECT_CALL(*mockSession, end(true))
+        .Times(1);
+
+    auto target = createSessionProxy();
+
+    target->storeChildInList(childObjectOne);
+    target->storeChildInList(childObjectTwo);
+
+    // when
+    target->end();
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// split session by time
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

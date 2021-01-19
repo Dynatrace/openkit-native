@@ -84,6 +84,15 @@ namespace core
 			///
 			virtual void clearCapturedData() = 0;
 
+
+			///
+			/// Ends the session and if the parameter @c sendSessionEndEvent is @c true
+			/// also send the end session event in the beacon.
+			///
+			/// @param sendSessionEndEvent Boolean indicating whether to send an end session event or not.
+			///
+			virtual void end(bool sendSessionEndEvent) = 0;
+
 			///
 			/// Tries to end the current session by checking if there are no more child objects (actions / web request
 			/// tracers) open. In case no more child objects are open, the session is ended, otherwise it is kept open.

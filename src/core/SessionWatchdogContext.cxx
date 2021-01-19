@@ -125,7 +125,7 @@ int64_t SessionWatchdogContext::closeExpiredSessions()
     for (auto& session : closableSessions)
     {
         mSessionsToClose.remove(session);
-        session->end();
+        session->end(false);
     }
 
     return sleepTimeInMillis;

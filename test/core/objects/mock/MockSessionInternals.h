@@ -99,6 +99,7 @@ namespace test
 
 		MOCK_CONST_METHOD0(isSessionEnded, bool());
 
+		MOCK_METHOD1(end, void(bool /* sendSessionEndEvent */));
 
 		MOCK_METHOD0(tryEnd, bool());
 

@@ -156,9 +156,9 @@ TEST_F(BeaconSendingFlushSessionsStateTest, aBeaconSendingFlushSessionsStateClos
 {
 	// expect
 	// verify that open sessions are closed
-	EXPECT_CALL(*mockSession1Open, end())
+	EXPECT_CALL(*mockSession1Open, end(false))
 		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockSession2Open, end())
+	EXPECT_CALL(*mockSession2Open, end(false))
 		.Times(testing::Exactly(1));
 
 	// given

@@ -174,37 +174,7 @@ std::shared_ptr<openkit::IWebRequestTracer> Session::traceWebRequest(const char*
 
 void Session::end()
 {
-	if (mLogger->isDebugEnabled())
-	{
-		mLogger->debug("%s end()", toString().c_str());
-	}
-
-	{ // synchronized scope
-		std::lock_guard<std::recursive_mutex> lock(mMutex);
-
-		if (!markAsIsFinishing())
-		{
-			return; // end() was already called before
-		}
-	}
-
-	// leave all Root-Actions for sanity reasons
-	auto childObjects = getCopyOfChildObjects();
-	for (auto childObject : childObjects)
-	{
-		childObject->close();
-	}
-
-	mBeacon->endSession();
-
-	{ // synchronized scope
-		std::lock_guard<std::recursive_mutex> lock(mMutex);
-
-		markAsFinished();
-	}
-
-	// last but not least update parent relation
-	mParent->onChildClosed(shared_from_this());
+	end(true);
 }
 
 void Session::close()
@@ -229,6 +199,45 @@ void Session::clearCapturedData()
 	mBeacon->clearData();
 }
 
+void Session::end(bool sendSessionEndEvent)
+{
+	if (mLogger->isDebugEnabled())
+	{
+		mLogger->debug("%s end()", toString().c_str());
+	}
+
+	{ // synchronized scope
+		std::lock_guard<std::recursive_mutex> lock(mMutex);
+
+		if (!markAsIsFinishing())
+		{
+			return; // end() was already called before
+		}
+	}
+
+	// leave all Root-Actions for sanity reasons
+	auto childObjects = getCopyOfChildObjects();
+	for (auto childObject : childObjects)
+	{
+		childObject->close();
+	}
+
+	// send the end event, only if a session is explicitly ended
+	if (sendSessionEndEvent)
+	{
+		mBeacon->endSession();
+	}
+
+	{ // synchronized scope
+		std::lock_guard<std::recursive_mutex> lock(mMutex);
+
+		markAsFinished();
+	}
+
+	// last but not least update parent relation
+	mParent->onChildClosed(shared_from_this());
+}
+
 bool Session::tryEnd()
 {
 	std::lock_guard<std::recursive_mutex> lock(mMutex);
@@ -240,7 +249,7 @@ bool Session::tryEnd()
 
 	if (getChildCount() == 0)
 	{
-		end();
+		end(false);
 		return true;
 	}
 

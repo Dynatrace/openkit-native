@@ -107,6 +107,8 @@ namespace core
 
 			void clearCapturedData() override;
 
+			void end(bool sendSessionEndEvent) override;
+
 			bool tryEnd() override;
 
 			int64_t getSplitByEventsGracePeriodEndTimeInMillis() override;

@@ -213,7 +213,15 @@ void SessionProxy::end()
 	auto childObjects = getCopyOfChildObjects();
 	for (auto&& childObject : childObjects)
 	{
-		childObject->close();
+		auto childSession = std::dynamic_pointer_cast<core::objects::SessionInternals>(childObject);
+		if (childSession != nullptr)
+		{
+			childSession->end(childSession == mCurrentSession);
+		}
+		else
+		{
+			childObject->close();
+		}
 	}
 
 	auto thisSession = shared_from_this();

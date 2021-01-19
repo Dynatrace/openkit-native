@@ -213,7 +213,7 @@ TEST_F(SessionWatchdogContextTest, removeFromSplitByTimeoutRemovesSessionProxy)
 TEST_F(SessionWatchdogContextTest, executeEndsSessionsWithExpiredGracePeriod)
 {
 	// expect
-	EXPECT_CALL(*mockSession, end())
+	EXPECT_CALL(*mockSession, end(false))
 		.Times(1);
 
 	// given
@@ -240,7 +240,7 @@ TEST_F(SessionWatchdogContextTest, executeEndsSessionsWithExpiredGracePeriod)
 TEST_F(SessionWatchdogContextTest, executeEndsSessionsWithGraceEndTimeSameAsCurrentTime)
 {
 	// expect
-	EXPECT_CALL(*mockSession, end())
+	EXPECT_CALL(*mockSession, end(false))
 		.Times(1);
 
 	// given
@@ -267,7 +267,7 @@ TEST_F(SessionWatchdogContextTest, executeDoesNotEndSessionsWhenGracePeriodIsNot
 	const int64_t now = 5;
 
 	// expect
-	EXPECT_CALL(*mockSession, end())
+	EXPECT_CALL(*mockSession, end(false))
 		.Times(0);
 	EXPECT_CALL(*mockSession, setSplitByEventsGracePeriodEndTimeInMillis(now + gracePeriod))
 		.Times(1);
@@ -292,7 +292,7 @@ TEST_F(SessionWatchdogContextTest, executeDoesNotEndSessionsWhenGracePeriodIsNot
 TEST_F(SessionWatchdogContextTest, executeSleepsDefaultTimeIfSessionIsExpiredAndNoFurtherNonExpiredSessions)
 {
 	// expect
-	EXPECT_CALL(*mockSession, end())
+	EXPECT_CALL(*mockSession, end(false))
 		.Times(1);
 	EXPECT_CALL(*mockThreadSuspender, sleep(SessionWatchdogContext_t::getDefaultSleepTime().count()))
 		.Times(1);
@@ -324,11 +324,11 @@ TEST_F(SessionWatchdogContextTest, executeSleepsMinimumTimeToNextSessionGraceEnd
 	// expect
 	EXPECT_CALL(*mockThreadSuspender, sleep(3))
 		.Times(1);
-	EXPECT_CALL(*mockSession, end())
+	EXPECT_CALL(*mockSession, end(testing::_))
 		.Times(0);
-	EXPECT_CALL(*mockSession1, end())
+	EXPECT_CALL(*mockSession1, end(testing::_))
 		.Times(0);
-	EXPECT_CALL(*mockSession2, end())
+	EXPECT_CALL(*mockSession2, end(testing::_))
 		.Times(0);
 
 	// given
@@ -536,7 +536,7 @@ TEST_F(SessionWatchdogContextTest, executeSleepsMinimumDurationToNextSplitByTime
 	EXPECT_CALL(*mockSessionProxy, splitSessionByTime())
 		.Times(1)
 		.WillOnce(testing::Return(nextSessionProxySplitTime));
-	EXPECT_CALL(*mockSession, end())
+	EXPECT_CALL(*mockSession, end(testing::_))
 		.Times(0);
 	EXPECT_CALL(*mockThreadSuspender, sleep(nextSessionProxySplitTime - currentTime))
 		.Times(1);
@@ -564,7 +564,7 @@ TEST_F(SessionWatchdogContextTest, executeSleepsMinimumDurationToNextGracePeriod
 	EXPECT_CALL(*mockSessionProxy, splitSessionByTime())
 		.Times(1)
 		.WillOnce(testing::Return(nextSessionProxySplitTime));
-	EXPECT_CALL(*mockSession, end())
+	EXPECT_CALL(*mockSession, end(testing::_))
 		.Times(0);
 	EXPECT_CALL(*mockThreadSuspender, sleep(gracePeriod))
 		.Times(1);
