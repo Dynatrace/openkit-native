@@ -558,7 +558,6 @@ TEST_F(SessionWatchdogContextTest, executeSleepsMinimumDurationToNextGracePeriod
 	// with
 	const int64_t gracePeriod = 100;
 	const int64_t nextSessionProxySplitTime = 200;
-	const int64_t currentTime = 50;
 
 	// expect
 	EXPECT_CALL(*mockSessionProxy, splitSessionByTime())

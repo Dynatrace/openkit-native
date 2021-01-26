@@ -194,7 +194,7 @@ TEST_F(BeaconConfigurationTest, initializeServerConfigurationWithNullConfigurati
 {
 	// given
 	auto updateServerConfigurationCallbackCalled = false;
-	auto updateServerConfigurationCallback = [&updateServerConfigurationCallbackCalled](IServerConfiguration_sp updatedServerConfiguration) {
+	auto updateServerConfigurationCallback = [&updateServerConfigurationCallbackCalled](IServerConfiguration_sp /* updatedServerConfiguration */) {
 		updateServerConfigurationCallbackCalled = true;
 	};
 
@@ -213,7 +213,7 @@ TEST_F(BeaconConfigurationTest, initializeServerConfigurationWithDefaultConfigur
 {
 	// given
 	auto updateServerConfigurationCallbackCalled = false;
-	auto updateServerConfigurationCallback = [&updateServerConfigurationCallbackCalled](IServerConfiguration_sp updatedServerConfiguration) {
+	auto updateServerConfigurationCallback = [&updateServerConfigurationCallbackCalled](IServerConfiguration_sp /* updatedServerConfiguration */) {
 		updateServerConfigurationCallbackCalled = true;
 	};
 
@@ -249,7 +249,7 @@ TEST_F(BeaconConfigurationTest, initializeServerConfigurationDoesInvokeCallbackI
 	// given
 	auto serverConfig = MockIServerConfiguration::createNice();
 	auto updateServerConfigurationCallbackCalled = false;
-	auto updateServerConfigurationCallback = [&updateServerConfigurationCallbackCalled](IServerConfiguration_sp updatedServerConfiguration) {
+	auto updateServerConfigurationCallback = [&updateServerConfigurationCallbackCalled](IServerConfiguration_sp /* updatedServerConfiguration */) {
 		updateServerConfigurationCallbackCalled = true;
 	};
 
