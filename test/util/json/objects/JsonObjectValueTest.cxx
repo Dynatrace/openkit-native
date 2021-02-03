@@ -47,7 +47,7 @@ TEST_F(JsonObjectValueTest, sizeReturnsSizeOfUnderlyingMap)
 	auto obtained = target->size();
 
 	// then
-	ASSERT_THAT(obtained, testing::Eq(1));
+	ASSERT_THAT(obtained, testing::Eq(size_t(1)));
 
 	// and when
 	jsonValueMap->insert({"second", JsonBooleanValue::falseValue()});
@@ -55,7 +55,7 @@ TEST_F(JsonObjectValueTest, sizeReturnsSizeOfUnderlyingMap)
 	obtained = target->size();
 
 	// then
-	ASSERT_THAT(obtained, testing::Eq(2));
+	ASSERT_THAT(obtained, testing::Eq(size_t(2)));
 }
 
 

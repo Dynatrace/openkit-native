@@ -1620,7 +1620,7 @@ TEST_F(SessionProxyTest, onChildClosedRemovesChildFromList)
 {
     // given
     IOpenKitComposite_sp target = createSessionProxy();
-    ASSERT_THAT(target->getCopyOfChildObjects().size(), testing::Eq(1)); // initial session
+    ASSERT_THAT(target->getCopyOfChildObjects().size(), testing::Eq(size_t(1))); // initial session
 
     // when
     auto childObject = MockIOpenKitObject::createNice();
@@ -1628,13 +1628,13 @@ TEST_F(SessionProxyTest, onChildClosedRemovesChildFromList)
     target->storeChildInList(childObject);
 
     // then
-    ASSERT_THAT(target->getCopyOfChildObjects().size(), testing::Eq(2));
+    ASSERT_THAT(target->getCopyOfChildObjects().size(), testing::Eq(size_t(2)));
 
     // when child gets closed
     target->onChildClosed(childObject);
 
     // then
-    ASSERT_THAT(target->getCopyOfChildObjects().size(), testing::Eq(1));
+    ASSERT_THAT(target->getCopyOfChildObjects().size(), testing::Eq(size_t(1)));
 }
 
 TEST_F(SessionProxyTest, onChildClosedCallsDequeueOnSessionWatchdog)

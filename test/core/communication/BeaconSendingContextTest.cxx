@@ -457,13 +457,13 @@ TEST_F(BeaconSendingContextTest, addSession)
 	target->addSession(mockSessionOne);
 
 	// then
-	ASSERT_THAT(target->getSessionCount(), testing::Eq(1));
+	ASSERT_THAT(target->getSessionCount(), testing::Eq(size_t(1)));
 
 	// and when
 	target->addSession(mockSessionTwo);
 
 	// then
-	ASSERT_THAT(target->getSessionCount(), testing::Eq(2));
+	ASSERT_THAT(target->getSessionCount(), testing::Eq(size_t(2)));
 }
 
 TEST_F(BeaconSendingContextTest, removeSession)
@@ -476,19 +476,19 @@ TEST_F(BeaconSendingContextTest, removeSession)
 
 	target->addSession(mockSessionOne);
 	target->addSession(mockSessionTwo);
-	ASSERT_THAT(target->getSessionCount(), testing::Eq(2));
+	ASSERT_THAT(target->getSessionCount(), testing::Eq(size_t(2)));
 
 	// when
 	target->removeSession(mockSessionOne);
 
 	// then
-	ASSERT_THAT(target->getSessionCount(), testing::Eq(1));
+	ASSERT_THAT(target->getSessionCount(), testing::Eq(size_t(1)));
 
 	// and when
 	target->removeSession(mockSessionTwo);
 
 	// then
-	ASSERT_THAT(target->getSessionCount(), testing::Eq(0));
+	ASSERT_THAT(target->getSessionCount(), testing::Eq(size_t(0)));
 }
 
 TEST_F(BeaconSendingContextTest, disableCaptureAndClearModifiesCaptureFlag)
@@ -520,7 +520,7 @@ TEST_F(BeaconSendingContextTest, disableCaptureAndClearClearsCapturedSessionData
 	target->disableCaptureAndClear();
 
 	// then
-	ASSERT_THAT(target->getSessionCount(), testing::Eq(1));
+	ASSERT_THAT(target->getSessionCount(), testing::Eq(size_t(1)));
 }
 
 TEST_F(BeaconSendingContextTest, disableCaptureAndClearRemovesFinishedSession)
@@ -540,7 +540,7 @@ TEST_F(BeaconSendingContextTest, disableCaptureAndClearRemovesFinishedSession)
 	target->disableCaptureAndClear();
 
 	// then
-	ASSERT_THAT(target->getSessionCount(), testing::Eq(0));
+	ASSERT_THAT(target->getSessionCount(), testing::Eq(size_t(0)));
 }
 
 TEST_F(BeaconSendingContextTest, handleStatusResponseDisablesCaptureIfResponseIsNull)
@@ -572,7 +572,7 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseClearsSessionDataIfResponse
 	target->handleStatusResponse(nullptr);
 
 	// then
-	ASSERT_THAT(target->getSessionCount(), testing::Eq(1));
+	ASSERT_THAT(target->getSessionCount(), testing::Eq(size_t(1)));
 }
 
 TEST_F(BeaconSendingContextTest, handleStatusResponseRemovesFinishedSessionIfResponseIsNull)
@@ -595,7 +595,7 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseRemovesFinishedSessionIfRes
 	target->handleStatusResponse(nullptr);
 
 	// then
-	ASSERT_THAT(target->getSessionCount(), testing::Eq(0));
+	ASSERT_THAT(target->getSessionCount(), testing::Eq(size_t(0)));
 }
 
 TEST_F(BeaconSendingContextTest, handleStatusResponseDisablesCaptureIfResponseCodeIsNotOk)
@@ -633,7 +633,7 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseClearsSessionDataIfResponse
 	target->handleStatusResponse(response);
 
 	// then
-	ASSERT_THAT(target->getSessionCount(), testing::Eq(1));
+	ASSERT_THAT(target->getSessionCount(), testing::Eq(size_t(1)));
 }
 
 TEST_F(BeaconSendingContextTest, handleStatusResponseRemovesFinishedSessionsIfResponseCodeIsNotOk)
@@ -659,7 +659,7 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseRemovesFinishedSessionsIfRe
 	target->handleStatusResponse(response);
 
 	// then
-	ASSERT_THAT(target->getSessionCount(), testing::Eq(0));
+	ASSERT_THAT(target->getSessionCount(), testing::Eq(size_t(0)));
 }
 
 TEST_F(BeaconSendingContextTest, handleStatusResponseClearsSessionDataIfResponseIsCaptureOff)
@@ -686,7 +686,7 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseClearsSessionDataIfResponse
 	target->handleStatusResponse(response);
 
 	// then
-	ASSERT_THAT(target->getSessionCount(), testing::Eq(1));
+	ASSERT_THAT(target->getSessionCount(), testing::Eq(size_t(1)));
 }
 
 TEST_F(BeaconSendingContextTest, handleStatusResponseRemovesFinishedSessionsIfResponseIsCaptureOff)
@@ -717,7 +717,7 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseRemovesFinishedSessionsIfRe
 	target->handleStatusResponse(response);
 
 	// then
-	ASSERT_THAT(target->getSessionCount(), testing::Eq(0));
+	ASSERT_THAT(target->getSessionCount(), testing::Eq(size_t(0)));
 }
 
 TEST_F(BeaconSendingContextTest, handleStatusResponseUpdatesSendInterval)
@@ -876,7 +876,7 @@ TEST_F(BeaconSendingContextTest, onDefaultGetAllNotConfiguredSessionsIsEmpty)
 	auto obtained = target->getAllNotConfiguredSessions();
 
 	// then
-	ASSERT_THAT(obtained.size(), testing::Eq(0));
+	ASSERT_THAT(obtained, testing::IsEmpty());
 }
 
 TEST_F(BeaconSendingContextTest, getAllNotConfiguredSessionsReturnsOnlyNotConfiguredSessions)
@@ -892,13 +892,13 @@ TEST_F(BeaconSendingContextTest, getAllNotConfiguredSessionsReturnsOnlyNotConfig
 	target->addSession(relevantSession);
 	target->addSession(ignoredSession);
 
-	ASSERT_THAT(target->getSessionCount(), testing::Eq(2));
+	ASSERT_THAT(target->getSessionCount(), testing::Eq(size_t(2)));
 
 	// when
 	auto obtained = target->getAllNotConfiguredSessions();
 
 	// then
-	ASSERT_THAT(obtained.size(), testing::Eq(1));
+	ASSERT_THAT(obtained.size(), testing::Eq(size_t(1)));
 	ASSERT_THAT(*obtained.begin(), testing::Eq(relevantSession));
 }
 
@@ -911,7 +911,7 @@ TEST_F(BeaconSendingContextTest, onDefaultGetAllOpenAndConfiguredSessionsIsEmpty
 	auto obtained = target->getAllOpenAndConfiguredSessions();
 
 	// then
-	ASSERT_THAT(obtained.size(), testing::Eq(0));
+	ASSERT_THAT(obtained, testing::IsEmpty());
 }
 
 TEST_F(BeaconSendingContextTest, getAllOpenAndConfiguredSessionsReturnsOnlyConfiguredNotFinsihedSessions)
@@ -927,13 +927,13 @@ TEST_F(BeaconSendingContextTest, getAllOpenAndConfiguredSessionsReturnsOnlyConfi
 	target->addSession(relevantSession);
 	target->addSession(ignoredSession);
 
-	ASSERT_THAT(target->getSessionCount(), testing::Eq(2));
+	ASSERT_THAT(target->getSessionCount(), testing::Eq(size_t(2)));
 
 	// when
 	auto obtained = target->getAllOpenAndConfiguredSessions();
 
 	// then
-	ASSERT_THAT(obtained.size(), testing::Eq(1));
+	ASSERT_THAT(obtained.size(), testing::Eq(size_t(1)));
 	ASSERT_THAT(*obtained.begin(), testing::Eq(relevantSession));
 }
 
@@ -946,7 +946,7 @@ TEST_F(BeaconSendingContextTest, onDefaultGetAllFinishedAndConfiguredSessionsIsE
 	auto obtained = target->getAllFinishedAndConfiguredSessions();
 
 	// then
-	ASSERT_THAT(obtained.size(), testing::Eq(0));
+	ASSERT_THAT(obtained, testing::IsEmpty());
 }
 
 TEST_F(BeaconSendingContextTest, getAllFinishedAndConfiguredSessionsReturnsOnlyConfiguredAndFinsihedSessions)
@@ -962,13 +962,13 @@ TEST_F(BeaconSendingContextTest, getAllFinishedAndConfiguredSessionsReturnsOnlyC
 	target->addSession(relevantSession);
 	target->addSession(ignoredSession);
 
-	ASSERT_THAT(target->getSessionCount(), testing::Eq(2));
+	ASSERT_THAT(target->getSessionCount(), testing::Eq(size_t(2)));
 
 	// when
 	auto obtained = target->getAllFinishedAndConfiguredSessions();
 
 	// then
-	ASSERT_THAT(obtained.size(), testing::Eq(1));
+	ASSERT_THAT(obtained.size(), testing::Eq(size_t(1)));
 	ASSERT_THAT(*obtained.begin(), testing::Eq(relevantSession));
 }
 

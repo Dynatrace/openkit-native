@@ -190,7 +190,7 @@ TEST_F(SessionTest, enterActionAddsNewlyCreatedActionToTheListOfChildObjects)
 
 	// then
 	auto childList = target->getCopyOfChildObjects();
-	ASSERT_THAT(childList.size(), testing::Eq(1));
+	ASSERT_THAT(childList.size(), testing::Eq(size_t(1)));
 
 	auto rootActionOne = std::dynamic_pointer_cast<RootAction_t>(obtainedOne);
 	ASSERT_THAT(rootActionOne, testing::NotNull());
@@ -204,7 +204,7 @@ TEST_F(SessionTest, enterActionAddsNewlyCreatedActionToTheListOfChildObjects)
 
 	// then
 	childList = target->getCopyOfChildObjects();
-	ASSERT_THAT(childList.size(), testing::Eq(2));
+	ASSERT_THAT(childList.size(), testing::Eq(size_t(2)));
 
 	auto rootActionTwo = std::dynamic_pointer_cast<RootAction_t>(obtainedTwo);
 	ASSERT_THAT(rootActionTwo, testing::NotNull());
@@ -1149,7 +1149,7 @@ TEST_F(SessionTest, traceWebRequestWithValidUrlStringAddsTracerToListOfChildren)
 	ASSERT_THAT(obtained, testing::NotNull());
 
 	auto childObjects = target->getCopyOfChildObjects();
-	ASSERT_THAT(childObjects.size(), testing::Eq(1));
+	ASSERT_THAT(childObjects.size(), testing::Eq(size_t(1)));
 	ASSERT_THAT(*childObjects.begin(), testing::Eq(std::dynamic_pointer_cast<IOpenKitObject_t>(obtained)));
 
 	// break dependency cycle: tracer in child list of session
@@ -1264,14 +1264,14 @@ TEST_F(SessionTest, onChildClosedRemovesChildFromList)
 	target->storeChildInList(childObject);
 
 	auto numChildObjects = target->getChildCount();
-	ASSERT_THAT(numChildObjects, testing::Eq(1));
+	ASSERT_THAT(numChildObjects, testing::Eq(size_t(1)));
 
 	// when
 	target->onChildClosed(childObject);
 
 	// then
 	numChildObjects = target->getChildCount();
-	ASSERT_THAT(numChildObjects, testing::Eq(0));
+	ASSERT_THAT(numChildObjects, testing::Eq(size_t(0)));
 }
 
 TEST_F(SessionTest, onChildClosedEndsSessionWithoutChildrenIfInStateWasTriedForEnding)

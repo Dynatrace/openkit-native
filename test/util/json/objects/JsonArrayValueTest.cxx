@@ -48,7 +48,7 @@ TEST_F(JsonArrayValueTest, sizeReturnsSizeOfUnderlyingList)
 	auto obtained = target->size();
 
 	// then
-	ASSERT_THAT(obtained, testing::Eq(1));
+	ASSERT_THAT(obtained, testing::Eq(size_t(1)));
 
 	// and when
 	jsonValues->push_back(JsonBooleanValue::falseValue());
@@ -57,7 +57,7 @@ TEST_F(JsonArrayValueTest, sizeReturnsSizeOfUnderlyingList)
 	obtained = target->size();
 
 	// then
-	ASSERT_THAT(obtained, testing::Eq(2));
+	ASSERT_THAT(obtained, testing::Eq(size_t(2)));
 }
 
 TEST_F(JsonArrayValueTest, beginReturnsIteratorOfUnderlyingList)

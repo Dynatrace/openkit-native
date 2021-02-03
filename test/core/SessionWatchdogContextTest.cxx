@@ -83,7 +83,7 @@ TEST_F(SessionWatchdogContextTest, onDefaultSessionsToCloseIsEmpty)
 	auto target = createContext();
 
 	// then
-	ASSERT_THAT(target->getSessionsToClose().size(), testing::Eq(0));
+	ASSERT_THAT(target->getSessionsToClose(), testing::IsEmpty());
 }
 
 TEST_F(SessionWatchdogContextTest, onDefaultSessionsToSplitByTimeoutIsEmpty)
@@ -109,7 +109,7 @@ TEST_F(SessionWatchdogContextTest, closeOrEnqueueForClosingDoesNotAddSessionIfIt
 	target->closeOrEnqueueForClosing(mockSession, 0);
 
 	// then
-	ASSERT_THAT(target->getSessionsToClose().size(), testing::Eq(0));
+	ASSERT_THAT(target->getSessionsToClose(), testing::IsEmpty());
 }
 
 TEST_F(SessionWatchdogContextTest, closeOrEnqueueForClosingAddsSessionIfSessionCannotBeClosed)
@@ -126,7 +126,7 @@ TEST_F(SessionWatchdogContextTest, closeOrEnqueueForClosingAddsSessionIfSessionC
 	target->closeOrEnqueueForClosing(mockSession, 17);
 
 	// then
-	ASSERT_THAT(target->getSessionsToClose().size(), testing::Eq(1));
+	ASSERT_THAT(target->getSessionsToClose().size(), testing::Eq(size_t(1)));
 }
 
 TEST_F(SessionWatchdogContextTest, closeOrEnqueueForClosingSetsSplitByEventsGracePeriodEndTimeIfSessionCannotBeClosed)
@@ -156,13 +156,14 @@ TEST_F(SessionWatchdogContextTest, dequeueFromClosingRemovesSession)
 	// given
 	auto target = createContext();
 	target->closeOrEnqueueForClosing(mockSession, 0);
-	ASSERT_THAT(target->getSessionsToClose().size(), testing::Eq(1));
+	
+	ASSERT_THAT(target->getSessionsToClose().size(), testing::Eq(size_t(1)));
 
 	// when
 	target->dequeueFromClosing(mockSession);
 
 	// then
-	ASSERT_THAT(target->getSessionsToClose().size(), testing::Eq(0));
+	ASSERT_THAT(target->getSessionsToClose(), testing::IsEmpty());
 }
 
 TEST_F(SessionWatchdogContextTest, addToSplitByTimeOutAddsSessionProxyIfNotFinished)
@@ -177,7 +178,7 @@ TEST_F(SessionWatchdogContextTest, addToSplitByTimeOutAddsSessionProxyIfNotFinis
 	target->addToSplitByTimeout(mockSessionProxy);
 
 	// then
-	ASSERT_THAT(target->getSessionsToSplitByTimeout().size(), testing::Eq(1));
+	ASSERT_THAT(target->getSessionsToSplitByTimeout().size(), testing::Eq(size_t(1)));
 }
 
 TEST_F(SessionWatchdogContextTest, addToSplitByTimeOutDoesNotAddSessionProxyIfFinished)
@@ -201,7 +202,7 @@ TEST_F(SessionWatchdogContextTest, removeFromSplitByTimeoutRemovesSessionProxy)
 	auto target = createContext();
 	target->addToSplitByTimeout(mockSessionProxy);
 
-	ASSERT_THAT(target->getSessionsToSplitByTimeout().size(), testing::Eq(1));
+	ASSERT_THAT(target->getSessionsToSplitByTimeout().size(), testing::Eq(size_t(1)));
 
 	// when
 	target->removeFromSplitByTimeout(mockSessionProxy);
@@ -234,7 +235,7 @@ TEST_F(SessionWatchdogContextTest, executeEndsSessionsWithExpiredGracePeriod)
 	target->execute();
 
 	// then
-	ASSERT_THAT(target->getSessionsToClose().size(), testing::Eq(0));
+	ASSERT_THAT(target->getSessionsToClose(), testing::IsEmpty());
 }
 
 TEST_F(SessionWatchdogContextTest, executeEndsSessionsWithGraceEndTimeSameAsCurrentTime)
@@ -257,7 +258,7 @@ TEST_F(SessionWatchdogContextTest, executeEndsSessionsWithGraceEndTimeSameAsCurr
 	target->execute();
 
 	// then
-	ASSERT_THAT(target->getSessionsToClose().size(), testing::Eq(0));
+	ASSERT_THAT(target->getSessionsToClose(), testing::IsEmpty());
 }
 
 TEST_F(SessionWatchdogContextTest, executeDoesNotEndSessionsWhenGracePeriodIsNotExpired)
@@ -286,7 +287,7 @@ TEST_F(SessionWatchdogContextTest, executeDoesNotEndSessionsWhenGracePeriodIsNot
 	target->execute();
 
 	// then
-	ASSERT_THAT(target->getSessionsToClose().size(), testing::Eq(1));
+	ASSERT_THAT(target->getSessionsToClose().size(), testing::Eq(size_t(1)));
 }
 
 TEST_F(SessionWatchdogContextTest, executeSleepsDefaultTimeIfSessionIsExpiredAndNoFurtherNonExpiredSessions)
@@ -393,7 +394,7 @@ TEST_F(SessionWatchdogContextTest, executeDoesNotRemoveSessionProxyIfNextSplitTi
 	target->execute();
 
 	// then
-	ASSERT_THAT(target->getSessionsToSplitByTimeout().size(), testing::Eq(1));
+	ASSERT_THAT(target->getSessionsToSplitByTimeout().size(), testing::Eq(size_t(1)));
 }
 
 TEST_F(SessionWatchdogContextTest, executeSleepsDefaultTimeIfSessionProxySplitTimeIsNegativeAndNoFurtherSessionProxyExists)

@@ -428,7 +428,7 @@ TEST_F(OpenKitTest, createSessionAddsNewlyCreatedSessionToListOfChildren)
 	ASSERT_THAT(objectOne, testing::NotNull());
 
 	auto childObjects = target->getCopyOfChildObjects();
-	ASSERT_THAT(childObjects.size(), testing::Eq(1));
+	ASSERT_THAT(childObjects.size(), testing::Eq(size_t(1)));
 	ASSERT_THAT(objectOne, testing::Eq(*childObjects.begin()));
 
 	// and when
@@ -440,7 +440,7 @@ TEST_F(OpenKitTest, createSessionAddsNewlyCreatedSessionToListOfChildren)
 	ASSERT_THAT(objectTwo, testing::NotNull());
 
 	childObjects = target->getCopyOfChildObjects();
-	ASSERT_THAT(childObjects.size(), testing::Eq(2));
+	ASSERT_THAT(childObjects.size(), testing::Eq(size_t(2)));
 	ASSERT_THAT(objectOne, testing::Eq(*childObjects.begin()));
 	ASSERT_THAT(objectTwo, testing::Eq(*(++childObjects.begin())));
 
@@ -463,7 +463,7 @@ TEST_F(OpenKitTest, createSesionWithoutIpAddsNewlyCreatedSessionToListOfChildren
 	ASSERT_THAT(objectOne, testing::NotNull());
 
 	auto childObjects = target->getCopyOfChildObjects();
-	ASSERT_THAT(childObjects.size(), testing::Eq(1));
+	ASSERT_THAT(childObjects.size(), testing::Eq(size_t(1)));
 	ASSERT_THAT(objectOne, testing::Eq(*childObjects.begin()));
 
 	// and when
@@ -475,7 +475,7 @@ TEST_F(OpenKitTest, createSesionWithoutIpAddsNewlyCreatedSessionToListOfChildren
 	ASSERT_THAT(objectTwo, testing::NotNull());
 
 	childObjects = target->getCopyOfChildObjects();
-	ASSERT_THAT(childObjects.size(), testing::Eq(2));
+	ASSERT_THAT(childObjects.size(), testing::Eq(size_t(2)));
 	ASSERT_THAT(objectOne, testing::Eq(*childObjects.begin()));
 	ASSERT_THAT(objectTwo, testing::Eq(*(++childObjects.begin())));
 
@@ -531,7 +531,7 @@ TEST_F(OpenKitTest, onChildClosedRemovesArgumentFromListOfChildren)
 
 	// then
 	auto childObjects = target->getCopyOfChildObjects();
-	ASSERT_THAT(childObjects.size(), testing::Eq(1));
+	ASSERT_THAT(childObjects.size(), testing::Eq(size_t(1)));
 	ASSERT_THAT(*childObjects.begin(), testing::Eq(childObjectTwo));
 
 	// and when
@@ -539,5 +539,5 @@ TEST_F(OpenKitTest, onChildClosedRemovesArgumentFromListOfChildren)
 
 	// then
 	auto numChildObjects = target->getChildCount();
-	ASSERT_THAT(numChildObjects, testing::Eq(0));
+	ASSERT_THAT(numChildObjects, testing::Eq(size_t(0)));
 }

@@ -610,7 +610,7 @@ TEST_F(ActionCommonImplTest, traceWebRequestWithValidUrlStringAttachesWebRequest
 
 	// then
 	auto childObjects = target->getCopyOfChildObjects();
-	ASSERT_THAT(childObjects.size(), testing::Eq(1));
+	ASSERT_THAT(childObjects.size(), testing::Eq(size_t(1)));
 	ASSERT_THAT(std::dynamic_pointer_cast<IOpenKitObject_t>(obtained), testing::Eq(*childObjects.begin()));
 
 	// break dependency cycle: tracer as child in action
@@ -631,7 +631,7 @@ TEST_F(ActionCommonImplTest, onChildClosedRemovesChildFromList)
 
 	// then
 	auto numChildObjects = target->getChildCount();
-	ASSERT_THAT(numChildObjects, testing::Eq(0));
+	ASSERT_THAT(numChildObjects, testing::Eq(size_t(0)));
 }
 
 TEST_F(ActionCommonImplTest, tracingANullStringWebRequestIsNotAllowed)
@@ -978,14 +978,14 @@ TEST_F(ActionCommonImplTest, leaveActionRemovesItSelfFromParent)
 	auto obtained = target->enterAction(rootAction, "child Action");
 
 	auto numChildObjects = target->getChildCount();
-	ASSERT_THAT(numChildObjects, testing::Eq(1));
+	ASSERT_THAT(numChildObjects, testing::Eq(size_t(1)));
 
 	// and when
 	obtained->leaveAction();
 
 	// then
 	numChildObjects = target->getChildCount();
-	ASSERT_THAT(numChildObjects, testing::Eq(0));
+	ASSERT_THAT(numChildObjects, testing::Eq(size_t(0)));
 }
 
 TEST_F(ActionCommonImplTest, leaveActionSetsEndTimeBeforeAddingToBeacon)
@@ -1307,7 +1307,7 @@ TEST_F(ActionCommonImplTest, enterActionAddsLeafActionToListOfChildObjects)
 
 	// then
 	auto childObjects = target->getCopyOfChildObjects();
-	ASSERT_THAT(childObjects.size(), testing::Eq(1));
+	ASSERT_THAT(childObjects.size(), testing::Eq(size_t(1)));
 	auto leafAction = std::dynamic_pointer_cast<LeafAction_t>(obtained);
 	ASSERT_THAT(leafAction, testing::NotNull());
 
