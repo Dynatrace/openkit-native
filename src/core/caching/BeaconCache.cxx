@@ -105,6 +105,42 @@ void BeaconCache::deleteCacheEntry(const BeaconKey& beaconKey)
 	lock.unlock();
 }
 
+void BeaconCache::prepareDataForSending(const BeaconKey& beaconKey)
+{
+	auto entry = getCachedEntry(beaconKey);
+	if (entry == nullptr)
+	{
+		// a cache entry for the given beaconID does not exist
+		return;
+	}
+
+	if (entry->needsDataCopyBeforeSending())
+	{
+		// both entries are null, prepare data for sending
+		int64_t numBytes = 0;
+		
+		std::unique_lock<std::mutex> lock(entry->getLock());
+		numBytes = entry->getTotalNumberOfBytes();
+		entry->copyDataForSending();
+		lock.unlock();
+
+		// assumption: sending will work fine, and everything we copied will be removed quite soon
+		mCacheSizeInBytes -= numBytes;
+	}
+}
+
+bool BeaconCache::hasDataForSending(const BeaconKey& beaconKey)
+{
+	auto entry = getCachedEntry(beaconKey);
+	if (entry == nullptr)
+	{
+		// a cache entry for the given beaconID does not exist
+		return false;
+	}
+
+	return entry->hasDataToSend();
+}
+
 const core::UTF8String BeaconCache::getNextBeaconChunk(const BeaconKey& beaconKey, const core::UTF8String& chunkPrefix, int32_t maxSize, const core::UTF8String& delimiter)
 {
 	auto entry = getCachedEntry(beaconKey);
@@ -112,19 +148,6 @@ const core::UTF8String BeaconCache::getNextBeaconChunk(const BeaconKey& beaconKe
 	{
 		// a cache entry for the given beaconID does not exist
 		return core::UTF8String();
-	}
-
-	if (entry->needsDataCopyBeforeChunking())
-	{
-		// both entries are null, prepare data for sending
-		int64_t numBytes = 0;
-		std::unique_lock<std::mutex> lock(entry->getLock());
-		numBytes = entry->getTotalNumberOfBytes();
-		entry->copyDataForChunking();
-		lock.unlock();
-
-		// assumption: sending will work fine, and everything we copied will be removed quite soon
-		mCacheSizeInBytes -= numBytes;
 	}
 
 	// data for chunking is available

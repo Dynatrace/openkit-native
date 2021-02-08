@@ -71,6 +71,10 @@ namespace core
 
 			void deleteCacheEntry(const BeaconKey& beaconKey) override;
 
+			void prepareDataForSending(const BeaconKey& beaconKey) override;
+
+			bool hasDataForSending(const BeaconKey& beaconKey) override;
+
 			const core::UTF8String getNextBeaconChunk(const BeaconKey& beaconKey, const core::UTF8String& chunkPrefix, int32_t maxSize, const core::UTF8String& delimiter) override;
 
 			void removeChunkedData(const BeaconKey& beaconKey) override;

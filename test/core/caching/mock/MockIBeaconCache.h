@@ -73,6 +73,18 @@ namespace test
 			)
 		);
 
+		MOCK_METHOD1(prepareDataForSending,
+			void(
+				const core::caching::BeaconKey&
+			)
+		);
+
+		MOCK_METHOD1(hasDataForSending,
+			bool(
+				const core::caching::BeaconKey&
+			)
+		);
+
 		MOCK_METHOD4(getNextBeaconChunk,
 			const core::UTF8String(
 				const core::caching::BeaconKey&,

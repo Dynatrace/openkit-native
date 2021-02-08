@@ -46,13 +46,13 @@ void BeaconCacheEntry::addActionData(const BeaconCacheRecord& record)
 	mTotalNumBytes += record.getDataSizeInBytes();
 }
 
-bool BeaconCacheEntry::needsDataCopyBeforeChunking() const
+bool BeaconCacheEntry::needsDataCopyBeforeSending() const
 {
 	// no data currently being sent AND some data available
 	return mActionDataBeingSent.empty() && mEventDataBeingSent.empty() && (!mEventData.empty() || !mActionData.empty());
 }
 
-void BeaconCacheEntry::copyDataForChunking()
+void BeaconCacheEntry::copyDataForSending()
 {
 	mActionDataBeingSent.splice(mActionDataBeingSent.begin(), mActionData);
 	mEventDataBeingSent.splice(mEventDataBeingSent.begin(), mEventData);
@@ -60,21 +60,18 @@ void BeaconCacheEntry::copyDataForChunking()
 	mTotalNumBytes = 0;
 }
 
+bool BeaconCacheEntry::hasDataToSend() const
+{
+	return !mEventDataBeingSent.empty() || !mActionDataBeingSent.empty();
+}
+
 const core::UTF8String BeaconCacheEntry::getChunk(const core::UTF8String& chunkPrefix, size_t maxSize, const core::UTF8String& delimiter)
 {
 	if (!hasDataToSend())
 	{
-		// nothing to send - reset lists, so next time lists get copied again
-		mEventDataBeingSent.clear();
-		mActionDataBeingSent.clear();
 		return core::UTF8String();
 	}
 	return getNextChunk(chunkPrefix, maxSize, delimiter);
-}
-
-bool BeaconCacheEntry::hasDataToSend() const
-{
-	return !mEventDataBeingSent.empty() || !mActionDataBeingSent.empty();
 }
 
 const core::UTF8String BeaconCacheEntry::getNextChunk(const core::UTF8String& chunkPrefix, size_t maxSize, const core::UTF8String& delimiter)

@@ -17,9 +17,11 @@
 #include "core/UTF8String.h"
 #include "core/caching/BeaconCacheEntry.h"
 
-#include "gtest/gtest.h"
-
 #include <cstring>
+#include <list>
+
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
 using BeaconCacheEntry_t = core::caching::BeaconCacheEntry;
 using BeaconCacheRecord_t = core::caching::BeaconCacheRecord;
@@ -35,10 +37,10 @@ TEST_F(BeaconCacheEntryTest, aDefaultConstructedInstanceHasNoData)
 	BeaconCacheEntry_t target;
 
 	// then
-	ASSERT_TRUE(target.getEventData().empty());
-	ASSERT_TRUE(target.getActionData().empty());
-	ASSERT_TRUE(target.getEventDataBeingSent().empty());
-	ASSERT_TRUE(target.getActionDataBeingSent().empty());
+	ASSERT_THAT(target.getEventData(), testing::IsEmpty());
+	ASSERT_THAT(target.getActionData(), testing::IsEmpty());
+	ASSERT_THAT(target.getEventDataBeingSent(), testing::IsEmpty());
+	ASSERT_THAT(target.getActionDataBeingSent(), testing::IsEmpty());
 }
 
 TEST_F(BeaconCacheEntryTest, addingActionData)
@@ -53,36 +55,22 @@ TEST_F(BeaconCacheEntryTest, addingActionData)
 	target.addActionData(dataOne);
 
 	// then
-	auto actionData = target.getActionData();
-	auto eventData = target.getEventData();
-	auto eventDataBeingSent = target.getEventDataBeingSent();
-	auto actionDataBeingSent = target.getActionDataBeingSent();
-	ASSERT_EQ(actionData.size(), 1);
-	auto it = actionData.begin();
-	ASSERT_TRUE(it->getData().equals("foo"));
-	ASSERT_FALSE(it->isMarkedForSending());
-	ASSERT_TRUE(eventData.empty());
-	ASSERT_TRUE(eventDataBeingSent.empty());
-	ASSERT_TRUE(actionDataBeingSent.empty());
+	auto expectedActionData = std::list<BeaconCacheRecord_t>{ dataOne };
+	ASSERT_THAT(target.getActionData(), testing::Eq(expectedActionData));
+	ASSERT_THAT(target.getEventData(), testing::IsEmpty());
+	ASSERT_THAT(target.getEventDataBeingSent(), testing::IsEmpty());
+	ASSERT_THAT(target.getActionDataBeingSent(), testing::IsEmpty());
+
 
 	// and when adding second record
 	target.addActionData(dataTwo);
 
 	// then
-	auto actionData2 = target.getActionData();
-	auto eventData2 = target.getEventData();
-	auto eventDataBeingSent2 = target.getEventDataBeingSent();
-	auto actionDataBeingSent2 = target.getActionDataBeingSent();
-	ASSERT_EQ(actionData2.size(), 2);
-	it = actionData2.begin();
-	ASSERT_TRUE(it->getData().equals("foo"));
-	ASSERT_FALSE(it->isMarkedForSending());
-	it++;
-	ASSERT_TRUE(it->getData().equals("bar"));
-	ASSERT_FALSE(it->isMarkedForSending());
-	ASSERT_TRUE(eventData2.empty());
-	ASSERT_TRUE(eventDataBeingSent2.empty());
-	ASSERT_TRUE(actionDataBeingSent2.empty());
+	expectedActionData = std::list<BeaconCacheRecord_t>{ dataOne, dataTwo };
+	ASSERT_THAT(target.getActionData(), testing::Eq(expectedActionData));
+	ASSERT_THAT(target.getEventData(), testing::IsEmpty());
+	ASSERT_THAT(target.getEventDataBeingSent(), testing::IsEmpty());
+	ASSERT_THAT(target.getActionDataBeingSent(), testing::IsEmpty());
 }
 
 TEST_F(BeaconCacheEntryTest, addingEventData)
@@ -97,39 +85,24 @@ TEST_F(BeaconCacheEntryTest, addingEventData)
 	target.addEventData(dataOne);
 
 	// then
-	auto eventData = target.getEventData();
-	auto actionData = target.getActionData();
-	auto eventDataBeingSent = target.getEventDataBeingSent();
-	auto actionDataBeingSent = target.getActionDataBeingSent();
-	ASSERT_EQ(eventData.size(), 1);
-	auto it = eventData.begin();
-	ASSERT_TRUE(it->getData().equals("foo"));
-	ASSERT_FALSE(it->isMarkedForSending());
-	ASSERT_TRUE(actionData.empty());
-	ASSERT_TRUE(eventDataBeingSent.empty());
-	ASSERT_TRUE(actionDataBeingSent.empty());
+	auto expectedEventData = std::list<BeaconCacheRecord_t>{ dataOne };
+	ASSERT_THAT(target.getActionData(), testing::IsEmpty());
+	ASSERT_THAT(target.getEventData(), testing::Eq(expectedEventData));
+	ASSERT_THAT(target.getEventDataBeingSent(), testing::IsEmpty());
+	ASSERT_THAT(target.getActionDataBeingSent(), testing::IsEmpty());
 
 	// and when adding second record
 	target.addEventData(dataTwo);
 
 	// then
-	auto eventData2 = target.getEventData();
-	auto actionData2 = target.getActionData();
-	auto eventDataBeingSent2 = target.getEventDataBeingSent();
-	auto actionDataBeingSent2 = target.getActionDataBeingSent();
-	ASSERT_EQ(eventData2.size(), 2);
-	it = eventData2.begin();
-	ASSERT_TRUE(it->getData().equals("foo"));
-	ASSERT_FALSE(it->isMarkedForSending());
-	it++;
-	ASSERT_TRUE(it->getData().equals("bar"));
-	ASSERT_FALSE(it->isMarkedForSending());
-	ASSERT_TRUE(actionData2.empty());
-	ASSERT_TRUE(eventDataBeingSent2.empty());
-	ASSERT_TRUE(actionDataBeingSent2.empty());
+	expectedEventData = std::list<BeaconCacheRecord_t>{ dataOne, dataTwo };
+	ASSERT_THAT(target.getActionData(), testing::IsEmpty());
+	ASSERT_THAT(target.getEventData(), testing::Eq(expectedEventData));
+	ASSERT_THAT(target.getEventDataBeingSent(), testing::IsEmpty());
+	ASSERT_THAT(target.getActionDataBeingSent(), testing::IsEmpty());
 }
 
-TEST_F(BeaconCacheEntryTest, copyDataForChunkingMovesData)
+TEST_F(BeaconCacheEntryTest, copyDataForSendingMovesData)
 {
 	// given
 	BeaconCacheRecord_t dataOne(0L, "One");
@@ -144,32 +117,18 @@ TEST_F(BeaconCacheEntryTest, copyDataForChunkingMovesData)
 	target.addActionData(dataThree);
 
 	// when copying data for later chunking
-	target.copyDataForChunking();
+	target.copyDataForSending();
 
 	// then the data was moved
-	auto eventData = target.getEventData();
-	auto actionData = target.getActionData();
-	auto eventDataBeingSent = target.getEventDataBeingSent();
-	auto actionDataBeingSent = target.getActionDataBeingSent();
-	ASSERT_EQ(eventDataBeingSent.size(), 2);
-	auto it = eventDataBeingSent.begin();
-	ASSERT_TRUE(it->getData().equals("One"));
-	ASSERT_FALSE(it->isMarkedForSending());
-	it++;
-	ASSERT_TRUE(it->getData().equals("Four"));
-	ASSERT_FALSE(it->isMarkedForSending());
-	ASSERT_EQ(actionDataBeingSent.size(), 2);
-	it = actionDataBeingSent.begin();
-	ASSERT_TRUE(it->getData().equals("Two"));
-	ASSERT_FALSE(it->isMarkedForSending());
-	it++;
-	ASSERT_TRUE(it->getData().equals("Three"));
-	ASSERT_FALSE(it->isMarkedForSending());
-	ASSERT_TRUE(eventData.empty());
-	ASSERT_TRUE(actionData.empty());
+	auto expectedActionDataBeingSent = std::list<BeaconCacheRecord_t>{ dataTwo, dataThree };
+	auto expectedEventDataBeingSent = std::list<BeaconCacheRecord_t>{ dataOne, dataFour };
+	ASSERT_THAT(target.getActionData(), testing::IsEmpty());
+	ASSERT_THAT(target.getEventData(), testing::IsEmpty());
+	ASSERT_THAT(target.getEventDataBeingSent(), testing::Eq(expectedEventDataBeingSent));
+	ASSERT_THAT(target.getActionDataBeingSent(), testing::Eq(expectedActionDataBeingSent));
 }
 
-TEST_F(BeaconCacheEntryTest, needsDataCopyBeforeChunkingGivesTrueBeforeDataIsCopied)
+TEST_F(BeaconCacheEntryTest, needsDataCopyBeforeSendingGivesTrueBeforeDataIsCopied)
 {
 	// given
 	BeaconCacheRecord_t dataOne(0L, "One");
@@ -184,10 +143,10 @@ TEST_F(BeaconCacheEntryTest, needsDataCopyBeforeChunkingGivesTrueBeforeDataIsCop
 	target.addActionData(dataThree);
 
 	// when, then
-	ASSERT_TRUE(target.needsDataCopyBeforeChunking());
+	ASSERT_THAT(target.needsDataCopyBeforeSending(), testing::Eq(true));
 }
 
-TEST_F(BeaconCacheEntryTest, needsDataCopyBeforeChunkingGivesFalseAfterDataHasBeenCopied)
+TEST_F(BeaconCacheEntryTest, needsDataCopyBeforeSendingGivesFalseAfterDataHasBeenCopied)
 {
 	// given
 	BeaconCacheRecord_t dataOne(0L, "One");
@@ -201,31 +160,27 @@ TEST_F(BeaconCacheEntryTest, needsDataCopyBeforeChunkingGivesFalseAfterDataHasBe
 	target.addActionData(dataTwo);
 	target.addActionData(dataThree);
 
-	target.copyDataForChunking();
+	target.copyDataForSending();
 
 	// when, then
-	ASSERT_FALSE(target.needsDataCopyBeforeChunking());
+	ASSERT_THAT(target.needsDataCopyBeforeSending(), testing::Eq(false));
 }
 
-TEST_F(BeaconCacheEntryTest, needsDataCopyBeforeChunkingGivesFalseEvenIfListsAreEmpty)
+TEST_F(BeaconCacheEntryTest, needsDataCopyBeforeSendingGivesFalseEvenIfListsAreEmpty)
 {
 	// given
 	BeaconCacheEntry_t target;
 
-	target.copyDataForChunking();
+	target.copyDataForSending();
 
 	// when, then
-	ASSERT_FALSE(target.needsDataCopyBeforeChunking());
+	ASSERT_THAT(target.needsDataCopyBeforeSending(), testing::Eq(false));
 
 	// and all the lists are empty
-	auto eventData = target.getEventData();
-	auto actionData = target.getActionData();
-	auto eventDataBeingSent = target.getEventDataBeingSent();
-	auto actionDataBeingSent = target.getActionDataBeingSent();
-	ASSERT_TRUE(eventData.empty());
-	ASSERT_TRUE(actionData.empty());
-	ASSERT_TRUE(eventDataBeingSent.empty());
-	ASSERT_TRUE(actionDataBeingSent.empty());
+	ASSERT_THAT(target.getEventData(), testing::IsEmpty());
+	ASSERT_THAT(target.getActionData(), testing::IsEmpty());
+	ASSERT_THAT(target.getEventDataBeingSent(), testing::IsEmpty());
+	ASSERT_THAT(target.getActionDataBeingSent(), testing::IsEmpty());
 }
 
 TEST_F(BeaconCacheEntryTest, getChunkMarksRetrievedData)
@@ -243,33 +198,30 @@ TEST_F(BeaconCacheEntryTest, getChunkMarksRetrievedData)
 	target.addActionData(dataThree);
 
 	// when copying data for later chunking
-	target.copyDataForChunking();
+	target.copyDataForSending();
 
 	// when retrieving data
 	auto obtained = target.getChunk("prefix", 1024, "&");
 
 	// then
-	Utf8String_t expected = "prefix&One&Four&Two&Three";
-	ASSERT_TRUE(obtained.equals(expected));
+	ASSERT_THAT(obtained, testing::Eq(Utf8String_t("prefix&One&Four&Two&Three")));
 
 	// and all of them are marked
-	auto eventDataBeingSent = target.getEventDataBeingSent();
-	auto actionDataBeingSent = target.getActionDataBeingSent();
+	auto expectedDataOne = BeaconCacheRecord_t(dataOne);
+	expectedDataOne.markForSending();
+	auto expectedDataFour = BeaconCacheRecord_t(dataFour);
+	expectedDataFour.markForSending();
+	auto expectedEventDataBeingSent = std::list<BeaconCacheRecord_t>{ expectedDataOne, expectedDataFour };
 
-	ASSERT_EQ(eventDataBeingSent.size(), 2);
-	auto it = eventDataBeingSent.begin();
-	ASSERT_TRUE(it->getData().equals("One"));
-	ASSERT_TRUE(it->isMarkedForSending());
-	it++;
-	ASSERT_TRUE(it->getData().equals("Four"));
-	ASSERT_TRUE(it->isMarkedForSending());
-	ASSERT_EQ(actionDataBeingSent.size(), 2);
-	it = actionDataBeingSent.begin();
-	ASSERT_TRUE(it->getData().equals("Two"));
-	ASSERT_TRUE(it->isMarkedForSending());
-	it++;
-	ASSERT_TRUE(it->getData().equals("Three"));
-	ASSERT_TRUE(it->isMarkedForSending());
+	ASSERT_THAT(target.getEventDataBeingSent(), testing::Eq(expectedEventDataBeingSent));
+
+	auto expectedDataTwo = BeaconCacheRecord_t(dataTwo);
+	expectedDataTwo.markForSending();
+	auto expectedDataThree = BeaconCacheRecord_t(dataThree);
+	expectedDataThree.markForSending();
+	auto expectedActionDataBeingSent = std::list<BeaconCacheRecord_t>{ expectedDataTwo, expectedDataThree };
+
+	ASSERT_THAT(target.getActionDataBeingSent(), testing::Eq(expectedActionDataBeingSent));
 }
 
 TEST_F(BeaconCacheEntryTest, getChunkGetsChunksFromEventDataBeforeActionData)
@@ -287,41 +239,41 @@ TEST_F(BeaconCacheEntryTest, getChunkGetsChunksFromEventDataBeforeActionData)
 	target.addActionData(dataThree);
 
 	// when copying data for later chunking
-	target.copyDataForChunking();
+	target.copyDataForSending();
 
 	// when retrieving data
 	auto obtained = target.getChunk("a", 2, "&");
 
 	// then it's the first event data
-	ASSERT_TRUE(obtained.equals("a&One"));
+	ASSERT_THAT(obtained, testing::Eq(Utf8String_t("a&One")));
 
 	// and when removing already sent data and getting next chunk
 	target.removeDataMarkedForSending();
 	auto obtained2 = target.getChunk("a", 2, "&");
 
 	// then it's second event data
-	ASSERT_TRUE(obtained2.equals("a&Four"));
+	ASSERT_THAT(obtained2, testing::Eq(Utf8String_t("a&Four")));
 
 	// and when removing already sent data and getting next chunk
 	target.removeDataMarkedForSending();
 	auto obtained3 = target.getChunk("a", 2, "&");
 
 	// then it's the first action data
-	ASSERT_TRUE(obtained3.equals("a&Two"));
+	ASSERT_THAT(obtained3, testing::Eq(Utf8String_t("a&Two")));
 
 	// and when removing already sent data and getting next chunk
 	target.removeDataMarkedForSending();
 	auto obtained4 = target.getChunk("a", 2, "&");
 
 	// then it's the second action data
-	ASSERT_TRUE(obtained4.equals("a&Three"));
+	ASSERT_THAT(obtained4, testing::Eq(Utf8String_t("a&Three")));
 
 	// and when removing already sent data and getting next chunk
 	target.removeDataMarkedForSending();
 	auto obtained5 = target.getChunk("a", 2, "&");
 
 	// then we get an empty string, since all chunks were sent & deleted
-	ASSERT_TRUE(obtained5.equals(""));
+	ASSERT_THAT(obtained5, testing::Eq(Utf8String_t("")));
 }
 
 TEST_F(BeaconCacheEntryTest, getChunkGetsAlreadyMarkedData)
@@ -338,51 +290,38 @@ TEST_F(BeaconCacheEntryTest, getChunkGetsAlreadyMarkedData)
 	target.addActionData(dataTwo);
 	target.addActionData(dataThree);
 
-	target.copyDataForChunking();
+	target.copyDataForSending();
 
 	// when getting data to send
 	auto obtained = target.getChunk("a", 100, "&");
 
 	// then
-	ASSERT_TRUE(obtained.equals("a&One&Four&Two&Three"));
-	auto eventDataBeingSent = target.getEventDataBeingSent();
-	auto actionDataBeingSent = target.getActionDataBeingSent();
-	ASSERT_EQ(eventDataBeingSent.size(), 2);
-	auto it = eventDataBeingSent.begin();
-	ASSERT_TRUE(it->getData().equals("One"));
-	ASSERT_TRUE(it->isMarkedForSending());
-	it++;
-	ASSERT_TRUE(it->getData().equals("Four"));
-	ASSERT_TRUE(it->isMarkedForSending());
-	ASSERT_EQ(actionDataBeingSent.size(), 2);
-	it = actionDataBeingSent.begin();
-	ASSERT_TRUE(it->getData().equals("Two"));
-	ASSERT_TRUE(it->isMarkedForSending());
-	it++;
-	ASSERT_TRUE(it->getData().equals("Three"));
-	ASSERT_TRUE(it->isMarkedForSending());
+	ASSERT_THAT(obtained, testing::Eq(Utf8String_t("a&One&Four&Two&Three")));
+
+	// and all of them are marked
+	auto expectedDataOne = BeaconCacheRecord_t(dataOne);
+	expectedDataOne.markForSending();
+	auto expectedDataFour = BeaconCacheRecord_t(dataFour);
+	expectedDataFour.markForSending();
+	auto expectedEventDataBeingSent = std::list<BeaconCacheRecord_t>{ expectedDataOne, expectedDataFour };
+
+	auto expectedDataTwo = BeaconCacheRecord_t(dataTwo);
+	expectedDataTwo.markForSending();
+	auto expectedDataThree = BeaconCacheRecord_t(dataThree);
+	expectedDataThree.markForSending();
+	auto expectedActionDataBeingSent = std::list<BeaconCacheRecord_t>{ expectedDataTwo, expectedDataThree };
+
+	ASSERT_THAT(target.getEventDataBeingSent(), testing::Eq(expectedEventDataBeingSent));
+	ASSERT_THAT(target.getActionDataBeingSent(), testing::Eq(expectedActionDataBeingSent));
 
 	// when getting data to send once more
 	auto obtained2 = target.getChunk("a", 100, "&");
 
 	// then
-	ASSERT_TRUE(obtained2.equals("a&One&Four&Two&Three"));
-	auto eventDataBeingSent2 = target.getEventDataBeingSent();
-	auto actionDataBeingSent2 = target.getActionDataBeingSent();
-	ASSERT_EQ(eventDataBeingSent2.size(), 2);
-	it = eventDataBeingSent2.begin();
-	ASSERT_TRUE(it->getData().equals("One"));
-	ASSERT_TRUE(it->isMarkedForSending());
-	it++;
-	ASSERT_TRUE(it->getData().equals("Four"));
-	ASSERT_TRUE(it->isMarkedForSending());
-	ASSERT_EQ(actionDataBeingSent2.size(), 2);
-	it = actionDataBeingSent2.begin();
-	ASSERT_TRUE(it->getData().equals("Two"));
-	ASSERT_TRUE(it->isMarkedForSending());
-	it++;
-	ASSERT_TRUE(it->getData().equals("Three"));
-	ASSERT_TRUE(it->isMarkedForSending());
+	ASSERT_THAT(obtained, testing::Eq(Utf8String_t("a&One&Four&Two&Three")));
+
+	ASSERT_THAT(target.getEventDataBeingSent(), testing::Eq(expectedEventDataBeingSent));
+	ASSERT_THAT(target.getActionDataBeingSent(), testing::Eq(expectedActionDataBeingSent));
 }
 
 TEST_F(BeaconCacheEntryTest, getChunksTakesSizeIntoAccount)
@@ -399,25 +338,25 @@ TEST_F(BeaconCacheEntryTest, getChunksTakesSizeIntoAccount)
 	target.addActionData(dataTwo);
 	target.addActionData(dataThree);
 
-	target.copyDataForChunking();
+	target.copyDataForSending();
 
 	// when requesting first chunk
 	auto obtained = target.getChunk("prefix", 1, "&");
 
 	// then only prefix is returned, since "prefix".length > maxSize (=1)
-	ASSERT_TRUE(obtained.equals("prefix"));
+	ASSERT_THAT(obtained, testing::Eq(Utf8String_t("prefix")));
 
 	// and when retrieving something which is one character longer than "prefix"
 	auto obtained2 = target.getChunk("prefix", std::strlen("prefix"), "&");
 
 	// then only prefix is returned, since "prefix".length > maxSize (=1)
-	ASSERT_TRUE(obtained2.equals("prefix&One"));
+	ASSERT_THAT(obtained2, testing::Eq(Utf8String_t("prefix&One")));
 
 	// and when retrieving another chunk
 	auto obtained3 = target.getChunk("prefix", std::strlen("prefix&One"), "&");
 
 	// then
-	ASSERT_TRUE(obtained3.equals("prefix&One&Four"));
+	ASSERT_THAT(obtained3, testing::Eq(Utf8String_t("prefix&One&Four")));
 }
 
 TEST_F(BeaconCacheEntryTest, removeDataMarkedForSendingReturnsIfDataHasNotBeenCopied)
@@ -438,26 +377,13 @@ TEST_F(BeaconCacheEntryTest, removeDataMarkedForSendingReturnsIfDataHasNotBeenCo
 	target.removeDataMarkedForSending();
 
 	// then
-	auto eventData = target.getEventData();
-	auto actionData = target.getActionData();
-	auto eventDataBeingSent = target.getEventDataBeingSent();
-	auto actionDataBeingSent = target.getActionDataBeingSent();
-	ASSERT_EQ(eventData.size(), 2);
-	auto it = eventData.begin();
-	ASSERT_TRUE(it->getData().equals("One"));
-	ASSERT_FALSE(it->isMarkedForSending());
-	it++;
-	ASSERT_TRUE(it->getData().equals("Four"));
-	ASSERT_FALSE(it->isMarkedForSending());
-	ASSERT_EQ(actionData.size(), 2);
-	it = actionData.begin();
-	ASSERT_TRUE(it->getData().equals("Two"));
-	ASSERT_FALSE(it->isMarkedForSending());
-	it++;
-	ASSERT_TRUE(it->getData().equals("Three"));
-	ASSERT_FALSE(it->isMarkedForSending());
-	ASSERT_TRUE(eventDataBeingSent.empty());
-	ASSERT_TRUE(actionDataBeingSent.empty());
+	auto expectedEventData = std::list<BeaconCacheRecord_t>{ dataOne, dataFour };
+	auto expectedActionData = std::list<BeaconCacheRecord_t>{ dataTwo, dataThree };
+
+	ASSERT_THAT(target.getEventData(), testing::Eq(expectedEventData));
+	ASSERT_THAT(target.getActionData(), testing::Eq(expectedActionData));
+	ASSERT_THAT(target.getEventDataBeingSent(), testing::IsEmpty());
+	ASSERT_THAT(target.getActionDataBeingSent(), testing::IsEmpty());
 }
 
 TEST_F(BeaconCacheEntryTest, resetDataMarkedForSendingReturnsIfDataHasNotBeenCopied)
@@ -478,26 +404,13 @@ TEST_F(BeaconCacheEntryTest, resetDataMarkedForSendingReturnsIfDataHasNotBeenCop
 	target.resetDataMarkedForSending();
 
 	// then
-	auto eventData = target.getEventData();
-	auto actionData = target.getActionData();
-	auto eventDataBeingSent = target.getEventDataBeingSent();
-	auto actionDataBeingSent = target.getActionDataBeingSent();
-	ASSERT_EQ(eventData.size(), 2);
-	auto it = eventData.begin();
-	ASSERT_TRUE(it->getData().equals("One"));
-	ASSERT_FALSE(it->isMarkedForSending());
-	it++;
-	ASSERT_TRUE(it->getData().equals("Four"));
-	ASSERT_FALSE(it->isMarkedForSending());
-	ASSERT_EQ(actionData.size(), 2);
-	it = actionData.begin();
-	ASSERT_TRUE(it->getData().equals("Two"));
-	ASSERT_FALSE(it->isMarkedForSending());
-	it++;
-	ASSERT_TRUE(it->getData().equals("Three"));
-	ASSERT_FALSE(it->isMarkedForSending());
-	ASSERT_TRUE(eventDataBeingSent.empty());
-	ASSERT_TRUE(actionDataBeingSent.empty());
+	auto expectedEventData = std::list<BeaconCacheRecord_t>{ dataOne, dataFour };
+	auto expectedActionData = std::list<BeaconCacheRecord_t>{ dataTwo, dataThree };
+
+	ASSERT_THAT(target.getEventData(), testing::Eq(expectedEventData));
+	ASSERT_THAT(target.getActionData(), testing::Eq(expectedActionData));
+	ASSERT_THAT(target.getEventDataBeingSent(), testing::IsEmpty());
+	ASSERT_THAT(target.getActionDataBeingSent(), testing::IsEmpty());
 }
 
 TEST_F(BeaconCacheEntryTest, resetDataMarkedForSendingMovesPreviouslyCopiedDataBack)
@@ -514,32 +427,19 @@ TEST_F(BeaconCacheEntryTest, resetDataMarkedForSendingMovesPreviouslyCopiedDataB
 	target.addActionData(dataTwo);
 	target.addActionData(dataThree);
 
-	target.copyDataForChunking();
+	target.copyDataForSending();
 
 	// when data is reset
 	target.resetDataMarkedForSending();
 
 	// then
-	auto eventData = target.getEventData();
-	auto actionData = target.getActionData();
-	auto eventDataBeingSent = target.getEventDataBeingSent();
-	auto actionDataBeingSent = target.getActionDataBeingSent();
-	ASSERT_EQ(eventData.size(), 2);
-	auto it = eventData.begin();
-	ASSERT_TRUE(it->getData().equals("One"));
-	ASSERT_FALSE(it->isMarkedForSending());
-	it++;
-	ASSERT_TRUE(it->getData().equals("Four"));
-	ASSERT_FALSE(it->isMarkedForSending());
-	ASSERT_EQ(actionData.size(), 2);
-	it = actionData.begin();
-	ASSERT_TRUE(it->getData().equals("Two"));
-	ASSERT_FALSE(it->isMarkedForSending());
-	it++;
-	ASSERT_TRUE(it->getData().equals("Three"));
-	ASSERT_FALSE(it->isMarkedForSending());
-	ASSERT_TRUE(eventDataBeingSent.empty());
-	ASSERT_TRUE(actionDataBeingSent.empty());
+	auto expectedEventData = std::list<BeaconCacheRecord_t>{ dataOne, dataFour };
+	auto expectedActionData = std::list<BeaconCacheRecord_t>{ dataTwo, dataThree };
+
+	ASSERT_THAT(target.getEventData(), testing::Eq(expectedEventData));
+	ASSERT_THAT(target.getActionData(), testing::Eq(expectedActionData));
+	ASSERT_THAT(target.getEventDataBeingSent(), testing::IsEmpty());
+	ASSERT_THAT(target.getActionDataBeingSent(), testing::IsEmpty());
 }
 
 TEST_F(BeaconCacheEntryTest, resetDataMarkedForSendingResetsMarkedForSendingFlag)
@@ -556,57 +456,38 @@ TEST_F(BeaconCacheEntryTest, resetDataMarkedForSendingResetsMarkedForSendingFlag
 	target.addActionData(dataTwo);
 	target.addActionData(dataThree);
 
-	target.copyDataForChunking();
+	target.copyDataForSending();
 
 	// when data is retrieved
 	target.getChunk("", 1024, "&");
 
 	// then all records are marked for sending
-	auto eventData = target.getEventData();
-	auto actionData = target.getActionData();
-	auto eventDataBeingSent = target.getEventDataBeingSent();
-	auto actionDataBeingSent = target.getActionDataBeingSent();
-	ASSERT_EQ(eventDataBeingSent.size(), 2);
-	auto it = eventDataBeingSent.begin();
-	ASSERT_TRUE(it->getData().equals("One"));
-	ASSERT_TRUE(it->isMarkedForSending());
-	it++;
-	ASSERT_TRUE(it->getData().equals("Four"));
-	ASSERT_TRUE(it->isMarkedForSending());
-	ASSERT_EQ(actionDataBeingSent.size(), 2);
-	it = actionDataBeingSent.begin();
-	ASSERT_TRUE(it->getData().equals("Two"));
-	ASSERT_TRUE(it->isMarkedForSending());
-	it++;
-	ASSERT_TRUE(it->getData().equals("Three"));
-	ASSERT_TRUE(it->isMarkedForSending());
-	ASSERT_TRUE(eventData.empty());
-	ASSERT_TRUE(actionData.empty());
+	auto expectedDataOne = BeaconCacheRecord_t(dataOne);
+	expectedDataOne.markForSending();
+	auto expectedDataFour = BeaconCacheRecord_t(dataFour);
+	expectedDataFour.markForSending();
+	auto expectedEventDataBeingSent = std::list<BeaconCacheRecord_t>{ expectedDataOne, expectedDataFour };
+
+	auto expectedDataTwo = BeaconCacheRecord_t(dataTwo);
+	expectedDataTwo.markForSending();
+	auto expectedDataThree = BeaconCacheRecord_t(dataThree);
+	expectedDataThree.markForSending();
+	auto expectedActionDataBeingSent = std::list<BeaconCacheRecord_t>{ expectedDataTwo, expectedDataThree };
+
+	ASSERT_THAT(target.getEventDataBeingSent(), testing::Eq(expectedEventDataBeingSent));
+	ASSERT_THAT(target.getActionDataBeingSent(), testing::Eq(expectedActionDataBeingSent));
 
 	// and when
 	target.resetDataMarkedForSending();
 
 	// then
-	auto eventData2 = target.getEventData();
-	auto actionData2 = target.getActionData();
-	auto eventDataBeingSent2 = target.getEventDataBeingSent();
-	auto actionDataBeingSent2 = target.getActionDataBeingSent();
-	ASSERT_EQ(eventData2.size(), 2);
-	it = eventData2.begin();
-	ASSERT_TRUE(it->getData().equals("One"));
-	ASSERT_FALSE(it->isMarkedForSending());
-	it++;
-	ASSERT_TRUE(it->getData().equals("Four"));
-	ASSERT_FALSE(it->isMarkedForSending());
-	ASSERT_EQ(actionData2.size(), 2);
-	it = actionData2.begin();
-	ASSERT_TRUE(it->getData().equals("Two"));
-	ASSERT_FALSE(it->isMarkedForSending());
-	it++;
-	ASSERT_TRUE(it->getData().equals("Three"));
-	ASSERT_FALSE(it->isMarkedForSending());
-	ASSERT_TRUE(eventDataBeingSent2.empty());
-	ASSERT_TRUE(actionDataBeingSent2.empty());
+	auto expectedEventData = std::list<BeaconCacheRecord_t>{ dataOne, dataFour };
+	auto expectedActionData = std::list<BeaconCacheRecord_t>{ dataTwo, dataThree };
+
+	ASSERT_THAT(target.getEventData(), testing::Eq(expectedEventData));
+	ASSERT_THAT(target.getActionData(), testing::Eq(expectedActionData));
+	ASSERT_THAT(target.getEventDataBeingSent(), testing::IsEmpty());
+	ASSERT_THAT(target.getActionDataBeingSent(), testing::IsEmpty());
 }
 
 TEST_F(BeaconCacheEntryTest, getTotalNumberOfBytesCountsAddedRecordBytes)
@@ -620,31 +501,34 @@ TEST_F(BeaconCacheEntryTest, getTotalNumberOfBytesCountsAddedRecordBytes)
 	BeaconCacheEntry_t target;
 
 	// when getting total number of bytes on an empty entry, then
-	ASSERT_EQ(target.getTotalNumberOfBytes(), 0L);
+	ASSERT_THAT(target.getTotalNumberOfBytes(), testing::Eq(int64_t(0)));
 
 	// and when adding first entry
 	target.addActionData(dataOne);
 
 	// then
-	ASSERT_EQ(target.getTotalNumberOfBytes(), dataOne.getDataSizeInBytes());
+	ASSERT_THAT(target.getTotalNumberOfBytes(), testing::Eq(dataOne.getDataSizeInBytes()));
 
 	// and when adding next entry
 	target.addEventData(dataTwo);
 
 	// then
-	ASSERT_EQ(target.getTotalNumberOfBytes(), dataOne.getDataSizeInBytes() + dataTwo.getDataSizeInBytes());
+	ASSERT_THAT(target.getTotalNumberOfBytes(),
+		testing::Eq(dataOne.getDataSizeInBytes() + dataTwo.getDataSizeInBytes()));
 
 	// and when adding next entry
 	target.addEventData(dataThree);
 
 	// then
-	ASSERT_EQ(target.getTotalNumberOfBytes(), dataOne.getDataSizeInBytes() + dataTwo.getDataSizeInBytes() + dataThree.getDataSizeInBytes());
+	ASSERT_THAT(target.getTotalNumberOfBytes(),
+		testing::Eq(dataOne.getDataSizeInBytes() + dataTwo.getDataSizeInBytes() + dataThree.getDataSizeInBytes()));
 
 	// and when adding next entry
 	target.addActionData(dataFour);
 
 	// then
-	ASSERT_EQ(target.getTotalNumberOfBytes(), dataOne.getDataSizeInBytes() + dataTwo.getDataSizeInBytes() + dataThree.getDataSizeInBytes() + dataFour.getDataSizeInBytes());
+	ASSERT_THAT(target.getTotalNumberOfBytes(),
+		testing::Eq(dataOne.getDataSizeInBytes() + dataTwo.getDataSizeInBytes() + dataThree.getDataSizeInBytes() + dataFour.getDataSizeInBytes()));
 }
 
 TEST_F(BeaconCacheEntryTest, removeRecordsOlderThanRemovesNothingIfNoActionOrEventDataExists)
@@ -656,7 +540,7 @@ TEST_F(BeaconCacheEntryTest, removeRecordsOlderThanRemovesNothingIfNoActionOrEve
 	auto obtained = target.removeRecordsOlderThan(0);
 
 	// then
-	ASSERT_EQ(obtained, 0);
+	ASSERT_THAT(obtained, testing::Eq(0));
 }
 
 TEST_F(BeaconCacheEntryTest, removeRecordsOlderThanRemovesRecordsFromActionData)
@@ -677,15 +561,8 @@ TEST_F(BeaconCacheEntryTest, removeRecordsOlderThanRemovesRecordsFromActionData)
 	auto obtained = target.removeRecordsOlderThan(dataTwo.getTimestamp());
 
 	// then
-	ASSERT_EQ(obtained, 2); // two were removed
-	auto actionData = target.getActionData();
-	ASSERT_EQ(actionData.size(), 2);
-	auto it = actionData.begin();
-	ASSERT_TRUE(it->getData().equals("One"));
-	ASSERT_FALSE(it->isMarkedForSending());
-	it++;
-	ASSERT_TRUE(it->getData().equals("Two"));
-	ASSERT_FALSE(it->isMarkedForSending());
+	ASSERT_THAT(obtained, testing::Eq(2)); // two were removed
+	ASSERT_THAT(target.getActionData(), testing::Eq(std::list<BeaconCacheRecord_t>{ dataOne, dataTwo }));
 }
 
 TEST_F(BeaconCacheEntryTest, removeRecordsOlderThanRemovesRecordsFromEventData)
@@ -705,15 +582,9 @@ TEST_F(BeaconCacheEntryTest, removeRecordsOlderThanRemovesRecordsFromEventData)
 	// when removing everything older than 3000
 	auto obtained = target.removeRecordsOlderThan(dataTwo.getTimestamp());
 
-	ASSERT_EQ(obtained, 2); // two were removed
-	auto eventData = target.getEventData();
-	ASSERT_EQ(eventData.size(), 2);
-	auto it = eventData.begin();
-	ASSERT_TRUE(it->getData().equals("One"));
-	ASSERT_FALSE(it->isMarkedForSending());
-	it++;
-	ASSERT_TRUE(it->getData().equals("Two"));
-	ASSERT_FALSE(it->isMarkedForSending());
+	// then
+	ASSERT_THAT(obtained, testing::Eq(2)); // two were removed
+	ASSERT_THAT(target.getEventData(), testing::Eq(std::list<BeaconCacheRecord_t>{ dataOne, dataTwo }));
 }
 
 TEST_F(BeaconCacheEntryTest, removeOldestRecordsRemovesNothingIfEntryIsEmpty)
@@ -725,7 +596,7 @@ TEST_F(BeaconCacheEntryTest, removeOldestRecordsRemovesNothingIfEntryIsEmpty)
 	auto obtained = target.removeRecordsOlderThan(1);
 
 	// then
-	ASSERT_EQ(obtained, 0);
+	ASSERT_THAT(obtained, testing::Eq(0));
 }
 
 TEST_F(BeaconCacheEntryTest, removeOldestRecordsRemovesActionDataIfEventDataIsEmpty)
@@ -746,15 +617,8 @@ TEST_F(BeaconCacheEntryTest, removeOldestRecordsRemovesActionDataIfEventDataIsEm
 	auto obtained = target.removeOldestRecords(2);
 
 	// then
-	ASSERT_EQ(obtained, 2); // two were removed
-	auto actionData = target.getActionData();
-	ASSERT_EQ(actionData.size(), 2);
-	auto it = actionData.begin();
-	ASSERT_TRUE(it->getData().equals("Three"));
-	ASSERT_FALSE(it->isMarkedForSending());
-	it++;
-	ASSERT_TRUE(it->getData().equals("Four"));
-	ASSERT_FALSE(it->isMarkedForSending());
+	ASSERT_THAT(obtained, testing::Eq(2)); // two were removed
+	ASSERT_THAT(target.getActionData(), testing::Eq(std::list<BeaconCacheRecord_t>{ dataThree, dataFour }));
 }
 
 TEST_F(BeaconCacheEntryTest, removeOldestRecordsRemovesEventDataIfActionDataIsEmpty)
@@ -775,15 +639,8 @@ TEST_F(BeaconCacheEntryTest, removeOldestRecordsRemovesEventDataIfActionDataIsEm
 	auto obtained = target.removeOldestRecords(2);
 
 	// then
-	ASSERT_EQ(obtained, 2); // two were removed
-	auto eventData = target.getEventData();
-	ASSERT_EQ(eventData.size(), 2);
-	auto it = eventData.begin();
-	ASSERT_TRUE(it->getData().equals("Three"));
-	ASSERT_FALSE(it->isMarkedForSending());
-	it++;
-	ASSERT_TRUE(it->getData().equals("Four"));
-	ASSERT_FALSE(it->isMarkedForSending());
+	ASSERT_THAT(obtained, testing::Eq(2)); // two were removed
+	ASSERT_THAT(target.getEventData(), testing::Eq(std::list<BeaconCacheRecord_t>{ dataThree, dataFour }));
 }
 
 TEST_F(BeaconCacheEntryTest, removeOldestRecordsComparesTopActionAndEventDataAndRemovesOldest)
@@ -804,20 +661,9 @@ TEST_F(BeaconCacheEntryTest, removeOldestRecordsComparesTopActionAndEventDataAnd
 	auto obtained = target.removeOldestRecords(1);
 
 	// then
-	ASSERT_EQ(obtained, 1);
-	auto eventData = target.getEventData();
-	auto actionData = target.getActionData();
-	ASSERT_EQ(actionData.size(), 2);
-	auto it = actionData.begin();
-	ASSERT_TRUE(it->getData().equals("Two"));
-	ASSERT_FALSE(it->isMarkedForSending());
-	it++;
-	ASSERT_TRUE(it->getData().equals("Three"));
-	ASSERT_FALSE(it->isMarkedForSending());
-	ASSERT_EQ(eventData.size(), 1);
-	it = eventData.begin();
-	ASSERT_TRUE(it->getData().equals("Four"));
-	ASSERT_FALSE(it->isMarkedForSending());
+	ASSERT_THAT(obtained, testing::Eq(1));
+	ASSERT_THAT(target.getActionData(), testing::Eq(std::list<BeaconCacheRecord_t>{ dataTwo, dataThree }));
+	ASSERT_THAT(target.getEventData(), testing::Eq(std::list<BeaconCacheRecord_t>{ dataFour }));
 }
 
 TEST_F(BeaconCacheEntryTest, removeOldestRecordsRemovesEventDataIfTopEventDataAndActionDataHaveSameTimestamp)
@@ -838,20 +684,9 @@ TEST_F(BeaconCacheEntryTest, removeOldestRecordsRemovesEventDataIfTopEventDataAn
 	auto obtained = target.removeOldestRecords(1);
 
 	// then
-	ASSERT_EQ(obtained, 1);
-	auto eventData = target.getEventData();
-	auto actionData = target.getActionData();
-	ASSERT_EQ(actionData.size(), 2);
-	auto it = actionData.begin();
-	ASSERT_TRUE(it->getData().equals("Three"));
-	ASSERT_FALSE(it->isMarkedForSending());
-	it++;
-	ASSERT_TRUE(it->getData().equals("Four"));
-	ASSERT_FALSE(it->isMarkedForSending());
-	ASSERT_EQ(eventData.size(), 1);
-	it = eventData.begin();
-	ASSERT_TRUE(it->getData().equals("Two"));
-	ASSERT_FALSE(it->isMarkedForSending());
+	ASSERT_THAT(obtained, testing::Eq(1));
+	ASSERT_THAT(target.getActionData(), testing::Eq(std::list<BeaconCacheRecord_t>{ dataThree, dataFour }));
+	ASSERT_THAT(target.getEventData(), testing::Eq(std::list<BeaconCacheRecord_t>{ dataTwo }));
 }
 
 TEST_F(BeaconCacheEntryTest, removeOldestRecordsStopsIfListsAreEmpty)
@@ -872,11 +707,9 @@ TEST_F(BeaconCacheEntryTest, removeOldestRecordsStopsIfListsAreEmpty)
 	auto obtained = target.removeOldestRecords(100);
 
 	// then
-	ASSERT_EQ(obtained, 4);
-	auto eventData = target.getEventData();
-	auto actionData = target.getActionData();
-	ASSERT_TRUE(eventData.empty());
-	ASSERT_TRUE(actionData.empty());
+	ASSERT_THAT(obtained, testing::Eq(4));
+	ASSERT_THAT(target.getActionData(), testing::IsEmpty());
+	ASSERT_THAT(target.getEventData(), testing::IsEmpty());
 }
 
 TEST_F(BeaconCacheEntryTest, removeRecordsOlderThanDoesNotRemoveAnythingFromEventAndActionsBeingSent)
@@ -893,29 +726,15 @@ TEST_F(BeaconCacheEntryTest, removeRecordsOlderThanDoesNotRemoveAnythingFromEven
 	target.addActionData(dataTwo);
 	target.addActionData(dataThree);
 
-	target.copyDataForChunking();
+	target.copyDataForSending();
 
 	// when
 	auto obtained = target.removeRecordsOlderThan(10000);
 
 	// then
-	ASSERT_EQ(obtained, 0);
-	auto eventDataBeingSent = target.getEventDataBeingSent();
-	auto actionDataBeingSent = target.getActionDataBeingSent();
-	ASSERT_EQ(eventDataBeingSent.size(), 2);
-	auto it = eventDataBeingSent.begin();
-	ASSERT_TRUE(it->getData().equals("One"));
-	ASSERT_FALSE(it->isMarkedForSending());
-	it++;
-	ASSERT_TRUE(it->getData().equals("Four"));
-	ASSERT_FALSE(it->isMarkedForSending());
-	ASSERT_EQ(actionDataBeingSent.size(), 2);
-	it = actionDataBeingSent.begin();
-	ASSERT_TRUE(it->getData().equals("Two"));
-	ASSERT_FALSE(it->isMarkedForSending());
-	it++;
-	ASSERT_TRUE(it->getData().equals("Three"));
-	ASSERT_FALSE(it->isMarkedForSending());
+	ASSERT_THAT(obtained, testing::Eq(0));
+	ASSERT_THAT(target.getActionDataBeingSent(), testing::Eq(std::list<BeaconCacheRecord_t>{ dataTwo, dataThree }));
+	ASSERT_THAT(target.getEventDataBeingSent(), testing::Eq(std::list<BeaconCacheRecord_t>{ dataOne, dataFour }));
 }
 
 TEST_F(BeaconCacheEntryTest, removeOldestRecordsDoesNotRemoveAnythingFromEventAndActionsBeingSent)
@@ -932,27 +751,77 @@ TEST_F(BeaconCacheEntryTest, removeOldestRecordsDoesNotRemoveAnythingFromEventAn
 	target.addActionData(dataTwo);
 	target.addActionData(dataThree);
 
-	target.copyDataForChunking();
+	target.copyDataForSending();
 
 	// when
 	auto obtained = target.removeOldestRecords(10000);
 
 	// then
-	ASSERT_EQ(obtained, 0);
-	auto eventDataBeingSent = target.getEventDataBeingSent();
-	auto actionDataBeingSent = target.getActionDataBeingSent();
-	ASSERT_EQ(eventDataBeingSent.size(), 2);
-	auto it = eventDataBeingSent.begin();
-	ASSERT_TRUE(it->getData().equals("One"));
-	ASSERT_FALSE(it->isMarkedForSending());
-	it++;
-	ASSERT_TRUE(it->getData().equals("Four"));
-	ASSERT_FALSE(it->isMarkedForSending());
-	ASSERT_EQ(actionDataBeingSent.size(), 2);
-	it = actionDataBeingSent.begin();
-	ASSERT_TRUE(it->getData().equals("Two"));
-	ASSERT_FALSE(it->isMarkedForSending());
-	it++;
-	ASSERT_TRUE(it->getData().equals("Three"));
-	ASSERT_FALSE(it->isMarkedForSending());
+	ASSERT_THAT(obtained, testing::Eq(0));
+	ASSERT_THAT(target.getActionDataBeingSent(), testing::Eq(std::list<BeaconCacheRecord_t>{ dataTwo, dataThree }));
+	ASSERT_THAT(target.getEventDataBeingSent(), testing::Eq(std::list<BeaconCacheRecord_t>{ dataOne, dataFour }));
+}
+
+TEST_F(BeaconCacheEntryTest, hasDataForSendingReturnsFalseIfDataWasNotCopied)
+{
+	// given
+	BeaconCacheRecord_t dataOne(1000L, "One");
+	BeaconCacheRecord_t dataTwo(1500L, "Two");
+
+	BeaconCacheEntry_t target;
+	target.addEventData(dataOne);
+	target.addEventData(dataTwo);
+
+	// when
+	auto obtained = target.hasDataToSend();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(false));
+}
+
+TEST_F(BeaconCacheEntryTest, hasDataForSendingReturnsFalseIfNoDataWasAddedBeforeCopying)
+{
+	// given
+	BeaconCacheEntry_t target;
+	target.copyDataForSending();
+
+	// when
+	auto obtained = target.hasDataToSend();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(false));
+}
+
+TEST_F(BeaconCacheEntryTest, hasDataForSendingReturnsTrueIfEventDataWasAddedBeforeCopying)
+{
+	// given
+	BeaconCacheRecord_t record(1000L, "One");
+
+	BeaconCacheEntry_t target;
+	target.addEventData(record);
+
+	target.copyDataForSending();
+
+	// when
+	auto obtained = target.hasDataToSend();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(true));
+}
+
+TEST_F(BeaconCacheEntryTest, hasDataForSendingReturnsTrueIfActionDataWasAddedBeforeCopying)
+{
+	// given
+	BeaconCacheRecord_t record(1000L, "One");
+
+	BeaconCacheEntry_t target;
+	target.addActionData(record);
+
+	target.copyDataForSending();
+
+	// when
+	auto obtained = target.hasDataToSend();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(true));
 }

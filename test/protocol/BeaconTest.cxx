@@ -1856,6 +1856,11 @@ TEST_F(BeaconTest, cannotIdentifyUserIfUserIdentificationDisabled)
 TEST_F(BeaconTest, canHandleNoDataInBeaconSend)
 {
 	// expect
+	EXPECT_CALL(*mockBeaconCache, hasDataForSending(BeaconKey_t(SESSION_ID, SESSION_SEQUENCE)))
+		.Times(1)
+		.WillOnce(testing::Return(true));
+	EXPECT_CALL(*mockBeaconCache, prepareDataForSending(BeaconKey_t(SESSION_ID, SESSION_SEQUENCE)))
+		.Times(1);
 	EXPECT_CALL(*mockBeaconCache, getNextBeaconChunk(BeaconKey_t(SESSION_ID, SESSION_SEQUENCE), testing::_, testing::_, testing::_))
 		.Times(1);
 
@@ -1912,6 +1917,54 @@ TEST_F(BeaconTest, sendValidData)
 	ASSERT_THAT(obtained->getResponseCode(), testing::Eq(responseCode));
 }
 
+TEST_F(BeaconTest, sendCanHandleMultipleChunks)
+{
+	// with
+	Utf8String_t firstChunk("some beacon string");
+	Utf8String_t secondChunk("some more beacon string");
+
+	// expect
+	auto beaconCache = MockIBeaconCache::createNice();
+	EXPECT_CALL(*beaconCache, prepareDataForSending(testing::_))
+		.Times(1);
+	EXPECT_CALL(*beaconCache, hasDataForSending(testing::_))
+		.Times(3)
+		.WillOnce(testing::Return(true))
+		.WillOnce(testing::Return(true))
+		.WillRepeatedly(testing::Return(false));
+	EXPECT_CALL(*beaconCache, getNextBeaconChunk(testing::_, testing::_, testing::_, testing::_))
+		.Times(2)
+		.WillOnce(testing::Return(firstChunk))
+		.WillOnce(testing::Return(secondChunk));
+
+	// given
+	auto firstResponse = MockIStatusResponse::createNice();
+	ON_CALL(*firstResponse, isErroneousResponse())
+		.WillByDefault(testing::Return(false));
+	auto secondResponse = MockIStatusResponse::createNice();
+	ON_CALL(*secondResponse, isErroneousResponse())
+		.WillByDefault(testing::Return(false));
+
+	auto httpClient = MockIHTTPClient::createNice();
+	EXPECT_CALL(*httpClient, sendBeaconRequest(testing::_, testing::_, testing::_))
+		.Times(2)
+		.WillOnce(testing::Return(firstResponse))
+		.WillOnce(testing::Return(secondResponse));
+
+	auto httpClientProvider = MockIHTTPClientProvider::createNice();
+	ON_CALL(*httpClientProvider, createClient(testing::_))
+		.WillByDefault(testing::Return(httpClient));
+
+	auto target = createBeacon()->with(beaconCache).build();
+
+	// when
+	auto response = target->send(httpClientProvider, *mockAdditionalQueryParameters);
+
+	// then
+	ASSERT_THAT(response, testing::NotNull());
+	ASSERT_THAT(response, testing::Eq(secondResponse));
+}
+
 TEST_F(BeaconTest, sendDataAndFakeErrorResponse)
 {
 	// with
@@ -1952,8 +2005,15 @@ TEST_F(BeaconTest, sendDataAndFakeErrorResponse)
 	ASSERT_THAT(obtained->getResponseCode(), testing::Eq(responseCode));
 }
 
-TEST_F(BeaconTest, beaconDataPrefix)
+TEST_F(BeaconTest, beaconDataPrefixVS2)
 {
+	// expect
+	EXPECT_CALL(*mockBeaconCache, prepareDataForSending(testing::_))
+		.Times(1);
+	EXPECT_CALL(*mockBeaconCache, hasDataForSending(testing::_))
+		.Times(1)
+		.WillOnce(testing::Return(true));
+
 	// given
 	const int32_t sessionSequence = 1213;
 	const int32_t visitStoreVersion = 2;
@@ -1971,8 +2031,6 @@ TEST_F(BeaconTest, beaconDataPrefix)
 		.WillByDefault(testing::ReturnRef(manufacturer));
 	ON_CALL(*mockOpenKitConfiguration, getModelId())
 		.WillByDefault(testing::ReturnRef(modelId));
-	ON_CALL(*mockBeaconCache, getNextBeaconChunk(testing::_, testing::_, testing::_, testing::_))
-		.WillByDefault(testing::ReturnNull());
 	ON_CALL(*mockServerConfiguration, getVisitStoreVersion())
 		.WillByDefault(testing::Return(visitStoreVersion));
 
@@ -2000,13 +2058,13 @@ TEST_F(BeaconTest, beaconDataPrefix)
 		<< "&mp=" << MULTIPLICITY;
 
 	const core::UTF8String expected{ expectedPrefix.str() };
-	EXPECT_CALL(*mockBeaconCache, getNextBeaconChunk(BeaconKey_t(SESSION_ID, sessionSequence), expected, testing::_, testing::_))
-		.Times(1);
+	EXPECT_CALL(*mockBeaconCache, getNextBeaconChunk(testing::_, expected, testing::_, testing::_))
+		.Times(1)
+		.WillRepeatedly(testing::ReturnNull());
 	
 	// when
 	auto target = createBeacon()->withIpAddress(ipAddress)
 		.withSessionSequenceNumber(sessionSequence)
-		.with(mockBeaconCache)
 		.build();
 	
 	auto httpClientProvider = MockIHTTPClientProvider::createNice();
@@ -2315,6 +2373,13 @@ TEST_F(BeaconTest, useInternalBeaconIdForAccessingBeaconCacheWhenSessionNumberRe
 
 TEST_F(BeaconTest, sendConstructsCorrectBeaconPrefixVisitStore1)
 {
+	// expect
+	EXPECT_CALL(*mockBeaconCache, prepareDataForSending(testing::_))
+		.Times(1);
+	EXPECT_CALL(*mockBeaconCache, hasDataForSending(testing::_))
+		.Times(1)
+		.WillOnce(testing::Return(true));
+
 	// given
 	const int32_t visitStoreVersion = 1;
 	auto httpClientProvider = MockIHTTPClientProvider::createNice();

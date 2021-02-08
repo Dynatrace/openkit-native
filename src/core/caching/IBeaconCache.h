@@ -75,6 +75,24 @@ namespace core
 			virtual void deleteCacheEntry(const BeaconKey& beaconKey) = 0;
 
 			///
+            /// Prepare all data, that has been recorded so far, for sending.
+            ///
+            /// Note: This method must only be invoked from the beacon sending thread.
+            ///
+            /// @param beaconKey[in] The beacon key for which to copy the collected data.
+			///
+			virtual void prepareDataForSending(const BeaconKey& beaconKey) = 0;
+
+			///
+			/// Test if there is more data to send.
+			///
+			/// @param beaconKey[in] key The beaconkey for which to check if there is more data for sending.
+			/// @retval true if there is data for sending
+			/// @retval if BeaconKey does not exist or there is no data for sending.
+			///
+			virtual bool hasDataForSending(const BeaconKey& beaconKey) = 0;
+
+			///
 			/// Get the next chunk for sending to the backend.
 			///
 			/// Note: This method must only be invoked from the beacon sending thread.

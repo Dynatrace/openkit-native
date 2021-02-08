@@ -69,12 +69,19 @@ namespace core
 			///
 			/// @return @c true if data must be copied, @c false otherwise.
 			///
-			bool needsDataCopyBeforeChunking() const;
+			bool needsDataCopyBeforeSending() const;
 
 			///
 			/// Copy data for sending.
 			///
-			void copyDataForChunking();
+			void copyDataForSending();
+
+			///
+			/// Test if there is more data to send (to chunk).
+			///
+			/// @return @c true if there is more data, @c false otherwise.
+			///
+			bool hasDataToSend() const;
 
 			///
 			/// Get next data chunk to send to the Dynatrace backend system.
@@ -160,12 +167,6 @@ namespace core
 			const std::list<BeaconCacheRecord> getActionDataBeingSent() const;
 
 		private:
-			///
-			/// Test if there is more data to send (to chunk).
-			///
-			/// @return @c true if there is more data, @c false otherwise.
-			///
-			bool hasDataToSend() const;
 
 			///
 			/// Get the next chunk.

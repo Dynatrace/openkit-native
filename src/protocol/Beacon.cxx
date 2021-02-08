@@ -539,7 +539,8 @@ std::shared_ptr<protocol::IStatusResponse> Beacon::send(std::shared_ptr<provider
 
 	std::shared_ptr<protocol::IStatusResponse> response = nullptr;
 
-	while (true)
+	mBeaconCache->prepareDataForSending(mBeaconKey);
+	while (mBeaconCache->hasDataForSending(mBeaconKey))
 	{
 		// prefix for this chunk - must be built up newly, due to changing timestamps
 		auto prefix = mImmutableBasicBeaconData;

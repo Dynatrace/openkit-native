@@ -44,6 +44,8 @@
 - Reporting a crash causes a session split, which is transparently handled.
 - Provide a more reliable way to determine monotonic timestamps.
 - Only send end session events when sessions are explicitly ended via API method `ISession::end()`.
+- Fix potential endless loop in beacon sending, when lots of data
+  is generated in a short period of time.
 
 ### Improvements
 - Reformatted text files to unix style line endings (excluding 3rd party files)

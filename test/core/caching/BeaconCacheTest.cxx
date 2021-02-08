@@ -331,7 +331,7 @@ TEST_F(BeaconCacheTest, getNextBeaconChunkReturnsNullIfGivenBeaconKeyDoesNotExis
 	ASSERT_THAT(obtained.empty(), testing::Eq(true));
 }
 
-TEST_F(BeaconCacheTest, getNextBeaconChunkCopiesDataForSending)
+TEST_F(BeaconCacheTest, getNextBeaconChunkDoesNotCopyDataForSending)
 {
 	// given
 	BeaconKey_t keyOne(1, 0);
@@ -347,22 +347,15 @@ TEST_F(BeaconCacheTest, getNextBeaconChunkCopiesDataForSending)
 	auto obtained = target.getNextBeaconChunk(keyOne, "prefix", 0, "&");
 
 	// then
-	ASSERT_THAT(obtained, testing::Eq(Utf8String_t("prefix")));
+	ASSERT_THAT(obtained, testing::Eq(Utf8String_t()));
 
-	ASSERT_THAT(target.getActions(keyOne), testing::IsEmpty());
-	ASSERT_THAT(target.getEvents(keyOne), testing::IsEmpty());
-	ASSERT_THAT(target.getActionsBeingSent(keyOne), testing::ContainerEq(
-		std::list<BeaconCacheRecord_t>{
-			BeaconCacheRecord_t(1000L, "a"),
-			BeaconCacheRecord_t(1001L, "iii")
-		}
-	));
-	ASSERT_THAT(target.getEventsBeingSent(keyOne), testing::ContainerEq(
-		std::list<BeaconCacheRecord_t>{
-			BeaconCacheRecord_t(1000L, "b"),
-			BeaconCacheRecord_t(1001L, "jjj")
-		}
-	));
+	ASSERT_THAT(target.getActions(keyOne), testing::ContainerEq(
+		std::vector<Utf8String_t>{ Utf8String_t("a"), Utf8String_t("iii") }));
+	ASSERT_THAT(target.getEvents(keyOne), testing::ContainerEq(
+		std::vector<Utf8String_t>{ Utf8String_t("b"), Utf8String_t("jjj") }));
+
+	ASSERT_THAT(target.getActionsBeingSent(keyOne), testing::IsEmpty());
+	ASSERT_THAT(target.getEventsBeingSent(keyOne), testing::IsEmpty());
 }
 
 TEST_F(BeaconCacheTest, getNextBeaconChunkDecreasesBeaconCacheSize)
@@ -376,6 +369,8 @@ TEST_F(BeaconCacheTest, getNextBeaconChunkDecreasesBeaconCacheSize)
 	target.addActionData(keyTwo, 2000L, "z");
 	target.addEventData(keyOne, 1000L, "b");
 	target.addEventData(keyOne, 1001L, "jjj");
+
+	target.prepareDataForSending(keyOne);
 
 	// when
 	target.getNextBeaconChunk(keyOne, "prefix", 0, "&");
@@ -396,6 +391,8 @@ TEST_F(BeaconCacheTest, getNextBeaconChunkRetrievesNextChunk)
 	target.addActionData(keyTwo, 2000L, "z");
 	target.addEventData(keyOne, 1000L, "b");
 	target.addEventData(keyOne, 1001L, "jjj");
+
+	target.prepareDataForSending(keyOne);
 
 	// when
 	auto obtained = target.getNextBeaconChunk(keyOne, "prefix", 10, "&");
@@ -433,6 +430,8 @@ TEST_F(BeaconCacheTest, removeChunkedDataClearsAlreadyRetrievedChunks)
 	target.addActionData(keyTwo, 2000L, "z");
 	target.addEventData(keyOne, 1000L, "b");
 	target.addEventData(keyOne, 1001L, "jjj");
+
+	target.prepareDataForSending(keyOne);
 
 	// when retrieving the first chunk and removing retrieved chunks
 	auto obtained = target.getNextBeaconChunk(keyOne, "prefix", 10, "&");
@@ -474,6 +473,8 @@ TEST_F(BeaconCacheTest, removeChunkedDataDoesNothingIfCalledWithNonExistingBeaco
 	target.addEventData(keyOne, 1000L, "b");
 	target.addEventData(keyOne, 1001L, "jjj");
 
+	target.prepareDataForSending(keyOne);
+
 	// when retrieving the first chunk and removing retrieved chunks
 	auto obtained = target.getNextBeaconChunk(keyOne, "prefix", 10, "&");
 	target.removeChunkedData(keyTwo);
@@ -506,6 +507,8 @@ TEST_F(BeaconCacheTest, resetChunkedRestoresData)
 	target.addActionData(key, 1001L, "iii");
 	target.addEventData(key, 1000L, "b");
 	target.addEventData(key, 1001L, "jjj");
+
+	target.prepareDataForSending(key);
 
 	// do same step we'd do when we send the
 	target.getNextBeaconChunk(key, "prefix", 10, "&");
@@ -560,6 +563,8 @@ TEST_F(BeaconCacheTest, resetChunkedNotifiesObservers)
 	target.addEventData(key, 1000L, "b");
 	target.addEventData(key, 1001L, "jjj");
 
+	target.prepareDataForSending(key);
+
 	// do same step we'd do when we send the
 	target.getNextBeaconChunk(key, "prefix", 10, "&");
 
@@ -585,6 +590,8 @@ TEST_F(BeaconCacheTest, resetChunkedDoesNothingIfEntryDoesNotExist)
 	target.addActionData(key, 1001L, "iii");
 	target.addEventData(key, 1000L, "b");
 	target.addEventData(key, 1001L, "jjj");
+
+	target.prepareDataForSending(key);
 
 	// do same step we'd do when we send the
 	target.getNextBeaconChunk(key, "prefix", 10, "&");
@@ -704,6 +711,8 @@ TEST_F(BeaconCacheTest, isEmptyGivesTrueIfBeaconDoesNotContainActiveData)
 	BeaconCache_t target(mockLogger);
 	target.addActionData(key, 1000L, "a");
 	target.addEventData(key, 1000L, "b");
+
+	target.prepareDataForSending(key);
 
 	target.getNextBeaconChunk(key, "prefix", 0, "&");
 
