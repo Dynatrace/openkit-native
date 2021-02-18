@@ -70,8 +70,8 @@ OpenKit includes the following 3rd party libraries.
 |-----------------------------|---------|--------------------------------|------------------------------------------------|
 | [zlib][zlib-readme]         | 1.2.11  | [zlib][zlib-readme]            | Used for compressing transmitted data          |
 | [libcurl][curl-readme]      | 7.59.0  | [curl][curl-license]           | Used for communicating with Dynatrace/AppMon   |
-| [Google Test][gtest-readme] | 1.8.0   | [BSD 3-clauses][gtest-license] | Unit testing framework, not used in production |
-| [Google Mock][gmock-readme] | 1.8.0   | [BSD 3-clauses][gmock-license] | Mocking framework, not used in production      |
+| [Google Test][gtest-readme] | 1.10.0   | [BSD 3-clauses][gtest-license] | Unit testing framework, not used in production |
+| [Google Mock][gmock-readme] | 1.10.0   | [BSD 3-clauses][gmock-license] | Mocking framework, not used in production      |
 
 [installing]: ./docs/installing.md
 [concepts]: ./docs/concepts.md
@@ -83,9 +83,9 @@ OpenKit includes the following 3rd party libraries.
 [zlib-readme]: ./3rdparty/zlib-1.2.11/README
 [curl-readme]: ./3rdparty/curl-7.59.0/README
 [curl-license]: ./3rdparty/curl-7.59.0/COPYING
-[gtest-readme]: ./3rdparty/googletest-release-1.8.0/googletest/README.md
-[gtest-license]: ./3rdparty/googletest-release-1.8.0/googletest/LICENSE
-[gmock-readme]: ./3rdparty/googletest-release-1.8.0/googlemock/README.md
-[gmock-license]: ./3rdparty/googletest-release-1.8.0/googlemock/LICENSE
+[gtest-readme]: ./3rdparty/googletest-release-1.10.0/googletest/README.md
+[gtest-license]: ./3rdparty/googletest-release-1.10.0/googletest/LICENSE
+[gmock-readme]: ./3rdparty/googletest-release-1.10.0/googlemock/README.md
+[gmock-license]: ./3rdparty/googletest-release-1.10.0/googlemock/LICENSE
 
 

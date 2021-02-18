@@ -71,26 +71,19 @@ add_subdirectory(curl-7.59.0)
 # google test & google mock
 if(OPENKIT_BUILD_TESTS)
 	if(BUILD_SHARED_LIBS OR OPENKIT_FORCE_SHARED_CRT)
-		set(gtest_force_shared_crt ON CACHE BOOL "Set to ON to build libcurl with static CRT on Windows (/MT)." FORCE)
+		set(gtest_force_shared_crt ON CACHE BOOL "Set to ON to build googletest with static CRT on Windows (/MT)." FORCE)
 	else ()
-		set(gtest_force_shared_crt OFF CACHE BOOL "Set to ON to build libcurl with static CRT on Windows (/MT)." FORCE)
+		set(gtest_force_shared_crt OFF CACHE BOOL "Set to ON to build googletest with static CRT on Windows (/MT)." FORCE)
 	endif()
 	
-	add_subdirectory(googletest-release-1.8.0)
-	if (MSVC)
-		# hack necessary for Visual C++ compilers
-		# gtest does not know that newer Visual C++ compilers
-		# are C++11 compliant.
-		# MS deprecated tr1 namespace with Visual C++ 17 and due to "warnings as errors"-flag
-		# this leads to failing build
-		set (GTEST_MSVC_PREPROCESSOR_HACKS "GTEST_LANG_CXX11=1" "GTEST_HAS_TR1_TUPLE=0")
-		target_compile_definitions(gtest PUBLIC ${GTEST_MSVC_PREPROCESSOR_HACKS})
-		target_compile_definitions(gtest_main PUBLIC ${GTEST_MSVC_PREPROCESSOR_HACKS})
-		target_compile_definitions(gmock PUBLIC ${GTEST_MSVC_PREPROCESSOR_HACKS})
-		target_compile_definitions(gmock_main PUBLIC ${GTEST_MSVC_PREPROCESSOR_HACKS})
-	endif ()
+	# build googletest always as static library
+	# by temporarily turning of the BUILD_SHARED_LIBS
+	set(BUILD_SHARED_LIBS_SAVED "${BUILD_SHARED_LIBS}")
+    set(BUILD_SHARED_LIBS OFF)
+    add_subdirectory(googletest-release-1.10.0)
+    set(BUILD_SHARED_LIBS "${BUILD_SHARED_LIBS_SAVED}")
+	
 endif()
-
 
 set_target_properties(gmock PROPERTIES FOLDER 3rdparty/googletest)
 set_target_properties(gmock_main PROPERTIES FOLDER 3rdparty/googletest)

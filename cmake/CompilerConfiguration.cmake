@@ -32,7 +32,7 @@ if(MSVC)
     #c compiler
     set(OPEN_KIT_C_FLAGS /W4 /nologo /wd4251)
 	set(OPEN_KIT_C_FLAGS_TESTS  ${OPEN_KIT_C_FLAGS} /wd4996)
-    set(OPEN_KIT_C_FLAGS_DEBUG /Zi /Od /Ob0 /Oi /GF- /Gy /RTC1)
+    set(OPEN_KIT_C_FLAGS_DEBUG /Zi /Od /Ob0 /Oi /GF- /Gy /bigobj /RTC1)
     set(OPEN_KIT_C_FLAGS_RELEASE /Zi /O2 /Ob2 /Oi /Ot /GF)
     #c++ compiler
     set(OPEN_KIT_CXX_FLAGS ${OPEN_KIT_C_FLAGS})

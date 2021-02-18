@@ -265,11 +265,6 @@ function(open_kit_build_test name includedirs libs)
     message(INFO " Configuring test '${name}' (INCLUDEDIRS=${includedirs}; LIBS=${libs}")
     add_executable(${name} ${ARGN})
 
-    # setup some additional define required by gtest, but only for Visual C++ compiler
-    if (MSVC)
-        target_compile_definitions(${name} PRIVATE "GTEST_LANG_CXX11=1" "GTEST_HAS_TR1_TUPLE=0")
-    endif ()
-	
 	set (test_libs ${libs} gtest gmock gmock_main)
 
 	target_include_directories(${name} SYSTEM PRIVATE ${gtest_SOURCE_DIR}/include)
