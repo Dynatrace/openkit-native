@@ -51,19 +51,15 @@ namespace test
 			return std::make_shared<testing::StrictMock<MockIBeaconSendingState>>();
 		}
 
-		MOCK_METHOD1(execute,
-			void(
-				core::communication::IBeaconSendingContext&
-			)
-		);
+		MOCK_METHOD(void, execute, (core::communication::IBeaconSendingContext&), (override));
 
-		MOCK_METHOD0(getShutdownState, std::shared_ptr<core::communication::IBeaconSendingState>());
+		MOCK_METHOD(std::shared_ptr<core::communication::IBeaconSendingState>, getShutdownState, (), (override));
 
-		MOCK_CONST_METHOD0(isTerminalState, bool());
+		MOCK_METHOD(bool, isTerminalState, (), (const, override));
 
-		MOCK_CONST_METHOD0(getStateType, core::communication::IBeaconSendingState::StateType());
+		MOCK_METHOD(core::communication::IBeaconSendingState::StateType, getStateType, (), (const, override));
 
-		MOCK_CONST_METHOD0(getStateName, const char*());
+		MOCK_METHOD(const char*, getStateName, (), (const, override));
 	};
 }
 

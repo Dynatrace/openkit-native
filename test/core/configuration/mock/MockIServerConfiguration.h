@@ -67,44 +67,47 @@ namespace test
 			return std::make_shared<testing::StrictMock<MockIServerConfiguration>>();
 		}
 
-		MOCK_CONST_METHOD0(isCaptureEnabled, bool());
+		MOCK_METHOD(bool, isCaptureEnabled, (), (const, override));
 
-		MOCK_CONST_METHOD0(isCrashReportingEnabled, bool());
+		MOCK_METHOD(bool, isCrashReportingEnabled, (), (const, override));
 
-		MOCK_CONST_METHOD0(isErrorReportingEnabled, bool());
+		MOCK_METHOD(bool, isErrorReportingEnabled, (), (const, override));
 
-		MOCK_CONST_METHOD0(getServerId, int32_t());
+		MOCK_METHOD(int32_t, getServerId, (), (const, override));
 
-		MOCK_CONST_METHOD0(getBeaconSizeInBytes, int32_t());
+		MOCK_METHOD(int32_t, getBeaconSizeInBytes, (), (const, override));
 
-		MOCK_CONST_METHOD0(getMultiplicity, int32_t());
+		MOCK_METHOD(int32_t, getMultiplicity, (), (const, override));
 
-		MOCK_CONST_METHOD0(getSendIntervalInMilliseconds, int32_t());
+		MOCK_METHOD(int32_t, getSendIntervalInMilliseconds, (), (const, override));
 
-		MOCK_CONST_METHOD0(getMaxSessionDurationInMilliseconds, int32_t());
+		MOCK_METHOD(int32_t, getMaxSessionDurationInMilliseconds, (), (const, override));
 
-		MOCK_CONST_METHOD0(isSessionSplitBySessionDurationEnabled, bool());
+		MOCK_METHOD(bool, isSessionSplitBySessionDurationEnabled, (), (const, override));
 
-		MOCK_CONST_METHOD0(getMaxEventsPerSession, int32_t());
+		MOCK_METHOD(int32_t, getMaxEventsPerSession, (), (const, override));
 
-		MOCK_CONST_METHOD0(isSessionSplitByEventsEnabled, bool());
+		MOCK_METHOD(bool, isSessionSplitByEventsEnabled, (), (const, override));
 
-		MOCK_CONST_METHOD0(getSessionTimeoutInMilliseconds, int32_t());
+		MOCK_METHOD(int32_t, getSessionTimeoutInMilliseconds, (), (const, override));
 
-		MOCK_CONST_METHOD0(isSessionSplitByIdleTimeoutEnabled, bool());
+		MOCK_METHOD(bool, isSessionSplitByIdleTimeoutEnabled, (), (const, override));
 
-		MOCK_CONST_METHOD0(getVisitStoreVersion, int32_t());
+		MOCK_METHOD(int32_t, getVisitStoreVersion, (), (const, override));
 
-		MOCK_CONST_METHOD0(isSendingDataAllowed, bool());
+		MOCK_METHOD(bool, isSendingDataAllowed, (), (const, override));
 
-		MOCK_CONST_METHOD0(isSendingCrashesAllowed, bool());
+		MOCK_METHOD(bool, isSendingCrashesAllowed, (), (const, override));
 
-		MOCK_CONST_METHOD0(isSendingErrorsAllowed, bool());
+		MOCK_METHOD(bool, isSendingErrorsAllowed, (), (const, override));
 
-		MOCK_CONST_METHOD1(merge,
-			std::shared_ptr<core::configuration::IServerConfiguration>(
+		MOCK_METHOD(
+			std::shared_ptr<core::configuration::IServerConfiguration>,
+			merge,
+			(
 				std::shared_ptr<core::configuration::IServerConfiguration> /* other */
-			)
+			),
+			(const, override)
 		);
 	};
 }

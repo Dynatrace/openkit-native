@@ -56,33 +56,39 @@ namespace test
 			return std::make_shared<testing::StrictMock<MockIBeaconConfiguration>>();
 		}
 
-		MOCK_CONST_METHOD0(getOpenKitConfiguration, std::shared_ptr<core::configuration::IOpenKitConfiguration>());
+		MOCK_METHOD(std::shared_ptr<core::configuration::IOpenKitConfiguration>, getOpenKitConfiguration, (), (const, override));
 
-		MOCK_CONST_METHOD0(getPrivacyConfiguration, std::shared_ptr<core::configuration::IPrivacyConfiguration>());
+		MOCK_METHOD(std::shared_ptr<core::configuration::IPrivacyConfiguration>, getPrivacyConfiguration, (), (const, override));
 
-		MOCK_CONST_METHOD0(getHTTPClientConfiguration, std::shared_ptr<core::configuration::IHTTPClientConfiguration>());
+		MOCK_METHOD(std::shared_ptr<core::configuration::IHTTPClientConfiguration>, getHTTPClientConfiguration, (), (const, override));
 
-		MOCK_METHOD0(getServerConfiguration, std::shared_ptr<core::configuration::IServerConfiguration>());
+		MOCK_METHOD(std::shared_ptr<core::configuration::IServerConfiguration>, getServerConfiguration, (), (override));
 
-		MOCK_METHOD1(initializeServerConfiguration,
-			void(
+		MOCK_METHOD(
+			void,
+			initializeServerConfiguration,
+			(
 				std::shared_ptr<core::configuration::IServerConfiguration> /* initialServerConfiguration */
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD0(enableCapture, void());
+		MOCK_METHOD(void, enableCapture, (), (override));
 
-		MOCK_METHOD0(disableCapture, void());
+		MOCK_METHOD(void, disableCapture, (), (override));
 
-		MOCK_METHOD1(updateServerConfiguration,
-			void(
+		MOCK_METHOD(
+			void,
+			updateServerConfiguration,
+			(
 				std::shared_ptr<core::configuration::IServerConfiguration>
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD0(isServerConfigurationSet, bool());
+		MOCK_METHOD(bool, isServerConfigurationSet, (), (override));
 
-		MOCK_METHOD1(setServerConfigurationUpdateCallback, void(core::configuration::ServerConfigurationUpdateCallback serverConfigurationUpdateCallback));
+		MOCK_METHOD(void, setServerConfigurationUpdateCallback, (core::configuration::ServerConfigurationUpdateCallback), (override));
 	};
 }
 

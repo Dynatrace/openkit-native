@@ -52,15 +52,11 @@ class MockAbstractBeaconSendingState
 			return "MockState";
 		}
 
-		MOCK_METHOD0(getShutdownState, std::shared_ptr<core::communication::IBeaconSendingState>());
+		MOCK_METHOD(std::shared_ptr<core::communication::IBeaconSendingState>, getShutdownState, (), (override));
 
-		MOCK_CONST_METHOD0(isTerminalState, bool());
+		MOCK_METHOD(bool, isTerminalState, (), (const, override));
 
-		MOCK_METHOD1(doExecute,
-			void(
-				core::communication::IBeaconSendingContext&
-			)
-		);
+		MOCK_METHOD(void, doExecute, (core::communication::IBeaconSendingContext&), (override));
 	};
 }
 #endif

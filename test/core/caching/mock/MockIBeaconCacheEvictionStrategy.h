@@ -44,7 +44,7 @@ namespace test
 			return std::make_shared<testing::StrictMock<MockIBeaconCacheEvictionStrategy>>();
 		}
 
-		MOCK_METHOD0(execute, void());
+		MOCK_METHOD(void, execute, (), (override));
 	};
 }
 #endif

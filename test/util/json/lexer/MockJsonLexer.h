@@ -25,6 +25,6 @@ namespace test
 	public:
 		MockJsonLexer(const std::string& input) : JsonLexer(input){}
 
-		MOCK_METHOD0(nextToken, const std::shared_ptr<util::json::lexer::JsonToken>());
+		MOCK_METHOD(const std::shared_ptr<util::json::lexer::JsonToken>, nextToken, (), (override));
 	};
 }

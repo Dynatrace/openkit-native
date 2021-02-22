@@ -42,36 +42,19 @@ namespace test
 			return std::make_shared<testing::StrictMock<MockIWebRequestTracer>>();
 		}
 
-		MOCK_CONST_METHOD0(getTag, const char*());
+		MOCK_METHOD(const char*, getTag, (), (const, override));
 
-		MOCK_METHOD1(setResponseCode,
-			std::shared_ptr<openkit::IWebRequestTracer>(
-				int32_t
-			)
-		);
+		MOCK_METHOD(std::shared_ptr<openkit::IWebRequestTracer>, setResponseCode, (int32_t), (override));
 
-		MOCK_METHOD1(setBytesSent,
-			std::shared_ptr<openkit::IWebRequestTracer>(
-				int32_t
-			)
-		);
+		MOCK_METHOD(std::shared_ptr<openkit::IWebRequestTracer>, setBytesSent, (int32_t), (override));
 
+		MOCK_METHOD(std::shared_ptr<openkit::IWebRequestTracer>, setBytesReceived, (int32_t), (override));
 
-		MOCK_METHOD1(setBytesReceived,
-			std::shared_ptr<openkit::IWebRequestTracer>(
-				int32_t
-			)
-		);
+		MOCK_METHOD(std::shared_ptr<openkit::IWebRequestTracer>, start, (), (override));
 
-		MOCK_METHOD0(start, std::shared_ptr<openkit::IWebRequestTracer>());
+		MOCK_METHOD(void, stop, (), (override));
 
-		MOCK_METHOD0(stop, void());
-
-		MOCK_METHOD1(stop,
-			void(
-				int32_t
-			)
-		);
+		MOCK_METHOD(void, stop, (int32_t), (override));
 	};
 }
 

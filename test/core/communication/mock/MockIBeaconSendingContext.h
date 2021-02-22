@@ -59,9 +59,6 @@ class MockIBeaconSendingContext
 
 			ON_CALL(*this, getLastResponseAttributes())
 				.WillByDefault(testing::Return(protocol::ResponseAttributes::withUndefinedDefaults().build()));
-
-			ON_CALL(*this, isErroneousResponse())
-				.WillByDefault(testing::Return(false));
 		}
 
 		~MockIBeaconSendingContext() override = default;
@@ -76,121 +73,91 @@ class MockIBeaconSendingContext
 			return std::make_shared<testing::StrictMock<MockIBeaconSendingContext>>();
 		}
 
-		MOCK_METHOD0(executeCurrentState, void());
+		MOCK_METHOD(void, executeCurrentState, (), (override));
 
-		MOCK_METHOD0(requestShutdown, void());
+		MOCK_METHOD(void, requestShutdown, (), (override));
 
-		MOCK_CONST_METHOD0(isShutdownRequested, bool());
+		MOCK_METHOD(bool, isShutdownRequested, (), (const, override));
 
-		MOCK_METHOD0(waitForInit, bool());
+		MOCK_METHOD(bool, waitForInit, (), (override));
 
-		MOCK_METHOD1(waitForInit,
-			bool(
-				int64_t
-			)
-		);
+		MOCK_METHOD(bool, waitForInit, (int64_t), (override));
 
-		MOCK_METHOD1(setInitCompleted, void(bool));
+		MOCK_METHOD(void, setInitCompleted, (bool), (override));
 
-		MOCK_CONST_METHOD0(isInitialized, bool());
+		MOCK_METHOD(bool, isInitialized, (), (const, override));
 
-		MOCK_CONST_METHOD0(isInTerminalState, bool());
+		MOCK_METHOD(bool, isInTerminalState, (), (const, override));
 
-		MOCK_CONST_METHOD0(isCaptureOn, bool());
+		MOCK_METHOD(bool, isCaptureOn, (), (const, override));
 
-		MOCK_CONST_METHOD0(isErroneousResponse, bool());
+		MOCK_METHOD(std::shared_ptr<core::communication::IBeaconSendingState>, getCurrentState, (), (const, override));
 
-		MOCK_CONST_METHOD0(getCurrentState, std::shared_ptr<core::communication::IBeaconSendingState>());
-
-		MOCK_METHOD1(setNextState,
-			void(
+		MOCK_METHOD(
+			void,
+			setNextState,
+			(
 				std::shared_ptr<core::communication::IBeaconSendingState>
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD0(getNextState, std::shared_ptr<core::communication::IBeaconSendingState>());
+		MOCK_METHOD(std::shared_ptr<core::communication::IBeaconSendingState>, getNextState, (), (override));
 
-		MOCK_METHOD0(getHTTPClientProvider, std::shared_ptr<providers::IHTTPClientProvider>());
+		MOCK_METHOD(std::shared_ptr<providers::IHTTPClientProvider>, getHTTPClientProvider, (), (override));
 
-		MOCK_METHOD0(getHTTPClient, std::shared_ptr<protocol::IHTTPClient>());
+		MOCK_METHOD(std::shared_ptr<protocol::IHTTPClient>, getHTTPClient, (), (override));
 
-		MOCK_CONST_METHOD0(getCurrentTimestamp, int64_t());
+		MOCK_METHOD(int64_t, getCurrentTimestamp, (), (const, override));
 
-		MOCK_METHOD0(sleep, void());
+		MOCK_METHOD(void, sleep, (), (override));
 
-		MOCK_METHOD1(sleep,
-			void(
-				int64_t
-			)
-		);
+		MOCK_METHOD(void, sleep, (int64_t), (override));
 
-		MOCK_CONST_METHOD0(getLastOpenSessionBeaconSendTime, int64_t());
+		MOCK_METHOD(int64_t, getLastOpenSessionBeaconSendTime, (), (const, override));
 
-		MOCK_METHOD1(setLastOpenSessionBeaconSendTime,
-			void(
-				int64_t
-			)
-		);
+		MOCK_METHOD(void, setLastOpenSessionBeaconSendTime, (int64_t), (override));
 
-		MOCK_CONST_METHOD0(getLastStatusCheckTime, int64_t());
+		MOCK_METHOD(int64_t, getLastStatusCheckTime, (), (const, override));
 
-		MOCK_METHOD1(setLastStatusCheckTime,
-			void(
-				int64_t
-			)
-		);
+		MOCK_METHOD(void, setLastStatusCheckTime, (int64_t), (override));
 
-		MOCK_CONST_METHOD0(getSendInterval, int64_t());
+		MOCK_METHOD(int64_t, getSendInterval, (), (const, override));
 
-		MOCK_METHOD0(disableCaptureAndClear, void());
+		MOCK_METHOD(void, disableCaptureAndClear, (), (override));
 
-		MOCK_METHOD1(handleStatusResponse,
-			void(
+		MOCK_METHOD(void, handleStatusResponse, (std::shared_ptr<protocol::IStatusResponse>), (override));
+
+		MOCK_METHOD(
+			std::shared_ptr<protocol::IResponseAttributes>,
+			updateFrom,
+			(
 				std::shared_ptr<protocol::IStatusResponse>
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD1(updateFrom,
-			std::shared_ptr<protocol::IResponseAttributes>(
-				std::shared_ptr<protocol::IStatusResponse>
-			)
-		);
+		MOCK_METHOD(std::shared_ptr<protocol::IResponseAttributes>, getLastResponseAttributes, (), (const, override));
 
-		MOCK_CONST_METHOD0(getLastResponseAttributes,
-			std::shared_ptr<protocol::IResponseAttributes>()
-		);
+		MOCK_METHOD(std::shared_ptr<core::configuration::IServerConfiguration>, getLastServerConfiguration, (), (const, override));
 
-		MOCK_CONST_METHOD0(getLastServerConfiguration,
-			std::shared_ptr<core::configuration::IServerConfiguration>()
-		);
+		MOCK_METHOD(std::vector<std::shared_ptr<core::objects::SessionInternals>>, getAllNotConfiguredSessions, (), (override));
 
-		MOCK_METHOD0(clearAllSessionData, void());
+		MOCK_METHOD(std::vector<std::shared_ptr<core::objects::SessionInternals>>, getAllOpenAndConfiguredSessions, (), (override));
 
-		MOCK_METHOD0(getAllNotConfiguredSessions, std::vector<std::shared_ptr<core::objects::SessionInternals>>());
+		MOCK_METHOD(std::vector<std::shared_ptr<core::objects::SessionInternals>>, getAllFinishedAndConfiguredSessions, (), (override));
 
-		MOCK_METHOD0(getAllOpenAndConfiguredSessions, std::vector<std::shared_ptr<core::objects::SessionInternals>>());
+		MOCK_METHOD(size_t, getSessionCount, (), (override));
 
-		MOCK_METHOD0(getAllFinishedAndConfiguredSessions, std::vector<std::shared_ptr<core::objects::SessionInternals>>());
+		MOCK_METHOD(int32_t, getCurrentServerID, (), (const, override));
 
-		MOCK_METHOD0(getSessionCount, size_t());
+		MOCK_METHOD(void, addSession, (std::shared_ptr<core::objects::SessionInternals>), (override));
 
-		MOCK_CONST_METHOD0(getCurrentServerID, int32_t());
+		MOCK_METHOD(bool, removeSession, (std::shared_ptr<core::objects::SessionInternals>), (override));
 
-		MOCK_METHOD1(addSession,
-			void(
-				std::shared_ptr<core::objects::SessionInternals>
-			)
-		);
+		MOCK_METHOD(core::communication::IBeaconSendingState::StateType, getCurrentStateType, (), (const, override));
 
-		MOCK_METHOD1(removeSession,
-			bool(
-				std::shared_ptr<core::objects::SessionInternals>
-			)
-		);
-
-		MOCK_CONST_METHOD0(getCurrentStateType, core::communication::IBeaconSendingState::StateType());
-
-		MOCK_CONST_METHOD0(getConfigurationTimestamp, int64_t());
+		MOCK_METHOD(int64_t, getConfigurationTimestamp, (), (const, override));
 	};
 }
 #endif

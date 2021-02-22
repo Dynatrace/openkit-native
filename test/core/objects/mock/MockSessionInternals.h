@@ -56,102 +56,119 @@ namespace test
 			return std::make_shared<testing::StrictMock<MockSessionInternals>>();
 		}
 
-		MOCK_METHOD1(enterAction,
-			std::shared_ptr<openkit::IRootAction>(
+		MOCK_METHOD(
+			std::shared_ptr<openkit::IRootAction>,
+			enterAction,
+			(
 				const char* /* actionName */
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD1(identifyUser,
-			void(
-				const char* /* userTag */
-			)
-		);
+		MOCK_METHOD(void, identifyUser, (const char*), (override));
 
-		MOCK_METHOD3(reportCrash,
-			void(
+		MOCK_METHOD(
+			void,
+			reportCrash,
+			(
 				const char*, /* errorName */
 				const char*, /* reason */
 				const char* /* stacktrace */
 			)
 		);
 
-		MOCK_METHOD1(traceWebRequest,
-			std::shared_ptr<openkit::IWebRequestTracer>(
+		MOCK_METHOD(
+			std::shared_ptr<openkit::IWebRequestTracer>,
+			traceWebRequest,
+			(
 				const char* /*url */
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD0(end, void());
+		MOCK_METHOD(void, end, (), (override));
 
-		MOCK_METHOD0(startSession, void());
+		MOCK_METHOD(void, startSession, (), (override));
 
-		MOCK_METHOD2(sendBeacon,
-			std::shared_ptr<protocol::IStatusResponse>(
+		MOCK_METHOD(
+			std::shared_ptr<protocol::IStatusResponse>,
+			sendBeacon,
+			(
 				std::shared_ptr<providers::IHTTPClientProvider>,
 				const protocol::IAdditionalQueryParameters&
-			)
+			),
+			(override)
 		);
 
-		MOCK_CONST_METHOD0(isEmpty, bool());
+		MOCK_METHOD(bool, isEmpty, (), (const, override));
 
-		MOCK_METHOD0(clearCapturedData, void());
+		MOCK_METHOD(void, clearCapturedData, (), (override));
 
-		MOCK_CONST_METHOD0(isSessionEnded, bool());
+		MOCK_METHOD(void, end, (bool /* sendSessionEndEvent */), (override));
 
-		MOCK_METHOD1(end, void(bool /* sendSessionEndEvent */));
+		MOCK_METHOD(bool, tryEnd, (), (override));
 
-		MOCK_METHOD0(tryEnd, bool());
+		MOCK_METHOD(int64_t, getSplitByEventsGracePeriodEndTimeInMillis, (), (override));
 
-		MOCK_METHOD0(getSplitByEventsGracePeriodEndTimeInMillis, int64_t());
-
-		MOCK_METHOD1(setSplitByEventsGracePeriodEndTimeInMillis,
-			void(
+		MOCK_METHOD(
+			void,
+			setSplitByEventsGracePeriodEndTimeInMillis,
+			(
 				int64_t /* splitByEventsGracePeriodEndTimeInMillis */
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD1(initializeServerConfiguration, 
-			void(
+		MOCK_METHOD(
+			void,
+			initializeServerConfiguration, 
+			(
 				std::shared_ptr<core::configuration::IServerConfiguration> /* initialServerConfig */ 
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD1(updateServerConfiguration,
-			void(
+		MOCK_METHOD(
+			void,
+			updateServerConfiguration,
+			(
 				std::shared_ptr<core::configuration::IServerConfiguration> /* serverConfig */
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD1(onChildClosed,
-			void(
+		MOCK_METHOD(
+			void,
+			onChildClosed,
+			(
 				std::shared_ptr<core::objects::IOpenKitObject>
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD0(close, void());
+		MOCK_METHOD(void, close, (), (override));
 
-		MOCK_METHOD0(isDataSendingAllowed, bool());
+		MOCK_METHOD(bool, isDataSendingAllowed, (), (override));
 
-		MOCK_METHOD0(enableCapture, void());
+		MOCK_METHOD(void, enableCapture, (), (override));
 
-		MOCK_METHOD0(disableCapture, void());
+		MOCK_METHOD(void, disableCapture, (), (override));
 
-		MOCK_CONST_METHOD0(canSendNewSessionRequest, bool());
+		MOCK_METHOD(bool, canSendNewSessionRequest, (), (const, override));
 
-		MOCK_METHOD0(decreaseNumRemainingSessionRequests, void());
+		MOCK_METHOD(void, decreaseNumRemainingSessionRequests, (), (override));
 
-		MOCK_METHOD0(getBeacon, std::shared_ptr<protocol::IBeacon>());
+		MOCK_METHOD(std::shared_ptr<protocol::IBeacon>, getBeacon, (), (override));
 
-		MOCK_METHOD0(isConfigured, bool());
+		MOCK_METHOD(bool, isConfigured, (), (override));
 
-		MOCK_METHOD0(isConfiguredAndFinished, bool());
+		MOCK_METHOD(bool, isConfiguredAndFinished, (), (override));
 
-		MOCK_METHOD0(isConfiguredAndOpen, bool());
+		MOCK_METHOD(bool, isConfiguredAndOpen, (), (override));
 
-		MOCK_METHOD0(isFinished, bool());
+		MOCK_METHOD(bool, isFinished, (), (override));
 
-		MOCK_METHOD0(wasTriedForEnding, bool());
+		MOCK_METHOD(bool, wasTriedForEnding, (), (override));
 	};
 }
 

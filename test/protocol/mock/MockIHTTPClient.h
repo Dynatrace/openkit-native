@@ -57,24 +57,29 @@ namespace test
 			return std::make_shared<testing::StrictMock<MockIHTTPClient>>();
 		}
 
-		MOCK_METHOD1(sendStatusRequest,
-			std::shared_ptr<protocol::IStatusResponse>(
-				const protocol::IAdditionalQueryParameters& /* additionalParameters */
-			)
+		MOCK_METHOD(
+			std::shared_ptr<protocol::IStatusResponse>,
+			sendStatusRequest,
+			(const protocol::IAdditionalQueryParameters&),
+			(override)
 		);
 
-		MOCK_METHOD3(sendBeaconRequest,
-			std::shared_ptr<protocol::IStatusResponse>(
+		MOCK_METHOD(
+			std::shared_ptr<protocol::IStatusResponse>,
+			sendBeaconRequest,
+			(
 				const core::UTF8String&, /* clientIPAddress */
 				const core::UTF8String&, /* beaconData */
 				const protocol::IAdditionalQueryParameters& /* additionalParameters */
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD1(sendNewSessionRequest,
-			std::shared_ptr<protocol::IStatusResponse>(
-				const protocol::IAdditionalQueryParameters& /* additionalParameters */
-			)
+		MOCK_METHOD(
+			std::shared_ptr<protocol::IStatusResponse>,
+			sendNewSessionRequest,
+			(const protocol::IAdditionalQueryParameters& /* additionalParameters */ ),
+			(override)
 		);
 	};
 }

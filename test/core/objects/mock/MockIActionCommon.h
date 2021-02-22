@@ -54,86 +54,106 @@ namespace test
 			return std::make_shared<testing::StrictMock<MockIActionCommon>>();
 		}
 
-		MOCK_METHOD2(enterAction,
-			std::shared_ptr<openkit::IAction>(
+		MOCK_METHOD(
+			std::shared_ptr<openkit::IAction>,
+			enterAction,
+			(
 				std::shared_ptr<openkit::IRootAction>,
 				const char*
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD1(reportEvent,
-			void(
-				const char*
-			)
-		);
+		MOCK_METHOD(void, reportEvent, (const char*), (override));
 
-		MOCK_METHOD2(reportValue,
-			void(
+		MOCK_METHOD(
+			void,
+			reportValue,
+			(
 				const char*,
 				int32_t
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD2(reportValue,
-			void(
+		MOCK_METHOD(
+			void,
+			reportValue,
+			(
 				const char*,
 				int64_t
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD2(reportValue,
-			void(
+		MOCK_METHOD(
+			void,
+			reportValue,
+			(
 				const char*,
 				double
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD2(reportValue,
-			void(
+		MOCK_METHOD(
+			void,
+			reportValue,
+			(
 				const char*,
 				const char*
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD3(reportError,
-			void(
+		MOCK_METHOD(
+			void,
+			reportError,
+			(
 				const char*,
 				int32_t,
 				const char*
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD1(traceWebRequest,
-			std::shared_ptr<openkit::IWebRequestTracer>(
+		MOCK_METHOD(
+			std::shared_ptr<openkit::IWebRequestTracer>,
+			traceWebRequest,
+			(
 				const char*
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD0(leaveAction, bool());
+		MOCK_METHOD(bool, leaveAction, (), (override));
 
-		MOCK_CONST_METHOD0(isActionLeft, bool());
+		MOCK_METHOD(bool, isActionLeft, (), (const, override));
 
-		MOCK_CONST_METHOD0(getID, int32_t());
+		MOCK_METHOD(int32_t, getID, (), (const, override));
 
-		MOCK_CONST_METHOD0(getParentID, int32_t());
+		MOCK_METHOD(int32_t, getParentID, (), (const, override));
 
-		MOCK_CONST_METHOD0(getName, const core::UTF8String&());
+		MOCK_METHOD(const core::UTF8String&, getName, (), (const, override));
 
-		MOCK_CONST_METHOD0(getStartTime, int64_t());
+		MOCK_METHOD(int64_t, getStartTime, (), (const, override));
 
-		MOCK_CONST_METHOD0(getEndTime, int64_t());
+		MOCK_METHOD(int64_t, getEndTime, (), (const, override));
 
-		MOCK_CONST_METHOD0(getStartSequenceNumber, int32_t());
+		MOCK_METHOD(int32_t, getStartSequenceNumber, (), (const, override));
 
-		MOCK_CONST_METHOD0(getEndSequenceNumber, int32_t());
+		MOCK_METHOD(int32_t, getEndSequenceNumber, (), (const, override));
 
-		MOCK_METHOD1(onChildClosed,
-			void(
+		MOCK_METHOD(
+			void,
+			onChildClosed,
+			(
 				std::shared_ptr<core::objects::IOpenKitObject>
-			)
+			),
+			(override)
 		);
 
-		MOCK_CONST_METHOD0(toString, const std::string());
+		MOCK_METHOD(const std::string, toString, (), (const, override));
 	};
 }
 

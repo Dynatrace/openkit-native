@@ -70,43 +70,43 @@ namespace test
 			return std::make_shared<testing::StrictMock<MockIOpenKitBuilder>>();
 		}
 
-		MOCK_CONST_METHOD0(getOpenKitType, const std::string&());
+		MOCK_METHOD(const std::string&, getOpenKitType, (), (const, override));
 
-		MOCK_CONST_METHOD0(getApplicationID, const std::string&());
+		MOCK_METHOD(const std::string&, getApplicationID, (), (const, override));
 
-		MOCK_CONST_METHOD0(getApplicationName, const std::string&());
+		MOCK_METHOD(const std::string&, getApplicationName, (), (const, override));
 
-		MOCK_CONST_METHOD0(getDefaultServerID, int32_t());
+		MOCK_METHOD(int32_t, getDefaultServerID, (), (const, override));
 
-		MOCK_CONST_METHOD0(getApplicationVersion, const std::string&());
+		MOCK_METHOD(const std::string&, getApplicationVersion, (), (const, override));
 
-		MOCK_CONST_METHOD0(getOperatingSystem, const std::string&());
+		MOCK_METHOD(const std::string&, getOperatingSystem, (), (const, override));
 
-		MOCK_CONST_METHOD0(getManufacturer, const std::string&());
+		MOCK_METHOD(const std::string&, getManufacturer, (), (const, override));
 
-		MOCK_CONST_METHOD0(getModelID, const std::string&());
+		MOCK_METHOD(const std::string&, getModelID, (), (const, override));
 
-		MOCK_CONST_METHOD0(getEndpointURL, const std::string&());
+		MOCK_METHOD(const std::string&, getEndpointURL, (), (const, override));
 
-		MOCK_CONST_METHOD0(getDeviceID, int64_t());
+		MOCK_METHOD(int64_t, getDeviceID, (), (const, override));
 
-		MOCK_CONST_METHOD0(getOrigDeviceID, const std::string&());
+		MOCK_METHOD(const std::string&, getOrigDeviceID, (), (const, override));
 
-		MOCK_CONST_METHOD0(getTrustManager, std::shared_ptr<openkit::ISSLTrustManager>());
+		MOCK_METHOD(std::shared_ptr<openkit::ISSLTrustManager>, getTrustManager, (), (const, override));
 
-		MOCK_CONST_METHOD0(getBeaconCacheMaxRecordAge, int64_t());
+		MOCK_METHOD(int64_t, getBeaconCacheMaxRecordAge, (), (const, override));
 
-		MOCK_CONST_METHOD0(getBeaconCacheLowerMemoryBoundary, int64_t());
+		MOCK_METHOD(int64_t, getBeaconCacheLowerMemoryBoundary, (), (const, override));
 
-		MOCK_CONST_METHOD0(getBeaconCacheUpperMemoryBoundary, int64_t());
+		MOCK_METHOD(int64_t, getBeaconCacheUpperMemoryBoundary, (), (const, override));
 
-		MOCK_CONST_METHOD0(getDataCollectionLevel, openkit::DataCollectionLevel());
+		MOCK_METHOD(openkit::DataCollectionLevel, getDataCollectionLevel, (), (const, override));
 
-		MOCK_CONST_METHOD0(getCrashReportingLevel, openkit::CrashReportingLevel());
+		MOCK_METHOD(openkit::CrashReportingLevel, getCrashReportingLevel, (), (const, override));
 
-		MOCK_CONST_METHOD0(getLogLevel, openkit::LogLevel());
+		MOCK_METHOD(openkit::LogLevel, getLogLevel, (), (const, override));
 
-		MOCK_CONST_METHOD0(getLogger, std::shared_ptr<openkit::ILogger>());
+		MOCK_METHOD(std::shared_ptr<openkit::ILogger>, getLogger, (), (const, override));
 	};
 }
 

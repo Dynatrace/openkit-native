@@ -42,35 +42,47 @@ namespace test
 			return std::make_shared<testing::StrictMock<MockISessionWatchdogContext>>();
 		}
 
-		MOCK_METHOD0(execute, void());
+		MOCK_METHOD(void, execute, (), (override));
 
-		MOCK_METHOD0(requestShutdown, void());
+		MOCK_METHOD(void, requestShutdown, (), (override));
 
-		MOCK_METHOD0(isShutdownRequested, bool());
+		MOCK_METHOD(bool, isShutdownRequested, (), (override));
 
-		MOCK_METHOD2(closeOrEnqueueForClosing,
-			void(
+		MOCK_METHOD(
+			void,
+			closeOrEnqueueForClosing,
+			(
 				std::shared_ptr<core::objects::SessionInternals>, /* session */
 				int64_t /* closeGracePeriodInMillis */
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD1(dequeueFromClosing,
-			void(
+		MOCK_METHOD(
+			void,
+			dequeueFromClosing,
+			(
 				std::shared_ptr<core::objects::SessionInternals> /* session */
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD1(addToSplitByTimeout,
-			void(
+		MOCK_METHOD(
+			void,
+			addToSplitByTimeout,
+			(
 				std::shared_ptr<core::objects::ISessionProxy> /* sessionProxy */
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD1(removeFromSplitByTimeout,
-			void(
+		MOCK_METHOD(
+			void,
+			removeFromSplitByTimeout,
+			(
 				std::shared_ptr<core::objects::ISessionProxy> /* sessionProxy */
-			)
+			),
+			(override)
 		);
 	};
 }

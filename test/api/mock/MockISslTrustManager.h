@@ -43,7 +43,7 @@ namespace test
 			return std::make_shared<testing::StrictMock<MockISslTrustManager>>();
 		}
 
-		MOCK_METHOD1(applyTrustManager, void(CURL*));
+		MOCK_METHOD(void, applyTrustManager, (CURL*), (override));
 	};
 }
 

@@ -64,29 +64,29 @@ namespace test
 			return std::make_shared<testing::StrictMock<MockIPrivacyConfiguration>>();
 		}
 
-		MOCK_CONST_METHOD0(getDataCollectionLevel, openkit::DataCollectionLevel());
+		MOCK_METHOD(openkit::DataCollectionLevel, getDataCollectionLevel, (), (const, override));
 
-		MOCK_CONST_METHOD0(getCrashReportingLevel, openkit::CrashReportingLevel());
+		MOCK_METHOD(openkit::CrashReportingLevel, getCrashReportingLevel, (), (const, override));
 
-		MOCK_CONST_METHOD0(isDeviceIdSendingAllowed, bool());
+		MOCK_METHOD(bool, isDeviceIdSendingAllowed, (), (const, override));
 
-		MOCK_CONST_METHOD0(isSessionNumberReportingAllowed, bool());
+		MOCK_METHOD(bool, isSessionNumberReportingAllowed, (), (const, override));
 
-		MOCK_CONST_METHOD0(isWebRequestTracingAllowed, bool());
+		MOCK_METHOD(bool, isWebRequestTracingAllowed, (), (const, override));
 
-		MOCK_CONST_METHOD0(isSessionReportingAllowed, bool());
+		MOCK_METHOD(bool, isSessionReportingAllowed, (), (const, override));
 
-		MOCK_CONST_METHOD0(isActionReportingAllowed, bool());
+		MOCK_METHOD(bool, isActionReportingAllowed, (), (const, override));
 
-		MOCK_CONST_METHOD0(isValueReportingAllowed, bool());
+		MOCK_METHOD(bool, isValueReportingAllowed, (), (const, override));
 
-		MOCK_CONST_METHOD0(isEventReportingAllowed, bool());
+		MOCK_METHOD(bool, isEventReportingAllowed, (), (const, override));
 
-		MOCK_CONST_METHOD0(isErrorReportingAllowed, bool());
+		MOCK_METHOD(bool, isErrorReportingAllowed, (), (const, override));
 
-		MOCK_CONST_METHOD0(isCrashReportingAllowed, bool());
+		MOCK_METHOD(bool, isCrashReportingAllowed, (), (const, override));
 
-		MOCK_CONST_METHOD0(isUserIdentificationAllowed, bool());
+		MOCK_METHOD(bool, isUserIdentificationAllowed, (), (const, override));
 	};
 }
 

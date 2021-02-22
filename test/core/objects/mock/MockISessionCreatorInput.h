@@ -62,21 +62,21 @@ namespace test
 			return std::make_shared<testing::StrictMock<MockISessionCreatorInput>>();
 		}
 
-		MOCK_METHOD0(getLogger, std::shared_ptr<openkit::ILogger>());
+		MOCK_METHOD(std::shared_ptr<openkit::ILogger>, getLogger, (), (override));
 
-		MOCK_METHOD0(getOpenKitConfiguration, std::shared_ptr<core::configuration::IOpenKitConfiguration>());
+		MOCK_METHOD(std::shared_ptr<core::configuration::IOpenKitConfiguration>, getOpenKitConfiguration, (), (override));
 
-		MOCK_METHOD0(getPrivacyConfiguration, std::shared_ptr<core::configuration::IPrivacyConfiguration>());
+		MOCK_METHOD(std::shared_ptr<core::configuration::IPrivacyConfiguration>, getPrivacyConfiguration, (), (override));
 
-		MOCK_METHOD0(getBeaconCache, std::shared_ptr<core::caching::IBeaconCache>());
+		MOCK_METHOD(std::shared_ptr<core::caching::IBeaconCache>, getBeaconCache, (), (override));
 
-		MOCK_METHOD0(getSessionIdProvider, std::shared_ptr<providers::ISessionIDProvider>());
+		MOCK_METHOD(std::shared_ptr<providers::ISessionIDProvider>, getSessionIdProvider, (), (override));
 
-		MOCK_METHOD0(getThreadIdProvider, std::shared_ptr<providers::IThreadIDProvider>());
+		MOCK_METHOD(std::shared_ptr<providers::IThreadIDProvider>, getThreadIdProvider, (), (override));
 
-		MOCK_METHOD0(getTimingProvider, std::shared_ptr<providers::ITimingProvider>());
+		MOCK_METHOD(std::shared_ptr<providers::ITimingProvider>, getTimingProvider, (), (override));
 		
-		MOCK_METHOD0(getCurrentServerId, int32_t());
+		MOCK_METHOD(int32_t, getCurrentServerId, (), (override));
 	};
 }
 

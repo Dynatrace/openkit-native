@@ -23,10 +23,10 @@ namespace test
 	class MockResettableReader : public util::json::reader::IResettableReader
 	{
 	public:
-		MOCK_METHOD0(read, int32_t());
+		MOCK_METHOD(int32_t, read, (), (override));
 
-		MOCK_METHOD1(mark, void(int32_t lookAheadLimit));
+		MOCK_METHOD(void, mark, (int32_t), (override));
 
-		MOCK_METHOD0(reset, void());
+		MOCK_METHOD(void, reset, (), (override));
 	};
 }

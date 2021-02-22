@@ -57,13 +57,13 @@ namespace test
 			return std::make_shared<testing::StrictMock<MockIHTTPClientConfiguration>>();
 		}
 
-		MOCK_CONST_METHOD0(getBaseURL, const core::UTF8String&());
+		MOCK_METHOD(const core::UTF8String& , getBaseURL, (), (const, override));
 
-		MOCK_CONST_METHOD0(getServerID, int32_t());
+		MOCK_METHOD(int32_t, getServerID, (), (const, override));
 
-		MOCK_CONST_METHOD0(getApplicationID, const core::UTF8String&());
+		MOCK_METHOD(const core::UTF8String& , getApplicationID, (), (const, override));
 
-		MOCK_CONST_METHOD0(getSSLTrustManager, std::shared_ptr<openkit::ISSLTrustManager>());
+		MOCK_METHOD(std::shared_ptr<openkit::ISSLTrustManager>, getSSLTrustManager, (), (const, override));
 	};
 }
 

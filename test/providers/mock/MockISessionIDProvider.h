@@ -46,7 +46,7 @@ namespace test {
 			return std::make_shared<testing::StrictMock<MockISessionIDProvider>>();
 		}
 
-		MOCK_METHOD0(getNextSessionID, int32_t());
+		MOCK_METHOD(int32_t, getNextSessionID, (), (override));
 
 	};
 }

@@ -45,89 +45,123 @@ namespace test
 			return std::make_shared<testing::StrictMock<MockIBeaconCache>>();
 		}
 
-		MOCK_METHOD1(addObserver,
-			void(
-				core::caching::IObserver*
-			)
-		);
+		MOCK_METHOD(void, addObserver, (core::caching::IObserver*), (override));
 
-		MOCK_METHOD3(addEventData,
-			void(
+		MOCK_METHOD(
+			void,
+			addEventData,
+			(
 				const core::caching::BeaconKey&,
 				int64_t,
 				const core::UTF8String&
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD3(addActionData,
-			void(
+		MOCK_METHOD(
+			void,
+			addActionData,
+			(
 				const core::caching::BeaconKey&,
 				int64_t,
 				const core::UTF8String&
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD1(deleteCacheEntry,
-			void(
+		MOCK_METHOD(
+			void,
+			deleteCacheEntry,
+			(
 				const core::caching::BeaconKey&
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD1(prepareDataForSending,
-			void(
+		MOCK_METHOD(
+			void,
+			prepareDataForSending,
+			(
 				const core::caching::BeaconKey&
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD1(hasDataForSending,
-			bool(
+		MOCK_METHOD(
+			bool,
+			hasDataForSending,
+			(
 				const core::caching::BeaconKey&
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD4(getNextBeaconChunk,
-			const core::UTF8String(
+		MOCK_METHOD(
+			const core::UTF8String,
+			getNextBeaconChunk,
+			(
 				const core::caching::BeaconKey&,
 				const core::UTF8String&,
 				int32_t,
 				const core::UTF8String&
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD1(removeChunkedData,
-			void(
+		MOCK_METHOD(
+			void,
+			removeChunkedData,
+			(
 				const core::caching::BeaconKey&
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD1(resetChunkedData,
-			void(
+		MOCK_METHOD(
+			void,
+			resetChunkedData,
+			(
 				const core::caching::BeaconKey&
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD0(getBeaconKeys, const std::unordered_set<core::caching::BeaconKey, core::caching::BeaconKey::Hash>());
+		MOCK_METHOD(
+			(const std::unordered_set<core::caching::BeaconKey, core::caching::BeaconKey::Hash>),
+			getBeaconKeys,
+			(),
+			(override)
+		);
 
-		MOCK_METHOD2(evictRecordsByAge,
-			uint32_t(
+		MOCK_METHOD(
+			uint32_t,
+			evictRecordsByAge,
+			(
 				const core::caching::BeaconKey&,
 				int64_t
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD2(evictRecordsByNumber,
-			uint32_t(
+		MOCK_METHOD(
+			uint32_t,
+			evictRecordsByNumber,
+			(
 				const core::caching::BeaconKey&,
 				uint32_t
-			)
+			),
+			(override)
 		);
 
-		MOCK_CONST_METHOD0(getNumBytesInCache, int64_t());
+		MOCK_METHOD(int64_t, getNumBytesInCache, (), (const, override));
 
-		MOCK_METHOD1(isEmpty,
-			bool(
+		MOCK_METHOD(
+			bool,
+			isEmpty,
+			(
 				const core::caching::BeaconKey&
-			)
+			),
+			(override)
 		);
 	};
 }

@@ -54,44 +54,50 @@ namespace test
 			return std::make_shared<testing::StrictMock<MockIResponseAttributes>>();
 		}
 
-		MOCK_CONST_METHOD0(getMaxBeaconSizeInBytes, int32_t());
+		MOCK_METHOD(int32_t, getMaxBeaconSizeInBytes, (), (const, override));
 
-		MOCK_CONST_METHOD0(getMaxSessionDurationInMilliseconds, int32_t());
+		MOCK_METHOD(int32_t, getMaxSessionDurationInMilliseconds, (), (const, override));
 
-		MOCK_CONST_METHOD0(getMaxEventsPerSession, int32_t());
+		MOCK_METHOD(int32_t, getMaxEventsPerSession, (), (const, override));
 
-		MOCK_CONST_METHOD0(getSessionTimeoutInMilliseconds, int32_t());
+		MOCK_METHOD(int32_t, getSessionTimeoutInMilliseconds, (), (const, override));
 
-		MOCK_CONST_METHOD0(getSendIntervalInMilliseconds, int32_t());
+		MOCK_METHOD(int32_t, getSendIntervalInMilliseconds, (), (const, override));
 
-		MOCK_CONST_METHOD0(getVisitStoreVersion, int32_t());
+		MOCK_METHOD(int32_t, getVisitStoreVersion, (), (const, override));
 
-		MOCK_CONST_METHOD0(isCapture, bool());
+		MOCK_METHOD(bool, isCapture, (), (const, override));
 
-		MOCK_CONST_METHOD0(isCaptureCrashes, bool());
+		MOCK_METHOD(bool, isCaptureCrashes, (), (const, override));
 
-		MOCK_CONST_METHOD0(isCaptureErrors, bool());
+		MOCK_METHOD(bool, isCaptureErrors, (), (const, override));
 
-		MOCK_CONST_METHOD0(getApplicationId, const core::UTF8String&());
+		MOCK_METHOD(const core::UTF8String& , getApplicationId, (), (const, override));
 		
-		MOCK_CONST_METHOD0(getMultiplicity, int32_t());
+		MOCK_METHOD(int32_t, getMultiplicity, (), (const, override));
 
-		MOCK_CONST_METHOD0(getServerId, int32_t());
+		MOCK_METHOD(int32_t, getServerId, (), (const, override));
 
-		MOCK_CONST_METHOD0(getStatus, const core::UTF8String& ());
+		MOCK_METHOD(const core::UTF8String&, getStatus, (), (const, override));
 
-		MOCK_CONST_METHOD0(getTimestampInMilliseconds, int64_t());
+		MOCK_METHOD(int64_t, getTimestampInMilliseconds, (), (const, override));
 
-		MOCK_CONST_METHOD1(isAttributeSet,
-			bool (
+		MOCK_METHOD(
+			bool,
+			isAttributeSet,
+			(
 				protocol::ResponseAttribute /* attribute */
-			)
+			), 
+			(const, override)
 		);
 
-		MOCK_CONST_METHOD1(merge,
-			std::shared_ptr<protocol::IResponseAttributes>(
+		MOCK_METHOD(
+			std::shared_ptr<protocol::IResponseAttributes>,
+			merge,
+			(
 				std::shared_ptr<protocol::IResponseAttributes> /* attributes */
-			)
+			), 
+			(const, override)
 		);
 	};
 }

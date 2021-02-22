@@ -43,7 +43,7 @@ namespace test
 			return std::make_shared<testing::StrictMock<MockIOpenKitObject>>();
 		}
 
-		MOCK_METHOD0(close, void());
+		MOCK_METHOD(void, close, (), (override));
 	};
 
 }

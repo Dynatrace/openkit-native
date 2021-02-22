@@ -41,43 +41,58 @@ namespace test
 			return std::make_shared<testing::StrictMock<MockISessionProxy>>();
 		}
 
-		MOCK_METHOD1(enterAction,
-			std::shared_ptr<openkit::IRootAction>(
+		MOCK_METHOD(
+			std::shared_ptr<openkit::IRootAction>,
+			enterAction,
+			(
 				const char* // actionName
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD1(identifyUser,
-			void(
+		MOCK_METHOD(
+			void,
+			identifyUser,
+			(
 				const char* //userTag
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD3(reportCrash,
-			void(
+		MOCK_METHOD(
+			void,
+			reportCrash,
+			(
 				const char*, // errorName
 				const char*, // reason
 				const char*  //stacktrace
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD1(traceWebRequest,
-			std::shared_ptr<openkit::IWebRequestTracer>(
+		MOCK_METHOD(
+			std::shared_ptr<openkit::IWebRequestTracer>,
+			traceWebRequest,
+			(
 				const char* // url
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD0(end, void());
+		MOCK_METHOD(void, end, (), (override));
 
-		MOCK_METHOD0(isFinished, bool());
+		MOCK_METHOD(bool, isFinished, (), (override));
 
-		MOCK_METHOD1(onServerConfigurationUpdate,
-			void(
+		MOCK_METHOD(
+			void,
+			onServerConfigurationUpdate,
+			(
 				std::shared_ptr<core::configuration::IServerConfiguration> //serverConfig
-			) 
+			),
+			(override)
 		);
 
-		MOCK_METHOD0(splitSessionByTime, int64_t());
+		MOCK_METHOD(int64_t, splitSessionByTime, (), (override));
 	};
 }
 

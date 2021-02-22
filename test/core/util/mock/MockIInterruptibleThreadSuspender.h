@@ -42,9 +42,9 @@ namespace test
 			return std::make_shared<testing::StrictMock<MockIInterruptibleThreadSuspender>>();
 		}
 
-		MOCK_METHOD1(sleep, void(int64_t));
+		MOCK_METHOD(void, sleep, (int64_t), (override));
 
-		MOCK_METHOD0(wakeup, void());
+		MOCK_METHOD(void, wakeup, (), (override));
 	};
 }
 

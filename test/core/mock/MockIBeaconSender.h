@@ -43,29 +43,21 @@ namespace test
 			return std::make_shared<testing::StrictMock<MockIBeaconSender>>();
 		}
 
-		MOCK_METHOD0(initialize, bool());
+		MOCK_METHOD(bool, initialize, (), (override));
 
-		MOCK_CONST_METHOD0(waitForInit, bool());
+		MOCK_METHOD(bool, waitForInit, (), (const, override));
 
-		MOCK_CONST_METHOD1(waitForInit,
-			bool(
-				int64_t /* timeoutMillis */
-			)
-		);
+		MOCK_METHOD(bool, waitForInit, (int64_t), (const, override));
 
-		MOCK_CONST_METHOD0(isInitialized, bool());
+		MOCK_METHOD(bool, isInitialized, (), (const, override));
 
-		MOCK_METHOD0(shutdown, void());
+		MOCK_METHOD(void, shutdown, (), (override));
 
-		MOCK_METHOD0(getLastServerConfiguration, std::shared_ptr<core::configuration::IServerConfiguration>());
+		MOCK_METHOD(std::shared_ptr<core::configuration::IServerConfiguration>, getLastServerConfiguration, (), (override));
 
-		MOCK_CONST_METHOD0(getCurrentServerID, int32_t());
+		MOCK_METHOD(int32_t, getCurrentServerID, (), (const, override));
 
-		MOCK_METHOD1(addSession,
-			void(
-				std::shared_ptr<core::objects::SessionInternals> /* session */
-			)
-		);
+		MOCK_METHOD(void, addSession, (std::shared_ptr<core::objects::SessionInternals>), (override));
 	};
 }
 #endif

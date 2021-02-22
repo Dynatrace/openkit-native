@@ -46,7 +46,7 @@ namespace test {
 			return std::make_shared<testing::StrictMock<MockITimingProvider>>();
 		}
 
-		MOCK_METHOD0(provideTimestampInMilliseconds, int64_t());
+		MOCK_METHOD(int64_t, provideTimestampInMilliseconds, (), (override));
 	};
 }
 

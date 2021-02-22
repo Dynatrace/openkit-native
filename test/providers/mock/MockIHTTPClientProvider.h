@@ -52,10 +52,11 @@ namespace test {
 			return std::make_shared<testing::StrictMock<MockIHTTPClientProvider>>();
 		}
 
-		MOCK_METHOD1(createClient,
-			std::shared_ptr<protocol::IHTTPClient>(
-				std::shared_ptr<core::configuration::IHTTPClientConfiguration>
-			)
+		MOCK_METHOD(
+			std::shared_ptr<protocol::IHTTPClient>,
+			createClient,
+			(std::shared_ptr<core::configuration::IHTTPClientConfiguration>),
+			(override)
 		);
 	};
 }

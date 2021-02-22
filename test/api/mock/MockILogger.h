@@ -63,7 +63,7 @@ namespace test
 			mockLog(formatted);
 		}
 
-		MOCK_METHOD1(mockLog, void(std::string));
+		MOCK_METHOD(void, mockLog, (std::string));
 
 
 		void error(const char* format, ...) override
@@ -74,7 +74,7 @@ namespace test
 			mockError(formatted);
 		}
 
-		MOCK_METHOD1(mockError, void(std::string));
+		MOCK_METHOD(void, mockError, (std::string));
 
 
 		void warning(const char* format, ...) override
@@ -85,7 +85,7 @@ namespace test
 			mockWarning(formatted);
 		}
 
-		MOCK_METHOD1(mockWarning, void(std::string));
+		MOCK_METHOD(void, mockWarning, (std::string));
 
 		void info(const char* format, ...) override
 		{
@@ -95,7 +95,7 @@ namespace test
 			mockInfo(formatted);
 		}
 
-		MOCK_METHOD1(mockInfo, void(std::string));
+		MOCK_METHOD(void, mockInfo, (std::string));
 
 
 		void debug(const char* format, ...) override
@@ -106,15 +106,15 @@ namespace test
 			mockDebug(formatted);
 		};
 
-		MOCK_METHOD1(mockDebug, void(std::string));
+		MOCK_METHOD(void, mockDebug, (std::string));
 
-		MOCK_CONST_METHOD0(isErrorEnabled, bool());
+		MOCK_METHOD(bool, isErrorEnabled, (), (const, override));
 
-		MOCK_CONST_METHOD0(isInfoEnabled, bool());
+		MOCK_METHOD(bool, isInfoEnabled, (), (const, override));
 
-		MOCK_CONST_METHOD0(isWarningEnabled, bool());
+		MOCK_METHOD(bool, isWarningEnabled, (), (const, override));
 
-		MOCK_CONST_METHOD0(isDebugEnabled, bool());
+		MOCK_METHOD(bool, isDebugEnabled, (), (const, override));
 
 	private:
 

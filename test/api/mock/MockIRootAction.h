@@ -44,61 +44,39 @@ namespace test
 			return std::make_shared<testing::StrictMock<MockIRootAction>>();
 		}
 
-		MOCK_METHOD1(enterAction,
-			std::shared_ptr<openkit::IAction>(
-				const char*
-			)
+		MOCK_METHOD(
+			std::shared_ptr<openkit::IAction>, enterAction, (const char*),  (override)
 		);
 
-		MOCK_METHOD1(reportEvent,
-			std::shared_ptr<openkit::IRootAction>(
-				const char*
-			)
+		MOCK_METHOD(
+			std::shared_ptr<openkit::IRootAction>, reportEvent, (const char*), (override)
 		);
 
-		MOCK_METHOD2(reportValue,
-			std::shared_ptr<openkit::IRootAction>(
-				const char*,
-				int32_t
-			)
+		MOCK_METHOD(
+			std::shared_ptr<openkit::IRootAction>, reportValue, (const char*, int32_t), (override)
 		);
 
-		MOCK_METHOD2(reportValue,
-			std::shared_ptr<openkit::IRootAction>(
-				const char*,
-				int64_t
-			)
+		MOCK_METHOD(
+			std::shared_ptr<openkit::IRootAction>, reportValue, (const char*, int64_t), (override)
 		);
 
-		MOCK_METHOD2(reportValue,
-			std::shared_ptr<openkit::IRootAction>(
-				const char*,
-				double
-			)
+		MOCK_METHOD(
+			std::shared_ptr<openkit::IRootAction>, reportValue, (const char*, double), (override)
 		);
 
-		MOCK_METHOD2(reportValue,
-			std::shared_ptr<openkit::IRootAction>(
-				const char*,
-				const char*
-			)
+		MOCK_METHOD(
+			std::shared_ptr<openkit::IRootAction>, reportValue, (const char*, const char*), (override)
 		);
 
-		MOCK_METHOD3(reportError,
-			std::shared_ptr<openkit::IRootAction>(
-				const char*,
-				int32_t,
-				const char*
-			)
+		MOCK_METHOD(
+			std::shared_ptr<openkit::IRootAction>, reportError, (const char*, int32_t, const char*), (override)
 		);
 
-		MOCK_METHOD1(traceWebRequest,
-			std::shared_ptr<openkit::IWebRequestTracer>(
-				const char*
-			)
+		MOCK_METHOD(
+			std::shared_ptr<openkit::IWebRequestTracer>, traceWebRequest, (const char*), (override)
 		);
 
-		MOCK_METHOD0(leaveAction, void());
+		MOCK_METHOD(void, leaveAction, (), (override));
 	};
 }
 

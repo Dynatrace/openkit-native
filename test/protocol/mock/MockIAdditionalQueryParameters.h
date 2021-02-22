@@ -42,7 +42,7 @@ namespace test
 			return std::make_shared<testing::StrictMock<MockIAdditionalQueryParameters>>();
 		}
 
-		MOCK_CONST_METHOD0(getConfigurationTimestamp, int64_t());
+		MOCK_METHOD(int64_t, getConfigurationTimestamp, (), (const, override));
 	};
 }
 

@@ -71,31 +71,31 @@ namespace test
 			return std::make_shared<testing::StrictMock<MockIOpenKitConfiguration>>();
 		}
 
-		MOCK_CONST_METHOD0(getEndpointUrl, const core::UTF8String&());
+		MOCK_METHOD(const core::UTF8String&, getEndpointUrl, (), (const, override));
 
-		MOCK_CONST_METHOD0(getDeviceId, int64_t());
+		MOCK_METHOD(int64_t, getDeviceId, (), (const, override));
 
-		MOCK_CONST_METHOD0(getOrigDeviceId, const core::UTF8String&());
+		MOCK_METHOD(const core::UTF8String&, getOrigDeviceId, (), (const, override));
 
-		MOCK_CONST_METHOD0(getOpenKitType, const std::string&());
+		MOCK_METHOD(const std::string&, getOpenKitType, (), (const, override));
 
-		MOCK_CONST_METHOD0(getApplicationId, const core::UTF8String&());
+		MOCK_METHOD(const core::UTF8String&, getApplicationId, (), (const, override));
 
-		MOCK_CONST_METHOD0(getApplicationIdPercentEncoded, const core::UTF8String&());
+		MOCK_METHOD(const core::UTF8String&, getApplicationIdPercentEncoded, (), (const, override));
 
-		MOCK_CONST_METHOD0(getApplicationName, const core::UTF8String&());
+		MOCK_METHOD(const core::UTF8String&, getApplicationName, (), (const, override));
 
-		MOCK_CONST_METHOD0(getApplicationVersion, const core::UTF8String&());
+		MOCK_METHOD(const core::UTF8String&, getApplicationVersion, (), (const, override));
 
-		MOCK_CONST_METHOD0(getOperatingSystem, const core::UTF8String&());
+		MOCK_METHOD(const core::UTF8String&, getOperatingSystem, (), (const, override));
 
-		MOCK_CONST_METHOD0(getManufacturer, const core::UTF8String&());
+		MOCK_METHOD(const core::UTF8String&, getManufacturer, (), (const, override));
 
-		MOCK_CONST_METHOD0(getModelId, const core::UTF8String&());
+		MOCK_METHOD(const core::UTF8String&, getModelId, (), (const, override));
 
-		MOCK_CONST_METHOD0(getDefaultServerId, int32_t());
+		MOCK_METHOD(int32_t, getDefaultServerId, (), (const, override));
 
-		MOCK_CONST_METHOD0(getTrustManager, std::shared_ptr<openkit::ISSLTrustManager>());
+		MOCK_METHOD(std::shared_ptr<openkit::ISSLTrustManager>, getTrustManager, (), (const, override));
 	};
 }
 

@@ -60,144 +60,172 @@ namespace test
 			return std::make_shared<testing::StrictMock<MockIBeacon>>();
 		}
 
-		MOCK_METHOD0(createSequenceNumber, int32_t());
+		MOCK_METHOD(int32_t, createSequenceNumber, (), (override));
 
-		MOCK_CONST_METHOD0(getCurrentTimestamp, int64_t());
+		MOCK_METHOD(int64_t, getCurrentTimestamp, (), (const, override));
 
-		MOCK_CONST_METHOD0(getSessionStartTime, int64_t());
+		MOCK_METHOD(int64_t, getSessionStartTime, (), (const, override));
 
-		MOCK_METHOD0(createID, int32_t());
+		MOCK_METHOD(int32_t, createID, (), (override));
 
-		MOCK_METHOD2(createTag,
-			core::UTF8String(
+		MOCK_METHOD(
+			core::UTF8String,
+			createTag,
+			(
 				int32_t, /* actionID */
 				int32_t /* sequenceNumber */
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD1(addAction,
-			void(
-				std::shared_ptr<core::objects::IActionCommon>
-			)
-		);
+		MOCK_METHOD(void, addAction, (std::shared_ptr<core::objects::IActionCommon>), (override));
 
-		MOCK_METHOD0(startSession, void());
+		MOCK_METHOD(void, startSession, (), (override));
 
-		MOCK_METHOD0(endSession, void());
+		MOCK_METHOD(void, endSession, (), (override));
 
-		MOCK_METHOD3(reportValue,
-			void(
+		MOCK_METHOD(
+			void,
+			reportValue,
+			(
 				int32_t, /* actionID */
 				const core::UTF8String&, /* valueName */
 				int32_t /* value */
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD3(reportValue,
-			void(
+		MOCK_METHOD(
+			void,
+			reportValue,
+			(
 				int32_t, /* actionID */
 				const core::UTF8String&, /* valueName */
 				int64_t /* value */
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD3(reportValue,
-			void(
+		MOCK_METHOD(
+			void,
+			reportValue,
+			(
 				int32_t, /* actionID */
 				const core::UTF8String&, /* valueName */
 				double /* value */
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD3(reportValue,
-			void(
+		MOCK_METHOD(
+			void,
+			reportValue,
+			(
 				int32_t, /* actionID */
 				const core::UTF8String&, /* valueName */
 				const core::UTF8String& /* value */
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD2(reportEvent,
-			void(
+		MOCK_METHOD(
+			void,
+			reportEvent,
+			(
 				int32_t, /* actionID */
 				const core::UTF8String& /* eventName */
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD4(reportError,
-			void(
+		MOCK_METHOD(
+			void,
+			reportError,
+			(
 				int32_t, /* actionID */
 				const core::UTF8String&, /* errorName */
 				int32_t, /* errorCode */
 				const core::UTF8String& /* reason */
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD3(reportCrash,
-			void(
+		MOCK_METHOD(
+			void,
+			reportCrash,
+			(
 				const core::UTF8String&, /* errorName */
 				const core::UTF8String&, /* reason */
 				const core::UTF8String& /* stacktrace */
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD2(addWebRequest,
-			void(
+		MOCK_METHOD(
+			void,
+			addWebRequest,
+			(
 				int32_t, /* parentActionID */
 				std::shared_ptr<core::objects::IWebRequestTracerInternals> /* webRequestTracer */
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD1(identifyUser,
-			void(
-				const core::UTF8String& /* userTag */
-			)
-		);
+		MOCK_METHOD(void, identifyUser, (const core::UTF8String& /* userTag */), (override));
 
-		MOCK_METHOD2(send,
-			std::shared_ptr<protocol::IStatusResponse>(
+		MOCK_METHOD(
+			std::shared_ptr<protocol::IStatusResponse>,
+			send,
+			(
 				std::shared_ptr<providers::IHTTPClientProvider>, /* clientProvider */
 				const protocol::IAdditionalQueryParameters& /* additionalParameters */
-			)
+			),
+			(override)
 		);
 
-		MOCK_CONST_METHOD0(isEmpty, bool());
+		MOCK_METHOD(bool, isEmpty, (), (const, override));
 
-		MOCK_METHOD0(clearData, void());
+		MOCK_METHOD(void, clearData, (), (override));
 
-		MOCK_CONST_METHOD0(getSessionNumber, int32_t());
+		MOCK_METHOD(int32_t, getSessionNumber, (), (const, override));
 
-		MOCK_CONST_METHOD0(getSessionSequenceNumber, int32_t());
+		MOCK_METHOD(int32_t, getSessionSequenceNumber, (), (const, override));
 
-		MOCK_CONST_METHOD0(getDeviceID, int64_t());
+		MOCK_METHOD(int64_t, getDeviceID, (), (const, override));
 
-		MOCK_CONST_METHOD0(useClientIPAddress, bool());
+		MOCK_METHOD(bool, useClientIPAddress, (), (const, override));
 
-		MOCK_CONST_METHOD0(getClientIPAddress, core::UTF8String&());
-
-		MOCK_METHOD1(initializeServerConfiguration,
-			void(
+		MOCK_METHOD(core::UTF8String&, getClientIPAddress, (), (const, override));
+		
+		MOCK_METHOD(
+			void,
+			initializeServerConfiguration,
+			(
 				std::shared_ptr<core::configuration::IServerConfiguration> /* serverConfiguration */
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD1(updateServerConfiguration,
-			void(
+		MOCK_METHOD(
+			void,
+			updateServerConfiguration,
+			(
 				std::shared_ptr<core::configuration::IServerConfiguration> /* serverConfig */
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD0(isServerConfigurationSet, bool());
+		MOCK_METHOD(bool, isServerConfigurationSet, (), (override));
 
-		MOCK_METHOD0(isActionReportingAllowedByPrivacySettings, bool());
+		MOCK_METHOD(bool, isActionReportingAllowedByPrivacySettings, (), (override));
 
-		MOCK_METHOD0(isDataCapturingEnabled, bool());
+		MOCK_METHOD(bool, isDataCapturingEnabled, (), (override));
 
-		MOCK_METHOD0(enableCapture, void());
+		MOCK_METHOD(void, enableCapture, (), (override));
 
-		MOCK_METHOD0(disableCapture, void());
+		MOCK_METHOD(void, disableCapture, (), (override));
 
-		MOCK_METHOD1(setServerConfigurationUpdateCallback, void(core::configuration::ServerConfigurationUpdateCallback));
+		MOCK_METHOD(void, setServerConfigurationUpdateCallback, (core::configuration::ServerConfigurationUpdateCallback), (override));
 	};
 }
 #endif

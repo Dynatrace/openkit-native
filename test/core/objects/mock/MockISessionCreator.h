@@ -43,10 +43,14 @@ namespace test
 		}
 
 
-		MOCK_METHOD1(createSession, std::shared_ptr<core::objects::SessionInternals>(
-			std::shared_ptr<core::objects::IOpenKitComposite> parent));
+		MOCK_METHOD(
+			std::shared_ptr<core::objects::SessionInternals>,
+			createSession,
+			(std::shared_ptr<core::objects::IOpenKitComposite> parent),
+			(override)
+		);
 
-		MOCK_METHOD0(reset, void());
+		MOCK_METHOD(void, reset, (), (override));
 	};
 }
 

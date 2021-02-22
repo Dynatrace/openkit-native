@@ -44,7 +44,7 @@ namespace test
 			return std::make_shared<testing::StrictMock<MockIObserver>>();
 		}
 
-		MOCK_METHOD0(update, void());
+		MOCK_METHOD(void, update, (), (override));
 	};
 }
 #endif

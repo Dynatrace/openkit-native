@@ -43,17 +43,13 @@ namespace test
 			return std::make_shared<testing::StrictMock<MockIBeaconCacheEvictor>>();
 		}
 
-		MOCK_METHOD0(isAlive, bool());
+		MOCK_METHOD(bool, isAlive, (), (override));
 
-		MOCK_METHOD0(start, bool());
+		MOCK_METHOD(bool, start, (), (override));
 
-		MOCK_METHOD0(stop, bool());
+		MOCK_METHOD(bool, stop, (), (override));
 
-		MOCK_METHOD1(stop,
-			bool(
-				std::chrono::milliseconds
-			)
-		);
+		MOCK_METHOD(bool, stop, (std::chrono::milliseconds), (override));
 	};
 }
 #endif

@@ -60,17 +60,17 @@ namespace test
 			return std::make_shared<testing::StrictMock<MockIStatusResponse>>();
 		}
 
-		MOCK_CONST_METHOD0(isErroneousResponse, bool());
+		MOCK_METHOD(bool, isErroneousResponse, (), (const, override));
 
-		MOCK_CONST_METHOD0(isTooManyRequestsResponse, bool());
+		MOCK_METHOD(bool, isTooManyRequestsResponse, (), (const, override));
 
-		MOCK_CONST_METHOD0(getResponseCode, int32_t());
+		MOCK_METHOD(int32_t, getResponseCode, (), (const, override));
 
-		MOCK_CONST_METHOD0(getResponseHeaders, protocol::IStatusResponse::ResponseHeaders&());
+		MOCK_METHOD(protocol::IStatusResponse::ResponseHeaders& , getResponseHeaders, (), (const, override));
 
-		MOCK_CONST_METHOD0(getRetryAfterInMilliseconds, int64_t());
+		MOCK_METHOD(int64_t, getRetryAfterInMilliseconds, (), (const, override));
 
-		MOCK_CONST_METHOD0(getResponseAttributes, std::shared_ptr<protocol::IResponseAttributes>());
+		MOCK_METHOD(std::shared_ptr<protocol::IResponseAttributes>, getResponseAttributes, (), (const, override));
 	};
 }
 

@@ -44,7 +44,7 @@ namespace test
 			return std::make_shared<testing::StrictMock<MockIThreadIDProvider>>();
 		}
 
-		MOCK_METHOD0(getThreadID, int32_t());
+		MOCK_METHOD(int32_t, getThreadID, (), (override));
 	};
 }
 

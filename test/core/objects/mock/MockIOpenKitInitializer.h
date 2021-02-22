@@ -39,25 +39,25 @@ namespace test
 			return std::make_shared<testing::StrictMock<MockIOpenKitInitializer>>();
 		}
 
-		MOCK_CONST_METHOD0(getLogger, std::shared_ptr<openkit::ILogger>());
+		MOCK_METHOD(std::shared_ptr<openkit::ILogger>, getLogger, (), (const, override));
 
-		MOCK_CONST_METHOD0(getPrivacyConfiguration, std::shared_ptr<core::configuration::IPrivacyConfiguration>());
+		MOCK_METHOD(std::shared_ptr<core::configuration::IPrivacyConfiguration>, getPrivacyConfiguration, (), (const, override));
 
-		MOCK_CONST_METHOD0(getOpenKitConfiguration, std::shared_ptr<core::configuration::IOpenKitConfiguration>());
+		MOCK_METHOD(std::shared_ptr<core::configuration::IOpenKitConfiguration>, getOpenKitConfiguration, (), (const, override));
 
-		MOCK_CONST_METHOD0(getTimingProvider, std::shared_ptr<providers::ITimingProvider>());
+		MOCK_METHOD(std::shared_ptr<providers::ITimingProvider>, getTimingProvider, (), (const, override));
 
-		MOCK_CONST_METHOD0(getThreadIdProvider, std::shared_ptr<providers::IThreadIDProvider>());
+		MOCK_METHOD(std::shared_ptr<providers::IThreadIDProvider>, getThreadIdProvider, (), (const, override));
 
-		MOCK_CONST_METHOD0(getSessionIdProvider, std::shared_ptr<providers::ISessionIDProvider>());
+		MOCK_METHOD(std::shared_ptr<providers::ISessionIDProvider>, getSessionIdProvider, (), (const, override));
 
-		MOCK_CONST_METHOD0(getBeaconCache, std::shared_ptr<core::caching::IBeaconCache>());
+		MOCK_METHOD(std::shared_ptr<core::caching::IBeaconCache>, getBeaconCache, (), (const, override));
 
-		MOCK_CONST_METHOD0(getBeaconCacheEvictor, std::shared_ptr<core::caching::IBeaconCacheEvictor>());
+		MOCK_METHOD(std::shared_ptr<core::caching::IBeaconCacheEvictor>, getBeaconCacheEvictor, (), (const, override));
 
-		MOCK_CONST_METHOD0(getBeaconSender, std::shared_ptr<core::IBeaconSender>());
+		MOCK_METHOD(std::shared_ptr<core::IBeaconSender>, getBeaconSender, (), (const, override));
 
-		MOCK_CONST_METHOD0(getSessionWatchdog, std::shared_ptr<core::ISessionWatchdog>());
+		MOCK_METHOD(std::shared_ptr<core::ISessionWatchdog>, getSessionWatchdog, (), (const, override));
 	};
 }
 

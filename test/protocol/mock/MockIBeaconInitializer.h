@@ -39,23 +39,23 @@ namespace test
 			return std::make_shared<testing::StrictMock<MockIBeaconInitializer>>();
 		}
 
-		MOCK_CONST_METHOD0(getLogger, std::shared_ptr<openkit::ILogger>());
+		MOCK_METHOD(std::shared_ptr<openkit::ILogger>, getLogger, (), (const, override));
 
-		MOCK_CONST_METHOD0(getBeaconCache, std::shared_ptr<core::caching::IBeaconCache>());
+		MOCK_METHOD(std::shared_ptr<core::caching::IBeaconCache>, getBeaconCache, (), (const, override));
 
-		MOCK_CONST_METHOD0(useClientIpAddress, bool());
+		MOCK_METHOD(bool, useClientIpAddress, (), (const, override));
 
-		MOCK_CONST_METHOD0(getClientIpAddress, const core::UTF8String& ());
+		MOCK_METHOD(const core::UTF8String&, getClientIpAddress, (), (const, override));
 
-		MOCK_CONST_METHOD0(getSessionIdProvider, std::shared_ptr<providers::ISessionIDProvider>());
+		MOCK_METHOD(std::shared_ptr<providers::ISessionIDProvider>, getSessionIdProvider, (), (const, override));
 
-		MOCK_CONST_METHOD0(getSessionSequenceNumber, int32_t());
+		MOCK_METHOD(int32_t, getSessionSequenceNumber, (), (const, override));
 
-		MOCK_CONST_METHOD0(getThreadIdProvider, std::shared_ptr<providers::IThreadIDProvider>());
+		MOCK_METHOD(std::shared_ptr<providers::IThreadIDProvider>, getThreadIdProvider, (), (const, override));
 
-		MOCK_CONST_METHOD0(getTiminigProvider, std::shared_ptr<providers::ITimingProvider>());
+		MOCK_METHOD(std::shared_ptr<providers::ITimingProvider>, getTiminigProvider, (), (const, override));
 
-		MOCK_CONST_METHOD0(getRandomNumberGenerator, std::shared_ptr<providers::IPRNGenerator>());
+		MOCK_METHOD(std::shared_ptr<providers::IPRNGenerator>, getRandomNumberGenerator, (), (const, override));
 	};
 }
 

@@ -53,11 +53,11 @@ namespace test
 			return std::make_shared<testing::StrictMock<MockIBeaconCacheConfiguration>>();
 		}
 
-		MOCK_CONST_METHOD0(getMaxRecordAge, int64_t());
+		MOCK_METHOD(int64_t, getMaxRecordAge, (), (const, override));
 
-		MOCK_CONST_METHOD0(getCacheSizeLowerBound, int64_t());
+		MOCK_METHOD(int64_t, getCacheSizeLowerBound, (), (const, override));
 
-		MOCK_CONST_METHOD0(getCacheSizeUpperBound, int64_t());
+		MOCK_METHOD(int64_t, getCacheSizeUpperBound, (), (const, override));
 	};
 }
 

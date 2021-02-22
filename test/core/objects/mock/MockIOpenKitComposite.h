@@ -43,31 +43,40 @@ class MockIOpenKitComposite : public core::objects::IOpenKitComposite
 			return std::make_shared<testing::StrictMock<MockIOpenKitComposite>>();
 		}
 
-		MOCK_METHOD1(storeChildInList,
-			void(
+		MOCK_METHOD(
+			void,
+			storeChildInList,
+			(
 				std::shared_ptr<core::objects::IOpenKitObject>
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD1(removeChildFromList,
-			void(
+		MOCK_METHOD(
+			void,
+			removeChildFromList,
+			(
 				std::shared_ptr<core::objects::IOpenKitObject>
-			)
+			),
+			(override)
 		);
 
-		MOCK_METHOD0(getCopyOfChildObjects, ChildList());
+		MOCK_METHOD(ChildList, getCopyOfChildObjects, (), (override));
 
-		MOCK_METHOD0(getChildCount, ChildList::size_type());
+		MOCK_METHOD(ChildList::size_type, getChildCount, (), (override));
 
-		MOCK_METHOD1(onChildClosed,
-			void(
+		MOCK_METHOD(
+			void,
+			onChildClosed,
+			(
 				const std::shared_ptr<core::objects::IOpenKitObject>
-			)
+			),
+			(override)
 		);
 
-		MOCK_CONST_METHOD0(getActionId, int32_t());
+		MOCK_METHOD(int32_t, getActionId, (), (const, override));
 
-		MOCK_METHOD0(close, void());
+		MOCK_METHOD(void, close, (), (override));
 	};
 }
 
