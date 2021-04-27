@@ -22,7 +22,6 @@
 using namespace protocol;
 
 static constexpr char HTTP_HEADER_LINE_KEY_VALUE_SEPARATOR = ':';
-static constexpr char HTTP_HEADER_LINE_VALUE_SEPARATOR = ',';
 
 HTTPResponseParser::HTTPResponseParser()
 	: mResponseHeaders()

@@ -162,5 +162,5 @@ const std::string JsonToken::tokenTypeToString(JsonTokenType tokeType)
 			return ":";
 	}
 
-	throw JsonLexerException("Unknown token type " + static_cast<std::underlying_type<JsonTokenType>::type>(tokeType));
+	throw JsonLexerException(std::string("Unknown token type ") + std::to_string(static_cast<std::underlying_type<JsonTokenType>::type>(tokeType)));
 }

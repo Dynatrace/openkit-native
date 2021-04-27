@@ -55,9 +55,6 @@ using SessionBuilder_sp = std::shared_ptr<TestSessionBuilder>;
 using Utf8String_t = core::UTF8String;
 using WebRequestTracer_t = core::objects::WebRequestTracer;
 
-constexpr const char* APP_ID = "appID";
-constexpr const char* APP_NAME = "appName";
-
 class SessionTest : public testing::Test
 {
 protected:

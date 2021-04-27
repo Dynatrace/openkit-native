@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#ifndef _PROTOCOL_MOCK__MOCKIRESPONSEATTRIBUTES_H
+#ifndef _PROTOCOL_MOCK_MOCKIRESPONSEATTRIBUTES_H
 #define _PROTOCOL_MOCK_MOCKIRESPONSEATTRIBUTES_H
 
 #include "protocol/IResponseAttributes.h"

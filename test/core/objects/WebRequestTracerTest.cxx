@@ -39,8 +39,6 @@ using WebRequestTracer_sp = std::shared_ptr<WebRequestTracer_t>;
 using WebRequestTracerBuilder_sp = std::shared_ptr<TestWebRequestTracerBuilder>;
 using Utf8String_t = core::UTF8String;
 
-static constexpr const char* APP_ID = "appID";
-static constexpr const char* APP_NAME = "appName";
 static constexpr const char* TAG = "THE_TAG";
 
 class WebRequestTracerTest : public testing::Test

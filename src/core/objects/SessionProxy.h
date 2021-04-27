@@ -80,7 +80,7 @@ namespace core
 
 			void end() override;
 
-			bool isFinished();
+			bool isFinished() override;
 
 			void close() override;
 

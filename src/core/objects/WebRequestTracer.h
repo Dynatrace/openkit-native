@@ -99,7 +99,7 @@ namespace core
 			OPENKIT_DEPRECATED
 			void stop() override;
 
-			void stop(int32_t responseCode);
+			void stop(int32_t responseCode) override;
 
 			void close() override;
 
