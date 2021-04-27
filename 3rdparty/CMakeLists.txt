@@ -26,18 +26,21 @@ fix_compiler_flags(USE_DEFAULT_WARNINGS_FLAGS)
 ######
 # zlib
 add_subdirectory(zlib-1.2.11)
+set_target_properties(zlib
+    PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+set_target_properties(zlibstatic
+    PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 
 ######
 # libcurl
 set(BUILD_CURL_EXE OFF CACHE BOOL "Set to ON to build curl executable.")
-if (BUILD_SHARED_LIBS AND NOT OPENKIT_MONOLITHIC_SHARED_LIB)
-    # if developer builds shared libs, but does not want monolithic OpenKit
-	# then libCurl is also build as shared library
-	set(CURL_STATICLIB OFF CACHE BOOL "Set to ON to build libcurl with static linking.")
-else()
-    # either BUILD_SHARED_LIBS is disabled or OPENKIT_MONOLITHIC_SHARED_LIB is enabled
-	set(CURL_STATICLIB ON CACHE BOOL "Set to ON to build libcurl with static linking.")
-endif()
+set(CURL_DISABLE_TESTS OFF CACHE BOOL "Disable building cURL tests.")
 if(MSVC)
 	if (OPENKIT_FORCE_SHARED_CRT OR (OPENKIT_MONOLITHIC_SHARED_LIB AND NOT OPENKIT_FORCE_STATIC_CRT))
 		set(CURL_STATIC_CRT OFF CACHE BOOL "Set to ON to build libcurl with static CRT on Windows (/MT).")
@@ -51,21 +54,33 @@ set(CMAKE_USE_LIBSSH2 OFF CACHE BOOL "Use libSSH2")
 set(CURL_ZLIB ON CACHE BOOL "Set to ON to enable building curl with zlib support.")
 if(WIN32)
     # on Windows use Windows native SSL/TLS implementation
-	set(CMAKE_USE_WINSSL ON CACHE BOOL "enable Windows native SSL/TLS")
-	set(CMAKE_USE_DARWINSSL OFF CACHE BOOL "enable Apple OS native SSL/TLS")
+	set(CMAKE_USE_SCHANNEL ON CACHE BOOL "enable Windows native SSL/TLS")
+	set(CMAKE_USE_SECTRANSP OFF CACHE BOOL "enable Apple OS native SSL/TLS")
 	set(CMAKE_USE_OPENSSL OFF CACHE BOOL "Use OpenSSL code. Experimental")
 elseif(APPLE)
 	# on Darwin OS (OS X/iOS/...) use their native SSL/TLS implementation
-	set(CMAKE_USE_WINSSL OFF CACHE BOOL "enable Windows native SSL/TLS")
-	set(CMAKE_USE_DARWINSSL ON CACHE BOOL "enable Apple OS native SSL/TLS")
+	set(CMAKE_USE_SCHANNEL OFF CACHE BOOL "enable Windows native SSL/TLS")
+	set(CMAKE_USE_SECTRANSP ON CACHE BOOL "enable Apple OS native SSL/TLS")
 	set(CMAKE_USE_OPENSSL OFF CACHE BOOL "Use OpenSSL code. Experimental")
 else()
 	# on all other OS fall back to OpenSSL
-	set(CMAKE_USE_WINSSL OFF CACHE BOOL "enable Windows native SSL/TLS")
-	set(CMAKE_USE_DARWINSSL OFF CACHE BOOL "enable Apple OS native SSL/TLS")
+	set(CMAKE_USE_SCHANNEL OFF CACHE BOOL "enable Windows native SSL/TLS")
+	set(CMAKE_USE_SECTRANSP OFF CACHE BOOL "enable Apple OS native SSL/TLS")
 	set(CMAKE_USE_OPENSSL ON CACHE BOOL "Use OpenSSL code. Experimental")
 endif()
-add_subdirectory(curl-7.59.0)
+
+set(BUILD_SHARED_LIBS_SAVED "${BUILD_SHARED_LIBS}")
+if (NOT BUILD_SHARED_LIBS OR OPENKIT_MONOLITHIC_SHARED_LIB)
+    set(BUILD_SHARED_LIBS OFF)
+endif()
+add_subdirectory(curl-7.75.0)
+set(BUILD_SHARED_LIBS "${BUILD_SHARED_LIBS_SAVED}")
+
+set_target_properties(libcurl
+    PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 
 ######
 # google test & google mock
@@ -95,4 +110,3 @@ set_target_properties(uninstall PROPERTIES FOLDER 3rdparty/libcurl)
 set_target_properties(minigzip PROPERTIES FOLDER 3rdparty/zlib)
 set_target_properties(zlib PROPERTIES FOLDER 3rdparty/zlib)
 set_target_properties(zlibstatic PROPERTIES FOLDER 3rdparty/zlib)
-

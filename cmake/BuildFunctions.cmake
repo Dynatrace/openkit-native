@@ -202,7 +202,6 @@ function(open_kit_build_shared_library name includedirs libs)
     add_library(${name} SHARED ${ARGN})
     
     _open_kit_build("${name}" "${includedirs}" "${libs}")
-	set_property(TARGET ${name} PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 endfunction()
 
@@ -229,6 +228,13 @@ function(open_kit_build_library name includedirs libs)
     else ()
         open_kit_build_static_library("${name}" "${includedirs}" "${libs}" ${ARGN})
     endif ()
+
+    # in previous version of curl this was set on "global" level to all libs except zlib
+    # To avoid breaking name changes, we'll keep the -d suffix on OpenKit libs for debug builds
+    set_target_properties(${name}
+	    PROPERTIES
+        DEBUG_POSTFIX "-d"
+    )
 
 endfunction()
 
@@ -265,7 +271,7 @@ function(open_kit_build_test name includedirs libs)
     message(INFO " Configuring test '${name}' (INCLUDEDIRS=${includedirs}; LIBS=${libs}")
     add_executable(${name} ${ARGN})
 
-	set (test_libs ${libs} gtest gmock gmock_main)
+	set (test_libs ${libs} gmock_main)
 
 	target_include_directories(${name} SYSTEM PRIVATE ${gtest_SOURCE_DIR}/include)
 	target_include_directories(${name} SYSTEM PRIVATE ${gmock_SOURCE_DIR}/include)
