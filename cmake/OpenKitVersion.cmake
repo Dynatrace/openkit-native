@@ -37,12 +37,9 @@ string(REGEX REPLACE "^([0-9]+)\\.([0-9]+)\\.([0-9]+).*$" "\\1" OPENKIT_MAJOR_VE
 string(REGEX REPLACE "^([0-9]+)\\.([0-9]+)\\.([0-9]+).*$" "\\2" OPENKIT_MINOR_VERSION "${VERSION_STRING}")
 string(REGEX REPLACE "^([0-9]+)\\.([0-9]+)\\.([0-9]+).*$" "\\3" OPENKIT_BUGFIX_VERSION "${VERSION_STRING}")
 
-if (NOT ("$ENV{TRAVIS_BUILD_NUMBER}" STREQUAL ""))
-  # take build number from Travis CI
-  set (OPENKIT_BUILD_VERSION $ENV{TRAVIS_BUILD_NUMBER})
-elseif (NOT ("$ENV{APPVEYOR_BUILD_NUMBER}" STREQUAL ""))
-  # take build number from AppVeyor
-  set (OPENKIT_BUILD_VERSION $ENV{APPVEYOR_BUILD_NUMBER})
+if (NOT ("$ENV{JENKINS_URL}" STREQUAL ""))
+  # take build number from Jenkins
+  set (OPENKIT_BUILD_VERSION $ENV{BUILD_NUMBER})
 else ()
   # manual build or unknown CI
   set (OPENKIT_BUILD_VERSION 0)

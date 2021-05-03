@@ -19,7 +19,8 @@
 
 #include "OpenKit_export.h"
 
-#include "curl/curl.h"
+// copy typedef from curl.h so that we don't need the transitive dependency
+typedef void CURL;
 
 namespace openkit
 {

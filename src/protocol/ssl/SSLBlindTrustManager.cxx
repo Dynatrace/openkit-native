@@ -16,6 +16,8 @@
 
 #include "protocol/ssl/SSLBlindTrustManager.h"
 
+#include <curl/curl.h>
+
 #include <iostream>
 
 using namespace protocol;

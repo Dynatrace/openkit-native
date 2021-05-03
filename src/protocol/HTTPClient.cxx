@@ -25,6 +25,8 @@
 #include "protocol/StatusResponse.h"
 #include "protocol/ssl/SSLStrictTrustManager.h"
 
+#include <curl/curl.h>
+
 #include <cstdint>
 #include <chrono>
 #include <thread>
@@ -51,7 +53,6 @@ HTTPClient::HTTPClient
 )
 	: mLogger(logger)
 	, mThreadSuspender(threadSuspender)
-	, mCurl(nullptr)
 	, mServerID(configuration->getServerID())
 	, mMonitorURL()
 	, mReadBuffer()
@@ -207,9 +208,9 @@ std::shared_ptr<IStatusResponse> HTTPClient::sendRequestInternal(HTTPClient::Req
 	}
 
 	// init the curl session - get the curl handle
-	mCurl = curl_easy_init();
+	auto curl = curl_easy_init();
 
-	if (!mCurl)
+	if (!curl)
 	{
 		// Abort and cleanup if CURL cannot be initialized
 		mLogger->error("HTTPClient sendRequestInternal() - curl_easy_init() failed");
@@ -221,21 +222,21 @@ std::shared_ptr<IStatusResponse> HTTPClient::sendRequestInternal(HTTPClient::Req
 	do
 	{
 		// Set the connection parameters (URL, timeouts, etc.)
-		curl_easy_setopt(mCurl, CURLOPT_URL, url.getStringData().c_str());
-		curl_easy_setopt(mCurl, CURLOPT_CONNECTTIMEOUT, CONNECT_TIMEOUT);
-		curl_easy_setopt(mCurl, CURLOPT_TIMEOUT, READ_TIMEOUT);
+		curl_easy_setopt(curl, CURLOPT_URL, url.getStringData().c_str());
+		curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, CONNECT_TIMEOUT);
+		curl_easy_setopt(curl, CURLOPT_TIMEOUT, READ_TIMEOUT);
 		// allow servers to send compressed data
-		curl_easy_setopt(mCurl, CURLOPT_ACCEPT_ENCODING, "");
+		curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "");
 		// SSL/TSL certificate handling
-		mSSLTrustManager->applyTrustManager(mCurl);
+		mSSLTrustManager->applyTrustManager(curl);
 
 		HTTPResponseParser responseParser;
 		// To retrieve the response headers
-		curl_easy_setopt(mCurl, CURLOPT_HEADERFUNCTION, headerFunction);
-		curl_easy_setopt(mCurl, CURLOPT_HEADERDATA, &responseParser);
+		curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, headerFunction);
+		curl_easy_setopt(curl, CURLOPT_HEADERDATA, &responseParser);
 		// To retrieve the response
-		curl_easy_setopt(mCurl, CURLOPT_WRITEFUNCTION, writeFunction);
-		curl_easy_setopt(mCurl, CURLOPT_WRITEDATA, &responseParser);
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeFunction);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &responseParser);
 
 
 		// Set the custom HTTP header with the client IP address, if provided
@@ -250,7 +251,7 @@ std::shared_ptr<IStatusResponse> HTTPClient::sendRequestInternal(HTTPClient::Req
 		if (method == HttpMethod::POST)
 		{
 			// Do a regular HTTP post
-			curl_easy_setopt(mCurl, CURLOPT_POST, 1L);
+			curl_easy_setopt(curl, CURLOPT_POST, 1L);
 
 			if (!beaconData.empty())
 			{
@@ -262,24 +263,24 @@ std::shared_ptr<IStatusResponse> HTTPClient::sendRequestInternal(HTTPClient::Req
 				// Data to send is compressed => Compress the data
 				Compressor::compressMemory(beaconData.getStringData().c_str(), beaconData.getStringLength(), mReadBuffer);
 				mReadBufferPos = 0;
-				curl_easy_setopt(mCurl, CURLOPT_READFUNCTION, readFunction);
-				curl_easy_setopt(mCurl, CURLOPT_READDATA, this);
-				curl_easy_setopt(mCurl, CURLOPT_POSTFIELDSIZE, mReadBuffer.size());
+				curl_easy_setopt(curl, CURLOPT_READFUNCTION, readFunction);
+				curl_easy_setopt(curl, CURLOPT_READDATA, this);
+				curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, mReadBuffer.size());
 				list = curl_slist_append(list, "Content-Encoding: gzip");
 			}
 		}
 
 		if (list != nullptr)
 		{
-			curl_easy_setopt(mCurl, CURLOPT_HTTPHEADER, list);
+			curl_easy_setopt(curl, CURLOPT_HTTPHEADER, list);
 		}
 
 		// Perform the request, res will get the return code
-		CURLcode response = curl_easy_perform(mCurl);
+		CURLcode response = curl_easy_perform(curl);
 		if (response == CURLE_OK)
 		{
 			// To retrieve the HTTP response code
-			curl_easy_getinfo(mCurl, CURLINFO_RESPONSE_CODE, &httpCode);
+			curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
 		}
 		else
 		{
@@ -296,8 +297,8 @@ std::shared_ptr<IStatusResponse> HTTPClient::sendRequestInternal(HTTPClient::Req
 
 		if (response == CURLE_OK)
 		{
-			curl_easy_cleanup(mCurl);
-			mCurl = nullptr;
+			curl_easy_cleanup(curl);
+			curl = nullptr;
 
 			// Check for success or error
 			return handleResponse(requestType, httpCode, responseParser.getResponseBody(), responseParser.getResponseHeaders());
@@ -307,16 +308,16 @@ std::shared_ptr<IStatusResponse> HTTPClient::sendRequestInternal(HTTPClient::Req
 			// For CURL related errors, we retry. Note that HTTP status codes >= 400 are returned with CURLE_OK.
 			retryCount++;
 			mThreadSuspender->sleep(RETRY_SLEEP_TIME);
-			curl_easy_reset(mCurl);
+			curl_easy_reset(curl);
 		}
 
 	} while (retryCount < MAX_SEND_RETRIES);
 
 	// Cleanup
-	if (mCurl != nullptr)
+	if (curl != nullptr)
 	{
-		curl_easy_cleanup(mCurl);
-		mCurl = nullptr;
+		curl_easy_cleanup(curl);
+		curl = nullptr;
 	}
 
 	return HTTPClient::unknownErrorResponse(requestType);

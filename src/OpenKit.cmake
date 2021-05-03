@@ -356,12 +356,7 @@ macro(_generate_open_kit_version_rc)
 
     # setup RC internal values
     set(FILE_TYPE "VFT_DLL")
-    if (NOT ("$ENV{TRAVIS}" STREQUAL "")           # Travis CI
-        OR NOT ("$ENV{APPVEYOR}" STREQUAL ""))     # AppVeyor
-        set(ADDITIONAL_FILE_FLAGS "0L")
-    else ()
-        set(ADDITIONAL_FILE_FLAGS "VS_FF_PRERELEASE|VS_FF_PRIVATEBUILD")
-    endif ()
+    set(ADDITIONAL_FILE_FLAGS "0L")
 
     # setup version, Copyright and such ...
     set (PRODUCT_VERSION "${OPENKIT_MAJOR_VERSION},${OPENKIT_MINOR_VERSION},${OPENKIT_BUGFIX_VERSION},${OPENKIT_BUILD_VERSION}")
@@ -382,23 +377,37 @@ endmacro()
 ##
 # Function to build the OpenKit target
 function(build_open_kit)
-    message("Configuring OpenKit ... ")
 
-    find_package(ZLIB)
-    find_package(CURL)
+    set(LIB_NAME OpenKit)
 
-    set(OPENKIT_INCLUDE_DIRS
-        ${ZLIB_INCLUDE_DIR}
-        ${CURL_INCLUDE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/src
-        ${CMAKE_BINARY_DIR}/include
-    )
+    # parse function arguments
+    if ("${CMAKE_VERSION}" VERSION_LESS "3.5")
+        # required for cmake_parse_arguments macro
+        # Starting from 3.5 that macro is included natively
+        include(CMakeParseArguments)
+    endif()
 
-    set(OPENKIT_LIBS
-        ${ZLIB_LIBRARY}
-        ${CURL_LIBRARY}
-    )
+    set(OPTIONS BUILD_FOR_TEST)
+    set(SINGLE_VAL_ARGS TEST_LIB_NAME)
+    cmake_parse_arguments(OPENKIT "${OPTIONS}" "${SINGLE_VAL_ARGS}" "" ${ARGN})
+
+    if (NOT DEFINED OPENKIT_BUILD_FOR_TEST)
+        # disable build for test if not defined
+        set(OPENKIT_BUILD_FOR_TEST OFF)
+    endif ()
+
+    # set lib name if not passed as function argument
+    if (OPENKIT_BUILD_FOR_TEST)
+        set(LIB_NAME ${OPENKIT_TEST_LIB_NAME})
+        # overwrite BUILD_SHARED_LIBS in the scope of this function
+        # when building OpenKit for unit tests
+        set(BUILD_SHARED_LIBS OFF)
+    endif ()
+    
+    message("Configuring ${LIB_NAME} ... ")
+
+    # find direct dependencies
+    find_package(ZLIB) # required for alias target ZLIB::ZLIB
 
     include(CompilerConfiguration)
     include(BuildFunctions)
@@ -412,54 +421,79 @@ function(build_open_kit)
         set (OPENKIT_LIB_SOURCES ${OPENKIT_LIB_SOURCES} ${VERSION_RC_OUTPUT})
     endif()
 
-    open_kit_build_library(OpenKit "${OPENKIT_INCLUDE_DIRS}" "${OPENKIT_LIBS}" ${OPENKIT_LIB_SOURCES})
+    # add dependent libraries (also exposes include directories)
+    open_kit_add_library(${LIB_NAME} ${OPENKIT_LIB_SOURCES})
 
-    # enforce usage of C++11 for OpenKit
-    enforce_cxx11_standard(OpenKit)
+    # add library dependencies
+    target_link_libraries(${LIB_NAME} PRIVATE ZLIB::ZLIB CURL::libcurl)
+
+    target_include_directories(${LIB_NAME}
+        PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}/src
+        PUBLIC
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+            $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+            $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include/${LIB_NAME}>
+    )
+
+    # in previous version of OpenKit this was set on "global" level to all libs except zlib
+    # To avoid breaking name changes, we'll keep the -d suffix on OpenKit libs for debug builds
+    set_target_properties(${LIB_NAME}
+	    PROPERTIES
+        DEBUG_POSTFIX "-d"
+    )
+    
+    # make PDBs match library name
+    get_target_property(pdb_debug_postfix ${LIB_NAME} DEBUG_POSTFIX)
+    set_target_properties(${name}
+        PROPERTIES
+        PDB_NAME "${LIB_NAME}"
+        PDB_NAME_DEBUG "${LIB_NAME}${pdb_debug_postfix}"
+        COMPILE_PDB_NAME "${LIB_NAME}"
+        COMPILE_PDB_NAME_DEBUG "${LIB_NAME}${pdb_debug_postfix}")
+        
 
     # add special processor flag when building OpenKit as static library
     if(NOT BUILD_SHARED_LIBS)
         # For a static library we set the compiler flag OPENKIT_STATIC_DEFINE
-        target_compile_definitions(OpenKit PRIVATE -DOPENKIT_STATIC_DEFINE)
+        target_compile_definitions(${LIB_NAME} PUBLIC -DOPENKIT_STATIC_DEFINE)
     endif()
 
     # add version & soversion target properties
     if (BUILD_SHARED_LIBS AND NOT MSVC)
-        target_compile_options(OpenKit PUBLIC -Wno-attributes)
-        set_target_properties(OpenKit PROPERTIES
+        target_compile_options(${LIB_NAME} PUBLIC -Wno-attributes)
+        set_target_properties(${LIB_NAME} PROPERTIES
                               VERSION "${OPENKIT_MAJOR_VERSION}.${OPENKIT_MINOR_VERSION}.${OPENKIT_BUGFIX_VERSION}.${OPENKIT_BUILD_VERSION}"
                               SOVERSION "${OPENKIT_MAJOR_VERSION}")
     endif ()
 
-    # add special preprocessor flag when curl is used as static library
-    if (NOT BUILD_SHARED_LIBS OR OPENKIT_MONOLITHIC_SHARED_LIB)
-        target_compile_definitions(OpenKit PRIVATE -DCURL_STATICLIB)
-    endif()
+    # if not building for test
+    if (NOT OPENKIT_BUILD_FOR_TEST)
+        # generate export header
+        include(GenerateExportHeader)
+        generate_export_header(${LIB_NAME}
+            BASE_NAME OPENKIT
+            EXPORT_MACRO_NAME OPENKIT_EXPORT
+            EXPORT_FILE_NAME ${CMAKE_BINARY_DIR}/include/OpenKit_export.h
+            STATIC_DEFINE OPENKIT_STATIC_DEFINE
+        )
 
-    # generate export header
-    include(GenerateExportHeader)
-    generate_export_header(OpenKit
-        BASE_NAME OpenKit
-        EXPORT_MACRO_NAME OPENKIT_EXPORT
-        EXPORT_FILE_NAME ${CMAKE_BINARY_DIR}/include/OpenKit_export.h
-        STATIC_DEFINE OPENKIT_STATIC_DEFINE
-    )
-
-    # Add a make target "install". If called (e.g. with "make install") this installs the library files
-    install(TARGETS OpenKit
-        ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
-        LIBRARY DESTINATION "${INSTALL_LIB_DIR}"
-        RUNTIME DESTINATION "${INSTALL_BIN_DIR}"
-    )
-    # This installs the public header files and the export.h file
-    install(FILES
-        ${PUBLIC_HEADERS}
-        ${CMAKE_BINARY_DIR}/include/OpenKit_export.h
-        ${CMAKE_BINARY_DIR}/include/OpenKitVersion.h
-        DESTINATION "${INSTALL_INC_DIR}"
-    )
-
-    set_target_properties(OpenKit PROPERTIES FOLDER Lib)
+        # Add a make target "install". If called (e.g. with "make install") this installs the library files
+        install(TARGETS ${LIB_NAME}
+            ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
+            LIBRARY DESTINATION "${INSTALL_LIB_DIR}"
+            RUNTIME DESTINATION "${INSTALL_BIN_DIR}"
+        )
+        # This installs the public header files and the export.h file
+        install(FILES
+            ${PUBLIC_HEADERS}
+            ${CMAKE_BINARY_DIR}/include/OpenKit_export.h
+            ${CMAKE_BINARY_DIR}/include/OpenKitVersion.h
+            DESTINATION "${INSTALL_INC_DIR}"
+        )
+    endif ()
+    
+    set_target_properties(${LIB_NAME} PROPERTIES FOLDER Lib)
     source_group("Header Files\\API - C" FILES ${OPENKIT_PUBLIC_HEADERS_C_API})
     source_group("Source Files\\API - C" FILES ${OPENKIT_SOURCES_C_API})
     source_group("Header Files\\API - C++" FILES ${OPENKIT_PUBLIC_HEADERS_CXX_API})

@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # Ensure appropriate CMake version
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.4.0)
 
 # CMake specific policies
 if(POLICY CMP0054)
@@ -24,7 +24,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # limit configurations to Debug & Release builds only
 # and enable CTest
-set (CMAKE_CONFIGURATION_TYPES Debug Release CACHE TYPE INTERNAL FORCE)
+set (CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE TYPE INTERNAL FORCE)
 
 # project setup
 project(OpenKit 

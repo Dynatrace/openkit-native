@@ -85,11 +85,18 @@ set_target_properties(libcurl
 ######
 # google test & google mock
 if(OPENKIT_BUILD_TESTS)
+    # enforce same shared CRT settings as for OpenKit
 	if(BUILD_SHARED_LIBS OR OPENKIT_FORCE_SHARED_CRT)
 		set(gtest_force_shared_crt ON CACHE BOOL "Set to ON to build googletest with static CRT on Windows (/MT)." FORCE)
 	else ()
 		set(gtest_force_shared_crt OFF CACHE BOOL "Set to ON to build googletest with static CRT on Windows (/MT)." FORCE)
 	endif()
+
+	# enforce building gmock, which includes gtest as well
+	set(BUILD_GMOCK ON CACHE BOOL "Builds the googlemock subproject" FORCE)
+
+	# disable installation of Google test
+	set(INSTALL_GTEST OFF CACHE BOOL "Enable installation of googletest. (Projects embedding googletest may want to turn this OFF.)" FORCE)
 	
 	# build googletest always as static library
 	# by temporarily turning of the BUILD_SHARED_LIBS

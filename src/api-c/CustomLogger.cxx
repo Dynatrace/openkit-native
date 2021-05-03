@@ -16,6 +16,8 @@
 
 #include "CustomLogger.h"
 
+#include <cstdio>
+
 using namespace apic;
 
 CustomLogger::CustomLogger(levelEnabledFunc levelEnabledFunc, logFunc logFunc)

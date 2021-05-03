@@ -18,15 +18,6 @@ if (NOT OPENKIT_BUILD_TESTS)
     return()
 endif ()
 
-set(SOURCES_TO_TEST)
-if(BUILD_SHARED_LIBS)
-    # The unit tests don't test the public OpenKit-API, but instead they test the OpenKit internal functions.
-    # If the OpenKit is built as a shared library, we don't want to export all (internal) symbols.
-    # Therefore, for the target "unittests", the sources are directly accessed and compiled.
-    # This is done by making the list of sources available here and creating the releative path with prepend.
-    set(SOURCES_TO_TEST ${OPENKIT_SOURCES})
-endif()
-
 set(OPENKIT_SOURCES_TEST
     ${CMAKE_CURRENT_LIST_DIR}/DefaultValues.cxx
     ${CMAKE_CURRENT_LIST_DIR}/DefaultValues.h
@@ -217,69 +208,52 @@ include(CompilerConfiguration)
 fix_compiler_flags()
 
 function(build_open_kit_tests)
-    message("Configuring OpenKit  tests... ")
 
-    find_package(ZLIB)
-    find_package(CURL)
+    set (TEST_NAME OpenKitTest)
 
-    set(OPENKIT_TEST_INCLUDE_DIRS
-        ${ZLIB_INCLUDE_DIR}
-        ${CURL_INCLUDE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/src
-        ${CMAKE_BINARY_DIR}/include
-    )
-
-    set(OPENKIT_TEST_LIBS
-        ${ZLIB_LIBRARY}
-        ${CURL_LIBRARY}
-    )
+    message("Configuring ${TEST_NAME} ... ")
 
     include(CompilerConfiguration)
     include(BuildFunctions)
+    
+    # add OpenKitTest target
+    open_kit_add_test(${TEST_NAME} ${OPENKIT_SOURCES_UNITTEST})
 
+    SET(OPENKIT_LIB OpenKit)
     if (BUILD_SHARED_LIBS)
-        ## device under test:
-        ## build OpenKit sources as seperate static library when OpenKit itself is build as a shared library
-        ## check if CFLAGS or CXXFLAGS are required
-        _determine_compiler_language(OpenKit_UnderTest ${SOURCES_TO_TEST})
-        open_kit_build_static_library(OpenKit_UnderTest "${OPENKIT_TEST_INCLUDE_DIRS}" "${OPENKIT_TEST_LIBS_LIB_UNDER_TEST}" ${SOURCES_TO_TEST})
-        target_compile_definitions(OpenKit_UnderTest PRIVATE -DOPENKIT_STATIC_DEFINE -DCURL_STATICLIB)
-        enforce_cxx11_standard(OpenKit_UnderTest)
+        # The unit tests don't test the public OpenKit-API, but instead they test the OpenKit internals.
+        # Internal functions and methods are not exported from the OpenKit shared lib, therefore
+        # the OpenKit library is compiled as static lib again and linked to our test
+        SET(OPENKIT_LIB OpenKit_UnderTest)
+        build_open_kit(BUILD_FOR_TEST TEST_LIB_NAME ${OPENKIT_LIB})
     endif()
 
-    ## OPENKIT_TEST_LIBS contains the OpenKit_UnderTest library
-    open_kit_build_test(OpenKitTest "${OPENKIT_TEST_INCLUDE_DIRS}" "${OPENKIT_TEST_LIBS}" ${OPENKIT_SOURCES_UNITTEST})
-
-    enforce_cxx11_standard(OpenKitTest)
-    target_compile_definitions(OpenKitTest PRIVATE -DOPENKIT_STATIC_DEFINE)
-
-    if (NOT BUILD_SHARED_LIBS OR OPENKIT_MONOLITHIC_SHARED_LIB)
-        target_compile_definitions(OpenKitTest PRIVATE -DCURL_STATICLIB)
-    endif ()
-    if (NOT BUILD_SHARED_LIBS)
-        target_link_libraries(OpenKitTest PRIVATE OpenKit)
-    else()
-        target_link_libraries(OpenKitTest PRIVATE OpenKit_UnderTest)
-        target_link_libraries(OpenKitTest PRIVATE ${CURL_LIBRARY})
-    endif()
-
+    # tests require the private headers from OpenKit
+    # also add the src directory
+    target_include_directories(${TEST_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+    
+    target_link_libraries(${TEST_NAME} PRIVATE Dynatrace::${OPENKIT_LIB})
+    
     if (WIN32 AND BUILD_SHARED_LIBS AND NOT OPENKIT_MONOLITHIC_SHARED_LIB)
-       add_custom_command ( TARGET OpenKitTest POST_BUILD
+       add_custom_command ( TARGET ${TEST_NAME} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:zlib> $<TARGET_FILE_DIR:OpenKitTest>
             COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:libcurl> $<TARGET_FILE_DIR:OpenKitTest>  )
     endif()
 
-    set_target_properties(OpenKitTest PROPERTIES FOLDER Tests)
-    if (BUILD_SHARED_LIBS)
-        set_target_properties(OpenKit_UnderTest PROPERTIES FOLDER Tests)
-    endif()
+    set_target_properties(${TEST_NAME} PROPERTIES FOLDER Tests)
 
+    source_group("Source Files" FILES ${OPENKIT_SOURCES_TEST})
     source_group("Source Files\\API" FILES ${OPENKIT_SOURCES_TEST_API})
     source_group("Source Files\\Core" FILES ${OPENKIT_SOURCES_TEST_CORE})
     source_group("Source Files\\Core\\Caching" FILES ${OPENKIT_SOURCES_TEST_CORE_CACHING})
     source_group("Source Files\\Core\\Communication" FILES ${OPENKIT_SOURCES_TEST_CORE_COMMUNICATION})
     source_group("Source Files\\Core\\Configuration" FILES ${OPENKIT_SOURCES_TEST_CORE_CONFIGURATION})
+    source_group("Source Files\\Core\\Objects" FILES ${OPENKIT_SOURCES_TEST_CORE_OBJECTS})
+    source_group("Source Files\\Core\\Util" FILES ${OPENKIT_SOURCES_TEST_CORE_UTIL})
+    source_group("Source Files\\JSON" FILES ${OPENKIT_SOURCES_TEST_UTIL_JSON})
+    source_group("Source Files\\JSON\\Lexer" FILES ${OPENKIT_SOURCES_TEST_UTIL_JSON_LEXER})
+    source_group("Source Files\\JSON\\Objects" FILES ${OPENKIT_SOURCES_TEST_UTIL_JSON_OBJECTS})
+    source_group("Source Files\\JSON\\Reader" FILES ${OPENKIT_SOURCES_TEST_UTIL_JSON_READER})
     source_group("Source Files\\Protocol" FILES ${OPENKIT_SOURCES_TEST_PROTOCOL})
     source_group("Source Files\\Providers" FILES ${OPENKIT_SOURCES_TEST_PROVIDERS})
 

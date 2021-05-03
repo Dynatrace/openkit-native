@@ -23,8 +23,6 @@
 #include "core/util/IInterruptibleThreadSuspender.h"
 #include "protocol/IHTTPClient.h"
 
-#include "curl/curl.h"
-
 #include <vector>
 #include <memory>
 
@@ -147,9 +145,6 @@ namespace protocol
 
 		/// interruptable thread suspender
 		std::shared_ptr<core::util::IInterruptibleThreadSuspender> mThreadSuspender;
-
-		/// easy handle to the CURL session
-		CURL * mCurl;
 
 		/// the server ID
 		const uint32_t mServerID;

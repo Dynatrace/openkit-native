@@ -69,7 +69,7 @@ OpenKit includes the following 3rd party libraries.
 | Library                     | Version | License                        | Purpose                                        |
 |-----------------------------|---------|--------------------------------|------------------------------------------------|
 | [zlib][zlib-readme]         | 1.2.11  | [zlib][zlib-readme]            | Used for compressing transmitted data          |
-| [libcurl][curl-readme]      | 7.59.0  | [curl][curl-license]           | Used for communicating with Dynatrace/AppMon   |
+| [libcurl][curl-readme]      | 7.75.0  | [curl][curl-license]           | Used for communicating with Dynatrace/AppMon   |
 | [Google Test][gtest-readme] | 1.10.0   | [BSD 3-clauses][gtest-license] | Unit testing framework, not used in production |
 | [Google Mock][gmock-readme] | 1.10.0   | [BSD 3-clauses][gmock-license] | Mocking framework, not used in production      |
 
@@ -87,5 +87,3 @@ OpenKit includes the following 3rd party libraries.
 [gtest-license]: ./3rdparty/googletest-release-1.10.0/googletest/LICENSE
 [gmock-readme]: ./3rdparty/googletest-release-1.10.0/googlemock/README.md
 [gmock-license]: ./3rdparty/googletest-release-1.10.0/googlemock/LICENSE
-
-

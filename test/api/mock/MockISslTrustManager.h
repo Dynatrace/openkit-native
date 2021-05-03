@@ -19,7 +19,6 @@
 
 #include "OpenKit/ISSLTrustManager.h"
 
-#include "curl/curl.h"
 #include "gmock/gmock.h"
 
 #include <memory>

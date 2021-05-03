@@ -46,6 +46,7 @@
 - Only send end session events when sessions are explicitly ended via API method `ISession::end()`.
 - Fix potential endless loop in beacon sending, when lots of data
   is generated in a short period of time.
+- Minimum required CMake version pumped to 3.4.0
 
 ### Improvements
 - Reformatted text files to unix style line endings (excluding 3rd party files)

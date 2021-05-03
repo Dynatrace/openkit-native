@@ -31,6 +31,8 @@
 #include "protocol/ssl/SSLStrictTrustManager.h"
 #include "protocol/ssl/SSLBlindTrustManager.h"
 
+#include <curl/curl.h>
+
 #include <list>
 #include <exception>
 #include <assert.h>

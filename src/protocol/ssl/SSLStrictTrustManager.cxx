@@ -16,6 +16,8 @@
 
 #include "protocol/ssl/SSLStrictTrustManager.h"
 
+#include <curl/curl.h>
+
 using namespace protocol;
 
 SSLStrictTrustManager::SSLStrictTrustManager()
@@ -36,4 +38,3 @@ void SSLStrictTrustManager::applyTrustManager(CURL* curl)
 	// verify the server's TSL/SSL certificate's claimed identity
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 2L);
 }
-

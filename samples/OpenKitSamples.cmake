@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-SET(OPENKIT_SAMPLE1_SOURCES
+SET(OPENKIT_SAMPLE_CXX_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/sample1/src/CommandLineArguments.cxx
     ${CMAKE_CURRENT_LIST_DIR}/sample1/src/CommandLineArguments.h
     ${CMAKE_CURRENT_LIST_DIR}/sample1/src/openkit-sample.cxx
 )
 
-SET(OPENKIT_SAMPLE2_SOURCES
+SET(OPENKIT_SAMPLE_C_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/sample2/src/openkit-sample.c
 )
 
@@ -26,36 +26,12 @@ include(CompilerConfiguration)
 fix_compiler_flags()
 
 function(_build_sample_internal target)
-    find_package(ZLIB)
-    find_package(CURL)
-
-    set(SAMPLE_INCLUDE_DIRS
-        ${CURL_INCLUDE_DIR} # required for ISSLTrustManager
-        ${OpenKit_SOURCE_DIR}/include # TODO stefan.eberl - include from <OpenKit/OpenKit.h>
-        ${OpenKit_BINARY_DIR}/include
-    )
-
-    set(SAMPLE_LIBS
-        OpenKit
-    )
-    if (NOT OPENKIT_MONOLITHIC_SHARED_LIB)
-        set(SAMPLE_LIBS
-            ${SAMPLE_LIBS}
-            ${ZLIB_LIBRARY}
-            ${CURL_LIBRARY})
-    endif()
 
     include(CompilerConfiguration)
     include(BuildFunctions)
 
-    open_kit_build_executable("${target}" "${SAMPLE_INCLUDE_DIRS}" "${SAMPLE_LIBS}" ${ARGN})
-    enforce_cxx11_standard("${target}")
-    if (NOT BUILD_SHARED_LIBS OR OPENKIT_MONOLITHIC_SHARED_LIB)
-        target_compile_definitions(${target} PRIVATE -DCURL_STATICLIB)
-    endif()
-    if (NOT BUILD_SHARED_LIBS)
-        target_compile_definitions(${target} PRIVATE -DOPENKIT_STATIC_DEFINE)
-    endif()
+    open_kit_add_executable(${target} ${ARGN})
+    target_link_libraries(${target} PRIVATE Dynatrace::OpenKit)
 
     if (WIN32 AND BUILD_SHARED_LIBS)
        add_custom_command ( TARGET ${target} POST_BUILD 
@@ -70,23 +46,23 @@ function(_build_sample_internal target)
     endif()
 endfunction()
 
-function(build_sample1)
-    message("Configuring OpenKit  sample 1 ... ")
+function(build_cxx_sample)
+    message("Configuring OpenKit sample (C++) ... ")
 
-    _build_sample_internal(openkit-sample ${OPENKIT_SAMPLE1_SOURCES})
-    source_group("Source Files" FILES ${OPENKIT_SAMPLE1_SOURCES})
+    _build_sample_internal(openkit-sample ${OPENKIT_SAMPLE_CXX_SOURCES})
+    source_group("Source Files" FILES ${OPENKIT_SAMPLE_CXX_SOURCES})
 endfunction()
 
-function(build_sample2)
-    message("Configuring OpenKit  sample 2 ... ")
+function(build_c_sample2)
+    message("Configuring OpenKit sample (C) ... ")
 
-    _build_sample_internal(openkit-sample-c ${OPENKIT_SAMPLE2_SOURCES})
-    source_group("Source Files" FILES ${OPENKIT_SAMPLE2_SOURCES})
+    _build_sample_internal(openkit-sample-c ${OPENKIT_SAMPLE_C_SOURCES})
+    source_group("Source Files" FILES ${OPENKIT_SAMPLE_C_SOURCES})
 endfunction()
 
 function(build_open_kit_samples)
-    build_sample1()
-    build_sample2()
+    build_cxx_sample()
+    build_c_sample2()
     set_target_properties(openkit-sample PROPERTIES FOLDER Samples)
     set_target_properties(openkit-sample-c PROPERTIES FOLDER Samples)
 endfunction()

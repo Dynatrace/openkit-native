@@ -19,8 +19,6 @@
 
 #include "OpenKit/ISSLTrustManager.h"
 
-#include "curl/curl.h"
-
 namespace protocol
 {
 	///

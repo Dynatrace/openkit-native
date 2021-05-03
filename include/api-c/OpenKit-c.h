@@ -19,13 +19,15 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "curl/curl.h"
 
 #include "OpenKit_export.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+	// copy typedef from curl.h so that we don't need the transitive dependency
+	typedef void CURL;
 
 	//--------------
 	//  Logger
