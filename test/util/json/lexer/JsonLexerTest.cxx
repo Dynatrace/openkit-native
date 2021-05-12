@@ -763,9 +763,11 @@ TEST_F(JsonLexerTest, lexingStringWithSurrogatePairGivesAppropriateToken)
 	auto obtained = target.nextToken();
 
 	// then
-	std::basic_stringstream<char16_t> stream;
-	stream << u"Hello " << static_cast<char16_t>(0xD834) << static_cast<char16_t>(0xDD1E) << u"!";
-	std::u16string expectedUtf16String  = stream.str();
+	std::u16string expectedUtf16String 
+		= std::u16string(u"Hello ")
+		+ std::u16string(1, 0xD834)
+		+ std::u16string(1, 0xDD1E) 
+		+ std::u16string(u"!");
 
 	auto expectedString = core::util::StringUtil::convertUtf16StringToUtf8String(expectedUtf16String);
 
