@@ -47,6 +47,8 @@
 - Fix potential endless loop in beacon sending, when lots of data
   is generated in a short period of time.
 - Minimum required CMake version pumped to 3.4.0
+- Improved CMake install target
+  It is possible to use CMake's `find_package` to search for OpenKit.
 
 ### Improvements
 - Reformatted text files to unix style line endings (excluding 3rd party files)

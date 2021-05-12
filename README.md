@@ -55,10 +55,12 @@ This repository contains the reference implementation in C and C++. Other implem
 ## Getting started
 * [Installing and updating OpenKit C/C++][installing]
 * [Building OpenKit C/C++][building]
+* [Including OpenKit C/C++ in your application build][including_openkit]
 * [General concepts][concepts]
 * [Detailed example][example]
 * [Contributing to OpenKit C/C++][contributing]
 * [Supported versions][supported_versions]
+* [Upgrade guide][upgrade_guide]
 
 ## Advanced topics
 * [OpenKit C/C++ internals][internals]
@@ -78,6 +80,8 @@ OpenKit includes the following 3rd party libraries.
 [example]: ./docs/example.md
 [contributing]: ./CONTRIBUTING.md
 [supported_versions]: ./docs/supported_versions.md
+[upgrade_guide]: ./docs/upgrade_guide.md
+[including_openkit]: ./docs/including_openkit.md
 [building]: ./docs/building-openkit.md
 [internals]: ./docs/internals.md
 [zlib-readme]: ./3rdparty/zlib-1.2.11/README

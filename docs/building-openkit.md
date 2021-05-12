@@ -13,7 +13,7 @@ The following programs need to be available to build OpenKit C/C++.
 * A C++11 compliant compiler, like
   * Visual Studio 2015
   * Visual Studio 2017
-  * Visual Studio 2017
+  * Visual Studio 2019
   * GCC (>= 5.0.0)
   * Clang (>= 3.8.0)
 
@@ -150,11 +150,11 @@ nmake
 
 ### Building from IDE
 
-Many IDEs - like Microsoft's Visual Studio 2017 or Jetbrains' CLion - natively support
+Many IDEs - like Microsoft's Visual Studio 2017/2019 or Jetbrains' CLion - natively support
 CMake without the need to manually Configue and Generate intermediate files.
 
-OpenKit supports Microsoft's Visual Studio 2017 out of the box. However it's
-strongly recommended to update Visual Studio 2017 to the latest version, since
+OpenKit supports Microsoft's Visual Studio 2017/2019 out of the box. However it's
+strongly recommended to update Visual Studio 2017/2019 to the latest version, since
 it contains various CMake related improvements.
 
 A detailed description what needs to be installed can be found here https://docs.microsoft.com/en-us/cpp/ide/cmake-tools-for-visual-cpp.
