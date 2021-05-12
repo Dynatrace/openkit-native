@@ -17,7 +17,7 @@
 #ifndef _OPENKIT_DATACOLLECTIONLEVEL_H
 #define _OPENKIT_DATACOLLECTIONLEVEL_H
 
-#include "OpenKit_export.h"
+#include "OpenKitExports.h"
 
 #include <cstdint>
 

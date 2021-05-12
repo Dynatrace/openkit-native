@@ -17,10 +17,10 @@
 #ifndef _API_C_OPENKIT_H
 #define _API_C_OPENKIT_H
 
+#include "OpenKitExports.h"
+
 #include <stdbool.h>
 #include <stdint.h>
-
-#include "OpenKit_export.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -1,4 +1,4 @@
-# Di    stributed under the OSI-approved BSD 3-Clause License.  See accompanying
+# Distributed under the OSI-approved BSD 3-Clause License.  See accompanying
 # file Copyright.txt or https://cmake.org/licensing for details.
 
 # This file has been taken from CMake's distributed FindZLIB.cmake
@@ -38,7 +38,6 @@ set(ZLIB_LIBRARIES ${ZLIB_LIBRARY})
 
 # required by cURL
 if(NOT TARGET ZLIB::ZLIB)
-    #message("$<TARGET_FILE:${ZLIB_LIBRARY}>")
     add_library(ZLIB::ZLIB INTERFACE IMPORTED)
     set_target_properties(ZLIB::ZLIB PROPERTIES
         INTERFACE_LINK_LIBRARIES "${ZLIB_LIBRARIES}"

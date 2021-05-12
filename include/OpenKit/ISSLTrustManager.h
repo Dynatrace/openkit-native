@@ -17,7 +17,7 @@
 #ifndef _PROTOCOL_SSL_ISSLTRUSTMANAGER_H
 #define _PROTOCOL_SSL_ISSLTRUSTMANAGER_H
 
-#include "OpenKit_export.h"
+#include "OpenKitExports.h"
 
 // copy typedef from curl.h so that we don't need the transitive dependency
 typedef void CURL;

@@ -37,7 +37,7 @@ function(_build_sample_internal target)
        add_custom_command ( TARGET ${target} POST_BUILD 
             COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:OpenKit> $<TARGET_FILE_DIR:${target}> )
 
-        # it not monothonic shared library
+        # it not monolithic shared library
         if (NOT OPENKIT_MONOLITHIC_SHARED_LIB) 
             add_custom_command ( TARGET ${target} POST_BUILD 
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:zlib> $<TARGET_FILE_DIR:${target}> 

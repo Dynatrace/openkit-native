@@ -17,7 +17,7 @@
 #ifndef _OPENKIT_CRASHREPORTINGLEVEL_H
 #define _OPENKIT_CRASHREPORTINGLEVEL_H
 
-#include "OpenKit_export.h"
+#include "OpenKitExports.h"
 
 #include <cstdint>
 

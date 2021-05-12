@@ -17,7 +17,7 @@
 #ifndef _OPENKIT_IOPENKIT_H
 #define _OPENKIT_IOPENKIT_H
 
-#include "OpenKit_export.h"
+#include "OpenKitExports.h"
 
 #include <cstdint>
 #include <memory>

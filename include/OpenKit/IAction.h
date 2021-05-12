@@ -17,7 +17,7 @@
 #ifndef _OPENKIT_IACTION_H
 #define _OPENKIT_IACTION_H
 
-#include "OpenKit_export.h"
+#include "OpenKitExports.h"
 
 #include <cstdint>
 #include <memory>

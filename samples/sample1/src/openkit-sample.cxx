@@ -22,7 +22,7 @@
 #include <iostream>
 #include <thread>
 
-#include "OpenKit.h"
+#include "OpenKit/OpenKit.h"
 #include "CommandLineArguments.h"
 
 constexpr char APPLICATION_VERSION[] = "1.2.3";

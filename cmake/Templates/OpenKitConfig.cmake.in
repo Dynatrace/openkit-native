@@ -1,0 +1,38 @@
+# Copyright 2018-2021 Dynatrace LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+# search for ZLIB
+if (@OPENKIT_REQUIRES_DEPENDENCIES@ OR USE_OPENKIT_ZLIB)
+	find_dependency(ZLIB "@ZLIB_VERSION_MAJOR@.@ZLIB_VERSION_MINOR@")
+endif ()
+
+if (@OPENKIT_REQUIRES_DEPENDENCIES@ OR USE_OPENKIT_CURL)
+	# search for CURL
+	# Note explicityly use config mode (NO_MODULE | CONFIG arg), as this will also search for
+	# transitive dependencies and export the CURL::libcurl target
+	if (CMAKE_VERSION VERSION_LESS "3.9")
+		# CMake versions < 3.9 do not forward additional arguments
+		# As a workaround use find_package, instead of find_dependency
+		find_package(CURL "@CURL_VERSION_MAJOR@.@CURL_VERSION_MINOR@" REQUIRED NO_MODULE)
+	else ()
+		find_dependency(CURL "@CURL_VERSION_MAJOR@.@CURL_VERSION_MINOR@" NO_MODULE)
+	endif ()
+endif ()
+
+include("${CMAKE_CURRENT_LIST_DIR}/@OPENKIT_EXPORT_TARGETS@.cmake")
+check_required_components("@OPENKIT_LIB_NAME@")

@@ -18,7 +18,7 @@
 #define _API_C_EXTERNALTRUSTMANAGER_H
 
 #include "OpenKit/ISSLTrustManager.h"
-#include "api-c/OpenKit-c.h"
+#include "OpenKit/OpenKit-c.h"
 
 #include "curl/curl.h"
 

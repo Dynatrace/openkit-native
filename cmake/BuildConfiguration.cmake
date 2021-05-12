@@ -55,13 +55,10 @@ endif()
 # Set the paths where the executable, libraries and header paths
 if ("${CMAKE_VERSION}" VERSION_LESS "3.7.1")
 	# overwrite since the default is system directory
-	set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install")
+	set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install" CACHE PATH "OpenKit default value for old CMake" FORCE)
 else ()
 	if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 		# overwrite the default value initialized by CMake
-		set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install")
+		set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install" CACHE PATH "OpenKit default value since not provided by user" FORCE)
 	endif ()
 endif ()
-set(INSTALL_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin" CACHE PATH "Installation directory for executables")
-set(INSTALL_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib" CACHE PATH "Installation directory for libraries")
-set(INSTALL_INC_DIR "${CMAKE_INSTALL_PREFIX}/include" CACHE PATH "Installation directory for headers")

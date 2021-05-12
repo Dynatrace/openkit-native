@@ -18,14 +18,14 @@
 #define _OPENKIT_H
 
 #include "OpenKitVersion.h"
-#include "OpenKit/OpenKitConstants.h"
-#include "OpenKit/ILogger.h"
-#include "OpenKit/IWebRequestTracer.h"
-#include "OpenKit/IAction.h"
-#include "OpenKit/IRootAction.h"
-#include "OpenKit/ISession.h"
-#include "OpenKit/AppMonOpenKitBuilder.h"
-#include "OpenKit/DynatraceOpenKitBuilder.h"
-#include "OpenKit/ISSLTrustManager.h"
+#include "OpenKitConstants.h"
+#include "ILogger.h"
+#include "IWebRequestTracer.h"
+#include "IAction.h"
+#include "IRootAction.h"
+#include "ISession.h"
+#include "AppMonOpenKitBuilder.h"
+#include "DynatraceOpenKitBuilder.h"
+#include "ISSLTrustManager.h"
 
 #endif

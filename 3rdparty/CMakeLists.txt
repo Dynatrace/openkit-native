@@ -25,6 +25,7 @@ fix_compiler_flags(USE_DEFAULT_WARNINGS_FLAGS)
 
 ######
 # zlib
+SET(SKIP_INSTALL_FILES TRUE)
 add_subdirectory(zlib-1.2.11)
 set_target_properties(zlib
     PROPERTIES

@@ -17,11 +17,11 @@
 #ifndef _OPENKIT_IOPENKITBUILDER_H
 #define _OPENKIT_IOPENKITBUILDER_H
 
-#include "OpenKit/CrashReportingLevel.h"
-#include "OpenKit/DataCollectionLevel.h"
-#include "OpenKit/ILogger.h"
-#include "OpenKit/LogLevel.h"
-#include "OpenKit/ISSLTrustManager.h"
+#include "CrashReportingLevel.h"
+#include "DataCollectionLevel.h"
+#include "ILogger.h"
+#include "LogLevel.h"
+#include "ISSLTrustManager.h"
 
 #include <cstdint>
 #include <memory>

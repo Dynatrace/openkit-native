@@ -17,8 +17,8 @@
 #ifndef _OPENKIT_ILOGGER_H
 #define _OPENKIT_ILOGGER_H
 
-#include "OpenKit_export.h"
-#include "OpenKit/LogLevel.h"
+#include "OpenKitExports.h"
+#include "LogLevel.h"
 
 // The GNU C compiler allows attaching characteristics to function declarations to allow the compiler to perform additional error checking.
 #ifndef __GNUC__

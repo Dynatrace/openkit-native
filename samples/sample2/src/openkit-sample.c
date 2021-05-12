@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "api-c/OpenKit-c.h"
+#include "OpenKit/OpenKit-c.h"
 
 #include <stdio.h>
 #include <stdlib.h>

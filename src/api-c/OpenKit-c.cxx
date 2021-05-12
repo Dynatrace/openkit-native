@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#include "api-c/OpenKit-c.h"
-#include "api-c/CustomLogger.h"
-#include "api-c/CustomTrustManager.h"
+#include "OpenKit/OpenKit-c.h"
+#include "CustomLogger.h"
+#include "CustomTrustManager.h"
 
 #include "OpenKit/IOpenKit.h"
 #include "OpenKit/DynatraceOpenKitBuilder.h"

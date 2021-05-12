@@ -17,13 +17,13 @@
 #ifndef _OPENKIT_ABSTRACTOPENKITBUILDER_H
 #define _OPENKIT_ABSTRACTOPENKITBUILDER_H
 
-#include "OpenKit_export.h"
-#include "OpenKit/IOpenKit.h"
-#include "OpenKit/IOpenKitBuilder.h"
-#include "OpenKit/ILogger.h"
-#include "OpenKit/ISSLTrustManager.h"
-#include "OpenKit/DataCollectionLevel.h"
-#include "OpenKit/CrashReportingLevel.h"
+#include "OpenKitExports.h"
+#include "IOpenKit.h"
+#include "IOpenKitBuilder.h"
+#include "ILogger.h"
+#include "ISSLTrustManager.h"
+#include "DataCollectionLevel.h"
+#include "CrashReportingLevel.h"
 
 #include <cstdint>
 #include <memory>

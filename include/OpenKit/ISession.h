@@ -17,9 +17,9 @@
 #ifndef _OPENKIT_ISESSION_H
 #define _OPENKIT_ISESSION_H
 
-#include "OpenKit_export.h"
+#include "OpenKitExports.h"
 
-#include <stdint.h>
+#include <cstdint>
 #include <memory>
 
 namespace openkit

@@ -28,11 +28,11 @@ set(OPENKIT_PUBLIC_HEADERS_CXX_API
     ${CMAKE_SOURCE_DIR}/include/OpenKit/IWebRequestTracer.h
     ${CMAKE_SOURCE_DIR}/include/OpenKit/LogLevel.h
     ${CMAKE_SOURCE_DIR}/include/OpenKit/OpenKitConstants.h
-    ${CMAKE_SOURCE_DIR}/include/OpenKit.h
+    ${CMAKE_SOURCE_DIR}/include/OpenKit/OpenKit.h
 )
 
 set(OPENKIT_PUBLIC_HEADERS_C_API
-    ${CMAKE_SOURCE_DIR}/include/api-c/OpenKit-c.h
+    ${CMAKE_SOURCE_DIR}/include/OpenKit/OpenKit-c.h
 )
 
 set(OPENKIT_SOURCES_CXX_API
@@ -342,7 +342,7 @@ macro(_generate_open_kit_version_header)
     set(OPENKIT_BUILD_NUMBER ${OPENKIT_BUILD_VERSION})
 
     set(VERSION_HEADER_TEMPLATE "${CMAKE_SOURCE_DIR}/cmake/Templates/OpenKitVersion.h.in")
-    set(VERSION_HEADER_OUTPUT "${CMAKE_BINARY_DIR}/include/OpenKitVersion.h")
+    set(VERSION_HEADER_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/include/OpenKitVersion.h")
     configure_file(${VERSION_HEADER_TEMPLATE} ${VERSION_HEADER_OUTPUT} @ONLY)
 endmacro()
 
@@ -370,7 +370,7 @@ macro(_generate_open_kit_version_rc)
     set (FILE_DESCRIPTION "${OPENKIT_DESCRIPTION}")
 
     set(VERSION_RC_TEMPLATE "${CMAKE_SOURCE_DIR}/cmake/Templates/version.rc.in")
-    set(VERSION_RC_OUTPUT "${CMAKE_BINARY_DIR}/rc/version.rc")
+    set(VERSION_RC_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/rc/version.rc")
     configure_file(${VERSION_RC_TEMPLATE} ${VERSION_RC_OUTPUT} @ONLY)
 endmacro()
 
@@ -378,7 +378,7 @@ endmacro()
 # Function to build the OpenKit target
 function(build_open_kit)
 
-    set(LIB_NAME OpenKit)
+    set(OPENKIT_LIB_NAME OpenKit)
 
     # parse function arguments
     if ("${CMAKE_VERSION}" VERSION_LESS "3.5")
@@ -398,16 +398,17 @@ function(build_open_kit)
 
     # set lib name if not passed as function argument
     if (OPENKIT_BUILD_FOR_TEST)
-        set(LIB_NAME ${OPENKIT_TEST_LIB_NAME})
+        set(OPENKIT_LIB_NAME ${OPENKIT_TEST_LIB_NAME})
         # overwrite BUILD_SHARED_LIBS in the scope of this function
         # when building OpenKit for unit tests
         set(BUILD_SHARED_LIBS OFF)
     endif ()
     
-    message("Configuring ${LIB_NAME} ... ")
+    message("Configuring ${OPENKIT_LIB_NAME} ... ")
 
     # find direct dependencies
-    find_package(ZLIB) # required for alias target ZLIB::ZLIB
+    find_package(ZLIB) # required for alias target ZLIB::ZLIB & setting up version variables
+    find_package(CURL) # required only for setting up version variables
 
     include(CompilerConfiguration)
     include(BuildFunctions)
@@ -422,78 +423,131 @@ function(build_open_kit)
     endif()
 
     # add dependent libraries (also exposes include directories)
-    open_kit_add_library(${LIB_NAME} ${OPENKIT_LIB_SOURCES})
+    open_kit_add_library(${OPENKIT_LIB_NAME} ${OPENKIT_LIB_SOURCES})
 
     # add library dependencies
-    target_link_libraries(${LIB_NAME} PRIVATE ZLIB::ZLIB CURL::libcurl)
+    target_link_libraries(${OPENKIT_LIB_NAME} PRIVATE ZLIB::ZLIB CURL::libcurl)
 
-    target_include_directories(${LIB_NAME}
+    target_include_directories(${OPENKIT_LIB_NAME}
         PRIVATE
             ${CMAKE_CURRENT_SOURCE_DIR}/src
         PUBLIC
             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-            $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
-            $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include/${LIB_NAME}>
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
+            $<INSTALL_INTERFACE:include>
     )
 
     # in previous version of OpenKit this was set on "global" level to all libs except zlib
     # To avoid breaking name changes, we'll keep the -d suffix on OpenKit libs for debug builds
-    set_target_properties(${LIB_NAME}
+    set_target_properties(${OPENKIT_LIB_NAME}
 	    PROPERTIES
         DEBUG_POSTFIX "-d"
     )
     
     # make PDBs match library name
-    get_target_property(pdb_debug_postfix ${LIB_NAME} DEBUG_POSTFIX)
+    get_target_property(pdb_debug_postfix ${OPENKIT_LIB_NAME} DEBUG_POSTFIX)
     set_target_properties(${name}
         PROPERTIES
-        PDB_NAME "${LIB_NAME}"
-        PDB_NAME_DEBUG "${LIB_NAME}${pdb_debug_postfix}"
-        COMPILE_PDB_NAME "${LIB_NAME}"
-        COMPILE_PDB_NAME_DEBUG "${LIB_NAME}${pdb_debug_postfix}")
+        PDB_NAME "${OPENKIT_LIB_NAME}"
+        PDB_NAME_DEBUG "${OPENKIT_LIB_NAME}${pdb_debug_postfix}"
+        COMPILE_PDB_NAME "${OPENKIT_LIB_NAME}"
+        COMPILE_PDB_NAME_DEBUG "${OPENKIT_LIB_NAME}${pdb_debug_postfix}")
         
 
     # add special processor flag when building OpenKit as static library
     if(NOT BUILD_SHARED_LIBS)
         # For a static library we set the compiler flag OPENKIT_STATIC_DEFINE
-        target_compile_definitions(${LIB_NAME} PUBLIC -DOPENKIT_STATIC_DEFINE)
+        target_compile_definitions(${OPENKIT_LIB_NAME} PUBLIC -DOPENKIT_STATIC_DEFINE)
     endif()
 
     # add version & soversion target properties
     if (BUILD_SHARED_LIBS AND NOT MSVC)
-        target_compile_options(${LIB_NAME} PUBLIC -Wno-attributes)
-        set_target_properties(${LIB_NAME} PROPERTIES
+        target_compile_options(${OPENKIT_LIB_NAME} PUBLIC -Wno-attributes)
+        set_target_properties(${OPENKIT_LIB_NAME} PROPERTIES
                               VERSION "${OPENKIT_MAJOR_VERSION}.${OPENKIT_MINOR_VERSION}.${OPENKIT_BUGFIX_VERSION}.${OPENKIT_BUILD_VERSION}"
                               SOVERSION "${OPENKIT_MAJOR_VERSION}")
     endif ()
 
-    # if not building for test
+    # generate export header
+    set(OPENKIT_EXPORT_FILENAME "${CMAKE_CURRENT_BINARY_DIR}/include/OpenKitExports.h")
+    include(GenerateExportHeader)
+    generate_export_header(OpenKit
+        BASE_NAME OPENKIT
+        EXPORT_MACRO_NAME OPENKIT_EXPORT
+        EXPORT_FILE_NAME ${OPENKIT_EXPORT_FILENAME}
+        STATIC_DEFINE OPENKIT_STATIC_DEFINE
+    )
+    
+    ##
+    # Install target for OpenKit library
+    # Do not install if built for tests
     if (NOT OPENKIT_BUILD_FOR_TEST)
-        # generate export header
-        include(GenerateExportHeader)
-        generate_export_header(${LIB_NAME}
-            BASE_NAME OPENKIT
-            EXPORT_MACRO_NAME OPENKIT_EXPORT
-            EXPORT_FILE_NAME ${CMAKE_BINARY_DIR}/include/OpenKit_export.h
-            STATIC_DEFINE OPENKIT_STATIC_DEFINE
-        )
+
+        include(GNUInstallDirs)
+
+        set(OPENKIT_CMAKE_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/${OPENKIT_LIB_NAME}")
+        set(OPENKIT_EXPORT_TARGETS "${OPENKIT_LIB_NAME}Targets")
 
         # Add a make target "install". If called (e.g. with "make install") this installs the library files
-        install(TARGETS ${LIB_NAME}
-            ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
-            LIBRARY DESTINATION "${INSTALL_LIB_DIR}"
-            RUNTIME DESTINATION "${INSTALL_BIN_DIR}"
+        install(TARGETS ${OPENKIT_LIB_NAME}
+            EXPORT ${OPENKIT_EXPORT_TARGETS}
+            ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+            LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+            RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
         )
-        # This installs the public header files and the export.h file
+        # install headers from public include directory
+        install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/OpenKit"
+            DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+            FILES_MATCHING PATTERN "*.h"
+        )
+        # install generated headers
         install(FILES
-            ${PUBLIC_HEADERS}
-            ${CMAKE_BINARY_DIR}/include/OpenKit_export.h
-            ${CMAKE_BINARY_DIR}/include/OpenKitVersion.h
-            DESTINATION "${INSTALL_INC_DIR}"
+            ${OPENKIT_EXPORT_FILENAME}
+            ${VERSION_HEADER_OUTPUT}
+            DESTINATION "${INSTALL_INC_DIR}/${OPENKIT_LIB_NAME}"
         )
+
+        install(FILES
+            ${OPENKIT_EXPORT_FILENAME}
+            ${VERSION_HEADER_OUTPUT}
+            DESTINATION "${INSTALL_INC_DIR}/${OPENKIT_LIB_NAME}"
+        )
+
+        ##
+        # generate and install CMake files for applications/libs that are using OpenKit
+        set(OPENKIT_NAMESPACE "Dynatrace")
+
+        # OpenKit requires dependencies in link interface if it's built as static lib
+        set(OPENKIT_REQUIRES_DEPENDENCIES NOT BUILD_SHARED_LIBS)
+
+        set(OPENKIT_CONFIG_FILE "${CMAKE_CURRENT_BINARY_DIR}/${OPENKIT_LIB_NAME}Config.cmake")
+        configure_package_config_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/Templates/OpenKitConfig.cmake.in"
+            "${OPENKIT_CONFIG_FILE}" INSTALL_DESTINATION ${OPENKIT_CMAKE_INSTALL_DIR})
+
+        # generate CMake files for installation
+        set(OPENKIT_VERSION_CONFIG "${CMAKE_CURRENT_BINARY_DIR}/${OPENKIT_LIB_NAME}ConfigVersion.cmake")
+        include(CMakePackageConfigHelpers)
+        write_basic_package_version_file(
+            "${OPENKIT_VERSION_CONFIG}"
+            VERSION "${OPENKIT_VERSION_MAJOR}.${OPENKIT_VERSION_MINOR}.${OPENKIT_VERSION_BUGFIX}"
+            COMPATIBILITY SameMajorVersion
+        )
+
+        install(
+            EXPORT ${OPENKIT_EXPORT_TARGETS}
+            NAMESPACE "${OPENKIT_NAMESPACE}::"
+            DESTINATION "${OPENKIT_CMAKE_INSTALL_DIR}"
+        )
+
+        install(FILES
+            ${OPENKIT_CONFIG_FILE}
+            ${OPENKIT_VERSION_CONFIG}
+            DESTINATION "${OPENKIT_CMAKE_INSTALL_DIR}"
+        )
+
     endif ()
     
-    set_target_properties(${LIB_NAME} PROPERTIES FOLDER Lib)
+    set_target_properties(${OPENKIT_LIB_NAME} PROPERTIES FOLDER Lib)
     source_group("Header Files\\API - C" FILES ${OPENKIT_PUBLIC_HEADERS_C_API})
     source_group("Source Files\\API - C" FILES ${OPENKIT_SOURCES_C_API})
     source_group("Header Files\\API - C++" FILES ${OPENKIT_PUBLIC_HEADERS_CXX_API})

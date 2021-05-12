@@ -18,7 +18,7 @@
 #define _API_C_EXTERNALLOGGER_H
 
 #include "OpenKit/ILogger.h"
-#include "api-c/OpenKit-c.h"
+#include "OpenKit/OpenKit-c.h"
 
 #include <cstdarg>
 
