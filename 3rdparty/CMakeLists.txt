@@ -26,17 +26,12 @@ fix_compiler_flags(USE_DEFAULT_WARNINGS_FLAGS)
 ######
 # zlib
 SET(SKIP_INSTALL_FILES TRUE)
+set(BUILD_SHARED_LIBS_SAVED "${BUILD_SHARED_LIBS}")
+if (NOT BUILD_SHARED_LIBS OR OPENKIT_MONOLITHIC_SHARED_LIB)
+    set(BUILD_SHARED_LIBS OFF)
+endif()
 add_subdirectory(zlib-1.2.11)
-set_target_properties(zlib
-    PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
-set_target_properties(zlibstatic
-    PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+set(BUILD_SHARED_LIBS "${BUILD_SHARED_LIBS_SAVED}")
 
 ######
 # libcurl
@@ -113,8 +108,9 @@ set_target_properties(gmock_main PROPERTIES FOLDER 3rdparty/googletest)
 set_target_properties(gtest PROPERTIES FOLDER 3rdparty/googletest)
 set_target_properties(gtest_main PROPERTIES FOLDER 3rdparty/googletest)
 set_target_properties(libcurl PROPERTIES FOLDER 3rdparty/libcurl)
-set_target_properties(example PROPERTIES FOLDER 3rdparty/libcurl)
 set_target_properties(uninstall PROPERTIES FOLDER 3rdparty/libcurl)
-set_target_properties(minigzip PROPERTIES FOLDER 3rdparty/zlib)
-set_target_properties(zlib PROPERTIES FOLDER 3rdparty/zlib)
-set_target_properties(zlibstatic PROPERTIES FOLDER 3rdparty/zlib)
+if (BUILD_SHARED_LIBS AND NOT OPENKIT_MONOLITHIC_SHARED_LIB)
+	set_target_properties(zlib PROPERTIES FOLDER 3rdparty/zlib)
+else ()
+	set_target_properties(zlibstatic PROPERTIES FOLDER 3rdparty/zlib)
+endif ()
