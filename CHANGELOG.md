@@ -1,6 +1,9 @@
 # OpenKit Native ( C/C++ ) Changelog
 
-## [Unreleased](https://github.com/Dynatrace/openkit-native/compare/v1.1.0...HEAD)
+## [Unreleased](https://github.com/Dynatrace/openkit-native/compare/v2.0.0...HEAD)
+
+## 2.0.0 [Release date: 2021-05-19]
+[GitHub Releases](https://github.com/Dynatrace/openkit-native/releases/tag/v2.0.0)
 
 ### Added
 - Support for parsing JSON
