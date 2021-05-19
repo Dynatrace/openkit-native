@@ -4,7 +4,8 @@
 There are breaking changes. All OpenKit headers have been moved into one
 single place, `include/OpenKit` to be exact. It might be necessary to adjust the
 include path in your build scripts and `#include` directives in your source code.  
-Besides that, the API method signature did not changed.
+Besides that, the API method signature did not changed.  
+The minimum required CMake version has been raised to 3.4.0.
 
 ### Deprecated API
 * `IWebRequestTracer::setResponseCode(int32_t responseCodee)` and `IWebRequestTracer::stop()`  
