@@ -9,8 +9,8 @@ We encourage you to rename the default branch in your forks too.
 
 | Operating System | Status  |
 | ---------------- |:-------:|
-| Windows          |[![Build status](https://ci.appveyor.com/api/projects/status/jdpv1bvje56f9na3/branch/main?svg=true)](https://ci.appveyor.com/project/openkitdt/openkit-native/branch/main) |
-| Linux            |[![Build Status](https://travis-ci.org/Dynatrace/openkit-native.svg?branch=main)](https://travis-ci.org/Dynatrace/openkit-native) |
+| Windows          |[![Build status](https://ci.appveyor.com/api/projects/status/jdpv1bvje56f9na3/branch/release/2.0?svg=true)](https://ci.appveyor.com/project/openkitdt/openkit-native/branch/release/2.0) |
+| Linux            |[![Build Status](https://travis-ci.org/Dynatrace/openkit-native.svg?branch=release%2F2.0)](https://travis-ci.org/Dynatrace/openkit-native) |
 
 ## What is the OpenKit?
 
