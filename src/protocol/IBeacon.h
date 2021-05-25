@@ -158,12 +158,33 @@ namespace protocol
 		/// The serialized data is added to @ref core::caching::BeaconCache.
 		///
 		/// @param actionID The id of the @ref core::objects::RootAction or @ref core::objects::LeafAction on which
-		///   this value was reported.
+		///   this error was reported.
 		/// @param errorName Error's name.
 		/// @param errorCode Some error code.
 		/// @param reason Reason for that error.
 		///
-		virtual void reportError(int32_t actionID, const core::UTF8String& errorName, int32_t error, const core::UTF8String& reason) = 0;
+		virtual void reportError(int32_t actionID, const core::UTF8String& errorName, int32_t error) = 0;
+
+		///
+		/// Reports the given error cause on the action belonging to the given ID.
+		///
+		/// @par
+		/// The serialized data is added to the <see cref="IBeaconCache"/>.
+		///
+		/// @param actionID The id of the @ref core::objects::RootAction or @ref core::objects::LeafAction on which
+		///   this error was reported.
+		/// @param errorName the name of the reported error.
+		/// @param causeName name of the cause for this error
+		/// @param causeDescription description what caused this error
+		/// @param causeStackTrace stack trace
+		///
+		virtual void reportError(
+			int32_t actionID,
+			const core::UTF8String& errorName,
+			const core::UTF8String& causeName,
+			const core::UTF8String& causeDescription,
+			const core::UTF8String& causeStackTrace
+		) = 0;
 
 		///
 		/// Add crash to Beacon
@@ -189,7 +210,7 @@ namespace protocol
 		///
 		/// Add user identification to Beacon.
 		/// The serialized data is added to @ref core::caching::BeaconCache
-		/// @param[in] userTag User tag containing data to serialize.
+		/// @param[in] userTag User tag containing data to serialize, which can be an empty string.
 		///
 		virtual void identifyUser(const core::UTF8String& userTag) = 0;
 

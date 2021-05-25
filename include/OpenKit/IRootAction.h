@@ -96,8 +96,38 @@ namespace openkit
 		/// @param errorCode numeric error code of this error
 		/// @param reason    reason for this error
 		/// @return this Action (for usage as fluent API)
+		/// @deprecated since 2.0.0 use IRootAction::reportError(const char*, int32_t) instead, since reason is unhandled
 		///
+		OPENKIT_DEPRECATED
 		virtual std::shared_ptr<IRootAction> reportError(const char* errorName, int32_t errorCode, const char* reason) = 0;
+
+		///
+		/// Reports an error with a specified name and error code.
+		///
+		/// @param errorName name of this error
+		/// @param errorCode numeric error code of this error
+		/// @return this Action (for usage as fluent API)
+		///
+		virtual std::shared_ptr<IRootAction> reportError(const char* errorName, int32_t errorCode) = 0;
+
+		///
+		/// Reports an error with a specified name and parameters describing the cause of this error.
+		///
+		/// @par
+		/// If given @c errorName is @c nullptr or an empty string, no error is reported.
+		///
+		/// @param errorName name of this error
+		/// @param causeName name describing the cause of the error (e.g. exception class name)
+		/// @param causeDescription description what caused the eror (e.g. exception message)
+		/// @param causeStackTrace stack trace of the error
+		/// @return this Action (for usage as fluent API)
+		///
+		virtual std::shared_ptr<IRootAction> reportError(
+			const char* errorName,
+			const char* causeName,
+			const char* causeDescription,
+			const char* causeStackTrace
+		) = 0;
 
 		///
 		/// Allows tracing and timing of a web request handled by any 3rd party HTTP Client (e.g. CURL, EasyHttp, ...).

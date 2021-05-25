@@ -2,6 +2,22 @@
 
 ## [Unreleased](https://github.com/Dynatrace/openkit-native/compare/v2.0.0...HEAD)
 
+### Added
+- Overloaded `IAction::reportError(const char*, int32_t)` method for reporting an integer error code without reason.  
+  The old `IAction::reportError(const char*, int32_t, const char*)` has been deprecated in favor of the new one.
+- Overloaded `IRootAction::reportError(const char*, int32_t)` method for reporting an integer error code without reason.  
+  The old `IRootAction::reportError(const char*, int32_t, const char*)` has been deprecated in favor of the new one.
+- Overloaded `IAction::reportError(const char*, const char* , const char*, const char*)` method for reporting generic errors.
+- Overloaded `IRootAction::reportError(const char*, const char* , const char*, const char*)` method for reporting generic errors.
+- Added function `reportErrorCodeOnRootAction(struct RootActionHandle*, const char*, int32_t)` for reporting an integer error code without reason.  
+  The old function `reportErrorOnRootAction(struct RootActionHandle*, const char*, int32_t, const char*)` has been deprecated in favor of the new one.
+- Added function `reportErrorCodeOnAction(struct ActionHandle*, const char*, int32_t)` for reporting an integer error code without reason.  
+  The old function `reportErrorOnAction(struct ActionHandle*, const char*, int32_t, const char*)` has been deprecated in favor of the new one.
+- Added new functions
+  * `reportErrorCauseOnRootAction(struct RootActionHandle*, const char*, const char*, const char*, const char*)`
+  * `reportErrorCauseOnAction(struct ActionHandle*, const char*, const char*, const char*, const char*)`
+  for reporting generic errors on root actions and actions.
+
 ## 2.0.0 [Release date: 2021-05-19]
 [GitHub Releases](https://github.com/Dynatrace/openkit-native/releases/tag/v2.0.0)
 

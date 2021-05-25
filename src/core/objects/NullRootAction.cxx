@@ -61,6 +61,21 @@ std::shared_ptr<openkit::IRootAction> NullRootAction::reportError(const char* /*
 	return shared_from_this();
 }
 
+std::shared_ptr<openkit::IRootAction> NullRootAction::reportError(const char* /*errorName*/, int32_t /*errorCode*/)
+{
+	return shared_from_this();
+}
+
+std::shared_ptr<openkit::IRootAction> NullRootAction::reportError(
+	const char* /*errorName*/,
+	const char* /*causeName*/,
+	const char* /*causeDescription*/,
+	const char* /*causeStackTrace*/
+)
+{
+	return shared_from_this();
+}
+
 std::shared_ptr<openkit::IWebRequestTracer> NullRootAction::traceWebRequest(const char* /*url*/)
 {
 	return NullWebRequestTracer::instance();

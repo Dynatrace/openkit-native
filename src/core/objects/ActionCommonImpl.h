@@ -86,7 +86,14 @@ namespace core
 
 			void reportValue(const char* valueName, const char* value) override;
 
-			void reportError(const char* errorName, int32_t errorCode, const char* reason) override;
+			void reportError(const char* errorName, int32_t errorCode) override;
+
+			void reportError(
+				const char* errorName,
+				const char* causeName,
+				const char* causeDescription,
+				const char* causeStackTrace
+			) override;
 
 			std::shared_ptr<openkit::IWebRequestTracer> traceWebRequest(const char* url) override;
 

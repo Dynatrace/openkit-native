@@ -87,7 +87,17 @@ namespace core
 
 			std::shared_ptr<IAction> reportValue(const char* valueName, const char* value) override;
 
+			OPENKIT_DEPRECATED
 			std::shared_ptr<IAction> reportError(const char* errorName, int32_t errorCode, const char* reason) override;
+
+			std::shared_ptr<IAction> reportError(const char* errorName, int32_t errorCode) override;
+
+			std::shared_ptr<IAction> reportError(
+				const char* errorName,
+				const char* causeName,
+				const char* causeDescription,
+				const char* causeStackTrace
+			) override;
 
 			std::shared_ptr<openkit::IWebRequestTracer> traceWebRequest(const char* url) override;
 

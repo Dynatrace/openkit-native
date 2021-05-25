@@ -83,8 +83,15 @@ namespace protocol
 		(
 			int32_t actionID,
 			const core::UTF8String& errorName,
-			int32_t errorCode,
-			const core::UTF8String& reason
+			int32_t errorCode
+		) override;
+
+		void reportError(
+			int32_t actionID,
+			const core::UTF8String& errorName,
+			const core::UTF8String& causeName,
+			const core::UTF8String& causeDescription,
+			const core::UTF8String& causeStackTrace
 		) override;
 
 		void reportCrash(
@@ -142,6 +149,12 @@ namespace protocol
 		/// @returns Serialized data
 		///
 		core::UTF8String createImmutableBeaconData();
+
+		///
+		/// Serialization helper method for creating basic event data without name
+		/// @returns Serialized data
+		///
+		core::UTF8String createBasicEventDataWithoutName(EventType eventType);
 
 		///
 		/// Serialization helper method for creating basic event data

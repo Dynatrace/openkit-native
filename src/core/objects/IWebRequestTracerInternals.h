@@ -62,7 +62,7 @@ namespace core
 			/// Returns the target URL of the web request
 			/// @returns target URL of the web request
 			///
-			virtual const core::UTF8String getURL() const = 0;
+			virtual const core::UTF8String& getURL() const = 0;
 
 			///
 			/// Returns the response code of the web request

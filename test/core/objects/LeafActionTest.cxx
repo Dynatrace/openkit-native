@@ -157,7 +157,7 @@ TEST_F(LeafActionTest, reportValueStringDelegatesToCommonImpl)
 	ASSERT_THAT(obtained, testing::Eq(target));
 }
 
-TEST_F(LeafActionTest, reportErrorDelegatsToCommonImpl)
+TEST_F(LeafActionTest, reportDeprecatedErrorCodeDelegatsToCommonImpl)
 {
 	// with
 	const char* errorName = "error name";
@@ -165,13 +165,56 @@ TEST_F(LeafActionTest, reportErrorDelegatsToCommonImpl)
 	const char* errorReason = "some reason";
 
 	// expect
-	EXPECT_CALL(*mockActionImpl, reportError(errorName, errorCode, errorReason)).Times(testing::Exactly(1));
+	EXPECT_CALL(*mockActionImpl, reportError(errorName, errorCode)).Times(testing::Exactly(1));
 
 	// given
 	auto target = createAction();
 
 	// when
 	auto obtained = target->reportError(errorName, errorCode, errorReason);
+
+	// then
+	ASSERT_THAT(obtained, testing::NotNull());
+	ASSERT_THAT(obtained, testing::Eq(target));
+}
+
+TEST_F(LeafActionTest, reportErrorCodeDelegatsToCommonImpl)
+{
+	// with
+	const char* errorName = "error name";
+	const int32_t errorCode = 42;
+
+	// expect
+	EXPECT_CALL(*mockActionImpl, reportError(errorName, errorCode)).Times(testing::Exactly(1));
+
+	// given
+	auto target = createAction();
+
+	// when
+	auto obtained = target->reportError(errorName, errorCode);
+
+	// then
+	ASSERT_THAT(obtained, testing::NotNull());
+	ASSERT_THAT(obtained, testing::Eq(target));
+}
+
+TEST_F(LeafActionTest, reportErrorCauseDelegatsToCommonImpl)
+{
+	// with
+	const char* errorName = "error name";
+	const char* causeName = "std::runtime_error";
+	const char* causeDescription = "something happened";
+	const char* causeStackTrace = "here comes the stack trace";
+
+	// expect
+	EXPECT_CALL(*mockActionImpl, reportError(errorName, causeName, causeDescription, causeStackTrace))
+		.Times(testing::Exactly(1));
+
+	// given
+	auto target = createAction();
+
+	// when
+	auto obtained = target->reportError(errorName, causeName, causeDescription, causeStackTrace);
 
 	// then
 	ASSERT_THAT(obtained, testing::NotNull());

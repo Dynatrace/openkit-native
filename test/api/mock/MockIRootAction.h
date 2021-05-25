@@ -73,6 +73,22 @@ namespace test
 		);
 
 		MOCK_METHOD(
+			std::shared_ptr<openkit::IRootAction>, reportError, (const char*, int32_t), (override)
+		);
+
+		MOCK_METHOD(
+			std::shared_ptr<openkit::IRootAction>,
+			reportError,
+			(
+				const char*,
+				const char*,
+				const char*,
+				const char*
+			),
+			(override)
+		);
+
+		MOCK_METHOD(
 			std::shared_ptr<openkit::IWebRequestTracer>, traceWebRequest, (const char*), (override)
 		);
 

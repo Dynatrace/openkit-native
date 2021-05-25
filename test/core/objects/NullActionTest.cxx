@@ -128,13 +128,43 @@ TEST_F(NullActionTest, reportStringValueReturnsSelf)
 	ASSERT_THAT(nullAction, testing::Eq(target));
 }
 
-TEST_F(NullActionTest, reportErrorReturnsSelf)
+TEST_F(NullActionTest, reportDeprecatedErrorCodeReturnsSelf)
 {
 	// given
 	auto target = createNullAction();
 
 	// when
 	auto obtained = target->reportError("error name", 1337, "something bad");
+
+	// then
+	ASSERT_THAT(obtained, testing::NotNull());
+	auto nullAction = std::dynamic_pointer_cast<NullAction_t>(obtained);
+	ASSERT_THAT(nullAction, testing::NotNull());
+	ASSERT_THAT(nullAction, testing::Eq(target));
+}
+
+TEST_F(NullActionTest, reportErrorCodeReturnsSelf)
+{
+	// given
+	auto target = createNullAction();
+
+	// when
+	auto obtained = target->reportError("error name", 1337);
+
+	// then
+	ASSERT_THAT(obtained, testing::NotNull());
+	auto nullAction = std::dynamic_pointer_cast<NullAction_t>(obtained);
+	ASSERT_THAT(nullAction, testing::NotNull());
+	ASSERT_THAT(nullAction, testing::Eq(target));
+}
+
+TEST_F(NullActionTest, reportErrorCauseReturnsSelf)
+{
+	// given
+	auto target = createNullAction();
+
+	// when
+	auto obtained = target->reportError("error name", "cause name", "cause description", "stack trace");
 
 	// then
 	ASSERT_THAT(obtained, testing::NotNull());

@@ -22,6 +22,7 @@
 #include "core/caching/BeaconKey.h"
 #include "core/configuration/ConfigurationDefaults.h"
 #include "core/objects/WebRequestTracer.h"
+#include "core/util/StringUtil.h"
 #include "core/util/URLEncoding.h"
 #include "protocol/EventType.h"
 #include "protocol/ProtocolConstants.h"
@@ -86,6 +87,7 @@ constexpr int32_t THREAD_ID = 1234567;
 constexpr int32_t SESSION_ID = 73;
 constexpr int32_t SESSION_SEQUENCE = 13;
 const Utf8String_t TRACER_URL("https://localhost");
+const Utf8String_t ACTION_NAME("action name");
 constexpr int32_t MULTIPLICITY = 1;
 
 class BeaconTest : public testing::Test
@@ -514,8 +516,8 @@ TEST_F(BeaconTest, addValidActionEvent)
 	// expect
 	std::stringstream s;
 	s << "et=" << static_cast<int32_t>(EventType_t::ACTION)	// event type
-		<< "&na=" << actionName.getStringData()		// action name
 		<< "&it=" << THREAD_ID						// thread ID
+		<< "&na=" << actionName.getStringData()		// action name
 		<< "&ca=" << ACTION_ID						// action ID
 		<< "&pa=" << parentID						// parent action ID
 		<< "&s0=0"									// action start sequence number
@@ -539,10 +541,12 @@ TEST_F(BeaconTest, addValidActionEvent)
 TEST_F(BeaconTest, actionNotReportedIfActionReportingDisallowed)
 {
 	// with
+	auto actionMock = MockIActionCommon::createNice();
+	ON_CALL(*actionMock, getName())
+		.WillByDefault(testing::ReturnRef(ACTION_NAME));
+
 	ON_CALL(*mockPrivacyConfiguration, isActionReportingAllowed())
 		.WillByDefault(testing::Return(false));
-
-	auto actionMock = MockIActionCommon::createStrict();
 
 	// expect
 	EXPECT_CALL(*mockBeaconCache, addActionData(testing::_, testing::_, testing::_))
@@ -555,13 +559,44 @@ TEST_F(BeaconTest, actionNotReportedIfActionReportingDisallowed)
 	target->addAction(actionMock);
 }
 
+TEST_F(BeaconTest, addingNullActionThrowsException)
+{
+	// given
+	auto target = createBeacon()->build();
+
+	// then
+	EXPECT_THROW(
+		target->addAction(nullptr),
+		std::invalid_argument
+	);
+}
+
+TEST_F(BeaconTest, addingActionWithEmptyNameThrowsException)
+{
+	// given
+	auto target = createBeacon()->build();
+
+	auto actionName = Utf8String_t();
+	auto actionMock = MockIActionCommon::createNice();
+	ON_CALL(*actionMock, getName())
+		.WillByDefault(testing::ReturnRef(actionName));
+
+	// then
+	EXPECT_THROW(
+		target->addAction(actionMock),
+		std::invalid_argument
+	);
+}
+
 TEST_F(BeaconTest, actionNotReportedIfDataSendingDisallowed)
 {
 	// with
+	auto actionMock = MockIActionCommon::createNice();
+	ON_CALL(*actionMock, getName())
+		.WillByDefault(testing::ReturnRef(ACTION_NAME));
+
 	ON_CALL(*mockServerConfiguration, isSendingDataAllowed())
 		.WillByDefault(testing::Return(false));
-
-	auto actionMock = MockIActionCommon::createStrict();
 
 	// expect
 	EXPECT_CALL(*mockBeaconCache, addActionData(testing::_, testing::_, testing::_))
@@ -740,8 +775,8 @@ TEST_F(BeaconTest, reportValidValueInt32)
 	// expect
 	std::stringstream s;
 	s << "et=" << static_cast<int32_t>(EventType_t::VALUE_INT)	// event type
-		<< "&na=" << valueName.getStringData()		// name of reported value
 		<< "&it=" << THREAD_ID						// thread ID
+		<< "&na=" << valueName.getStringData()		// name of reported value
 		<< "&pa=" << ACTION_ID						// parent action
 		<< "&s0=1"									// sequence number of reported value
 		<< "&t0=0"									// event time since session start
@@ -800,6 +835,20 @@ TEST_F(BeaconTest, int32ValueIsNotReportedIfDataSendingDisallowed)
 	target->reportValue(1, valueName, value);
 }
 
+TEST_F(BeaconTest, reportingInt32ValueWithEmptyValueNameThrowsException)
+{
+	// given
+	auto target = createBeacon()->build();
+
+	auto valueName = Utf8String_t();
+	int32_t value = 42;
+
+	EXPECT_THROW(
+		target->reportValue(1, valueName, value),
+		std::invalid_argument
+	);
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// reportValue(int64_t) tests
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -813,8 +862,8 @@ TEST_F(BeaconTest, reportValidValueInt64)
 	// expect
 	std::stringstream s;
 	s << "et=" << static_cast<int32_t>(EventType_t::VALUE_INT)	// event type
-		<< "&na=" << valueName.getStringData()		// name of reported value
 		<< "&it=" << THREAD_ID						// thread ID
+		<< "&na=" << valueName.getStringData()		// name of reported value
 		<< "&pa=" << ACTION_ID						// parent action
 		<< "&s0=1"									// sequence number of reported value
 		<< "&t0=0"									// event time since session start
@@ -873,6 +922,20 @@ TEST_F(BeaconTest, int64ValueIsNotReportedIfDataSendingDisallowed)
 	target->reportValue(1, valueName, value);
 }
 
+TEST_F(BeaconTest, reportingInt64ValueWithEmptyValueNameThrowsException)
+{
+	// given
+	auto target = createBeacon()->build();
+
+	auto valueName = Utf8String_t();
+	int64_t value = 42;
+
+	EXPECT_THROW(
+		target->reportValue(1, valueName, value),
+		std::invalid_argument
+	);
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// reportValue(double) tests
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -886,8 +949,8 @@ TEST_F(BeaconTest, reportValidValueDouble)
 	// expect
 	std::stringstream s;
 	s << "et=" << static_cast<int32_t>(EventType_t::VALUE_DOUBLE)	// event type
-		<< "&na=" << valueName.getStringData()		// name of reported value
 		<< "&it=" << THREAD_ID						// thread ID
+		<< "&na=" << valueName.getStringData()		// name of reported value
 		<< "&pa=" << ACTION_ID						// parent action
 		<< "&s0=1"									// sequence number of reported value
 		<< "&t0=0"									// event time since session start
@@ -946,6 +1009,20 @@ TEST_F(BeaconTest, doubleValueIsNotReportedIfDataSendingDisallowed)
 	target->reportValue(1, valueName, value);
 }
 
+TEST_F(BeaconTest, reportingDoubleValueWithEmptyValueNameThrowsException)
+{
+	// given
+	auto target = createBeacon()->build();
+
+	auto valueName = Utf8String_t();
+	double value = 42.1337;
+
+	EXPECT_THROW(
+		target->reportValue(1, valueName, value),
+		std::invalid_argument
+	);
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// reportValue(string) tests
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -959,8 +1036,8 @@ TEST_F(BeaconTest, reportValidValueString)
 	// expect
 	std::stringstream s;
 	s << "et=" << static_cast<int32_t>(EventType_t::VALUE_STRING)	// event type
-		<< "&na=" << valueName.getStringData()		// name of reported value
 		<< "&it=" << THREAD_ID						// thread ID
+		<< "&na=" << valueName.getStringData()		// name of reported value
 		<< "&pa=" << ACTION_ID						// parent action
 		<< "&s0=1"									// sequence number of reported value
 		<< "&t0=0"									// event time since session start
@@ -979,44 +1056,17 @@ TEST_F(BeaconTest, reportValidValueString)
 	target->reportValue(ACTION_ID, valueName, value);
 }
 
-TEST_F(BeaconTest, reportValueStringWithValueNull)
+TEST_F(BeaconTest, reportValueStringWithEmptyValue)
 {
 	// with
 	Utf8String_t valueName("StringValue");
-	Utf8String_t value(nullptr);
+	auto value = Utf8String_t();
 
 	// expect
 	std::stringstream s;
 	s << "et=" << static_cast<int32_t>(EventType_t::VALUE_STRING)	// event type
+		<< "&it=" << THREAD_ID						// thread ID
 		<< "&na=" << valueName.getStringData()		// name of reported value
-		<< "&it=" << THREAD_ID						// thread ID
-		<< "&pa=" << ACTION_ID						// parent action
-		<< "&s0=1"									// sequence number of reported value
-		<< "&t0=0"									// event time since session start
-	;
-	EXPECT_CALL(*mockBeaconCache, addEventData(
-		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
-		0,											// timestamp when value was reported
-		testing::Eq(s.str())
-	)).Times(1);
-
-	// given
-	auto target = createBeacon()->build();
-
-	// when
-	target->reportValue(ACTION_ID, valueName, value);
-}
-
-TEST_F(BeaconTest, reportValueStringWithValueNullAndNameNull)
-{
-	// with
-	Utf8String_t valueName(nullptr);
-	Utf8String_t value(nullptr);
-
-	// expect
-	std::stringstream s;
-	s << "et=" << static_cast<int32_t>(EventType_t::VALUE_STRING)	// event type
-		<< "&it=" << THREAD_ID						// thread ID
 		<< "&pa=" << ACTION_ID						// parent action
 		<< "&s0=1"									// sequence number of reported value
 		<< "&t0=0"									// event time since session start
@@ -1074,6 +1124,21 @@ TEST_F(BeaconTest, stringValueIsNotReportedIfDataSendingDisallowed)
 	target->reportValue(1, valueName, value);
 }
 
+TEST_F(BeaconTest, reportingStringValueWithEmptyValueNameThrowsException)
+{
+	// given
+	auto target = createBeacon()->build();
+
+	auto valueName = Utf8String_t();
+	Utf8String_t value("HelloWorld");
+
+	// then
+	EXPECT_THROW(
+		target->reportValue(1, valueName, value),
+		std::invalid_argument
+	);
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// reportEvent tests
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1086,8 +1151,8 @@ TEST_F(BeaconTest, reportValidEvent)
 	// expect
 	std::stringstream s;
 	s << "et=" << static_cast<int32_t>(EventType_t::NAMED_EVENT)	// event type
-		<< "&na=" << eventName.getStringData()		// name of event
 		<< "&it=" << THREAD_ID						// thread ID
+		<< "&na=" << eventName.getStringData()		// name of event
 		<< "&pa=" << ACTION_ID						// parent action
 		<< "&s0=1"									// sequence number of reported event
 		<< "&t0=0"									// event time since session start
@@ -1105,30 +1170,18 @@ TEST_F(BeaconTest, reportValidEvent)
 	target->reportEvent(ACTION_ID, eventName);
 }
 
-TEST_F(BeaconTest, reportEventWithNameNull)
+TEST_F(BeaconTest, reportingEventWithEmptyEventNameThrowsException)
 {
-	// with
-	Utf8String_t eventName(nullptr);
-
-	// expect
-	std::stringstream s;
-	s << "et=" << static_cast<int32_t>(EventType_t::NAMED_EVENT)	// event type
-		<< "&it=" << THREAD_ID						// thread ID
-		<< "&pa=" << ACTION_ID						// parent action
-		<< "&s0=1"									// sequence number of reported event
-		<< "&t0=0"									// event time since session start
-	;
-	EXPECT_CALL(*mockBeaconCache, addEventData(
-		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
-		0,											// event timestamp
-		testing::Eq(s.str())
-	)).Times(1);
-
 	// given
 	auto target = createBeacon()->build();
 
-	// when
-	target->reportEvent(ACTION_ID, eventName);
+	auto eventName = Utf8String_t();
+
+	// then
+	EXPECT_THROW(
+		target->reportEvent(1, eventName),
+		std::invalid_argument
+	);
 }
 
 TEST_F(BeaconTest, namedEventNotReportedIfDataSendingIsDisallowed)
@@ -1170,27 +1223,25 @@ TEST_F(BeaconTest, namedEventNotReportedIfEventReportingDisallowed)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// reportError tests
+/// reportError tests (with error code)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST_F(BeaconTest, reportError)
+TEST_F(BeaconTest, reportErrorCode)
 {
 	// with
 	Utf8String_t errorName("someEvent");
 	int32_t errorCode = -123;
-	Utf8String_t reason("someReason");
 
 	// expect
 	std::stringstream s;
 	s << "et=" << static_cast<int32_t>(EventType_t::FAILURE_ERROR)	// event type
-		<< "&na=" << errorName.getStringData()		// name of error event
-		<< "&it=" << THREAD_ID						// thread ID
-		<< "&pa=" << ACTION_ID						// parent action
-		<< "&s0=1"									// sequence number of reported error
-		<< "&t0=0"									// event time since session start
-		<< "&ev=" << errorCode						// reported error value
-		<< "&rs=" << reason.getStringData()			// reported reason
-		<< "&tt=c"									// error technology type
+		<< "&it=" << THREAD_ID										// thread ID
+		<< "&na=" << errorName.getStringData()						// name of error event
+		<< "&pa=" << ACTION_ID										// parent action
+		<< "&s0=1"													// sequence number of reported error
+		<< "&t0=0"													// event time since session start
+		<< "&ev=" << errorCode										// reported error value
+		<< "&tt=c"													// error technology type
 	;
 	EXPECT_CALL(*mockBeaconCache, addEventData(
 		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
@@ -1202,40 +1253,25 @@ TEST_F(BeaconTest, reportError)
 	auto target = createBeacon()->build();
 
 	// when
-	target->reportError(ACTION_ID, errorName, errorCode, reason);
+	target->reportError(ACTION_ID, errorName, errorCode);
 }
 
-TEST_F(BeaconTest, reportErrorWithoutName)
+TEST_F(BeaconTest, reportingErrorCodeWithEmptyNameThrowsException)
 {
-	// with
-	Utf8String_t errorName(nullptr);
-	int32_t errorCode = -123;
-	Utf8String_t reason(nullptr);
-
-	// expect
-	std::stringstream s;
-	s << "et=" << static_cast<int32_t>(EventType_t::FAILURE_ERROR)	// event type
-		<< "&it=" << THREAD_ID						// thread ID
-		<< "&pa=" << ACTION_ID						// parent action
-		<< "&s0=1"									// sequence number of reported error
-		<< "&t0=0"									// event time since session start
-		<< "&ev=" << errorCode						// reported error value
-		<< "&tt=c"									// error technology type
-	;
-	EXPECT_CALL(*mockBeaconCache, addEventData(
-		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
-		0,											// timestamp when error was reported
-		testing::Eq(s.str())
-	)).Times(1);
-
 	// given
+	auto errorName = Utf8String_t();
+	int32_t errorCode = -123;
+
 	auto target = createBeacon()->build();
 
-	// when
-	target->reportError(ACTION_ID, errorName, errorCode, reason);
+	// then
+	EXPECT_THROW(
+		target->reportError(ACTION_ID, errorName, errorCode),
+		std::invalid_argument
+	);
 }
 
-TEST_F(BeaconTest, errorNotReportedIfDataSendingDisallowed)
+TEST_F(BeaconTest, errorCodeNotReportedIfDataSendingDisallowed)
 {
 	// with
 	ON_CALL(*mockServerConfiguration, isSendingDataAllowed())
@@ -1243,7 +1279,6 @@ TEST_F(BeaconTest, errorNotReportedIfDataSendingDisallowed)
 
 	Utf8String_t eventName("event name");
 	int32_t errorCode = 123;
-	Utf8String_t reason("error reason");
 
 	// expect
 	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
@@ -1253,10 +1288,10 @@ TEST_F(BeaconTest, errorNotReportedIfDataSendingDisallowed)
 	auto target = createBeacon()->build();
 
 	// when, expect no interaction with beacon cache
-	target->reportError(ACTION_ID, eventName, errorCode, reason);
+	target->reportError(ACTION_ID, eventName, errorCode);
 }
 
-TEST_F(BeaconTest, errorNotReportedIfSendingErrorDataDisallowed)
+TEST_F(BeaconTest, errorCodeNotReportedIfSendingErrorDataDisallowed)
 {
 	// with
 	ON_CALL(*mockServerConfiguration, isSendingErrorsAllowed())
@@ -1264,7 +1299,6 @@ TEST_F(BeaconTest, errorNotReportedIfSendingErrorDataDisallowed)
 
 	Utf8String_t eventName("event name");
 	int32_t errorCode = 123;
-	Utf8String_t reason("error reason");
 
 	// expect
 	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
@@ -1274,10 +1308,10 @@ TEST_F(BeaconTest, errorNotReportedIfSendingErrorDataDisallowed)
 	auto target = createBeacon()->build();
 
 	// when, expect no interaction with beacon cache
-	target->reportError(ACTION_ID, eventName, errorCode, reason);
+	target->reportError(ACTION_ID, eventName, errorCode);
 }
 
-TEST_F(BeaconTest, errorNotReportedIfErrorReportingDisallowed)
+TEST_F(BeaconTest, errorCodeNotReportedIfErrorReportingDisallowed)
 {
 	// with
 	ON_CALL(*mockPrivacyConfiguration, isErrorReportingAllowed())
@@ -1285,7 +1319,6 @@ TEST_F(BeaconTest, errorNotReportedIfErrorReportingDisallowed)
 
 	Utf8String_t eventName("error name");
 	int32_t errorCode = 132;
-	Utf8String_t reason("error reason");
 
 	// expect
 	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
@@ -1295,7 +1328,211 @@ TEST_F(BeaconTest, errorNotReportedIfErrorReportingDisallowed)
 	auto target = createBeacon()->build();
 
 	// when, expect no interaction with beacon cache
-	target->reportError(ACTION_ID, eventName, errorCode, reason);
+	target->reportError(ACTION_ID, eventName, errorCode);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// reportError tests (with cause)
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+TEST_F(BeaconTest, reportErrorWithCause)
+{
+	// with
+	Utf8String_t errorName("SomeError");
+	Utf8String_t causeName("CausedBy");
+	Utf8String_t causeDescription("SomeReason");
+	Utf8String_t causeStackTrace("HereComesTheTrace");
+
+	// expect
+	std::stringstream s;
+	s << "et=" << static_cast<int32_t>(EventType_t::FAILURE_EXCEPTION)	// event type
+		<< "&it=" << THREAD_ID										// thread ID
+		<< "&na=" << errorName.getStringData()						// name of error event
+		<< "&pa=" << ACTION_ID										// parent action
+		<< "&s0=1"													// sequence number of reported error
+		<< "&t0=0"													// event time since session start
+		<< "&ev=" << causeName.getStringData()						// reported error value
+		<< "&rs=" << causeDescription.getStringData()					// reported error reason
+		<< "&st=" << causeStackTrace.getStringData()				// reported error stack trace
+		<< "&tt=c"													// error technology type
+		;
+	EXPECT_CALL(*mockBeaconCache, addEventData(
+		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
+		0,											// timestamp when error was reported
+		testing::Eq(s.str())
+	)).Times(1);
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when
+	target->reportError(ACTION_ID, errorName, causeName, causeDescription, causeStackTrace);
+}
+
+TEST_F(BeaconTest, reportingErrorWithCauseWithEmptyErrorNameThrowsException)
+{
+	// given
+	Utf8String_t causeName("CausedBy");
+	Utf8String_t causeDescription("SomeReason");
+	Utf8String_t causeStackTrace("HereComesTheTrace");
+
+	auto target = createBeacon()->build();
+
+	// then
+	EXPECT_THROW(
+		target->reportError(ACTION_ID, Utf8String_t(), causeName, causeDescription, causeStackTrace),
+		std::invalid_argument
+	);
+}
+
+TEST_F(BeaconTest, reportErrorWithEmptyCauseNameWorks)
+{
+	// with
+	Utf8String_t errorName("SomeError");
+	Utf8String_t causeName;
+	Utf8String_t causeDescription("SomeReason");
+	Utf8String_t causeStackTrace("HereComesTheTrace");
+
+	// expect
+	std::stringstream s;
+	s << "et=" << static_cast<int32_t>(EventType_t::FAILURE_EXCEPTION)	// event type
+		<< "&it=" << THREAD_ID										// thread ID
+		<< "&na=" << errorName.getStringData()						// name of error event
+		<< "&pa=" << ACTION_ID										// parent action
+		<< "&s0=1"													// sequence number of reported error
+		<< "&t0=0"													// event time since session start
+		<< "&rs=" << causeDescription.getStringData()				// reported error reason
+		<< "&st=" << causeStackTrace.getStringData()				// reported error stack trace
+		<< "&tt=c"													// error technology type
+		;
+	EXPECT_CALL(*mockBeaconCache, addEventData(
+		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
+		0,											// timestamp when error was reported
+		testing::Eq(s.str())
+	)).Times(1);
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when
+	target->reportError(ACTION_ID, errorName, causeName, causeDescription, causeStackTrace);
+}
+
+TEST_F(BeaconTest, reportErrorWithEmptyCauseDescriptionWorks)
+{
+	// with
+	Utf8String_t errorName("SomeError");
+	Utf8String_t causeName("CausedBy");
+	Utf8String_t causeDescription;
+	Utf8String_t causeStackTrace("HereComesTheTrace");
+
+	// expect
+	std::stringstream s;
+	s << "et=" << static_cast<int32_t>(EventType_t::FAILURE_EXCEPTION)	// event type
+		<< "&it=" << THREAD_ID										// thread ID
+		<< "&na=" << errorName.getStringData()						// name of error event
+		<< "&pa=" << ACTION_ID										// parent action
+		<< "&s0=1"													// sequence number of reported error
+		<< "&t0=0"													// event time since session start
+		<< "&ev=" << causeName.getStringData()						// reported error value
+		<< "&st=" << causeStackTrace.getStringData()				// reported error stack trace
+		<< "&tt=c"													// error technology type
+		;
+	EXPECT_CALL(*mockBeaconCache, addEventData(
+		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
+		0,											// timestamp when error was reported
+		testing::Eq(s.str())
+	)).Times(1);
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when
+	target->reportError(ACTION_ID, errorName, causeName, causeDescription, causeStackTrace);
+}
+
+TEST_F(BeaconTest, reportErrorWithEmptyCauseStackTraceWorks)
+{
+	// with
+	Utf8String_t errorName("SomeError");
+	Utf8String_t causeName("CausedBy");
+	Utf8String_t causeDescription("SomeReason");
+	Utf8String_t causeStackTrace;
+
+	// expect
+	std::stringstream s;
+	s << "et=" << static_cast<int32_t>(EventType_t::FAILURE_EXCEPTION)	// event type
+		<< "&it=" << THREAD_ID										// thread ID
+		<< "&na=" << errorName.getStringData()						// name of error event
+		<< "&pa=" << ACTION_ID										// parent action
+		<< "&s0=1"													// sequence number of reported error
+		<< "&t0=0"													// event time since session start
+		<< "&ev=" << causeName.getStringData()						// reported error value
+		<< "&rs=" << causeDescription.getStringData()				// reported error reason
+		<< "&tt=c"													// error technology type
+		;
+	EXPECT_CALL(*mockBeaconCache, addEventData(
+		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
+		0,											// timestamp when error was reported
+		testing::Eq(s.str())
+	)).Times(1);
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when
+	target->reportError(ACTION_ID, errorName, causeName, causeDescription, causeStackTrace);
+}
+
+TEST_F(BeaconTest, errorWithCauseNotReportedIfDataSendingIsDisallowed)
+{
+	// with
+	ON_CALL(*mockServerConfiguration, isSendingDataAllowed)
+		.WillByDefault(testing::Return(false));
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when
+	target->reportError(ACTION_ID, "Error name", "cause", "description", "stack trace");
+}
+
+TEST_F(BeaconTest, errorWithCauseNotReportedIfErrorSendingIsDisallowed)
+{
+	// with
+	ON_CALL(*mockServerConfiguration, isSendingErrorsAllowed)
+		.WillByDefault(testing::Return(false));
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when
+	target->reportError(ACTION_ID, "Error name", "cause", "description", "stack trace");
+}
+
+TEST_F(BeaconTest, errorWithCauseNotReportedIfErrorReportingIsDisallowed)
+{
+	// with
+	ON_CALL(*mockPrivacyConfiguration, isErrorReportingAllowed)
+		.WillByDefault(testing::Return(false));
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when
+	target->reportError(ACTION_ID, "Error name", "cause", "description", "stack trace");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1312,8 +1549,8 @@ TEST_F(BeaconTest, reportValidCrash)
 	// expect
 	std::stringstream s;
 	s << "et=" << static_cast<int32_t>(EventType_t::FAILURE_CRASH)	// event type
-		<< "&na=" << errorName.getStringData()		// reported crash name
 		<< "&it=" << THREAD_ID						// thread ID
+		<< "&na=" << errorName.getStringData()		// reported crash name
 		<< "&pa=0"									// parent action
 		<< "&s0=1"									// sequence number of reported crash
 		<< "&t0=0"									// event time since session start
@@ -1334,23 +1571,67 @@ TEST_F(BeaconTest, reportValidCrash)
 	target->reportCrash(errorName, reason, stacktrace);
 }
 
-TEST_F(BeaconTest, reportCrashWithDetailsNull)
+TEST_F(BeaconTest, reportingCrashWithEmptyErrorNameThrowsException)
+{
+	// given
+	auto target = createBeacon()->build();
+
+	// when, then
+	EXPECT_THROW(
+		target->reportCrash(Utf8String_t(), "reason", "stack trace"),
+		std::invalid_argument
+	);
+}
+
+TEST_F(BeaconTest, reportCrashWithEmptyReasonWorks)
 {
 	// with
 	Utf8String_t errorName("someEvent");
-	Utf8String_t reason(nullptr);
-	Utf8String_t stacktrace(nullptr);
+	Utf8String_t reason;
+	Utf8String_t stacktrace("someStackTrace");
 
 	// expect
 	std::stringstream s;
 	s << "et=" << static_cast<int32_t>(EventType_t::FAILURE_CRASH)	// event type
-		<< "&na=" << errorName.getStringData()		// reported crash name
 		<< "&it=" << THREAD_ID						// thread ID
+		<< "&na=" << errorName.getStringData()		// reported crash name
 		<< "&pa=0"									// parent action
 		<< "&s0=1"									// sequence number of reported crash
 		<< "&t0=0"									// event time since session start
+		<< "&st=" << stacktrace.getStringData()		// reported stacktrace
 		<< "&tt=c"									// error technology type
 	;
+	EXPECT_CALL(*mockBeaconCache, addEventData(
+		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
+		0,											// timestamp when crash was reported
+		testing::Eq(s.str())
+	)).Times(1);
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when
+	target->reportCrash(errorName, reason, stacktrace);
+}
+
+TEST_F(BeaconTest, reportCrashWithEmptyStackTraceWorks)
+{
+	// with
+	Utf8String_t errorName("someEvent");
+	Utf8String_t reason("someReason");
+	Utf8String_t stacktrace;
+
+	// expect
+	std::stringstream s;
+	s << "et=" << static_cast<int32_t>(EventType_t::FAILURE_CRASH)	// event type
+		<< "&it=" << THREAD_ID						// thread ID
+		<< "&na=" << errorName.getStringData()		// reported crash name
+		<< "&pa=0"									// parent action
+		<< "&s0=1"									// sequence number of reported crash
+		<< "&t0=0"									// event time since session start
+		<< "&rs=" << reason.getStringData()			// reported reason
+		<< "&tt=c"									// error technology type
+		;
 	EXPECT_CALL(*mockBeaconCache, addEventData(
 		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
 		0,											// timestamp when crash was reported
@@ -1442,7 +1723,7 @@ TEST_F(BeaconTest, addWebRequest)
 
 	auto tracer = MockIWebRequestTracerInternals::createNice();
 	ON_CALL(*tracer, getURL())
-		.WillByDefault(testing::Return(TRACER_URL));
+		.WillByDefault(testing::ReturnRef(TRACER_URL));
 	ON_CALL(*tracer, getBytesSent())
 		.WillByDefault(testing::Return(numBytesSent));
 	ON_CALL(*tracer, getBytesReceived())
@@ -1453,8 +1734,8 @@ TEST_F(BeaconTest, addWebRequest)
 	// expect
 	std::stringstream s;
 	s << "et=" << static_cast<int32_t>(EventType_t::WEBREQUEST)	// event type
-		<< "&na=" << UrlEncoding_t::urlencode(TRACER_URL, {'_'}).getStringData() // tracer url
 		<< "&it=" << THREAD_ID						// thread ID
+		<< "&na=" << UrlEncoding_t::urlencode(TRACER_URL, { '_' }).getStringData() // tracer url
 		<< "&pa=" << ACTION_ID						// parent action
 		<< "&s0=0"									// web request start sequence number
 		<< "&t0=0"									// web request start time (since session start)
@@ -1474,6 +1755,35 @@ TEST_F(BeaconTest, addWebRequest)
 	target->addWebRequest(ACTION_ID, tracer);
 }
 
+TEST_F(BeaconTest, addWebRequestWithNullWebRequestTracerThrowsException)
+{
+	// given
+	auto target = createBeacon()->build();
+
+	// when, then
+	EXPECT_THROW(
+		target->addWebRequest(ACTION_ID, nullptr),
+		std::invalid_argument
+	);
+}
+
+TEST_F(BeaconTest, addWebRequestWithEmptyUrlThrowsException)
+{
+	// given
+	Utf8String_t url;
+	auto webRequestTracer = MockIWebRequestTracerInternals::createNice();
+	ON_CALL(*webRequestTracer, getURL)
+		.WillByDefault(testing::ReturnRef(url));
+
+	auto target = createBeacon()->build();
+
+	// when, then
+	EXPECT_THROW(
+		target->addWebRequest(ACTION_ID, webRequestTracer),
+		std::invalid_argument
+	);
+}
+
 TEST_F(BeaconTest, canAddSentBytesEqualToZeroToWebRequest)
 {
 	// given
@@ -1484,7 +1794,7 @@ TEST_F(BeaconTest, canAddSentBytesEqualToZeroToWebRequest)
 
 	auto tracer = MockIWebRequestTracerInternals::createNice();
 	ON_CALL(*tracer, getURL())
-		.WillByDefault(testing::Return(TRACER_URL));
+		.WillByDefault(testing::ReturnRef(TRACER_URL));
 	ON_CALL(*tracer, getBytesSent())
 		.WillByDefault(testing::Return(0));
 	ON_CALL(*tracer, getBytesReceived())
@@ -1495,8 +1805,8 @@ TEST_F(BeaconTest, canAddSentBytesEqualToZeroToWebRequest)
 	// expect
 	std::stringstream s;
 	s << "et=" << static_cast<int32_t>(EventType_t::WEBREQUEST)	// event type
-		<< "&na=" << UrlEncoding_t::urlencode(TRACER_URL, { '_' }).getStringData() // tracer url
 		<< "&it=" << THREAD_ID						// thread ID
+		<< "&na=" << UrlEncoding_t::urlencode(TRACER_URL, { '_' }).getStringData() // tracer url
 		<< "&pa=" << ACTION_ID						// parent action
 		<< "&s0=0"									// web request start sequence number
 		<< "&t0=0"									// web request start time (since session start)
@@ -1526,7 +1836,7 @@ TEST_F(BeaconTest, cannotAddSentBytesLessThanZeroToWebRequest)
 
 	auto tracer = MockIWebRequestTracerInternals::createNice();
 	ON_CALL(*tracer, getURL())
-		.WillByDefault(testing::Return(TRACER_URL));
+		.WillByDefault(testing::ReturnRef(TRACER_URL));
 	ON_CALL(*tracer, getBytesSent())
 		.WillByDefault(testing::Return(-1));
 	ON_CALL(*tracer, getBytesReceived())
@@ -1537,8 +1847,8 @@ TEST_F(BeaconTest, cannotAddSentBytesLessThanZeroToWebRequest)
 	// expect
 	std::stringstream s;
 	s << "et=" << static_cast<int32_t>(EventType_t::WEBREQUEST)	// event type
-		<< "&na=" << UrlEncoding_t::urlencode(TRACER_URL, { '_' }).getStringData() // tracer url
 		<< "&it=" << THREAD_ID						// thread ID
+		<< "&na=" << UrlEncoding_t::urlencode(TRACER_URL, { '_' }).getStringData() // tracer url
 		<< "&pa=" << ACTION_ID						// parent action
 		<< "&s0=0"									// web request start sequence number
 		<< "&t0=0"									// web request start time (since session start)
@@ -1567,7 +1877,7 @@ TEST_F(BeaconTest, canAddReceivedBytesEqualToZeroToWebRequest)
 
 	auto tracer = MockIWebRequestTracerInternals::createNice();
 	ON_CALL(*tracer, getURL())
-		.WillByDefault(testing::Return(TRACER_URL));
+		.WillByDefault(testing::ReturnRef(TRACER_URL));
 	ON_CALL(*tracer, getBytesSent())
 		.WillByDefault(testing::Return(numBytesSent));
 	ON_CALL(*tracer, getBytesReceived())
@@ -1578,8 +1888,8 @@ TEST_F(BeaconTest, canAddReceivedBytesEqualToZeroToWebRequest)
 	// expect
 	std::stringstream s;
 	s << "et=" << static_cast<int32_t>(EventType_t::WEBREQUEST)	// event type
-		<< "&na=" << UrlEncoding_t::urlencode(TRACER_URL, { '_' }).getStringData() // tracer url
 		<< "&it=" << THREAD_ID						// thread ID
+		<< "&na=" << UrlEncoding_t::urlencode(TRACER_URL, { '_' }).getStringData() // tracer url
 		<< "&pa=" << ACTION_ID						// parent action
 		<< "&s0=0"									// web request start sequence number
 		<< "&t0=0"									// web request start time (since session start)
@@ -1609,7 +1919,7 @@ TEST_F(BeaconTest, cannotAddReceivedBytesLessThanZeroToWebRequest)
 
 	auto tracer = MockIWebRequestTracerInternals::createNice();
 	ON_CALL(*tracer, getURL())
-		.WillByDefault(testing::Return(TRACER_URL));
+		.WillByDefault(testing::ReturnRef(TRACER_URL));
 	ON_CALL(*tracer, getBytesSent())
 		.WillByDefault(testing::Return(numBytesSent));
 	ON_CALL(*tracer, getBytesReceived())
@@ -1620,8 +1930,8 @@ TEST_F(BeaconTest, cannotAddReceivedBytesLessThanZeroToWebRequest)
 	// expect
 	std::stringstream s;
 	s << "et=" << static_cast<int32_t>(EventType_t::WEBREQUEST)	// event type
-		<< "&na=" << UrlEncoding_t::urlencode(TRACER_URL, { '_' }).getStringData() // tracer url
 		<< "&it=" << THREAD_ID						// thread ID
+		<< "&na=" << UrlEncoding_t::urlencode(TRACER_URL, { '_' }).getStringData() // tracer url
 		<< "&pa=" << ACTION_ID						// parent action
 		<< "&s0=0"									// web request start sequence number
 		<< "&t0=0"									// web request start time (since session start)
@@ -1650,7 +1960,7 @@ TEST_F(BeaconTest, canAddResponseCodeEqualToZeroToWebRequest)
 
 	auto tracer = MockIWebRequestTracerInternals::createNice();
 	ON_CALL(*tracer, getURL())
-		.WillByDefault(testing::Return(TRACER_URL));
+		.WillByDefault(testing::ReturnRef(TRACER_URL));
 	ON_CALL(*tracer, getBytesSent())
 		.WillByDefault(testing::Return(numBytesSent));
 	ON_CALL(*tracer, getBytesReceived())
@@ -1661,8 +1971,8 @@ TEST_F(BeaconTest, canAddResponseCodeEqualToZeroToWebRequest)
 	// expect
 	std::stringstream s;
 	s << "et=" << static_cast<int32_t>(EventType_t::WEBREQUEST)	// event type
-		<< "&na=" << UrlEncoding_t::urlencode(TRACER_URL, { '_' }).getStringData() // tracer url
 		<< "&it=" << THREAD_ID						// thread ID
+		<< "&na=" << UrlEncoding_t::urlencode(TRACER_URL, { '_' }).getStringData() // tracer url
 		<< "&pa=" << ACTION_ID						// parent action
 		<< "&s0=0"									// web request start sequence number
 		<< "&t0=0"									// web request start time (since session start)
@@ -1692,7 +2002,7 @@ TEST_F(BeaconTest, cannotAddResponseCodeLessThanZeroToWebRequest)
 
 	auto tracer = MockIWebRequestTracerInternals::createNice();
 	ON_CALL(*tracer, getURL())
-		.WillByDefault(testing::Return(TRACER_URL));
+		.WillByDefault(testing::ReturnRef(TRACER_URL));
 	ON_CALL(*tracer, getBytesSent())
 		.WillByDefault(testing::Return(numBytesSent));
 	ON_CALL(*tracer, getBytesReceived())
@@ -1703,8 +2013,8 @@ TEST_F(BeaconTest, cannotAddResponseCodeLessThanZeroToWebRequest)
 	// expect
 	std::stringstream s;
 	s << "et=" << static_cast<int32_t>(EventType_t::WEBREQUEST)	// event type
-		<< "&na=" << UrlEncoding_t::urlencode(TRACER_URL, { '_' }).getStringData() // tracer url
 		<< "&it=" << THREAD_ID						// thread ID
+		<< "&na=" << UrlEncoding_t::urlencode(TRACER_URL, { '_' }).getStringData() // tracer url
 		<< "&pa=" << ACTION_ID						// parent actiond
 		<< "&s0=0"									// web request start sequence number
 		<< "&t0=0"									// web request start time (since session start)
@@ -1737,6 +2047,8 @@ TEST_F(BeaconTest, webRequestNotReportedIfDataSendingDisallowed)
 	auto target = createBeacon()
 		->build();
 	auto tracer = MockIWebRequestTracerInternals::createNice();
+	ON_CALL(*tracer, getURL())
+		.WillByDefault(testing::ReturnRef(TRACER_URL));
 
 	// when, expect no interaction with beacon cache
 	target->addWebRequest(ACTION_ID, tracer);
@@ -1755,6 +2067,8 @@ TEST_F(BeaconTest, webRequestNotReportedIfWebRequestTracingDisallowed)
 	// given
 	auto target = createBeacon()->build();
 	auto tracer = MockIWebRequestTracerInternals::createNice();
+	ON_CALL(*tracer, getURL())
+		.WillByDefault(testing::ReturnRef(TRACER_URL));
 
 	// when, expect no interaction with beacon cache
 	target->addWebRequest(ACTION_ID, tracer);
@@ -1772,8 +2086,8 @@ TEST_F(BeaconTest, addUserIdentifyEvent)
 	// expect
 	std::stringstream s;
 	s << "et=" << static_cast<int32_t>(EventType_t::IDENTIFY_USER)	// event type
-		<< "&na=" << userID.getStringData()			// reported user ID
 		<< "&it=" << THREAD_ID						// thread ID
+		<< "&na=" << userID.getStringData()			// reported user ID
 		<< "&pa=0"									// parent action
 		<< "&s0=1"									// identify user sequence number
 		<< "&t0=0"									// event timestamp since session start
@@ -2085,6 +2399,8 @@ TEST_F(BeaconTest, clearDataFromBeaconCache)
 		.build();
 
 	auto action = MockIActionCommon::createNice();
+	ON_CALL(*action, getName())
+		.WillByDefault(testing::ReturnRef(ACTION_NAME));
 
 	target->addAction(action);
 	target->reportValue(ACTION_ID, "Int32Value", 42);
@@ -2092,7 +2408,8 @@ TEST_F(BeaconTest, clearDataFromBeaconCache)
 	target->reportValue(ACTION_ID, "DoubleValue", 3.1415);
 	target->reportValue(ACTION_ID, "StringValue", "HelloWorld");
 	target->reportEvent(ACTION_ID, "SomeEvent");
-	target->reportError(ACTION_ID, "SomeError", -123, "SomeReason");
+	target->reportError(ACTION_ID, "SomeError", -123);
+	target->reportError(ACTION_ID, "OtherError", "causeName", "causeReason", "causeStackTrace");
 	target->reportCrash("SomeCrash", "SomeReason", "SomeStacktrace");
 	target->endSession();
 
@@ -2114,7 +2431,9 @@ TEST_F(BeaconTest, noActionIsAddedIfDataSendingDisallowed)
     // given
     ON_CALL(*mockServerConfiguration, isSendingDataAllowed())
         .WillByDefault(testing::Return(false));
-    auto action = MockIActionCommon::createNice();
+	auto action = MockIActionCommon::createNice();
+	ON_CALL(*action, getName())
+		.WillByDefault(testing::ReturnRef(ACTION_NAME));
     ON_CALL(*action, getID())
         .WillByDefault(testing::Return(ACTION_ID));
     auto target = createBeacon()->with(mockBeaconCache).build();

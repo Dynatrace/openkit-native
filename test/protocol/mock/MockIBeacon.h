@@ -144,9 +144,21 @@ namespace test
 			(
 				int32_t, /* actionID */
 				const core::UTF8String&, /* errorName */
-				int32_t, /* errorCode */
-				const core::UTF8String& /* reason */
+				int32_t /* errorCode */
 			),
+			(override)
+		);
+
+		MOCK_METHOD(
+			void,
+			reportError,
+			(
+				int32_t, /* actionID */
+				const core::UTF8String&, /* errorName */
+				const core::UTF8String&, /* causeName */
+				const core::UTF8String&, /* causeDescription */
+				const core::UTF8String&  /* causeStackTrace */
+				),
 			(override)
 		);
 

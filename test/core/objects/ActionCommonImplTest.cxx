@@ -464,30 +464,28 @@ TEST_F(ActionCommonImplTest, reportValueStringLogsInvocation)
 	target->reportValue(eventName, value);
 }
 
-TEST_F(ActionCommonImplTest, reportErrorWithAllValuesSet)
+TEST_F(ActionCommonImplTest, reportErrorCodeWithAllValuesSet)
 {
 	// with
 	const char* errorName = "FATAL Error";
 	const int32_t errorCode = 0x8005037;
-	const char* errorReason = "Some reason for this fatal error";
 
 	// expect
-	EXPECT_CALL(*mockNiceBeacon, reportError(testing::Eq(ACTION_ID), testing::Eq(errorName), testing::Eq(errorCode), testing::Eq(errorReason)))
+	EXPECT_CALL(*mockNiceBeacon, reportError(testing::Eq(ACTION_ID), testing::Eq(errorName), testing::Eq(errorCode)))
 		.Times(testing::Exactly(1));
 
 	// given
 	auto target = createAction();
 
 	//when
-	target->reportError(errorName, errorCode, errorReason);
+	target->reportError(errorName, errorCode);
 }
 
-TEST_F(ActionCommonImplTest, reportErrorWithNullErrorNameDoesNotReportTheError)
+TEST_F(ActionCommonImplTest, reportErrorCodeWithNullErrorNameDoesNotReportTheError)
 {
 	// given
 	const char* errorName = nullptr;
 	const int32_t errorCode = 0x8005037;
-	const char* errorReason = "Some reason for this fatal error";
 	auto target = createAction();
 
 	// expect
@@ -495,19 +493,18 @@ TEST_F(ActionCommonImplTest, reportErrorWithNullErrorNameDoesNotReportTheError)
 	stream << target->toString() << " reportError: errorName must not be null or empty";
 	EXPECT_CALL(*mockNiceLogger, mockWarning(stream.str()))
 		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockNiceBeacon, reportError(testing::_, testing::_, testing::_, testing::_))
+	EXPECT_CALL(*mockNiceBeacon, reportError(testing::_, testing::_, testing::_))
 		.Times(testing::Exactly(0));
 
 	//when
-	target->reportError(errorName, errorCode, errorReason);
+	target->reportError(errorName, errorCode);
 }
 
-TEST_F(ActionCommonImplTest, reportErrorWithEmptyErrorNameDoesNotReportTheError)
+TEST_F(ActionCommonImplTest, reportErrorCodeWithEmptyErrorNameDoesNotReportTheError)
 {
 	// given
 	const char* errorName = "";
 	const int32_t errorCode = 0x8005037;
-	const char* errorReason = "Some reason for this fatal error";
 	auto target = createAction();
 
 	// expect
@@ -515,47 +512,115 @@ TEST_F(ActionCommonImplTest, reportErrorWithEmptyErrorNameDoesNotReportTheError)
 	stream << target->toString() << " reportError: errorName must not be null or empty";
 	EXPECT_CALL(*mockNiceLogger, mockWarning(stream.str()))
 		.Times(testing::Exactly(1));
-	EXPECT_CALL(*mockNiceBeacon, reportError(testing::_, testing::_, testing::_, testing::_))
+	EXPECT_CALL(*mockNiceBeacon, reportError(testing::_, testing::_, testing::_))
 		.Times(testing::Exactly(0));
 
 	//when
-	target->reportError(errorName, errorCode, errorReason);
+	target->reportError(errorName, errorCode);
 }
 
-TEST_F(ActionCommonImplTest, reportErrorWithEmptyNullErrorReasonDoesReport)
-{
-	// with
-	const char* errorName = "FATAL error";
-	const int32_t errorCode = 0x8005037;
-	const char* errorReason = nullptr;
-
-	// expect
-	EXPECT_CALL(*mockNiceBeacon, reportError(testing::Eq(ACTION_ID), testing::Eq(errorName), testing::Eq(errorCode), testing::Eq(errorReason)))
-		.Times(testing::Exactly(1));
-
-	// given
-	auto target = createAction();
-
-	//when
-	target->reportError(errorName, errorCode, errorReason);
-}
-
-TEST_F(ActionCommonImplTest, reportErrorLogsInvocation)
+TEST_F(ActionCommonImplTest, reportErrorCodeLogsInvocation)
 {
 	// given
 	const char* errorName = "name";
 	const int32_t errorCode = 0x8005037;
-	const char* errorReason = "reason";
 	auto target = createAction();
 
 	// expect
 	std::stringstream stream;
-	stream << target->toString() << " reportError(" << errorName << ", " << errorCode << ", " << errorReason << ")";
+	stream << target->toString() << " reportError(" << errorName << ", " << errorCode << ")";
 	EXPECT_CALL(*mockNiceLogger, mockDebug(stream.str()))
 		.Times(testing::Exactly(1));
 
 	//when
-	target->reportError(errorName, errorCode, errorReason);
+	target->reportError(errorName, errorCode);
+}
+
+TEST_F(ActionCommonImplTest, reportErrorCauseWithAllValuesSet)
+{
+	// with
+	const char* errorName = "FATAL Error";
+	const char* causeName = "std::runtime_error";
+	const char* causeDescription = "something went wrong";
+	const char* causeStackTrace = "the stack trace";
+
+	// expect
+	EXPECT_CALL(*mockNiceBeacon, reportError(testing::Eq(ACTION_ID),
+											 testing::Eq(errorName),
+											 testing::Eq(causeName),
+											 testing::Eq(causeDescription),
+											 testing::Eq(causeStackTrace)))
+		.Times(testing::Exactly(1));
+
+	// given
+	auto target = createAction();
+
+	//when
+	target->reportError(errorName, causeName, causeDescription, causeStackTrace);
+}
+
+TEST_F(ActionCommonImplTest, reportErrorCauseWithNullErrorNameDoesNotReportTheError)
+{
+	// given
+	const char* errorName = nullptr;
+	const char* causeName = "std::runtime_error";
+	const char* causeDescription = "something went wrong";
+	const char* causeStackTrace = "the stack trace";
+
+	auto target = createAction();
+
+	// expect
+	std::stringstream stream;
+	stream << target->toString() << " reportError: errorName must not be null or empty";
+	EXPECT_CALL(*mockNiceLogger, mockWarning(stream.str()))
+		.Times(testing::Exactly(1));
+	EXPECT_CALL(*mockNiceBeacon, reportError(testing::_, testing::_, testing::_, testing::_, testing::_))
+		.Times(testing::Exactly(0));
+
+	//when
+	target->reportError(errorName, causeName, causeDescription, causeStackTrace);
+}
+
+TEST_F(ActionCommonImplTest, reportErrorCauseWithEmptyErrorNameDoesNotReportTheError)
+{
+	// given
+	const char* errorName = "";
+	const char* causeName = "std::runtime_error";
+	const char* causeDescription = "something went wrong";
+	const char* causeStackTrace = "the stack trace";
+
+	auto target = createAction();
+
+	// expect
+	std::stringstream stream;
+	stream << target->toString() << " reportError: errorName must not be null or empty";
+	EXPECT_CALL(*mockNiceLogger, mockWarning(stream.str()))
+		.Times(testing::Exactly(1));
+	EXPECT_CALL(*mockNiceBeacon, reportError(testing::_, testing::_, testing::_, testing::_, testing::_))
+		.Times(testing::Exactly(0));
+
+	//when
+	target->reportError(errorName, causeName, causeDescription, causeStackTrace);
+}
+
+TEST_F(ActionCommonImplTest, reportErrorCauseLogsInvocation)
+{
+	// given
+	const char* errorName = "FATAL Error";
+	const char* causeName = "std::runtime_error";
+	const char* causeDescription = "something went wrong";
+	const char* causeStackTrace = "the stack trace";
+
+	auto target = createAction();
+
+	// expect
+	std::stringstream stream;
+	stream << target->toString() << " reportError(" << errorName << ", " << causeName << ", " << causeDescription << ", " << causeStackTrace << ")";
+	EXPECT_CALL(*mockNiceLogger, mockDebug(stream.str()))
+		.Times(testing::Exactly(1));
+
+	//when
+	target->reportError(errorName, causeName, causeDescription, causeStackTrace);
 }
 
 TEST_F(ActionCommonImplTest, traceWebRequestWithValidUrlStringGivesAppropriateTracer)
@@ -1158,12 +1223,11 @@ TEST_F(ActionCommonImplTest, reportErrorDoesNothingIfActionIsLeft)
 	// with
 	const char* errorName = "teapot";
 	const int32_t errorCode = 418;
-	const char* errorReason = "I'm a teapot";
 	const int64_t timestamp = 1234;
 	const int32_t sequenceNumber = 73;
 
 	// expect
-	EXPECT_CALL(*mockNiceBeacon, reportError(testing::_, testing::_, testing::_, testing::_))
+	EXPECT_CALL(*mockNiceBeacon, reportError(testing::_, testing::_, testing::_))
 		.Times(testing::Exactly(0));
 
 	//given
@@ -1176,7 +1240,7 @@ TEST_F(ActionCommonImplTest, reportErrorDoesNothingIfActionIsLeft)
 	target->leaveAction();
 
 	//when
-	target->reportError(errorName, errorCode, errorReason);
+	target->reportError(errorName, errorCode);
 }
 
 TEST_F(ActionCommonImplTest, traceWebRequestGivesNullTracerIfActionIsLeft)

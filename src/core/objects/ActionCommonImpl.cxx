@@ -227,10 +227,9 @@ void ActionCommonImpl::reportValue(const char* valueName, const char* value)
 }
 
 
-void ActionCommonImpl::reportError(const char* errorName, int32_t errorCode, const char* reason)
+void ActionCommonImpl::reportError(const char* errorName, int32_t errorCode)
 {
 	UTF8String errorNameString(errorName);
-	UTF8String reasonString(reason);
 	if (errorNameString.empty())
 	{
 		mLogger->warning("%s reportError: errorName must not be null or empty", toString().c_str());
@@ -238,10 +237,9 @@ void ActionCommonImpl::reportError(const char* errorName, int32_t errorCode, con
 	}
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("%s reportError(%s, %d, %s)",
+		mLogger->debug("%s reportError(%s, %d)",
 			toString().c_str(),
-			errorNameString.getStringData().c_str(), errorCode,
-			(reason != nullptr ? reasonString.getStringData().c_str() : "null")
+			errorNameString.getStringData().c_str(), errorCode
 		);
 	}
 
@@ -251,7 +249,46 @@ void ActionCommonImpl::reportError(const char* errorName, int32_t errorCode, con
 
 		if (!isActionLeft())
 		{
-			mBeacon->reportError(mActionID, errorNameString, errorCode, reasonString);
+			mBeacon->reportError(mActionID, errorNameString, errorCode);
+		}
+	}
+}
+
+void ActionCommonImpl::reportError(
+	const char* errorName,
+	const char* causeName,
+	const char* causeDescription,
+	const char* causeStackTrace)
+{
+	UTF8String errorNameString(errorName);
+	if (errorNameString.empty())
+	{
+		mLogger->warning("%s reportError: errorName must not be null or empty", toString().c_str());
+		return;
+	}
+
+	UTF8String causeNameString(causeName);
+	UTF8String causeDescriptionString(causeDescription);
+	UTF8String causeStackTraceString(causeStackTrace);
+	if (mLogger->isDebugEnabled())
+	{
+		mLogger->debug("%s reportError(%s, %s, %s, %s)",
+			toString().c_str(),
+			errorNameString.getStringData().c_str(),
+			causeName != nullptr ? causeNameString.getStringData().c_str() : "null",
+			causeDescription != nullptr ? causeDescriptionString.getStringData().c_str() : "null",
+			causeStackTrace != nullptr ? causeStackTraceString.getStringData().c_str() : "null"
+		);
+	}
+
+	// synchronized scope
+	{
+		std::lock_guard<Mutex_t> lock(mMutex);
+
+		if (!isActionLeft())
+		{
+			mBeacon->reportError(
+				mActionID, errorNameString, causeNameString, causeDescriptionString, causeStackTraceString);
 		}
 	}
 }

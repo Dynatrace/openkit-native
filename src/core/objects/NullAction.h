@@ -76,6 +76,21 @@ namespace core
 				return shared_from_this();
 			}
 
+			std::shared_ptr<IAction> reportError(const char* /*errorName*/, int32_t /*errorCode*/) override
+			{
+				return shared_from_this();
+			}
+
+			std::shared_ptr<IAction> reportError(
+				const char* /*errorName*/,
+				const char* /*causeName*/,
+				const char* /*causeDescription*/,
+				const char* /*causeStackTrace*/
+			) override
+			{
+				return shared_from_this();
+			}
+
 			std::shared_ptr<openkit::IWebRequestTracer> traceWebRequest(const char* /*url*/) override
 			{
 				return NullWebRequestTracer::instance();

@@ -102,7 +102,23 @@ namespace core
 			/// @param errorCode the reported error code.
 			/// @param reason the reason for the error
 			///
-			virtual void reportError(const char* errorName, int32_t errorCode, const char* reason) = 0;
+			virtual void reportError(const char* errorName, int32_t errorCode) = 0;
+
+			///
+			/// Adds an error to the beacon.
+			///
+			/// @param errorName name of this error
+			/// @param causeName name describing the cuase of the error (e.g. Exception class name)
+			/// @param causeDescription description what caused the eror (e.g. Exception message)
+			/// @param causeStackTrace stack trace of the error
+			/// @return this Action (for usage as fluent API)
+			///
+			virtual void reportError(
+				const char* errorName,
+				const char* causeName,
+				const char* causeDescription,
+				const char* causeStackTrace
+			) = 0;
 
 			///
 			/// Adds a web request to the beacon.

@@ -30,6 +30,7 @@ namespace protocol
 		SESSION_END = 19,				// session end
 		WEBREQUEST = 30,				// tagged web request
 		FAILURE_ERROR = 40,				// error
+		FAILURE_EXCEPTION = 42,			// exception
 		FAILURE_CRASH = 50,				// crash
 		IDENTIFY_USER = 60				// identify user
 	};

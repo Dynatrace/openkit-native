@@ -64,7 +64,7 @@ namespace protocol
 
 	// data, error & crash capture constants
 	constexpr const char BEACON_KEY_VALUE[] = "vl";
-	constexpr const char BEACON_KEY_ERROR_CODE[] = "ev";
+	constexpr const char BEACON_KEY_ERROR_VALUE[] = "ev";
 	constexpr const char BEACON_KEY_ERROR_REASON[] = "rs";
 	constexpr const char BEACON_KEY_ERROR_STACKTRACE[] = "st";
 	constexpr const char BEACON_KEY_ERROR_TECHNOLOGY_TYPE[] = "tt";

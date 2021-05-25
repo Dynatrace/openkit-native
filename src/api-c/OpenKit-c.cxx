@@ -886,7 +886,12 @@ extern "C" {
 		CATCH_AND_LOG(rootActionHandle)
 	}
 
-	void reportErrorOnRootAction(RootActionHandle* rootActionHandle, const char* errorName, int32_t errorCode, const char* reason)
+	void reportErrorOnRootAction(RootActionHandle* rootActionHandle, const char* errorName, int32_t errorCode, const char* /*reason*/)
+	{
+		reportErrorCodeOnRootAction(rootActionHandle, errorName, errorCode);
+	}
+
+	void reportErrorCodeOnRootAction(RootActionHandle* rootActionHandle, const char* errorName, int32_t errorCode)
 	{
 		TRY
 		{
@@ -894,7 +899,27 @@ extern "C" {
 			{
 				// retrieve the RootAction instance from the handle and call the respective method
 				assert(rootActionHandle->sharedPointer != nullptr);
-				rootActionHandle->sharedPointer->reportError(errorName, errorCode, reason);
+				rootActionHandle->sharedPointer->reportError(errorName, errorCode);
+			}
+		}
+		CATCH_AND_LOG(rootActionHandle)
+	}
+
+	void reportErrorCauseOnRootAction(
+		struct RootActionHandle* rootActionHandle,
+		const char* errorName,
+		const char* causeName,
+		const char* causeDescription,
+		const char* causeStackTrace
+	)
+	{
+		TRY
+		{
+			if (rootActionHandle)
+			{
+				// retrieve the RootAction instance from the handle and call the respective method
+				assert(rootActionHandle->sharedPointer != nullptr);
+				rootActionHandle->sharedPointer->reportError(errorName, causeName, causeDescription, causeStackTrace);
 			}
 		}
 		CATCH_AND_LOG(rootActionHandle)
@@ -1028,7 +1053,12 @@ extern "C" {
 		CATCH_AND_LOG(actionHandle)
 	}
 
-	void reportErrorOnAction(ActionHandle* actionHandle, const char* errorName, int32_t errorCode, const char* reason)
+	void reportErrorOnAction(ActionHandle* actionHandle, const char* errorName, int32_t errorCode, const char* /*reason*/)
+	{
+		reportErrorCodeOnAction(actionHandle, errorName, errorCode);
+	}
+
+	void reportErrorCodeOnAction(ActionHandle* actionHandle, const char* errorName, int32_t errorCode)
 	{
 		TRY
 		{
@@ -1036,7 +1066,27 @@ extern "C" {
 			{
 				// retrieve the Action instance from the handle and call the respective method
 				assert(actionHandle->sharedPointer != nullptr);
-				actionHandle->sharedPointer->reportError(errorName, errorCode, reason);
+				actionHandle->sharedPointer->reportError(errorName, errorCode);
+			}
+		}
+		CATCH_AND_LOG(actionHandle)
+	}
+
+	void reportErrorCauseOnAction(
+		struct ActionHandle* actionHandle,
+		const char* errorName,
+		const char* causeName,
+		const char* causeDescription,
+		const char* causeStackTrace
+	)
+	{
+		TRY
+		{
+			if (actionHandle)
+			{
+				// retrieve the Action instance from the handle and call the respective method
+				assert(actionHandle->sharedPointer != nullptr);
+				actionHandle->sharedPointer->reportError(errorName, causeName, causeDescription, causeStackTrace);
 			}
 		}
 		CATCH_AND_LOG(actionHandle)

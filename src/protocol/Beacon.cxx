@@ -106,14 +106,21 @@ core::UTF8String Beacon::createImmutableBeaconData()
 
 core::UTF8String Beacon::createBasicEventData(protocol::EventType eventType, const core::UTF8String& eventName)
 {
-	core::UTF8String eventData;
-	addKeyValuePair(eventData, BEACON_KEY_EVENT_TYPE, static_cast<int32_t>(eventType));
-
+	core::UTF8String eventData = createBasicEventDataWithoutName(eventType);
 	if (!eventName.empty())
 	{
 		addKeyValuePair(eventData, BEACON_KEY_NAME, truncate(eventName));
 	}
+	
+	return eventData;
+}
+
+core::UTF8String Beacon::createBasicEventDataWithoutName(protocol::EventType eventType)
+{
+	core::UTF8String eventData;
+	addKeyValuePair(eventData, BEACON_KEY_EVENT_TYPE, static_cast<int32_t>(eventType));
 	addKeyValuePair(eventData, BEACON_KEY_THREAD_ID, mThreadIDProvider->getThreadID());
+
 	return eventData;
 }
 
@@ -198,7 +205,7 @@ int32_t Beacon::createID()
 	return ++mID;
 }
 
-core::UTF8String Beacon::createTag(int32_t parentActionID, int32_t tracerSequenceNumber)
+core::UTF8String Beacon::createTag(int32_t parentActionID, int32_t sequenceNumber)
 {
 	if (!mBeaconConfiguration->getPrivacyConfiguration()->isWebRequestTracingAllowed())
 	{
@@ -229,13 +236,18 @@ core::UTF8String Beacon::createTag(int32_t parentActionID, int32_t tracerSequenc
 	webRequestTag.concatenate("_");
 	webRequestTag.concatenate(core::util::StringUtil::toInvariantString(mThreadIDProvider->getThreadID()));
 	webRequestTag.concatenate("_");
-	webRequestTag.concatenate(core::util::StringUtil::toInvariantString(tracerSequenceNumber));
+	webRequestTag.concatenate(core::util::StringUtil::toInvariantString(sequenceNumber));
 
 	return webRequestTag;
 }
 
 void Beacon::addAction(std::shared_ptr<core::objects::IActionCommon> action)
 {
+	if (action == nullptr || action->getName().empty())
+	{
+		throw std::invalid_argument("action is nullptr or action->getName().empty() is true");
+	}
+
 	if (!mBeaconConfiguration->getPrivacyConfiguration()->isActionReportingAllowed())
 	{
 		return;
@@ -273,7 +285,7 @@ void Beacon::startSession()
 		return;
 	}
 
-	core::UTF8String eventData = createBasicEventData(EventType::SESSION_START, nullptr);
+	core::UTF8String eventData = createBasicEventDataWithoutName(EventType::SESSION_START);
 
 	addKeyValuePair(eventData, BEACON_KEY_PARENT_ACTION_ID, 0);
 	addKeyValuePair(eventData, BEACON_KEY_START_SEQUENCE_NUMBER, createSequenceNumber());
@@ -294,7 +306,7 @@ void Beacon::endSession()
 		return;
 	}
 
-	core::UTF8String eventData = createBasicEventData(EventType::SESSION_END, nullptr);
+	core::UTF8String eventData = createBasicEventDataWithoutName(EventType::SESSION_END);
 
 	auto endTime = getCurrentTimestamp();
 	addKeyValuePair(eventData, BEACON_KEY_PARENT_ACTION_ID, 0);
@@ -311,6 +323,11 @@ void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, in
 
 void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, int64_t value)
 {
+	if (valueName.empty())
+	{
+		throw std::invalid_argument("valueName.empty() is true");
+	}
+
 	if (!mBeaconConfiguration->getPrivacyConfiguration()->isValueReportingAllowed())
 	{
 		return;
@@ -330,6 +347,11 @@ void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, in
 
 void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, double value)
 {
+	if (valueName.empty())
+	{
+		throw std::invalid_argument("valueName.empty() is true");
+	}
+
 	if (!mBeaconConfiguration->getPrivacyConfiguration()->isValueReportingAllowed())
 	{
 		return;
@@ -350,6 +372,11 @@ void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, do
 
 void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, const core::UTF8String& value)
 {
+	if (valueName.empty())
+	{
+		throw std::invalid_argument("valueName.empty() is true");
+	}
+
 	if (!mBeaconConfiguration->getPrivacyConfiguration()->isValueReportingAllowed())
 	{
 		return;
@@ -370,6 +397,11 @@ void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, co
 
 void Beacon::reportEvent(int32_t actionID, const core::UTF8String& eventName)
 {
+	if (eventName.empty())
+	{
+		throw std::invalid_argument("eventName.empty() is true");
+	}
+
 	if (!mBeaconConfiguration->getPrivacyConfiguration()->isEventReportingAllowed())
 	{
 		return;
@@ -386,8 +418,13 @@ void Beacon::reportEvent(int32_t actionID, const core::UTF8String& eventName)
 	addEventData(eventTimestamp, eventData);
 }
 
-void Beacon::reportError(int32_t actionID, const core::UTF8String& errorName, int32_t errorCode, const core::UTF8String& reason)
+void Beacon::reportError(int32_t actionID, const core::UTF8String& errorName, int32_t errorCode)
 {
+	if (errorName.empty())
+	{
+		throw std::invalid_argument("errorName.empty() is true");
+	}
+
 	if (!mBeaconConfiguration->getPrivacyConfiguration()->isErrorReportingAllowed())
 	{
 		return;
@@ -403,8 +440,42 @@ void Beacon::reportError(int32_t actionID, const core::UTF8String& errorName, in
 	addKeyValuePair(eventData, BEACON_KEY_PARENT_ACTION_ID, actionID);
 	addKeyValuePair(eventData, BEACON_KEY_START_SEQUENCE_NUMBER, createSequenceNumber());
 	addKeyValuePair(eventData, BEACON_KEY_TIME_0, getTimeSinceSessionStartTime(timestamp));
-	addKeyValuePair(eventData, BEACON_KEY_ERROR_CODE, errorCode);
-	addKeyValuePairIfNotEmpty(eventData, BEACON_KEY_ERROR_REASON, reason);
+	addKeyValuePair(eventData, BEACON_KEY_ERROR_VALUE, errorCode);
+	addKeyValuePair(eventData, BEACON_KEY_ERROR_TECHNOLOGY_TYPE, ERROR_TECHNOLOGY_TYPE);
+
+	addEventData(timestamp, eventData);
+}
+
+void Beacon::reportError(
+	int32_t actionID,
+	const core::UTF8String& errorName,
+	const core::UTF8String& causeName,
+	const core::UTF8String& causeDescription,
+	const core::UTF8String& causeStackTrace)
+{
+	if (errorName.empty())
+	{
+		throw std::invalid_argument("errorName.empty() is true");
+	}
+
+	if (!mBeaconConfiguration->getPrivacyConfiguration()->isErrorReportingAllowed())
+	{
+		return;
+	}
+
+	if (!mBeaconConfiguration->getServerConfiguration()->isSendingErrorsAllowed())
+	{
+		return;
+	}
+
+	core::UTF8String eventData = createBasicEventData(EventType::FAILURE_EXCEPTION, errorName);
+	uint64_t timestamp = mTimingProvider->provideTimestampInMilliseconds();
+	addKeyValuePair(eventData, BEACON_KEY_PARENT_ACTION_ID, actionID);
+	addKeyValuePair(eventData, BEACON_KEY_START_SEQUENCE_NUMBER, createSequenceNumber());
+	addKeyValuePair(eventData, BEACON_KEY_TIME_0, getTimeSinceSessionStartTime(timestamp));
+	addKeyValuePairIfNotEmpty(eventData, BEACON_KEY_ERROR_VALUE, causeName);
+	addKeyValuePairIfNotEmpty(eventData, BEACON_KEY_ERROR_REASON, causeDescription);
+	addKeyValuePairIfNotEmpty(eventData, BEACON_KEY_ERROR_STACKTRACE, causeStackTrace);
 	addKeyValuePair(eventData, BEACON_KEY_ERROR_TECHNOLOGY_TYPE, ERROR_TECHNOLOGY_TYPE);
 
 	addEventData(timestamp, eventData);
@@ -412,6 +483,11 @@ void Beacon::reportError(int32_t actionID, const core::UTF8String& errorName, in
 
 void Beacon::reportCrash(const core::UTF8String& errorName, const core::UTF8String& reason, const core::UTF8String& stacktrace)
 {
+	if (errorName.empty())
+	{
+		throw std::invalid_argument("errorName.empty() is true");
+	}
+
 	if (!mBeaconConfiguration->getPrivacyConfiguration()->isCrashReportingAllowed())
 	{
 		return;
@@ -441,6 +517,11 @@ void Beacon::addWebRequest(
 	std::shared_ptr<core::objects::IWebRequestTracerInternals> webRequestTracer
 )
 {
+	if (webRequestTracer == nullptr || webRequestTracer->getURL().empty())
+	{
+		throw std::invalid_argument("webRequestTracer == nullptr || webRequestTracer->getURL().empty() is true");
+	}
+
 	if (!mBeaconConfiguration->getPrivacyConfiguration()->isWebRequestTracingAllowed())
 	{
 		return;
@@ -492,7 +573,9 @@ void Beacon::identifyUser(const core::UTF8String& userTag)
 		return;
 	}
 
-	core::UTF8String eventData = createBasicEventData(EventType::IDENTIFY_USER, userTag);
+	core::UTF8String eventData = userTag.empty()
+		? createBasicEventDataWithoutName(EventType::IDENTIFY_USER)
+		: createBasicEventData(EventType::IDENTIFY_USER, userTag);
 
 	auto timestamp = mTimingProvider->provideTimestampInMilliseconds();
 

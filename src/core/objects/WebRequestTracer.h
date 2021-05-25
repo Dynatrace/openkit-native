@@ -107,7 +107,7 @@ namespace core
 			/// Returns the target URL of the web request
 			/// @returns target URL of the web request
 			///
-			const core::UTF8String getURL() const override;
+			const core::UTF8String& getURL() const override;
 
 			///
 			/// Returns the response code of the web request

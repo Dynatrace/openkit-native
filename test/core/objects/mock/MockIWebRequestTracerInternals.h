@@ -37,7 +37,7 @@ namespace test {
 		MockIWebRequestTracerInternals()
 		{
 			ON_CALL(*this, getTag()).WillByDefault(testing::Return(DefaultValues::EMPTY_CHAR_STRING));
-			ON_CALL(*this, getURL()).WillByDefault(testing::Return(DefaultValues::UTF8_EMPTY_STRING));
+			ON_CALL(*this, getURL()).WillByDefault(testing::ReturnRef(DefaultValues::UTF8_EMPTY_STRING));
 
 			ON_CALL(*this, getParent()).WillByDefault(testing::Return(nullptr));
 
@@ -96,7 +96,7 @@ namespace test {
 
 		MOCK_METHOD(void, close, (), (override));
 
-		MOCK_METHOD(const core::UTF8String, getURL, (), (const, override));
+		MOCK_METHOD(const core::UTF8String&, getURL, (), (const, override));
 
 		MOCK_METHOD(int32_t, getResponseCode, (), (const, override));
 

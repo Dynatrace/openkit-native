@@ -512,15 +512,15 @@ reportStringValueOnRootAction(rootAction, keyStringType, valueString);
 ## Report an Error
 
 `IRootAction` and `IAction` also have the possibility to report an error with a given 
-name, code and a reason. The code fragment below shows how.
+name and error code.  
+The code fragment below shows how.
 ```c++
 // C++ API
 const char* errorName = "Unknown Error";
 int32_t errorCode = 42;
-const char* reason = "Not sure what's going on here";
 
-action->reportError(errorName, errorCode, reason);
-rootAction->reportError(errorName, errorCode, reason);
+action->reportError(errorName, errorCode);
+rootAction->reportError(errorName, errorCode);
 ```
 
 The same can be achieved using the OpenKit C API as demonstrated below.
@@ -529,10 +529,65 @@ The same can be achieved using the OpenKit C API as demonstrated below.
 // C API
 const char* errorName = "Unknown Error";
 int32_t errorCode = 42;
-const char* reason = "Not sure what's going on here";
 
-reportErrorOnAction(action, errorName, errorCode, reason);
-reportErrorOnRootAction(rootAction, errorName, errorCode, reason);
+reportErrorCodeOnAction(action, errorName, errorCode);
+reportErrorCodeOnRootAction(rootAction, errorName, errorCode);
+```
+
+Errors can also be reported with the method
+`reportError(const char* errorName, const char* causeName, const char* causeDescription, const char* causeStackTrace)`
+which exists for `IRootAction` and `IAction`.  
+The arguments are
+* `errorName` is the name of the reported error
+* `causeName` is an optional short name of the cause, typically the name of the exception. E.g. `"std::runtime_error"`
+* `causeDescription` is an optional short description of the cause, typically the value returned by the `std::exception::what()` method
+* `causeStackTrace` is an optional stack trace of the cause
+
+The fragment below shows how to report such an error.
+```c++
+// C++ API
+void RestrictedClass::restrictedMethod()
+{
+    if (!isUserAuthorized())
+    {
+        const char* errorName = "Authorization error";
+        const char* causeName = "User not authorized";
+        const char* causeDescription = "The current user is not authorized to call restrictedMethod.";
+        const char* causeStackTrace = nullptr; // no stack trace is reported
+
+        // report the error on IAction and IRootAction
+        action->reportError(errorName, causeName, causeDescription, causeStackTrace);
+        rootAction->reportError(errorName, causeName, causeDescription, causeStackTrace);
+
+        return;
+    }
+
+    // ... further processing
+}
+```
+
+The same can be achieved using the OpenKit C API as demonstrated below.
+
+```c
+// C API
+void restrictedFunction()
+{
+    if (!isUserAuthorized())
+    {
+        const char* errorName = "Authorization error";
+        const char* causeName = "User not authorized";
+        const char* causeDescription = "The current user is not authorized to call restrictedFunction.";
+        const char* causeStackTrace = NULL; // no stack trace is reported
+
+        // report the error on action and rootAction
+        reportErrorCauseOnAction(action, errorName, causeName, causeDescription, causeStackTrace);
+        reportErrorCauseOnRootAction(rootAction, errorName, causeName, causeDescription, causeStackTrace);
+
+        return;
+    }
+
+    // ... further processing
+}
 ```
 
 ## Tracing Web Requests

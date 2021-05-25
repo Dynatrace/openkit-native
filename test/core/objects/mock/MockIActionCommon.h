@@ -111,7 +111,18 @@ namespace test
 			reportError,
 			(
 				const char*,
-				int32_t,
+				int32_t
+			),
+			(override)
+		);
+
+		MOCK_METHOD(
+			void,
+			reportError,
+			(
+				const char*,
+				const char*,
+				const char*,
 				const char*
 			),
 			(override)

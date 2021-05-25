@@ -429,8 +429,36 @@ extern "C" {
 	/// @param[in] errorName		name of this error
 	/// @param[in] errorCode		numeric error code of this error
 	/// @param[in] reason			reason for this error
+	/// @deprecated since 2.0.0 Use reportErrorCodeOnRootAction(struct RootActionHandle*, const char*, int32_t) instead, as reason is unused.
 	///
+	OPENKIT_DEPRECATED
 	OPENKIT_EXPORT void reportErrorOnRootAction(struct RootActionHandle* rootActionHandle, const char* errorName, int32_t errorCode, const char* reason);
+
+	///
+	/// Reports an error with a specified name and error code.
+	///
+	/// @param[in] rootActionHandle	the handle returned by @ref enterRootAction
+	/// @param[in] errorName		name of this error
+	/// @param[in] errorCode		numeric error code of this error
+	///
+	OPENKIT_EXPORT void reportErrorCodeOnRootAction(struct RootActionHandle* rootActionHandle, const char* errorName, int32_t errorCode);
+
+	///
+	/// Reports an error with a specified name and parameters describing the cause of this error.
+	///
+	/// @param[in] rootActionHandle	the handle returned by @ref enterRootAction
+	/// @param[in] errorName			name of this error
+	/// @param[in] causeName			name describing the cause of the error
+	/// @param[in] causeDescription		description what caused the eror
+	/// @param[in] causeStackTrace		stack trace of the error
+	///
+	OPENKIT_EXPORT void reportErrorCauseOnRootAction(
+		struct RootActionHandle* rootActionHandle,
+		const char* errorName,
+		const char* causeName,
+		const char* causeDescription,
+		const char* causeStackTrace
+	);
 
 	//--------------
 	//  Action
@@ -506,8 +534,36 @@ extern "C" {
 	/// @param[in] errorName	name of this error
 	/// @param[in] errorCode	numeric error code of this error
 	/// @param[in] reason		reason for this error
+	/// @deprecated Since 2.0.0 Use reportErrorCodeOnAction(struct RootActionHandle*, const char*, int32_t) instead, as reason is unused.
 	///
+	OPENKIT_DEPRECATED
 	OPENKIT_EXPORT void reportErrorOnAction(struct ActionHandle* actionHandle, const char* errorName, int32_t errorCode, const char* reason);
+
+	///
+	/// Reports an error with a specified name and error code.
+	///
+	/// @param[in] rootActionHandle	the handle returned by @ref enterRootAction
+	/// @param[in] errorName		name of this error
+	/// @param[in] errorCode		numeric error code of this error
+	///
+	OPENKIT_EXPORT void reportErrorCodeOnAction(struct ActionHandle* actionHandle, const char* errorName, int32_t errorCode);
+
+	///
+	/// Reports an error with a specified name and parameters describing the cause of this error.
+	///
+	/// @param[in] rootActionHandle	the handle returned by @ref enterRootAction
+	/// @param[in] errorName			name of this error
+	/// @param[in] causeName			name describing the cause of the error
+	/// @param[in] causeDescription		description what caused the eror
+	/// @param[in] causeStackTrace		stack trace of the error
+	///
+	OPENKIT_EXPORT void reportErrorCauseOnAction(
+		struct ActionHandle* actionHandle,
+		const char* errorName,
+		const char* causeName,
+		const char* causeDescription,
+		const char* causeStackTrace
+	);
 
 
 	//--------------------

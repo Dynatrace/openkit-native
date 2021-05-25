@@ -66,9 +66,26 @@ std::shared_ptr<openkit::IRootAction> RootAction::reportValue(const char* valueN
 	return shared_from_this();
 }
 
-std::shared_ptr<openkit::IRootAction> RootAction::reportError(const char* errorName, int32_t errorCode, const char* reason)
+std::shared_ptr<openkit::IRootAction> RootAction::reportError(const char* errorName, int32_t errorCode, const char* /* reason */)
 {
-	mActionImpl->reportError(errorName, errorCode, reason);
+	mActionImpl->reportError(errorName, errorCode);
+	return shared_from_this();
+}
+
+std::shared_ptr<openkit::IRootAction> RootAction::reportError(const char* errorName, int32_t errorCode)
+{
+	mActionImpl->reportError(errorName, errorCode);
+	return shared_from_this();
+}
+
+std::shared_ptr<openkit::IRootAction> RootAction::reportError(
+	const char* errorName,
+	const char* causeName,
+	const char* causeDescription,
+	const char* causeStackTrace
+)
+{
+	mActionImpl->reportError(errorName, causeName, causeDescription, causeStackTrace);
 	return shared_from_this();
 }
 

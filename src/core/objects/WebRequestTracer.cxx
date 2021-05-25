@@ -187,7 +187,7 @@ void WebRequestTracer::close()
 	stop(mResponseCode);
 }
 
-const core::UTF8String WebRequestTracer::getURL() const
+const core::UTF8String& WebRequestTracer::getURL() const
 {
 	return mURL;
 }
