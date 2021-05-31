@@ -73,6 +73,8 @@ TEST_F(JsonResponseParserTest, parsingAnEmptyObjectReturnsInstanceWithDefaultVal
 	ASSERT_THAT(obtained->isCapture(), testing::Eq(defaults->isCapture()));
 	ASSERT_THAT(obtained->isCaptureCrashes(), testing::Eq(defaults->isCaptureCrashes()));
 	ASSERT_THAT(obtained->isCaptureErrors(), testing::Eq(defaults->isCaptureErrors()));
+	ASSERT_THAT(obtained->getTrafficControlPercentage(), testing::Eq(defaults->getTrafficControlPercentage()));
+	ASSERT_THAT(obtained->getApplicationId(), testing::Eq(defaults->getApplicationId()));
 	ASSERT_THAT(obtained->getMultiplicity(), testing::Eq(defaults->getMultiplicity()));
 	ASSERT_THAT(obtained->getServerId(), testing::Eq(defaults->getServerId()));
 	ASSERT_THAT(obtained->getTimestampInMilliseconds(), testing::Eq(defaults->getTimestampInMilliseconds()));
@@ -288,6 +290,24 @@ TEST_F(JsonResponseParserTest, parseExtractsReportErrorsDisabled)
 	ASSERT_THAT(obtained->isCaptureErrors(), testing::Eq(false));
 }
 
+TEST_F(JsonResponseParserTest, parseExtractsTrafficControlPercentage)
+{
+	// given
+	const auto trafficControlPercentage = 84;
+	input << "{";
+	input << "  \"" << JsonResponseParser_t::RESPONSE_KEY_APP_CONFIG << "\": {";
+	input << "    \"" << JsonResponseParser_t::RESPONSE_KEY_TRAFFIC_CONTROL_PERCENTAGE << "\": " << trafficControlPercentage;
+	input << "  }";
+	input << "}";
+
+	// when
+	auto obtained = JsonResponseParser_t::parse(input.str());
+
+	// then
+	ASSERT_THAT(obtained, testing::NotNull());
+	ASSERT_THAT(obtained->getTrafficControlPercentage(), testing::Eq(trafficControlPercentage));
+}
+
 TEST_F(JsonResponseParserTest, parseExtractsApplicationId)
 {
 	// given
@@ -390,6 +410,7 @@ TEST_F(JsonResponseParserTest, parseResponseWithAllValuesSet)
 	const int32_t serverId = 80;
 	const core::UTF8String status{ "some status" };
 	const int64_t timestamp = 81;
+	const int trafficControlPercentage = 82;
 
 	
 	input << "{";
@@ -405,6 +426,7 @@ TEST_F(JsonResponseParserTest, parseResponseWithAllValuesSet)
 	input << "    \"" << JsonResponseParser_t::RESPONSE_KEY_CAPTURE << "\": 0";
 	input << "   ,\"" << JsonResponseParser_t::RESPONSE_KEY_REPORT_CRASHES << "\": 1";
 	input << "   ,\"" << JsonResponseParser_t::RESPONSE_KEY_REPORT_ERRORS << "\": 0";
+	input << "   ,\"" << JsonResponseParser_t::RESPONSE_KEY_TRAFFIC_CONTROL_PERCENTAGE << "\": " << trafficControlPercentage;
 	input << "   ,\"" << JsonResponseParser_t::RESPONSE_KEY_APPLICATION_ID << "\": \"" << applicationId.getStringData() << "\"";
 	input << "  },";
 	input << "  \"" << JsonResponseParser_t::RESPONSE_KEY_DYNAMIC_CONFIG << "\": {";
@@ -429,6 +451,7 @@ TEST_F(JsonResponseParserTest, parseResponseWithAllValuesSet)
 	ASSERT_THAT(obtained->isCapture(), testing::Eq(false));
 	ASSERT_THAT(obtained->isCaptureCrashes(), testing::Eq(true));
 	ASSERT_THAT(obtained->isCaptureErrors(), testing::Eq(false));
+	ASSERT_THAT(obtained->getTrafficControlPercentage(), testing::Eq(trafficControlPercentage));
 	ASSERT_THAT(obtained->getApplicationId(), testing::Eq(applicationId));
 	ASSERT_THAT(obtained->getMultiplicity(), testing::Eq(multiplicity));
 	ASSERT_THAT(obtained->getServerId(), testing::Eq(serverId));

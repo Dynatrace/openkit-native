@@ -30,6 +30,7 @@ ResponseAttributes::ResponseAttributes(Builder& builder)
 	, mIsCapture(builder.isCapture())
 	, mIsCaptureCrashes(builder.isCaptureCrashes())
 	, mIsCaptureErrors(builder.isCaptureErrors())
+	, mTrafficControlPercentage(builder.getTrafficControlPercentage())
 	, mApplicationId(builder.getApplicationId())
 	, mMultiplicity(builder.getMultiplicity())
 	, mServerId(builder.getServerId())
@@ -98,6 +99,11 @@ bool ResponseAttributes::isCaptureErrors() const
 	return mIsCaptureErrors;
 }
 
+int32_t ResponseAttributes::getTrafficControlPercentage() const
+{
+	return mTrafficControlPercentage;
+}
+
 const core::UTF8String& ResponseAttributes::getApplicationId() const
 {
 	return mApplicationId;
@@ -145,6 +151,7 @@ std::shared_ptr<IResponseAttributes> ResponseAttributes::merge(std::shared_ptr<I
 	applyCapture(builder, attributes);
 	applyCaptureCrashes(builder, attributes);
 	applyCaptureErrors(builder, attributes);
+	applyTrafficControlPercentage(builder, attributes);
 	applyApplicationId(builder, attributes);
 	applyMultiplicity(builder, attributes);
 	applyServerId(builder, attributes);
@@ -253,6 +260,17 @@ void ResponseAttributes::applyCaptureErrors(
 	}
 }
 
+void ResponseAttributes::applyTrafficControlPercentage(
+	ResponseAttributes::Builder& builder,
+	std::shared_ptr<IResponseAttributes> attributes
+)
+{
+	if (attributes->isAttributeSet(ResponseAttribute::TRAFFIC_CONTROL_PERCENTAGE))
+	{
+		builder.withTrafficControlPercentage(attributes->getTrafficControlPercentage());
+	}
+}
+
 void ResponseAttributes::applyApplicationId(
 	ResponseAttributes::Builder& builder,
 	std::shared_ptr<IResponseAttributes> attributes
@@ -323,6 +341,7 @@ ResponseAttributes::Builder::Builder(const IResponseAttributes& defaults)
 	, mIsCapture(defaults.isCapture())
 	, mIsCaptureCrashes(defaults.isCaptureCrashes())
 	, mIsCaptureErrors(defaults.isCaptureErrors())
+	, mTrafficControlPercentage(defaults.getTrafficControlPercentage())
 	, mApplicationId(defaults.getApplicationId())
 	, mMultiplicity(defaults.getMultiplicity())
 	, mServerId(defaults.getServerId())
@@ -444,10 +463,22 @@ bool ResponseAttributes::Builder::isCaptureErrors() const
 	return mIsCaptureErrors;
 }
 
-ResponseAttributes::Builder& ResponseAttributes::Builder::withApplicationId(core::UTF8String applicationId)
+ResponseAttributes::Builder& ResponseAttributes::Builder::withCaptureErrors(bool captureErrors)
 {
-	mApplicationId = std::move(applicationId);
-	setAttribute(ResponseAttribute::APPLICATION_ID);
+	mIsCaptureErrors = captureErrors;
+	setAttribute(ResponseAttribute::IS_CAPTURE_ERRORS);
+	return *this;
+}
+
+int32_t ResponseAttributes::Builder::getTrafficControlPercentage() const
+{
+	return mTrafficControlPercentage;
+}
+
+ResponseAttributes::Builder& ResponseAttributes::Builder::withTrafficControlPercentage(int32_t trafficControlPercentage)
+{
+	mTrafficControlPercentage = trafficControlPercentage;
+	setAttribute(ResponseAttribute::TRAFFIC_CONTROL_PERCENTAGE);
 	return *this;
 }
 
@@ -456,10 +487,10 @@ const core::UTF8String& ResponseAttributes::Builder::getApplicationId() const
 	return mApplicationId;
 }
 
-ResponseAttributes::Builder& ResponseAttributes::Builder::withCaptureErrors(bool captureErrors)
+ResponseAttributes::Builder& ResponseAttributes::Builder::withApplicationId(core::UTF8String applicationId)
 {
-	mIsCaptureErrors = captureErrors;
-	setAttribute(ResponseAttribute::IS_CAPTURE_ERRORS);
+	mApplicationId = std::move(applicationId);
+	setAttribute(ResponseAttribute::APPLICATION_ID);
 	return *this;
 }
 

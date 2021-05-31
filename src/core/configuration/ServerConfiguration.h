@@ -182,6 +182,18 @@ namespace core
 				/// @return @c *this
 				Builder& withVisitStoreVersion(int32_t visitStoreVersion);
 
+				int32_t getTrafficControlPercentage() const;
+
+				///
+				/// Configures the traffic control/cost control percentage.
+				/// 
+				/// @par
+				/// This value is used as rate limit to limit the number of sessions being captured.
+				///
+				/// @param trafficControlPercentage Percentage of sessions being captured.
+				/// @return @c *this
+				Builder& withTrafficControlPercentage(int32_t trafficControlPercentage);
+
 				///
 				/// Creates a new instance of @ref IServerConfiguration
 				///
@@ -205,6 +217,7 @@ namespace core
 				int32_t mSessionIdleTimeout;
 				bool mIsSessionSplitByIdleTimeoutEnabled;
 				int32_t mVisitStoreVersion;
+				int32_t mTrafficControlPercentage;
 			};
 
 			///
@@ -262,6 +275,8 @@ namespace core
 
 			int32_t getVisitStoreVersion() const override;
 
+			int32_t getTrafficControlPercentage() const override;
+
 			bool isSendingDataAllowed() const override;
 
 			bool isSendingCrashesAllowed() const override;
@@ -315,6 +330,9 @@ namespace core
 
 			/// the version of the visit store being used.
 			const int32_t mVisitStoreVersion;
+
+			/// percentage value that is used for session rate limiting
+			const int32_t mTrafficControlPercentage;
 		};
 	}
 }

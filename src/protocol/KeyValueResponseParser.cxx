@@ -46,6 +46,7 @@ std::shared_ptr<IResponseAttributes> KeyValueResponseParser::parse(const core::U
 	applyCapture(builder, keyValuePairs);
 	applyReportCrashes(builder, keyValuePairs);
 	applyReportErrors(builder, keyValuePairs);
+	applyTrafficControlPercentage(builder, keyValuePairs);
 	applyServerId(builder, keyValuePairs);
 	applyMultiplicity(builder, keyValuePairs);
 
@@ -125,6 +126,21 @@ void KeyValueResponseParser::applyReportErrors(
 
 	auto reportErrors = std::stoi(entry->second);
 	builder.withCaptureErrors(reportErrors != 0);
+}
+
+void KeyValueResponseParser::applyTrafficControlPercentage(
+	protocol::ResponseAttributes::Builder& builder,
+	std::unordered_map <std::string, std::string>& keyValuePairs
+)
+{
+	auto entry = keyValuePairs.find(KeyValueResponseParser::RESPONSE_KEY_TRAFFIC_CONTROL_PERCENTAGE);
+	if (entry == keyValuePairs.end())
+	{
+		return;
+	}
+
+	auto trafficControlPercentage = std::stoi(entry->second);
+	builder.withTrafficControlPercentage(trafficControlPercentage);
 }
 
 void KeyValueResponseParser::applyServerId(

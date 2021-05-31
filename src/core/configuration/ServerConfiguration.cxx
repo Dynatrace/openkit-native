@@ -35,6 +35,7 @@ ServerConfiguration::ServerConfiguration(const Builder& builder)
 	, mSessionTimeoutInMilliseconds(builder.getSessionTimeoutInMilliseconds())
 	, mIsSessionSplitByIdleTimeoutEnabled(builder.isSessionSplitByIdleTimeoutEnabled())
 	, mVisitStoreVersion(builder.getVisitStoreVersion())
+	, mTrafficControlPercentage(builder.getTrafficControlPercentage())
 {
 }
 
@@ -135,6 +136,11 @@ int32_t ServerConfiguration::getVisitStoreVersion() const
 	return mVisitStoreVersion;
 }
 
+int32_t ServerConfiguration::getTrafficControlPercentage() const
+{
+	return mTrafficControlPercentage;
+}
+
 bool ServerConfiguration::isSendingDataAllowed() const
 {
 	return isCaptureEnabled() && getMultiplicity() > 0;
@@ -165,7 +171,7 @@ std::shared_ptr<core::configuration::IServerConfiguration> ServerConfiguration::
 	builder.withSessionTimeoutInMilliseconds(getSessionTimeoutInMilliseconds());
 	builder.withSessionSplitByIdleTimeoutEnabled(isSessionSplitByIdleTimeoutEnabled());
 	builder.withVisitStoreVersion(getVisitStoreVersion());
-	builder.withSessionSplitByEventsEnabled(isSessionSplitByEventsEnabled());
+	builder.withTrafficControlPercentage(getTrafficControlPercentage());
 
 	return builder.build();
 }
@@ -189,6 +195,7 @@ ServerConfiguration::Builder::Builder(std::shared_ptr<protocol::IResponseAttribu
 	, mSessionIdleTimeout(responseAttributes->getSessionTimeoutInMilliseconds())
 	, mIsSessionSplitByIdleTimeoutEnabled(responseAttributes->isAttributeSet(protocol::ResponseAttribute::SESSION_IDLE_TIMEOUT))
 	, mVisitStoreVersion(responseAttributes->getVisitStoreVersion())
+	, mTrafficControlPercentage(responseAttributes->getTrafficControlPercentage())
 {
 }
 
@@ -207,6 +214,7 @@ ServerConfiguration::Builder::Builder(std::shared_ptr<core::configuration::IServ
 	, mSessionIdleTimeout(serverConfiguration->getSessionTimeoutInMilliseconds())
 	, mIsSessionSplitByIdleTimeoutEnabled(serverConfiguration->isSessionSplitByIdleTimeoutEnabled())
 	, mVisitStoreVersion(serverConfiguration->getVisitStoreVersion())
+	, mTrafficControlPercentage(serverConfiguration->getTrafficControlPercentage())
 {
 }
 
@@ -366,6 +374,17 @@ int32_t ServerConfiguration::Builder::getVisitStoreVersion() const
 ServerConfiguration::Builder& ServerConfiguration::Builder::withVisitStoreVersion(int32_t visitStoreVersion)
 {
 	mVisitStoreVersion = visitStoreVersion;
+	return *this;
+}
+
+int32_t ServerConfiguration::Builder::getTrafficControlPercentage() const
+{
+	return mTrafficControlPercentage;
+}
+
+ServerConfiguration::Builder& ServerConfiguration::Builder::withTrafficControlPercentage(int32_t trafficControlPercentage)
+{
+	mTrafficControlPercentage = trafficControlPercentage;
 	return *this;
 }
 

@@ -67,6 +67,8 @@ protected:
 			.WillByDefault(testing::Return(defaultValues->getSessionTimeoutInMilliseconds()));
 		ON_CALL(*mockAttributes, getVisitStoreVersion())
 			.WillByDefault(testing::Return(defaultValues->getVisitStoreVersion()));
+		ON_CALL(*mockAttributes, getTrafficControlPercentage())
+			.WillByDefault(testing::Return(defaultValues->getTrafficControlPercentage()));
 		ON_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_SESSION_DURATION))
 			.WillByDefault(testing::Return(false));
 		ON_CALL(*mockAttributes, isAttributeSet(ResponseAttribute_t::MAX_EVENTS_PER_SESSION))
@@ -103,6 +105,8 @@ protected:
 			.WillByDefault(testing::Return(false));
 		ON_CALL(*mockServerConfiguration, getVisitStoreVersion())
 			.WillByDefault(testing::Return(defaultValues->getVisitStoreVersion()));
+		ON_CALL(*mockServerConfiguration, getTrafficControlPercentage())
+			.WillByDefault(testing::Return(defaultValues->getTrafficControlPercentage()));
 	}
 };
 
@@ -174,6 +178,11 @@ TEST_F(ServerConfigurationTest, inDefaultServerConfigurationIsSessionSplitByIdle
 TEST_F(ServerConfigurationTest, inDefaultServerConfigurationVisitStoreVersionIsOne)
 {
 	ASSERT_THAT(ServerConfiguration_t::defaultInstance()->getVisitStoreVersion(), testing::Eq(1));
+}
+
+TEST_F(ServerConfigurationTest, inDefaultServerConfigurationTrafficControlPercentageIsOneHundred)
+{
+	ASSERT_THAT(ServerConfiguration_t::defaultInstance()->getTrafficControlPercentage(), testing::Eq(100));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -633,7 +642,7 @@ TEST_F(ServerConfigurationTest, creatingAServerConfigurationStatusResponseHasSpl
 	ASSERT_THAT(target->isSessionSplitByIdleTimeoutEnabled(), testing::Eq(false));
 }
 
-TEST_F(ServerConfigurationTest, creatingASessionConfigurationFromResponseAttributesCopiesVisitStoreVersion)
+TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttributesCopiesVisitStoreVersion)
 {
 	// with
 	int32_t visitStoreVersion = 73;
@@ -648,6 +657,23 @@ TEST_F(ServerConfigurationTest, creatingASessionConfigurationFromResponseAttribu
 
 	// then
 	ASSERT_THAT(target->getVisitStoreVersion(), testing::Eq(visitStoreVersion));
+}
+
+TEST_F(ServerConfigurationTest, creatingAServerConfigurationFromResponseAttributesCopiesTrafficControlPercentage)
+{
+	// with
+	const auto trafficControlPercentage = 42;
+
+	// expect
+	EXPECT_CALL(*mockAttributes, getTrafficControlPercentage())
+		.Times(1)
+		.WillOnce(testing::Return(trafficControlPercentage));
+
+	// when
+	auto target = ServerConfiguration_t::from(mockAttributes);
+
+	// then
+	ASSERT_THAT(target->getTrafficControlPercentage(), testing::Eq(trafficControlPercentage));
 }
 
 TEST_F(ServerConfigurationTest, sendingDataToTheServerIsAllowedIfCapturingIsEnabledAndMultiplicityIsGreaterThanZero)
@@ -1198,6 +1224,23 @@ TEST_F(ServerConfigurationTest, builderFromServerConfigCopiesVisitStoreVersion)
 
 	// then
 	ASSERT_THAT(target->getVisitStoreVersion(), testing::Eq(73));
+}
+
+TEST_F(ServerConfigurationTest, builderFromServerConfigCopiesTrafficControlPercentage)
+{
+	// with
+	const auto trafficControlPercentage = 37;
+
+	// expect
+	EXPECT_CALL(*mockServerConfiguration, getTrafficControlPercentage())
+		.Times(1)
+		.WillOnce(testing::Return(trafficControlPercentage));
+
+	// given
+	auto target = ServerConfiguration_t::Builder(mockServerConfiguration).build();
+
+	// then
+	ASSERT_THAT(target->getTrafficControlPercentage(), testing::Eq(trafficControlPercentage));
 }
 
 TEST_F(ServerConfigurationTest, builderFromServerConfigSendingDataToTheServerIsAllowedIfCapturingIsEnabledAndMultiplicityIsGreaterThanZero)
@@ -1828,6 +1871,20 @@ TEST_F(ServerConfigurationTest, mergeKeepsOriginalVisitStoreVersion)
 	ASSERT_THAT(obtained->getVisitStoreVersion(), testing::Eq(visitStoreVersion));
 }
 
+TEST_F(ServerConfigurationTest, mergeKeepsOriginalTrafficControlPercentage)
+{
+	// given
+	const auto trafficControlPercentage = 73;
+	auto target = ServerConfiguration_t::Builder(defaultValues).withTrafficControlPercentage(trafficControlPercentage).build();
+	auto other = ServerConfiguration_t::Builder(defaultValues).withTrafficControlPercentage(37).build();
+
+	// when
+	auto obtained = target->merge(other);
+
+	// then
+	ASSERT_THAT(obtained->getTrafficControlPercentage(), testing::Eq(trafficControlPercentage));
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// builder tests
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1999,4 +2056,18 @@ TEST_F(ServerConfigurationTest, buildPropagatesVisitStoreVersionToInstance)
 
 	// then
 	ASSERT_THAT(obtained->getVisitStoreVersion(), testing::Eq(visitStoreVersion));
+}
+
+TEST_F(ServerConfigurationTest, buildPropagatesTrafficControlPercentageToInstance)
+{
+	// given
+	const auto trafficControlPercentage = 73;
+
+	// when
+	auto obtained = ServerConfiguration_t::Builder(defaultValues)
+		.withTrafficControlPercentage(trafficControlPercentage)
+		.build();
+
+	// then
+	ASSERT_THAT(obtained->getTrafficControlPercentage(), testing::Eq(trafficControlPercentage));
 }

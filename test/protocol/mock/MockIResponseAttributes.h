@@ -72,6 +72,8 @@ namespace test
 
 		MOCK_METHOD(bool, isCaptureErrors, (), (const, override));
 
+		MOCK_METHOD(int32_t, getTrafficControlPercentage, (), (const, override));
+
 		MOCK_METHOD(const core::UTF8String& , getApplicationId, (), (const, override));
 		
 		MOCK_METHOD(int32_t, getMultiplicity, (), (const, override));

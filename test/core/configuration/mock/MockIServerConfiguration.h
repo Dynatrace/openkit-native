@@ -53,6 +53,8 @@ namespace test
 				.WillByDefault(testing::Return(true));
 			ON_CALL(*this, isSendingErrorsAllowed())
 				.WillByDefault(testing::Return(true));
+			ON_CALL(*this, getTrafficControlPercentage())
+				.WillByDefault(testing::Return(core::configuration::ServerConfiguration::defaultValues()->getTrafficControlPercentage()));
 		}
 
 		~MockIServerConfiguration() override = default;
@@ -100,6 +102,8 @@ namespace test
 		MOCK_METHOD(bool, isSendingCrashesAllowed, (), (const, override));
 
 		MOCK_METHOD(bool, isSendingErrorsAllowed, (), (const, override));
+
+		MOCK_METHOD(int32_t, getTrafficControlPercentage, (), (const, override));
 
 		MOCK_METHOD(
 			std::shared_ptr<core::configuration::IServerConfiguration>,

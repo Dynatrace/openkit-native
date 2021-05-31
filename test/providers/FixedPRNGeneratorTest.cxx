@@ -27,26 +27,6 @@ class FixedPRNGeneratorTest : public testing::Test
 {
 };
 
-TEST_F(FixedPRNGeneratorTest, nextPositiveInt32AlwaysReturnsTheSameNumber)
-{
-	// given
-	const int32_t randomInt32 = 12345;
-
-	auto rngMock = MockIPRNGenerator_t::createNice();
-	EXPECT_CALL(*rngMock, nextPositiveInt32())
-		.Times(1)
-		.WillOnce(testing::Return(randomInt32));
-
-	FixedPRNGenerator_t target(rngMock);
-
-	// when, then
-	for (auto i = 0; i < 100; i++)
-	{
-		auto obtained = target.nextPositiveInt32();
-		ASSERT_THAT(obtained, testing::Eq(randomInt32));
-	}
-}
-
 TEST_F(FixedPRNGeneratorTest, nextPositiveInt64AlwaysReturnsTheSameNumber)
 {
 	// given
@@ -64,5 +44,25 @@ TEST_F(FixedPRNGeneratorTest, nextPositiveInt64AlwaysReturnsTheSameNumber)
 	{
 		auto obtained = target.nextPositiveInt64();
 		ASSERT_THAT(obtained, testing::Eq(randomInt64));
+	}
+}
+
+TEST_F(FixedPRNGeneratorTest, nextPercentageValueReturnsAlwaysTheSameNumber)
+{
+	// given
+	const int32_t randomInt32 = 12345;
+
+	auto rngMock = MockIPRNGenerator_t::createNice();
+	EXPECT_CALL(*rngMock, nextPercentageValue())
+		.Times(1)
+		.WillOnce(testing::Return(randomInt32));
+
+	FixedPRNGenerator_t target(rngMock);
+
+	// when, then
+	for (auto i = 0; i < 100; i++)
+	{
+		auto obtained = target.nextPercentageValue();
+		ASSERT_THAT(obtained, testing::Eq(randomInt32));
 	}
 }

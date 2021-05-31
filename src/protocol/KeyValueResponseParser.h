@@ -36,6 +36,7 @@ namespace protocol
 		static constexpr const char* RESPONSE_KEY_CAPTURE = "cp";
 		static constexpr const char* RESPONSE_KEY_REPORT_CRASHES = "cr";
 		static constexpr const char* RESPONSE_KEY_REPORT_ERRORS = "er";
+		static constexpr const char* RESPONSE_KEY_TRAFFIC_CONTROL_PERCENTAGE = "tc";
 
 		static constexpr const char* RESPONSE_KEY_SERVER_ID = "id";
 		static constexpr const char* RESPONSE_KEY_MULTIPLICITY = "mp";
@@ -67,6 +68,11 @@ namespace protocol
 		);
 
 		static void applyReportErrors(
+			protocol::ResponseAttributes::Builder& builder,
+			std::unordered_map<std::string, std::string>& keyValuePairs
+		);
+
+		static void applyTrafficControlPercentage(
 			protocol::ResponseAttributes::Builder& builder,
 			std::unordered_map<std::string, std::string>& keyValuePairs
 		);

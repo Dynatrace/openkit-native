@@ -59,6 +59,7 @@ TEST_F(KeyValueResponseParserTest, parsingAnEmptyStringReturnsResponseWithDefaul
 	ASSERT_THAT(obtained->isCapture(), testing::Eq(defaults->isCapture()));
 	ASSERT_THAT(obtained->isCaptureCrashes(), testing::Eq(defaults->isCaptureCrashes()));
 	ASSERT_THAT(obtained->isCaptureErrors(), testing::Eq(defaults->isCaptureErrors()));
+	ASSERT_THAT(obtained->getTrafficControlPercentage(), testing::Eq(defaults->getTrafficControlPercentage()));
 
 	ASSERT_THAT(obtained->getMultiplicity(), testing::Eq(defaults->getMultiplicity()));
 	ASSERT_THAT(obtained->getServerId(), testing::Eq(defaults->getServerId()));
@@ -170,6 +171,20 @@ TEST_F(KeyValueResponseParserTest, parseExtractsCaptureErrorsDisabled)
 	// then
 	ASSERT_THAT(obtained, testing::NotNull());
 	ASSERT_THAT(obtained->isCaptureErrors(), testing::Eq(false));
+}
+
+TEST_F(KeyValueResponseParserTest, parseExtractsTrafficControlPercentage)
+{
+	// given
+	const auto trafficControlPercentage = 73;
+	input << "type=m&" << KeyValueResponseParser_t::RESPONSE_KEY_TRAFFIC_CONTROL_PERCENTAGE << "=" << trafficControlPercentage;
+
+	// when
+	auto obtained = KeyValueResponseParser_t::parse(input.str());
+
+	// then
+	ASSERT_THAT(obtained, testing::NotNull());
+	ASSERT_THAT(obtained->getTrafficControlPercentage(), testing::Eq(trafficControlPercentage));
 }
 
 TEST_F(KeyValueResponseParserTest, parseExtractsServerId)

@@ -303,6 +303,16 @@ namespace protocol
 		virtual bool isDataCapturingEnabled() = 0;
 
 		///
+		/// Indicates whether error capturing is currently enabled or not.
+		///
+		virtual bool isErrorCapturingEnabled() = 0;
+
+		///
+		/// Indicates whether crash capturing is currently enabled or not.
+		///
+		virtual bool isCrashCapturingEnabled() = 0;
+
+		///
 		/// Enables capturing for this beacon.
 		///
 		/// @par

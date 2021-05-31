@@ -115,6 +115,7 @@ TEST_F(ResponseParserTest, parseWithOnlyKeyValuePrefixReturnsDefaultResponse)
 	ASSERT_THAT(obtained->isCapture(), testing::Eq(defaults->isCapture()));
 	ASSERT_THAT(obtained->isCaptureCrashes(), testing::Eq(defaults->isCaptureCrashes()));
 	ASSERT_THAT(obtained->isCaptureErrors(), testing::Eq(defaults->isCaptureErrors()));
+	ASSERT_THAT(obtained->getTrafficControlPercentage(), testing::Eq(defaults->getTrafficControlPercentage()));
 
 	ASSERT_THAT(obtained->getMultiplicity(), testing::Eq(defaults->getMultiplicity()));
 	ASSERT_THAT(obtained->getServerId(), testing::Eq(defaults->getServerId()));

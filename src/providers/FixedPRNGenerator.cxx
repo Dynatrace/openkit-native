@@ -19,17 +19,17 @@
 using namespace providers;
 
 FixedPRNGenerator::FixedPRNGenerator(std::shared_ptr<IPRNGenerator> rng)
-	: mRandomInt32Number(rng->nextPositiveInt32())
+	: mRandomPercentage(rng->nextPercentageValue())
 	, mRandomInt64Number(rng->nextPositiveInt64())
 {
-}
-
-int32_t FixedPRNGenerator::nextPositiveInt32()
-{
-	return mRandomInt32Number;
 }
 
 int64_t FixedPRNGenerator::nextPositiveInt64()
 {
 	return mRandomInt64Number;
+}
+
+int32_t FixedPRNGenerator::nextPercentageValue()
+{
+	return mRandomPercentage;
 }

@@ -46,7 +46,7 @@ namespace test {
 			return std::make_shared<testing::StrictMock<MockIPRNGenerator>>();
 		}
 
-		MOCK_METHOD(int32_t, nextPositiveInt32, (), (override));
+		MOCK_METHOD(int32_t, nextPercentageValue, (), (override));
 		MOCK_METHOD(int64_t, nextPositiveInt64, (), (override));
 	};
 }

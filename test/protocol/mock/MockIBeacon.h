@@ -233,6 +233,10 @@ namespace test
 
 		MOCK_METHOD(bool, isDataCapturingEnabled, (), (override));
 
+		MOCK_METHOD(bool, isErrorCapturingEnabled, (), (override));
+
+		MOCK_METHOD(bool, isCrashCapturingEnabled, (), (override));
+
 		MOCK_METHOD(void, enableCapture, (), (override));
 
 		MOCK_METHOD(void, disableCapture, (), (override));

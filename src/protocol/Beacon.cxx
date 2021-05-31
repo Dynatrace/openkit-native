@@ -39,6 +39,7 @@ Beacon::Beacon(const protocol::IBeaconInitializer& initializer, const std::share
 	, mSequenceNumber(0)
 	, mID(0)
 	, mBeaconKey(initializer.getSessionIdProvider()->getNextSessionID(), initializer.getSessionSequenceNumber())
+	, mTrafficControlValue(initializer.getRandomNumberGenerator()->nextPercentageValue())
 	, mSessionNumber(0)
 	, mSessionSequenceNumber(initializer.getSessionSequenceNumber())
 	, mSessionStartTime(initializer.getTiminigProvider()->provideTimestampInMilliseconds())
@@ -253,7 +254,7 @@ void Beacon::addAction(std::shared_ptr<core::objects::IActionCommon> action)
 		return;
 	}
 
-	if (!mBeaconConfiguration->getServerConfiguration()->isSendingDataAllowed())
+	if (!isDataCapturingEnabled())
 	{
 		return;
 	}
@@ -301,7 +302,7 @@ void Beacon::endSession()
 		return;
 	}
 
-	if (!mBeaconConfiguration->getServerConfiguration()->isSendingDataAllowed())
+	if (!isDataCapturingEnabled())
 	{
 		return;
 	}
@@ -333,7 +334,7 @@ void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, in
 		return;
 	}
 
-	if (!mBeaconConfiguration->getServerConfiguration()->isSendingDataAllowed())
+	if (!isDataCapturingEnabled())
 	{
 		return;
 	}
@@ -357,7 +358,7 @@ void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, do
 		return;
 	}
 
-	if (!mBeaconConfiguration->getServerConfiguration()->isSendingDataAllowed())
+	if (!isDataCapturingEnabled())
 	{
 		return;
 	}
@@ -382,7 +383,7 @@ void Beacon::reportValue(int32_t actionID, const core::UTF8String& valueName, co
 		return;
 	}
 
-	if (!mBeaconConfiguration->getServerConfiguration()->isSendingDataAllowed())
+	if (!isDataCapturingEnabled())
 	{
 		return;
 	}
@@ -407,7 +408,7 @@ void Beacon::reportEvent(int32_t actionID, const core::UTF8String& eventName)
 		return;
 	}
 
-	if (!mBeaconConfiguration->getServerConfiguration()->isSendingDataAllowed())
+	if (!isDataCapturingEnabled())
 	{
 		return;
 	}
@@ -430,7 +431,7 @@ void Beacon::reportError(int32_t actionID, const core::UTF8String& errorName, in
 		return;
 	}
 
-	if (!mBeaconConfiguration->getServerConfiguration()->isSendingErrorsAllowed())
+	if (!isErrorCapturingEnabled())
 	{
 		return;
 	}
@@ -463,7 +464,7 @@ void Beacon::reportError(
 		return;
 	}
 
-	if (!mBeaconConfiguration->getServerConfiguration()->isSendingErrorsAllowed())
+	if (!isErrorCapturingEnabled())
 	{
 		return;
 	}
@@ -493,7 +494,7 @@ void Beacon::reportCrash(const core::UTF8String& errorName, const core::UTF8Stri
 		return;
 	}
 
-	if (!mBeaconConfiguration->getServerConfiguration()->isSendingCrashesAllowed())
+	if (!isCrashCapturingEnabled())
 	{
 		return;
 	}
@@ -740,7 +741,26 @@ bool Beacon::isActionReportingAllowedByPrivacySettings()
 
 bool Beacon::isDataCapturingEnabled()
 {
-	return mBeaconConfiguration->getServerConfiguration()->isSendingDataAllowed();
+	auto serverConfiguration = mBeaconConfiguration->getServerConfiguration();
+
+	return serverConfiguration->isSendingDataAllowed()
+		&& mTrafficControlValue < serverConfiguration->getTrafficControlPercentage();
+}
+
+bool Beacon::isErrorCapturingEnabled()
+{
+	auto serverConfiguration = mBeaconConfiguration->getServerConfiguration();
+
+	return serverConfiguration->isSendingErrorsAllowed()
+		&& mTrafficControlValue < serverConfiguration->getTrafficControlPercentage();
+}
+
+bool Beacon::isCrashCapturingEnabled()
+{
+	auto serverConfiguration = mBeaconConfiguration->getServerConfiguration();
+
+	return serverConfiguration->isSendingCrashesAllowed()
+		&& mTrafficControlValue < serverConfiguration->getTrafficControlPercentage();
 }
 
 void Beacon::enableCapture()

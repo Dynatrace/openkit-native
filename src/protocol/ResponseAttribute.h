@@ -71,6 +71,11 @@ namespace protocol
 		///
 		IS_CAPTURE_ERRORS,
 
+		///
+		/// Sampling percentage for sessions.
+		///
+		TRAFFIC_CONTROL_PERCENTAGE,
+
 		/// <summary>
 		/// The ID of the application to which a configuration applies.
 		/// </summary>
@@ -111,8 +116,11 @@ namespace protocol
 		ResponseAttribute::IS_CAPTURE,
 		ResponseAttribute::IS_CAPTURE_CRASHES,
 		ResponseAttribute::IS_CAPTURE_ERRORS,
+		ResponseAttribute::TRAFFIC_CONTROL_PERCENTAGE,
+		ResponseAttribute::APPLICATION_ID,
 		ResponseAttribute::MULTIPLICITY,
 		ResponseAttribute::SERVER_ID,
+		ResponseAttribute::STATUS,
 		ResponseAttribute::TIMESTAMP
 	};
 }

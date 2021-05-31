@@ -24,9 +24,9 @@ class DefaultSessionIDProviderTest : public testing::Test
 {
 protected:
 
-	DefaultSessionIdProvider_t* getProvider()
+	DefaultSessionIdProvider_t& getProvider()
 	{
-		return &mProvider;
+		return mProvider;
 	}
 
 	DefaultSessionIdProvider_t mProvider;
@@ -35,10 +35,10 @@ protected:
 TEST_F(DefaultSessionIDProviderTest, defaultSessionIDProviderInitializedWithTimestampReturnsANonNegativeInteger)
 {
 	//given
-	DefaultSessionIdProvider_t* provider = getProvider();
+	auto& provider = getProvider();
 
 	//when
-	int32_t actual = provider->getNextSessionID();
+	auto actual = provider.getNextSessionID();
 
 	// then
 	ASSERT_GT(actual, 0);
@@ -47,11 +47,11 @@ TEST_F(DefaultSessionIDProviderTest, defaultSessionIDProviderInitializedWithTime
 TEST_F(DefaultSessionIDProviderTest, defaultSessionIDProviderProvidesConsecutiveNumbers)
 {
 	//given
-	DefaultSessionIdProvider_t* provider = getProvider();
+	auto& provider = getProvider();
 
 	// when
-	int32_t firstSessionID = provider->getNextSessionID();
-	int32_t secondSessionID = provider->getNextSessionID();
+	auto firstSessionID = provider.getNextSessionID();
+	auto secondSessionID = provider.getNextSessionID();
 
 	// then
 	ASSERT_EQ(secondSessionID, firstSessionID + 1);
@@ -63,7 +63,7 @@ TEST_F(DefaultSessionIDProviderTest, aProviderInitializedWithMaxIntValueProvides
 	DefaultSessionIdProvider_t provider(INT32_MAX);
 
 	//when
-	int32_t actual = provider.getNextSessionID();
+	auto actual = provider.getNextSessionID();
 
 	// then
 	ASSERT_EQ(actual, 1);
@@ -75,7 +75,7 @@ TEST_F(DefaultSessionIDProviderTest, aProviderInitializedWithZeroProvidesMinSess
 	DefaultSessionIdProvider_t provider(0);
 
 	//when
-	int32_t actual = provider.getNextSessionID();
+	auto actual = provider.getNextSessionID();
 
 	// then
 	ASSERT_EQ(actual, 1);

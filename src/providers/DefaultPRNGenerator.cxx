@@ -21,18 +21,19 @@
 using namespace providers;
 
 DefaultPRNGenerator::DefaultPRNGenerator()
-	: mRandomEngine((std::random_device())())
+	: mRandomEngine(std::random_device()())
 {
-}
-
-int32_t DefaultPRNGenerator::nextPositiveInt32()
-{
-	std::uniform_int_distribution<int32_t> uniform_dist(0);
-	return uniform_dist(mRandomEngine);
 }
 
 int64_t DefaultPRNGenerator::nextPositiveInt64()
 {
 	std::uniform_int_distribution<int64_t> uniform_dist(0);
+	return uniform_dist(mRandomEngine);
+}
+
+int32_t DefaultPRNGenerator::nextPercentageValue()
+{
+	// uniform_int_distribution uses closed intervals
+	std::uniform_int_distribution<int32_t> uniform_dist(0, 99);
 	return uniform_dist(mRandomEngine);
 }

@@ -17,17 +17,14 @@
 #include "DefaultSessionIDProvider.h"
 #include "DefaultPRNGenerator.h"
 
+#include <functional>
 #include <random>
 
 using namespace providers;
 
 DefaultSessionIDProvider::DefaultSessionIDProvider()
-	: mLastSessionNumber(0)
-	, mNextIDMutex()
+	: DefaultSessionIDProvider(getRandomSessionID())
 {
-	providers::DefaultPRNGenerator randomGenerator;
-	mLastSessionNumber = randomGenerator.nextPositiveInt32();
-	
 }
 
 DefaultSessionIDProvider::DefaultSessionIDProvider(int32_t initialOffset)
@@ -45,3 +42,12 @@ int32_t DefaultSessionIDProvider::getNextSessionID()
 	}
 	return ++mLastSessionNumber;
 }
+
+int32_t DefaultSessionIDProvider::getRandomSessionID()
+{
+	std::default_random_engine generator((std::random_device())());
+	std::uniform_int_distribution<int32_t> distribution(0);
+
+	return distribution(generator);
+}
+

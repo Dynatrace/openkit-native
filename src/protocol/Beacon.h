@@ -137,6 +137,10 @@ namespace protocol
 
 		bool isDataCapturingEnabled() override;
 
+		bool isErrorCapturingEnabled() override;
+
+		bool isCrashCapturingEnabled() override;
+
 		void enableCapture() override;
 
 		void disableCapture() override;
@@ -317,6 +321,9 @@ namespace protocol
 
 		/// beacon key internally used to identifiy the session/beacon
 		core::caching::BeaconKey mBeaconKey;
+
+		/// this Beacon's traffic control value
+		int32_t mTrafficControlValue;
 
 		/// session number
 		int32_t mSessionNumber;

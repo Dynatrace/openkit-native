@@ -35,13 +35,13 @@ namespace providers
 
 		~FixedPRNGenerator() override = default;
 
-		int32_t nextPositiveInt32() override;
-
 		int64_t nextPositiveInt64() override;
+
+		int32_t nextPercentageValue() override;
 
 	private:
 		
-		int32_t mRandomInt32Number;
+		int32_t mRandomPercentage;
 
 		int64_t mRandomInt64Number;
 	};

@@ -34,14 +34,14 @@ namespace providers
 		virtual ~IPRNGenerator() = default;
 
 		///
-		/// Provide a positive random 32-bit number between 0(inclusive) and std::numeric_limits<int32_t>::max() (exclusive).
-		///
-		virtual int32_t nextPositiveInt32() = 0;
-
-		///
 		/// Provide a positive random 64-bit number between 0(inclusive) and std::numeric_limits<int64_t>::max() (exclusive).
 		///
 		virtual int64_t nextPositiveInt64() = 0;
+
+		///
+		/// Provide a positive random 32-bit number in range [0, 100).
+		///
+		virtual int32_t nextPercentageValue() = 0;
 	};
 }
 

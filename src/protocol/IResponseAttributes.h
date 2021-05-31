@@ -79,6 +79,14 @@ namespace protocol
 		virtual bool isCaptureErrors() const = 0;
 
 		///
+		/// Gets a session sampling value in percent.
+		///
+		/// @par
+		/// Value returned here is configured per application as Cost Control.
+		///
+		virtual int32_t  getTrafficControlPercentage() const = 0;
+
+		///
 		/// Returns the application UUID to which this configuration belongs to.
 		///
 		virtual const core::UTF8String& getApplicationId() const = 0;

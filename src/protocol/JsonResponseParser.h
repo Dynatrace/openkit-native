@@ -45,9 +45,10 @@ namespace protocol
 		static constexpr const char* RESPONSE_KEY_CAPTURE = "capture";
 		static constexpr const char* RESPONSE_KEY_REPORT_CRASHES = "reportCrashes";
 		static constexpr const char* RESPONSE_KEY_REPORT_ERRORS = "reportErrors";
+		static constexpr const char* RESPONSE_KEY_TRAFFIC_CONTROL_PERCENTAGE = "trafficControlPercentage";
+		static constexpr const char* RESPONSE_KEY_APPLICATION_ID = "applicationId";
 
 		static constexpr const char* RESPONSE_KEY_DYNAMIC_CONFIG = "dynamicConfig";
-		static constexpr const char* RESPONSE_KEY_APPLICATION_ID = "applicationId";
 		static constexpr const char* RESPONSE_KEY_MULTIPLICITY = "multiplicity";
 		static constexpr const char* RESPONSE_KEY_SERVER_ID = "serverId";
 
@@ -135,6 +136,11 @@ namespace protocol
 		);
 
 		static void applyReportErrors(
+			protocol::ResponseAttributes::Builder& builder,
+			std::shared_ptr<util::json::objects::JsonObjectValue> appConfigObject
+		);
+
+		static void applyTrafficControlPercentage(
 			protocol::ResponseAttributes::Builder& builder,
 			std::shared_ptr<util::json::objects::JsonObjectValue> appConfigObject
 		);

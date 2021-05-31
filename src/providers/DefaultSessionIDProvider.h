@@ -54,6 +54,11 @@ namespace providers
 
 	private:
 
+		///
+		/// Get a random session ID
+		///
+		static int32_t getRandomSessionID();
+
 		/// remember last session number - initialized with random offset
 		int32_t mLastSessionNumber;
 

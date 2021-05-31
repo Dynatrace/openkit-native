@@ -56,6 +56,8 @@ namespace protocol
 
 			bool isCaptureErrors() const override;
 
+			int32_t getTrafficControlPercentage() const override;
+
 			const core::UTF8String& getApplicationId() const override;
 			
 			int32_t getMultiplicity() const override;

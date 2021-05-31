@@ -130,6 +130,8 @@ protected:
 			.WillByDefault(testing::Return(SERVER_ID));
 		ON_CALL(*mockServerConfiguration, getBeaconSizeInBytes())
 			.WillByDefault(testing::Return(30 * 1024)); // 30 kB
+		ON_CALL(*mockServerConfiguration, getTrafficControlPercentage())
+			.WillByDefault(testing::Return(100)); // 100%
 		ON_CALL(*mockServerConfiguration, getMultiplicity())
 			.WillByDefault(testing::Return(MULTIPLICITY));
 
@@ -538,6 +540,32 @@ TEST_F(BeaconTest, addValidActionEvent)
 	target->addAction(action);
 }
 
+TEST_F(BeaconTest, actionNotReportedIfDisallowedByTrafficControl)
+{
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addActionData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	// given
+	auto actionMock = MockIActionCommon::createNice();
+	ON_CALL(*actionMock, getName())
+		.WillByDefault(testing::ReturnRef(ACTION_NAME));
+
+	const auto trafficControlPercentage = 50;
+
+	auto mockRandomGenerator = MockIPRNGenerator::createNice();
+	ON_CALL(*mockRandomGenerator, nextPercentageValue())
+		.WillByDefault(testing::Return(trafficControlPercentage));
+
+	ON_CALL(*mockServerConfiguration, getTrafficControlPercentage())
+		.WillByDefault(testing::Return(trafficControlPercentage));
+
+	auto target = createBeacon()->with(mockRandomGenerator).build();
+
+	// when
+	target->addAction(actionMock);
+}
+
 TEST_F(BeaconTest, actionNotReportedIfActionReportingDisallowed)
 {
 	// with
@@ -665,20 +693,39 @@ TEST_F(BeaconTest, sessionStartIsReportedRegardlessOfPrivacyConfiguration)
 
 TEST_F(BeaconTest, noSessionStartIsReportedIfDataSendingDisallowed)
 {
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(0);
+
 	//given
 	ON_CALL(*mockServerConfiguration, isSendingDataAllowed())
 		.WillByDefault(testing::Return(false));
 
 	auto target = createBeacon()->build();
 
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addActionData(testing::_, testing::_, testing::_))
-		.Times(0);
-    // expect
-    EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
-        .Times(0);
+	// when
+	target->startSession();
+}
 
-	// when, expect on interaction on beacon cache
+TEST_F(BeaconTest, noSessionStartIsReportedIfDisallowedByTrafficControl)
+{
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	// given
+	const auto trafficControlPercentage = 50;
+
+	auto mockRandomGenerator = MockIPRNGenerator::createNice();
+	ON_CALL(*mockRandomGenerator, nextPercentageValue())
+		.WillByDefault(testing::Return(trafficControlPercentage));
+
+	ON_CALL(*mockServerConfiguration, getTrafficControlPercentage())
+		.WillByDefault(testing::Return(trafficControlPercentage));
+
+	auto target = createBeacon()->with(mockRandomGenerator).build();
+
+	// when
 	target->startSession();
 }
 
@@ -759,6 +806,28 @@ TEST_F(BeaconTest, sessionNotReportedIfDataSendingDisallowed)
 	auto target = createBeacon()->build();
 
 	// when, expect no interaction with beacon cache
+	target->endSession();
+}
+
+TEST_F(BeaconTest, sessionNotReportedIfDisallowedByTrafficControl)
+{
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	// given
+	const auto trafficControlPercentage = 50;
+
+	auto mockRandomGenerator = MockIPRNGenerator::createNice();
+	ON_CALL(*mockRandomGenerator, nextPercentageValue())
+		.WillByDefault(testing::Return(trafficControlPercentage));
+
+	ON_CALL(*mockServerConfiguration, getTrafficControlPercentage())
+		.WillByDefault(testing::Return(trafficControlPercentage));
+
+	auto target = createBeacon()->with(mockRandomGenerator).build();
+
+	// when
 	target->endSession();
 }
 
@@ -849,6 +918,31 @@ TEST_F(BeaconTest, reportingInt32ValueWithEmptyValueNameThrowsException)
 	);
 }
 
+TEST_F(BeaconTest, int32ValueNotReportedIfDisallowedByTrafficControl)
+{
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	// given
+	Utf8String_t valueName("Int32Value");
+	int32_t value = 42;
+
+	const auto trafficControlPercentage = 50;
+
+	auto mockRandomGenerator = MockIPRNGenerator::createNice();
+	ON_CALL(*mockRandomGenerator, nextPercentageValue())
+		.WillByDefault(testing::Return(trafficControlPercentage));
+
+	ON_CALL(*mockServerConfiguration, getTrafficControlPercentage())
+		.WillByDefault(testing::Return(trafficControlPercentage));
+
+	auto target = createBeacon()->with(mockRandomGenerator).build();
+
+	// when
+	target->reportValue(1, valueName, value);
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// reportValue(int64_t) tests
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -936,6 +1030,31 @@ TEST_F(BeaconTest, reportingInt64ValueWithEmptyValueNameThrowsException)
 	);
 }
 
+TEST_F(BeaconTest, int64ValueNotReportedIfDisallowedByTrafficControl)
+{
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	// given
+	Utf8String_t valueName("Int64Value");
+	int64_t value = 42;
+
+	const auto trafficControlPercentage = 50;
+
+	auto mockRandomGenerator = MockIPRNGenerator::createNice();
+	ON_CALL(*mockRandomGenerator, nextPercentageValue())
+		.WillByDefault(testing::Return(trafficControlPercentage));
+
+	ON_CALL(*mockServerConfiguration, getTrafficControlPercentage())
+		.WillByDefault(testing::Return(trafficControlPercentage));
+
+	auto target = createBeacon()->with(mockRandomGenerator).build();
+
+	// when
+	target->reportValue(1, valueName, value);
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// reportValue(double) tests
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1021,6 +1140,31 @@ TEST_F(BeaconTest, reportingDoubleValueWithEmptyValueNameThrowsException)
 		target->reportValue(1, valueName, value),
 		std::invalid_argument
 	);
+}
+
+TEST_F(BeaconTest, doubleValueNotReportedIfDisallowedByTrafficControl)
+{
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	// given
+	Utf8String_t valueName("DoubleValue");
+	double value = 2.71;
+
+	const auto trafficControlPercentage = 50;
+
+	auto mockRandomGenerator = MockIPRNGenerator::createNice();
+	ON_CALL(*mockRandomGenerator, nextPercentageValue())
+		.WillByDefault(testing::Return(trafficControlPercentage));
+
+	ON_CALL(*mockServerConfiguration, getTrafficControlPercentage())
+		.WillByDefault(testing::Return(trafficControlPercentage));
+
+	auto target = createBeacon()->with(mockRandomGenerator).build();
+
+	// when
+	target->reportValue(1, valueName, value);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1139,6 +1283,31 @@ TEST_F(BeaconTest, reportingStringValueWithEmptyValueNameThrowsException)
 	);
 }
 
+TEST_F(BeaconTest, stringValueNotReportedIfDisallowedByTrafficControl)
+{
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	// given
+	Utf8String_t valueName("StringValue");
+	Utf8String_t value("HelloWorld");
+
+	const auto trafficControlPercentage = 50;
+
+	auto mockRandomGenerator = MockIPRNGenerator::createNice();
+	ON_CALL(*mockRandomGenerator, nextPercentageValue())
+		.WillByDefault(testing::Return(trafficControlPercentage));
+
+	ON_CALL(*mockServerConfiguration, getTrafficControlPercentage())
+		.WillByDefault(testing::Return(trafficControlPercentage));
+
+	auto target = createBeacon()->with(mockRandomGenerator).build();
+
+	// when
+	target->reportValue(1, valueName, value);
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// reportEvent tests
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1220,6 +1389,30 @@ TEST_F(BeaconTest, namedEventNotReportedIfEventReportingDisallowed)
 
 	// when, expect no interaction with beacon cache
 	target->reportEvent(ACTION_ID, eventName);
+}
+
+TEST_F(BeaconTest, namedEventNotReportedIfDisallowedByTrafficControl)
+{
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	// given
+	Utf8String_t eventName("some event");
+
+	const auto trafficControlPercentage = 50;
+
+	auto mockRandomGenerator = MockIPRNGenerator::createNice();
+	ON_CALL(*mockRandomGenerator, nextPercentageValue())
+		.WillByDefault(testing::Return(trafficControlPercentage));
+
+	ON_CALL(*mockServerConfiguration, getTrafficControlPercentage())
+		.WillByDefault(testing::Return(trafficControlPercentage));
+
+	auto target = createBeacon()->with(mockRandomGenerator).build();
+
+	// when
+	target->reportEvent(1, eventName);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1329,6 +1522,28 @@ TEST_F(BeaconTest, errorCodeNotReportedIfErrorReportingDisallowed)
 
 	// when, expect no interaction with beacon cache
 	target->reportError(ACTION_ID, eventName, errorCode);
+}
+
+TEST_F(BeaconTest, errorCodeNotReportedIfDisallowedByTrafficControl)
+{
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	// given
+	const auto trafficControlPercentage = 50;
+
+	auto mockRandomGenerator = MockIPRNGenerator::createNice();
+	ON_CALL(*mockRandomGenerator, nextPercentageValue())
+		.WillByDefault(testing::Return(trafficControlPercentage));
+
+	ON_CALL(*mockServerConfiguration, getTrafficControlPercentage())
+		.WillByDefault(testing::Return(trafficControlPercentage));
+
+	auto target = createBeacon()->with(mockRandomGenerator).build();
+
+	// when
+	target->reportError(1, "DivByZeroError", 127);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1535,6 +1750,28 @@ TEST_F(BeaconTest, errorWithCauseNotReportedIfErrorReportingIsDisallowed)
 	target->reportError(ACTION_ID, "Error name", "cause", "description", "stack trace");
 }
 
+TEST_F(BeaconTest, errorWithCauseNotReportedIfDisallowedByTrafficControl)
+{
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	// given
+	const auto trafficControlPercentage = 50;
+
+	auto mockRandomGenerator = MockIPRNGenerator::createNice();
+	ON_CALL(*mockRandomGenerator, nextPercentageValue())
+		.WillByDefault(testing::Return(trafficControlPercentage));
+
+	ON_CALL(*mockServerConfiguration, getTrafficControlPercentage())
+		.WillByDefault(testing::Return(trafficControlPercentage));
+
+	auto target = createBeacon()->with(mockRandomGenerator).build();
+
+	// when
+	target->reportError(1, "error", "causeName", "causeDescription", "stackTrace");
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// reportCrash tests
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1706,6 +1943,28 @@ TEST_F(BeaconTest, crashNotReportedIfCrashReportingDisallowed)
 
 	// when, expect no interaction with beacon cache
 	target->reportCrash(eventName, reason, stacktrace);
+}
+
+TEST_F(BeaconTest, reportCrashDoesNotReportIfDisallowedByTrafficControl)
+{
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	// given
+	const auto trafficControlPercentage = 50;
+
+	auto mockRandomGenerator = MockIPRNGenerator::createNice();
+	ON_CALL(*mockRandomGenerator, nextPercentageValue())
+		.WillByDefault(testing::Return(trafficControlPercentage));
+
+	ON_CALL(*mockServerConfiguration, getTrafficControlPercentage())
+		.WillByDefault(testing::Return(trafficControlPercentage));
+
+	auto target = createBeacon()->with(mockRandomGenerator).build();
+
+	// when
+	target->reportCrash("OutOfMemory exception", "insufficient memory", "stacktrace:123");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2074,6 +2333,31 @@ TEST_F(BeaconTest, webRequestNotReportedIfWebRequestTracingDisallowed)
 	target->addWebRequest(ACTION_ID, tracer);
 }
 
+TEST_F(BeaconTest, webRequestNotReportedIfDisallowedByTrafficControl)
+{
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	// given
+	const auto trafficControlPercentage = 50;
+
+	auto mockRandomGenerator = MockIPRNGenerator::createNice();
+	ON_CALL(*mockRandomGenerator, nextPercentageValue())
+		.WillByDefault(testing::Return(trafficControlPercentage));
+
+	ON_CALL(*mockServerConfiguration, getTrafficControlPercentage())
+		.WillByDefault(testing::Return(trafficControlPercentage));
+
+	auto target = createBeacon()->with(mockRandomGenerator).build();
+	auto tracer = MockIWebRequestTracerInternals::createNice();
+	ON_CALL(*tracer, getURL())
+		.WillByDefault(testing::ReturnRef(TRACER_URL));
+
+	// when, expect no interaction with beacon cache
+	target->addWebRequest(ACTION_ID, tracer);
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// identifyUser tests
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2156,8 +2440,34 @@ TEST_F(BeaconTest, cannotIdentifyUserIfUserIdentificationDisabled)
 	ON_CALL(*mockPrivacyConfiguration, isUserIdentificationAllowed())
 		.WillByDefault(testing::Return(false));
 
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(0);
+
 	// given
 	auto target = createBeacon()->build();
+
+	// when, expect no interaction with beacon cache
+	target->identifyUser("jane@doe.com");
+}
+
+TEST_F(BeaconTest, cannotIdentifyUserIfDisallowedByTrafficControl)
+{
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	// given
+	const auto trafficControlPercentage = 50;
+
+	auto mockRandomGenerator = MockIPRNGenerator::createNice();
+	ON_CALL(*mockRandomGenerator, nextPercentageValue())
+		.WillByDefault(testing::Return(trafficControlPercentage));
+
+	ON_CALL(*mockServerConfiguration, getTrafficControlPercentage())
+		.WillByDefault(testing::Return(trafficControlPercentage));
+
+	auto target = createBeacon()->with(mockRandomGenerator).build();
 
 	// when, expect no interaction with beacon cache
 	target->identifyUser("jane@doe.com");
@@ -2488,7 +2798,7 @@ TEST_F(BeaconTest, givenDeviceIDIsUsedIfDeviceIdSendingIsAllowed)
 	ON_CALL(*mockPrivacyConfiguration, isDeviceIdSendingAllowed())
 		.WillByDefault(testing::Return(true));
 
-	auto mockRandomStrict = MockIPRNGenerator::createStrict();
+	auto mockRandomStrict = MockIPRNGenerator::createNice();
 
 	// given
 	auto target = createBeacon()
@@ -2618,7 +2928,7 @@ TEST_F(BeaconTest, isActionReportingAllowedByPrivacySettingsDelegatesToPrivacyCo
 	ASSERT_THAT(obtained, testing::Eq(false));
 }
 
-TEST_F(BeaconTest, isDataCaptureEnabledReturnsFalseIfDataSendingIsDisallowed)
+TEST_F(BeaconTest, isDataCapturingEnabledReturnsFalseIfDataSendingIsDisallowed)
 {
     // given
     ON_CALL(*mockServerConfiguration, isSendingDataAllowed())
@@ -2633,19 +2943,241 @@ TEST_F(BeaconTest, isDataCaptureEnabledReturnsFalseIfDataSendingIsDisallowed)
 	ASSERT_THAT(obtained, testing::Eq(false));
 }
 
-TEST_F(BeaconTest, isDataCaptureEnabledReturnsTrueIfDataSendingIsAllowed)
+TEST_F(BeaconTest, isDataCapturingEnabledReturnsTrueIfDataSendingIsAllowedAndTcValueGreaterThanTcPercentageFromServerConfig)
 {
     // given
+	const auto trafficControlPercentage = 50;
+
     ON_CALL(*mockServerConfiguration, isSendingDataAllowed())
         .WillByDefault(testing::Return(true));
+	ON_CALL(*mockServerConfiguration, getTrafficControlPercentage())
+		.WillByDefault(testing::Return(trafficControlPercentage + 1));
 
-    auto target = createBeacon()->build();
+	auto mockRandomGenerator = MockIPRNGenerator::createNice();
+	ON_CALL(*mockRandomGenerator, nextPercentageValue())
+		.WillByDefault(testing::Return(trafficControlPercentage));
+
+    auto target = createBeacon()->with(mockRandomGenerator).build();
 
     // when
     auto obtained = target->isDataCapturingEnabled();
 
     // then
     ASSERT_THAT(obtained, testing::Eq(true));
+}
+
+TEST_F(BeaconTest, isDataCapturingEnabledReturnsFalseIfTcValueEqualToTcPercentageFromServerConfig)
+{
+	// given
+	const auto trafficControlPercentage = 50;
+
+	ON_CALL(*mockServerConfiguration, isSendingDataAllowed())
+		.WillByDefault(testing::Return(true));
+	ON_CALL(*mockServerConfiguration, getTrafficControlPercentage())
+		.WillByDefault(testing::Return(trafficControlPercentage));
+
+	auto mockRandomGenerator = MockIPRNGenerator::createNice();
+	ON_CALL(*mockRandomGenerator, nextPercentageValue())
+		.WillByDefault(testing::Return(trafficControlPercentage));
+
+	auto target = createBeacon()->with(mockRandomGenerator).build();
+
+	// when
+	auto obtained = target->isDataCapturingEnabled();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(false));
+}
+
+TEST_F(BeaconTest, IsDataCapturingEnabledReturnsFalseIfTcValueGreaterThanTcPercentageFromServerConfig)
+{
+	// given
+	const auto trafficControlPercentage = 50;
+
+	ON_CALL(*mockServerConfiguration, isSendingDataAllowed())
+		.WillByDefault(testing::Return(true));
+	ON_CALL(*mockServerConfiguration, getTrafficControlPercentage())
+		.WillByDefault(testing::Return(trafficControlPercentage - 1));
+
+	auto mockRandomGenerator = MockIPRNGenerator::createNice();
+	ON_CALL(*mockRandomGenerator, nextPercentageValue())
+		.WillByDefault(testing::Return(trafficControlPercentage));
+
+	auto target = createBeacon()->with(mockRandomGenerator).build();
+
+	// when
+	auto obtained = target->isDataCapturingEnabled();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(false));
+}
+
+TEST_F(BeaconTest, isErrorCapturingEnabledReturnsFalseIfSendingErrorsIsDisallowed)
+{
+	// given
+	ON_CALL(*mockServerConfiguration, isSendingErrorsAllowed())
+		.WillByDefault(testing::Return(false));
+
+	auto target = createBeacon()->build();
+
+	// when
+	auto obtained = target->isErrorCapturingEnabled();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(false));
+}
+
+TEST_F(BeaconTest, isErrorCapturingEnabledReturnsFalseIfTcValueEqualToTcPercentageFromServerConfig)
+{
+	// given
+	const auto trafficControlPercentage = 50;
+
+	ON_CALL(*mockServerConfiguration, isSendingErrorsAllowed())
+		.WillByDefault(testing::Return(true));
+	ON_CALL(*mockServerConfiguration, getTrafficControlPercentage())
+		.WillByDefault(testing::Return(trafficControlPercentage));
+
+	auto mockRandomGenerator = MockIPRNGenerator::createNice();
+	ON_CALL(*mockRandomGenerator, nextPercentageValue())
+		.WillByDefault(testing::Return(trafficControlPercentage));
+
+	auto target = createBeacon()->with(mockRandomGenerator).build();
+
+	// when
+	auto obtained = target->isErrorCapturingEnabled();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(false));
+}
+
+TEST_F(BeaconTest, isErrorCapturingEnabledReturnsFalseIfTcValueGreaterThanTcPercentageFromServerConfig)
+{
+	// given
+	const auto trafficControlPercentage = 50;
+
+	ON_CALL(*mockServerConfiguration, isSendingErrorsAllowed())
+		.WillByDefault(testing::Return(true));
+	ON_CALL(*mockServerConfiguration, getTrafficControlPercentage())
+		.WillByDefault(testing::Return(trafficControlPercentage - 1));
+
+	auto mockRandomGenerator = MockIPRNGenerator::createNice();
+	ON_CALL(*mockRandomGenerator, nextPercentageValue())
+		.WillByDefault(testing::Return(trafficControlPercentage));
+
+	auto target = createBeacon()->with(mockRandomGenerator).build();
+
+	// when
+	auto obtained = target->isErrorCapturingEnabled();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(false));
+}
+
+TEST_F(BeaconTest, isErrorCapturingEnabledReturnsTrueIfErrorSendingIsAllowedAndTcValueGreaterThanTcPercentageFromServerConfig)
+{
+	// given
+	const auto trafficControlPercentage = 50;
+
+	ON_CALL(*mockServerConfiguration, isSendingErrorsAllowed())
+		.WillByDefault(testing::Return(true));
+	ON_CALL(*mockServerConfiguration, getTrafficControlPercentage())
+		.WillByDefault(testing::Return(trafficControlPercentage + 1));
+
+	auto mockRandomGenerator = MockIPRNGenerator::createNice();
+	ON_CALL(*mockRandomGenerator, nextPercentageValue())
+		.WillByDefault(testing::Return(trafficControlPercentage));
+
+	auto target = createBeacon()->with(mockRandomGenerator).build();
+
+	// when
+	auto obtained = target->isErrorCapturingEnabled();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(true));
+}
+
+TEST_F(BeaconTest, isCrashCapturingEnabledReturnsFalseIfSendingErrorsIsDisallowed)
+{
+	// given
+	ON_CALL(*mockServerConfiguration, isSendingCrashesAllowed())
+		.WillByDefault(testing::Return(false));
+
+	auto target = createBeacon()->build();
+
+	// when
+	auto obtained = target->isCrashCapturingEnabled();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(false));
+}
+
+TEST_F(BeaconTest, isCrashCapturingEnabledReturnsFalseIfTcValueEqualToTcPercentageFromServerConfig)
+{
+	// given
+	const auto trafficControlPercentage = 50;
+
+	ON_CALL(*mockServerConfiguration, isSendingCrashesAllowed())
+		.WillByDefault(testing::Return(true));
+	ON_CALL(*mockServerConfiguration, getTrafficControlPercentage())
+		.WillByDefault(testing::Return(trafficControlPercentage));
+
+	auto mockRandomGenerator = MockIPRNGenerator::createNice();
+	ON_CALL(*mockRandomGenerator, nextPercentageValue())
+		.WillByDefault(testing::Return(trafficControlPercentage));
+
+	auto target = createBeacon()->with(mockRandomGenerator).build();
+
+	// when
+	auto obtained = target->isCrashCapturingEnabled();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(false));
+}
+
+TEST_F(BeaconTest, isCrashCapturingEnabledReturnsFalseIfTcValueGreaterThanTcPercentageFromServerConfig)
+{
+	// given
+	const auto trafficControlPercentage = 50;
+
+	ON_CALL(*mockServerConfiguration, isSendingCrashesAllowed())
+		.WillByDefault(testing::Return(true));
+	ON_CALL(*mockServerConfiguration, getTrafficControlPercentage())
+		.WillByDefault(testing::Return(trafficControlPercentage - 1));
+
+	auto mockRandomGenerator = MockIPRNGenerator::createNice();
+	ON_CALL(*mockRandomGenerator, nextPercentageValue())
+		.WillByDefault(testing::Return(trafficControlPercentage));
+
+	auto target = createBeacon()->with(mockRandomGenerator).build();
+
+	// when
+	auto obtained = target->isCrashCapturingEnabled();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(false));
+}
+
+TEST_F(BeaconTest, isCrashCapturingEnabledReturnsTrueIfCrashSendingIsAllowedAndTcValueGreaterThanTcPercentageFromServerConfig)
+{
+	// given
+	const auto trafficControlPercentage = 50;
+
+	ON_CALL(*mockServerConfiguration, isSendingCrashesAllowed())
+		.WillByDefault(testing::Return(true));
+	ON_CALL(*mockServerConfiguration, getTrafficControlPercentage())
+		.WillByDefault(testing::Return(trafficControlPercentage + 1));
+
+	auto mockRandomGenerator = MockIPRNGenerator::createNice();
+	ON_CALL(*mockRandomGenerator, nextPercentageValue())
+		.WillByDefault(testing::Return(trafficControlPercentage));
+
+	auto target = createBeacon()->with(mockRandomGenerator).build();
+
+	// when
+	auto obtained = target->isCrashCapturingEnabled();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(true));
 }
 
 TEST_F(BeaconTest, enableCaptureDelegatesToBeaconConfig)

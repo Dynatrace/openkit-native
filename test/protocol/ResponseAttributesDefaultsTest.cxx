@@ -101,6 +101,11 @@ TEST_F(ResponseAttributesDefaultsTest, defaultJsonIsCaptureErrors)
 	ASSERT_THAT(ResponseAttributesDefaults_t::jsonResponse()->isCaptureErrors(), testing::Eq(true));
 }
 
+TEST_F(ResponseAttributesDefaultsTest, defaultJsonTrafficControlPercentage)
+{
+	ASSERT_THAT(ResponseAttributesDefaults_t::jsonResponse()->getTrafficControlPercentage(), testing::Eq(100));
+}
+
 TEST_F(ResponseAttributesDefaultsTest, defaultJsonApplicationId)
 {
 	ASSERT_THAT(ResponseAttributesDefaults_t::jsonResponse()->getApplicationId(), testing::IsEmpty());
@@ -175,6 +180,11 @@ TEST_F(ResponseAttributesDefaultsTest, defaultKeyValueIsCaptureErrors)
 	ASSERT_THAT(ResponseAttributesDefaults_t::keyValueResponse()->isCaptureErrors(), testing::Eq(true));
 }
 
+TEST_F(ResponseAttributesDefaultsTest, defaultKeyValueTrafficControlPercentage)
+{
+	ASSERT_THAT(ResponseAttributesDefaults_t::keyValueResponse()->getTrafficControlPercentage(), testing::Eq(100));
+}
+
 TEST_F(ResponseAttributesDefaultsTest, defaultKeyValueApplicationId)
 {
 	ASSERT_THAT(ResponseAttributesDefaults_t::keyValueResponse()->getApplicationId(), testing::IsEmpty());
@@ -247,6 +257,11 @@ TEST_F(ResponseAttributesDefaultsTest, defaultUndefinedIsCaptureCrashes)
 TEST_F(ResponseAttributesDefaultsTest, defaultUndefinedIsCaptureErrors)
 {
 	ASSERT_THAT(ResponseAttributesDefaults_t::undefined()->isCaptureErrors(), testing::Eq(true));
+}
+
+TEST_F(ResponseAttributesDefaultsTest, defaultUndefinedTrafficControlPercentage)
+{
+	ASSERT_THAT(ResponseAttributesDefaults_t::undefined()->getTrafficControlPercentage(), testing::Eq(100));
 }
 
 TEST_F(ResponseAttributesDefaultsTest, defaultUndefinedApplicationId)

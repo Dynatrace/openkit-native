@@ -78,6 +78,7 @@ TEST_F(ResponseAttributesTest, buildForwardsJsonDefaultsToInstance)
 	ASSERT_THAT(obtained->isCapture(), testing::Eq(defaults->isCapture()));
 	ASSERT_THAT(obtained->isCaptureCrashes(), testing::Eq(defaults->isCaptureCrashes()));
 	ASSERT_THAT(obtained->isCaptureErrors(), testing::Eq(defaults->isCaptureErrors()));
+	ASSERT_THAT(obtained->getTrafficControlPercentage(), testing::Eq(defaults->getTrafficControlPercentage()));
 	ASSERT_THAT(obtained->getApplicationId(), testing::Eq(defaults->getApplicationId()));
 
 	ASSERT_THAT(obtained->getMultiplicity(), testing::Eq(defaults->getMultiplicity()));
@@ -108,6 +109,7 @@ TEST_F(ResponseAttributesTest, buildForwardsKeyValueDefaultsToInstance)
 	ASSERT_THAT(obtained->isCapture(), testing::Eq(defaults->isCapture()));
 	ASSERT_THAT(obtained->isCaptureCrashes(), testing::Eq(defaults->isCaptureCrashes()));
 	ASSERT_THAT(obtained->isCaptureErrors(), testing::Eq(defaults->isCaptureErrors()));
+	ASSERT_THAT(obtained->getTrafficControlPercentage(), testing::Eq(defaults->getTrafficControlPercentage()));
 	ASSERT_THAT(obtained->getApplicationId(), testing::Eq(defaults->getApplicationId()));
 
 	ASSERT_THAT(obtained->getMultiplicity(), testing::Eq(defaults->getMultiplicity()));
@@ -203,7 +205,7 @@ TEST_F(ResponseAttributesTest, withApplicationIdSetsAttributeOnInstance)
 	}
 }
 
-TEST_F(ResponseAttributesTest, ithMaxBeaconSizeSetsAttributeOnInstance)
+TEST_F(ResponseAttributesTest, withMaxBeaconSizeSetsAttributeOnInstance)
 {
 	// given
 	auto attribute = ResponseAttribute_t::MAX_BEACON_SIZE;
@@ -226,7 +228,7 @@ TEST_F(ResponseAttributesTest, ithMaxBeaconSizeSetsAttributeOnInstance)
 	}
 }
 
-TEST_F(ResponseAttributesTest, uildPropagatesMaxSessionDurationToInstance)
+TEST_F(ResponseAttributesTest, buildPropagatesMaxSessionDurationToInstance)
 {
 	// given
 	const int32_t sessionDuration = 73;
@@ -419,7 +421,7 @@ TEST_F(ResponseAttributesTest, buildPropagatesIsCaptureToInstance)
 	ASSERT_THAT(obtained->isCapture(), testing::Eq(isCapture));
 }
 
-TEST_F(ResponseAttributesTest, ithCaptureSetsAttributeOnInstance)
+TEST_F(ResponseAttributesTest, withCaptureSetsAttributeOnInstance)
 {
 	// given
 	auto attribute = ResponseAttribute_t::IS_CAPTURE;
@@ -499,6 +501,42 @@ TEST_F(ResponseAttributesTest, withCaptureErrorsSetsAttributeOnInstance)
 
 	// when
 	auto obtained = target.withCaptureErrors(!ResponseAttributesDefaults_t::jsonResponse()->isCaptureErrors()).build();
+
+	// then
+	ASSERT_THAT(obtained->isAttributeSet(attribute), testing::Eq(true));
+
+	for (const auto unsetAttribute : protocol::ALL_RESPONSE_ATTRIBUTES)
+	{
+		if (attribute == unsetAttribute)
+		{
+			continue;
+		}
+
+		ASSERT_THAT(obtained->isAttributeSet(unsetAttribute), testing::Eq(false));
+	}
+}
+
+TEST_F(ResponseAttributesTest, buildPropagatesTrafficControlPercentageToInstance)
+{
+	// given
+	const auto trafficControlPercentage = 65;
+	auto target = ResponseAttributes_t::withJsonDefaults();
+
+	// when
+	auto obtained = target.withTrafficControlPercentage(trafficControlPercentage).build();
+
+	// then
+	ASSERT_THAT(obtained->getTrafficControlPercentage(), testing::Eq(trafficControlPercentage));
+}
+
+TEST_F(ResponseAttributesTest, withTrafficControlPercentageSetsAttributeOnInstance)
+{
+	// given
+	auto attribute = ResponseAttribute_t::TRAFFIC_CONTROL_PERCENTAGE;
+	auto target = ResponseAttributes_t::withJsonDefaults();
+
+	// when
+	auto obtained = target.withTrafficControlPercentage(42).build();
 
 	// then
 	ASSERT_THAT(obtained->isAttributeSet(attribute), testing::Eq(true));
@@ -1119,6 +1157,59 @@ TEST_F(ResponseAttributesTest, mergeTakesCaptureErrorsFromMergeSourceIfSetInSour
 	// then
 	ASSERT_THAT(obtained, testing::NotNull());
 	ASSERT_THAT(obtained->isCaptureErrors(), testing::Eq(captureErrors));
+}
+
+TEST_F(ResponseAttributesTest, mergeTakesTrafficControlPercentageFromMergeTargetIfNotSetInSource)
+{
+	// given
+	const auto trafficControlPercentage = 73;
+	auto source = ResponseAttributes_t::withUndefinedDefaults().build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults()
+		.withTrafficControlPercentage(trafficControlPercentage)
+		.build();
+
+	// when
+	auto obtained = target->merge(source);
+
+	// then
+	ASSERT_THAT(obtained, testing::NotNull());
+	ASSERT_THAT(obtained->getTrafficControlPercentage(), testing::Eq(trafficControlPercentage));
+}
+
+TEST_F(ResponseAttributesTest, mergeTakesTrafficControlPercentageFromMergeSourceIfSetInSource)
+{
+	// given
+	const auto trafficControlPercentage = 73;
+	auto source = ResponseAttributes_t::withUndefinedDefaults()
+		.withTrafficControlPercentage(trafficControlPercentage)
+		.build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults().build();
+
+	// when
+	auto obtained = target->merge(source);
+
+	// then
+	ASSERT_THAT(obtained, testing::NotNull());
+	ASSERT_THAT(obtained->getTrafficControlPercentage(), testing::Eq(trafficControlPercentage));
+}
+
+TEST_F(ResponseAttributesTest, mergeTakesTrafficControlPercentageFromMergeSourceIfSetInSourceAndTarget)
+{
+	// given
+	const auto trafficControlPercentage = 73;
+	auto source = ResponseAttributes_t::withUndefinedDefaults()
+		.withTrafficControlPercentage(trafficControlPercentage)
+		.build();
+	auto target = ResponseAttributes_t::withUndefinedDefaults()
+		.withTrafficControlPercentage(37)
+		.build();
+
+	// when
+	auto obtained = target->merge(source);
+
+	// then
+	ASSERT_THAT(obtained, testing::NotNull());
+	ASSERT_THAT(obtained->getTrafficControlPercentage(), testing::Eq(trafficControlPercentage));
 }
 
 TEST_F(ResponseAttributesTest, mergeTakesApplicationIdFromMergeTargetIfNotSetInSource)

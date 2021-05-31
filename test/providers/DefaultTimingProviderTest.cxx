@@ -38,6 +38,5 @@ TEST_F(DefaultTimingProviderTest, provideTimeStampInMillisecondsReturnsCurrentTi
 	auto timeAfter = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 
 	// then
-	ASSERT_THAT(obtained, testing::Ge(timeBefore));
-	ASSERT_THAT(obtained, testing::Le(timeAfter));
+	ASSERT_THAT(obtained, testing::AllOf(testing::Ge(timeBefore), testing::Le(timeAfter)));
 }

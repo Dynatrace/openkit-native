@@ -72,6 +72,11 @@ bool ResponseAttributesDefaults::AbstractResponseDefaults::isCaptureErrors() con
 	return true;
 }
 
+int32_t ResponseAttributesDefaults::AbstractResponseDefaults::getTrafficControlPercentage() const
+{
+	return 100;
+}
+
 const core::UTF8String& ResponseAttributesDefaults::AbstractResponseDefaults::getApplicationId() const
 {
 	return emptyString;

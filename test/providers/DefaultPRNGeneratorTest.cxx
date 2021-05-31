@@ -29,21 +29,26 @@ public:
 	DefaultPrnGenerator_t randomGenerator;
 };
 
-TEST_F(DefaultPRNGeneratorTest, DefaultPRNGeneratorProvidesPositiveInt32)
-{
-	// when
-	auto randomNumber = randomGenerator.nextPositiveInt32();
-
-	// then
-	EXPECT_THAT(randomNumber, testing::AllOf(testing::Ge(int32_t(0)), testing::Lt(std::numeric_limits<int32_t>::max())));
-}
-
-
 TEST_F(DefaultPRNGeneratorTest, DefaultPRNGeneratorProvidesPositiveUInt64)
 {
-	// when
-	auto randomNumber = randomGenerator.nextPositiveInt64();
+	for (auto i = 0; i < 100; i++)
+	{
+		// when
+		auto randomNumber = randomGenerator.nextPositiveInt64();
 
-	// then
-	EXPECT_THAT(randomNumber, testing::AllOf(testing::Ge(int64_t(0)), testing::Lt(std::numeric_limits<int64_t>::max())));
+		// then
+		EXPECT_THAT(randomNumber, testing::Ge(int64_t(0)));
+	}
+}
+
+TEST_F(DefaultPRNGeneratorTest, DefaultPrnGeneratorProvidesPercentageVAlue)
+{
+	for (auto i = 0; i < 100; i++)
+	{
+		// when
+		auto randomNumber = randomGenerator.nextPercentageValue();
+
+		// then
+		EXPECT_THAT(randomNumber, testing::AllOf(testing::Ge(int32_t(0)), testing::Lt(100)));
+	}
 }

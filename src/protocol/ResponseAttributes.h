@@ -136,6 +136,16 @@ namespace protocol
 			///
 			Builder& withCaptureErrors(bool captureErrors);
 
+			int32_t  getTrafficControlPercentage() const;
+
+			///
+			/// Sets a session sampling percentage (known as Cost Control).
+			///
+			/// @param trafficControlPercentage Sets a session sampling percentage (known as Cost Control).
+			/// @return @c this
+			///
+			Builder& withTrafficControlPercentage(int32_t trafficControlPercentage);
+
 			const core::UTF8String& getApplicationId() const;
 			
 			/// 
@@ -205,8 +215,9 @@ namespace protocol
 			bool mIsCapture;
 			bool mIsCaptureCrashes;
 			bool mIsCaptureErrors;
-
+			int32_t mTrafficControlPercentage;
 			core::UTF8String mApplicationId;
+
 			int32_t mMultiplicity;
 			int32_t mServerId;
 			core::UTF8String mStatus;
@@ -254,6 +265,8 @@ namespace protocol
 
 		bool isCaptureErrors() const override;
 
+		int32_t  getTrafficControlPercentage() const override;
+
 		const core::UTF8String& getApplicationId() const override;
 
 		int32_t getMultiplicity() const override;
@@ -288,6 +301,8 @@ namespace protocol
 
 		static inline void applyCaptureErrors(Builder& builder, std::shared_ptr<IResponseAttributes> attributes);
 
+		static inline void applyTrafficControlPercentage(Builder& builder, std::shared_ptr<IResponseAttributes> attributes);
+
 		static inline void applyApplicationId(Builder& builder, std::shared_ptr<IResponseAttributes> attributes);
 		
 		static inline void applyMultiplicity(Builder& builder, std::shared_ptr<IResponseAttributes> attributes);
@@ -309,8 +324,9 @@ namespace protocol
 		bool mIsCapture;
 		bool mIsCaptureCrashes;
 		bool mIsCaptureErrors;
-
+		int32_t mTrafficControlPercentage;
 		core::UTF8String mApplicationId;
+
 		int32_t mMultiplicity;
 		int32_t mServerId;
 		core::UTF8String mStatus;

@@ -213,6 +213,7 @@ void JsonResponseParser::applyApplicationConfiguration(
 	applyCapture(builder, appConfigObject);
 	applyReportCrashes(builder, appConfigObject);
 	applyReportErrors(builder, appConfigObject);
+	applyTrafficControlPercentage(builder, appConfigObject);
 	applyApplicationId(builder, appConfigObject);
 }
 
@@ -259,6 +260,21 @@ void JsonResponseParser::applyReportErrors(
 
 	auto reportErrors = numberValue->getInt32Value();
 	builder.withCaptureErrors(reportErrors != 0);
+}
+
+void JsonResponseParser::applyTrafficControlPercentage(
+	protocol::ResponseAttributes::Builder& builder,
+	std::shared_ptr<util::json::objects::JsonObjectValue> appConfigObject
+)
+{
+	auto numberValue = getJsonNumberFrom(appConfigObject, JsonResponseParser::RESPONSE_KEY_TRAFFIC_CONTROL_PERCENTAGE);
+	if (numberValue == nullptr)
+	{
+		return;
+	}
+
+	auto trafficControlPercentage = numberValue->getInt32Value();
+	builder.withTrafficControlPercentage(trafficControlPercentage);
 }
 
 void JsonResponseParser::applyApplicationId(

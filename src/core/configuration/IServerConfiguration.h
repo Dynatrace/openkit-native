@@ -113,6 +113,11 @@ namespace core
 			virtual int32_t getVisitStoreVersion() const = 0;
 
 			///
+			/// Returns a percentage value that is used for session rate limiting.
+			///
+			virtual int32_t getTrafficControlPercentage() const = 0;
+
+			///
 			/// Indicates whether sending arbitrary data to the server is allowed or not.
 			///
 			/// @par
