@@ -2,6 +2,9 @@
 
 ## [Unreleased](https://github.com/Dynatrace/openkit-native/compare/v2.0.0...release/2.0)
 
+### Added
+- Add libatomic as additional link library if required.
+
 ## 2.0.0 [Release date: 2021-05-19]
 [GitHub Releases](https://github.com/Dynatrace/openkit-native/releases/tag/v2.0.0)
 
