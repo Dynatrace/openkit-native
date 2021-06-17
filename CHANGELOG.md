@@ -18,6 +18,7 @@
   * `reportErrorCauseOnAction(struct ActionHandle*, const char*, const char*, const char*, const char*)`
   for reporting generic errors on root actions and actions.
 - Support cost control configured in the Dynatrace UI.
+- Add libatomic as additional link library if required.
 
 ## 2.0.0 [Release date: 2021-05-19]
 [GitHub Releases](https://github.com/Dynatrace/openkit-native/releases/tag/v2.0.0)

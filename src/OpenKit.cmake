@@ -374,6 +374,17 @@ macro(_generate_open_kit_version_rc)
     configure_file(${VERSION_RC_TEMPLATE} ${VERSION_RC_OUTPUT} @ONLY)
 endmacro()
 
+macro(_check_for_additional_libs libs)
+    set(libs)
+    
+    # check if libatomic is required
+    include (CheckAtomic)
+    if (HAVE_CXX_ATOMICS_WITH_LIB)
+        list (append libs "atomic")
+    endif ()
+
+endmacro()
+
 ##
 # Function to build the OpenKit target
 function(build_open_kit)
@@ -427,6 +438,10 @@ function(build_open_kit)
 
     # add library dependencies
     target_link_libraries(${OPENKIT_LIB_NAME} PRIVATE ZLIB::ZLIB CURL::libcurl)
+    
+    # check for additional libraries and add them if necessary
+    _check_for_additional_libs(ADDITIONAL_LIBS)
+    target_link_libraries(${OPENKIT_LIB_NAME} PRIVATE ${ADDITIONAL_LIBS})
 
     target_include_directories(${OPENKIT_LIB_NAME}
         PRIVATE

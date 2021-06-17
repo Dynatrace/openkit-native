@@ -33,6 +33,7 @@ project(OpenKit
 # set CMake search path
 set(CMAKE_MODULE_PATH
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake"
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Checks/"
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/"
     CMAKE_MODULE_PATH)
 
