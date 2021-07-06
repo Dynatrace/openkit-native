@@ -375,12 +375,12 @@ macro(_generate_open_kit_version_rc)
 endmacro()
 
 macro(_check_for_additional_libs libs)
-    set(libs)
+    set(${libs})
     
     # check if libatomic is required
     include (CheckAtomic)
     if (HAVE_CXX_ATOMICS_WITH_LIB)
-        list (append libs "atomic")
+        list (APPEND ${libs} "atomic")
     endif ()
 
 endmacro()
