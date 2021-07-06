@@ -20,6 +20,9 @@
 - Support cost control configured in the Dynatrace UI.
 - Add libatomic as additional link library if required.
 
+### Changed
+- Fix issue in JSON parser for compilers/platforms with unsigned char.
+
 ## 2.0.0 [Release date: 2021-05-19]
 [GitHub Releases](https://github.com/Dynatrace/openkit-native/releases/tag/v2.0.0)
 

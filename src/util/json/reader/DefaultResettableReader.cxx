@@ -36,10 +36,7 @@ int32_t DefaultResettableReader::read()
 		return EOF;
 	}
 
-	char character = EOF;
-	mReader->get(character);
-
-	return character;
+	return mReader->get();
 }
 
 void DefaultResettableReader::mark(int32_t lookAheadLimit)
