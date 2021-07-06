@@ -1,6 +1,9 @@
 # OpenKit Native ( C/C++ ) Changelog
 
-## [Unreleased](https://github.com/Dynatrace/openkit-native/compare/v2.0.0...release/2.0)
+## [Unreleased](https://github.com/Dynatrace/openkit-native/compare/v2.0.1...release/2.0)
+
+## 2.0.1 [Release date: 2021-07-06]
+[GitHub Releases](https://github.com/Dynatrace/openkit-native/releases/tag/v2.0.1)
 
 ### Added
 - Add libatomic as additional link library if required.
