@@ -220,8 +220,6 @@ TEST_F(BeaconSendingFlushSessionsStateTest, aBeaconSendingFlushSessionStateStops
 {
 	// with
 	auto errorResponse = MockIStatusResponse::createNice();
-	ON_CALL(*errorResponse, getResponseCode())
-		.WillByDefault(testing::Return(429));
 	ON_CALL(*errorResponse, isTooManyRequestsResponse())
 			.WillByDefault(testing::Return(true));
 	ON_CALL(*errorResponse, isErroneousResponse())

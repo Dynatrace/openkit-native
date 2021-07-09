@@ -24,6 +24,8 @@
 #include "ISSLTrustManager.h"
 #include "DataCollectionLevel.h"
 #include "CrashReportingLevel.h"
+#include "IHttpRequestInterceptor.h"
+#include "IHttpResponseInterceptor.h"
 
 #include <cstdint>
 #include <memory>
@@ -178,6 +180,22 @@ namespace openkit
 			AbstractOpenKitBuilder& withCrashReportingLevel(openkit::CrashReportingLevel crashReportingLevel);
 
 			///
+			/// Sets a custom openkit::IHttpResponseInterceptor
+			///
+			/// @param[in] httpRequestInterceptor Interceptor for intercepting requests to Dynatrace/AppMon backends.
+			/// @return @c this
+			///
+			AbstractOpenKitBuilder& withHttpRequestInterceptor(std::shared_ptr<openkit::IHttpRequestInterceptor> httpRequestIntercetpor);
+
+			///
+			/// Sets a custom openkit::IHttpResponseInterceptor
+			///
+			/// @param[in] httpResponseInterceptor Interceptor for intercepting responses received from Dynatrace/AppMon backends.
+			/// @return @c this
+			///
+			AbstractOpenKitBuilder& withHttpResponseInterceptor(std::shared_ptr<openkit::IHttpResponseInterceptor> httpResponseInterceptor);
+
+			///
 			/// Builds an @ref openkit::IOpenKit instance
 			/// @return an @ref openkit::IOpenKit instance
 			///
@@ -216,6 +234,10 @@ namespace openkit
 			DataCollectionLevel getDataCollectionLevel() const override;
 
 			CrashReportingLevel getCrashReportingLevel() const override;
+
+			std::shared_ptr<openkit::IHttpRequestInterceptor> getHttpRequestInterceptor() const override;
+
+			std::shared_ptr<openkit::IHttpResponseInterceptor> getHttpResponseInterceptor() const override;
 
 			openkit::LogLevel getLogLevel() const override;
 
@@ -292,6 +314,12 @@ namespace openkit
 
 			/// crash reporting level
 			openkit::CrashReportingLevel mCrashReportingLevel;
+
+			/// Used for intercepting HTTP requests to the Dynatrace/AppMon backend
+			std::shared_ptr<openkit::IHttpRequestInterceptor> mHttpRequestInterceptor;
+
+			/// Used for intercepting HTTP responses from Dynatrace/AppMon backend
+			std::shared_ptr<openkit::IHttpResponseInterceptor> mHttpResponseInterceptor;
 	};
 }
 

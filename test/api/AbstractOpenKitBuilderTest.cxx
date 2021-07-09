@@ -16,6 +16,8 @@
 
 #include "mock/MockILogger.h"
 #include "mock/MockISslTrustManager.h"
+#include "mock/MockIHttpRequestInterceptor.h"
+#include "mock/MockIHttpResponseInterceptor.h"
 #include "../DefaultValues.h"
 
 #include "OpenKit/AbstractOpenKitBuilder.h"
@@ -27,6 +29,8 @@
 #include "core/util/DefaultLogger.h"
 #include "core/util/StringUtil.h"
 #include "protocol/ssl/SSLStrictTrustManager.h"
+#include "protocol/http/NullHttpRequestInterceptor.h"
+#include "protocol/http/NullHttpResponseInterceptor.h"
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
@@ -39,6 +43,8 @@ using DataCollectionLevel_t = openkit::DataCollectionLevel;
 using DefaultLogger_t = core::util::DefaultLogger;
 using LogLevel_t = openkit::LogLevel;
 using SSLStrictTrustManager_t = protocol::SSLStrictTrustManager;
+using NullHttpRequestInterceptor_t = protocol::NullHttpRequestInterceptor;
+using NullHttpResponseInterceptor_t = protocol::NullHttpResponseInterceptor;
 using StringUtil_t = core::util::StringUtil;
 
 constexpr char ENDPOINT_URL[] = "https://localhost:9999/1";
@@ -586,3 +592,84 @@ TEST_F(AbstractOpenKitBuilderTest, getCrashReportingLevelReturnsChangedCrashRepo
 	ASSERT_THAT(obtained, testing::Eq(crashReportingLevel));
 }
 
+TEST_F(AbstractOpenKitBuilderTest, getHttpRequestInterceptorGivesNullHttpRequestInterceptorByDefault)
+{
+	// given
+	StubOpenKitBuilder target(ENDPOINT_URL, DEVICE_ID);
+
+	// when
+	auto obtained = target.getHttpRequestInterceptor();
+
+	// then
+	ASSERT_THAT(obtained, testing::NotNull());
+	ASSERT_THAT(std::dynamic_pointer_cast<NullHttpRequestInterceptor_t>(obtained), testing::NotNull());
+}
+
+TEST_F(AbstractOpenKitBuilderTest, getHttpRequestInterceptorGivesPreviouslySetHttpRequestInterceptor)
+{
+	// given
+	auto httpRequestInterceptor = MockIHttpRequestInterceptor::createNice();
+	StubOpenKitBuilder target(ENDPOINT_URL, DEVICE_ID);
+
+	// when
+	target.withHttpRequestInterceptor(httpRequestInterceptor);
+	auto obtained = target.getHttpRequestInterceptor();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(httpRequestInterceptor));
+}
+
+TEST_F(AbstractOpenKitBuilderTest, getHttpRequestInterceptorCannotBeChangedToNullptr)
+{
+	// given
+	StubOpenKitBuilder target(ENDPOINT_URL, DEVICE_ID);
+
+	// when
+	target.withHttpRequestInterceptor(nullptr);
+	auto obtained = target.getHttpRequestInterceptor();
+
+	// then
+	ASSERT_THAT(obtained, testing::NotNull());
+	ASSERT_THAT(std::dynamic_pointer_cast<NullHttpRequestInterceptor_t>(obtained), testing::NotNull());
+}
+
+TEST_F(AbstractOpenKitBuilderTest, getHttpResponseInterceptorGivesNullHttpResponseInterceptorByDefault)
+{
+	// given
+	StubOpenKitBuilder target(ENDPOINT_URL, DEVICE_ID);
+
+	// when
+	auto obtained = target.getHttpResponseInterceptor();
+
+	// then
+	ASSERT_THAT(obtained, testing::NotNull());
+	ASSERT_THAT(std::dynamic_pointer_cast<NullHttpResponseInterceptor_t>(obtained), testing::NotNull());
+}
+
+TEST_F(AbstractOpenKitBuilderTest, getHttpResponseInterceptorGivesPreviouslySetHttpResponseInterceptor)
+{
+	// given
+	auto httpResponseInterceptor = MockIHttpResponseInterceptor::createNice();
+	StubOpenKitBuilder target(ENDPOINT_URL, DEVICE_ID);
+
+	// when
+	target.withHttpResponseInterceptor(httpResponseInterceptor);
+	auto obtained = target.getHttpResponseInterceptor();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(httpResponseInterceptor));
+}
+
+TEST_F(AbstractOpenKitBuilderTest, getHttpResponseInterceptorCannotBeChangedToNullptr)
+{
+	// given
+	StubOpenKitBuilder target(ENDPOINT_URL, DEVICE_ID);
+
+	// when
+	target.withHttpResponseInterceptor(nullptr);
+	auto obtained = target.getHttpResponseInterceptor();
+
+	// then
+	ASSERT_THAT(obtained, testing::NotNull());
+	ASSERT_THAT(std::dynamic_pointer_cast<NullHttpResponseInterceptor_t>(obtained), testing::NotNull());
+}

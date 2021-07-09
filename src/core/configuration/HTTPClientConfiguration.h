@@ -76,6 +76,14 @@ namespace core
 
 				Builder& withTrustManager(std::shared_ptr<openkit::ISSLTrustManager> trustManager);
 
+				std::shared_ptr<openkit::IHttpRequestInterceptor> getHttpRequestInterceptor() const;
+
+				Builder& withHttpRequestInterceptor(std::shared_ptr<openkit::IHttpRequestInterceptor> httpRequestInterceptor);
+
+				std::shared_ptr<openkit::IHttpResponseInterceptor> getHttpResponseInterceptor() const;
+
+				Builder& withHttpResponseInterceptor(std::shared_ptr<openkit::IHttpResponseInterceptor> httpResponseInterceptor);
+
 				std::shared_ptr<core::configuration::IHTTPClientConfiguration> build();
 
 			private:
@@ -87,6 +95,10 @@ namespace core
 				core::UTF8String mApplicationID;
 
 				std::shared_ptr<openkit::ISSLTrustManager> mTrustManager;
+
+				std::shared_ptr<openkit::IHttpRequestInterceptor> mHttpRequestInterceptor;
+
+				std::shared_ptr<openkit::IHttpResponseInterceptor> mHttpResponseInterceptor;
 			};
 
 			///
@@ -134,6 +146,18 @@ namespace core
 			///
 			std::shared_ptr<openkit::ISSLTrustManager> getSSLTrustManager() const override;
 
+			///
+			/// Returns the openkit::IHttpRequestInterceptor used to intercept HTTP requests, before they are sent 
+			/// to the Dynatrace backend.
+			///
+			std::shared_ptr<openkit::IHttpRequestInterceptor> getHttpRequestInterceptor() const override;
+
+			///
+			/// Returns the openkit::IHttpResponseInterceptor used to intercept HTTP responses received 
+			/// from Dynatrace backend.
+			///
+			std::shared_ptr<openkit::IHttpResponseInterceptor> getHttpResponseInterceptor() const override;
+
 		private:
 			/// the beacon URL
 			const core::UTF8String mBaseURL;
@@ -146,6 +170,12 @@ namespace core
 
 			/// how the peer's TSL/SSL certificate and the hostname shall be trusted
 			const std::shared_ptr<openkit::ISSLTrustManager> mSSLTrustManager;
+
+			/// used for intercepting HTTP requests to backend
+			const std::shared_ptr<openkit::IHttpRequestInterceptor> mHttpRequestInterceptor;
+
+			/// used for intercepting HTTP responses from the backend
+			const std::shared_ptr<openkit::IHttpResponseInterceptor> mHttpResponseInterceptor;
 		};
 	}
 }

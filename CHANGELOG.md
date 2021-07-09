@@ -19,6 +19,7 @@
   for reporting generic errors on root actions and actions.
 - Support cost control configured in the Dynatrace UI.
 - Add libatomic as additional link library if required.
+- Requests to Dynatrace can be intercepted to add custom HTTP headers.
 
 ### Changed
 - Fix issue in JSON parser for compilers/platforms with unsigned char.

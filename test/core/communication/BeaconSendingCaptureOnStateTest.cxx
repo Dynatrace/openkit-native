@@ -33,6 +33,7 @@
 #include "protocol/StatusResponse.h"
 #include "protocol/IStatusResponse.h"
 #include "protocol/ResponseAttributes.h"
+#include "protocol/http/HttpHeaderCollection.h"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -50,6 +51,7 @@ using SessionInternals_sp = std::shared_ptr<core::objects::SessionInternals>;
 using StatusResponse_t = protocol::StatusResponse;
 using ResponseAttributes_t = protocol::ResponseAttributes;
 using IStatusResponse_sp = std::shared_ptr<IStatusResponse_t>;
+using HttpHeaderCollection_t = protocol::HttpHeaderCollection;
 
 class BeaconSendingCaptureOnStateTest : public testing::Test
 {
@@ -67,7 +69,7 @@ protected:
 	{
 		auto mockLogger = MockILogger::createNice();
 		auto responseAttributes = ResponseAttributes_t::withUndefinedDefaults().build();
-		auto successResponse = StatusResponse_t::createSuccessResponse(mockLogger, responseAttributes, 200, IStatusResponse_t::ResponseHeaders());
+		auto successResponse = StatusResponse_t::createSuccessResponse(mockLogger, responseAttributes, 200, HttpHeaderCollection_t());
 		auto errorResponse = StatusResponse_t::createErrorResponse(mockLogger, 404);
 
 		mockSession1Open = MockSessionInternals::createNice();
@@ -167,7 +169,7 @@ TEST_F(BeaconSendingCaptureOnStateTest, newSessionRequestsAreMadeForAllNotConfig
 	std::vector<SessionInternals_sp> notConfiguredSessions = {mockSession5New, mockSession6New};
 	auto mockLogger = MockILogger::createNice();
 	auto responseAttributes = ResponseAttributes_t::withJsonDefaults().withMultiplicity(5).build();
-	auto successResponse = StatusResponse_t::createSuccessResponse(mockLogger, responseAttributes, 200, IStatusResponse_t::ResponseHeaders());
+	auto successResponse = StatusResponse_t::createSuccessResponse(mockLogger, responseAttributes, 200, HttpHeaderCollection_t());
 	auto errorResponse = StatusResponse_t::createErrorResponse(mockLogger, 400);
 
 	ON_CALL(*mockContext, getHTTPClient())
@@ -332,8 +334,6 @@ TEST_F(BeaconSendingCaptureOnStateTest, newSessionRequestsAreAbortedWhenTooManyR
 
 	int64_t sleepTime = 6543;
 	auto statusResponse = MockIStatusResponse::createNice();
-	ON_CALL(*statusResponse, getResponseCode())
-		.WillByDefault(testing::Return(429));
 	ON_CALL(*statusResponse, isTooManyRequestsResponse())
 		.WillByDefault(testing::Return(true));
 	ON_CALL(*statusResponse, isErroneousResponse())
@@ -444,8 +444,6 @@ TEST_F(BeaconSendingCaptureOnStateTest, aBeaconSendingCaptureOnStateDoesNotRemov
 {
 	// with
 	auto statusResponse = MockIStatusResponse::createNice();
-	ON_CALL(*statusResponse, getResponseCode())
-		.WillByDefault(testing::Return(400));
 	ON_CALL(*statusResponse, isErroneousResponse())
 		.WillByDefault(testing::Return(true));
 
@@ -483,8 +481,6 @@ TEST_F(BeaconSendingCaptureOnStateTest, aBeaconSendingCaptureOnStateContinuesWit
 {
 	// with
 	auto erroneousStatusResponse = MockIStatusResponse::createNice();
-	ON_CALL(*erroneousStatusResponse, getResponseCode())
-		.WillByDefault(testing::Return(400));
 	ON_CALL(*erroneousStatusResponse, isErroneousResponse())
 		.WillByDefault(testing::Return(true));
 
@@ -545,8 +541,6 @@ TEST_F(BeaconSendingCaptureOnStateTest, sendingFinishedSessionsIsAbortedImmediat
 
 	int64_t sleepTime = 12345;
 	auto statusResponse = MockIStatusResponse::createNice();
-	ON_CALL(*statusResponse, getResponseCode())
-		.WillByDefault(testing::Return(429));
 	ON_CALL(*statusResponse, isTooManyRequestsResponse())
 			.WillByDefault(testing::Return(true));
 	ON_CALL(*statusResponse, isErroneousResponse())
@@ -654,8 +648,6 @@ TEST_F(BeaconSendingCaptureOnStateTest, sendingOpenSessionsIsAbortedImmediatelyW
 
 	int64_t sleepTime = 12345;
 	auto statusResponse = MockIStatusResponse::createNice();
-	ON_CALL(*statusResponse, getResponseCode())
-		.WillByDefault(testing::Return(419));
 	ON_CALL(*statusResponse, isTooManyRequestsResponse())
 		.WillByDefault(testing::Return(true));
 	ON_CALL(*statusResponse, isErroneousResponse())

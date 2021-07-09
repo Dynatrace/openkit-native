@@ -2508,11 +2508,10 @@ TEST_F(BeaconTest, sendValidData)
 	// with
 	Utf8String_t ipAddress("127.0.0.1");
 	auto beaconCache = std::make_shared<BeaconCache_t>(mockLogger);
-	int32_t responseCode = 200;
 
 	auto statusResponse = MockIStatusResponse ::createNice();
-	ON_CALL(*statusResponse, getResponseCode())
-		.WillByDefault(testing::Return(responseCode));
+	ON_CALL(*statusResponse, isErroneousResponse())
+		.WillByDefault(testing::Return(false));
 
 	auto httpClient = MockIHTTPClient::createNice();
 	ON_CALL(*httpClient, sendBeaconRequest(testing::_, testing::_, testing::_))
@@ -2538,7 +2537,7 @@ TEST_F(BeaconTest, sendValidData)
 
 	// then
 	ASSERT_THAT(obtained, testing::NotNull());
-	ASSERT_THAT(obtained->getResponseCode(), testing::Eq(responseCode));
+	ASSERT_THAT(obtained, testing::Eq(statusResponse));
 }
 
 TEST_F(BeaconTest, sendCanHandleMultipleChunks)
@@ -2592,13 +2591,10 @@ TEST_F(BeaconTest, sendCanHandleMultipleChunks)
 TEST_F(BeaconTest, sendDataAndFakeErrorResponse)
 {
 	// with
-	int32_t responseCode = 418;
 	Utf8String_t ipAddress("127.0.0.1");
 	auto beaconCache = std::make_shared<BeaconCache_t>(mockLogger);
 
 	auto statusResponse = MockIStatusResponse::createNice();
-	ON_CALL(*statusResponse, getResponseCode())
-		.WillByDefault(testing::Return(responseCode));
 	ON_CALL(*statusResponse, isErroneousResponse())
 		.WillByDefault(testing::Return(true));
 
@@ -2626,7 +2622,7 @@ TEST_F(BeaconTest, sendDataAndFakeErrorResponse)
 
 	// then
 	ASSERT_THAT(obtained, testing::NotNull());
-	ASSERT_THAT(obtained->getResponseCode(), testing::Eq(responseCode));
+	ASSERT_THAT(obtained, testing::Eq(statusResponse));
 }
 
 TEST_F(BeaconTest, beaconDataPrefixVS2)

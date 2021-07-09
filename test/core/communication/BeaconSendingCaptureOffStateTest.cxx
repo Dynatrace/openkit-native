@@ -159,8 +159,6 @@ TEST_F(BeaconSendingCaptureOffStateTest, aBeaconSendingCaptureOffStateStaysInOff
 	// with
 	int64_t sleepTime = 1234;
 	auto statusResponse = MockIStatusResponse::createNice();
-	ON_CALL(*statusResponse, getResponseCode())
-		.WillByDefault(testing::Return(429));
 	ON_CALL(*statusResponse, isTooManyRequestsResponse())
 		.WillByDefault(testing::Return(true));
 	ON_CALL(*statusResponse, isErroneousResponse())

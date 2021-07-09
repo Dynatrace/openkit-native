@@ -25,6 +25,8 @@ HTTPClientConfiguration::HTTPClientConfiguration(
 	, mServerID(builder.getServerID())
 	, mApplicationID(builder.getApplicationID())
 	, mSSLTrustManager(builder.getTrustManager())
+	, mHttpRequestInterceptor(builder.getHttpRequestInterceptor())
+	, mHttpResponseInterceptor(builder.getHttpResponseInterceptor())
 {
 }
 
@@ -60,6 +62,16 @@ std::shared_ptr<openkit::ISSLTrustManager> HTTPClientConfiguration::getSSLTrustM
 	return mSSLTrustManager;
 }
 
+std::shared_ptr<openkit::IHttpRequestInterceptor> HTTPClientConfiguration::getHttpRequestInterceptor() const
+{
+	return mHttpRequestInterceptor;
+}
+
+std::shared_ptr<openkit::IHttpResponseInterceptor> HTTPClientConfiguration::getHttpResponseInterceptor() const
+{
+	return mHttpResponseInterceptor;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Builder implementation
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -69,6 +81,8 @@ HTTPClientConfiguration::Builder::Builder()
  , mServerID(-1)
  , mApplicationID("")
  , mTrustManager(nullptr)
+ , mHttpRequestInterceptor(nullptr)
+ , mHttpResponseInterceptor(nullptr)
 {
 }
 
@@ -77,6 +91,8 @@ HTTPClientConfiguration::Builder::Builder(std::shared_ptr<IOpenKitConfiguration>
 	, mServerID(openKitConfig->getDefaultServerId())
 	, mApplicationID(openKitConfig->getApplicationId())
 	, mTrustManager(openKitConfig->getTrustManager())
+	, mHttpRequestInterceptor(openKitConfig->getHttpRequestInterceptor())
+	, mHttpResponseInterceptor(openKitConfig->getHttpResponseInterceptor())
 {
 }
 
@@ -85,6 +101,8 @@ HTTPClientConfiguration::Builder::Builder(std::shared_ptr<IHTTPClientConfigurati
 	, mServerID(httpClientConfig->getServerID())
 	, mApplicationID(httpClientConfig->getApplicationID())
 	, mTrustManager(httpClientConfig->getSSLTrustManager())
+	, mHttpRequestInterceptor(httpClientConfig->getHttpRequestInterceptor())
+	, mHttpResponseInterceptor(httpClientConfig->getHttpResponseInterceptor())
 {
 }
 
@@ -136,6 +154,32 @@ HTTPClientConfiguration::Builder& HTTPClientConfiguration::Builder::withTrustMan
 std::shared_ptr<openkit::ISSLTrustManager> HTTPClientConfiguration::Builder::getTrustManager() const
 {
 	return mTrustManager;
+}
+
+HTTPClientConfiguration::Builder& HTTPClientConfiguration::Builder::withHttpRequestInterceptor(
+	std::shared_ptr<openkit::IHttpRequestInterceptor> httpRequestInterceptor
+)
+{
+	mHttpRequestInterceptor = httpRequestInterceptor;
+	return *this;
+}
+
+std::shared_ptr<openkit::IHttpRequestInterceptor> HTTPClientConfiguration::Builder::getHttpRequestInterceptor() const
+{
+	return mHttpRequestInterceptor;
+}
+
+HTTPClientConfiguration::Builder& HTTPClientConfiguration::Builder::withHttpResponseInterceptor(
+	std::shared_ptr<openkit::IHttpResponseInterceptor> httpResponseInterceptor
+)
+{
+	mHttpResponseInterceptor = httpResponseInterceptor;
+	return *this;
+}
+
+std::shared_ptr<openkit::IHttpResponseInterceptor>HTTPClientConfiguration::Builder::getHttpResponseInterceptor() const
+{
+	return mHttpResponseInterceptor;
 }
 
 std::shared_ptr<IHTTPClientConfiguration> HTTPClientConfiguration::Builder::build()

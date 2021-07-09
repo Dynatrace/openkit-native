@@ -182,8 +182,6 @@ TEST_F(BeaconSendingInitialStateTest, reinitializeSleepsBeforeSendingStatusReque
 {
 	// given
 	auto errorResponse = MockIStatusResponse::createNice();
-	ON_CALL(*errorResponse, getResponseCode())
-			.WillByDefault(testing::Return(400));
 	ON_CALL(*errorResponse, isErroneousResponse())
 			.WillByDefault(testing::Return(true));
 
@@ -282,8 +280,6 @@ TEST_F(BeaconSendingInitialStateTest, sleepTimeIsDoubledBetweenStatusRequestRetr
 {
 	// with
 	auto errorResponse = MockIStatusResponse::createNice();
-	ON_CALL(*errorResponse, getResponseCode())
-			.WillByDefault(testing::Return(400));
 	ON_CALL(*errorResponse, isErroneousResponse())
 			.WillByDefault(testing::Return(true));
 
@@ -328,8 +324,6 @@ TEST_F(BeaconSendingInitialStateTest, initialStatusRequestGivesUpWhenShutdownReq
 {
 	// with
 	auto errorResponse = MockIStatusResponse::createNice();
-	ON_CALL(*errorResponse, getResponseCode())
-			.WillByDefault(testing::Return(400));
 	ON_CALL(*errorResponse, isErroneousResponse())
 			.WillByDefault(testing::Return(true));
 
@@ -443,8 +437,6 @@ TEST_F(BeaconSendingInitialStateTest, receivingTooManyRequestsResponseUsesSleepT
 	// with
 	int64_t sleepTime = 1234;
 	auto errorResponse = MockIStatusResponse::createNice();
-	ON_CALL(*errorResponse, getResponseCode())
-		.WillByDefault(testing::Return(429));
 	ON_CALL(*errorResponse, isTooManyRequestsResponse())
 		.WillByDefault(testing::Return(true));
 	ON_CALL(*errorResponse, isErroneousResponse())
@@ -475,8 +467,6 @@ TEST_F(BeaconSendingInitialStateTest, receivingTooManyRequestsResponseDisablesCa
 	// with
 	int64_t sleepTime = 1234;
 	auto errorResponse = MockIStatusResponse::createNice();
-	ON_CALL(*errorResponse, getResponseCode())
-		.WillByDefault(testing::Return(429));
 	ON_CALL(*errorResponse, isTooManyRequestsResponse())
 		.WillByDefault(testing::Return(true));
 	ON_CALL(*errorResponse, isErroneousResponse())

@@ -28,6 +28,10 @@ set(OPENKIT_SOURCES_TEST_API
     ${CMAKE_CURRENT_LIST_DIR}/api/AppMonOpenKitBuilderTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/api/DynatraceOpenKitBuilderTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/api/LogLevelTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/api/mock/MockIHttpRequest.h
+    ${CMAKE_CURRENT_LIST_DIR}/api/mock/MockIHttpRequestInterceptor.h
+    ${CMAKE_CURRENT_LIST_DIR}/api/mock/MockIHttpResponse.h
+    ${CMAKE_CURRENT_LIST_DIR}/api/mock/MockIHttpResponseInterceptor.h
     ${CMAKE_CURRENT_LIST_DIR}/api/mock/MockILogger.h
     ${CMAKE_CURRENT_LIST_DIR}/api/mock/MockIOpenKitBuilder.h
     ${CMAKE_CURRENT_LIST_DIR}/api/mock/MockIRootAction.h
@@ -100,6 +104,15 @@ set(OPENKIT_SOURCES_TEST_PROTOCOL
     ${CMAKE_CURRENT_LIST_DIR}/protocol/mock/MockIHTTPClient.h
     ${CMAKE_CURRENT_LIST_DIR}/protocol/mock/MockIResponseAttributes.h
     ${CMAKE_CURRENT_LIST_DIR}/protocol/mock/MockIStatusResponse.h
+)
+
+set(OPENKIT_SOURCES_TEST_PROTOCOL_HTTP
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/http/HttpHeaderCollectionTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/http/HttpHeaderUtilTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/http/HttpRequestTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/http/HttpResponseTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/http/NullHttpRequestInterceptorTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/http/NullHttpResponseInterceptorTest.cxx
 )
 
 set(OPENKIT_SOURCES_TEST_PROVIDERS
@@ -197,6 +210,7 @@ set(OPENKIT_SOURCES_UNITTEST
     ${OPENKIT_SOURCES_TEST_CORE_OBJECTS}
     ${OPENKIT_SOURCES_TEST_CORE_UTIL}
     ${OPENKIT_SOURCES_TEST_PROTOCOL}
+    ${OPENKIT_SOURCES_TEST_PROTOCOL_HTTP}
     ${OPENKIT_SOURCES_TEST_PROVIDERS}
     ${OPENKIT_SOURCES_TEST_UTIL_JSON_LEXER}
     ${OPENKIT_SOURCES_TEST_UTIL_JSON_OBJECTS}

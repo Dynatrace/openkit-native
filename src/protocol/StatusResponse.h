@@ -52,7 +52,7 @@ namespace protocol
 			std::shared_ptr<openkit::ILogger> logger,
 			std::shared_ptr<IResponseAttributes> responseAttributes,
 			int32_t responseCode,
-			const ResponseHeaders& responseHeaders);
+			const HttpHeaderCollection& responseHeaders);
 
 		///
 		/// Creates an erroneous StatusResponse.
@@ -73,7 +73,7 @@ namespace protocol
 		static std::shared_ptr<StatusResponse> createErrorResponse(
 			std::shared_ptr<openkit::ILogger> logger,
 			int32_t responseCode,
-			const ResponseHeaders& responseHeaders
+			const HttpHeaderCollection& responseHeaders
 		);
 
 		///
@@ -89,18 +89,6 @@ namespace protocol
 		/// @return @c true if this response is a "too many requests" response, @c false otherwise.
 		///
 		bool isTooManyRequestsResponse() const override;
-
-		///
-		/// Return the response code
-		/// @returns the response code
-		///
-		int32_t getResponseCode() const override;
-
-		///
-		/// Return the HTTP response headers
-		/// @returns the response headers
-		///
-		const ResponseHeaders& getResponseHeaders() const override;
 
 		///
 		/// Get Retry-After response header value in milliseconds.
@@ -135,7 +123,7 @@ namespace protocol
 			std::shared_ptr<openkit::ILogger> logger,
 			std::shared_ptr<IResponseAttributes> responseAttributes,
 			int32_t responseCode,
-			const ResponseHeaders& responseHeaders
+			const HttpHeaderCollection& responseHeaders
 		);
 
 	private:
@@ -150,7 +138,7 @@ namespace protocol
 		int32_t mResponseCode;
 
 		/// response headers
-		ResponseHeaders mResponseHeaders;
+		HttpHeaderCollection mResponseHeaders;
 	};
 }
 

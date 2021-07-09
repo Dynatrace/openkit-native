@@ -112,6 +112,8 @@ This includes device specific information like operating system, manufacturer, o
 | `enableVerbose`  | *Deprecated*, use `withLogLevel` instead.<br>Enables extended log output for OpenKit if the default logger is used.<br>Is equivalent to `withLogLevel(LogLevel.DEBUG)`. | `false` |
 | `withLogLevel` | sets the log level if the default logger is used | `LogLevel.WARN` |
 | `withLogger` | sets a custom logger, replacing the builtin default logger.<br>Details are described in section [Logging](#logging). | `DefaultLogger` |
+| `withHttpRequestInterceptor` | sets a custom `IHttpRequestInterceptor` instance,  replacing the builtin default one.<br>Details are described in section [Intercepting HTTP traffic to Dynatrace/AppMon](#intercepting-http-traffic-to-dynatraceappmon). | `NullHttpRequestInterceptor` |
+| `withHttpResponseInterceptor` | sets a custom `IHttpResponseInterceptor` instance,  replacing the builtin default one.<br>Details are described in section [Intercepting HTTP traffic to Dynatrace/AppMon](#intercepting-http-traffic-to-dynatraceappmon). | `NullHttpResponseInterceptor` |
 
 When using the OpenKit C API, additional configuration can applied to the configuration created with the
 'createOpenKitConfiguration' function.
@@ -147,6 +149,18 @@ to the `createDynatraceOpenKit` or `createAppMonOpenKit` functions.
 
 :warning: We do **NOT** recommend bypassing TLS/SSL server certificate validation, since this allows
 man-in-the-middle attacks.
+
+## Intercepting HTTP traffic to Dynatrace/AppMon
+
+When routing traffic through own network infrastructure it might be necessary  to intercept HTTP traffic
+to Dynatrace/AppMon and add or overwrite HTTP headers. This can be achieved by implementing the 
+`IHttpRequestInterceptor` interface and passing an instance to the builder by calling 
+the `withHttpRequestInterceptor` method. OpenKit invokes the `IHttpRequestInterceptor.intercept(IHttpRequest&)` 
+method for each request sent to Dynatrace/AppMon.  
+It might be required to intercept the HTTP response and read custom response headers. This
+can be achieved by implementing the `IHttpResponseInterceptor` interface and passing an instance to the builder
+by calling `withHttpResponseInterceptor`. OpenKit calls the `IHttpResponseInterceptor.intercept(const IHttpResponse&)`
+for each HTTP response received from the backend.
 
 ## Logging
 

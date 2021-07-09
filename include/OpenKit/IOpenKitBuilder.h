@@ -22,6 +22,8 @@
 #include "ILogger.h"
 #include "LogLevel.h"
 #include "ISSLTrustManager.h"
+#include "IHttpRequestInterceptor.h"
+#include "IHttpResponseInterceptor.h"
 
 #include <cstdint>
 #include <memory>
@@ -192,6 +194,23 @@ namespace openkit
 		/// If no logger was set, a default logger instance is returned.
 		///
 		virtual std::shared_ptr<openkit::ILogger> getLogger() const = 0;
+
+		///
+		/// Returns the openkit::IHttpRequestInterceptor that has been set with
+		/// openkit::AbstractOpenKitBuilder::withHttpRequestInterceptor(std::shared_ptr<IHttpRequestInterceptor>)
+		/// 
+		/// @par
+		/// If no request interceptor was set, a default request interceptor is returned.
+		///
+		virtual std::shared_ptr<openkit::IHttpRequestInterceptor> getHttpRequestInterceptor() const = 0;
+
+		///
+		/// Returns the openkit::IHttpResponseInterceptor
+		/// 
+		/// @par
+		/// If no response interceptor was set, a default response interceptor is returned.
+		 ///
+		virtual std::shared_ptr<openkit::IHttpResponseInterceptor> getHttpResponseInterceptor() const = 0;
 	};
 }
 

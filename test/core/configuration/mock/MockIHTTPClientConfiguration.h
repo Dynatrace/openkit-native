@@ -64,6 +64,10 @@ namespace test
 		MOCK_METHOD(const core::UTF8String& , getApplicationID, (), (const, override));
 
 		MOCK_METHOD(std::shared_ptr<openkit::ISSLTrustManager>, getSSLTrustManager, (), (const, override));
+
+		MOCK_METHOD(std::shared_ptr<openkit::IHttpRequestInterceptor>, getHttpRequestInterceptor, (), (const, override));
+
+		MOCK_METHOD(std::shared_ptr<openkit::IHttpResponseInterceptor>, getHttpResponseInterceptor, (), (const, override));
 	};
 }
 

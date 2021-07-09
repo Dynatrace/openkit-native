@@ -107,6 +107,10 @@ namespace test
 		MOCK_METHOD(openkit::LogLevel, getLogLevel, (), (const, override));
 
 		MOCK_METHOD(std::shared_ptr<openkit::ILogger>, getLogger, (), (const, override));
+
+		MOCK_METHOD(std::shared_ptr<openkit::IHttpRequestInterceptor>, getHttpRequestInterceptor, (), (const, override));
+
+		MOCK_METHOD(std::shared_ptr<openkit::IHttpResponseInterceptor>, getHttpResponseInterceptor, (), (const, override));
 	};
 }
 

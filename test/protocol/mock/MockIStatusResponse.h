@@ -35,10 +35,6 @@ namespace test
 
 		MockIStatusResponse()
 		{
-			ON_CALL(*this, getResponseHeaders())
-				.WillByDefault(testing::ReturnRefOfCopy(protocol::IStatusResponse::ResponseHeaders()));
-			ON_CALL(*this, getResponseCode())
-				.WillByDefault(testing::Return(200));
 			ON_CALL(*this, isErroneousResponse())
 				.WillByDefault(testing::Return(false));
 			ON_CALL(*this, getResponseAttributes())
@@ -63,10 +59,6 @@ namespace test
 		MOCK_METHOD(bool, isErroneousResponse, (), (const, override));
 
 		MOCK_METHOD(bool, isTooManyRequestsResponse, (), (const, override));
-
-		MOCK_METHOD(int32_t, getResponseCode, (), (const, override));
-
-		MOCK_METHOD(protocol::IStatusResponse::ResponseHeaders& , getResponseHeaders, (), (const, override));
 
 		MOCK_METHOD(int64_t, getRetryAfterInMilliseconds, (), (const, override));
 

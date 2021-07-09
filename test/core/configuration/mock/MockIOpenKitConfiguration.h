@@ -96,6 +96,10 @@ namespace test
 		MOCK_METHOD(int32_t, getDefaultServerId, (), (const, override));
 
 		MOCK_METHOD(std::shared_ptr<openkit::ISSLTrustManager>, getTrustManager, (), (const, override));
+
+		MOCK_METHOD(std::shared_ptr<openkit::IHttpRequestInterceptor>, getHttpRequestInterceptor, (), (const, override));
+
+		MOCK_METHOD(std::shared_ptr<openkit::IHttpResponseInterceptor>, getHttpResponseInterceptor, (), (const, override));
 	};
 }
 

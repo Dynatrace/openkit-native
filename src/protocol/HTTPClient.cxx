@@ -24,17 +24,18 @@
 #include "protocol/ResponseParser.h"
 #include "protocol/StatusResponse.h"
 #include "protocol/ssl/SSLStrictTrustManager.h"
+#include "protocol/http/HttpRequest.h"
+#include "protocol/http/HttpResponse.h"
 
 #include <curl/curl.h>
 
 #include <cstdint>
-#include <chrono>
-#include <thread>
+#include <cstring>
 #include <algorithm>
-#include <string>
 #include <cctype>
 #include <limits>
-#include <cstring>
+#include <string>
+#include <sstream>
 
 // connection constants
 constexpr uint32_t MAX_SEND_RETRIES = 3; // max number of retries of the HTTP GET or POST operation
@@ -58,6 +59,7 @@ HTTPClient::HTTPClient
 	, mReadBuffer()
 	, mReadBufferPos(0)
 	, mSSLTrustManager(nullptr)
+	, mHttpClientConfiguration(configuration)
 	, mNewSessionURL()
 {
 	// build the beacon URLs
@@ -217,18 +219,25 @@ std::shared_ptr<IStatusResponse> HTTPClient::sendRequestInternal(HTTPClient::Req
 		return HTTPClient::unknownErrorResponse(requestType);
 	}
 
-	long httpCode = 0L;
 	uint32_t retryCount = 0;
 	do
 	{
+		// make SSL/TSL certificate handling first thing
+		// just to ensure customers don't set something unintended
+		mSSLTrustManager->applyTrustManager(curl);
+
+		// build up HttpRequest object and let customer code set HTTP headers
+		// object is re-used for our own custom headers later on
+		std::string requestMethodAsString = getHttpMethodAsString(method);
+		HttpRequest httpRequest(url.getStringData(), requestMethodAsString);
+		mHttpClientConfiguration->getHttpRequestInterceptor()->intercept(httpRequest);
+
 		// Set the connection parameters (URL, timeouts, etc.)
 		curl_easy_setopt(curl, CURLOPT_URL, url.getStringData().c_str());
 		curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, CONNECT_TIMEOUT);
 		curl_easy_setopt(curl, CURLOPT_TIMEOUT, READ_TIMEOUT);
 		// allow servers to send compressed data
 		curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "");
-		// SSL/TSL certificate handling
-		mSSLTrustManager->applyTrustManager(curl);
 
 		HTTPResponseParser responseParser;
 		// To retrieve the response headers
@@ -239,13 +248,9 @@ std::shared_ptr<IStatusResponse> HTTPClient::sendRequestInternal(HTTPClient::Req
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &responseParser);
 
 
-		// Set the custom HTTP header with the client IP address, if provided
-		struct curl_slist *list = nullptr;
 		if (!clientIPAddress.empty())
 		{
-			core::UTF8String xClientId("X-Client-IP: ");
-			xClientId.concatenate(clientIPAddress);
-			list = curl_slist_append(list, xClientId.getStringData().c_str());
+			httpRequest.setHeader("X-Client-IP", clientIPAddress.getStringData());
 		}
 
 		if (method == HttpMethod::POST)
@@ -266,7 +271,29 @@ std::shared_ptr<IStatusResponse> HTTPClient::sendRequestInternal(HTTPClient::Req
 				curl_easy_setopt(curl, CURLOPT_READFUNCTION, readFunction);
 				curl_easy_setopt(curl, CURLOPT_READDATA, this);
 				curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, mReadBuffer.size());
-				list = curl_slist_append(list, "Content-Encoding: gzip");
+				httpRequest.setHeader("Content-Encoding", "gzip");
+			}
+		}
+
+		// convert own request headers to format understood by CURL
+		struct curl_slist* list = nullptr;
+		for (const auto& headerEntry : httpRequest.getHttpHeaders())
+		{
+			std::ostringstream oss;
+			oss << headerEntry.first << ": " << headerEntry.second.front(); // only take first header value
+
+			struct curl_slist* tempList = curl_slist_append(list, oss.str().c_str());
+			if (tempList != nullptr)
+			{
+				list = tempList;
+			}
+			else
+			{
+				// failed to append new header (OOM?)
+				mLogger->warning("Failed to append \"%s\" to CURL header list", oss.str().c_str());
+				curl_slist_free_all(list);
+				list = nullptr;
+				break;
 			}
 		}
 
@@ -277,18 +304,8 @@ std::shared_ptr<IStatusResponse> HTTPClient::sendRequestInternal(HTTPClient::Req
 
 		// Perform the request, res will get the return code
 		CURLcode response = curl_easy_perform(curl);
-		if (response == CURLE_OK)
-		{
-			// To retrieve the HTTP response code
-			curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
-		}
-		else
-		{
-			// See https://curl.haxx.se/libcurl/c/libcurl-errors.html for a list of CURL error codes.
-			mLogger->error("HTTPClient sendRequestInternal() - curl_easy_perform() failed on '%s': ErrorCode '%u', [%s]", url.getStringData().c_str(), response, curl_easy_strerror(response));
-		}
 
-		// Cleanup
+		// Cleanup custom headers
 		if (list != nullptr)
 		{
 			curl_slist_free_all(list);
@@ -300,11 +317,22 @@ std::shared_ptr<IStatusResponse> HTTPClient::sendRequestInternal(HTTPClient::Req
 			curl_easy_cleanup(curl);
 			curl = nullptr;
 
-			// Check for success or error
-			return handleResponse(requestType, httpCode, responseParser.getResponseBody(), responseParser.getResponseHeaders());
+			protocol::HttpResponse httpResponse(
+				url.getStringData(),
+				requestMethodAsString,
+				responseParser.getResponseStatus(),
+				responseParser.getReasonPhrase(),
+				responseParser.getResponseHeaders(),
+				responseParser.getResponseBody());
+
+			// handle the response
+			return handleResponse(requestType, httpResponse);
 		}
 		else
 		{
+			// See https://curl.haxx.se/libcurl/c/libcurl-errors.html for a list of CURL error codes.
+			mLogger->error("HTTPClient sendRequestInternal() - curl_easy_perform() failed on '%s': ErrorCode '%u', [%s]", url.getStringData().c_str(), response, curl_easy_strerror(response));
+
 			// For CURL related errors, we retry. Note that HTTP status codes >= 400 are returned with CURLE_OK.
 			retryCount++;
 			mThreadSuspender->sleep(RETRY_SLEEP_TIME);
@@ -323,16 +351,18 @@ std::shared_ptr<IStatusResponse> HTTPClient::sendRequestInternal(HTTPClient::Req
 	return HTTPClient::unknownErrorResponse(requestType);
 }
 
-std::shared_ptr<IStatusResponse> HTTPClient::handleResponse(RequestType requestType, int32_t httpCode, const std::string& response, const IStatusResponse::ResponseHeaders& responseHeaders)
+std::shared_ptr<IStatusResponse> HTTPClient::handleResponse(RequestType requestType, const HttpResponse& httpResponse)
 {
 	if (mLogger->isDebugEnabled())
 	{
-		mLogger->debug("HTTPClient handleResponse() - HTTP Response: %s", response.c_str());
-		mLogger->debug("HTTPClient handleResponse() - HTTP Response Code: %u", (uint32_t)httpCode);
+		mLogger->debug("HTTPClient handleResponse() - HTTP Response: %s", httpResponse.getResponseBody().c_str());
+		mLogger->debug("HTTPClient handleResponse() - HTTP Response Code: %d", httpResponse.getStatusCode());
 	}
 
+	mHttpClientConfiguration->getHttpResponseInterceptor()->intercept(httpResponse);
+
 	// check response code
-	if (httpCode >= 400)
+	if (httpResponse.getStatusCode() >= 400)
 	{
 		// erroneous response
 		switch (requestType)
@@ -340,7 +370,7 @@ std::shared_ptr<IStatusResponse> HTTPClient::handleResponse(RequestType requestT
 		case RequestType::STATUS:
 		case RequestType::NEW_SESSION: // FALLTHROUGH
 		case RequestType::BEACON:      // FALLTHROUGH
-			return StatusResponse::createErrorResponse(mLogger, httpCode, responseHeaders);
+			return StatusResponse::createErrorResponse(mLogger, httpResponse.getStatusCode(), httpResponse.getResponseHeaders());
 		default:
 			return nullptr;
 		}
@@ -349,8 +379,8 @@ std::shared_ptr<IStatusResponse> HTTPClient::handleResponse(RequestType requestT
 	{
 		try
 		{
-			auto responseAttributes = ResponseParser::parseResponse(core::UTF8String(response));
-			return StatusResponse::createSuccessResponse(mLogger, responseAttributes, httpCode, responseHeaders);
+			auto responseAttributes = ResponseParser::parseResponse(core::UTF8String(httpResponse.getResponseBody()));
+			return StatusResponse::createSuccessResponse(mLogger, responseAttributes, httpResponse.getStatusCode(), httpResponse.getResponseHeaders());
 		}
 		catch (std::exception& e)
 		{
@@ -407,5 +437,18 @@ std::shared_ptr<IStatusResponse> HTTPClient::unknownErrorResponse(RequestType re
 	default:
 		// should not be reached
 		return nullptr;
+	}
+}
+
+const char* HTTPClient::getHttpMethodAsString(HttpMethod method)
+{
+	switch (method)
+	{
+	case HttpMethod::GET:
+		return "GET";
+	case HttpMethod::POST:
+		return "POST";
+	default:
+		return "";
 	}
 }

@@ -18,6 +18,7 @@
 #include "protocol/IStatusResponse.h"
 #include "protocol/StatusResponse.h"
 #include "protocol/ResponseAttributes.h"
+#include "protocol/http/HttpHeaderCollection.h"
 
 #include "../api/mock/MockILogger.h"
 
@@ -34,6 +35,7 @@ using StatusResponse_t = protocol::StatusResponse;
 using ResponseAttributes_t = protocol::ResponseAttributes;
 using IResponseAttributes_sp = std::shared_ptr<protocol::IResponseAttributes>;
 using Utf8String_t = core::UTF8String;
+using HttpHeaderCollection_t = protocol::HttpHeaderCollection;
 
 static constexpr char RESPONSE_KEY_RETRY_AFTER[] = "retry-after";
 static constexpr int64_t DEFAULT_RETRY_AFTER_IN_MILLISECONDS = 10L * 60L * 1000L;
@@ -57,7 +59,7 @@ TEST_F(StatusResponseTest, isErroneousResponseGivesTrueForErrorCodeEqualTo400)
 	auto target = StatusResponse_t::createErrorResponse(logger, 400);
 
 	// then
-	ASSERT_TRUE(target->isErroneousResponse());
+	ASSERT_THAT(target->isErroneousResponse(), testing::Eq(true));
 }
 
 TEST_F(StatusResponseTest, isErroneousResponseGivesTrueForErrorCodeGreaterThan400)
@@ -66,16 +68,16 @@ TEST_F(StatusResponseTest, isErroneousResponseGivesTrueForErrorCodeGreaterThan40
 	auto target = StatusResponse_t::createErrorResponse(logger, 401);
 
 	// then
-	ASSERT_TRUE(target->isErroneousResponse());
+	ASSERT_THAT(target->isErroneousResponse(), testing::Eq(true));
 }
 
 TEST_F(StatusResponseTest, isErroneousResponseGivesFalseForErrorCodeLessThan400)
 {
 	// given
-	auto target = StatusResponse_t::createSuccessResponse(logger, attributes, 399, IStatusResponse_t::ResponseHeaders());
+	auto target = StatusResponse_t::createSuccessResponse(logger, attributes, 399, HttpHeaderCollection_t());
 
 	// then
-	ASSERT_FALSE(target->isErroneousResponse());
+	ASSERT_THAT(target->isErroneousResponse(), testing::Eq(false));
 }
 
 TEST_F(StatusResponseTest, isTooManyRequestsResponseGivesTrueIfResponseCodeIsEqualTo429)
@@ -84,7 +86,7 @@ TEST_F(StatusResponseTest, isTooManyRequestsResponseGivesTrueIfResponseCodeIsEqu
 	auto target = StatusResponse_t::createErrorResponse(logger, 429);
 
 	// then
-	ASSERT_TRUE(target->isTooManyRequestsResponse());
+	ASSERT_THAT(target->isTooManyRequestsResponse(), testing::Eq(true));
 }
 
 TEST_F(StatusResponseTest, isTooManyRequestsResponseGivesFalseIfResponseCodeIsNotEqualTo429)
@@ -93,18 +95,18 @@ TEST_F(StatusResponseTest, isTooManyRequestsResponseGivesFalseIfResponseCodeIsNo
 	auto target = StatusResponse_t::createErrorResponse(logger, 404);
 
 	// then
-	ASSERT_FALSE(target->isTooManyRequestsResponse());
+	ASSERT_THAT(target->isTooManyRequestsResponse(), testing::Eq(false));
 }
 
 TEST_F(StatusResponseTest, isErroneousResponseGivesTrueIfStatusResponseAttributeIndicatesError)
 {
 	// given
-	auto atrbts = ResponseAttributes_t::withUndefinedDefaults().withStatus(StatusResponse_t::RESPONSE_STATUS_ERROR).build();
+	attributes = ResponseAttributes_t::withUndefinedDefaults().withStatus(StatusResponse_t::RESPONSE_STATUS_ERROR).build();
 
-	auto target = StatusResponse_t::createSuccessResponse(logger, atrbts, StatusResponse_t::HTTP_OK, IStatusResponse_t::ResponseHeaders());
+	auto target = StatusResponse_t::createSuccessResponse(logger, attributes, StatusResponse_t::HTTP_OK, HttpHeaderCollection_t());
 
 	// when, then
-	ASSERT_TRUE(target->isErroneousResponse());
+	ASSERT_THAT(target->isErroneousResponse(), testing::Eq(true));
 }
 
 TEST_F(StatusResponseTest, isErroneousResponseGivesFalseIfStatusResponseAttributeDoesNotIndicateError)
@@ -114,61 +116,23 @@ TEST_F(StatusResponseTest, isErroneousResponseGivesFalseIfStatusResponseAttribut
 	std::transform(data.begin(), data.end(), data.begin(),
 		[](unsigned char c) { return static_cast<unsigned char>(std::tolower(c)); });
 	core::UTF8String status{ data };
-	auto atrbts = ResponseAttributes_t::withUndefinedDefaults().withStatus(status).build();
+	attributes = ResponseAttributes_t::withUndefinedDefaults().withStatus(status).build();
 
-	auto target = StatusResponse_t::createSuccessResponse(logger, atrbts, StatusResponse_t::HTTP_OK, IStatusResponse_t::ResponseHeaders());
+	auto target = StatusResponse_t::createSuccessResponse(logger, attributes, StatusResponse_t::HTTP_OK, HttpHeaderCollection_t());
 
 	// when, then
-	ASSERT_FALSE(target->isErroneousResponse());
+	ASSERT_THAT(target->isErroneousResponse(), testing::Eq(false));
 }
 
 TEST_F(StatusResponseTest, isErroneousResponseGivesFalseIfStatusResponseAttributeIsNotSet)
 {
 	// given
-	auto atrbts = ResponseAttributes_t::withUndefinedDefaults().build();
+	attributes = ResponseAttributes_t::withUndefinedDefaults().build();
 
-	auto target = StatusResponse_t::createSuccessResponse(logger, atrbts, StatusResponse_t::HTTP_OK, IStatusResponse_t::ResponseHeaders());
+	auto target = StatusResponse_t::createSuccessResponse(logger, attributes, StatusResponse_t::HTTP_OK, HttpHeaderCollection_t());
 
 	// when, then
-	ASSERT_FALSE(target->isErroneousResponse());
-}
-
-TEST_F(StatusResponseTest, responseCodeIsSet)
-{
-	// given
-	auto target = StatusResponse_t::createErrorResponse(logger, 418);
-
-	// then
-	ASSERT_EQ(418, target->getResponseCode());
-}
-
-TEST_F(StatusResponseTest, headersAreSetForErrorResponse)
-{
-	// given
-	auto headers = IStatusResponse_t::ResponseHeaders
-	{
-		{ "X-Foo", std::vector<std::string> { "X-BAR" } },
-		{ "X-YZ", std::vector<std::string> { } }
-	};
-	auto target = StatusResponse_t::createErrorResponse(logger, 418, headers);
-
-	// then
-	ASSERT_EQ(headers, target->getResponseHeaders());
-}
-
-TEST_F(StatusResponseTest, headersAreSetForSuccessResponse)
-{
-	// given
-	auto headers = IStatusResponse_t::ResponseHeaders
-	{
-		{ "X-Foo", std::vector<std::string> { "X-BAR" } },
-		{ "X-YZ", std::vector<std::string> { } }
-	};
-	auto responseAttributes = ResponseAttributes_t::withUndefinedDefaults().build();
-	auto target = StatusResponse_t::createSuccessResponse(logger, responseAttributes, 200, headers);
-
-	// then
-	ASSERT_EQ(headers, target->getResponseHeaders());
+	ASSERT_THAT(target->isErroneousResponse(), testing::Eq(false));
 }
 
 TEST_F(StatusResponseTest, getRetryAfterReturnsDefaultValueIfResponseKeyDoesNotExist)
@@ -180,15 +144,15 @@ TEST_F(StatusResponseTest, getRetryAfterReturnsDefaultValueIfResponseKeyDoesNotE
 	auto obtained = target->getRetryAfterInMilliseconds();
 
 	// then
-	ASSERT_EQ(DEFAULT_RETRY_AFTER_IN_MILLISECONDS, obtained);
+	ASSERT_THAT(obtained, testing::Eq(DEFAULT_RETRY_AFTER_IN_MILLISECONDS));
 }
 
 TEST_F(StatusResponseTest, getRetryAfterReturnsDefaultValueIfMultipleValuesWereRetrieved)
 {
 	// given
-	auto responseHeaders = IStatusResponse_t::ResponseHeaders
+	auto responseHeaders = HttpHeaderCollection_t
 	{
-		{ RESPONSE_KEY_RETRY_AFTER, std::vector<std::string>{ "100", "200" } }
+		{ RESPONSE_KEY_RETRY_AFTER, { "100", "200" } }
 	};
 	auto target = StatusResponse_t::createErrorResponse(logger, 429, responseHeaders);
 
@@ -196,15 +160,15 @@ TEST_F(StatusResponseTest, getRetryAfterReturnsDefaultValueIfMultipleValuesWereR
 	auto obtained = target->getRetryAfterInMilliseconds();
 
 	// then
-	ASSERT_EQ(DEFAULT_RETRY_AFTER_IN_MILLISECONDS, obtained);
+	ASSERT_THAT(obtained, testing::Eq(DEFAULT_RETRY_AFTER_IN_MILLISECONDS));
 }
 
 TEST_F(StatusResponseTest, getRetryAfterReturnsDefaultValueIfValueIsNotAnIntegerValue)
 {
 	// given
-	auto responseHeaders = IStatusResponse_t::ResponseHeaders
+	auto responseHeaders = HttpHeaderCollection_t
 	{
-		{ RESPONSE_KEY_RETRY_AFTER, std::vector<std::string>{ "a" } }
+		{ RESPONSE_KEY_RETRY_AFTER, { "a" } }
 	};
 	auto target = StatusResponse_t::createErrorResponse(logger, 429, responseHeaders);
 
@@ -212,16 +176,16 @@ TEST_F(StatusResponseTest, getRetryAfterReturnsDefaultValueIfValueIsNotAnInteger
 	auto obtained = target->getRetryAfterInMilliseconds();
 
 	// then
-	ASSERT_EQ(DEFAULT_RETRY_AFTER_IN_MILLISECONDS, obtained);
+	ASSERT_THAT(obtained, testing::Eq(DEFAULT_RETRY_AFTER_IN_MILLISECONDS));
 }
 
 TEST_F(StatusResponseTest, getRetryAfterReturnsDefaultValueIfValueIsOutOfIntegerRange)
 {
 	// given
-	auto responseHeaders = IStatusResponse_t::ResponseHeaders
+	auto responseHeaders = HttpHeaderCollection_t
 	{
 		// use string value 2^31, which is one too high for int32_t
-		{ RESPONSE_KEY_RETRY_AFTER, std::vector<std::string>{ "2147483648" } }
+		{ RESPONSE_KEY_RETRY_AFTER, { "2147483648" } }
 	};
 	auto target = StatusResponse_t::createErrorResponse(logger, 429, responseHeaders);
 
@@ -229,15 +193,15 @@ TEST_F(StatusResponseTest, getRetryAfterReturnsDefaultValueIfValueIsOutOfInteger
 	auto obtained = target->getRetryAfterInMilliseconds();
 
 	// then
-	ASSERT_EQ(DEFAULT_RETRY_AFTER_IN_MILLISECONDS, obtained);
+	ASSERT_THAT(obtained, testing::Eq(DEFAULT_RETRY_AFTER_IN_MILLISECONDS));
 }
 
 TEST_F(StatusResponseTest, getRetryAfterReturnsParsedValue)
 {
 	// given
-	auto responseHeaders = IStatusResponse_t::ResponseHeaders
+	auto responseHeaders = HttpHeaderCollection_t
 	{
-		{ RESPONSE_KEY_RETRY_AFTER, std::vector<std::string>{ "1234" } }
+		{ RESPONSE_KEY_RETRY_AFTER, { "1234" } }
 	};
 	auto target = StatusResponse_t::createErrorResponse(logger, 429, responseHeaders);
 
@@ -245,5 +209,5 @@ TEST_F(StatusResponseTest, getRetryAfterReturnsParsedValue)
 	auto obtained = target->getRetryAfterInMilliseconds();
 
 	// then
-	ASSERT_EQ(1234L * 1000L, obtained);
+	ASSERT_THAT(obtained, testing::Eq(1234L * 1000L));
 }

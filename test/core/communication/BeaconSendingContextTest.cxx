@@ -40,6 +40,7 @@
 #include "protocol/StatusResponse.h"
 #include "protocol/ResponseAttributes.h"
 #include "protocol/ResponseAttributesDefaults.h"
+#include "protocol/http/HttpHeaderCollection.h"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -63,6 +64,7 @@ using ResponseAttributes_t = protocol::ResponseAttributes;
 using ResponseAttributesDefaults_t = protocol::ResponseAttributesDefaults;
 using ServerConfiguration_t = core::configuration::ServerConfiguration;
 using Utf8String_t = core::UTF8String;
+using HttpHeaderCollection_t = protocol::HttpHeaderCollection;
 
 class BeaconSendingContextTest : public testing::Test
 {
@@ -670,7 +672,7 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseClearsSessionDataIfResponse
 		mockLogger,
 		responseAttributes,
 		200,
-		protocol::IStatusResponse::ResponseHeaders()
+		HttpHeaderCollection_t()
 	);
 
 	auto mockSession = MockSessionInternals::createNice();
@@ -697,7 +699,7 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseRemovesFinishedSessionsIfRe
 		mockLogger,
 		responseAttributes,
 		200,
-		protocol::IStatusResponse::ResponseHeaders()
+		HttpHeaderCollection_t()
 	);
 
 	auto mockSession = MockSessionInternals::createNice();
@@ -733,7 +735,7 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseUpdatesSendInterval)
 		mockLogger,
 		responseAttributes,
 		200,
-		protocol::IStatusResponse::ResponseHeaders()
+		HttpHeaderCollection_t()
 	);
 
 	auto mockSession = MockSessionInternals::createStrict();
@@ -760,7 +762,7 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseUpdatesCaptureStateToFalse)
 		mockLogger,
 		responseAttributes,
 		200,
-		protocol::IStatusResponse::ResponseHeaders()
+		HttpHeaderCollection_t()
 	);
 
 	auto mockSession = MockSessionInternals::createNice();
@@ -790,7 +792,7 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseUpdatesCaptureStateToTrue)
 		mockLogger,
 		responseAttributes,
 		200,
-		protocol::IStatusResponse::ResponseHeaders()
+		HttpHeaderCollection_t()
 	);
 
 	auto mockSession = MockSessionInternals::createStrict();
@@ -824,7 +826,7 @@ TEST_F(BeaconSendingContextTest, handleStatusResponseUpdatesHttpClientConfig)
 		mockLogger,
 		responseAttributes,
 		200,
-		protocol::IStatusResponse::ResponseHeaders()
+		HttpHeaderCollection_t()
 	);
 
 	// expect
@@ -1092,7 +1094,7 @@ TEST_F(BeaconSendingContextTest, configurationTimestampReturnsValueFromResponseA
 		mockLogger,
 		responseAttributes,
 		200,
-		protocol::IStatusResponse::ResponseHeaders()
+		HttpHeaderCollection_t()
 	);
 
 	auto target = createBeaconSendingContext()->build();

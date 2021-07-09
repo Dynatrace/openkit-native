@@ -33,6 +33,8 @@ OpenKitConfiguration::OpenKitConfiguration(const openkit::IOpenKitBuilder& build
 	, mModelId(builder.getModelID())
 	, mDefaultServerId(builder.getDefaultServerID())
 	, mTrustManager(builder.getTrustManager())
+	, mHttpRequestInterceptor(builder.getHttpRequestInterceptor())
+	, mHttpResponseInterceptor(builder.getHttpResponseInterceptor())
 {
 }
 
@@ -106,4 +108,15 @@ int32_t OpenKitConfiguration::getDefaultServerId() const
 std::shared_ptr<openkit::ISSLTrustManager> OpenKitConfiguration::getTrustManager() const
 {
 	return mTrustManager;
+}
+
+
+std::shared_ptr<openkit::IHttpRequestInterceptor> OpenKitConfiguration::getHttpRequestInterceptor() const
+{
+	return mHttpRequestInterceptor;
+}
+
+std::shared_ptr<openkit::IHttpResponseInterceptor> OpenKitConfiguration::getHttpResponseInterceptor() const
+{
+	return mHttpResponseInterceptor;
 }

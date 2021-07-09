@@ -22,6 +22,7 @@
 #include "core/configuration/IHTTPClientConfiguration.h"
 #include "core/util/IInterruptibleThreadSuspender.h"
 #include "protocol/IHTTPClient.h"
+#include "protocol/http/HttpResponse.h"
 
 #include <vector>
 #include <memory>
@@ -36,25 +37,6 @@ namespace protocol
 	class HTTPClient : public IHTTPClient
 	{
 	public:
-
-		///
-		/// the type of request sent to the server
-		///
-		enum class RequestType
-		{
-			STATUS, ///< status check request
-			BEACON, ///< beacon send request
-			NEW_SESSION ///< new session request
-		};
-
-		///
-		/// HTTP methods
-		///
-		enum class HttpMethod
-		{
-			GET,
-			POST
-		};
 
 		///
 		/// Default constructor
@@ -107,6 +89,25 @@ namespace protocol
 	private:
 
 		///
+		/// the type of request sent to the server
+		///
+		enum class RequestType
+		{
+			STATUS, ///< status check request
+			BEACON, ///< beacon send request
+			NEW_SESSION ///< new session request
+		};
+
+		///
+		/// HTTP methods
+		///
+		enum class HttpMethod
+		{
+			GET,
+			POST
+		};
+
+		///
 		/// sends a status check request and returns a status response
 		/// @param[in] requestType the type of request sent to the server
 		/// @param[in] url the url where to send the request to
@@ -132,11 +133,15 @@ namespace protocol
 
 		static void appendQueryParam(core::UTF8String& url, const char* key, const core::UTF8String& value);
 
-		std::shared_ptr<IStatusResponse> handleResponse(RequestType requestType, int32_t httpCode, const std::string& buffer, const IStatusResponse::ResponseHeaders& responseHeaders);
+		std::shared_ptr<IStatusResponse> handleResponse(RequestType requestType, const HttpResponse& httpResponse);
 
 		static size_t readFunction(void *ptr, size_t elementSize, size_t numberOfElements, void* userPtr);
 
 		std::shared_ptr<IStatusResponse> unknownErrorResponse(RequestType requestType);
+
+		static const char* getHttpMethodAsString(HttpMethod method);
+
+
 
 	private:
 
@@ -160,6 +165,9 @@ namespace protocol
 
 		/// how the peer's TSL/SSL certificate and the hostname shall be trusted
 		std::shared_ptr<openkit::ISSLTrustManager> mSSLTrustManager;
+
+		/// HTTP client configuration
+		std::shared_ptr<core::configuration::IHTTPClientConfiguration> mHttpClientConfiguration;
 
 		/// URL for new session requests
 		core::UTF8String mNewSessionURL;

@@ -16,6 +16,8 @@
 
 #include "../../api/mock/MockIOpenKitBuilder.h"
 #include "../../api/mock/MockISslTrustManager.h"
+#include "../../api/mock/MockIHttpRequestInterceptor.h"
+#include "../../api/mock/MockIHttpResponseInterceptor.h"
 
 #include "core/configuration/OpenKitConfiguration.h"
 
@@ -227,4 +229,38 @@ TEST_F(OpenKitConfigurationTest, creatingAnOpenKitConfigurationFromBuilderCopies
 
 	// then
 	ASSERT_THAT(obtained->getTrustManager(), testing::Eq(trustManager));
+}
+
+TEST_F(OpenKitConfigurationTest, creatingAnOpenKitConfigurationFromBuilderCopiesHttpRequestInterceptor)
+{
+	// with
+	auto requestInterceptor = MockIHttpRequestInterceptor::createNice();
+
+	// expect
+	EXPECT_CALL(*mockOpenKitBuilder, getHttpRequestInterceptor())
+		.Times(1)
+		.WillOnce(testing::Return(requestInterceptor));
+
+	// when
+	auto obtained = OpenKitConfiguration_t::from(*mockOpenKitBuilder);
+
+	// then
+	ASSERT_THAT(obtained->getHttpRequestInterceptor(), testing::Eq(requestInterceptor));
+}
+
+TEST_F(OpenKitConfigurationTest, creatingAnOpenKitConfigurationFromBuilderCopiesHttpResponseInterceptor)
+{
+	// with
+	auto responseInterceptor = MockIHttpResponseInterceptor::createNice();
+
+	// expect
+	EXPECT_CALL(*mockOpenKitBuilder, getHttpResponseInterceptor())
+		.Times(1)
+		.WillOnce(testing::Return(responseInterceptor));
+
+	// when
+	auto obtained = OpenKitConfiguration_t::from(*mockOpenKitBuilder);
+
+	// then
+	ASSERT_THAT(obtained->getHttpResponseInterceptor(), testing::Eq(responseInterceptor));
 }

@@ -19,6 +19,10 @@ set(OPENKIT_PUBLIC_HEADERS_CXX_API
     ${CMAKE_SOURCE_DIR}/include/OpenKit/DataCollectionLevel.h
     ${CMAKE_SOURCE_DIR}/include/OpenKit/DynatraceOpenKitBuilder.h
     ${CMAKE_SOURCE_DIR}/include/OpenKit/IAction.h
+    ${CMAKE_SOURCE_DIR}/include/OpenKit/IHttpRequest.h
+    ${CMAKE_SOURCE_DIR}/include/OpenKit/IHttpRequestInterceptor.h
+    ${CMAKE_SOURCE_DIR}/include/OpenKit/IHttpResponse.h
+    ${CMAKE_SOURCE_DIR}/include/OpenKit/IHttpResponseInterceptor.h
     ${CMAKE_SOURCE_DIR}/include/OpenKit/ILogger.h
     ${CMAKE_SOURCE_DIR}/include/OpenKit/IOpenKit.h
     ${CMAKE_SOURCE_DIR}/include/OpenKit/IOpenKitBuilder.h
@@ -196,6 +200,21 @@ set(OPENKIT_SOURCES_CORE_OBJECTS
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/WebRequestTracer.h
 )
 
+set(OPENKIT_SOURCES_PROTOCOL_HTTP
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/http/HttpHeaderCollection.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/http/HttpHeaderCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/http/HttpHeaderUtil.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/http/HttpHeaderUtil.h
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/http/HttpRequest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/http/HttpRequest.h
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/http/HttpResponse.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/http/HttpResponse.h
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/http/NullHttpRequestInterceptor.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/http/NullHttpRequestInterceptor.h
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/http/NullHttpResponseInterceptor.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/protocol/http/NullHttpResponseInterceptor.h
+)
+
 set(OPENKIT_SOURCES_PROTOCOL_SSL
     ${CMAKE_CURRENT_LIST_DIR}/protocol/ssl/SSLBlindTrustManager.h
     ${CMAKE_CURRENT_LIST_DIR}/protocol/ssl/SSLBlindTrustManager.cxx
@@ -317,6 +336,7 @@ set(OPENKIT_SOURCES
     ${OPENKIT_SOURCES_CORE_CONFIGURATION}
     ${OPENKIT_SOURCES_CORE_OBJECTS}
     ${OPENKIT_SOURCES_CORE_UTIL}
+    ${OPENKIT_SOURCES_PROTOCOL_HTTP}
     ${OPENKIT_SOURCES_PROTOCOL_SSL}
     ${OPENKIT_SOURCES_PROTOCOL}
     ${OPENKIT_SOURCES_PROVIDERS}

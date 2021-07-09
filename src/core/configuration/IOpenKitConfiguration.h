@@ -18,6 +18,8 @@
 #define _CORE_CONFIGURATION_IOPENKITCONFIGURATION_H
 
 #include "OpenKit/ISSLTrustManager.h"
+#include "OpenKit/IHttpRequestInterceptor.h"
+#include "OpenKit/IHttpResponseInterceptor.h"
 #include "core/UTF8String.h"
 
 #include <memory>
@@ -96,6 +98,16 @@ namespace core
 			/// Returns the SSL trust manager
 			///
 			virtual std::shared_ptr<openkit::ISSLTrustManager> getTrustManager() const = 0;
+
+			///
+			/// Returns the openkit::IHttpRequestInterceptor
+			///
+			virtual std::shared_ptr<openkit::IHttpRequestInterceptor> getHttpRequestInterceptor() const = 0;
+
+			///
+			/// Returns the openkit::IHttpResponseInterceptor
+			///
+			virtual std::shared_ptr<openkit::IHttpResponseInterceptor> getHttpResponseInterceptor() const = 0;
 		};
 	}
 }

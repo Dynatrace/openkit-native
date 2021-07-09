@@ -19,18 +19,13 @@
 
 #include "IResponseAttributes.h"
 #include "core/UTF8String.h"
-
-#include <unordered_map>
-#include <vector>
+#include "protocol/http/HttpHeaderCollection.h"
 
 namespace protocol
 {
 	class IStatusResponse
 	{
 	public:
-
-		/// Alias for HTTP response headers
-		using ResponseHeaders = std::unordered_map<std::string, std::vector<std::string>>;
 
 		///
 		/// Destructor
@@ -50,18 +45,6 @@ namespace protocol
 		/// @return @c true if this response is a "too many requests" response, @c false otherwise.
 		///
 		virtual bool isTooManyRequestsResponse() const = 0;
-
-		///
-		/// Return the response code
-		/// @returns the response code
-		///
-		virtual int32_t getResponseCode() const = 0;
-
-		///
-		/// Return the HTTP response headers
-		/// @returns the response headers
-		///
-		virtual const ResponseHeaders& getResponseHeaders() const = 0;
 
 		///
 		/// Get Retry-After response header value in milliseconds.

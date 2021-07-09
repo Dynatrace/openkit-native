@@ -22,6 +22,8 @@
 #include "core/objects/OpenKitInitializer.h"
 #include "core/objects/OpenKit.h"
 #include "protocol/ssl/SSLStrictTrustManager.h"
+#include "protocol/http/NullHttpRequestInterceptor.h"
+#include "protocol/http/NullHttpResponseInterceptor.h"
 
 #include <cstring>
 
@@ -53,6 +55,8 @@ AbstractOpenKitBuilder::AbstractOpenKitBuilder(const char* endpointURL, int64_t 
 	, mBeaconCacheUpperMemoryBoundary(core::configuration::DEFAULT_UPPER_MEMORY_BOUNDARY_IN_BYTES)
 	, mDataCollectionLevel(core::configuration::DEFAULT_DATA_COLLECTION_LEVEL)
 	, mCrashReportingLevel(core::configuration::DEFAULT_CRASH_REPORTING_LEVEL)
+	, mHttpRequestInterceptor(protocol::NullHttpRequestInterceptor::instance())
+	, mHttpResponseInterceptor(protocol::NullHttpResponseInterceptor::instance())
 {
 }
 
@@ -148,6 +152,24 @@ AbstractOpenKitBuilder& AbstractOpenKitBuilder::withCrashReportingLevel(CrashRep
 	return *this;
 }
 
+AbstractOpenKitBuilder& AbstractOpenKitBuilder::withHttpRequestInterceptor(std::shared_ptr<openkit::IHttpRequestInterceptor> httpRequestIntercetpor)
+{
+	if (httpRequestIntercetpor != nullptr)
+	{
+		mHttpRequestInterceptor = httpRequestIntercetpor;
+	}
+	return *this;
+}
+
+AbstractOpenKitBuilder& AbstractOpenKitBuilder::withHttpResponseInterceptor(std::shared_ptr<openkit::IHttpResponseInterceptor> httpResponseInterceptor)
+{
+	if (httpResponseInterceptor != nullptr)
+	{
+		mHttpResponseInterceptor = httpResponseInterceptor;
+	}
+	return *this;
+}
+
 std::shared_ptr<openkit::IOpenKit> AbstractOpenKitBuilder::build()
 {
 	core::objects::OpenKitInitializer initializer(*this);
@@ -220,6 +242,16 @@ openkit::DataCollectionLevel AbstractOpenKitBuilder::getDataCollectionLevel() co
 openkit::CrashReportingLevel AbstractOpenKitBuilder::getCrashReportingLevel() const
 {
 	return mCrashReportingLevel;
+}
+
+std::shared_ptr<openkit::IHttpRequestInterceptor> AbstractOpenKitBuilder::getHttpRequestInterceptor() const
+{
+	return mHttpRequestInterceptor;
+}
+
+std::shared_ptr<openkit::IHttpResponseInterceptor> AbstractOpenKitBuilder::getHttpResponseInterceptor() const
+{
+	return mHttpResponseInterceptor;
 }
 
 openkit::LogLevel AbstractOpenKitBuilder::getLogLevel() const

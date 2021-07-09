@@ -17,50 +17,105 @@
 #include "HTTPResponseParser.h"
 
 #include <cctype>
-#include <algorithm>
+#include <cstring>
 
 using namespace protocol;
 
 static constexpr char HTTP_HEADER_LINE_KEY_VALUE_SEPARATOR = ':';
+static constexpr int32_t INITIAL_RESPONSE_STATUS = -1;
 
 HTTPResponseParser::HTTPResponseParser()
-	: mResponseHeaders()
+	: mResponseStatus(INITIAL_RESPONSE_STATUS)
+	, mReasonPhrase()
+	, mResponseHeaders()
 	, mResponseBody()
 {
 }
 
-
 size_t HTTPResponseParser::responseHeaderData(const char *buffer, size_t elementSize, size_t numberOfElements)
 {
-	// convert response line into STL string
-	auto responseLine = std::string(buffer, elementSize * numberOfElements);
+	auto bufferSizeInBytes = elementSize * numberOfElements;
 
-	// split up response header line
-	auto separatorPosition = responseLine.find(HTTP_HEADER_LINE_KEY_VALUE_SEPARATOR);
-	if (separatorPosition != std::string::npos)
+	const char* start = buffer;
+	const char* end = buffer + bufferSizeInBytes;
+
+	// trim leading spaces
+	for (; start < end && std::isspace(*start); start++)
+		;
+
+	// trim trailing spaces
+	for (end = end - 1; start < end && std::isspace(*end); end--)
+		;
+	end++; // like STL iterator, end is the first non-valid element
+
+	if (start < end)
 	{
-		// found the separator - split into key and value
-		auto key = responseLine.substr(0, separatorPosition);
-		auto valueString = responseLine.substr(separatorPosition + 1);
+		// check if it's a header line or the status line
+		const char* colon;
+		for (colon = start; colon < end && *colon != HTTP_HEADER_LINE_KEY_VALUE_SEPARATOR; colon++)
+			;
 
-		// strip optional whitespace character
-		HTTPResponseParser::stripWhitespaces(valueString);
-
-		// key is case insensitive
-		std::transform(key.begin(), key.end(), key.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
-		auto responseKeyIterator = mResponseHeaders.find(key);
-		if (responseKeyIterator == mResponseHeaders.end())
+		if (colon != end)
 		{
-			// key not yet present
-			responseKeyIterator = mResponseHeaders.insert({ key, std::vector<std::string>() }).first;
+			// it's an HTTP header line
+			if (colon != start) // empty header name is not valid
+			{
+				std::string headerName(start, colon - start);
+
+				// strip optional whitespace after colon
+				const char* valueStart = colon + 1;
+				for (; valueStart < end && std::isspace(*valueStart); valueStart++)
+					;
+
+				// header value can be empty
+				auto headerValue = valueStart < end ? std::string(valueStart, end - valueStart) : std::string();
+
+				mResponseHeaders.appendHeader(headerName, headerValue);
+			}
 		}
+		else
+		{
+			// should be the HTTP status line - try to parse it as such
+			// e.g. HTTP/1.1 200 OK
+			// e.g. HTTP/1.1 200
+			const char* statusCodeStart;
+			// skip HTTP protocol version
+			for (statusCodeStart = start; statusCodeStart < end && !std::isspace(*statusCodeStart); statusCodeStart++)
+				;
+			// skip space - protocol says one, but skip arbitrary number
+			for (; statusCodeStart < end && std::isspace(*statusCodeStart); statusCodeStart++)
+				;
+			// now we should have 3 digits + space + reason phrase
+			// where space + reason phrase are optional (and omitted in HTTP/2)
+			auto remainingBytes = end - statusCodeStart;
+			if (remainingBytes >= 3
+				&& std::isdigit(*statusCodeStart)
+				&& std::isdigit(*(statusCodeStart + 1))
+				&& std::isdigit(*(statusCodeStart + 2))
+				&& (remainingBytes == 3 || std::isspace(*(statusCodeStart + 3)))
+			)
+			{
+				// reset parser, so that we only parse the last response
+				reset();
 
-		// move over previously parsed values
-		responseKeyIterator->second.push_back(valueString);
+				mResponseStatus = (*statusCodeStart - '0') * 100;
+				mResponseStatus += (*(statusCodeStart + 1) - '0') * 10;
+				mResponseStatus += (*(statusCodeStart + 2) - '0');
+
+				// try parse reason phrase
+				const char* reasonPhraseStart;
+				for (reasonPhraseStart = statusCodeStart + 3; reasonPhraseStart < end && std::isspace(*reasonPhraseStart); reasonPhraseStart++)
+					;
+
+				mReasonPhrase = reasonPhraseStart < end ? std::string(reasonPhraseStart, end - reasonPhraseStart) : std::string();
+			}
+		}
 	}
+	// the else is omitted here, but is valid
+	// it's very likely the line delimiting header and body data, which only "\r\n".
 
-	// in any case return the number of bytes processed
-	return elementSize * numberOfElements;
+	// always return that we consumed all bytes, otherwise libcurl aborts and reports an error
+	return bufferSizeInBytes;
 }
 
 size_t HTTPResponseParser::responseBodyData(const char* buffer, size_t elementSize, size_t numberOfElements)
@@ -69,7 +124,17 @@ size_t HTTPResponseParser::responseBodyData(const char* buffer, size_t elementSi
 	return elementSize * numberOfElements;
 }
 
-const IStatusResponse::ResponseHeaders& HTTPResponseParser::getResponseHeaders() const
+int32_t HTTPResponseParser::getResponseStatus() const
+{
+	return mResponseStatus;
+}
+
+const std::string& HTTPResponseParser::getReasonPhrase() const
+{
+	return mReasonPhrase;
+}
+
+const HttpHeaderCollection& HTTPResponseParser::getResponseHeaders() const
 {
 	return mResponseHeaders;
 }
@@ -79,30 +144,10 @@ const std::string& HTTPResponseParser::getResponseBody() const
 	return mResponseBody;
 }
 
-bool HTTPResponseParser::isWhitespace(char c)
+void HTTPResponseParser::reset()
 {
-	return c == ' ' || c == '\t' || c == '\r' || c == '\n';
-}
-
-void HTTPResponseParser::stripWhitespaces(std::string& str)
-{
-	auto begin = str.cbegin();
-	auto end = str.cend();
-
-	// strip leading whitespace
-	while (begin < end && isWhitespace(*begin))
-	{
-		begin++;
-	}
-	// strip trailing whitespaces
-	end -= 1;
-	while (end > begin && isWhitespace(*end))
-	{
-		end--;
-	}
-
-	end += 1;
-
-	// assign final result
-	str = end > begin ? std::string(begin, end) : std::string();
+	mResponseStatus = INITIAL_RESPONSE_STATUS;
+	mReasonPhrase.clear();
+	mResponseHeaders.clear();
+	mResponseBody.clear();
 }

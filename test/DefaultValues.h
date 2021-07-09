@@ -19,6 +19,7 @@
 
 #include "core/UTF8String.h"
 
+#include <list>
 #include <string>
 
 namespace test
@@ -29,6 +30,13 @@ namespace test
 		static const core::UTF8String UTF8_EMPTY_STRING;
 		static const std::string EMPTY_STRING;
 		static const char* EMPTY_CHAR_STRING;
+
+		template<typename T>
+		static std::list<T>& emptyList()
+		{
+			static std::list<T> instance;
+			return instance;
+		}
 	};
 }
 

@@ -79,6 +79,10 @@ namespace core
 
 			std::shared_ptr<openkit::ISSLTrustManager> getTrustManager() const override;
 
+			std::shared_ptr<openkit::IHttpRequestInterceptor> getHttpRequestInterceptor() const override;
+
+			std::shared_ptr<openkit::IHttpResponseInterceptor> getHttpResponseInterceptor() const override;
+
 		private:
 
 			/// endpoint URL to send data to
@@ -119,6 +123,12 @@ namespace core
 
 			/// configured SSL trust manager
 			const std::shared_ptr<openkit::ISSLTrustManager> mTrustManager;
+
+			/// configured HTTP request interceptor
+			const std::shared_ptr<openkit::IHttpRequestInterceptor> mHttpRequestInterceptor;
+
+			/// configured HTTP response interceptor
+			const std::shared_ptr<openkit::IHttpResponseInterceptor> mHttpResponseInterceptor;
 		};
 	}
 }

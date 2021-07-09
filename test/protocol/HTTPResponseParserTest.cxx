@@ -25,14 +25,13 @@ class HTTPResponseParserTest : public testing::Test
 {
 };
 
-
 TEST_F(HTTPResponseParserTest, defaultConstructedGivesEmptyResponseBody)
 {
 	// given
 	auto target = HttpResponseParser_t();
 
 	// then
-	ASSERT_TRUE(target.getResponseBody().empty());
+	ASSERT_THAT(target.getResponseBody(), testing::IsEmpty());
 }
 
 TEST_F(HTTPResponseParserTest, responseBodyDataSetsResponseData)
@@ -45,8 +44,8 @@ TEST_F(HTTPResponseParserTest, responseBodyDataSetsResponseData)
 	auto obtained = target.responseBodyData(body.data(), sizeof(std::string::value_type), body.length());
 
 	// then
-	ASSERT_EQ(3, obtained);
-	ASSERT_EQ(std::string("foo"), target.getResponseBody());
+	ASSERT_THAT(obtained, testing::Eq(3));
+	ASSERT_THAT(target.getResponseBody(), testing::Eq(body));
 }
 
 TEST_F(HTTPResponseParserTest, responseBodyDataConcatenatesDataIfCalledMultipleTimes)
@@ -61,34 +60,117 @@ TEST_F(HTTPResponseParserTest, responseBodyDataConcatenatesDataIfCalledMultipleT
 	auto obtainedTwo = target.responseBodyData(bodyTwo.data(), sizeof(std::string::value_type), bodyTwo.length());
 
 	// then
-	ASSERT_EQ(3, obtainedOne);
-	ASSERT_EQ(3, obtainedTwo);
-	ASSERT_EQ(std::string("foobar"), target.getResponseBody());
+	ASSERT_THAT(obtainedOne, testing::Eq(3));
+	ASSERT_THAT(obtainedTwo, testing::Eq(3));
+	ASSERT_THAT(target.getResponseBody(), testing::Eq(bodyOne + bodyTwo));
 }
 
-TEST_F(HTTPResponseParserTest, defaultConstructedGivesEmptyResponseHeaders)
+TEST_F(HTTPResponseParserTest, defaultConstructedGivesResponseStatusEqualMinusOne)
 {
 	// given
 	auto target = HttpResponseParser_t();
 
 	// then
-	ASSERT_TRUE(target.getResponseHeaders().empty());
+	ASSERT_THAT(target.getResponseStatus(), testing::Eq(-1));
 }
 
-TEST_F(HTTPResponseParserTest, emptyDataDoesNotCrashParser)
+TEST_F(HTTPResponseParserTest, httpStatusLineWithReasonPhraseCanBeParsed)
 {
 	// given
+	const std::string httpStatusLine = "HTTP/1.1 418 I'm a teapot";
+
 	auto target = HttpResponseParser_t();
 
-	// when adding the HTTP status line
-	auto obtained = target.responseHeaderData("", sizeof(std::string::value_type), std::size_t(0));
+	// when
+	auto obtained = target.responseHeaderData(httpStatusLine.data(), sizeof(std::string::value_type), httpStatusLine.length());
 
 	// then
-	ASSERT_EQ(0, obtained);
-	ASSERT_TRUE(target.getResponseHeaders().empty());
+	ASSERT_THAT(obtained, testing::Eq(httpStatusLine.length()));
+	ASSERT_THAT(target.getResponseStatus(), testing::Eq(418));
+	ASSERT_THAT(target.getReasonPhrase(), testing::Eq("I'm a teapot"));
 }
 
-TEST_F(HTTPResponseParserTest, headerLineWithCrLfDoesNotCrashParser)
+TEST_F(HTTPResponseParserTest, httpStatusLineWithReasonPhraseAndCrLfCanBeParsed)
+{
+	// given
+	const std::string httpStatusLine = "HTTP/1.1 418 I'm a teapot\r\n";
+
+	auto target = HttpResponseParser_t();
+
+	// when
+	auto obtained = target.responseHeaderData(httpStatusLine.data(), sizeof(std::string::value_type), httpStatusLine.length());
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(httpStatusLine.length()));
+	ASSERT_THAT(target.getResponseStatus(), testing::Eq(418));
+	ASSERT_THAT(target.getReasonPhrase(), testing::Eq("I'm a teapot"));
+}
+
+TEST_F(HTTPResponseParserTest, httpStatusLineWithoutReasonPhraseCanBeParsed)
+{
+	// given
+	const std::string httpStatusLine = "HTTP/1.1 200";
+
+	auto target = HttpResponseParser_t();
+
+	// when
+	auto obtained = target.responseHeaderData(httpStatusLine.data(), sizeof(std::string::value_type), httpStatusLine.length());
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(httpStatusLine.length()));
+	ASSERT_THAT(target.getResponseStatus(), testing::Eq(200));
+	ASSERT_THAT(target.getReasonPhrase(), testing::IsEmpty());
+}
+
+TEST_F(HTTPResponseParserTest, httpStatusLineWithCrLfButWithoutReasonPhraseCanBeParsed)
+{
+	// given
+	const std::string httpStatusLine = "HTTP/1.1 302\r\n";
+
+	auto target = HttpResponseParser_t();
+
+	// when
+	auto obtained = target.responseHeaderData(httpStatusLine.data(), sizeof(std::string::value_type), httpStatusLine.length());
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(httpStatusLine.length()));
+	ASSERT_THAT(target.getResponseStatus(), testing::Eq(302));
+	ASSERT_THAT(target.getReasonPhrase(), testing::IsEmpty());
+}
+
+TEST_F(HTTPResponseParserTest, httpStatusLineWithLessThanThreeDigitsStatusCodeCannotBeParsed)
+{
+	// given
+	const std::string httpStatusLine = "HTTP/1.1 30\r\n";
+
+	auto target = HttpResponseParser_t();
+
+	// when
+	auto obtained = target.responseHeaderData(httpStatusLine.data(), sizeof(std::string::value_type), httpStatusLine.length());
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(httpStatusLine.length()));
+	ASSERT_THAT(target.getResponseStatus(), testing::Eq(-1));
+	ASSERT_THAT(target.getReasonPhrase(), testing::IsEmpty());
+}
+
+TEST_F(HTTPResponseParserTest, httpStatusLineWithMoreThanThreeDigitsStatusCodeCannotBeParsed)
+{
+	// given
+	const std::string httpStatusLine = "HTTP/1.1 3045\r\n";
+
+	auto target = HttpResponseParser_t();
+
+	// when
+	auto obtained = target.responseHeaderData(httpStatusLine.data(), sizeof(std::string::value_type), httpStatusLine.length());
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(httpStatusLine.length()));
+	ASSERT_THAT(target.getResponseStatus(), testing::Eq(-1));
+	ASSERT_THAT(target.getReasonPhrase(), testing::IsEmpty());
+}
+
+TEST_F(HTTPResponseParserTest, headerLineWithCrLffDoesNotCrashParser)
 {
 	// given
 	auto target = HttpResponseParser_t();
@@ -97,22 +179,8 @@ TEST_F(HTTPResponseParserTest, headerLineWithCrLfDoesNotCrashParser)
 	auto obtained = target.responseHeaderData("\r\n", sizeof(std::string::value_type), std::size_t(2));
 
 	// then
-	ASSERT_EQ(2, obtained);
-	ASSERT_TRUE(target.getResponseHeaders().empty());
-}
-
-TEST_F(HTTPResponseParserTest, aParseableResponseHeaderMustContainAColon)
-{
-	// given
-	auto target = HttpResponseParser_t();
-	auto statusLine = std::string("HTTP/1.1 200 OK\r\n");
-
-	// when adding the HTTP status line
-	auto obtained = target.responseHeaderData(statusLine.data(), sizeof(std::string::value_type), statusLine.length());
-
-	// then
-	ASSERT_EQ(statusLine.length(), obtained);
-	ASSERT_TRUE(target.getResponseHeaders().empty());
+	ASSERT_THAT(obtained, testing::Eq(2));
+	ASSERT_THAT(target.getResponseHeaders().empty(), testing::Eq(true));
 }
 
 TEST_F(HTTPResponseParserTest, parsingColonSeparatedLineWorks)
@@ -125,29 +193,12 @@ TEST_F(HTTPResponseParserTest, parsingColonSeparatedLineWorks)
 	auto obtained = target.responseHeaderData(headerString.data(), sizeof(std::string::value_type), headerString.length());
 
 	// then
-	ASSERT_EQ(headerString.length(), obtained);
+	ASSERT_THAT(obtained, testing::Eq(headerString.length()));
 
 	auto obtainedHeaders = target.getResponseHeaders();
-	ASSERT_FALSE(obtainedHeaders.empty());
-	ASSERT_NE(obtainedHeaders.end(), obtainedHeaders.find("content-length"));
-	ASSERT_EQ(std::vector<std::string>{"42"}, obtainedHeaders.find("content-length")->second);
-}
-
-TEST_F(HTTPResponseParserTest, keyIsTransformedToLowerCase)
-{
-	// given
-	auto target = HttpResponseParser_t();
-	auto headerString = std::string("Content-Length:42");
-
-	// when adding the line
-	auto obtained = target.responseHeaderData(headerString.data(), sizeof(std::string::value_type), headerString.length());
-
-	// then
-	ASSERT_EQ(headerString.length(), obtained);
-
-	auto obtainedHeaders = target.getResponseHeaders();
-	ASSERT_NE(obtainedHeaders.end(), obtainedHeaders.find("content-length"));
-	ASSERT_EQ(std::vector<std::string>{"42"}, obtainedHeaders.find("content-length")->second);
+	ASSERT_THAT(obtainedHeaders.empty(), testing::Eq(false));
+	ASSERT_THAT(obtainedHeaders.contains("content-length"), testing::Eq(true));
+	ASSERT_THAT(obtainedHeaders.getHeader("content-length"), testing::ContainerEq(std::list<std::string>{"42"}));
 }
 
 TEST_F(HTTPResponseParserTest, optionalWhitespacheFromValuesAreStripped)
@@ -160,11 +211,11 @@ TEST_F(HTTPResponseParserTest, optionalWhitespacheFromValuesAreStripped)
 	auto obtained = target.responseHeaderData(headerString.data(), sizeof(std::string::value_type), headerString.length());
 
 	// then
-	ASSERT_EQ(headerString.length(), obtained);
+	ASSERT_THAT(obtained, testing::Eq(headerString.length()));
 
 	auto obtainedHeaders = target.getResponseHeaders();
-	ASSERT_NE(obtainedHeaders.end(), obtainedHeaders.find("content-length"));
-	ASSERT_EQ(std::vector<std::string>{"42"}, obtainedHeaders.find("content-length")->second);
+	ASSERT_THAT(obtainedHeaders.contains("Content-Length"), testing::Eq(true));
+	ASSERT_THAT(obtainedHeaders.getHeader("Content-Length"), testing::ContainerEq(std::list<std::string>{"42"}));
 }
 
 TEST_F(HTTPResponseParserTest, trailingCRLFIsStripped)
@@ -177,14 +228,14 @@ TEST_F(HTTPResponseParserTest, trailingCRLFIsStripped)
 	auto obtained = target.responseHeaderData(headerString.data(), sizeof(std::string::value_type), headerString.length());
 
 	// then
-	ASSERT_EQ(headerString.length(), obtained);
+	ASSERT_THAT(obtained, testing::Eq(headerString.length()));
 
 	auto obtainedHeaders = target.getResponseHeaders();
-	ASSERT_NE(obtainedHeaders.end(), obtainedHeaders.find("content-length"));
-	ASSERT_EQ(std::vector<std::string>{"42"}, obtainedHeaders.find("content-length")->second);
+	ASSERT_THAT(obtainedHeaders.contains("Content-Length"), testing::Eq(true));
+	ASSERT_THAT(obtainedHeaders.getHeader("Content-Length"), testing::ContainerEq(std::list<std::string>{"42"}));
 }
 
-TEST_F(HTTPResponseParserTest, multipleLinesWithSimilarKeyMergesValues)
+TEST_F(HTTPResponseParserTest, multipleHeaderValuesWithSameNameAreMergedCorrectly)
 {
 	// given
 	auto target = HttpResponseParser_t();
@@ -196,10 +247,53 @@ TEST_F(HTTPResponseParserTest, multipleLinesWithSimilarKeyMergesValues)
 	auto obtainedTwo = target.responseHeaderData(headerStringTwo.data(), sizeof(std::string::value_type), headerStringTwo.length());
 
 	// then
-	ASSERT_EQ(headerStringOne.length(), obtainedOne);
-	ASSERT_EQ(headerStringTwo.length(), obtainedTwo);
+	ASSERT_THAT(obtainedOne, testing::Eq(headerStringOne.length()));
+	ASSERT_THAT(obtainedTwo, testing::Eq(headerStringTwo.length()));
 
 	auto obtainedHeaders = target.getResponseHeaders();
-	ASSERT_NE(obtainedHeaders.end(), obtainedHeaders.find("set-cookie"));
-	ASSERT_THAT(obtainedHeaders.find("set-cookie")->second, testing::ElementsAre(std::string("Test=test_value"), std::string("foo=bar")));
+	ASSERT_THAT(obtainedHeaders.contains("set-cookie"), testing::Eq(true));
+	ASSERT_THAT(obtainedHeaders.getHeader("set-cookie"), testing::ContainerEq(std::list<std::string>{"Test=test_value", "foo=bar"}));
+}
+
+TEST_F(HTTPResponseParserTest, parsingStatusLineClearsPreviouslyParsedValues)
+{
+	// given
+	auto target = HttpResponseParser_t();
+
+	const std::vector<std::string> firstResponseHeaderLines = 
+	{
+		std::string("HTTP/1.1 301 Moved Permanently\r\n"),
+		std::string("X-Foo: bar\r\n"),
+		std::string("Set-Cookie: __Secure-ID=123; Secure; Domain=example.com\r\n"),
+		std::string("\r\n")
+	};
+	
+	for (const auto& headerLine : firstResponseHeaderLines)
+	{
+		target.responseHeaderData(headerLine.data(), sizeof(std::string::value_type), headerLine.length());
+	}
+
+	const std::string firstResponseBodyData = "foobar";
+	target.responseBodyData(firstResponseBodyData.data(), sizeof(std::string::value_type), firstResponseBodyData.length());
+
+	// verify
+	ASSERT_THAT(target.getResponseStatus(), testing::Eq(301));
+	ASSERT_THAT(target.getReasonPhrase(), testing::Eq("Moved Permanently"));
+	ASSERT_THAT(target.getResponseHeaders().empty(), testing::Eq(false));
+	ASSERT_THAT(target.getResponseHeaders().contains("X-Foo"), testing::Eq(true));
+	ASSERT_THAT(target.getResponseHeaders().getHeader("X-Foo"), testing::ContainerEq(std::list<std::string>{ "bar" }));
+	ASSERT_THAT(target.getResponseHeaders().contains("Set-Cookie"), testing::Eq(true));
+	ASSERT_THAT(target.getResponseHeaders().getHeader("Set-Cookie"), 
+		testing::ContainerEq(std::list<std::string>{ "__Secure-ID=123; Secure; Domain=example.com" }));
+	ASSERT_THAT(target.getResponseBody(), testing::Eq("foobar"));
+
+	// when
+	const std::string secondStatusLine = "HTTP/1.1 200 OK\r\n";
+	target.responseHeaderData(secondStatusLine.data(), sizeof(std::string::value_type), secondStatusLine.length());
+
+	// then
+	ASSERT_THAT(target.getResponseStatus(), testing::Eq(200));
+	ASSERT_THAT(target.getReasonPhrase(), testing::Eq("OK"));
+	ASSERT_THAT(target.getResponseHeaders().empty(), testing::Eq(true));
+	ASSERT_THAT(target.getResponseBody(), testing::IsEmpty());
 }

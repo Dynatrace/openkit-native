@@ -35,7 +35,7 @@ StatusResponse::StatusResponse
 	std::shared_ptr<openkit::ILogger> logger,
 	std::shared_ptr<IResponseAttributes> responseAttributes,
 	int32_t responseCode,
-	const ResponseHeaders& responseHeaders
+	const HttpHeaderCollection& responseHeaders
 )
 	: mLogger(logger)
 	, mResponseAttributes(responseAttributes)
@@ -48,7 +48,7 @@ std::shared_ptr<StatusResponse> StatusResponse::createSuccessResponse(
 	std::shared_ptr<openkit::ILogger> logger,
 	std::shared_ptr<IResponseAttributes> responseAttributes,
 	int32_t responseCode,
-	const ResponseHeaders& responseHeaders)
+	const HttpHeaderCollection& responseHeaders)
 {
 	return std::shared_ptr<StatusResponse>(new StatusResponse(logger, responseAttributes, responseCode, responseHeaders));
 }
@@ -58,13 +58,13 @@ std::shared_ptr<StatusResponse> StatusResponse::createErrorResponse(
 	int32_t responseCode
 )
 {
-	return createErrorResponse(logger, responseCode, ResponseHeaders());
+	return createErrorResponse(logger, responseCode, HttpHeaderCollection());
 }
 
 std::shared_ptr<StatusResponse> StatusResponse::createErrorResponse(
 	std::shared_ptr<openkit::ILogger> logger,
 	int32_t responseCode,
-	const ResponseHeaders& responseHeaders
+	const HttpHeaderCollection& responseHeaders
 )
 {
 	auto responseAttributes = ResponseAttributes::withUndefinedDefaults().build();
@@ -76,28 +76,17 @@ bool StatusResponse::isErroneousResponse() const
 	const auto isStatusSetToError = [&]() { return getResponseAttributes()->isAttributeSet(ResponseAttribute::STATUS)
 		&& getResponseAttributes()->getStatus() == RESPONSE_STATUS_ERROR; };
 
-	return getResponseCode() >= HTTP_BAD_REQUEST || isStatusSetToError();
+	return mResponseCode >= HTTP_BAD_REQUEST || isStatusSetToError();
 }
 
 bool StatusResponse::isTooManyRequestsResponse() const
 {
-	return getResponseCode() == HTTP_TOO_MANY_REQUESTS;
-}
-
-int32_t StatusResponse::getResponseCode() const
-{
-	return mResponseCode;
-}
-
-const IStatusResponse::ResponseHeaders& StatusResponse::getResponseHeaders() const
-{
-	return mResponseHeaders;
+	return mResponseCode == HTTP_TOO_MANY_REQUESTS;
 }
 
 int64_t StatusResponse::getRetryAfterInMilliseconds() const
 {
-	auto iterator = mResponseHeaders.find(RESPONSE_KEY_RETRY_AFTER);
-	if (iterator == mResponseHeaders.end())
+	if (!mResponseHeaders.contains(RESPONSE_KEY_RETRY_AFTER))
 	{
 		// the Retry-After response header is missing
 		mLogger->warning("%s is not available - using default value %" PRId64,
@@ -105,7 +94,8 @@ int64_t StatusResponse::getRetryAfterInMilliseconds() const
 		return DEFAULT_RETRY_AFTER_IN_MILLISECONDS;
 	}
 
-	if (iterator->second.size() != 1)
+	const auto& headerValues = mResponseHeaders.getHeader(RESPONSE_KEY_RETRY_AFTER);
+	if (headerValues.size() != 1)
 	{
 		// the Retry-After response header has multiple values, but only one is expected
 		mLogger->warning("%s has unexpected number of values - using default value %" PRId64,
@@ -113,8 +103,8 @@ int64_t StatusResponse::getRetryAfterInMilliseconds() const
 		return DEFAULT_RETRY_AFTER_IN_MILLISECONDS;
 	}
 
-	auto stringValue = iterator->second.front();
-	int32_t delaySeconds;
+	auto stringValue = headerValues.front();
+	int64_t delaySeconds;
 	try
 	{
 		delaySeconds = std::stoi(stringValue);

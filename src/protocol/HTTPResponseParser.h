@@ -17,15 +17,15 @@
 #ifndef _PROTOCOL_HTTPRESPONSEPARSER_H
 #define _PROTOCOL_HTTPRESPONSEPARSER_H
 
-#include "IStatusResponse.h"
+#include "protocol/http/HttpHeaderCollection.h"
 
 #include <string>
-#include <vector>
+#include <cstdint>
 
 namespace protocol
 {
 	///
-	/// Class responsible for parsing HTTP responses.
+	/// Class responsible for parsing HTTP responses from CURL.
 	/// @remarks This class can handle both the response header data and the response body data.
 	///
 	class HTTPResponseParser
@@ -50,7 +50,7 @@ namespace protocol
 		size_t responseHeaderData(const char *buffer, size_t elementSize, size_t numberOfElements);
 
 		///
-		/// Method called when new response data is ready to be read.
+		/// Method called when new response body data is ready to be read.
 		/// @param[in] buffer The header line to parse.
 		/// @param[in] elementSize The size of one element pointed to by buffer.
 		/// @param[in] numberOfElements The number of elements in @c buffer.
@@ -59,37 +59,40 @@ namespace protocol
 		size_t responseBodyData(const char* buffer, size_t elementSize, size_t numberOfElements);
 
 		///
-		/// Get the response headers.
-		/// @return Response headers parsed so far.
+		/// Get HTTP response status code or @c -1 if parsing failed.
 		///
-		const IStatusResponse::ResponseHeaders& getResponseHeaders() const;
+		int32_t getResponseStatus() const;
+
+		///
+		/// Get HTTP response reason phrase or empty string if parsing failed or server did not send it.
+		///
+		const std::string& getReasonPhrase() const;
+
+		///
+		/// Get the response headers.
+		///
+		const HttpHeaderCollection& getResponseHeaders() const;
 
 		///
 		/// Get the response body.
-		/// @return Response body received so far.
 		///
 		const std::string& getResponseBody() const;
 
 	private:
 
 		///
-		/// Gives a boolean indicating whether given character is a whitespace as defined in RFC 7230 section 3.2.2 Whitespace.
-		/// @remarks Since HTTP defines only SP (space) and HTAB as optional whitespace, plus
-		///          CR (carriage return) and LF (line feed) as line delimiters, only those
-		///          four characters are considered as whitespace.
-		/// @param[in] c The character to check if it is a whitespace character or not.
-		/// @return @c true If given character @c is a whitespace character, @c false otherwise.
+		/// Method for resetting the data.
 		///
-		static bool isWhitespace(char c);
+		void reset();
 
-		///
-		/// Strip leading and trailing whitespace characters from the string.
-		/// @param[in,out] The string to strip.
-		///
-		static void stripWhitespaces(std::string& str);
+		/// HTTP response status code
+		int32_t mResponseStatus;
+
+		/// optional HTTP response reason phrase
+		std::string mReasonPhrase;
 
 		/// Response headers
-		IStatusResponse::ResponseHeaders mResponseHeaders;
+		HttpHeaderCollection mResponseHeaders;
 
 		/// Response body
 		std::string mResponseBody;

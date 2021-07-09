@@ -18,6 +18,8 @@
 #define _CORE_CONFIGURATION_IHTTPCLIENTCONFIGURATION_H
 
 #include "OpenKit/ISSLTrustManager.h"
+#include "OpenKit/IHttpRequestInterceptor.h"
+#include "OpenKit/IHttpResponseInterceptor.h"
 #include "core/UTF8String.h"
 
 #include <cstdint>
@@ -52,6 +54,18 @@ namespace core
 			/// Returns the trust manager which defines how trust in SSL shall be handled.
 			///
 			virtual std::shared_ptr<openkit::ISSLTrustManager> getSSLTrustManager() const = 0;
+
+			///
+			/// Returns the openkit::IHttpRequestInterceptor used to intercept HTTP requests, before they are sent 
+			/// to the Dynatrace backend.
+			///
+			virtual std::shared_ptr<openkit::IHttpRequestInterceptor> getHttpRequestInterceptor() const = 0;
+
+			///
+			/// Returns the openkit::IHttpResponseInterceptor used to intercept HTTP responses received 
+			/// from Dynatrace backend.
+			///
+			virtual std::shared_ptr<openkit::IHttpResponseInterceptor> getHttpResponseInterceptor() const = 0;
 		};
 	}
 }

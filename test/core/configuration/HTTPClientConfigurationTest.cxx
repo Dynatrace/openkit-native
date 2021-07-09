@@ -17,6 +17,8 @@
 #include "mock/MockIHTTPClientConfiguration.h"
 #include "mock/MockIOpenKitConfiguration.h"
 #include "../../api/mock/MockISslTrustManager.h"
+#include "../../api/mock/MockIHttpRequestInterceptor.h"
+#include "../../api/mock/MockIHttpResponseInterceptor.h"
 
 #include "core/UTF8String.h"
 #include "core/configuration/HTTPClientConfiguration.h"
@@ -121,6 +123,48 @@ TEST_F(HTTPClientConfigurationTest, instanceFromOpenKitConifigTakesOverDefaultSe
 	ASSERT_THAT(obtained, testing::Eq(defaultServerId));
 }
 
+TEST_F(HTTPClientConfigurationTest, instanceFromOpenKitConfigTakesOverHttpRequestInterceptor)
+{
+	// with
+	auto httpRequestInterceptor = MockIHttpRequestInterceptor::createNice();
+	auto openKitConfig = MockIOpenKitConfiguration::createNice();
+	
+	// expect
+	EXPECT_CALL(*openKitConfig, getHttpRequestInterceptor())
+		.Times(1)
+		.WillOnce(testing::Return(httpRequestInterceptor));
+
+	// given
+	auto target = HTTPClientConfiguration_t::Builder(openKitConfig).build();
+
+	// when
+	auto obtained = target->getHttpRequestInterceptor();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(httpRequestInterceptor));
+}
+
+TEST_F(HTTPClientConfigurationTest, instanceFromOpenKitConfigTakesOverHttpResponseInterceptor)
+{
+	// with
+	auto httpResponseInterceptor = MockIHttpResponseInterceptor::createNice();
+	auto openKitConfig = MockIOpenKitConfiguration::createNice();
+
+	// expect
+	EXPECT_CALL(*openKitConfig, getHttpResponseInterceptor())
+		.Times(1)
+		.WillOnce(testing::Return(httpResponseInterceptor));
+
+	// given
+	auto target = HTTPClientConfiguration_t::Builder(openKitConfig).build();
+
+	// when
+	auto obtained = target->getHttpResponseInterceptor();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(httpResponseInterceptor));
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Create builder instance from HTTPClientConfiguration
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -197,6 +241,42 @@ TEST_F(HTTPClientConfigurationTest, builderFromHTTPClientConfigTakesOverServerId
 	ASSERT_THAT(target->getServerID(), testing::Eq(serverId));
 }
 
+TEST_F(HTTPClientConfigurationTest, builderFromHttpClientConfigTakesHttpRequestInterceptor)
+{
+	// with
+	auto httpRequestInterceptor = MockIHttpRequestInterceptor::createNice();
+	auto httpConfig = MockIHTTPClientConfiguration::createNice();
+
+	// expect
+	EXPECT_CALL(*httpConfig, getHttpRequestInterceptor())
+		.Times(1)
+		.WillOnce(testing::Return(httpRequestInterceptor));
+	
+	// given, when
+	auto target = HTTPClientConfiguration_t::Builder(httpConfig).build();
+
+	// then
+	ASSERT_THAT(target->getHttpRequestInterceptor(), testing::Eq(httpRequestInterceptor));
+}
+
+TEST_F(HTTPClientConfigurationTest, builderFromHttpClientConfigTakesHttpResponseInterceptor)
+{
+	// with
+	auto httpResponseInterceptor = MockIHttpResponseInterceptor::createNice();
+	auto httpConfig = MockIHTTPClientConfiguration::createNice();
+
+	// expect
+	EXPECT_CALL(*httpConfig, getHttpResponseInterceptor())
+		.Times(1)
+		.WillOnce(testing::Return(httpResponseInterceptor));
+
+	// given, when
+	auto target = HTTPClientConfiguration_t::Builder(httpConfig).build();
+
+	// then
+	ASSERT_THAT(target->getHttpResponseInterceptor(), testing::Eq(httpResponseInterceptor));
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Create instance from not initialized builder
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -266,4 +346,32 @@ TEST_F(HTTPClientConfigurationTest, builderWithServerIdPropagatesToInstance)
 
 	// then
 	ASSERT_THAT(obtained->getServerID(), testing::Eq(serverId));
+}
+
+TEST_F(HTTPClientConfigurationTest, builderWithHttpRequestInterceptorPropagatesToInstance)
+{
+	// given
+	auto httpRequestInterceptor = MockIHttpRequestInterceptor::createNice();
+	auto target = HTTPClientConfiguration_t::Builder()
+		.withHttpRequestInterceptor(httpRequestInterceptor);
+
+	// when
+	auto obtained = target.build();
+
+	// then
+	ASSERT_THAT(obtained->getHttpRequestInterceptor(), testing::Eq(httpRequestInterceptor));
+}
+
+TEST_F(HTTPClientConfigurationTest, builderWithHttpResponseInterceptorPropagatesToInstance)
+{
+	// given
+	auto httpResponseInterceptor = MockIHttpResponseInterceptor::createNice();
+	auto target = HTTPClientConfiguration_t::Builder()
+		.withHttpResponseInterceptor(httpResponseInterceptor);
+
+	// when
+	auto obtained = target.build();
+
+	// then
+	ASSERT_THAT(obtained->getHttpResponseInterceptor(), testing::Eq(httpResponseInterceptor));
 }

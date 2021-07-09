@@ -66,8 +66,6 @@ protected:
 TEST_F(BeaconSendingRequestUtilTest, sendStatusRequestIsAbortedWhenShutdownIsRequested)
 {
 	// with
-	ON_CALL(*mockStatusResponse, getResponseCode())
-		.WillByDefault(testing::Return(400));
 	ON_CALL(*mockStatusResponse, isErroneousResponse())
 		.WillByDefault(testing::Return(true));
 
@@ -94,8 +92,6 @@ TEST_F(BeaconSendingRequestUtilTest, sendStatusRequestIsAbortedWhenShutdownIsReq
 TEST_F(BeaconSendingRequestUtilTest, sendStatusRequestIsAbortedIfTheNumberOfRetriesIsExceeded)
 {
 	// with
-	ON_CALL(*mockStatusResponse, getResponseCode())
-		.WillByDefault(testing::Return(400));
 	ON_CALL(*mockStatusResponse, isErroneousResponse())
 		.WillByDefault(testing::Return(true));
 	ON_CALL(*mockContextNice, isShutdownRequested())
@@ -138,8 +134,6 @@ TEST_F(BeaconSendingRequestUtilTest, sendStatusRequestIsDoneWhenHttpClientReturn
 TEST_F(BeaconSendingRequestUtilTest, sleepTimeIsDoubledBetweenConsecutiveRetries)
 {
 	// with
-	ON_CALL(*mockStatusResponse, getResponseCode())
-		.WillByDefault(testing::Return(400));
 	ON_CALL(*mockStatusResponse, isErroneousResponse())
 		.WillByDefault(testing::Return(true));
 	ON_CALL(*mockContextNice, isShutdownRequested())
@@ -193,10 +187,8 @@ TEST_F(BeaconSendingRequestUtilTest, sendStatusRequestHandlesNullResponsesSameAs
 TEST_F(BeaconSendingRequestUtilTest, sendStatusRequestReturnsTooManyRequestsResponseImmediately)
 {
 	// with
-	ON_CALL(*mockStatusResponse, getResponseCode())
-		.WillByDefault(testing::Return(429));
 	ON_CALL(*mockStatusResponse, isTooManyRequestsResponse())
-			.WillByDefault(testing::Return(true));
+		.WillByDefault(testing::Return(true));
 	ON_CALL(*mockStatusResponse, isErroneousResponse())
 		.WillByDefault(testing::Return(true));
 	ON_CALL(*mockContextNice, isShutdownRequested())
