@@ -85,3 +85,13 @@ void NullRootAction::leaveAction()
 {
 	// intentionally left empty, due to NullObject pattern
 }
+
+void NullRootAction::cancelAction()
+{
+	// intentionally left empty, due to NullObject pattern
+}
+
+std::chrono::milliseconds NullRootAction::getDuration()
+{
+	return std::chrono::milliseconds(0);
+}

@@ -28,6 +28,7 @@
 #include "core/objects/IActionCommon.h"
 #include "core/objects/NullWebRequestTracer.h"
 #include "core/objects/OpenKitComposite.h"
+#include "core/objects/ICancelableOpenKitObject.h"
 
 #include <atomic>
 #include <memory>
@@ -48,6 +49,7 @@ namespace core
 		///
 		class ActionCommonImpl
 			: public OpenKitComposite
+			, public ICancelableOpenKitObject
 			, public IActionCommon
 			, public std::enable_shared_from_this<ActionCommonImpl>
 		{
@@ -121,9 +123,18 @@ namespace core
 
 			void close() override;
 
+			void cancel() override;
+
+			bool cancelAction() override;
+
+			std::chrono::milliseconds getDuration() override;
+
 			const std::string toString() const override;
 
 		private:
+
+			bool doLeaveAction(bool discardData);
+
 			using Mutex_t = std::mutex;
 
 			/// logger instance

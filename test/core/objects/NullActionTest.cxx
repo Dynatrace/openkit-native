@@ -188,14 +188,41 @@ TEST_F(NullActionTest, traceWebRequestReturnsNullWebRequestTracer)
 	ASSERT_THAT(nullTracer, testing::Eq(NullWebRequestTracer_t::instance()));
 }
 
-TEST_F(NullActionTest, leaveActionWithNullParent)
+TEST_F(NullActionTest, leaveActionReturnsParentAction)
 {
 	// given
-	NullAction_t target(nullptr);
+	auto parentActionMock = MockIRootAction::createStrict();
+
+	NullAction_t target(parentActionMock);
 
 	// when
 	auto obtained = target.leaveAction();
 
 	// then
-	ASSERT_THAT(obtained, testing::IsNull());
+	ASSERT_THAT(obtained, testing::Eq(parentActionMock));
+}
+
+TEST_F(NullActionTest, cancelActionReturnsParentAction)
+{
+	// given
+	auto parentActionMock = MockIRootAction::createStrict();
+	NullAction_t target(parentActionMock);
+
+	// when
+	auto obtained = target.cancelAction();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(parentActionMock));
+}
+
+TEST_F(NullActionTest, getDurationReturnsZeroMilliseconds)
+{
+	// given
+	NullAction_t target(nullptr);
+
+	// when
+	auto obtained = target.getDuration();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(std::chrono::milliseconds(0)));
 }

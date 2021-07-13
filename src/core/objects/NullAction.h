@@ -101,6 +101,18 @@ namespace core
 				return mParentAction;
 			}
 
+			std::shared_ptr<openkit::IRootAction> cancelAction() override
+			{
+				return mParentAction;
+			}
+
+			std::chrono::milliseconds getDuration() override
+			{
+				return std::chrono::milliseconds(0);
+			}
+
+		private:
+
 			std::shared_ptr<openkit::IRootAction> mParentAction;
 		};
 	}

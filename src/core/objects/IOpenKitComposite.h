@@ -27,7 +27,6 @@ namespace core
 	namespace objects
 	{
 		class IOpenKitComposite
-			: public IOpenKitObject
 		{
 		public:
 
@@ -36,7 +35,7 @@ namespace core
 			///
 			/// Destructor
 			///
-			~IOpenKitComposite() override = default;
+			virtual ~IOpenKitComposite() = default;
 
 			///
 			/// Adds a child object to the list of children.

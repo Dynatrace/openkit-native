@@ -37,7 +37,6 @@
 #include "../core/configuration/mock/MockIPrivacyConfiguration.h"
 #include "../core/configuration/mock/MockIServerConfiguration.h"
 #include "../core/objects/mock/MockIActionCommon.h"
-#include "../core/objects/mock/MockIOpenKitComposite.h"
 #include "../core/objects/mock/MockSessionInternals.h"
 #include "../core/objects/mock/MockIWebRequestTracerInternals.h"
 #include "../protocol/mock/MockIAdditionalQueryParameters.h"
@@ -62,7 +61,6 @@ using DataCollectionLevel_t = openkit::DataCollectionLevel;
 using EventType_t = protocol::EventType;
 using MockIBeaconConfiguration_sp = std::shared_ptr<MockIBeaconConfiguration>;
 using MockILogger_sp = std::shared_ptr<MockILogger>;
-using MockIOpenKitComposite_sp = std::shared_ptr<MockIOpenKitComposite>;
 using MockIOpenKitConfiguration_sp = std::shared_ptr<MockIOpenKitConfiguration>;
 using MockIPrivacyConfiguration_sp = std::shared_ptr<MockIPrivacyConfiguration>;
 using MockIPRNGenerator_sp = std::shared_ptr<MockIPRNGenerator>;
@@ -104,7 +102,6 @@ protected:
 	MockISessionIDProvider_sp mockSessionIDProvider;
 	MockIThreadIDProvider_sp mockThreadIdProvider;
 	MockITimingProvider_sp mockTimingProvider;
-	MockIOpenKitComposite_sp mockParent;
 
 	MockILogger_sp mockLogger;
 	MockIBeaconCache_sp mockBeaconCache;
@@ -163,8 +160,6 @@ protected:
 
 		mockLogger = MockILogger::createNice();
 		mockBeaconCache = MockIBeaconCache::createStrict();
-
-		mockParent = MockIOpenKitComposite::createNice();
 	}
 
 	BeaconBuilder_sp createBeacon()

@@ -24,6 +24,7 @@
 #include "core/objects/NullAction.h"
 #include "core/UTF8String.h"
 
+#include <chrono>
 #include <memory>
 
 namespace core
@@ -131,8 +132,19 @@ namespace core
 			///
 			/// Leaves this action.
 			///
-			/// @returns @c true if this action was not yet left/closed, @c otherwise.
+			/// @returns @c true if this action was not yet left/closed/canceled, @c false otherwise.
 			virtual bool leaveAction() = 0;
+
+			///
+			/// Cancels this action.
+			///
+			/// @returns @c true if this action was not yet left/closed/canceled, @c false otherwise.
+			virtual bool cancelAction() = 0;
+
+			///
+			/// Gets the duration of this action.
+			///
+			virtual std::chrono::milliseconds getDuration() = 0;
 
 			///
 			/// Indicates if this action was already closed/left.

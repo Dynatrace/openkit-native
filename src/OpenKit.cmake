@@ -165,6 +165,7 @@ set(OPENKIT_SOURCES_CORE_OBJECTS
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/ActionCommonImpl.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/ActionCommonImpl.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/IActionCommon.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/ICancelableOpenKitObject.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/IOpenKitComposite.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/IOpenKitInitializer.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/IOpenKitObject.h

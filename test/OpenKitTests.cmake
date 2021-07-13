@@ -66,6 +66,7 @@ set(OPENKIT_SOURCES_TEST_CORE_OBJECTS
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/builder/TestOpenKitBuilder.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/builder/TestSessionBuilder.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockIActionCommon.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockICancelableOpenKitObject.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockIOpenKitComposite.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockIOpenKitInitializer.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockIOpenKitObject.h

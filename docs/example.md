@@ -433,6 +433,36 @@ leaveRootAction(parentAction);
 parentAction = NULL;
 ```
 
+## Cancelling Actions
+
+Cancelling an `IAction` or `IRootAction` is similar to leaving an `IAction` or `IRootAction`,
+except that the `IAction` or `IRootAction` will be discarded and not reported to Dynatrace.
+Open child objects, like child actions and web request tracers, will be
+discarded as well.
+To cancel an `IAction` or `IRootAction` simply use the method `cancelAction` as shown in the example below.
+
+```c++
+std::shared_ptr<IRootAction> parentAction = action->cancelAction(); // returns the appropriate IRootAction
+action = nullptr; // decrease reference count and let shared ptr clean up
+
+parentAction->cancelAction();
+parentAction = nullptr; // decrease reference count and let shared ptr clean up
+```
+
+## Obtaining an Action duration
+
+To get the `IAction` or `IRootAction` duration use the method `getDuration`.
+The method returns the difference  between the end time and start time, 
+if the `IAction` or `IRootAction` is left or canceled.  
+If the `IAction` or `IRootAction` is still ongoing, the duration is the
+difference between the current time and start time.
+
+```c++
+std::chrono::milliseconds duration = action->getDuration(); // gives current time - action start time
+action->leaveAction();
+duration = action->getDuration(); // gives action end time - action start time
+```
+
 ## Report Named Event
 
 To report a named event use the `reportEvent` method on `IAction`.

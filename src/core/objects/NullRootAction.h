@@ -70,6 +70,10 @@ namespace core
 			std::shared_ptr<openkit::IWebRequestTracer> traceWebRequest(const char* /*url*/) override;
 
 			void leaveAction() override;
+
+			void cancelAction() override;
+
+			std::chrono::milliseconds getDuration() override;
 		};
 	}
 }

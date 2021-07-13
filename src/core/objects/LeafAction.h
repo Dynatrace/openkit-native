@@ -103,6 +103,10 @@ namespace core
 
 			std::shared_ptr<openkit::IRootAction> leaveAction() override;
 
+			std::shared_ptr<openkit::IRootAction> cancelAction() override;
+
+			std::chrono::milliseconds getDuration() override;
+
 			///
 			/// Returns the actual action implementation.
 			///

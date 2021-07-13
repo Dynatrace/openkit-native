@@ -182,3 +182,15 @@ TEST_F(NullRootActionTest, traceWebRequestReturnsNullWebRequestTracer)
 	ASSERT_THAT(nullRootAction, testing::NotNull());
 	ASSERT_THAT(nullRootAction, testing::Eq(NullWebRequestTracer_t::instance()));
 }
+
+TEST_F(NullRootActionTest, getDurationReturnsZeroMilliseconds)
+{
+	// given
+	auto target = NullRootAction_t::instance();
+
+	// when
+	auto obtained = target->getDuration();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(std::chrono::milliseconds(0)));
+}

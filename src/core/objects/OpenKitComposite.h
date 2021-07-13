@@ -96,8 +96,6 @@ namespace core
 			///
 			int32_t getActionId() const override;
 
-			void close() override = 0;
-
 		private: // members
 
 			///

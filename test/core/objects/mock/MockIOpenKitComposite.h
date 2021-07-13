@@ -75,8 +75,6 @@ class MockIOpenKitComposite : public core::objects::IOpenKitComposite
 		);
 
 		MOCK_METHOD(int32_t, getActionId, (), (const, override));
-
-		MOCK_METHOD(void, close, (), (override));
 	};
 }
 

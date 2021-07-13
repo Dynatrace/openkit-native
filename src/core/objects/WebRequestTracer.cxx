@@ -162,6 +162,11 @@ void WebRequestTracer::stop(int32_t responseCode)
 		mLogger->debug("%s - stop(rc=%d)", toString().c_str(), responseCode);
 	}
 
+	doStop(responseCode, false);
+}
+
+void WebRequestTracer::doStop(int32_t responseCode, bool discardData)
+{
 	// synchronized scope
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
@@ -175,8 +180,11 @@ void WebRequestTracer::stop(int32_t responseCode)
 		mEndTime = mBeacon->getCurrentTimestamp();
 	}
 
-	//add web request to beacon
-	mBeacon->addWebRequest(mParentActionID, shared_from_this());
+	if (!discardData)
+	{
+		//add web request to beacon
+		mBeacon->addWebRequest(mParentActionID, shared_from_this());
+	}
 
 	// detach from parent
 	mParent->onChildClosed(shared_from_this());
@@ -185,6 +193,16 @@ void WebRequestTracer::stop(int32_t responseCode)
 void WebRequestTracer::close()
 {
 	stop(mResponseCode);
+}
+
+void WebRequestTracer::cancel()
+{
+	if (mLogger->isDebugEnabled())
+	{
+		mLogger->debug("%s - cancel()", toString().c_str());
+	}
+
+	doStop(mResponseCode, true);
 }
 
 const core::UTF8String& WebRequestTracer::getURL() const
@@ -230,11 +248,6 @@ int32_t WebRequestTracer::getBytesReceived() const
 bool WebRequestTracer::isStopped() const
 {
 	return mEndTime != -1;
-}
-
-std::shared_ptr<IOpenKitComposite> WebRequestTracer::getParent() const
-{
-	return mParent;
 }
 
 const std::string WebRequestTracer::toString() const

@@ -93,6 +93,10 @@ namespace test
 		);
 
 		MOCK_METHOD(void, leaveAction, (), (override));
+
+		MOCK_METHOD(void, cancelAction, (), (override));
+
+		MOCK_METHOD(std::chrono::milliseconds, getDuration, (), (override));
 	};
 }
 

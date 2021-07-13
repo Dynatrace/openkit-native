@@ -36,7 +36,8 @@ namespace core
 	namespace objects
 	{
 		class SessionInternals
-			: public core::objects::OpenKitComposite
+			: public OpenKitComposite
+			, public IOpenKitObject
 			, public openkit::ISession
 		{
 		public:

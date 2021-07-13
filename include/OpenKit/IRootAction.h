@@ -19,6 +19,7 @@
 
 #include "OpenKitExports.h"
 
+#include <chrono>
 #include <cstdint>
 #include <memory>
 
@@ -142,9 +143,31 @@ namespace openkit
 		virtual std::shared_ptr<IWebRequestTracer> traceWebRequest(const char* url) = 0;
 
 		///
-		/// Leaves this Action.
+		/// Leaves this IRootAction.
 		///
 		virtual void leaveAction() = 0;
+
+		///
+		/// Cancels this IRootAction.
+		///
+		/// @par
+		/// Canceling an IRootAction is similar to IRootAction::leaveAction(), except
+		/// that the data and all unfinished child objects are discarded
+		/// instead of being sent.
+		///
+		virtual void cancelAction() = 0;
+
+		///
+		/// Get the duration of this IRootAction.
+		///
+		/// @par
+		/// The duration of an IRootAction is equal to current timestamp - start timestamp
+		/// if the root action is still open, or end timestamp - start timestamp, if 
+		/// IRootAction::leaveAction() or IRootAction::cancelAction() was already called.
+		///
+		/// @return The duration of this IRootAction in milliseconds
+		///
+		virtual std::chrono::milliseconds getDuration() = 0;
 	};
 }
 #endif

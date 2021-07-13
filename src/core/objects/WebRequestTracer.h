@@ -103,6 +103,8 @@ namespace core
 
 			void close() override;
 
+			void cancel() override;
+
 			///
 			/// Returns the target URL of the web request
 			/// @returns target URL of the web request
@@ -157,12 +159,15 @@ namespace core
 			///
 			bool isStopped() const override;
 
-			///
-			/// Returns the parent object of this web request tracer.
-			///
-			std::shared_ptr<IOpenKitComposite> getParent() const override;
-
 		private:
+
+			///
+			/// Stops the web request tracer.
+			///
+			/// @param responseCode HTTP response code to set
+			/// @param discardData If @c true discard data and don't send it, if @c false send data.
+			///
+			void doStop(int32_t responseCode, bool discardData);
 
 			///
 			/// Returns a string describing the object, based on some important fields.

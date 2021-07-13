@@ -99,6 +99,16 @@ void RootAction::leaveAction()
 	mActionImpl->leaveAction();
 }
 
+void RootAction::cancelAction()
+{
+	mActionImpl->cancelAction();
+}
+
+std::chrono::milliseconds RootAction::getDuration()
+{
+	return mActionImpl->getDuration();
+}
+
 std::shared_ptr<IActionCommon> RootAction::getActionImpl()
 {
 	return mActionImpl;

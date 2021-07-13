@@ -19,8 +19,7 @@
 
 #include "OpenKit/IWebRequestTracer.h"
 #include "core/UTF8String.h"
-#include "core/objects/IOpenKitComposite.h"
-#include "core/objects/IOpenKitObject.h"
+#include "ICancelableOpenKitObject.h"
 
 namespace core
 {
@@ -28,7 +27,7 @@ namespace core
 	{
 		class IWebRequestTracerInternals
 			: public openkit::IWebRequestTracer
-			, public core::objects::IOpenKitObject
+			, public ICancelableOpenKitObject
 		{
 		public:
 
@@ -57,6 +56,8 @@ namespace core
 			void stop(int32_t responseCode) override = 0;
 
 			void close() override = 0;
+
+			void cancel() override = 0;
 
 			///
 			/// Returns the target URL of the web request
@@ -111,11 +112,6 @@ namespace core
 			/// @returns @c true if the web request tracer has been stopped already, @c false otherwise
 			///
 			virtual bool isStopped() const = 0;
-
-			///
-			/// Returns the parent object of this web request tracer.
-			///
-			virtual std::shared_ptr<IOpenKitComposite> getParent() const = 0;
 		};
 	}
 }

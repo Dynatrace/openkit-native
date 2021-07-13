@@ -39,8 +39,6 @@ namespace test {
 			ON_CALL(*this, getTag()).WillByDefault(testing::Return(DefaultValues::EMPTY_CHAR_STRING));
 			ON_CALL(*this, getURL()).WillByDefault(testing::ReturnRef(DefaultValues::UTF8_EMPTY_STRING));
 
-			ON_CALL(*this, getParent()).WillByDefault(testing::Return(nullptr));
-
 			ON_CALL(*this, setResponseCode(testing::_)).WillByDefault(testing::Return(nullptr));
 			ON_CALL(*this, setBytesSent(testing::_)).WillByDefault(testing::Return(nullptr));
 			ON_CALL(*this, setBytesReceived(testing::_)).WillByDefault(testing::Return(nullptr));
@@ -96,6 +94,8 @@ namespace test {
 
 		MOCK_METHOD(void, close, (), (override));
 
+		MOCK_METHOD(void, cancel, (), (override));
+
 		MOCK_METHOD(const core::UTF8String&, getURL, (), (const, override));
 
 		MOCK_METHOD(int32_t, getResponseCode, (), (const, override));
@@ -113,8 +113,6 @@ namespace test {
 		MOCK_METHOD(int32_t, getBytesReceived, (), (const, override));
 
 		MOCK_METHOD(bool, isStopped, (), (const, override));
-
-		MOCK_METHOD(std::shared_ptr<core::objects::IOpenKitComposite>, getParent, (), (const, override));
 	};
 }
 #endif

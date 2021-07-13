@@ -413,10 +413,6 @@ TEST_F(WebRequestTracerTest, stopWithResponseCodeNotifiesParentAndDetachesFromPa
 
 	// when
 	target->stop(200);
-
-	// then
-	ASSERT_THAT(target->getParent(), testing::NotNull());
-
 }
 
 TEST_F(WebRequestTracerTest, stopNotifiesParentAndDetachesFromParent)
@@ -439,10 +435,6 @@ TEST_F(WebRequestTracerTest, stopNotifiesParentAndDetachesFromParent)
 
 	// when
 	target->stop();
-
-	// then
-	ASSERT_THAT(target->getParent(), testing::NotNull());
-
 }
 
 TEST_F(WebRequestTracerTest, stopUsesSetResponseCode)
@@ -483,20 +475,56 @@ TEST_F(WebRequestTracerTest, closingAWebRequestStopsIt)
 
 	// then
 	ASSERT_THAT(target->getEndSequenceNo(), testing::Eq(sequenceNumber));
-
 }
 
-TEST_F(WebRequestTracerTest, aNewlyCreatedWebRequestTracerDoesNotAttachToTheParent)
+TEST_F(WebRequestTracerTest, cancelingAWebRequestLogsInvocation)
 {
-	// expect
-	EXPECT_CALL(*mockParentNice, getActionId())
-		.Times(testing::Exactly(2));
+	// with
+	const int32_t sequenceNumber = 42;
+	auto mockBeacon = MockIBeacon::createNice();
 
-	// given, when
-	auto target = createTracer()->build();
+	// expect
+	EXPECT_CALL(*mockBeacon, createSequenceNumber())
+		.Times(2)
+		.WillRepeatedly(testing::Return(sequenceNumber));
+	EXPECT_CALL(*mockBeacon, addWebRequest(0, testing::_))
+		.Times(0);
+	EXPECT_CALL(*mockLogger, isDebugEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(true));
+	EXPECT_CALL(*mockLogger, mockDebug(testing::EndsWith(std::string("- cancel()"))))
+		.Times(1);
+
+
+	// given
+	auto target = createTracer()
+		->with(mockBeacon)
+		.build();
+
+	// when
+	target->cancel();
+}
+
+TEST_F(WebRequestTracerTest, cancelingAWebRequestStopsItWithoutReportingIt)
+{
+	const int32_t sequenceNumber = 42;
+	auto mockBeacon = MockIBeacon::createNice();
+
+	// expect
+	EXPECT_CALL(*mockBeacon, createSequenceNumber())
+		.Times(2)
+		.WillRepeatedly(testing::Return(sequenceNumber));
+	EXPECT_CALL(*mockBeacon, addWebRequest(0, testing::_))
+		.Times(0);
+
+	// given
+	auto target = createTracer()
+		->with(mockBeacon)
+		.build();
+
+	// when
+	target->cancel();
 
 	// then
-	auto obtained = target->getParent();
-	ASSERT_THAT(mockParentNice, testing::Eq(obtained));
-
+	ASSERT_THAT(target->getEndSequenceNo(), testing::Eq(42));
 }

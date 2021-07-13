@@ -49,6 +49,7 @@ namespace core
 		class SessionProxy
 			: public core::objects::ISessionProxy
 			, public OpenKitComposite
+			, public IOpenKitObject
 			, public std::enable_shared_from_this<SessionProxy>
 		{
 		public:

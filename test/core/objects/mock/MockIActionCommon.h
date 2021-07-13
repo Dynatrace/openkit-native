@@ -141,6 +141,10 @@ namespace test
 
 		MOCK_METHOD(bool, isActionLeft, (), (const, override));
 
+		MOCK_METHOD(bool, cancelAction, (), (override));
+
+		MOCK_METHOD(std::chrono::milliseconds, getDuration, (), (override));
+
 		MOCK_METHOD(int32_t, getID, (), (const, override));
 
 		MOCK_METHOD(int32_t, getParentID, (), (const, override));

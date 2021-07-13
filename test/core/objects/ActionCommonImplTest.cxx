@@ -16,6 +16,7 @@
 
 #include "mock/MockIOpenKitComposite.h"
 #include "mock/MockIOpenKitObject.h"
+#include "mock/MockICancelableOpenKitObject.h"
 #include "../../api/mock/MockILogger.h"
 #include "../../api/mock/MockIRootAction.h"
 #include "../../protocol/mock/MockIBeacon.h"
@@ -1473,4 +1474,237 @@ TEST_F(ActionCommonImplTest, getActionIdReturnsIdInitializedInConstructor)
 	// then
 	ASSERT_THAT(target->getID(), testing::Eq(id));
 	ASSERT_THAT(target->getActionId(), testing::Eq(id));
+}
+
+TEST_F(ActionCommonImplTest, afterCancelingAnActionItIsLeft)
+{
+	// given
+	auto target = createAction();
+
+	// when
+	target->cancelAction();
+
+	// then
+	ASSERT_THAT(target->isActionLeft(), testing::Eq(true));
+}
+
+TEST_F(ActionCommonImplTest, cancelingAnActionSetsTheEndTime)
+{
+	// expect
+	EXPECT_CALL(*mockNiceBeacon, getCurrentTimestamp())
+		.Times(2)
+		.WillOnce(testing::Return(1234L))
+		.WillOnce(testing::Return(5678L))
+		.WillRepeatedly(testing::Return(9012L));
+
+	// given
+	auto target = createAction();
+
+	// when
+	target->cancelAction();
+
+	// then
+	ASSERT_THAT(target->getEndTime(), testing::Eq(5678L));
+}
+
+
+TEST_F(ActionCommonImplTest, cancelingAnActionSetsTheEndSequenceNumber)
+{
+	// expect
+	EXPECT_CALL(*mockNiceBeacon, createSequenceNumber())
+		.Times(2)
+		.WillOnce(testing::Return(1))
+		.WillOnce(testing::Return(10))
+		.WillRepeatedly(testing::Return(20));
+
+	// given
+	auto target = createAction();
+
+	// when
+	target->cancelAction();
+
+	// then
+	ASSERT_THAT(target->getEndSequenceNumber(), testing::Eq(10));
+}
+
+TEST_F(ActionCommonImplTest, cancelingAnActionDoesNotSerializeItself)
+{
+	// expect
+	EXPECT_CALL(*mockNiceBeacon, addAction(testing::_))
+		.Times(0);
+
+	// given
+	auto target = createAction();
+
+	// when
+	target->cancelAction();
+}
+
+TEST_F(ActionCommonImplTest, cancelingAnActionCancelsAllChildObjects)
+{
+	// with
+	auto childObjectOne = MockICancelableOpenKitObject::createStrict();
+	auto childObjectTwo = MockICancelableOpenKitObject::createStrict();
+
+	// expect
+	EXPECT_CALL(*childObjectOne, cancel())
+		.Times(1);
+	EXPECT_CALL(*childObjectTwo, cancel())
+		.Times(1);
+
+	// given
+	auto target = createAction();
+
+	target->storeChildInList(childObjectOne);
+	target->storeChildInList(childObjectTwo);
+
+	// when
+	target->cancelAction();
+}
+
+TEST_F(ActionCommonImplTest, cancelingAnActionClosesAllChildObjectsThatAreNotCancelable)
+{
+	// with
+	auto childObjectOne = MockIOpenKitObject::createStrict();
+	auto childObjectTwo = MockIOpenKitObject::createStrict();
+
+	// expect
+	EXPECT_CALL(*mockNiceLogger, mockWarning("child object is not cancelable - falling back to close()"))
+		.Times(2);
+	EXPECT_CALL(*childObjectOne, close())
+		.Times(1);
+	EXPECT_CALL(*childObjectTwo, close())
+		.Times(1);
+
+	// given
+	auto target = createAction();
+
+	target->storeChildInList(childObjectOne);
+	target->storeChildInList(childObjectTwo);
+
+	// when
+	target->cancelAction();
+}
+
+TEST_F(ActionCommonImplTest, cancelingAnActionNotifiesTheParentCompositeObject)
+{
+	// expect
+	EXPECT_CALL(*mockParent, onChildClosed(testing::_))
+		.Times(1);
+
+	// given
+	auto target = createAction();
+
+	// when
+	target->cancelAction();
+}
+
+TEST_F(ActionCommonImplTest, cancelingAnActionReturnsTrueIfActionWasStillOpen)
+{
+	// given
+	auto target = createAction();
+
+	// when
+	auto obtained = target->cancelAction();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(true));
+}
+
+TEST_F(ActionCommonImplTest, cancelingAnActionReturnsFalseIfActionWasCanceledBefore)
+{
+	// given
+	auto target = createAction();
+	target->cancelAction();
+
+	// when
+	auto obtained = target->cancelAction();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(false));
+}
+
+
+TEST_F(ActionCommonImplTest, cancelingAnActionReturnsFalseIfActionWasLeftBefore)
+{
+	// given
+	auto target = createAction();
+	target->leaveAction();
+
+	// when
+	auto obtained = target->cancelAction();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(false));
+}
+
+TEST_F(ActionCommonImplTest, cancelingAnAlreadyCancelledActionReturnsImmediately)
+{
+	// expect
+	EXPECT_CALL(*mockParent, onChildClosed(testing::_))
+		.Times(1);
+
+	// given
+	auto target = createAction();
+
+	// when
+	target->cancelAction();
+	target->cancelAction();
+}
+
+TEST_F(ActionCommonImplTest, cancelingActionLogsInvocation)
+{
+	// with
+	auto target = createAction();
+
+	std::stringstream stream;
+	stream << target->toString() << " cancelAction(" << ACTION_NAME.getStringData() << ")";
+
+	// expect
+	EXPECT_CALL(*mockNiceLogger, mockDebug(stream.str()))
+		.Times(1);
+	EXPECT_CALL(*mockNiceLogger, isDebugEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(true));
+
+	// when
+	target->cancelAction();
+}
+
+TEST_F(ActionCommonImplTest, getDurationGivesDurationSinceStartIfActionIsNotLeft)
+{
+	// expect
+	EXPECT_CALL(*mockNiceBeacon, getCurrentTimestamp())
+		.Times(2)
+		.WillOnce(testing::Return(12L))
+		.WillOnce(testing::Return(42L));
+
+	// given
+	auto target = createAction();
+
+	// when
+	auto obtained = target->getDuration();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(std::chrono::milliseconds(30)));
+}
+
+TEST_F(ActionCommonImplTest, getDurationInMillisecondsGivesDurationBetweenEndAndStartTimeIfActionIsLeft)
+{
+	// expect
+	EXPECT_CALL(*mockNiceBeacon, getCurrentTimestamp())
+		.Times(2)
+		.WillOnce(testing::Return(12L))
+		.WillOnce(testing::Return(42L))
+		.WillRepeatedly(testing::Return(62));
+
+	// given
+	auto target = createAction();
+	target->leaveAction();
+
+	// when
+	auto obtained = target->getDuration();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(std::chrono::milliseconds(30)));
 }

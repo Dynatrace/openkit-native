@@ -337,6 +337,32 @@ bool ActionCommonImpl::leaveAction()
 		mLogger->debug("%s leaveAction(%s)", toString().c_str(), mName.getStringData().c_str());
 	}
 
+	return doLeaveAction(false);
+}
+
+bool ActionCommonImpl::cancelAction()
+{
+	if (mLogger->isDebugEnabled())
+	{
+		mLogger->debug("%s cancelAction(%s)", toString().c_str(), mName.getStringData().c_str());
+	}
+
+	return doLeaveAction(true);
+}
+
+std::chrono::milliseconds ActionCommonImpl::getDuration()
+{
+	std::lock_guard<Mutex_t> lock(mMutex);
+
+	auto durationInMilliSeconds = isActionLeft()
+		? getEndTime() - getStartTime()
+		: mBeacon->getCurrentTimestamp() - getStartTime();
+
+	return std::chrono::milliseconds(durationInMilliSeconds);
+}
+
+bool ActionCommonImpl::doLeaveAction(bool discardData)
+{
 	// synchronized scope
 	{
 		std::lock_guard<Mutex_t> lock(mMutex);
@@ -355,7 +381,23 @@ bool ActionCommonImpl::leaveAction()
 	auto childObjects = getCopyOfChildObjects();
 	for (auto childObject : childObjects)
 	{
-		childObject->close();
+		if (discardData)
+		{
+			auto cancelableObject = std::dynamic_pointer_cast<ICancelableOpenKitObject>(childObject);
+			if (cancelableObject != nullptr)
+			{
+				cancelableObject->cancel();
+			}
+			else
+			{
+				mLogger->warning("child object is not cancelable - falling back to close()");
+				childObject->close();
+			}
+		}
+		else
+		{
+			childObject->close();
+		}
 	}
 
 	mEndTime = mBeacon->getCurrentTimestamp();
@@ -363,8 +405,11 @@ bool ActionCommonImpl::leaveAction()
 
 	auto thisAction = shared_from_this();
 
-	// add action to Beacon
-	mBeacon->addAction(thisAction);
+	if (!discardData)
+	{
+		// add action to Beacon
+		mBeacon->addAction(thisAction);
+	}
 
 	// detach from parent
 	mParent->onChildClosed(thisAction);
@@ -375,6 +420,11 @@ bool ActionCommonImpl::leaveAction()
 void ActionCommonImpl::close()
 {
 	leaveAction();
+}
+
+void ActionCommonImpl::cancel()
+{
+	cancelAction();
 }
 
 bool ActionCommonImpl::isActionLeft() const

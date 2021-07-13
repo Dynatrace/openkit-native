@@ -49,8 +49,9 @@ namespace core
 		///
 		class OpenKit
 			: public openkit::IOpenKit
-			, public core::objects::OpenKitComposite
-			, public core::objects::ISessionCreatorInput
+			, public OpenKitComposite
+			, public IOpenKitObject
+			, public ISessionCreatorInput
 			, public std::enable_shared_from_this<OpenKit>
 		{
 		public:

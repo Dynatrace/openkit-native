@@ -105,6 +105,10 @@ namespace core
 
 			void leaveAction() override;
 
+			void cancelAction() override;
+
+			std::chrono::milliseconds getDuration() override;
+
 			std::shared_ptr<IActionCommon> getActionImpl();
 
 		private:

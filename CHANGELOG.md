@@ -20,6 +20,9 @@
 - Support cost control configured in the Dynatrace UI.
 - Add libatomic as additional link library if required.
 - Requests to Dynatrace can be intercepted to add custom HTTP headers.
+- It is possible to get the duration from an `IAction` and `IRootAction`.
+- `IAction` and `IRootAction` can be canceled.  
+  Canceling an `IAction` or `IRootAction` is similar to leaving it, without reporting it.
 
 ### Changed
 - Fix issue in JSON parser for compilers/platforms with unsigned char.

@@ -259,3 +259,39 @@ TEST_F(LeafActionTest, leaveActionDelegatesToCommonImpl)
 	ASSERT_THAT(obtained, testing::NotNull());
 	ASSERT_THAT(obtained, testing::Eq(mockRootAction));
 }
+
+TEST_F(LeafActionTest, cancelActionDelegatesToCommonImpl)
+{
+	// expect
+	EXPECT_CALL(*mockActionImpl, cancelAction()).Times(testing::Exactly(1));
+
+	// given
+	auto target = createAction();
+
+	// when
+	auto obtained = target->cancelAction();
+
+	// then
+	ASSERT_THAT(obtained, testing::NotNull());
+	ASSERT_THAT(obtained, testing::Eq(mockRootAction));
+}
+
+TEST_F(LeafActionTest, getDurationDelegatesToCommonImpl)
+{
+	// with
+	std::chrono::milliseconds duration(1234);
+
+	// expect
+	EXPECT_CALL(*mockActionImpl, getDuration())
+		.Times(testing::Exactly(1))
+		.WillOnce(testing::Return(duration));
+
+	// given
+	auto target = createAction();
+
+	// when
+	auto obtained = target->getDuration();
+
+	// then
+	ASSERT_THAT(obtained, testing::Eq(duration));
+}

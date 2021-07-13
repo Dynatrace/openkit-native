@@ -102,6 +102,17 @@ std::shared_ptr<openkit::IRootAction> LeafAction::leaveAction()
 	return mParentAction;
 }
 
+std::shared_ptr<openkit::IRootAction> LeafAction::cancelAction()
+{
+	mActionImpl->cancelAction();
+	return mParentAction;
+}
+
+std::chrono::milliseconds LeafAction::getDuration()
+{
+	return mActionImpl->getDuration();
+}
+
 const std::shared_ptr<IActionCommon> LeafAction::getActionImpl()
 {
 	return mActionImpl;
