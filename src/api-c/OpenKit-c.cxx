@@ -794,6 +794,13 @@ extern "C" {
 		return handle;
 	}
 
+	static void releaseRootAction(RootActionHandle* rootActionHandle)
+	{
+		rootActionHandle->sharedPointer = nullptr;
+		rootActionHandle->logger = nullptr;
+		delete rootActionHandle;
+	}
+
 	void leaveRootAction(RootActionHandle* rootActionHandle)
 	{
 		// Sanity
@@ -808,10 +815,42 @@ extern "C" {
 			assert(rootActionHandle->sharedPointer != nullptr);
 			rootActionHandle->sharedPointer->leaveAction();
 
-			// release shared pointer
-			rootActionHandle->sharedPointer = nullptr;
-			rootActionHandle->logger = nullptr;
-			delete rootActionHandle;
+			// cleanup
+			releaseRootAction(rootActionHandle);
+		}
+		CATCH_AND_LOG(rootActionHandle)
+	}
+
+	void cancelRootAction(struct RootActionHandle* rootActionHandle)
+	{
+		// Sanity
+		if (rootActionHandle == nullptr)
+		{
+			return;
+		}
+
+		TRY
+		{
+			// retrieve the RootAction instance from the handle and call the respective method
+			assert(rootActionHandle->sharedPointer != nullptr);
+			rootActionHandle->sharedPointer->cancelAction();
+
+			// cleanup
+			releaseRootAction(rootActionHandle);
+		}
+		CATCH_AND_LOG(rootActionHandle)
+	}
+
+	int64_t getDurationOfRootAction(struct RootActionHandle* rootActionHandle)
+	{
+		TRY
+		{
+			if (rootActionHandle)
+			{
+				// retrieve the RootAction instance from the handle and call the respective method
+				assert(rootActionHandle->sharedPointer != nullptr);
+				return rootActionHandle->sharedPointer->getDuration().count();
+			}
 		}
 		CATCH_AND_LOG(rootActionHandle)
 	}
@@ -961,6 +1000,14 @@ extern "C" {
 		return handle;
 	}
 
+	static void releaseAction(ActionHandle* actionHandle)
+	{
+		// release shared pointer
+		actionHandle->sharedPointer = nullptr;
+		actionHandle->logger = nullptr;
+		delete actionHandle;
+	}
+
 	void leaveAction(ActionHandle* actionHandle)
 	{
 		// Sanity
@@ -975,10 +1022,42 @@ extern "C" {
 			assert(actionHandle->sharedPointer != nullptr);
 			actionHandle->sharedPointer->leaveAction();
 
-			// release shared pointer
-			actionHandle->sharedPointer = nullptr;
-			actionHandle->logger = nullptr;
-			delete actionHandle;
+			// cleanup
+			releaseAction(actionHandle);
+		}
+		CATCH_AND_LOG(actionHandle)
+	}
+
+	void cancelAction(struct ActionHandle* actionHandle)
+	{
+		// Sanity
+		if (actionHandle == nullptr)
+		{
+			return;
+		}
+
+		TRY
+		{
+			// retrieve the Action instance from the handle and call the respective method
+			assert(actionHandle->sharedPointer != nullptr);
+			actionHandle->sharedPointer->cancelAction();
+
+			// cleanup
+			releaseAction(actionHandle);
+		}
+		CATCH_AND_LOG(actionHandle)
+	}
+
+	int64_t getDurationOfAction(struct ActionHandle* actionHandle)
+	{
+		TRY
+		{
+			if (actionHandle)
+			{
+				// retrieve the Action instance from the handle and call the respective method
+				assert(actionHandle->sharedPointer != nullptr);
+				return actionHandle->sharedPointer->getDuration().count();
+			}
 		}
 		CATCH_AND_LOG(actionHandle)
 	}

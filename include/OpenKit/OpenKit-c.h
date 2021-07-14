@@ -364,6 +364,11 @@ extern "C" {
 
 	///
 	/// Enters a root action with a specified name in this session.
+	/// 
+	/// @par
+	/// Use leaveRootAction(struct RootActionHandle*) or cancelRootAction(struct RootActionHandle*)
+	/// to free allocated resources.
+	/// 
 	/// @param[in] sessionHandle the handle returned by @ref createSession
 	/// @param[in] rootActionName    name of the Action
 	/// @returns Root action instance to work with
@@ -372,9 +377,37 @@ extern "C" {
 
 	///
 	/// Leaves this root action.
+	///
+	/// @remarks After calling this method the RootActionHandle* is no longer valid.
+	///
 	/// @param[in] rootActionHandle the handle returned by @ref enterRootAction
 	///
 	OPENKIT_EXPORT void leaveRootAction(struct RootActionHandle* rootActionHandle);
+
+	///
+	/// Cancels this root action.
+	///
+	/// @remarks After calling this method the RootActionHandle* is no longer valid.
+	///
+	/// @par
+	/// Canceling a root action is similar to leaveRootAction(struct RootActionHandle*),
+	/// except that the data and all unfinished child objects are discarded
+	/// instead of being sent.
+	///
+	/// @param[in] rootActionHandle the handle returned by @ref enterRootAction
+	///
+	OPENKIT_EXPORT void cancelRootAction(struct RootActionHandle* rootActionHandle);
+
+	///
+	/// Gets the duration of this root action in milliseconds.
+	///
+	/// @par
+	/// The duration is defined as current timestamp - start timestamp.
+	///
+	/// @param[in] rootActionHandle the handle returned by @ref enterRootAction
+	/// @return The duration of this root action in milliseconds
+	///
+	OPENKIT_EXPORT int64_t getDurationOfRootAction(struct RootActionHandle* rootActionHandle);
 
 	///
 	/// Reports an event with a specified name (but without any value).
@@ -469,6 +502,11 @@ extern "C" {
 
 	///
 	/// Enters an action with a specified name in this root action.
+	///
+	/// @par
+	/// Use leaveAction(struct ActionHandle*) or cancelAction(struct ActionHandle*)
+	/// to free allocated resources.
+	///
 	/// @param[in] rootActionHandle the handle returned by @ref enterRootAction
 	/// @param[in] actionName       name of the Action
 	/// @returns Root action instance to work with
@@ -477,9 +515,37 @@ extern "C" {
 
 	///
 	/// Leaves this action.
+	///
+	/// @remarks After calling this method the ActionHandle* is no longer valid.
+	///
 	/// @param[in] actionHandle the handle returned by @ref enterAction
 	///
 	OPENKIT_EXPORT void leaveAction(struct ActionHandle* actionHandle);
+
+	///
+	/// Cancels this action.
+	///
+	/// @remarks After calling this method the ActionHandle* is no longer valid.
+	///
+	/// @par
+	/// Canceling an action is similar to leaveAction(struct ActionHandle*),
+	/// except that the data and all unfinished child objects are discarded
+	/// instead of being sent.
+	///
+	/// @param[in] actionHandle the handle returned by @ref enterAction
+	///
+	OPENKIT_EXPORT void cancelAction(struct ActionHandle* actionHandle);
+
+	///
+	/// Gets the duration of this action in milliseconds.
+	///
+	/// @par
+	/// The duration is defined as current timestamp - start timestamp.
+	///
+	/// @param[in] actionHandle the handle returned by @ref enterAction
+	/// @return The duration of this action in milliseconds
+	///
+	OPENKIT_EXPORT int64_t getDurationOfAction(struct ActionHandle* actionHandle);
 
 	///
 	/// Reports an event with a specified name (but without any value).

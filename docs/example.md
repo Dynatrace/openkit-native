@@ -410,12 +410,13 @@ parentAction->leave();
 parentAction = nullptr; // decrease reference count and let shared ptr clean up
 ```
 
-Root Actions and Actions must be left when using OpenKit's C API. Calling the `leaveRootAction`
-and `leaveAction` functions frees internally allocated resources. If those functions
-are not invoked memory leaks will occur.
-The following snippet demonstrates how this can be achieved.
+Root Actions and Actions must be left or [canceled](#canceling-actions)
+when using OpenKit's C API. Calling the `leaveRootAction` or `leaveAction` functions 
+frees internally allocated resources. If those functions are not invoked memory leaks will occur.  
+After a call to `leaveRootAction` or `leaveAction` the pointer is no longer valid and no further
+API calls must be made using this pointer.
 
-Note: In contrary to the C++ API the C API function `leaveRootAction` does not return a value.
+The following snippet demonstrates how this can be achieved.
 
 ```c
 // C API
@@ -433,9 +434,9 @@ leaveRootAction(parentAction);
 parentAction = NULL;
 ```
 
-## Cancelling Actions
+## Canceling Actions
 
-Cancelling an `IAction` or `IRootAction` is similar to leaving an `IAction` or `IRootAction`,
+Canceling an `IAction` or `IRootAction` is similar to [leaving](#leaving-actions) an `IAction` or `IRootAction`,
 except that the `IAction` or `IRootAction` will be discarded and not reported to Dynatrace.
 Open child objects, like child actions and web request tracers, will be
 discarded as well.
@@ -447,6 +448,29 @@ action = nullptr; // decrease reference count and let shared ptr clean up
 
 parentAction->cancelAction();
 parentAction = nullptr; // decrease reference count and let shared ptr clean up
+```
+
+The same can can be achieved using OpenKit's C API, by calling the functions `cancelRootAction` or `cancelAction`.
+Calling these methods will free internally allocated resources.  
+After a call to `cancelRootAction` or `cancelAction` the pointer is no longer valid and no further
+API calls must be made using this pointer.  
+
+The snippet below shows how to correctly cancel an action and root action.
+
+```c
+// C API
+
+// first cancel the child action
+cancelAction(childAction);
+// Since the childAction now points to an invalid memory location
+// it is a good idea to assign NULL to it.
+childAction = NULL;
+
+// now cancel the root action
+cancelRootAction(parentAction);
+// Since the parentAction now points to an invalid memory location
+// it is a good idea to assign NULL to it.
+parentAction = NULL;
 ```
 
 ## Obtaining an Action duration
@@ -461,6 +485,20 @@ difference between the current time and start time.
 std::chrono::milliseconds duration = action->getDuration(); // gives current time - action start time
 action->leaveAction();
 duration = action->getDuration(); // gives action end time - action start time
+```
+
+The action duration can also be obtained using the C API, as demonstrated in the snippet below.  
+Contrary to the C++ API, it is not possible to get the duration of a left or canceled
+action or root action, since canceling and leaving actions frees the pointers.
+
+```c
+// C API
+
+// get duration of child action in milliseconds
+int64_t childActionDurationInMilliseconds = getDurationOfAction(childAction);
+
+// get duration of root action in milliseconds
+int64_t rootActionDurationInMilliseconds = getDurationOfRootAction(parentAction);
 ```
 
 ## Report Named Event
