@@ -382,3 +382,64 @@ TEST_F(HttpHeaderCollectionTest, clearRemovesPreviouslySetHeaders)
 	// then
 	ASSERT_THAT(target.empty(), testing::Eq(true));
 }
+
+TEST_F(HttpHeaderCollectionTest, defaultConstructedGivesEmptyHeaderNames)
+{
+	// given
+	HttpHeaderCollection_t target;
+
+	// when
+	auto obtained = target.getHeaderNames();
+
+	// then
+	ASSERT_THAT(obtained, testing::IsEmpty());
+}
+
+TEST_F(HttpHeaderCollectionTest, getHeaderNamesWithSingleHeaderName)
+{
+	// given
+	const std::string name = "X-Foo";
+	const std::string valueOne = "bar";
+	const std::string valueTwo = "foobar";
+
+	HttpHeaderCollection_t target
+	{
+		{name, {valueOne}}
+	};
+
+	// when
+	auto obtained = target.getHeaderNames();
+
+	// then
+	ASSERT_THAT(obtained, testing::ContainerEq(std::list<std::string>{name}));
+
+	// and when appending another value
+	target.appendHeader(name, valueTwo);
+	obtained = target.getHeaderNames();
+
+	// then
+	ASSERT_THAT(obtained, testing::ContainerEq(std::list<std::string>{name}));
+}
+
+
+TEST_F(HttpHeaderCollectionTest, getHeaderNamesWithMultipleHeaderName)
+{
+	// given
+	const std::string nameOne = "X-Foo";
+	const std::string valueOne = "bar";
+	const std::string nameTwo = "X-Bar";
+	const std::string valueTwo = "foobar";
+	const std::string valueThree = "bar";
+
+	HttpHeaderCollection_t target
+	{
+		{nameOne, {valueOne}},
+		{nameTwo, {valueTwo, valueThree}}
+	};
+
+	// when
+	auto obtained = target.getHeaderNames();
+
+	// then
+	ASSERT_THAT(obtained, testing::UnorderedElementsAre(nameOne, nameTwo));
+}

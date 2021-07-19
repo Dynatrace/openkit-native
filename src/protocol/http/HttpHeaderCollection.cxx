@@ -30,6 +30,17 @@ HttpHeaderCollection::HttpHeaderCollection(std::initializer_list<ValueType> init
 {
 }
 
+std::list<std::string> HttpHeaderCollection::getHeaderNames() const
+{
+	std::list<std::string> headerNames;
+	for (const auto& entry : mContainer)
+	{
+		headerNames.push_back(entry.first);
+	}
+
+	return headerNames;
+}
+
 bool HttpHeaderCollection::contains(const std::string& name) const
 {
 	return mContainer.find(name) != mContainer.end();

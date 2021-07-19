@@ -35,6 +35,8 @@ namespace protocol
 
 		const std::string& getMethod() const override;
 
+		std::list<std::string> getHeaderNames() const override;
+
 		bool containsHeader(const std::string& name) const override;
 
 		const std::string& getHeader(const std::string& name) const override;

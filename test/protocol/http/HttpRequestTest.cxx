@@ -179,3 +179,40 @@ TEST_F(HttpRequestTest, getHeaderGivesEmptyStringIfHeaderIsNotContained)
 	// then
 	ASSERT_THAT(obtained, testing::IsEmpty());
 }
+
+TEST_F(HttpRequestTest, getHeaderNamesGivesEmptyListIfNoHeaderWasSet)
+{
+	// given
+	HttpRequest_t target("", "");
+
+	// when
+	auto obtained = target.getHeaderNames();
+
+	// then
+	ASSERT_THAT(obtained, testing::IsEmpty());
+}
+
+TEST_F(HttpRequestTest, getHeaderNamesGivesPreviouslySetHeaderNames)
+{
+	// given
+	std::string headerNameOne = "X-Foo";
+	std::string headerValueOne = "bar";
+	std::string headerNameTwo = "X-Bar";
+	std::string headerValueTwo = "foobar";
+
+	HttpRequest_t target("", "");
+
+	// when
+	target.setHeader(headerNameOne, headerValueOne);
+	auto obtained = target.getHeaderNames();
+
+	// then
+	ASSERT_THAT(obtained, testing::ContainerEq(std::list<std::string>{headerNameOne}));
+
+	// and when
+	target.setHeader(headerNameTwo, headerValueTwo);
+	obtained = target.getHeaderNames();
+
+	// then
+	ASSERT_THAT(obtained, testing::UnorderedElementsAre(headerNameOne, headerNameTwo));
+}

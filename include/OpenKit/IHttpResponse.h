@@ -70,6 +70,13 @@ namespace openkit
 		virtual const std::string& getReasonPhrase() const = 0;
 
 		///
+		/// Gets a list of response header names.
+		///
+		/// @return List of response header names.
+		///
+		virtual std::list<std::string> getHeaderNames() const = 0;
+
+		///
 		/// Tests if the request header is existent in the HTTP request.
 		/// 
 		/// @param name Header's name to check for existence.

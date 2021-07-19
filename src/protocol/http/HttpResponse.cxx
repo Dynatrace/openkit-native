@@ -55,6 +55,11 @@ const std::string& HttpResponse::getReasonPhrase() const
 	return mReasonPhrase;
 }
 
+std::list<std::string> HttpResponse::getHeaderNames() const
+{
+	return mResponseHeaders.getHeaderNames();
+}
+
 bool HttpResponse::containsHeader(const std::string& name) const
 {
 	return mResponseHeaders.contains(name);

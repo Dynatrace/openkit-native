@@ -45,6 +45,8 @@ namespace protocol
 
 		HttpHeaderCollection(std::initializer_list<ValueType> initializerList);
 
+		std::list<std::string> getHeaderNames() const;
+
 		bool contains(const std::string& name) const;
 
 		const std::list<std::string>& getHeader(const std::string& name) const;

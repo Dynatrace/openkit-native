@@ -55,6 +55,11 @@ const std::string& HttpRequest::getMethod() const
 	return mMethod;
 }
 
+std::list<std::string> HttpRequest::getHeaderNames() const
+{
+	return mHeaders.getHeaderNames();
+}
+
 bool HttpRequest::containsHeader(const std::string& name) const
 {
 	return mHeaders.contains(name);

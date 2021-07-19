@@ -20,6 +20,7 @@
 
 #include "OpenKitExports.h"
 
+#include <list>
 #include <string>
 
 namespace openkit
@@ -53,6 +54,13 @@ namespace openkit
 		/// @return String, which is either @c "GET" or @c "POST".
 		///
 		virtual const std::string& getMethod() const = 0;
+
+		///
+		/// Gets a list of request header names.
+		///
+		/// @return List of request header names.
+		///
+		virtual std::list<std::string> getHeaderNames() const = 0;
 
 		///
 		/// Tests if the request header is existent in the HTTP request.

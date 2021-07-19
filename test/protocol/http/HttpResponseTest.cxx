@@ -169,3 +169,54 @@ TEST_F(HttpResponseTest, getResponseBodyGivesValuePassedInConstructor)
 	// then
 	ASSERT_THAT(obtained, testing::Eq(responseBody));
 }
+
+TEST_F(HttpResponseTest, getHeaderNamesGivesEmptyListIfNoHeaderWasSet)
+{
+	// given
+	HttpResponse_t target("", "", -1, "", HttpHeaderCollection_t(), "");
+
+	// when
+	auto obtained = target.getHeaderNames();
+
+	// then
+	ASSERT_THAT(obtained, testing::IsEmpty());
+}
+
+TEST_F(HttpResponseTest, getHeaderNamesGivesSingleSetHeaderName)
+{
+	// given
+	std::string headerName = "X-Foo";
+	std::string headerValue = "bar";
+	HttpHeaderCollection_t responseHeaders
+	{
+		{headerName, {headerValue}}
+	};
+	HttpResponse_t target("", "", -1, "", responseHeaders, "");
+
+	// when
+	auto obtained = target.getHeaderNames();
+
+	// then
+	ASSERT_THAT(obtained, testing::ContainerEq(std::list<std::string>{headerName}));
+}
+
+TEST_F(HttpResponseTest, getHeaderNamesGivesPreviouslySetHeaderNames)
+{
+	// given
+	std::string headerNameOne = "X-Foo";
+	std::string headerValueOne = "bar";
+	std::string headerNameTwo = "X-Bar";
+	std::string headerValueTwo = "foobar";
+	HttpHeaderCollection_t responseHeaders
+	{
+		{headerNameOne, {headerValueOne}},
+		{headerNameTwo, {headerValueTwo}}
+	};
+	HttpResponse_t target("", "", -1, "", responseHeaders, "");
+
+	// when
+	auto obtained = target.getHeaderNames();
+
+	// then
+	ASSERT_THAT(obtained, testing::UnorderedElementsAre(headerNameOne, headerNameTwo));
+}

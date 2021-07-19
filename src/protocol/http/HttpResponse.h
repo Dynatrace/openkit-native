@@ -46,6 +46,8 @@ namespace protocol
 
 		const std::string& getReasonPhrase() const override;
 
+		std::list<std::string> getHeaderNames() const override;
+
 		bool containsHeader(const std::string& name) const override;
 
 		const std::list<std::string>& getHeader(const std::string& name) const override;

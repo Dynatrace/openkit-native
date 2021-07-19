@@ -63,6 +63,8 @@ namespace test
 
 		MOCK_METHOD(const std::string&, getReasonPhrase, (), (const, override));
 
+		MOCK_METHOD(std::list<std::string>, getHeaderNames, (), (const));
+
 		MOCK_METHOD(bool, containsHeader, (const std::string&), (const, override));
 
 		MOCK_METHOD(const std::list<std::string>&, getHeader, (const std::string&), (const, override));
