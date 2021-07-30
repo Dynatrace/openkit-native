@@ -42,7 +42,7 @@ namespace apic
 		///
 		/// Destructor
 		///
-		virtual ~CustomLogger() {}
+		~CustomLogger() override = default;
 
 		virtual void log(openkit::LogLevel logLevel, const char* format, ...) override;
 

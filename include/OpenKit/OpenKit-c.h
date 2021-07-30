@@ -99,6 +99,201 @@ extern "C" {
 	/// destroy a trust manager
 	OPENKIT_EXPORT void destroyTrustManager(struct TrustManagerHandle* trustManagerHandle);
 
+	//-------------------------------------------------
+	// Single linked list storing const char* as values
+	//-------------------------------------------------
+
+	///
+	/// Single linked list with string values
+	///
+	typedef struct OpenKitSList
+	{
+		/// Pointer to the next list node or @c NULL if it's the last node
+		struct OpenKitSList* next;
+
+		/// Pointer to the value
+		const char* value;
+
+	} OpenKitSList;
+
+	///
+	/// Destroys an OpenKitSList*
+	///
+	/// @remarks After calling this function the passed argument @c sValueList is no longer valid.
+	///
+	/// @param[in] sValueList The OpenKitSList to destroy
+	///
+	OPENKIT_EXPORT void destroyOpenKitSList(struct OpenKitSList* sValueList);
+
+	//--------------------------------------
+	//  HTTP request & response interception
+	//--------------------------------------
+	
+	/// C wrapper for openkit::IHttpRequest
+	struct OpenKitHttpRequest;
+
+	///
+	/// Get the HTTP request URI that is used by OpenKit to communicate with the backend.
+	/// 
+	/// @remarks Return value is valid within openKitInterceptHttpRequestFunc and must not be freed.
+	///
+	/// @param[in] openKitHttpRequest OpenKit HTTP request struct
+	/// @return HTTP request URI
+	///
+	OPENKIT_EXPORT const char* getOpenKitHttpRequestUri(const struct OpenKitHttpRequest* openKitHttpRequest);
+
+	///
+	/// Get the HTTP request method that is used by OpenKit to communicate with the backend.
+	/// 
+	/// @remarks Return value is valid within openKitInterceptHttpRequestFunc and must not be freed.
+	///
+	/// @param[in] openKitHttpRequest OpenKit HTTP request struct
+	/// @return HTTP request method as const char*.
+	///
+	OPENKIT_EXPORT const char* getOpenKitHttpRequestMethod(const struct OpenKitHttpRequest* openKitHttpRequest);
+
+	///
+	/// Get a list containing all header names that have been set so far on the HTTP request.
+	/// 
+	/// @remarks The returned list must be destroyed using the destroyOpenKitSList function, otherwise memory leaks occur.
+	/// 
+	/// @param[in] openKitHttpRequest OpenKit HTTP request struct
+	/// @return List containing all request header names
+	///
+	OPENKIT_EXPORT struct OpenKitSList* getOpenKitHttpRequestHeaderNames(const struct OpenKitHttpRequest* openKitHttpRequest);
+
+	///
+	/// Get a boolean indicating whether the HTTP request contains the header with given @c name or not.
+	///
+	/// @param[in] openKitHttpRequest OpenKit HTTP request struct
+	/// @param[in] name The name of the HTTP request header
+	/// @return @c true if request header with given @c name is contained, @c false otherwise.
+	///
+	OPENKIT_EXPORT bool containsOpenKitHttpRequestHeader(const struct OpenKitHttpRequest* openKitHttpRequest, const char* name);
+
+	///
+	/// Get the value of an HTTP request header.
+	/// 
+	/// @remarks Return value is valid within openKitInterceptHttpRequestFunc and must not be freed.
+	///
+	/// @param[in] openKitHttpRequest OpenKit HTTP request struct
+	/// @param[in] name The name of the HTTP request header
+	/// @return Header value for given header name, or @c NULL if header is not contained.
+	///
+	OPENKIT_EXPORT const char* getOpenKitHttpRequestHeader(const struct OpenKitHttpRequest* openKitHttpRequest, const char* name);
+
+	///
+	/// Sets an HTTP header or overwrites an existing HTTP header with new value.
+	/// 
+	/// @par
+	/// For compatibility reasons the following headers are restricted and cannot be set.
+	/// - @c Access-Control-Request-Headers
+	/// - @c Access-Control-Request-Method
+	/// - @c Connection
+	/// - @c Content-Length
+	/// - @c Content-Transfer-Encoding
+	/// - @c Host
+	/// - @c Keep-Alive
+	/// - @c Origin
+	/// - @c Trailer
+	/// - @c Transfer-Encoding
+	/// - @c Upgrade
+	/// - @c Via
+	///
+	/// @param[in] openKitHttpRequest OpenKit HTTP request struct
+	/// @param[in] name The name of the HTTP request header
+	/// @param[in] value The value of the HTTP request header
+	///
+	OPENKIT_EXPORT void setOpenKitHttpRequestHeader(struct OpenKitHttpRequest* openKitHttpRequest, const char* name, const char* value);
+
+	/// Pointer to a function that is used to intercept an HTTP request to Dynatrace/AppMon backend.
+	typedef void(*openKitInterceptHttpRequestFunc)(struct OpenKitHttpRequest* /* openKitHttpRequest */);
+
+	/// C wrapper for openkit::IHttpResponse
+	struct OpenKitHttpResponse;
+
+	///
+	/// Get the original HTTP request URI associated with this HTTP response from the Dynatrace/AppMon backend.
+	///
+	/// @remarks Return value is valid within openKitInterceptHttpResponseFunc and must not be freed.
+	///
+	/// @param[in] openKitHttpResponse OpenKit HTTP response struct
+	/// @return Original HTTP request URI associated with this response
+	///
+	OPENKIT_EXPORT const char* getOpenKitHttpRequestUriFromResponse(const struct OpenKitHttpResponse* openKitHttpResponse);
+
+	///
+	/// Get the original HTTP request method associated with this HTTP response from the Dynatrace/AppMon backend.
+	///
+	/// @remarks Return value is valid within openKitInterceptHttpResponseFunc and must not be freed.
+	///
+	/// @param[in] openKitHttpResponse OpenKit HTTP response struct
+	/// @return Original HTTP request method associated with this response
+	///
+	OPENKIT_EXPORT const char* getOpenKitHttpRequestMethodFromResponse(const struct OpenKitHttpResponse* openKitHttpResponse);
+
+	///
+	/// Get the HTTP status code of the HTTP response from Dynatrace/AppMon backend.
+	///
+	/// @param[in] openKitHttpResponse OpenKit HTTP response struct
+	/// @return HTTP status code or a negative value if HTTP response is invalid
+	///
+	OPENKIT_EXPORT int32_t getOpenKitHttpResponseStatusCode(const struct OpenKitHttpResponse* openKitHttpResponse);
+
+	///
+	/// Get the HTTP reason phrase of the HTTP response from Dynatrace/AppMon backend.
+	///
+	/// @remarks Return value is valid within openKitInterceptHttpResponseFunc and must not be freed.
+	///
+	/// @param[in] openKitHttpResponse OpenKit HTTP response struct
+	/// @return Reason phrase from HTTP response or @c NULL if response did not contain one
+	///
+	OPENKIT_EXPORT const char* getOpenKitHttpResponseReasonPhrase(const struct OpenKitHttpResponse* openKitHttpResponse);
+
+	///
+	/// Get a list containing all HTTP response header names.
+	///
+	/// @remarks The returned list must be destroyed using the destroyOpenKitSList function, otherwise memory leaks occur.
+	///
+	/// @param[in] openKitHttpResponse OpenKit HTTP response struct
+	/// @return List containing all response header names
+	///
+	OPENKIT_EXPORT struct OpenKitSList* getOpenKitHttpResponseHeaderNames(const struct OpenKitHttpResponse* openKitHttpResponse);
+
+	///
+	/// Get a boolean indicating whether the HTTP response contains the header with given @c name or not.
+	///
+	/// @param[in] openKitHttpResponse OpenKit HTTP response struct
+	/// @param[in] name The name of the HTTP response header
+	/// @return @c true if response header with given @c name is contained, @c false otherwise.
+	///
+	OPENKIT_EXPORT bool containsOpenKitHttpResponseHeader(const struct OpenKitHttpResponse* openKitHttpResponse, const char* name);
+
+	///
+	/// Get the HTTP response header values.
+	///
+	/// @par
+	/// For headers with multiple values, where values are delimited with ","
+	/// this method will return a list containing one element.
+	/// For instance
+	/// @code{.unparsed}
+	/// Accept: text/plain, text/html
+	/// @endcode
+	/// will give @c "text/plain, text/html" as the only entry for "Accept" in the returned list.
+	/// If the header occurs multiple times, like the @c Set-Cookie, the list contains
+	/// all occurrences in the order they appear in the response.
+	///
+	/// @remarks The returned list must be destroyed using the destroyOpenKitSList function, otherwise memory leaks occur.
+	///
+	/// @param[in] openKitHttpResponse OpenKit HTTP response struct
+	/// @param[in] name The name of the HTTP response header
+	/// @return List containing all values for HTTP response header named @c name or @c NULL if no such HTTP response header exists.
+	///
+	OPENKIT_EXPORT struct OpenKitSList* getOpenKitHttpResponseHeader(const struct OpenKitHttpResponse* openKitHttpResponse, const char* name);
+
+	/// Pointer to a function that is used to intercept an HTTP response from Dynatrace/AppMon backend.
+	typedef void(*openKitInterceptHttpResponseFunc)(struct OpenKitHttpResponse* /* openKitHttpResponse */);
+
 	//--------------
 	//  Configuration
 	//--------------
@@ -230,6 +425,26 @@ extern "C" {
 	/// @param[in] crashReportingLevel optional parameter, default behavior is OPT_IN_CRASHES
 	///
 	OPENKIT_EXPORT void useCrashReportingLevelForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, CrashReportingLevel crashReportingLevel);
+
+	///
+	/// Set a custom HTTP request interceptor for intercepting OpenKit's HTTP requests to backend.
+	/// @param[in] configurationHandle configuration storing the given parameter
+	/// @param[in] interceptHttpRequestFunc C function pointer that is invoked for each HTTP request to Dynatrace/AppMon backend.
+	///
+	OPENKIT_EXPORT void useHttpRequestInterceptorForConfiguration(
+		struct OpenKitConfigurationHandle* configurationHandle,
+		openKitInterceptHttpRequestFunc interceptHttpRequestFunc
+	);
+
+	///
+	/// Set a custom HTTP response interceptor for intercepting OpenKit's HTTP responses from backend.
+	/// @param[in] configurationHandle configuration storing the given parameter
+	/// @param[in] interceptHttpResponseFunc C function pointer that is invoked for each HTTP response from Dynatrace/AppMon backend.
+	///
+	OPENKIT_EXPORT void useHttpResponseInterceptorForConfiguration(
+		struct OpenKitConfigurationHandle* configurationHandle,
+		openKitInterceptHttpResponseFunc interceptHttpResponseFunc
+	);
 
 	//--------------
 	//  OpenKit

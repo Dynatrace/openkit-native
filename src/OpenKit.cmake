@@ -47,11 +47,17 @@ set(OPENKIT_SOURCES_CXX_API
 )
 
 set(OPENKIT_SOURCES_C_API
+    ${CMAKE_CURRENT_LIST_DIR}/api-c/CustomHttpRequestInterceptor.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/api-c/CustomHttpRequestInterceptor.h
+    ${CMAKE_CURRENT_LIST_DIR}/api-c/CustomHttpResponseInterceptor.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/api-c/CustomHttpResponseInterceptor.h
     ${CMAKE_CURRENT_LIST_DIR}/api-c/CustomLogger.cxx
     ${CMAKE_CURRENT_LIST_DIR}/api-c/CustomLogger.h
     ${CMAKE_CURRENT_LIST_DIR}/api-c/CustomTrustManager.h
     ${CMAKE_CURRENT_LIST_DIR}/api-c/CustomTrustManager.cxx
     ${CMAKE_CURRENT_LIST_DIR}/api-c/OpenKit-c.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/api-c/OpenKitHttpRequest.h
+    ${CMAKE_CURRENT_LIST_DIR}/api-c/OpenKitHttpResponse.h
 )
 
 set(OPENKIT_SOURCES_CORE_CACHING

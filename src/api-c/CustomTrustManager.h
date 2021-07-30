@@ -45,7 +45,7 @@ namespace apic
 		///
 		/// Destructor
 		///
-		virtual ~CustomTrustManager() {}
+		~CustomTrustManager() override = default;
 
 		virtual void applyTrustManager(CURL* curl) override;
 

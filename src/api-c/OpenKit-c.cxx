@@ -17,6 +17,10 @@
 #include "OpenKit/OpenKit-c.h"
 #include "CustomLogger.h"
 #include "CustomTrustManager.h"
+#include "CustomHttpRequestInterceptor.h"
+#include "CustomHttpResponseInterceptor.h"
+#include "OpenKitHttpRequest.h"
+#include "OpenKitHttpResponse.h"
 
 #include "OpenKit/IOpenKit.h"
 #include "OpenKit/DynatraceOpenKitBuilder.h"
@@ -240,6 +244,292 @@ extern "C" {
 		delete loggerHandle;
 	}
 
+	static struct OpenKitSList* createNode(const std::string& value)
+	{
+		struct OpenKitSList* node = new OpenKitSList(); // might throw std::bad_alloc
+		node->next = nullptr;
+		node->value = strdup(value.c_str());
+
+		if (node->value == nullptr)
+		{
+			delete node;
+			throw std::bad_alloc();
+		}
+	}
+	
+	static struct OpenKitSList* createFromCxxList(const std::list<std::string>& cxxList)
+	{
+		struct OpenKitSList* first = nullptr;
+		struct OpenKitSList* current = nullptr;
+
+		for (const auto& entry : cxxList)
+		{
+			struct OpenKitSList* tmp = nullptr;
+			try
+			{
+				tmp = createNode(entry);
+			}
+			catch (std::bad_alloc)
+			{
+				// destroy all nodes that have been created so far
+				destroyOpenKitSList(first);
+				first = nullptr;
+				current = nullptr;
+
+				break;
+			}
+
+			if (first == nullptr)
+			{
+				// first list node
+				first = tmp;
+				current = tmp;
+			}
+			else
+			{
+				current->next = tmp;
+				current = tmp;
+			}
+		}
+
+		return first;
+	}
+
+	void destroyOpenKitSList(struct OpenKitSList* sList)
+	{
+		struct OpenKitSList* current = sList;
+		while (current != nullptr)
+		{
+			struct OpenKitSList* tmp = current->next;
+			
+			free(const_cast<char*>(current->value));
+			current->value = nullptr;
+			current->next = nullptr;
+
+			delete current;
+
+			current = tmp;
+		}
+	}
+
+	//--------------------------------------
+	//  HTTP request & response interception
+	//--------------------------------------
+
+	const char* getOpenKitHttpRequestUri(const struct OpenKitHttpRequest* openKitHttpRequest)
+	{
+		if (openKitHttpRequest == nullptr || openKitHttpRequest->mHttpRequest == nullptr)
+		{
+			return nullptr;
+		}
+
+		TRY
+		{
+			return openKitHttpRequest->mHttpRequest->getUri().c_str();
+		}
+		CATCH_AND_IGNORE_ALL()
+
+		return nullptr;
+	}
+
+	const char* getOpenKitHttpRequestMethod(const struct OpenKitHttpRequest* openKitHttpRequest)
+	{
+		if (openKitHttpRequest == nullptr || openKitHttpRequest->mHttpRequest == nullptr)
+		{
+			return nullptr;
+		}
+
+		TRY
+		{
+			return openKitHttpRequest->mHttpRequest->getMethod().c_str();
+		}
+		CATCH_AND_IGNORE_ALL()
+
+		return nullptr;
+	}
+
+	struct OpenKitSList* getOpenKitHttpRequestHeaderNames(const struct OpenKitHttpRequest* openKitHttpRequest)
+	{
+		if (openKitHttpRequest == nullptr || openKitHttpRequest->mHttpRequest == nullptr)
+		{
+			return nullptr;
+		}
+
+		try
+		{
+			return createFromCxxList(openKitHttpRequest->mHttpRequest->getHeaderNames());
+		}
+		CATCH_AND_IGNORE_ALL()
+
+		return nullptr;
+	}
+
+	bool containsOpenKitHttpRequestHeader(const struct OpenKitHttpRequest* openKitHttpRequest, const char* name)
+	{
+		if (openKitHttpRequest == nullptr || openKitHttpRequest->mHttpRequest == nullptr)
+		{
+			return false;
+		}
+
+		TRY
+		{
+			return openKitHttpRequest->mHttpRequest->containsHeader(name);
+		}
+		CATCH_AND_IGNORE_ALL()
+
+		return false;
+	}
+
+	const char* getOpenKitHttpRequestHeader(const struct OpenKitHttpRequest* openKitHttpRequest, const char* name)
+	{
+		if (openKitHttpRequest == nullptr || openKitHttpRequest->mHttpRequest == nullptr)
+		{
+			return nullptr;
+		}
+
+		TRY
+		{
+			return openKitHttpRequest->mHttpRequest->getHeader(name).c_str();
+		}
+		CATCH_AND_IGNORE_ALL()
+
+		return nullptr;
+	}
+
+	void setOpenKitHttpRequestHeader(struct OpenKitHttpRequest* openKitHttpRequest, const char* name, const char* value)
+	{
+		if (openKitHttpRequest == nullptr || openKitHttpRequest->mHttpRequest == nullptr)
+		{
+			return;
+		}
+
+		TRY
+		{
+			openKitHttpRequest->mHttpRequest->setHeader(name, value);
+		}
+		CATCH_AND_IGNORE_ALL()
+	}
+
+	const char* getOpenKitHttpRequestUriFromResponse(const struct OpenKitHttpResponse* openKitHttpResponse)
+	{
+		if (openKitHttpResponse == nullptr || openKitHttpResponse->mHttpResponse == nullptr)
+		{
+			return nullptr;
+		}
+
+		TRY
+		{
+			return openKitHttpResponse->mHttpResponse->getRequestUri().c_str();
+		}
+		CATCH_AND_IGNORE_ALL()
+
+		return nullptr;
+	}
+
+	const char* getOpenKitHttpRequestMethodFromResponse(const struct OpenKitHttpResponse* openKitHttpResponse)
+	{
+		if (openKitHttpResponse == nullptr || openKitHttpResponse->mHttpResponse == nullptr)
+		{
+			return nullptr;
+		}
+
+		TRY
+		{
+			return openKitHttpResponse->mHttpResponse->getRequestMethod().c_str();
+		}
+		CATCH_AND_IGNORE_ALL()
+
+		return nullptr;
+	}
+
+	int32_t getOpenKitHttpResponseStatusCode(const struct OpenKitHttpResponse* openKitHttpResponse)
+	{
+		if (openKitHttpResponse == nullptr || openKitHttpResponse->mHttpResponse == nullptr)
+		{
+			return -1;
+		}
+
+		TRY
+		{
+			return openKitHttpResponse->mHttpResponse->getStatusCode();
+		}
+		CATCH_AND_IGNORE_ALL()
+
+		return -1;
+	}
+
+	const char* getOpenKitHttpResponseReasonPhrase(const struct OpenKitHttpResponse* openKitHttpResponse)
+	{
+		if (openKitHttpResponse == nullptr || openKitHttpResponse->mHttpResponse == nullptr)
+		{
+			return nullptr;
+		}
+
+		TRY
+		{
+			return openKitHttpResponse->mHttpResponse->getReasonPhrase().c_str();
+		}
+		CATCH_AND_IGNORE_ALL()
+
+		return nullptr;
+	}
+
+	struct OpenKitSList* getOpenKitHttpResponseHeaderNames(const struct OpenKitHttpResponse* openKitHttpResponse)
+	{
+		if (openKitHttpResponse == nullptr || openKitHttpResponse->mHttpResponse == nullptr)
+		{
+			return nullptr;
+		}
+
+		TRY
+		{
+			return createFromCxxList(openKitHttpResponse->mHttpResponse->getHeaderNames());
+		}
+		CATCH_AND_IGNORE_ALL()
+
+		return nullptr;
+	}
+
+	bool containsOpenKitHttpResponseHeader(const struct OpenKitHttpResponse* openKitHttpResponse, const char* name)
+	{
+		if (openKitHttpResponse == nullptr || openKitHttpResponse->mHttpResponse == nullptr)
+		{
+			return false;
+		}
+
+		TRY
+		{
+			return openKitHttpResponse->mHttpResponse->containsHeader(name);
+		}
+		CATCH_AND_IGNORE_ALL()
+
+		return false;
+	}
+
+	struct OpenKitSList* getOpenKitHttpResponseHeader(const struct OpenKitHttpResponse* openKitHttpResponse, const char* name)
+	{
+		if (openKitHttpResponse == nullptr || openKitHttpResponse->mHttpResponse == nullptr)
+		{
+			return nullptr;
+		}
+
+		TRY
+		{
+			std::string headerName = name;
+
+			// return header values only if header is known
+			// otherwise fallback to returning nullptr at end of function
+			if (openKitHttpResponse->mHttpResponse->containsHeader(headerName))
+			{
+				return createFromCxxList(openKitHttpResponse->mHttpResponse->getHeader(headerName));
+			}
+		}
+		CATCH_AND_IGNORE_ALL()
+
+		return nullptr;
+	}
+
+
 	//-----------------------
 	//  OpenKit configuration
 	//-----------------------
@@ -266,6 +556,8 @@ extern "C" {
 		int64_t beaconCacheUpperMemoryBoundary = -1;
 		DataCollectionLevel dataCollectionLevel = DATA_COLLECTION_LEVEL_USER_BEHAVIOR;
 		CrashReportingLevel crashReportingLevel = CRASH_REPORTING_LEVEL_OPT_IN_CRASHES;
+		openKitInterceptHttpRequestFunc interceptHttpRequestFunc = nullptr;
+		openKitInterceptHttpResponseFunc interceptHttpResponseFunc = nullptr;
 	} OpenKitConfigurationHandle;
 
 	struct OpenKitConfigurationHandle* createOpenKitConfigurationWithOrigAndHashedDeviceId(const char* endpointURL, const char* applicationID, int64_t deviceID, const char* origDeviceID)
@@ -411,12 +703,40 @@ extern "C" {
 
 	void useDataCollectionLevelForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, DataCollectionLevel dataCollectionLevel)
 	{
-		configurationHandle->dataCollectionLevel = dataCollectionLevel;
+		if (configurationHandle != nullptr)
+		{
+			configurationHandle->dataCollectionLevel = dataCollectionLevel;
+		}
 	}
 
 	void useCrashReportingLevelForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, CrashReportingLevel crashReportingLevel)
 	{
-		configurationHandle->crashReportingLevel = crashReportingLevel;
+		if (configurationHandle != nullptr)
+		{
+			configurationHandle->crashReportingLevel = crashReportingLevel;
+		}
+	}
+
+	void useHttpRequestInterceptorForConfiguration(
+		struct OpenKitConfigurationHandle* configurationHandle,
+		openKitInterceptHttpRequestFunc interceptHttpRequestFunc
+	)
+	{
+		if (configurationHandle != nullptr && interceptHttpRequestFunc != nullptr)
+		{
+			configurationHandle->interceptHttpRequestFunc = interceptHttpRequestFunc;
+		}
+	}
+
+	void useHttpResponseInterceptorForConfiguration(
+		struct OpenKitConfigurationHandle* configurationHandle,
+		openKitInterceptHttpResponseFunc interceptHttpResponseFunc
+	)
+	{
+		if (configurationHandle != nullptr && interceptHttpResponseFunc != nullptr)
+		{
+			configurationHandle->interceptHttpResponseFunc = interceptHttpResponseFunc;
+		}
 	}
 
 	//--------------
@@ -532,6 +852,18 @@ extern "C" {
 		if (configurationHandle->crashReportingLevel < CRASH_REPORTING_LEVEL_COUNT)
 		{
 			builder.withCrashReportingLevel((openkit::CrashReportingLevel)configurationHandle->crashReportingLevel);
+		}
+
+		if (configurationHandle->interceptHttpRequestFunc != nullptr)
+		{
+			builder.withHttpRequestInterceptor(
+				std::make_shared<apic::CustomHttpRequestInterceptor>(configurationHandle->interceptHttpRequestFunc));
+		}
+
+		if (configurationHandle->interceptHttpResponseFunc != nullptr)
+		{
+			builder.withHttpResponseInterceptor(
+				std::make_shared<apic::CustomHttpResponseInterceptor>(configurationHandle->interceptHttpResponseFunc));
 		}
 	}
 
