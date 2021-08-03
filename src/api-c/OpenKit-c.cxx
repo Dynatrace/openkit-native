@@ -246,15 +246,26 @@ extern "C" {
 
 	static struct OpenKitSList* createNode(const std::string& value)
 	{
-		struct OpenKitSList* node = new OpenKitSList(); // might throw std::bad_alloc
+		struct OpenKitSList* node;
+		try
+		{
+			// might throw std::bad_alloc
+			node = new OpenKitSList();
+		}
+		catch (...)
+		{
+			return nullptr;
+		}
 		node->next = nullptr;
-		node->value = strdup(value.c_str());
+		node->value = duplicateString(value.c_str());
 
 		if (node->value == nullptr)
 		{
 			delete node;
-			throw std::bad_alloc();
+			node = nullptr;
 		}
+
+		return node;
 	}
 	
 	static struct OpenKitSList* createFromCxxList(const std::list<std::string>& cxxList)
@@ -264,12 +275,8 @@ extern "C" {
 
 		for (const auto& entry : cxxList)
 		{
-			struct OpenKitSList* tmp = nullptr;
-			try
-			{
-				tmp = createNode(entry);
-			}
-			catch (std::bad_alloc)
+			struct OpenKitSList* tmp = createNode(entry);
+			if (tmp == nullptr)
 			{
 				// destroy all nodes that have been created so far
 				destroyOpenKitSList(first);
@@ -302,7 +309,7 @@ extern "C" {
 		{
 			struct OpenKitSList* tmp = current->next;
 			
-			free(const_cast<char*>(current->value));
+			FREE_DUPLICATED_STRING(const_cast<char*>(current->value));
 			current->value = nullptr;
 			current->next = nullptr;
 
@@ -1185,6 +1192,8 @@ extern "C" {
 			}
 		}
 		CATCH_AND_LOG(rootActionHandle)
+
+		return -1;
 	}
 
 	void reportEventOnRootAction(RootActionHandle* rootActionHandle, const char* eventName)
@@ -1392,6 +1401,8 @@ extern "C" {
 			}
 		}
 		CATCH_AND_LOG(actionHandle)
+
+		return -1;
 	}
 
 	void reportEventOnAction(ActionHandle* actionHandle, const char* eventName)
