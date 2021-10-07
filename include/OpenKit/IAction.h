@@ -92,7 +92,7 @@ namespace openkit
 		/// @param errorCode numeric error code of this error
 		/// @param reason    reason for this error
 		/// @return this Action (for usage as fluent API)
-		/// @deprecated since 2.0.0 use IAction::reportError(const char*, int32_t) instead, since reason is unhandled
+		/// @deprecated since 2.1.0 use IAction::reportError(const char*, int32_t) instead, since reason is unhandled
 		///
 		OPENKIT_DEPRECATED
 		virtual std::shared_ptr<IAction> reportError(const char* errorName, int32_t errorCode, const char* reason) = 0;

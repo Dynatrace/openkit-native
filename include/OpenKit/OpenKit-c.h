@@ -677,7 +677,7 @@ extern "C" {
 	/// @param[in] errorName		name of this error
 	/// @param[in] errorCode		numeric error code of this error
 	/// @param[in] reason			reason for this error
-	/// @deprecated since 2.0.0 Use reportErrorCodeOnRootAction(struct RootActionHandle*, const char*, int32_t) instead, as reason is unused.
+	/// @deprecated since 2.1.0 Use reportErrorCodeOnRootAction(struct RootActionHandle*, const char*, int32_t) instead, as reason is unused.
 	///
 	OPENKIT_DEPRECATED
 	OPENKIT_EXPORT void reportErrorOnRootAction(struct RootActionHandle* rootActionHandle, const char* errorName, int32_t errorCode, const char* reason);
@@ -815,7 +815,7 @@ extern "C" {
 	/// @param[in] errorName	name of this error
 	/// @param[in] errorCode	numeric error code of this error
 	/// @param[in] reason		reason for this error
-	/// @deprecated Since 2.0.0 Use reportErrorCodeOnAction(struct RootActionHandle*, const char*, int32_t) instead, as reason is unused.
+	/// @deprecated Since 2.1.0 Use reportErrorCodeOnAction(struct RootActionHandle*, const char*, int32_t) instead, as reason is unused.
 	///
 	OPENKIT_DEPRECATED
 	OPENKIT_EXPORT void reportErrorOnAction(struct ActionHandle* actionHandle, const char* errorName, int32_t errorCode, const char* reason);
