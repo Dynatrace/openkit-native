@@ -99,8 +99,8 @@ This includes device specific information like operating system, manufacturer, o
 
 | Method Name | Description | Default Value |
 | ------------- | ------------- | ---------- |
-| `withApplicationVersion`  | sets the application version  | `"2.1.0"` |
-| `withOperatingSystem`  | sets the operating system name | `"OpenKit 2.1.0"` |
+| `withApplicationVersion`  | sets the application version  | `"2.2.0"` |
+| `withOperatingSystem`  | sets the operating system name | `"OpenKit 2.2.0"` |
 | `withManufacturer`  | sets the manufacturer | `"Dynatrace"` |
 | `withModelID`  | sets the model id  | `"OpenKitDevice"` |
 | `withBeaconCacheMaxRecordAge`  | sets the maximum age of an entry in the beacon cache in milliseconds | 1 h 45 min |
@@ -120,8 +120,8 @@ When using the OpenKit C API, additional configuration can applied to the config
 
 | Parameter Name | Description | Default Value |
 | ------------- | ------------- | ---------- |
-| `useApplicationVersionForConfiguration`  | sets the application version  | `"2.1.0"` is used when argument is `NULL` |
-| `useOperatingSystemForConfiguration`  | sets the operating system name | `"OpenKit 2.1.0"` is used when argument is `NULL` |
+| `useApplicationVersionForConfiguration`  | sets the application version  | `"2.2.0"` is used when argument is `NULL` |
+| `useOperatingSystemForConfiguration`  | sets the operating system name | `"OpenKit 2.2.0"` is used when argument is `NULL` |
 | `useManufacturerForConfiguration`  | sets the manufacturer | `"Dynatrace"` is used when argument is `NULL` |
 | `useModelIDForConfiguration`  | sets the model id  | `"OpenKitDevice"` is used when argument is `NULL` |
 | `useBeaconCacheBehaviorForConfiguration` | sets caching behavior for the beacon cache              | 1 h 45 min retention, 80 MB lower memory boundary, 100 MB upper memory boundary |

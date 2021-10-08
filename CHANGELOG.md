@@ -1,6 +1,9 @@
 # OpenKit Native ( C/C++ ) Changelog
 
-## [Unreleased](https://github.com/Dynatrace/openkit-native/compare/v2.0.0...HEAD)
+## [Unreleased](https://github.com/Dynatrace/openkit-native/compare/v2.1.0...HEAD)
+
+## 2.1.0 [Release date: 2021-10-07]
+[GitHub Releases](https://github.com/Dynatrace/openkit-native/releases/tag/v2.1.0)
 
 ### Added
 - Overloaded `IAction::reportError(const char*, int32_t)` method for reporting an integer error code without reason.  

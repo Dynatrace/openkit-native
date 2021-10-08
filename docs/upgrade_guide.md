@@ -1,5 +1,15 @@
 # Upgrade guide for OpenKit C/C++
 
+## ## OpenKit .C/C++ 2.0 to 2.1
+There are no breaking API changes and upgrading is straightforward, by [updating][update] the library
+to the latest 2.1 release.
+
+### Deprecated API
+* `IAction::reportError(const char* errorName, int32_t errorCode, const char* reason)`  
+  Use `IAction::reportError(const char* errorName, int32_t errorCode)` instead, since reason is unhandled.
+* `IRootAction::reportError(const char* errorName, int32_t errorCode, const char* reason)`  
+  Use `IRootAction::reportError(const char* errorName, int32_t errorCode)` instead, since reason is unhandled.
+
 ## ## OpenKit .C/C++ 1.1 to 2.0
 There are breaking changes. All OpenKit headers have been moved into one
 single place, `include/OpenKit` to be exact. It might be necessary to adjust the
