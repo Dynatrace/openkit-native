@@ -29,7 +29,7 @@ namespace core
 		///
 		/// The default @ref BeaconCacheConfiguration when user does not override it.
 		///
-		static constexpr int64_t DEFAULT_MAX_RECORD_AGE_IN_MILLIS = 105 * 60 * 1000;				// 1 hour and 45 minutes
+		static constexpr int64_t DEFAULT_MAX_RECORD_AGE_IN_MILLIS = 45 * 60 * 1000;				// 45 minutes
 
 		///
 		/// Defines the default upper memory bound of the beacon cache

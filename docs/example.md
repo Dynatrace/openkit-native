@@ -103,7 +103,7 @@ This includes device specific information like operating system, manufacturer, o
 | `withOperatingSystem`  | sets the operating system name | `"OpenKit 2.2.0"` |
 | `withManufacturer`  | sets the manufacturer | `"Dynatrace"` |
 | `withModelID`  | sets the model id  | `"OpenKitDevice"` |
-| `withBeaconCacheMaxRecordAge`  | sets the maximum age of an entry in the beacon cache in milliseconds | 1 h 45 min |
+| `withBeaconCacheMaxRecordAge`  | sets the maximum age of an entry in the beacon cache in milliseconds | 45 min |
 | `withBeaconCacheLowerMemoryBoundary`  | sets the lower memory boundary of the beacon cache in bytes  | 80 MB |
 | `withBeaconCacheUpperMemoryBoundary`  |  sets the upper memory boundary of the beacon cache in bytes | 100 MB |
 | `withDataCollectionLevel` | sets the data collection level (enum DataCollectionLevel) | USER_BEHAVIOR |
@@ -124,7 +124,7 @@ When using the OpenKit C API, additional configuration can applied to the config
 | `useOperatingSystemForConfiguration`  | sets the operating system name | `"OpenKit 2.2.0"` is used when argument is `NULL` |
 | `useManufacturerForConfiguration`  | sets the manufacturer | `"Dynatrace"` is used when argument is `NULL` |
 | `useModelIDForConfiguration`  | sets the model id  | `"OpenKitDevice"` is used when argument is `NULL` |
-| `useBeaconCacheBehaviorForConfiguration` | sets caching behavior for the beacon cache              | 1 h 45 min retention, 80 MB lower memory boundary, 100 MB upper memory boundary |
+| `useBeaconCacheBehaviorForConfiguration` | sets caching behavior for the beacon cache              | 45 min retention, 80 MB lower memory boundary, 100 MB upper memory boundary |
 | `useLoggerForConfiguration` | sets a custom logger | A default logger, logging to stdout, is used as fallback |
 | `useTrustModeForConfiguration`           | sets a custom `ISSLTrustManager` replacing previous one | `STRICT_TRUST` |
 | `useDataCollectionLevelForConfiguration` | sets the data collection level (enum DataCollectionLevel) | USER_BEHAVIOR |
