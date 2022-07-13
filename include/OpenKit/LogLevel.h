@@ -17,7 +17,7 @@
 #ifndef _OPENKIT_LOG_LEVEL_H
 #define _OPENKIT_LOG_LEVEL_H
 
-#include "OpenKitExports.h"
+#include "OpenKit/OpenKitExports.h"
 
 #include <cstdint>
 

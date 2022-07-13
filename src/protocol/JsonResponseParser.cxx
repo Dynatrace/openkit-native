@@ -16,9 +16,9 @@
 
 #include "JsonResponseParser.h"
 #include "util/json/JsonParser.h"
-#include "util/json/objects/JsonNumberValue.h"
-#include "util/json/objects/JsonObjectValue.h"
-#include "util/json/objects/JsonStringValue.h"
+#include "OpenKit/json/JsonNumberValue.h"
+#include "OpenKit/json/JsonObjectValue.h"
+#include "OpenKit/json/JsonStringValue.h"
 
 using namespace protocol;
 
@@ -28,7 +28,7 @@ std::shared_ptr<protocol::IResponseAttributes> JsonResponseParser::parse(const c
 	auto jsonParser = util::json::JsonParser(jsonResponse.getStringData());
 
 	auto parsedValue = jsonParser.parse();
-	auto rootObject  = std::dynamic_pointer_cast<util::json::objects::JsonObjectValue>(parsedValue);
+	auto rootObject  = std::dynamic_pointer_cast<openkit::json::JsonObjectValue>(parsedValue);
 
 	auto builder = ResponseAttributes::withJsonDefaults();
 
@@ -40,8 +40,8 @@ std::shared_ptr<protocol::IResponseAttributes> JsonResponseParser::parse(const c
 	return builder.build();
 }
 
-std::shared_ptr<util::json::objects::JsonObjectValue> JsonResponseParser::getJsonObjectFrom(
-	std::shared_ptr<util::json::objects::JsonObjectValue> jsonObject,
+std::shared_ptr<openkit::json::JsonObjectValue> JsonResponseParser::getJsonObjectFrom(
+	std::shared_ptr<openkit::json::JsonObjectValue> jsonObject,
 	const std::string& key
 )
 {
@@ -51,11 +51,11 @@ std::shared_ptr<util::json::objects::JsonObjectValue> JsonResponseParser::getJso
 		return nullptr;
 	}
 
-	return std::dynamic_pointer_cast<util::json::objects::JsonObjectValue>(entry->second);
+	return std::dynamic_pointer_cast<openkit::json::JsonObjectValue>(entry->second);
 }
 
-std::shared_ptr<util::json::objects::JsonStringValue> JsonResponseParser::getJsonStringFrom(
-	std::shared_ptr<util::json::objects::JsonObjectValue> jsonObject,
+std::shared_ptr<openkit::json::JsonStringValue> JsonResponseParser::getJsonStringFrom(
+	std::shared_ptr<openkit::json::JsonObjectValue> jsonObject,
 	const std::string& key
 )
 {
@@ -65,11 +65,11 @@ std::shared_ptr<util::json::objects::JsonStringValue> JsonResponseParser::getJso
 		return nullptr;
 	}
 
-	return std::dynamic_pointer_cast<util::json::objects::JsonStringValue>(entry->second);
+	return std::dynamic_pointer_cast<openkit::json::JsonStringValue>(entry->second);
 }
 
-std::shared_ptr<util::json::objects::JsonNumberValue> JsonResponseParser::getJsonNumberFrom(
-	std::shared_ptr<util::json::objects::JsonObjectValue> jsonObject,
+std::shared_ptr<openkit::json::JsonNumberValue> JsonResponseParser::getJsonNumberFrom(
+	std::shared_ptr<openkit::json::JsonObjectValue> jsonObject,
 	const std::string& key
 )
 {
@@ -79,7 +79,7 @@ std::shared_ptr<util::json::objects::JsonNumberValue> JsonResponseParser::getJso
 		return nullptr;
 	}
 
-	return std::dynamic_pointer_cast<util::json::objects::JsonNumberValue>(entry->second);
+	return std::dynamic_pointer_cast<openkit::json::JsonNumberValue>(entry->second);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -88,7 +88,7 @@ std::shared_ptr<util::json::objects::JsonNumberValue> JsonResponseParser::getJso
 
 void JsonResponseParser::applyAgentConfiguration(
 	protocol::ResponseAttributes::Builder& builder,
-	std::shared_ptr<util::json::objects::JsonObjectValue> rootObject
+	std::shared_ptr<openkit::json::JsonObjectValue> rootObject
 )
 {
 	auto agentConfigObject = getJsonObjectFrom(rootObject, JsonResponseParser::RESPONSE_KEY_AGENT_CONFIG);
@@ -107,7 +107,7 @@ void JsonResponseParser::applyAgentConfiguration(
 
 void JsonResponseParser::applyBeaconSizeInKb(
 	protocol::ResponseAttributes::Builder& builder,
-	std::shared_ptr<util::json::objects::JsonObjectValue> agentConfigObject
+	std::shared_ptr<openkit::json::JsonObjectValue> agentConfigObject
 )
 {
 	auto numberValue = getJsonNumberFrom(agentConfigObject, JsonResponseParser::RESPONSE_KEY_MAX_BEACON_SIZE_IN_KB);
@@ -122,7 +122,7 @@ void JsonResponseParser::applyBeaconSizeInKb(
 
 void JsonResponseParser::applyMaxSessionDurationInMin(
 	protocol::ResponseAttributes::Builder& builder,
-	std::shared_ptr<util::json::objects::JsonObjectValue> agentConfigObject
+	std::shared_ptr<openkit::json::JsonObjectValue> agentConfigObject
 )
 {
 	auto numberValue = getJsonNumberFrom(agentConfigObject, JsonResponseParser::RESPONSE_KEY_MAX_SESSION_DURATION_IN_MIN);
@@ -137,7 +137,7 @@ void JsonResponseParser::applyMaxSessionDurationInMin(
 
 void JsonResponseParser::applyMaxEventsPerSession(
 	protocol::ResponseAttributes::Builder& builder,
-	std::shared_ptr<util::json::objects::JsonObjectValue> agentConfigObject
+	std::shared_ptr<openkit::json::JsonObjectValue> agentConfigObject
 )
 {
 	auto numberValue = getJsonNumberFrom(agentConfigObject, JsonResponseParser::RESPONSE_KEY_MAX_EVENTS_PER_SESSION);
@@ -152,7 +152,7 @@ void JsonResponseParser::applyMaxEventsPerSession(
 
 void JsonResponseParser::applySessionTimeoutInSec(
 	protocol::ResponseAttributes::Builder& builder,
-	std::shared_ptr<util::json::objects::JsonObjectValue> agentConfigObject
+	std::shared_ptr<openkit::json::JsonObjectValue> agentConfigObject
 )
 {
 	auto numberValue = getJsonNumberFrom(agentConfigObject, JsonResponseParser::RESPONSE_KEY_SESSION_TIMEOUT_IN_SEC);
@@ -167,7 +167,7 @@ void JsonResponseParser::applySessionTimeoutInSec(
 
 void JsonResponseParser::applySendIntervalInSec(
 	protocol::ResponseAttributes::Builder& builder,
-	std::shared_ptr<util::json::objects::JsonObjectValue> agentConfigObject
+	std::shared_ptr<openkit::json::JsonObjectValue> agentConfigObject
 )
 {
 	auto numberValue = getJsonNumberFrom(agentConfigObject, JsonResponseParser::RESPONSE_KEY_SEND_INTERVAL_IN_SEC);
@@ -182,7 +182,7 @@ void JsonResponseParser::applySendIntervalInSec(
 
 void JsonResponseParser::applyVisitStoreVersion(
 	protocol::ResponseAttributes::Builder& builder,
-	std::shared_ptr<util::json::objects::JsonObjectValue> agentConfigObject
+	std::shared_ptr<openkit::json::JsonObjectValue> agentConfigObject
 )
 {
 	auto numberValue = getJsonNumberFrom(agentConfigObject, JsonResponseParser::RESPONSE_KEY_VISIT_STORE_VERSION);
@@ -201,7 +201,7 @@ void JsonResponseParser::applyVisitStoreVersion(
 
 void JsonResponseParser::applyApplicationConfiguration(
 	protocol::ResponseAttributes::Builder& builder,
-	std::shared_ptr<util::json::objects::JsonObjectValue> rootObject
+	std::shared_ptr<openkit::json::JsonObjectValue> rootObject
 )
 {
 	auto appConfigObject = getJsonObjectFrom(rootObject, JsonResponseParser::RESPONSE_KEY_APP_CONFIG);
@@ -219,7 +219,7 @@ void JsonResponseParser::applyApplicationConfiguration(
 
 void JsonResponseParser::applyCapture(
 	protocol::ResponseAttributes::Builder& builder,
-	std::shared_ptr<util::json::objects::JsonObjectValue> appConfigObject
+	std::shared_ptr<openkit::json::JsonObjectValue> appConfigObject
 )
 {
 	auto numberValue = getJsonNumberFrom(appConfigObject, JsonResponseParser::RESPONSE_KEY_CAPTURE);
@@ -234,7 +234,7 @@ void JsonResponseParser::applyCapture(
 
 void JsonResponseParser::applyReportCrashes(
 	protocol::ResponseAttributes::Builder& builder,
-	std::shared_ptr<util::json::objects::JsonObjectValue> appConfigObject
+	std::shared_ptr<openkit::json::JsonObjectValue> appConfigObject
 )
 {
 	auto numberValue = getJsonNumberFrom(appConfigObject, JsonResponseParser::RESPONSE_KEY_REPORT_CRASHES);
@@ -249,7 +249,7 @@ void JsonResponseParser::applyReportCrashes(
 
 void JsonResponseParser::applyReportErrors(
 	protocol::ResponseAttributes::Builder& builder,
-	std::shared_ptr<util::json::objects::JsonObjectValue> appConfigObject
+	std::shared_ptr<openkit::json::JsonObjectValue> appConfigObject
 )
 {
 	auto numberValue = getJsonNumberFrom(appConfigObject, JsonResponseParser::RESPONSE_KEY_REPORT_ERRORS);
@@ -264,7 +264,7 @@ void JsonResponseParser::applyReportErrors(
 
 void JsonResponseParser::applyTrafficControlPercentage(
 	protocol::ResponseAttributes::Builder& builder,
-	std::shared_ptr<util::json::objects::JsonObjectValue> appConfigObject
+	std::shared_ptr<openkit::json::JsonObjectValue> appConfigObject
 )
 {
 	auto numberValue = getJsonNumberFrom(appConfigObject, JsonResponseParser::RESPONSE_KEY_TRAFFIC_CONTROL_PERCENTAGE);
@@ -279,7 +279,7 @@ void JsonResponseParser::applyTrafficControlPercentage(
 
 void JsonResponseParser::applyApplicationId(
 	protocol::ResponseAttributes::Builder& builder,
-	std::shared_ptr<util::json::objects::JsonObjectValue> appConfigObject
+	std::shared_ptr<openkit::json::JsonObjectValue> appConfigObject
 )
 {
 	const auto applicationId = getJsonStringFrom(appConfigObject, JsonResponseParser::RESPONSE_KEY_APPLICATION_ID);
@@ -295,7 +295,7 @@ void JsonResponseParser::applyApplicationId(
 
 void JsonResponseParser::applyDynamicConfiguration(
 	protocol::ResponseAttributes::Builder& builder,
-	std::shared_ptr<util::json::objects::JsonObjectValue> rootObject
+	std::shared_ptr<openkit::json::JsonObjectValue> rootObject
 )
 {
 	auto dynConfigObject = getJsonObjectFrom(rootObject, JsonResponseParser::RESPONSE_KEY_DYNAMIC_CONFIG);
@@ -311,7 +311,7 @@ void JsonResponseParser::applyDynamicConfiguration(
 
 void JsonResponseParser::applyMultiplicity(
 	protocol::ResponseAttributes::Builder& builder,
-	std::shared_ptr<util::json::objects::JsonObjectValue> dynConfigObject
+	std::shared_ptr<openkit::json::JsonObjectValue> dynConfigObject
 )
 {
 	auto numberValue = getJsonNumberFrom(dynConfigObject, JsonResponseParser::RESPONSE_KEY_MULTIPLICITY);
@@ -326,7 +326,7 @@ void JsonResponseParser::applyMultiplicity(
 
 void JsonResponseParser::applyServerId(
 	protocol::ResponseAttributes::Builder& builder,
-	std::shared_ptr<util::json::objects::JsonObjectValue> dynConfigObject
+	std::shared_ptr<openkit::json::JsonObjectValue> dynConfigObject
 )
 {
 	auto numberValue = getJsonNumberFrom(dynConfigObject, JsonResponseParser::RESPONSE_KEY_SERVER_ID);
@@ -341,7 +341,7 @@ void JsonResponseParser::applyServerId(
 
 void JsonResponseParser::applyStatus(
 	protocol::ResponseAttributes::Builder& builder,
-	std::shared_ptr<util::json::objects::JsonObjectValue> dynConfigObject
+	std::shared_ptr<openkit::json::JsonObjectValue> dynConfigObject
 )
 {
 	auto status = getJsonStringFrom(dynConfigObject, JsonResponseParser::RESPONSE_KEY_STATUS);
@@ -357,7 +357,7 @@ void JsonResponseParser::applyStatus(
 
 void JsonResponseParser::applyRootAttributes(
 	protocol::ResponseAttributes::Builder& builder,
-	std::shared_ptr<util::json::objects::JsonObjectValue> rootObject
+	std::shared_ptr<openkit::json::JsonObjectValue> rootObject
 )
 {
 	auto numberValue = getJsonNumberFrom(rootObject, JsonResponseParser::RESPONSE_KEY_TIMESTAMP_IN_MILLIS);

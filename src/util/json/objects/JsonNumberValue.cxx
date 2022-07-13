@@ -15,14 +15,14 @@
  */
 
 #include "util/json/constants/JsonLiterals.h"
-#include "util/json/objects/JsonNumberValue.h"
+#include "OpenKit/json/JsonNumberValue.h"
+#include "util/json/JsonWriter.h"
 
 #include <stdexcept>
 #include <sstream>
 
-using namespace util::json::objects;
+using namespace openkit::json;
 using namespace util::json::constants;
-
 
 JsonNumberValue::JsonNumberValue(int64_t longValue)
 	: mIsInteger(true)
@@ -135,4 +135,22 @@ float JsonNumberValue::getFloatValue() const
 double JsonNumberValue::getDoubleValue() const
 {
 	return mDoubleValue;
+}
+
+void JsonNumberValue::writeJsonString(JsonWriter& jsonWriter) const
+{
+	std::string str;
+
+	if (isInteger())
+	{
+		str = std::to_string(mLongValue);
+	}
+	else
+	{
+		str = std::to_string(mDoubleValue);
+	}
+
+	str.erase(str.find_last_not_of('0') + 1, std::string::npos); 
+	str.erase(str.find_last_not_of('.') + 1, std::string::npos);
+	jsonWriter.insertValue(str);
 }

@@ -15,11 +15,11 @@
  */
 
 #include "util/json/constants/JsonLiterals.h"
-#include "util/json/objects/JsonBooleanValue.h"
+#include "OpenKit/json/JsonBooleanValue.h"
+#include "util/json/JsonWriter.h"
 
-using namespace util::json::objects;
+using namespace openkit::json;
 using namespace util::json::constants;
-
 
 const std::shared_ptr<JsonBooleanValue> JsonBooleanValue::trueValue()
 {
@@ -66,5 +66,15 @@ JsonValueType JsonBooleanValue::getValueType() const
 bool JsonBooleanValue::getValue() const
 {
 	return mValue;
+}
+
+void JsonBooleanValue::writeJsonString(JsonWriter& jsonWriter) const
+{
+	if (mValue) {
+		jsonWriter.insertValue("true");
+	}
+	else {
+		jsonWriter.insertValue("false");
+	}
 }
 

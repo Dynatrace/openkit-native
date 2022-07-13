@@ -18,7 +18,7 @@
 #ifndef _OPENKIT_IHTTPRESPONSEINTERCEPTOR_H
 #define _OPENKIT_IHTTPRESPONSEINTERCEPTOR_H
 
-#include "OpenKitExports.h"
+#include "OpenKit/OpenKitExports.h"
 #include "IHttpResponse.h"
 
 namespace openkit

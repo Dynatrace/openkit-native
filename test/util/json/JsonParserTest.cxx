@@ -17,10 +17,13 @@
 #include "util/json/JsonParser.h"
 #include "util/json/parser/JsonParserException.h"
 #include "util/json/constants/JsonLiterals.h"
-#include "util/json/objects/JsonNullValue.h"
-#include "util/json/objects/JsonBooleanValue.h"
-#include "util/json/objects/JsonStringValue.h"
-#include "util/json/objects/JsonNumberValue.h"
+#include "OpenKit/json/JsonNullValue.h"
+#include "OpenKit/json/JsonBooleanValue.h"
+#include "OpenKit/json/JsonStringValue.h"
+#include "OpenKit/json/JsonNumberValue.h"
+#include <OpenKit/json/JsonObjectValue.h>
+#include <OpenKit/json/JsonArrayValue.h>
+#include <OpenKit/json/JsonValueType.h>
 #include "lexer/MockJsonLexer.h"
 
 #include <gtest/gtest.h>
@@ -28,16 +31,17 @@
 #include <sstream>
 #include <iomanip>
 
+using namespace openkit::json;
 using namespace util::json;
 using namespace util::json::parser;
 
 #define CAST_TOKEN(token, tokenClass) std::dynamic_pointer_cast<tokenClass>(token)
 
-#define CAST_BOOLEAN_TOKEN(token) CAST_TOKEN(token, objects::JsonBooleanValue)
-#define CAST_NUMBER_TOKEN(token) CAST_TOKEN(token, objects::JsonNumberValue)
-#define CAST_STRING_TOKEN(token) CAST_TOKEN(token, objects::JsonStringValue)
-#define CAST_ARRAY_TOKEN(token) CAST_TOKEN(token, objects::JsonArrayValue)
-#define CAST_OBJECT_TOKEN(token) CAST_TOKEN(token, objects::JsonObjectValue)
+#define CAST_BOOLEAN_TOKEN(token) CAST_TOKEN(token, JsonBooleanValue)
+#define CAST_NUMBER_TOKEN(token) CAST_TOKEN(token, JsonNumberValue)
+#define CAST_STRING_TOKEN(token) CAST_TOKEN(token, JsonStringValue)
+#define CAST_ARRAY_TOKEN(token) CAST_TOKEN(token, JsonArrayValue)
+#define CAST_OBJECT_TOKEN(token) CAST_TOKEN(token, JsonObjectValue)
 
 MATCHER(isNullToken, "")
 {
@@ -48,7 +52,7 @@ MATCHER(isNullToken, "")
 		return false;
 	}
 
-	return arg->getValueType() == objects::JsonValueType::NULL_VALUE;
+	return arg->getValueType() == JsonValueType::NULL_VALUE;
 }
 
 MATCHER_P(isBooleanTokenOf, value, "")
@@ -59,7 +63,7 @@ MATCHER_P(isBooleanTokenOf, value, "")
 	{
 		return false;
 	}
-	if (arg->getValueType() != objects::JsonValueType::BOOLEAN_VALUE)
+	if (arg->getValueType() != JsonValueType::BOOLEAN_VALUE)
 	{
 		return false;
 	}
@@ -81,7 +85,7 @@ MATCHER_P(isStringTokenOf, value, "")
 	{
 		return false;
 	}
-	if(arg->getValueType() != objects::JsonValueType::STRING_VALUE)
+	if(arg->getValueType() != JsonValueType::STRING_VALUE)
 	{
 		return false;
 	}
@@ -103,7 +107,7 @@ MATCHER_P(isNumberLongTokenOf, value, "")
 	{
 		return false;
 	}
-	if (arg->getValueType() != objects::JsonValueType::NUMBER_VALUE)
+	if (arg->getValueType() != JsonValueType::NUMBER_VALUE)
 	{
 		return false;
 	}
@@ -125,7 +129,7 @@ MATCHER_P(isNumberDecimalTokenOf, value, "")
 	{
 		return false;
 	}
-	if (arg->getValueType() != objects::JsonValueType::NUMBER_VALUE)
+	if (arg->getValueType() != JsonValueType::NUMBER_VALUE)
 	{
 		return false;
 	}
@@ -147,7 +151,7 @@ MATCHER_P(isArrayOfSize, size, "")
 	{
 		return false;
 	}
-	if (arg->getValueType() != objects::JsonValueType::ARRAY_VALUE)
+	if (arg->getValueType() != JsonValueType::ARRAY_VALUE)
 	{
 		return false;
 	}
@@ -169,7 +173,7 @@ MATCHER_P(isObjectOfSize, size, "")
 	{
 		return false;
 	}
-	if (arg->getValueType() != objects::JsonValueType::OBJECT_VALUE)
+	if (arg->getValueType() != JsonValueType::OBJECT_VALUE)
 	{
 		return false;
 	}
@@ -205,7 +209,7 @@ protected:
 		throw std::logic_error("not a nested exception");
 	}
 
-	static const std::shared_ptr<objects::JsonValue> getValueAt(const std::shared_ptr<objects::JsonArrayValue> arrayValue, size_t index)
+	static const std::shared_ptr<JsonValue> getValueAt(const std::shared_ptr<JsonArrayValue> arrayValue, size_t index)
 	{
 		size_t currentElementIndex = 0;
 		for (auto jsonValue : *arrayValue)
@@ -248,7 +252,7 @@ protected:
 		}
 	}
 
-	void assertObjectKeys(const std::shared_ptr<objects::JsonObjectValue> objectValue, const std::initializer_list<std::string>& keys)
+	void assertObjectKeys(const std::shared_ptr<JsonObjectValue> objectValue, const std::initializer_list<std::string>& keys)
 	{
 		ASSERT_THAT(objectValue->size(), testing::Eq(keys.size()));
 		for (const auto& key : keys)
@@ -307,7 +311,7 @@ TEST_F(JsonParserTest, parsingNullLiteralValueWorks)
 
 	// then
 	ASSERT_THAT(obtained,testing::NotNull());
-	ASSERT_THAT(obtained->getValueType(), testing::Eq(objects::JsonValueType::NULL_VALUE));
+	ASSERT_THAT(obtained->getValueType(), testing::Eq(JsonValueType::NULL_VALUE));
 
 	// and the parser is in end state
 	ASSERT_THAT(target.getState(), testing::Eq(JsonParserState::END));

@@ -32,7 +32,8 @@ namespace protocol
 		FAILURE_ERROR = 40,				// error
 		FAILURE_EXCEPTION = 42,			// exception
 		FAILURE_CRASH = 50,				// crash
-		IDENTIFY_USER = 60				// identify user
+		IDENTIFY_USER = 60,				// identify user
+		EVENT = 98						// event api
 	};
 }
 

@@ -51,3 +51,8 @@ void NullSession::end()
 {
 	// intentionally left empty, due to NullObject pattern
 }
+
+void NullSession::sendEvent(const char* /*name*/, const openkit::json::JsonObjectValue::JsonObjectMapPtr /*attributes*/)
+{
+	// intentionally left empty, due to NullObject pattern
+}

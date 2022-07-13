@@ -61,6 +61,16 @@ namespace test
 
 		MOCK_METHOD(
 			void,
+			sendEvent,
+			(
+				const char*, // eventName
+				(const openkit::json::JsonObjectValue::JsonObjectMapPtr) /*attributes*/
+			),
+			(override)
+		);
+
+		MOCK_METHOD(
+			void,
 			reportCrash,
 			(
 				const char*, // errorName

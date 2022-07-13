@@ -18,7 +18,7 @@
 #ifndef _OPENKIT_IHTTPREQUEST_H
 #define _OPENKIT_IHTTPREQUEST_H
 
-#include "OpenKitExports.h"
+#include "OpenKit/OpenKitExports.h"
 
 #include <list>
 #include <string>

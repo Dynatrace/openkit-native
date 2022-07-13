@@ -18,12 +18,12 @@
 #include "util/json/parser/JsonParserException.h"
 #include "util/json/lexer/JsonLexerException.h"
 #include "util/json/lexer/JsonTokenType.h"
-#include "util/json/objects/JsonArrayValue.h"
-#include "util/json/objects/JsonObjectValue.h"
-#include "util/json/objects/JsonNullValue.h"
-#include "util/json/objects/JsonBooleanValue.h"
-#include "util/json/objects/JsonStringValue.h"
-#include "util/json/objects/JsonNumberValue.h"
+#include "OpenKit/json/JsonArrayValue.h"
+#include "OpenKit/json/JsonObjectValue.h"
+#include "OpenKit/json/JsonNullValue.h"
+#include "OpenKit/json/JsonBooleanValue.h"
+#include "OpenKit/json/JsonStringValue.h"
+#include "OpenKit/json/JsonNumberValue.h"
 
 #include <sstream>
 
@@ -149,7 +149,7 @@ void JsonParser::parseInitState(const JsonTokenPtr token)
 		case JsonTokenType::LEFT_SQUARE_BRACKET:
 		{
 			auto jsonValueList = std::make_shared<std::list<JsonValuePtr>>();
-			auto jsonArrayValue = objects::JsonArrayValue::fromList(jsonValueList);
+			auto jsonArrayValue = openkit::json::JsonArrayValue::fromList(jsonValueList);
 			mValueStack.push(std::shared_ptr<JsonValueContainer>(new JsonValueContainer(jsonArrayValue, jsonValueList)));
 
 			mState = JsonParserState::IN_ARRAY_START;
@@ -158,7 +158,7 @@ void JsonParser::parseInitState(const JsonTokenPtr token)
 		case JsonTokenType::LEFT_BRACE:
 		{
 			auto jsonObjectMap = std::make_shared<std::unordered_map<std::string, JsonValuePtr>>();
-			auto jsonObjectValue = objects::JsonObjectValue::fromMap(jsonObjectMap);
+			auto jsonObjectValue = openkit::json::JsonObjectValue::fromMap(jsonObjectMap);
 			mValueStack.push(std::shared_ptr<JsonValueContainer>(new JsonValueContainer(jsonObjectValue, jsonObjectMap)));
 
 			mState = JsonParserState::IN_OBJECT_START;
@@ -255,7 +255,7 @@ void JsonParser::parseStartOfNestedObject()
 {
 	mStateStack.push(JsonParserState::IN_ARRAY_VALUE);
 	auto jsonObjectMap = std::make_shared<std::unordered_map<std::string, JsonValuePtr>>();
-	auto jsonObjectValue = objects::JsonObjectValue::fromMap(jsonObjectMap);
+	auto jsonObjectValue = openkit::json::JsonObjectValue::fromMap(jsonObjectMap);
 	mValueStack.push(std::shared_ptr<JsonValueContainer>(new JsonValueContainer(jsonObjectValue, jsonObjectMap)));
 
 	mState = JsonParserState::IN_OBJECT_START;
@@ -265,7 +265,7 @@ void JsonParser::parseStartOfNestedArray()
 {
 	mStateStack.push(JsonParserState::IN_ARRAY_VALUE);
 	auto jsonValueList = std::make_shared<std::list<JsonValuePtr>>();
-	auto jsonArrayValue = objects::JsonArrayValue::fromList(jsonValueList);
+	auto jsonArrayValue = openkit::json::JsonArrayValue::fromList(jsonValueList);
 	mValueStack.push(std::shared_ptr<JsonValueContainer>(new JsonValueContainer(jsonArrayValue, jsonValueList)));
 
 	mState = JsonParserState::IN_ARRAY_START;
@@ -331,7 +331,7 @@ void JsonParser::parseInObjectColonState(const JsonTokenPtr token)
 		{
 			// value is an object
 			auto jsonObjectMap = std::make_shared<std::unordered_map<std::string, JsonValuePtr>>();
-			auto jsonObjectValue = objects::JsonObjectValue::fromMap(jsonObjectMap);
+			auto jsonObjectValue = openkit::json::JsonObjectValue::fromMap(jsonObjectMap);
 			mValueStack.push(std::shared_ptr<JsonValueContainer>(new JsonValueContainer(jsonObjectValue, jsonObjectMap)));
 			mStateStack.push(JsonParserState::IN_OBJECT_VALUE);
 
@@ -342,7 +342,7 @@ void JsonParser::parseInObjectColonState(const JsonTokenPtr token)
 		{
 			// value is an array
 			auto jsonValueList = std::make_shared<std::list<JsonValuePtr>>();
-			auto jsonArrayValue = objects::JsonArrayValue::fromList(jsonValueList);
+			auto jsonArrayValue = openkit::json::JsonArrayValue::fromList(jsonValueList);
 			mValueStack.push(std::shared_ptr<JsonValueContainer>(new JsonValueContainer(jsonArrayValue, jsonValueList)));
 			mStateStack.push(JsonParserState::IN_OBJECT_VALUE);
 
@@ -448,7 +448,7 @@ void JsonParser::closeCompositeJsonValueAndRestoreState()
 	// ensure that there is a new top level element which is a composite value (object or array)
 	ensureValueContainerStackIsNotEmpty();
 	firstValueStackElement = mValueStack.top();
-	if (firstValueStackElement->mJsonValue->getValueType() == objects::JsonValueType::ARRAY_VALUE)
+	if (firstValueStackElement->mJsonValue->getValueType() == openkit::json::JsonValueType::ARRAY_VALUE)
 	{
 		if (!firstValueStackElement->mBackingList)
 		{
@@ -457,7 +457,7 @@ void JsonParser::closeCompositeJsonValueAndRestoreState()
 		}
 		firstValueStackElement->mBackingList->push_back(currentValue);
 	}
-	else if (firstValueStackElement->mJsonValue->getValueType() == objects::JsonValueType::OBJECT_VALUE)
+	else if (firstValueStackElement->mJsonValue->getValueType() == openkit::json::JsonValueType::OBJECT_VALUE)
 	{
 		firstValueStackElement->mLastParsedObjectValue = currentValue;
 	}
@@ -491,13 +491,13 @@ const JsonParser::JsonValuePtr JsonParser::tokenToSimpleJsonValue(const JsonToke
 	switch (token->getTokenType())
 	{
 		case JsonTokenType::LITERAL_NULL:
-			return objects::JsonNullValue::nullValue();
+			return openkit::json::JsonNullValue::nullValue();
 		case JsonTokenType::LITERAL_BOOLEAN:
-			return objects::JsonBooleanValue::fromLiteral(token->getValue());
+			return openkit::json::JsonBooleanValue::fromLiteral(token->getValue());
 		case JsonTokenType::VALUE_STRING:
-			return objects::JsonStringValue::fromString(token->getValue());
+			return openkit::json::JsonStringValue::fromString(token->getValue());
 		case JsonTokenType::VALUE_NUMBER:
-			return objects::JsonNumberValue::fromNumberLiteral((token->getValue()));
+			return openkit::json::JsonNumberValue::fromNumberLiteral((token->getValue()));
 		default:
 			throw JsonParserException("Internal parser error: Unexpected JSON token \"" + token->toString() + "\"");
 	}
@@ -517,7 +517,7 @@ void JsonParser::ensureTopLevelElementIsAJsonArray() const
 	ensureValueContainerStackIsNotEmpty();
 
 	auto firstStackElement = mValueStack.top();
-	if (firstStackElement->mJsonValue->getValueType() != objects::JsonValueType::ARRAY_VALUE)
+	if (firstStackElement->mJsonValue->getValueType() != openkit::json::JsonValueType::ARRAY_VALUE)
 	{
 		// sanity check. cannot happen unless there is a programming error
 		throw JsonParserException(internalParserErrorMessage(mState, "top level element is not a JSON array"));
@@ -534,7 +534,7 @@ void JsonParser::ensureTopLevelElementIsAJsonObject() const
 	ensureValueContainerStackIsNotEmpty();
 
 	auto firstStackElement = mValueStack.top();
-	if (firstStackElement->mJsonValue->getValueType() != objects::JsonValueType::OBJECT_VALUE)
+	if (firstStackElement->mJsonValue->getValueType() != openkit::json::JsonValueType::OBJECT_VALUE)
 	{
 		// sanity check. cannot happen unless there is a programming error
 		throw JsonParserException(internalParserErrorMessage(mState, "top level element is not a JSON object"));

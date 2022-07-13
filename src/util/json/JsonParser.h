@@ -19,9 +19,9 @@
 
 #include "util/json/lexer/JsonLexer.h"
 #include "util/json/lexer/JsonToken.h"
-#include "util/json/objects/JsonValue.h"
-#include "util/json/objects/JsonArrayValue.h"
-#include "util/json/objects/JsonObjectValue.h"
+#include "OpenKit/json/JsonValue.h"
+#include "OpenKit/json/JsonArrayValue.h"
+#include "OpenKit/json/JsonObjectValue.h"
 #include "util/json/parser/JsonParserState.h"
 
 #include <string>
@@ -40,9 +40,9 @@ namespace util
 		{
 			using JsonLexerPtr = std::shared_ptr<util::json::lexer::JsonLexer>;
 			using JsonTokenPtr = std::shared_ptr<util::json::lexer::JsonToken>;
-			using JsonValuePtr = std::shared_ptr<util::json::objects::JsonValue>;
-			using JsonArrayValuePtr = std::shared_ptr<util::json::objects::JsonArrayValue>;
-			using JsonObjectValuePtr = std::shared_ptr<util::json::objects::JsonObjectValue>;
+			using JsonValuePtr = std::shared_ptr<openkit::json::JsonValue>;
+			using JsonArrayValuePtr = std::shared_ptr<openkit::json::JsonArrayValue>;
+			using JsonObjectValuePtr = std::shared_ptr<openkit::json::JsonObjectValue>;
 
 		public: // functions
 

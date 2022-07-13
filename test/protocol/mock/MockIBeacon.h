@@ -186,6 +186,16 @@ namespace test
 		MOCK_METHOD(void, identifyUser, (const core::UTF8String& /* userTag */), (override));
 
 		MOCK_METHOD(
+			void,
+			sendEvent,
+			(
+				const core::UTF8String&, /*eventName*/
+				(const openkit::json::JsonObjectValue::JsonObjectMapPtr) /*attributes*/
+			),
+			(override)
+		);
+
+		MOCK_METHOD(
 			std::shared_ptr<protocol::IStatusResponse>,
 			send,
 			(

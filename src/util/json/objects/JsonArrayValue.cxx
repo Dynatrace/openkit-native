@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-#include "util/json/objects/JsonArrayValue.h"
+#include "OpenKit/json/JsonArrayValue.h"
+#include "util/json/JsonWriter.h"
 
-using namespace util::json::objects;
+using namespace openkit::json;
 
 
 JsonArrayValue::JsonArrayValue(const JsonValueListPtr values)
@@ -57,4 +58,23 @@ JsonArrayValue::JsonValueList::iterator JsonArrayValue::end()
 JsonArrayValue::JsonValueList::const_iterator JsonArrayValue::end() const
 {
 	return mJsonValues->end();
+}
+
+void JsonArrayValue::writeJsonString(JsonWriter& jsonWriter) const
+{
+	jsonWriter.openArray();
+
+	auto writtenElements = 0;
+
+	for (auto& value : *mJsonValues)
+	{
+		if (writtenElements++ > 0)
+		{
+			jsonWriter.insertElementSeperator();
+		}
+
+		value->writeJsonString(jsonWriter);
+	}
+
+	jsonWriter.closeArray();
 }

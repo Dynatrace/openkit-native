@@ -33,6 +33,13 @@ set(OPENKIT_PUBLIC_HEADERS_CXX_API
     ${CMAKE_SOURCE_DIR}/include/OpenKit/LogLevel.h
     ${CMAKE_SOURCE_DIR}/include/OpenKit/OpenKitConstants.h
     ${CMAKE_SOURCE_DIR}/include/OpenKit/OpenKit.h
+    ${CMAKE_SOURCE_DIR}/include/OpenKit/json/JsonArrayValue.h
+    ${CMAKE_SOURCE_DIR}/include/OpenKit/json/JsonBooleanValue.h
+    ${CMAKE_SOURCE_DIR}/include/OpenKit/json/JsonNullValue.h
+    ${CMAKE_SOURCE_DIR}/include/OpenKit/json/JsonNumberValue.h
+    ${CMAKE_SOURCE_DIR}/include/OpenKit/json/JsonObjectValue.h
+    ${CMAKE_SOURCE_DIR}/include/OpenKit/json/JsonStringValue.h
+    ${CMAKE_SOURCE_DIR}/include/OpenKit/json/JsonValue.h
 )
 
 set(OPENKIT_PUBLIC_HEADERS_C_API
@@ -305,19 +312,13 @@ set(OPENKIT_SOURCES_UTIL_JSON_READER
 )
 
 set(OPENKIT_SOURCES_UTIL_JSON_OBJECTS
-    ${CMAKE_CURRENT_LIST_DIR}/util/json/objects/JsonArrayValue.h
     ${CMAKE_CURRENT_LIST_DIR}/util/json/objects/JsonArrayValue.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/util/json/objects/JsonBooleanValue.h
     ${CMAKE_CURRENT_LIST_DIR}/util/json/objects/JsonBooleanValue.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/util/json/objects/JsonNullValue.h
     ${CMAKE_CURRENT_LIST_DIR}/util/json/objects/JsonNullValue.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/util/json/objects/JsonNumberValue.h
     ${CMAKE_CURRENT_LIST_DIR}/util/json/objects/JsonNumberValue.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/util/json/objects/JsonObjectValue.h
     ${CMAKE_CURRENT_LIST_DIR}/util/json/objects/JsonObjectValue.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/util/json/objects/JsonStringValue.h
     ${CMAKE_CURRENT_LIST_DIR}/util/json/objects/JsonStringValue.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/util/json/objects/JsonValue.h
+    ${CMAKE_CURRENT_LIST_DIR}/util/json/objects/JsonValue.cxx
 )
 
 set(OPENKIT_SOURCES_UTIL_JSON_PARSER
@@ -329,6 +330,8 @@ set(OPENKIT_SOURCES_UTIL_JSON_PARSER
 set(OPENKIT_SOURCES_UTIL_JSON
     ${CMAKE_CURRENT_LIST_DIR}/util/json/JsonParser.h
     ${CMAKE_CURRENT_LIST_DIR}/util/json/JsonParser.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/util/json/JsonWriter.h
+    ${CMAKE_CURRENT_LIST_DIR}/util/json/JsonWriter.cxx
 )
 
 # Create a combined list of all source files
@@ -511,7 +514,7 @@ function(build_open_kit)
     endif ()
 
     # generate export header
-    set(OPENKIT_EXPORT_FILENAME "${CMAKE_CURRENT_BINARY_DIR}/include/OpenKitExports.h")
+    set(OPENKIT_EXPORT_FILENAME "${CMAKE_CURRENT_BINARY_DIR}/include/OpenKit/OpenKitExports.h")
     include(GenerateExportHeader)
     generate_export_header(OpenKit
         BASE_NAME OPENKIT

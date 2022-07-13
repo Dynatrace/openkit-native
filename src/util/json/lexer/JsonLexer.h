@@ -165,7 +165,7 @@ namespace util
 				const std::string parseLiteral();
 
 				///
-				/// Consumes all whitespace characters form the @ref IResettableReader until the first non-whitespace is
+				/// Consumes all whitespace characters from the @ref IResettableReader until the first non-whitespace is
 				/// encountered.
 				///
 				/// @return @c true if EOF (end of file) is reached, @c false otherwise.

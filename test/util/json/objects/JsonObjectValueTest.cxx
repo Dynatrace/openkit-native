@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Copyright 2018-2021 Dynatrace LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-#include "util/json/objects/JsonObjectValue.h"
-#include "util/json/objects/JsonBooleanValue.h"
+#include "OpenKit/json/JsonObjectValue.h"
+#include "OpenKit/json/JsonBooleanValue.h"
+#include "OpenKit/json/JsonArrayValue.h"
+#include <OpenKit/json/JsonStringValue.h>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-using namespace util::json::objects;
+using namespace openkit::json;
 
 class JsonObjectValueTest : public testing::Test
 {
@@ -165,4 +167,61 @@ TEST_F(JsonObjectValueTest, beginReturnsIteratorToUnderlyingMap)
 
 	// then
 	ASSERT_THAT(obtained, testing::Eq(target->end()));
+}
+
+TEST_F(JsonObjectValueTest, toStringEmptyObject)
+{
+	// given
+	auto jsonValueMap = std::make_shared<JsonObjectValue::JsonObjectMap>();
+	auto target = JsonObjectValue::fromMap(jsonValueMap);
+
+	// then
+	ASSERT_THAT(target->toString(), testing::Eq(std::string("{}")));
+}
+
+TEST_F(JsonObjectValueTest, toStringSingleElement)
+{
+	// given
+	auto jsonValueMap = std::make_shared<JsonObjectValue::JsonObjectMap>();
+	jsonValueMap->insert({ {"first",  JsonBooleanValue::trueValue()} });
+	auto target = JsonObjectValue::fromMap(jsonValueMap);
+
+	// then
+	ASSERT_THAT(target->toString(), testing::Eq(std::string("{\"first\":true}")));
+}
+
+TEST_F(JsonObjectValueTest, toStringSingleElementEmptyArray)
+{
+	// given
+	auto jsonValueMap = std::make_shared<JsonObjectValue::JsonObjectMap>();
+	auto jsonValues = std::make_shared<JsonArrayValue::JsonValueList>();
+	jsonValueMap->insert({ {"first",  JsonArrayValue::fromList(jsonValues)}});
+	auto target = JsonObjectValue::fromMap(jsonValueMap);
+
+	// then
+	ASSERT_THAT(target->toString(), testing::Eq(std::string("{\"first\":[]}")));
+}
+
+TEST_F(JsonObjectValueTest, toStringMultipleElements)
+{
+	// given
+	auto jsonValueMap = std::make_shared<JsonObjectValue::JsonObjectMap>();
+	jsonValueMap->insert({"second", JsonBooleanValue::falseValue() });
+	jsonValueMap->insert({"first",  JsonBooleanValue::trueValue()});
+	auto target = JsonObjectValue::fromMap(jsonValueMap);
+
+	// then
+	ASSERT_THAT(target->toString(), testing::HasSubstr(std::string("\"first\":true")));
+	ASSERT_THAT(target->toString(), testing::HasSubstr(std::string("\"second\":false")));
+}
+
+TEST_F(JsonObjectValueTest, parsingSpecialUnicodeCharacter)
+{
+	// given
+	auto jsonValueMap = std::make_shared<JsonObjectValue::JsonObjectMap>();
+	jsonValueMap->insert({{"Test",  JsonStringValue::fromString("/\b\f\n\r\t\"\\ф")}});
+	auto target = JsonObjectValue::fromMap(jsonValueMap);
+
+	// then
+	ASSERT_THAT(target->toString(), testing::Eq(std::string("{\"Test\":\"\\/\\b\\f\\n\\r\\t\\\"\\\\ф\"}")));
 }

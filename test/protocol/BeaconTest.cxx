@@ -17,6 +17,9 @@
 #include "protocol/Beacon.h"
 #include "OpenKit/CrashReportingLevel.h"
 #include "OpenKit/DataCollectionLevel.h"
+#include "OpenKit/json/JsonObjectValue.h"
+#include "OpenKit/json/JsonStringValue.h"
+
 #include "core/UTF8String.h"
 #include "core/caching/BeaconCache.h"
 #include "core/caching/BeaconKey.h"
@@ -1539,6 +1542,221 @@ TEST_F(BeaconTest, errorCodeNotReportedIfDisallowedByTrafficControl)
 
 	// when
 	target->reportError(1, "DivByZeroError", 127);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// sendEvent
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+TEST_F(BeaconTest, sendEventWithPayload)
+{
+	// given
+	Utf8String_t eventName("event name");
+	auto mapWithName = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
+	mapWithName->insert({ "custom", openkit::json::JsonStringValue::fromString("CustomValue") });
+
+	auto realMapPayload = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
+	realMapPayload->insert({ "name", openkit::json::JsonStringValue::fromString("event name") });
+	realMapPayload->insert({ "custom", openkit::json::JsonStringValue::fromString("CustomValue") });
+
+	auto str = openkit::json::JsonObjectValue::fromMap(realMapPayload)->toString();
+
+	// expect
+	std::stringstream s;
+	s << "et=" << static_cast<int32_t>(EventType_t::EVENT)	// event type
+		<< "&pl=" << core::util::URLEncoding::urlencode(str, { '_' }).getStringData()	// payload
+		;
+	EXPECT_CALL(*mockBeaconCache, addEventData(
+		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
+		0,											// timestamp when error was reported
+		testing::Eq(s.str())
+	)).Times(1);
+
+	auto target = createBeacon()->build();
+
+	// then
+	target->sendEvent(eventName, mapWithName);
+}
+
+TEST_F(BeaconTest, sendEventWithNameInPayload)
+{
+	// given
+	Utf8String_t eventName("event name");
+	auto mapWithName = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
+	mapWithName->insert({ "name", openkit::json::JsonStringValue::fromString("trying to override") });
+
+	auto realMapPayload = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
+	realMapPayload->insert({ "name", openkit::json::JsonStringValue::fromString("event name") });
+
+	auto str = openkit::json::JsonObjectValue::fromMap(realMapPayload)->toString();
+
+	// expect
+	std::stringstream s;
+	s << "et=" << static_cast<int32_t>(EventType_t::EVENT)	// event type
+		<< "&pl=" << core::util::URLEncoding::urlencode(str, { '_' }).getStringData()	// payload
+		;
+	EXPECT_CALL(*mockBeaconCache, addEventData(
+		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
+		0,											// timestamp when error was reported
+		testing::Eq(s.str())
+	)).Times(1);
+
+	auto target = createBeacon()->build();
+
+	// then
+	target->sendEvent(eventName, mapWithName);
+}
+
+TEST_F(BeaconTest, sendEventWithEmptyPayload)
+{
+	// given
+	Utf8String_t eventName("event name");
+	auto emptyMap = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
+
+	auto realMapPayload = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
+	realMapPayload->insert({ "name", openkit::json::JsonStringValue::fromString("event name")});
+
+	auto str = openkit::json::JsonObjectValue::fromMap(realMapPayload)->toString();
+
+	// expect
+	std::stringstream s;
+	s << "et=" << static_cast<int32_t>(EventType_t::EVENT)	// event type
+		<< "&pl=" << core::util::URLEncoding::urlencode(str, { '_' }).getStringData()	// payload
+		;
+	EXPECT_CALL(*mockBeaconCache, addEventData(
+		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
+		0,											// timestamp when error was reported
+		testing::Eq(s.str())
+	)).Times(1);
+
+	auto target = createBeacon()->build();
+
+	// then
+	target->sendEvent(eventName, emptyMap);
+}
+
+TEST_F(BeaconTest, sendEventWithNullPtrPayload)
+{
+	// given
+	Utf8String_t eventName("event name");
+
+	auto realMapPayload = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
+	realMapPayload->insert({ "name", openkit::json::JsonStringValue::fromString("event name") });
+
+	auto str = openkit::json::JsonObjectValue::fromMap(realMapPayload)->toString();
+
+	// expect
+	std::stringstream s;
+	s << "et=" << static_cast<int32_t>(EventType_t::EVENT)	// event type
+		<< "&pl=" << core::util::URLEncoding::urlencode(str, { '_' }).getStringData()	// payload
+		;
+	EXPECT_CALL(*mockBeaconCache, addEventData(
+		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
+		0,											// timestamp when error was reported
+		testing::Eq(s.str())
+	)).Times(1);
+
+	auto target = createBeacon()->build();
+
+	// then
+	target->sendEvent(eventName, nullptr);
+}
+
+TEST_F(BeaconTest, sendEventWithEmptyEventNameThrowsException)
+{
+	// given
+	auto emptyMap = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
+	auto target = createBeacon()->build();
+
+	// then
+	EXPECT_THROW(
+		target->sendEvent(Utf8String_t(), emptyMap),
+		std::invalid_argument
+	);
+}
+
+TEST_F(BeaconTest, sendEventNotReportedIfDataSendingDisallowed)
+{
+	// with
+	ON_CALL(*mockServerConfiguration, isSendingDataAllowed())
+		.WillByDefault(testing::Return(false));
+
+	// given
+	Utf8String_t eventName("event name");
+	auto emptyMap = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
+	auto target = createBeacon()->build();
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	// when, expect no interaction with beacon cache
+	target->sendEvent(eventName, emptyMap);
+}
+
+TEST_F(BeaconTest, sendEventNotReportedIfSendingEventDataDisallowed)
+{
+	// with
+	ON_CALL(*mockPrivacyConfiguration, isEventReportingAllowed())
+		.WillByDefault(testing::Return(false));
+
+	Utf8String_t eventName("event name");
+	auto emptyMap = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
+	auto target = createBeacon()->build();
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	// when, expect no interaction with beacon cache
+	target->sendEvent(eventName, emptyMap);
+}
+
+TEST_F(BeaconTest, sendEventNotReportIfDisallowedByTrafficControl)
+{
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(0);
+
+	// given
+	Utf8String_t eventName("event name");
+	auto emptyMap = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
+	const auto trafficControlPercentage = 50;
+
+	auto mockRandomGenerator = MockIPRNGenerator::createNice();
+	ON_CALL(*mockRandomGenerator, nextPercentageValue())
+		.WillByDefault(testing::Return(trafficControlPercentage));
+
+	ON_CALL(*mockServerConfiguration, getTrafficControlPercentage())
+		.WillByDefault(testing::Return(trafficControlPercentage));
+
+	auto target = createBeacon()->with(mockRandomGenerator).build();
+
+	// when
+	target->sendEvent(eventName, emptyMap);
+}
+
+TEST_F(BeaconTest, sendEventPayloadIsTooBig)
+{
+	// given
+	Utf8String_t eventName("event name");
+	auto bigMap = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
+
+	for (int i = 0; i < 1000; i++)
+	{
+		bigMap->insert({ "KeyName" + std::to_string(i), openkit::json::JsonStringValue::fromString("Test " + std::to_string(i)) });
+	}
+
+	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
+		.Times(0);
+	
+	auto target = createBeacon()->build();
+
+	// then
+	EXPECT_THROW(
+		target->sendEvent(eventName, bigMap),
+		std::invalid_argument
+	);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

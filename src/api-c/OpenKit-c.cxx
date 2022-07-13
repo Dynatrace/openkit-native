@@ -29,6 +29,7 @@
 #include "OpenKit/IRootAction.h"
 #include "OpenKit/IAction.h"
 #include "OpenKit/IWebRequestTracer.h"
+#include "OpenKit/json/JsonStringValue.h"
 
 #include "core/util/DefaultLogger.h"
 #include "core/util/StringUtil.h"
@@ -1093,6 +1094,31 @@ extern "C" {
 				// retrieve the Session instance from the handle and call the respective method
 				assert(sessionHandle->sharedPointer != nullptr);
 				sessionHandle->sharedPointer->reportCrash(errorName, reason, stacktrace);
+			}
+		}
+		CATCH_AND_LOG(sessionHandle)
+	}
+
+	void sendEvent(SessionHandle* sessionHandle, const char* name, struct Pair* attributes, size_t attributesSize)
+	{
+		TRY
+		{
+			if (sessionHandle)
+			{
+				// retrieve the Session instance from the handle and call the respective method
+				assert(sessionHandle->sharedPointer != nullptr);
+
+				auto convertedMap = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
+
+				if (attributes != nullptr)
+				{
+					for (int i = 0; i < attributesSize; i++)
+					{
+						convertedMap->insert(std::make_pair(attributes[i].key, openkit::json::JsonStringValue::fromString(attributes[i].value)));
+					}
+				}
+
+				sessionHandle->sharedPointer->sendEvent(name, convertedMap);
 			}
 		}
 		CATCH_AND_LOG(sessionHandle)

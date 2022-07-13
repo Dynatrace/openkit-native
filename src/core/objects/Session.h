@@ -96,6 +96,8 @@ namespace core
 
 			void end() override;
 
+			void sendEvent(const char* eventName, openkit::json::JsonObjectValue::JsonObjectMapPtr attributes = nullptr) override;
+
 			void startSession() override;
 
 			std::shared_ptr<protocol::IStatusResponse> sendBeacon(

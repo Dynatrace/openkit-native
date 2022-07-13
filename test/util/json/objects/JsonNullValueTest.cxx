@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#include "util/json/objects/JsonNullValue.h"
+#include "OpenKit/json/JsonNullValue.h"
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-using namespace util::json::objects;
+using namespace openkit::json;
 
 
 class JsonNullValueTest : public ::testing::Test
@@ -30,4 +30,10 @@ TEST_F(JsonNullValueTest, isNullType)
 {
 	// when, then
 	ASSERT_THAT(JsonNullValue::nullValue()->getValueType(), testing::Eq(JsonValueType::NULL_VALUE));
+}
+
+TEST_F(JsonNullValueTest, toString)
+{
+	// when, then
+	ASSERT_THAT(JsonNullValue::nullValue()->toString(), testing::Eq(std::string("null")));
 }

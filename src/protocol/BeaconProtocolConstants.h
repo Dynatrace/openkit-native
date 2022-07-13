@@ -73,6 +73,10 @@ namespace protocol
 	constexpr const char BEACON_KEY_WEBREQUEST_RESPONSE_CODE[] = "rc";
 	constexpr const char BEACON_KEY_WEBREQUEST_BYTES_SENT[] = "bs";
 	constexpr const char BEACON_KEY_WEBREQUEST_BYTES_RECEIVED[] = "br";
+
+	// events api
+	constexpr const char BEACON_KEY_EVENT_PAYLOAD[] = "pl";
+	constexpr const int EVENT_PAYLOAD_BYTES_LENGTH = 16 * 1024;
 }
 
 #endif

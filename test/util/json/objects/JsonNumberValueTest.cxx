@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#include "util/json/objects/JsonNumberValue.h"
+#include "OpenKit/json/JsonNumberValue.h"
 
 #include <cstdint>
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-using namespace util::json::objects;
+using namespace openkit::json;
 
 class JsonNumberValueTest : public testing::Test
 {
@@ -214,4 +214,34 @@ TEST_F(JsonNumberValueTest, fromNumberLiteralReturnsDoubleIfLiteralContainsFract
 	ASSERT_THAT(obtained, testing::NotNull());
 	ASSERT_THAT(obtained->isInteger(), testing::Eq(false));
 	ASSERT_THAT(obtained->getDoubleValue(), testing::Eq(6.25));
+}
+
+TEST_F(JsonNumberValueTest, toStringFromNumberLiteral)
+{
+	// given
+	auto floatingPointString = std::string("1.25");
+
+	// when constructed from positive floating point literal
+	auto obtained = JsonNumberValue::fromNumberLiteral(floatingPointString);
+
+	// then
+	ASSERT_THAT(obtained->toString(), testing::Eq(std::string("1.25")));
+}
+
+TEST_F(JsonNumberValueTest, toStringFromDouble)
+{
+	// given
+	auto obtained = JsonNumberValue::fromLong(17);
+
+	// then
+	ASSERT_THAT(obtained->toString(), testing::Eq(std::string("17")));
+}
+
+TEST_F(JsonNumberValueTest, toStringFromLong)
+{
+	// given
+	auto obtained = JsonNumberValue::fromDouble(17.2);
+
+	// then
+	ASSERT_THAT(obtained->toString(), testing::Eq(std::string("17.2")));
 }

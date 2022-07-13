@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#include "util/json/objects/JsonStringValue.h"
+#include "OpenKit/json/JsonStringValue.h"
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-using namespace util::json::objects;
+using namespace openkit::json;
 
 class JsonStringValueTest : public testing::Test
 {
@@ -35,4 +35,9 @@ TEST_F(JsonStringValueTest, getValueReturnsValueOfFactoryMethodArgument)
 	ASSERT_THAT(JsonStringValue::fromString(std::string(""))->getValue(), testing::Eq(std::string("")));
 	ASSERT_THAT(JsonStringValue::fromString(std::string("a"))->getValue(), testing::Eq(std::string("a")));
 	ASSERT_THAT(JsonStringValue::fromString(std::string("foobar"))->getValue(), testing::Eq(std::string("foobar")));
+}
+
+TEST_F(JsonStringValueTest, toString)
+{
+	ASSERT_THAT(JsonStringValue::fromString(std::string("Value"))->toString(), testing::Eq(std::string("\"Value\"")));
 }

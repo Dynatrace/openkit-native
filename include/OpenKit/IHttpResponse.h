@@ -18,7 +18,7 @@
 #ifndef _OPENKIT_IHTTPRESPONSE_H
 #define _OPENKIT_IHTTPRESPONSE_H
 
-#include "OpenKitExports.h"
+#include "OpenKit/OpenKitExports.h"
 
 #include <string>
 #include <list>

@@ -249,7 +249,7 @@ namespace core
 			virtual void addSession(std::shared_ptr<core::objects::SessionInternals> session) = 0;
 
 			///
-			/// Remove the given session form the sessions known by this context.
+			/// Remove the given session from the sessions known by this context.
 			///
 			/// @param[in] session the session to be removed.
 			/// @returns @c true if @c sessionWrapper was found in the session wrapper list and was removed successfully,

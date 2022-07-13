@@ -21,6 +21,8 @@
 #include "core/util/InetAddressValidator.h"
 #include "core/util/StringUtil.h"
 #include "providers/DefaultPRNGenerator.h"
+#include "OpenKit/json/JsonObjectValue.h"
+#include "OpenKit/json/JsonStringValue.h"
 
 #include <random>
 
@@ -583,6 +585,52 @@ void Beacon::identifyUser(const core::UTF8String& userTag)
 	addKeyValuePair(eventData, BEACON_KEY_PARENT_ACTION_ID, 0);
 	addKeyValuePair(eventData, BEACON_KEY_START_SEQUENCE_NUMBER, createSequenceNumber());
 	addKeyValuePair(eventData, BEACON_KEY_TIME_0, getTimeSinceSessionStartTime(timestamp));
+
+	addEventData(timestamp, eventData);
+}
+
+void Beacon::sendEvent(const core::UTF8String& eventName, const openkit::json::JsonObjectValue::JsonObjectMapPtr attributes)
+{
+	if (eventName.empty())
+	{
+		throw std::invalid_argument("eventName.empty() is true");
+	}
+
+	if (!mBeaconConfiguration->getPrivacyConfiguration()->isEventReportingAllowed())
+	{
+		return;
+	}
+
+	if (!isDataCapturingEnabled())
+	{
+		return;
+	}
+
+	auto internalMap = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
+	internalMap->insert({ "name", openkit::json::JsonStringValue::fromString(eventName.getStringData()) });
+
+	if (attributes != nullptr) {
+		if (attributes->count("name") != 0) {
+			mLogger->warning("sendEvent (String, Map): name must not be used in the attributes as it will be overridden!");
+		}
+
+		for (auto& object : *attributes) {
+			internalMap->insert(object);
+		}
+	}
+
+	auto jsonPayload = openkit::json::JsonObjectValue::fromMap(internalMap);
+	std::string jsonPayloadStr = jsonPayload->toString();
+
+	if (jsonPayloadStr.length() > EVENT_PAYLOAD_BYTES_LENGTH) {
+		throw std::invalid_argument("Event payload is exceeding " + std::to_string(EVENT_PAYLOAD_BYTES_LENGTH) + " bytes!");
+	}
+
+	auto timestamp = mTimingProvider->provideTimestampInMilliseconds();
+	
+	core::UTF8String eventData;
+	addKeyValuePair(eventData, BEACON_KEY_EVENT_TYPE, static_cast<int32_t>(EventType::EVENT));
+	addKeyValuePair(eventData, BEACON_KEY_EVENT_PAYLOAD, jsonPayloadStr);
 
 	addEventData(timestamp, eventData);
 }

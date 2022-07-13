@@ -440,6 +440,91 @@ TEST_F(SessionTest, identifyUserLogsInvocation)
 	target->identifyUser("user");
 }
 
+TEST_F(SessionTest, sendEventWithNullEventNameDoesNotReportAnything)
+{
+	// with
+	auto logger = MockILogger::createStrict();
+	auto mockBeaconStrict = MockIBeacon::createStrict();
+	auto emptyMap = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
+
+	// expect
+	EXPECT_CALL(*logger, mockWarning("Session [sn=0] sendEvent: eventName must not be null or empty"))
+		.Times(1);
+	EXPECT_CALL(*mockBeaconStrict, getSessionNumber())
+		.Times(1);
+
+	// given
+	auto target = createSession()
+		->with(mockBeaconStrict)
+		.with(logger)
+		.build();
+
+	// when
+	target->sendEvent(nullptr, emptyMap);
+}
+
+TEST_F(SessionTest, sendEventWithEmptyEventNameDoesNotReportAnything)
+{
+	// with
+	auto logger = MockILogger::createStrict();
+	auto mockBeaconStrict = MockIBeacon::createStrict();
+	auto emptyMap = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
+
+	// expect
+	EXPECT_CALL(*logger, mockWarning("Session [sn=0] sendEvent: eventName must not be null or empty"))
+		.Times(1);
+	EXPECT_CALL(*mockBeaconStrict, getSessionNumber())
+		.Times(1);
+
+	// given
+	auto target = createSession()
+		->with(mockBeaconStrict)
+		.with(logger)
+		.build();
+
+	// when
+	target->sendEvent("", emptyMap);
+}
+
+TEST_F(SessionTest, sendEventWithEmptyPayloadWorks)
+{
+	// with
+	auto mockBeaconNice = MockIBeacon::createNice();
+	const char* eventName = "eventName";
+	auto emptyMap = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
+
+	// expect
+	EXPECT_CALL(*mockBeaconNice, sendEvent(testing::Eq(eventName), testing::Eq(emptyMap)))
+		.Times(1);
+
+	// given
+	auto target = createSession()
+		->with(mockBeaconNice)
+		.build();
+
+	// when
+	target->sendEvent(eventName, emptyMap);
+}
+
+TEST_F(SessionTest, sendEventWithNullPtrPayloadWorks)
+{
+	// with
+	auto mockBeaconNice = MockIBeacon::createNice();
+	const char* eventName = "eventName";
+
+	// expect
+	EXPECT_CALL(*mockBeaconNice, sendEvent(testing::Eq(eventName), testing::Eq(nullptr)))
+		.Times(1);
+
+	// given
+	auto target = createSession()
+		->with(mockBeaconNice)
+		.build();
+
+	// when
+	target->sendEvent(eventName, nullptr);
+}
+
 TEST_F(SessionTest, reportingCrashWithNullErrorNameDoesNotReportAnything)
 {
 	// with
@@ -1087,6 +1172,26 @@ TEST_F(SessionTest, reportCrashDoesNothingIfSessionIsEnded)
 
 	// when
 	target->reportCrash("errorName", "reason", "stacktrace");
+}
+
+TEST_F(SessionTest, sendEventDoesNothingIfSessionIsEnded)
+{
+	// with
+	auto mockBeaconNice = MockIBeacon::createNice();
+	auto emptyMap = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
+
+	// expect
+	EXPECT_CALL(*mockBeaconNice, sendEvent(testing::_, testing::_))
+		.Times(0);
+
+	// given
+	auto target = createSession()
+		->with(mockBeaconNice)
+		.build();
+	target->end();
+
+	// when
+	target->sendEvent("eventName", emptyMap);
 }
 
 TEST_F(SessionTest, closeEndsTheSession)

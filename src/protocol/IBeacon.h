@@ -25,6 +25,7 @@
 #include "protocol/IAdditionalQueryParameters.h"
 #include "protocol/IStatusResponse.h"
 #include "providers/IHTTPClientProvider.h"
+#include "OpenKit/json/JsonObjectValue.h"
 
 #include <memory>
 #include <cstdint>
@@ -213,6 +214,12 @@ namespace protocol
 		/// @param[in] userTag User tag containing data to serialize, which can be an empty string.
 		///
 		virtual void identifyUser(const core::UTF8String& userTag) = 0;
+
+		/// 
+		/// Add event to the Beacon.
+		/// @param name Name of the event
+		/// @param attributes Additional attributes that will be sent with the event
+		virtual void sendEvent(const core::UTF8String& eventName, const openkit::json::JsonObjectValue::JsonObjectMapPtr attributes) = 0;
 
 		///
 		/// Sends the current Beacon state

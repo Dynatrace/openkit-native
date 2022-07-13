@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-#include "util/json/objects/JsonArrayValue.h"
-#include "util/json/objects/JsonBooleanValue.h"
+#include "OpenKit/json/JsonArrayValue.h"
+#include "OpenKit/json/JsonBooleanValue.h"
+#include "OpenKit/json/JsonStringValue.h"
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-using namespace util::json::objects;
+using namespace openkit::json;
 
 
 class JsonArrayValueTest : public testing::Test
@@ -86,4 +87,37 @@ TEST_F(JsonArrayValueTest, beginReturnsIteratorOfUnderlyingList)
 
 	// then
 	ASSERT_THAT(obtained, testing::Eq(target->end()));
+}
+
+TEST_F(JsonArrayValueTest, toStringEmptyList)
+{
+	// given
+	auto jsonValues = std::make_shared<JsonArrayValue::JsonValueList>();
+	auto target = JsonArrayValue::fromList(jsonValues);
+
+	// then
+	ASSERT_THAT(target->toString(), testing::Eq(std::string("[]")));
+}
+
+TEST_F(JsonArrayValueTest, toStringSingleElementList)
+{
+	// given
+	auto jsonValues = std::make_shared<JsonArrayValue::JsonValueList>();
+	jsonValues->push_back(JsonBooleanValue::trueValue());
+	auto target = JsonArrayValue::fromList(jsonValues);
+
+	// then
+	ASSERT_THAT(target->toString(), testing::Eq(std::string("[true]")));
+}
+
+TEST_F(JsonArrayValueTest, toStringMultipleElementList)
+{
+	// given
+	auto jsonValues = std::make_shared<JsonArrayValue::JsonValueList>();
+	jsonValues->push_back(JsonBooleanValue::trueValue());
+	jsonValues->push_back(JsonStringValue::fromString(std::string("Test")));
+	auto target = JsonArrayValue::fromList(jsonValues);
+
+	// then
+	ASSERT_THAT(target->toString(), testing::Eq(std::string("[true,\"Test\"]")));
 }

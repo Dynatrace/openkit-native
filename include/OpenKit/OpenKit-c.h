@@ -17,10 +17,11 @@
 #ifndef _API_C_OPENKIT_H
 #define _API_C_OPENKIT_H
 
-#include "OpenKitExports.h"
+#include "OpenKit/OpenKitExports.h"
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -519,6 +520,12 @@ extern "C" {
 	/// An opaque type that we'll use as a handle
 	struct SessionHandle;
 
+	/// Pair that is needed for sending an event
+	struct Pair {
+		const char* key;
+		const char* value;
+	};
+
 	///
 	/// Creates a session instance which can then be used to create actions.
 	/// @param[in] openKitHandle   the handle returned by @ref createDynatraceOpenKit or @ref createAppMonOpenKit
@@ -569,6 +576,15 @@ extern "C" {
 	/// @param[in] stacktrace    stacktrace leading to that crash
 	///
 	OPENKIT_EXPORT void reportCrash(struct SessionHandle* sessionHandle, const char* errorName, const char* reason, const char* stacktrace);
+
+	/// 
+	/// Reports an event with a mandatory type and additional attributes
+	/// 
+	/// @param[in] sessionHandle the handle returned by @ref createSession
+	/// @param[in] eventName name of the event which is mandatory
+	/// @param[in] attributes additional attributes which are passed along side our internal attributes 
+	/// 
+	OPENKIT_EXPORT void sendEvent(struct SessionHandle* sessionHandle, const char* eventName, struct Pair* attributes, size_t attributesSize);
 
 	//--------------
 	//  Root Action

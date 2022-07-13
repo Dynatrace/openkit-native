@@ -17,7 +17,7 @@
 #ifndef _OPENKIT_WEBREQUESTTRACER_H
 #define _OPENKIT_WEBREQUESTTRACER_H
 
-#include "OpenKitExports.h"
+#include "OpenKit/OpenKitExports.h"
 
 #include <cstdint>
 #include <memory>

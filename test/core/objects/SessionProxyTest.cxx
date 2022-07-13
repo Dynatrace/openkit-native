@@ -690,6 +690,158 @@ TEST_F(SessionProxyTest, identifyUserDoesNotSplitSession)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// sendEvents
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+TEST_F(SessionProxyTest, sendEventWithNullEventNameDoesNotReportAnything)
+{
+    // with
+    auto emptyMap = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
+
+    // expect
+    EXPECT_CALL(*mockLogger, mockWarning("SessionProxy [sn=0, seq=0] sendEvent: eventName must not be null or empty"))
+        .Times(1);
+
+    // given
+    auto target = createSessionProxy();
+
+    // when
+    target->sendEvent(nullptr, emptyMap);
+}
+
+TEST_F(SessionProxyTest, sendEventWithEmptyEventNameDoesNotReportAnything)
+{
+    // with
+    auto emptyMap = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
+
+    // expect
+    EXPECT_CALL(*mockLogger, mockWarning("SessionProxy [sn=0, seq=0] sendEvent: eventName must not be null or empty"))
+        .Times(1);
+
+    // given
+    auto target = createSessionProxy();
+
+    // when
+    target->sendEvent("", emptyMap);
+}
+
+TEST_F(SessionProxyTest, sendEventWithEmptyPayloadWorks)
+{
+    // with
+    auto mockBeaconNice = MockIBeacon::createNice();
+    const char* eventName = "eventName";
+    auto emptyMap = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
+
+    // expect
+    EXPECT_CALL(*mockSession, sendEvent(testing::Eq(eventName), testing::Eq(emptyMap)))
+        .Times(1);
+
+    // given
+    auto target = createSessionProxy();
+
+    // when
+    target->sendEvent(eventName, emptyMap);
+}
+
+TEST_F(SessionProxyTest, sendEventWithNullPtrPayloadWorks)
+{
+    // with
+    auto mockBeaconNice = MockIBeacon::createNice();
+    const char* eventName = "eventName";
+
+    // expect
+    EXPECT_CALL(*mockSession, sendEvent(testing::Eq(eventName), testing::Eq(nullptr)))
+        .Times(1);
+
+    // given
+    auto target = createSessionProxy();
+
+    // when
+    target->sendEvent(eventName, nullptr);
+}
+
+TEST_F(SessionProxyTest, sendEventDoesNothingIfSessionIsEnded)
+{
+    auto emptyMap = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
+
+    // expect
+    EXPECT_CALL(*mockSession, sendEvent(testing::_, testing::_))
+        .Times(0);
+
+    // given
+    auto target = createSessionProxy();
+    target->end();
+
+    // when
+    target->sendEvent("event name", emptyMap);
+}
+
+TEST_F(SessionProxyTest, sendEventDoesNotIncreaseTopLevelEventCount)
+{
+    auto emptyMap = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
+
+    // given
+    auto target = createSessionProxy();
+    ASSERT_THAT(target->getTopLevelActionCount(), testing::Eq(0));
+
+    // when
+    target->sendEvent("event name", emptyMap);
+
+    // then
+    ASSERT_THAT(target->getTopLevelActionCount(), testing::Eq(0));
+}
+
+TEST_F(SessionProxyTest, sendEventSetsLastInterActionTime)
+{
+    auto emptyMap = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
+
+    // given
+    const long sessionCreationTime = 13;
+    const long lastInteractionTime = 17;
+    ON_CALL(*mockBeacon, getSessionStartTime())
+        .WillByDefault(testing::Return(sessionCreationTime));
+    ON_CALL(*mockTimingProvider, provideTimestampInMilliseconds())
+        .WillByDefault(testing::Return(lastInteractionTime));
+
+    auto target = createSessionProxy();
+    ASSERT_THAT(target->getLastInteractionTime(), testing::Eq(sessionCreationTime));
+
+    // when
+    target->sendEvent("event name", emptyMap);
+
+    // then
+    ASSERT_THAT(target->getLastInteractionTime(), testing::Eq(lastInteractionTime));
+}
+
+TEST_F(SessionProxyTest, sendEventDoesNotSplitSession)
+{
+    auto emptyMap = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
+
+    // expect
+    EXPECT_CALL(*mockSessionCreator, createSession(testing::_))
+        .Times(1)
+        .WillOnce(testing::Return(mockSession));
+
+    // given
+    ON_CALL(*mockServerConfiguration, isSessionSplitByEventsEnabled())
+        .WillByDefault(testing::Return(true));
+    ON_CALL(*mockServerConfiguration, getMaxEventsPerSession())
+        .WillByDefault(testing::Return(1));
+
+    const int32_t eventCount = 10;
+    auto target = createSessionProxy();
+
+    // when
+    for (auto i = 0; i < eventCount; i++)
+    {
+        target->sendEvent("event name", emptyMap);
+    }
+
+    // then
+    ASSERT_THAT(target->getTopLevelActionCount(), testing::Eq(0));
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// report crash tests
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

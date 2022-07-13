@@ -17,10 +17,12 @@
 #ifndef _OPENKIT_ISESSION_H
 #define _OPENKIT_ISESSION_H
 
-#include "OpenKitExports.h"
+#include "OpenKit/OpenKitExports.h"
+#include <OpenKit/json/JsonObjectValue.h>
 
 #include <cstdint>
 #include <memory>
+#include <unordered_map>
 
 namespace openkit
 {
@@ -84,6 +86,13 @@ namespace openkit
 		/// @remarks All previously added action are implicitly closed
 		///
 		virtual void end() = 0;
+
+		///
+		/// Reports an event with a mandatory type and additional attributes
+		///
+		/// @param name name of the event which is mandatory
+		/// @param attributes additional attributes (nullptr allowed if none) which are passed along side our internal attributes
+		virtual void sendEvent(const char* name, const json::JsonObjectValue::JsonObjectMapPtr attributes = nullptr) = 0;
 	};
 }
 #endif

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#include "util/json/objects/JsonStringValue.h"
-#include "util/json/objects/JsonValueType.h"
+#include "OpenKit/json/JsonStringValue.h"
+#include "OpenKit/json/JsonValueType.h"
+#include "util/json/JsonWriter.h"
 
-using namespace util::json::objects;
-
+using namespace openkit::json;
 
 JsonStringValue::JsonStringValue(const std::string& stringValue)
 	: mStringValue(stringValue)
@@ -38,4 +38,9 @@ JsonValueType JsonStringValue::getValueType() const
 const std::string& JsonStringValue::getValue() const
 {
 	return mStringValue;
+}
+
+void JsonStringValue::writeJsonString(JsonWriter& jsonWriter) const
+{
+	jsonWriter.insertStringValue(mStringValue);
 }

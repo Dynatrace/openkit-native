@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#include "util/json/objects/JsonObjectValue.h"
+#include "OpenKit/json/JsonObjectValue.h"
+#include "util/json/JsonWriter.h"
 
-using namespace util::json::objects;
-
+using namespace openkit::json;
 
 JsonObjectValue::JsonObjectValue(const JsonObjectMapPtr jsonObjectMap)
 	: mJsonObjectMap(jsonObjectMap)
@@ -73,4 +73,25 @@ JsonObjectValue::JsonObjectMap::iterator JsonObjectValue::end()
 JsonObjectValue::JsonObjectMap::const_iterator JsonObjectValue::end() const
 {
 	return mJsonObjectMap->end();
+}
+
+void JsonObjectValue::writeJsonString(JsonWriter& jsonWriter) const
+{
+	jsonWriter.openObject();
+
+	auto writtenElements = 0;
+
+	for (auto& value : *mJsonObjectMap)
+	{
+		if (writtenElements++ > 0)
+		{
+			jsonWriter.insertElementSeperator();
+		}
+
+		jsonWriter.insertKey(value.first);
+		jsonWriter.insertKeyValueSeperator();
+		value.second->writeJsonString(jsonWriter);
+	}
+
+	jsonWriter.closeObject();
 }

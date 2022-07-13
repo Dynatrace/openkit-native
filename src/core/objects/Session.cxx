@@ -19,8 +19,10 @@
 #include "WebRequestTracer.h"
 #include "core/IBeaconSender.h"
 #include "protocol/IBeacon.h"
+#include "OpenKit/json/JsonObjectValue.h"
 
 #include <sstream>
+#include <core/util/StringUtil.h>
 
 using namespace core::objects;
 
@@ -170,6 +172,38 @@ std::shared_ptr<openkit::IWebRequestTracer> Session::traceWebRequest(const char*
 void Session::end()
 {
 	end(true);
+}
+
+void Session::sendEvent(const char* eventName, openkit::json::JsonObjectValue::JsonObjectMapPtr attributes)
+{
+	UTF8String eventNameString(eventName);
+
+	if (eventName == nullptr || eventNameString.empty())
+	{
+		mLogger->warning("%s sendEvent: eventName must not be null or empty", toString().c_str());
+		return;
+	}
+
+	if (mLogger->isDebugEnabled())
+	{
+		if (attributes == nullptr)
+		{
+			mLogger->debug("%s sendEvent(%s, {})", toString().c_str(), eventNameString.getStringData().c_str());
+		}
+		else
+		{
+			mLogger->debug("%s sendEvent(%s, %s)", toString().c_str(), eventNameString.getStringData().c_str(), openkit::json::JsonObjectValue::fromMap(attributes)->toString().c_str());
+		}
+	}
+
+	{ // synchronized scope
+		std::lock_guard<std::recursive_mutex> lock(mMutex);
+
+		if (!isFinishingOrFinished())
+		{
+			mBeacon->sendEvent(eventNameString, attributes);
+		}
+	}
 }
 
 void Session::close()

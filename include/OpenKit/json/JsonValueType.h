@@ -14,35 +14,53 @@
  * limitations under the License.
  */
 
-#ifndef _PROTOCOL_SSL_ISSLTRUSTMANAGER_H
-#define _PROTOCOL_SSL_ISSLTRUSTMANAGER_H
+#ifndef _OPENKIT_JSON_JSONVALUETYPE_H
+#define _OPENKIT_JSON_JSONVALUETYPE_H
 
 #include "OpenKit/OpenKitExports.h"
 
-// copy typedef from curl.h so that we don't need the transitive dependency
-typedef void CURL;
+#include "JsonValue.h"
 
 namespace openkit
 {
-	///
-	/// Interface to provide a user-defined trust manager to the configuration.
-	/// When OpenKit connects to a server with self-signed SSL/TLS certificates (e.g. AppMon) then
-	/// an implementation of this interface is required to verify the certificate.
-	///
-	class OPENKIT_EXPORT ISSLTrustManager
+	namespace json
 	{
-	public:
+		///
+		/// Specifies the type of a respective @ref JsonValue
+		///
+		enum class OPENKIT_EXPORT JsonValueType
+		{
+			///
+			/// Specifies a JSON null value.
+			///
+			NULL_VALUE,
 
-		///
-		/// Destructor
-		///
-		virtual ~ISSLTrustManager() {}
+			///
+			/// Specifies a JSON boolean value.
+			///
+			BOOLEAN_VALUE,
 
-		///
-		/// Apply the trust configuration on the provided curl handle
-		///
-		virtual void applyTrustManager(CURL* curl) = 0;
+			///
+			/// Specifies a JSON numeric value.
+			///
+			NUMBER_VALUE,
 
-	};
+			///
+			/// Specifies a JSON string value.
+			///
+			STRING_VALUE,
+
+			///
+			/// Specifies a JSON array value.
+			///
+			ARRAY_VALUE,
+
+			///
+			/// Specifies a JSON object value.
+			///
+			OBJECT_VALUE
+		};
+	}
 }
-#endif
+
+#endif //_OPENKIT_JSON_JSONVALUETYPE_H

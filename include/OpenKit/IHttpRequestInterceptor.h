@@ -16,7 +16,7 @@
 #ifndef _OPENKIT_IHTTPREQUESTINTERCEPTOR_H
 #define _OPENKIT_IHTTPREQUESTINTERCEPTOR_H
 
-#include "OpenKitExports.h"
+#include "OpenKit/OpenKitExports.h"
 #include "IHttpRequest.h"
 
 namespace openkit

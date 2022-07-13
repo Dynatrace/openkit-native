@@ -17,7 +17,7 @@
 #ifndef _OPENKIT_ABSTRACTOPENKITBUILDER_H
 #define _OPENKIT_ABSTRACTOPENKITBUILDER_H
 
-#include "OpenKitExports.h"
+#include "OpenKit/OpenKitExports.h"
 #include "IOpenKit.h"
 #include "IOpenKitBuilder.h"
 #include "ILogger.h"

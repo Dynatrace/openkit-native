@@ -21,9 +21,9 @@
 #include "IResponseAttributes.h"
 #include "ResponseAttributes.h"
 #include "core/UTF8String.h"
-#include "util/json/objects/JsonObjectValue.h"
-#include "util/json/objects/JsonNumberValue.h"
-#include "util/json/objects/JsonStringValue.h"
+#include "OpenKit/json/JsonObjectValue.h"
+#include "OpenKit/json/JsonNumberValue.h"
+#include "OpenKit/json/JsonStringValue.h"
 
 #include <memory>
 
@@ -62,18 +62,18 @@ namespace protocol
 
 		JsonResponseParser() {}
 
-		static std::shared_ptr<util::json::objects::JsonObjectValue> getJsonObjectFrom(
-			std::shared_ptr<util::json::objects::JsonObjectValue> jsonObject,
+		static std::shared_ptr<openkit::json::JsonObjectValue> getJsonObjectFrom(
+			std::shared_ptr<openkit::json::JsonObjectValue> jsonObject,
 			const std::string& key
 		);
 
-		static std::shared_ptr<util::json::objects::JsonStringValue> getJsonStringFrom(
-			std::shared_ptr<util::json::objects::JsonObjectValue> jsonObject,
+		static std::shared_ptr<openkit::json::JsonStringValue> getJsonStringFrom(
+			std::shared_ptr<openkit::json::JsonObjectValue> jsonObject,
 			const std::string& key
 		);
 
-		static std::shared_ptr<util::json::objects::JsonNumberValue> getJsonNumberFrom(
-			std::shared_ptr<util::json::objects::JsonObjectValue> jsonObject,
+		static std::shared_ptr<openkit::json::JsonNumberValue> getJsonNumberFrom(
+			std::shared_ptr<openkit::json::JsonObjectValue> jsonObject,
 			const std::string& key
 		);
 
@@ -83,37 +83,37 @@ namespace protocol
 
 		static void applyAgentConfiguration(
 			protocol::ResponseAttributes::Builder& builder,
-			std::shared_ptr<util::json::objects::JsonObjectValue> rootObject
+			std::shared_ptr<openkit::json::JsonObjectValue> rootObject
 		);
 
 		static void applyBeaconSizeInKb(
 			protocol::ResponseAttributes::Builder& builder,
-			std::shared_ptr<util::json::objects::JsonObjectValue> agentConfigObject
+			std::shared_ptr<openkit::json::JsonObjectValue> agentConfigObject
 		);
 
 		static void applyMaxSessionDurationInMin(
 			protocol::ResponseAttributes::Builder& builder,
-			std::shared_ptr<util::json::objects::JsonObjectValue> agentConfigObject
+			std::shared_ptr<openkit::json::JsonObjectValue> agentConfigObject
 		);
 
 		static void applyMaxEventsPerSession(
 			protocol::ResponseAttributes::Builder& builder,
-			std::shared_ptr<util::json::objects::JsonObjectValue> agentConfigObject
+			std::shared_ptr<openkit::json::JsonObjectValue> agentConfigObject
 		);
 
 		static void applySessionTimeoutInSec(
 			protocol::ResponseAttributes::Builder& builder,
-			std::shared_ptr<util::json::objects::JsonObjectValue> agentConfigObject
+			std::shared_ptr<openkit::json::JsonObjectValue> agentConfigObject
 		);
 
 		static void applySendIntervalInSec(
 			protocol::ResponseAttributes::Builder& builder,
-			std::shared_ptr<util::json::objects::JsonObjectValue> agentConfigObject
+			std::shared_ptr<openkit::json::JsonObjectValue> agentConfigObject
 		);
 
 		static void applyVisitStoreVersion(
 			protocol::ResponseAttributes::Builder& builder,
-			std::shared_ptr<util::json::objects::JsonObjectValue> agentConfigObject
+			std::shared_ptr<openkit::json::JsonObjectValue> agentConfigObject
 		);
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -122,32 +122,32 @@ namespace protocol
 
 		static void applyApplicationConfiguration(
 			protocol::ResponseAttributes::Builder& builder,
-			std::shared_ptr<util::json::objects::JsonObjectValue> rootObject
+			std::shared_ptr<openkit::json::JsonObjectValue> rootObject
 		);
 
 		static void applyCapture(
 			protocol::ResponseAttributes::Builder& builder,
-			std::shared_ptr<util::json::objects::JsonObjectValue> appConfigObject
+			std::shared_ptr<openkit::json::JsonObjectValue> appConfigObject
 		);
 
 		static void applyReportCrashes(
 			protocol::ResponseAttributes::Builder& builder,
-			std::shared_ptr<util::json::objects::JsonObjectValue> appConfigObject
+			std::shared_ptr<openkit::json::JsonObjectValue> appConfigObject
 		);
 
 		static void applyReportErrors(
 			protocol::ResponseAttributes::Builder& builder,
-			std::shared_ptr<util::json::objects::JsonObjectValue> appConfigObject
+			std::shared_ptr<openkit::json::JsonObjectValue> appConfigObject
 		);
 
 		static void applyTrafficControlPercentage(
 			protocol::ResponseAttributes::Builder& builder,
-			std::shared_ptr<util::json::objects::JsonObjectValue> appConfigObject
+			std::shared_ptr<openkit::json::JsonObjectValue> appConfigObject
 		);
 
 		static void applyApplicationId(
 			protocol::ResponseAttributes::Builder& builder,
-			std::shared_ptr<util::json::objects::JsonObjectValue> dynConfigObject
+			std::shared_ptr<openkit::json::JsonObjectValue> dynConfigObject
 		);
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -156,22 +156,22 @@ namespace protocol
 
 		static void applyDynamicConfiguration(
 			protocol::ResponseAttributes::Builder& builder,
-			std::shared_ptr<util::json::objects::JsonObjectValue> rootObject
+			std::shared_ptr<openkit::json::JsonObjectValue> rootObject
 		);
 
 		static void applyMultiplicity(
 			protocol::ResponseAttributes::Builder& builder,
-			std::shared_ptr<util::json::objects::JsonObjectValue> dynConfigObject
+			std::shared_ptr<openkit::json::JsonObjectValue> dynConfigObject
 		);
 
 		static void applyServerId(
 			protocol::ResponseAttributes::Builder& builder,
-			std::shared_ptr<util::json::objects::JsonObjectValue> dynConfigObject
+			std::shared_ptr<openkit::json::JsonObjectValue> dynConfigObject
 		);
 
 		static void applyStatus(
 			protocol::ResponseAttributes::Builder& builder,
-			std::shared_ptr<util::json::objects::JsonObjectValue> dynConfigObject
+			std::shared_ptr<openkit::json::JsonObjectValue> dynConfigObject
 		);
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -180,7 +180,7 @@ namespace protocol
 
 		static void applyRootAttributes(
 			protocol::ResponseAttributes::Builder& builder,
-			std::shared_ptr<util::json::objects::JsonObjectValue> rootObject
+			std::shared_ptr<openkit::json::JsonObjectValue> rootObject
 		);
 	};
 }

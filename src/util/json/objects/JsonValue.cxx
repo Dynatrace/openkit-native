@@ -14,37 +14,14 @@
  * limitations under the License.
  */
 
-#ifndef OPENKIT_JSONVALUE_H
-#define OPENKIT_JSONVALUE_H
+#include "OpenKit/json/JsonValue.h"
+#include "util/json/JsonWriter.h"
 
-#include "util/json/objects/JsonValueType.h"
+using namespace openkit::json;
 
-namespace util
+std::string JsonValue::toString() const
 {
-	namespace json
-	{
-		namespace objects
-		{
-			///
-			/// Represents the abstract base class for all JSON value classes (e.g. string, number, ...)
-			///
-			class JsonValue
-			{
-			public:
-
-				///
-				/// Destructor
-				///
-				virtual ~JsonValue() {}
-
-				///
-				/// Returns the @ref JsonValueType "type" of this JSON value
-				/// @return the type of this JSON value
-				///
-				virtual JsonValueType getValueType() const = 0;
-			};
-		}
-	}
+	JsonWriter writer = JsonWriter();
+	writeJsonString(writer);
+	return writer.toString();
 }
-
-#endif //OPENKIT_JSONVALUE_H

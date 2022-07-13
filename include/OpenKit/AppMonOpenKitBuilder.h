@@ -17,7 +17,7 @@
 #ifndef _OPENKIT_APPMONMOPENKITBUILDER_H
 #define _OPENKIT_APPMONMOPENKITBUILDER_H
 
-#include "OpenKitExports.h"
+#include "OpenKit/OpenKitExports.h"
 #include "AbstractOpenKitBuilder.h"
 
 #include <cstdint>

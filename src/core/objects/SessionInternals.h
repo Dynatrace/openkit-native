@@ -54,6 +54,8 @@ namespace core
 
 			void end() override = 0;
 
+			void sendEvent(const char* name, const openkit::json::JsonObjectValue::JsonObjectMapPtr attributes) override = 0;
+
 			///
 			/// Start a session
 			///

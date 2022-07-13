@@ -107,6 +107,8 @@ namespace protocol
 
 		void identifyUser(const core::UTF8String& userTag) override;
 
+		void sendEvent(const core::UTF8String& eventName, const openkit::json::JsonObjectValue::JsonObjectMapPtr attributes) override;
+
 		std::shared_ptr<protocol::IStatusResponse> send
 		(
 			std::shared_ptr<providers::IHTTPClientProvider> clientProvider,

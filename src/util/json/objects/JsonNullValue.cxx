@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#include "util/json/objects/JsonNullValue.h"
+#include "OpenKit/json/JsonNullValue.h"
+#include "util/json/JsonWriter.h"
 
-using namespace util::json::objects;
-
+using namespace openkit::json;
 
 const std::shared_ptr<JsonNullValue> JsonNullValue::nullValue()
 {
@@ -26,7 +26,6 @@ const std::shared_ptr<JsonNullValue> JsonNullValue::nullValue()
 	return instance;
 }
 
-
 JsonNullValue::JsonNullValue()
 {
 }
@@ -34,4 +33,9 @@ JsonNullValue::JsonNullValue()
 JsonValueType JsonNullValue::getValueType() const
 {
 	return JsonValueType::NULL_VALUE;
+}
+
+void JsonNullValue::writeJsonString(JsonWriter& jsonWriter) const
+{
+	jsonWriter.insertValue(std::string("null"));
 }

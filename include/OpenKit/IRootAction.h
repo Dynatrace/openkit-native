@@ -17,7 +17,7 @@
 #ifndef _OPENKIT_IROOTACTION_H
 #define _OPENKIT_IROOTACTION_H
 
-#include "OpenKitExports.h"
+#include "OpenKit/OpenKitExports.h"
 
 #include <chrono>
 #include <cstdint>

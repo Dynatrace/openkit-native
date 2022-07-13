@@ -20,8 +20,10 @@
 #include "OpenKit/ISession.h"
 #include "OpenKit/IRootAction.h"
 #include "OpenKit/IWebRequestTracer.h"
+#include <OpenKit/json/JsonValue.h>
 
 #include <memory>
+
 
 namespace core
 {
@@ -46,6 +48,8 @@ namespace core
 			std::shared_ptr<openkit::IWebRequestTracer> traceWebRequest(const char* /*url*/) override;
 
 			void end() override;
+
+			void sendEvent(const char* /*name*/, const openkit::json::JsonObjectValue::JsonObjectMapPtr /*attributes*/) override;
 		};
 	}
 }

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#include "util/json/objects/JsonBooleanValue.h"
+#include "OpenKit/json/JsonBooleanValue.h"
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-using namespace util::json::objects;
+using namespace openkit::json;
 
 class JsonBooleanValueTest : public testing::Test
 {
@@ -96,4 +96,22 @@ TEST_F(JsonBooleanValueTest, fromLiteralReturnsNullForNonBooleanLiterals)
 	// and when passing an empty string then,
 	auto emptyString = std::string("");
 	ASSERT_THAT(JsonBooleanValue::fromLiteral(emptyString), testing::IsNull());
+}
+
+TEST_F(JsonBooleanValueTest, toStringTrue)
+{
+	// when
+	auto obtained = JsonBooleanValue::fromValue(true);
+
+	// then the singleton TRUE instance is returned
+	ASSERT_THAT(obtained->toString(), testing::Eq(std::string("true")));
+}
+
+TEST_F(JsonBooleanValueTest, toStringFalse)
+{
+	// when
+	auto obtained = JsonBooleanValue::fromValue(false);
+
+	// then the singleton TRUE instance is returned
+	ASSERT_THAT(obtained->toString(), testing::Eq(std::string("false")));
 }

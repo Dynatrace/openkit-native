@@ -21,6 +21,7 @@
 
 #include <algorithm>
 #include <sstream>
+#include <core/util/StringUtil.h>
 
 using namespace core::objects;
 
@@ -229,6 +230,42 @@ void SessionProxy::end()
 	// avoid memory leak by resetting curent session
 	// TODO stefan.eberl - refactor this by using a weak pointer
 	mCurrentSession = nullptr;
+}
+
+void SessionProxy::sendEvent(const char* eventName, const openkit::json::JsonObjectValue::JsonObjectMapPtr attributes)
+{
+	UTF8String eventNameString(eventName);
+
+	if (eventName == nullptr || eventNameString.empty())
+	{
+		mLogger->warning("%s sendEvent: eventName must not be null or empty", toString().c_str());
+		return;
+	}
+
+	if (mLogger->isDebugEnabled())
+	{
+		if (attributes == nullptr)
+		{
+			mLogger->debug("%s sendEvent(%s, {})", toString().c_str(), eventNameString.getStringData().c_str());
+		}
+		else
+		{
+			mLogger->debug("%s sendEvent(%s, %s)", toString().c_str(), eventNameString.getStringData().c_str(), openkit::json::JsonObjectValue::fromMap(attributes)->toString().c_str());
+		}
+	}
+
+	{ // synchronized scope
+		std::lock_guard<std::recursive_mutex> lock(mLockObject);
+
+		if (mIsFinished)
+		{
+			return;
+		}
+
+		auto session = getOrSplitCurrentSessionByEvents();
+		recordTopLevelEventInteraction();
+		session->sendEvent(eventName, attributes);
+	}
 }
 
 bool SessionProxy::isFinished()
