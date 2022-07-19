@@ -174,13 +174,45 @@ void Session::end()
 	end(true);
 }
 
-void Session::sendEvent(const char* eventName, openkit::json::JsonObjectValue::JsonObjectMapPtr attributes)
+void Session::sendBizEvent(const char* type, openkit::json::JsonObjectValue::JsonObjectMapPtr attributes)
 {
-	UTF8String eventNameString(eventName);
+	UTF8String eventTypeString(type);
 
-	if (eventName == nullptr || eventNameString.empty())
+	if (type == nullptr || eventTypeString.empty())
 	{
-		mLogger->warning("%s sendEvent: eventName must not be null or empty", toString().c_str());
+		mLogger->warning("%s sendBizEvent: type must not be null or empty", toString().c_str());
+		return;
+	}
+
+	if (mLogger->isDebugEnabled())
+	{
+		if (attributes == nullptr)
+		{
+			mLogger->debug("%s sendBizEvent(%s, {})", toString().c_str(), eventTypeString.getStringData().c_str());
+		}
+		else
+		{
+			mLogger->debug("%s sendBizEvent(%s, %s)", toString().c_str(), eventTypeString.getStringData().c_str(), openkit::json::JsonObjectValue::fromMap(attributes)->toString().c_str());
+		}
+	}
+
+	{ // synchronized scope
+		std::lock_guard<std::recursive_mutex> lock(mMutex);
+
+		if (!isFinishingOrFinished())
+		{
+			mBeacon->sendBizEvent(eventTypeString, attributes);
+		}
+	}
+}
+
+void Session::sendEvent(const char* name, openkit::json::JsonObjectValue::JsonObjectMapPtr attributes)
+{
+	UTF8String eventNameString(name);
+
+	if (name == nullptr || eventNameString.empty())
+	{
+		mLogger->warning("%s sendEvent: name must not be null or empty", toString().c_str());
 		return;
 	}
 

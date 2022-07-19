@@ -49,6 +49,8 @@ namespace core
 
 			void end() override;
 
+			void sendBizEvent(const char* /*type*/, const openkit::json::JsonObjectValue::JsonObjectMapPtr /*attributes*/) override;
+
 			void sendEvent(const char* /*name*/, const openkit::json::JsonObjectValue::JsonObjectMapPtr /*attributes*/) override;
 		};
 	}

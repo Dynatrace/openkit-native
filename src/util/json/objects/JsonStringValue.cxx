@@ -20,8 +20,7 @@
 
 using namespace openkit::json;
 
-JsonStringValue::JsonStringValue(const std::string& stringValue)
-	: mStringValue(stringValue)
+JsonStringValue::JsonStringValue(const std::string& stringValue) : mStringValue(stringValue)
 {
 }
 

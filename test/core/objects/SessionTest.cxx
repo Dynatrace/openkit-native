@@ -448,7 +448,7 @@ TEST_F(SessionTest, sendEventWithNullEventNameDoesNotReportAnything)
 	auto emptyMap = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
 
 	// expect
-	EXPECT_CALL(*logger, mockWarning("Session [sn=0] sendEvent: eventName must not be null or empty"))
+	EXPECT_CALL(*logger, mockWarning("Session [sn=0] sendEvent: name must not be null or empty"))
 		.Times(1);
 	EXPECT_CALL(*mockBeaconStrict, getSessionNumber())
 		.Times(1);
@@ -471,7 +471,7 @@ TEST_F(SessionTest, sendEventWithEmptyEventNameDoesNotReportAnything)
 	auto emptyMap = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
 
 	// expect
-	EXPECT_CALL(*logger, mockWarning("Session [sn=0] sendEvent: eventName must not be null or empty"))
+	EXPECT_CALL(*logger, mockWarning("Session [sn=0] sendEvent: name must not be null or empty"))
 		.Times(1);
 	EXPECT_CALL(*mockBeaconStrict, getSessionNumber())
 		.Times(1);

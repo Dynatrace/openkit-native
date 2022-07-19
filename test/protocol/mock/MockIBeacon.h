@@ -189,9 +189,19 @@ namespace test
 			void,
 			sendEvent,
 			(
-				const core::UTF8String&, /*eventName*/
+				const core::UTF8String&, /*name*/
 				(const openkit::json::JsonObjectValue::JsonObjectMapPtr) /*attributes*/
 			),
+			(override)
+		);
+
+		MOCK_METHOD(
+			void,
+			sendBizEvent,
+			(
+				const core::UTF8String&, /*type*/
+				(const openkit::json::JsonObjectValue::JsonObjectMapPtr) /*attributes*/
+				),
 			(override)
 		);
 

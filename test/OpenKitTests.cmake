@@ -50,6 +50,7 @@ set(OPENKIT_SOURCES_TEST_CORE
 
 set(OPENKIT_SOURCES_TEST_CORE_OBJECTS
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/ActionCommonImplTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/EventPayloadBuilderTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/LeafActionTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/NullActionTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/NullRootActionTest.cxx

@@ -81,7 +81,9 @@ namespace core
 
 			void end() override;
 
-			void sendEvent(const char* eventName, const openkit::json::JsonObjectValue::JsonObjectMapPtr attributes = nullptr) override;
+			void sendBizEvent(const char* type, const openkit::json::JsonObjectValue::JsonObjectMapPtr attributes = nullptr) override;
+
+			void sendEvent(const char* name, const openkit::json::JsonObjectValue::JsonObjectMapPtr attributes = nullptr) override;
 
 			bool isFinished() override;
 

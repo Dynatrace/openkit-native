@@ -34,6 +34,12 @@ namespace providers
 		/// @returns the current timestamp
 		///
 		virtual int64_t provideTimestampInMilliseconds() = 0;
+
+		///
+		/// Provide the current timestamp in nanoseconds.
+		/// @returns the current timestamp
+		///
+		virtual int64_t provideTimestampInNanoseconds() = 0;
 	};
 }
 

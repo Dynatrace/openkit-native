@@ -47,6 +47,8 @@ namespace test {
 		}
 
 		MOCK_METHOD(int64_t, provideTimestampInMilliseconds, (), (override));
+
+		MOCK_METHOD(int64_t, provideTimestampInNanoseconds, (), (override));
 	};
 }
 

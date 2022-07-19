@@ -232,11 +232,48 @@ void SessionProxy::end()
 	mCurrentSession = nullptr;
 }
 
-void SessionProxy::sendEvent(const char* eventName, const openkit::json::JsonObjectValue::JsonObjectMapPtr attributes)
+void SessionProxy::sendBizEvent(const char* type, const openkit::json::JsonObjectValue::JsonObjectMapPtr attributes)
 {
-	UTF8String eventNameString(eventName);
+	UTF8String eventTypeString(type);
 
-	if (eventName == nullptr || eventNameString.empty())
+	if (type == nullptr || eventTypeString.empty())
+	{
+		mLogger->warning("%s sendBizEvent: type must not be null or empty", toString().c_str());
+		return;
+	}
+
+	if (mLogger->isDebugEnabled())
+	{
+		if (attributes == nullptr)
+		{
+			mLogger->debug("%s sendBizEvent(%s, {})", toString().c_str(), eventTypeString.getStringData().c_str());
+		}
+		else
+		{
+			mLogger->debug("%s sendBizEvent(%s, %s)", toString().c_str(), eventTypeString.getStringData().c_str(), openkit::json::JsonObjectValue::fromMap(attributes)->toString().c_str());
+		}
+	}
+
+	{ // synchronized scope
+		std::lock_guard<std::recursive_mutex> lock(mLockObject);
+
+		if (mIsFinished)
+		{
+			return;
+		}
+
+		auto session = getOrSplitCurrentSessionByEvents();
+		recordTopLevelEventInteraction();
+		session->sendBizEvent(type, attributes);
+	}
+}
+
+
+void SessionProxy::sendEvent(const char* name, const openkit::json::JsonObjectValue::JsonObjectMapPtr attributes)
+{
+	UTF8String eventNameString(name);
+
+	if (name == nullptr || eventNameString.empty())
 	{
 		mLogger->warning("%s sendEvent: eventName must not be null or empty", toString().c_str());
 		return;
@@ -264,7 +301,7 @@ void SessionProxy::sendEvent(const char* eventName, const openkit::json::JsonObj
 
 		auto session = getOrSplitCurrentSessionByEvents();
 		recordTopLevelEventInteraction();
-		session->sendEvent(eventName, attributes);
+		session->sendEvent(name, attributes);
 	}
 }
 

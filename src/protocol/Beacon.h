@@ -27,6 +27,7 @@
 #include <memory>
 #include <atomic>
 #include <map>
+#include <core/objects/EventPayloadBuilder.h>
 
 namespace protocol
 {
@@ -107,7 +108,9 @@ namespace protocol
 
 		void identifyUser(const core::UTF8String& userTag) override;
 
-		void sendEvent(const core::UTF8String& eventName, const openkit::json::JsonObjectValue::JsonObjectMapPtr attributes) override;
+		void sendBizEvent(const core::UTF8String& type, const openkit::json::JsonObjectValue::JsonObjectMapPtr attributes) override;
+
+		void sendEvent(const core::UTF8String& name, const openkit::json::JsonObjectValue::JsonObjectMapPtr attributes) override;
 
 		std::shared_ptr<protocol::IStatusResponse> send
 		(
@@ -286,6 +289,19 @@ namespace protocol
 		/// Returns visit store version.
 		///
 		int32_t getVisitStoreVersion();
+
+		///
+		/// Generating the EventPayloadBuilder which contains all auto enriched attributes and is taking over the
+		/// attributes which were provided by the customer without altering the original map
+		/// @param attributes Attributes provided by the customer
+		///
+		std::shared_ptr<core::objects::EventPayloadBuilder> generateEventPayload(const openkit::json::JsonObjectValue::JsonObjectMapPtr attributes);
+
+		/// 
+		/// Helper function which is sending the event data including payload check
+		/// @param builder EventPayloadBuilder which contains all attributes for the event payload
+		/// 
+		void sendEventPayload(core::objects::EventPayloadBuilder& builder);
 
 	private:
 		/// Logger to write traces to

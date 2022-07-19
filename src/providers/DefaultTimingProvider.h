@@ -41,6 +41,12 @@ namespace providers
 		///
 		int64_t provideTimestampInMilliseconds() override;
 
+		///
+		/// Provide the current timestamp in nanoseconds.
+		/// @returns the current timestamp
+		///
+		int64_t provideTimestampInNanoseconds() override;
+
 	private:
 
 		static std::chrono::nanoseconds calculateReferenceTimestamp();

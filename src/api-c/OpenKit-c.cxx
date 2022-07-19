@@ -1099,6 +1099,31 @@ extern "C" {
 		CATCH_AND_LOG(sessionHandle)
 	}
 
+	void sendBizEvent(SessionHandle* sessionHandle, const char* type, struct Pair* attributes, size_t attributesSize)
+	{
+		TRY
+		{
+			if (sessionHandle)
+			{
+				// retrieve the Session instance from the handle and call the respective method
+				assert(sessionHandle->sharedPointer != nullptr);
+
+				auto convertedMap = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
+
+				if (attributes != nullptr)
+				{
+					for (int i = 0; i < attributesSize; i++)
+					{
+						convertedMap->insert(std::make_pair(attributes[i].key, openkit::json::JsonStringValue::fromString(attributes[i].value)));
+					}
+				}
+
+				sessionHandle->sharedPointer->sendBizEvent(type, convertedMap);
+			}
+		}
+		CATCH_AND_LOG(sessionHandle)
+	}
+
 	void sendEvent(SessionHandle* sessionHandle, const char* name, struct Pair* attributes, size_t attributesSize)
 	{
 		TRY

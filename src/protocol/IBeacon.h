@@ -217,9 +217,15 @@ namespace protocol
 
 		/// 
 		/// Add event to the Beacon.
+		/// @param type Type of the event
+		/// @param attributes Additional attributes that will be sent with the event
+		virtual void sendBizEvent(const core::UTF8String& type, const openkit::json::JsonObjectValue::JsonObjectMapPtr attributes) = 0;
+
+		/// 
+		/// Add event to the Beacon.
 		/// @param name Name of the event
 		/// @param attributes Additional attributes that will be sent with the event
-		virtual void sendEvent(const core::UTF8String& eventName, const openkit::json::JsonObjectValue::JsonObjectMapPtr attributes) = 0;
+		virtual void sendEvent(const core::UTF8String& name, const openkit::json::JsonObjectValue::JsonObjectMapPtr attributes) = 0;
 
 		///
 		/// Sends the current Beacon state

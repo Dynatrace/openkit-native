@@ -578,13 +578,22 @@ extern "C" {
 	OPENKIT_EXPORT void reportCrash(struct SessionHandle* sessionHandle, const char* errorName, const char* reason, const char* stacktrace);
 
 	/// 
+	/// Reports a biz event with a mandatory type and additional attributes
+	/// 
+	/// @param[in] sessionHandle the handle returned by @ref createSession
+	/// @param[in] type type of the event which is mandatory
+	/// @param[in] attributes additional attributes which are passed along side our internal attributes 
+	/// 
+	OPENKIT_EXPORT void sendBizEvent(struct SessionHandle* sessionHandle, const char* type, struct Pair* attributes, size_t attributesSize);
+
+	/// 
 	/// Reports an event with a mandatory type and additional attributes
 	/// 
 	/// @param[in] sessionHandle the handle returned by @ref createSession
-	/// @param[in] eventName name of the event which is mandatory
+	/// @param[in] name name of the event which is mandatory
 	/// @param[in] attributes additional attributes which are passed along side our internal attributes 
 	/// 
-	OPENKIT_EXPORT void sendEvent(struct SessionHandle* sessionHandle, const char* eventName, struct Pair* attributes, size_t attributesSize);
+	OPENKIT_EXPORT void sendEvent(struct SessionHandle* sessionHandle, const char* name, struct Pair* attributes, size_t attributesSize);
 
 	//--------------
 	//  Root Action

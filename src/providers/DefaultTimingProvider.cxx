@@ -25,7 +25,6 @@ DefaultTimingProvider::DefaultTimingProvider()
 {
 }
 
-
 int64_t DefaultTimingProvider::provideTimestampInMilliseconds()
 {
 	auto steadyClockSinceEpoch = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now().time_since_epoch());
@@ -34,6 +33,13 @@ int64_t DefaultTimingProvider::provideTimestampInMilliseconds()
 	return std::chrono::duration_cast<std::chrono::milliseconds>(durationSinceEpoch).count();
 }
 
+int64_t DefaultTimingProvider::provideTimestampInNanoseconds()
+{
+	auto steadyClockSinceEpoch = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now().time_since_epoch());
+	auto durationSinceEpoch = mReferenceTimestamp + steadyClockSinceEpoch;
+
+	return std::chrono::duration_cast<std::chrono::nanoseconds>(durationSinceEpoch).count();
+}
 
 std::chrono::nanoseconds DefaultTimingProvider::calculateReferenceTimestamp()
 {
