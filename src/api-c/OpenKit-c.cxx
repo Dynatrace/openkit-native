@@ -29,12 +29,12 @@
 #include "OpenKit/IRootAction.h"
 #include "OpenKit/IAction.h"
 #include "OpenKit/IWebRequestTracer.h"
-#include "OpenKit/json/JsonStringValue.h"
 
 #include "core/util/DefaultLogger.h"
 #include "core/util/StringUtil.h"
 #include "protocol/ssl/SSLStrictTrustManager.h"
 #include "protocol/ssl/SSLBlindTrustManager.h"
+#include "util/json/JsonParser.h"
 
 #include <curl/curl.h>
 
@@ -1114,7 +1114,8 @@ extern "C" {
 				{
 					for (int i = 0; i < attributesSize; i++)
 					{
-						convertedMap->insert(std::make_pair(attributes[i].key, openkit::json::JsonStringValue::fromString(attributes[i].value)));
+						util::json::JsonParser jsonParser(attributes[i].value);
+						convertedMap->insert(std::make_pair(attributes[i].key, jsonParser.parse()));
 					}
 				}
 
@@ -1139,7 +1140,8 @@ extern "C" {
 				{
 					for (int i = 0; i < attributesSize; i++)
 					{
-						convertedMap->insert(std::make_pair(attributes[i].key, openkit::json::JsonStringValue::fromString(attributes[i].value)));
+						util::json::JsonParser jsonParser(attributes[i].value);
+						convertedMap->insert(std::make_pair(attributes[i].key, jsonParser.parse()));
 					}
 				}
 
