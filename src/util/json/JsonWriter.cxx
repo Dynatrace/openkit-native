@@ -19,6 +19,11 @@
 
 using namespace openkit::json;
 
+JsonWriter::JsonWriter()
+    : mStringStream()
+{
+}
+
 void JsonWriter::openArray()
 {
 	mStringStream << '[';

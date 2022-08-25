@@ -28,11 +28,10 @@ EventPayloadBuilder::EventPayloadBuilder
 	openkit::json::JsonObjectValue::JsonObjectMapPtr attributes,
 	std::shared_ptr<openkit::ILogger> logger
 )
-	:mLogger(logger)
+	: mLogger(logger)
+	, mAttributes(std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>())
+	, mOverriddenKeys(std::make_shared<std::list<std::shared_ptr<openkit::json::JsonValue>>>())
 {
-	mOverriddenKeys = std::make_shared<std::list<std::shared_ptr<openkit::json::JsonValue>>>();
-	mAttributes = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
-
 	initializeInternalAttributes(attributes);
 }
 

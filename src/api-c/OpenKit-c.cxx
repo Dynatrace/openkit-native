@@ -91,7 +91,9 @@ extern "C" {
 #if defined(_WIN32) || defined(WIN32)
 					strcpy_s(stringCopy, stringLength + 1, str);
 #else
-					strncpy(stringCopy, str, stringLength + 1);
+					// using strncpy triggers warning in gcc
+					// see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=88059
+					strcpy(stringCopy, str);
 #endif
 				}
 			}
@@ -1112,7 +1114,7 @@ extern "C" {
 
 				if (attributes != nullptr)
 				{
-					for (int i = 0; i < attributesSize; i++)
+					for (size_t i = 0; i < attributesSize; i++)
 					{
 						util::json::JsonParser jsonParser(attributes[i].value);
 						convertedMap->insert(std::make_pair(attributes[i].key, jsonParser.parse()));
@@ -1138,7 +1140,7 @@ extern "C" {
 
 				if (attributes != nullptr)
 				{
-					for (int i = 0; i < attributesSize; i++)
+					for (size_t i = 0; i < attributesSize; i++)
 					{
 						util::json::JsonParser jsonParser(attributes[i].value);
 						convertedMap->insert(std::make_pair(attributes[i].key, jsonParser.parse()));

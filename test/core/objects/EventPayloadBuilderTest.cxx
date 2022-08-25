@@ -43,8 +43,15 @@ MATCHER_P2(AttributeIsOverridden, attributeName, attributeContent, "Attribute sh
 {
 	auto mainString = std::string(arg);
 
-	return mainString.rfind("\"" + std::string(attributeName) + "\":\"" + std::string(attributeContent) + "\"") != std::string::npos
+	auto result = mainString.rfind("\"" + std::string(attributeName) + "\":\"" + std::string(attributeContent) + "\"") != std::string::npos
 		&& mainString.rfind("\"dt.overridden_keys\":[\"" + std::string(attributeName) + "\"]") != std::string::npos;
+
+	if (!result)
+	{
+		*result_listener << "Attribute named \"" << attributeName << "\" was not overridden";
+	}
+
+	return result;
 }
 
 TEST_F(EventPayloadBuilderTest, createEmptyPayloadBuilder)

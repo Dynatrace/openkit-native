@@ -30,7 +30,13 @@ namespace openkit
 		class JsonWriter
 		{
 
-		public: // functions
+		public:
+
+			///
+			/// Default constructor
+			///
+			JsonWriter();
+
 			///
 			/// Appending characters for opening an array in a JSON string
 			///

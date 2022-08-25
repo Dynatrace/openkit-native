@@ -106,7 +106,14 @@ MATCHER_P(ContainsString, includedString, "Should contain string")
 {
 	auto mainString = core::UTF8String(arg);
 
-	return mainString.getStringData().rfind(includedString) != std::string::npos;
+	auto result = mainString.getStringData().rfind(includedString) != std::string::npos;
+
+	if (!result)
+	{
+		*result_listener << "String \"" << arg.getStringData() << "\" does not contain \"" << includedString << "\"";
+	}
+
+	return result;
 }
 
 MATCHER_P(IsEventMapEqual, expectedMap, "Event Map is matching")
@@ -120,6 +127,7 @@ MATCHER_P(IsEventMapEqual, expectedMap, "Event Map is matching")
 	}
 
 	if (!(actualPayload.getStringData().rfind("et=98&pl=", 0) == 0 && expectedPayload.getStringData().rfind("et=98&pl=", 0) == 0)) {
+		*result_listener << "actualPayload or expectedPayload does not contain \"et=98&pl=\"";
 		return false;
 	}
 
@@ -135,6 +143,9 @@ MATCHER_P(IsEventMapEqual, expectedMap, "Event Map is matching")
 
 	if (actualMapStrVector.size() != expectedMapStrVector.size())
 	{
+		*result_listener << "actualMapStrVector and expectedMapStrVector sizes differ "
+			<< "(expected = " << expectedMapStrVector.size()
+			<< ";actual = " << actualMapStrVector.size() << ")";
 		return false;
 	}
 
@@ -145,8 +156,14 @@ MATCHER_P(IsEventMapEqual, expectedMap, "Event Map is matching")
 		return left.equals(right);
 	};
 
-	return std::equal(actualMapStrVector.begin(), actualMapStrVector.end(), expectedMapStrVector.begin(), comparator);
-};
+	auto result = std::equal(actualMapStrVector.begin(), actualMapStrVector.end(), expectedMapStrVector.begin(), comparator);
+	if (!result)
+	{
+		*result_listener << "actualMapStrVector and expectedMapStrVector have different contents";
+	}
+
+	return result;
+}
 
 class BeaconTest : public testing::Test
 {
