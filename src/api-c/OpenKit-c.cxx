@@ -1101,7 +1101,7 @@ extern "C" {
 		CATCH_AND_LOG(sessionHandle)
 	}
 
-	void sendBizEvent(SessionHandle* sessionHandle, const char* type, struct Pair* attributes, size_t attributesSize)
+	void sendBizEvent(SessionHandle* sessionHandle, const char* type, OpenKitPair* attributes, size_t attributesSize)
 	{
 		TRY
 		{
@@ -1127,7 +1127,7 @@ extern "C" {
 		CATCH_AND_LOG(sessionHandle)
 	}
 
-	void sendEvent(SessionHandle* sessionHandle, const char* name, struct Pair* attributes, size_t attributesSize)
+	void sendEvent(SessionHandle* sessionHandle, const char* name, OpenKitPair* attributes, size_t attributesSize)
 	{
 		TRY
 		{

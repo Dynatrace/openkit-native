@@ -521,10 +521,10 @@ extern "C" {
 	struct SessionHandle;
 
 	/// Pair that is needed for sending an event
-	struct Pair {
+	typedef struct OpenKitPair {
 		const char* key;
 		const char* value;
-	};
+	} OpenKitPair;
 
 	///
 	/// Creates a session instance which can then be used to create actions.
@@ -584,7 +584,7 @@ extern "C" {
 	/// @param[in] type type of the event which is mandatory
 	/// @param[in] attributes additional attributes which are passed along side our internal attributes 
 	/// 
-	OPENKIT_EXPORT void sendBizEvent(struct SessionHandle* sessionHandle, const char* type, struct Pair* attributes, size_t attributesSize);
+	OPENKIT_EXPORT void sendBizEvent(struct SessionHandle* sessionHandle, const char* type, OpenKitPair* attributes, size_t attributesSize);
 
 	/// 
 	/// Reports an event with a mandatory type and additional attributes
@@ -593,7 +593,7 @@ extern "C" {
 	/// @param[in] name name of the event which is mandatory
 	/// @param[in] attributes additional attributes which are passed along side our internal attributes 
 	/// 
-	OPENKIT_EXPORT void sendEvent(struct SessionHandle* sessionHandle, const char* name, struct Pair* attributes, size_t attributesSize);
+	OPENKIT_EXPORT void sendEvent(struct SessionHandle* sessionHandle, const char* name, OpenKitPair* attributes, size_t attributesSize);
 
 	//--------------
 	//  Root Action
