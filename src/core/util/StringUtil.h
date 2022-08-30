@@ -159,9 +159,13 @@ namespace core
 			{
 				std::ostringstream oss;
 				oss.imbue(std::locale::classic());
-				oss << std::setprecision(std::numeric_limits<Float>::max_digits10) << floatValue;
+				oss << std::fixed << floatValue;
 
-				return oss.str();
+				auto str = oss.str();
+				str.erase(str.find_last_not_of('0') + 1, std::string::npos);
+				str.erase(str.find_last_not_of('.') + 1, std::string::npos);
+
+				return str;
 			}
 
 		private:

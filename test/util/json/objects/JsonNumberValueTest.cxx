@@ -228,7 +228,7 @@ TEST_F(JsonNumberValueTest, toStringFromNumberLiteral)
 	ASSERT_THAT(obtained->toString(), testing::Eq(std::string("1.25")));
 }
 
-TEST_F(JsonNumberValueTest, toStringFromDouble)
+TEST_F(JsonNumberValueTest, toStringFromLong)
 {
 	// given
 	auto obtained = JsonNumberValue::fromLong(17);
@@ -237,7 +237,7 @@ TEST_F(JsonNumberValueTest, toStringFromDouble)
 	ASSERT_THAT(obtained->toString(), testing::Eq(std::string("17")));
 }
 
-TEST_F(JsonNumberValueTest, toStringFromLong)
+TEST_F(JsonNumberValueTest, toStringFromDouble)
 {
 	// given
 	auto obtained = JsonNumberValue::fromDouble(17.2);

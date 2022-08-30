@@ -17,6 +17,7 @@
 #include "util/json/constants/JsonLiterals.h"
 #include "OpenKit/json/JsonNumberValue.h"
 #include "util/json/JsonWriter.h"
+#include "core/util/StringUtil.h"
 
 #include <stdexcept>
 #include <sstream>
@@ -143,14 +144,12 @@ void JsonNumberValue::writeJsonString(JsonWriter& jsonWriter) const
 
 	if (isInteger())
 	{
-		str = std::to_string(mLongValue);
+		str = core::util::StringUtil::toInvariantString(mLongValue);
 	}
 	else
 	{
-		str = std::to_string(mDoubleValue);
+		str = core::util::StringUtil::toInvariantString(mDoubleValue);
 	}
 
-	str.erase(str.find_last_not_of('0') + 1, std::string::npos); 
-	str.erase(str.find_last_not_of('.') + 1, std::string::npos);
 	jsonWriter.insertValue(str);
 }
