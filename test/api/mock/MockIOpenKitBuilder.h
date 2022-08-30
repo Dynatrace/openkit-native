@@ -38,7 +38,6 @@ namespace test
 		{
 			ON_CALL(*this, getOpenKitType()).WillByDefault(testing::ReturnRef(DefaultValues::EMPTY_STRING));
 			ON_CALL(*this, getApplicationID()).WillByDefault(testing::ReturnRef(DefaultValues::EMPTY_STRING));
-			ON_CALL(*this, getApplicationName()).WillByDefault(testing::ReturnRef(DefaultValues::EMPTY_STRING));
 			ON_CALL(*this, getApplicationVersion()).WillByDefault(testing::ReturnRef(DefaultValues::EMPTY_STRING));
 			ON_CALL(*this, getOperatingSystem()).WillByDefault(testing::ReturnRef(DefaultValues::EMPTY_STRING));
 			ON_CALL(*this, getManufacturer()).WillByDefault(testing::ReturnRef(DefaultValues::EMPTY_STRING));
@@ -73,8 +72,6 @@ namespace test
 		MOCK_METHOD(const std::string&, getOpenKitType, (), (const, override));
 
 		MOCK_METHOD(const std::string&, getApplicationID, (), (const, override));
-
-		MOCK_METHOD(const std::string&, getApplicationName, (), (const, override));
 
 		MOCK_METHOD(int32_t, getDefaultServerID, (), (const, override));
 

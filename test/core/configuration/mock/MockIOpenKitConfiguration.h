@@ -44,8 +44,6 @@ namespace test
 				.WillByDefault(testing::ReturnRef(DefaultValues::UTF8_EMPTY_STRING));
 			ON_CALL(*this, getApplicationIdPercentEncoded())
 				.WillByDefault(testing::ReturnRef(DefaultValues::UTF8_EMPTY_STRING));
-			ON_CALL(*this, getApplicationName())
-				.WillByDefault(testing::ReturnRef(DefaultValues::UTF8_EMPTY_STRING));
 			ON_CALL(*this, getApplicationVersion())
 				.WillByDefault(testing::ReturnRef(DefaultValues::UTF8_EMPTY_STRING));
 			ON_CALL(*this, getOperatingSystem())
@@ -82,8 +80,6 @@ namespace test
 		MOCK_METHOD(const core::UTF8String&, getApplicationId, (), (const, override));
 
 		MOCK_METHOD(const core::UTF8String&, getApplicationIdPercentEncoded, (), (const, override));
-
-		MOCK_METHOD(const core::UTF8String&, getApplicationName, (), (const, override));
 
 		MOCK_METHOD(const core::UTF8String&, getApplicationVersion, (), (const, override));
 

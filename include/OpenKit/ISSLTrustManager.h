@@ -26,7 +26,7 @@ namespace openkit
 {
 	///
 	/// Interface to provide a user-defined trust manager to the configuration.
-	/// When OpenKit connects to a server with self-signed SSL/TLS certificates (e.g. AppMon) then
+	/// When OpenKit connects to a server with self-signed SSL/TLS certificates then
 	/// an implementation of this interface is required to verify the certificate.
 	///
 	class OPENKIT_EXPORT ISSLTrustManager

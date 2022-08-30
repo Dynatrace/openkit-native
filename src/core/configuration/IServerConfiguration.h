@@ -31,21 +31,21 @@ namespace core
 			virtual ~IServerConfiguration() = default;
 
 			///
-			/// Indicates whether capturing is enabled in Dynatrace/AppMon or not.
+			/// Indicates whether capturing is enabled in Dynatrace or not.
 			///
 			/// @return @c true if capturing is enabled, @c false otherwise.
 			///
 			virtual bool isCaptureEnabled() const = 0;
 
 			///
-			/// Indicates whether crash reporting is enabled by Dynatrace/AppMon or not.
+			/// Indicates whether crash reporting is enabled by Dynatrace or not.
 			///
 			/// @return @c true if crash reporting is enabled, @c false otherwise.
 			///
 			virtual bool isCrashReportingEnabled() const = 0;
 
 			///
-			/// Indicates whether error reporting is enabled by Dynatrace/AppMon or not.
+			/// Indicates whether error reporting is enabled by Dynatrace or not.
 			///
 			/// @return @c true if error reporting is enabled, @c false otherwise.
 			///

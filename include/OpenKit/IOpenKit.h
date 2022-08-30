@@ -44,7 +44,7 @@ namespace openkit
 		/// The calling thread is blocked until OpenKit is fully initialized or until OpenKit is shut down using the
 		/// shutdown() method.
 		/// 
-		/// Be aware, if @ref openkit::AbstractOpenKitBuilder is wrongly configured, for example when creating an
+		/// Be aware, if @ref openkit::DynatraceOpenKitBuilder is wrongly configured, for example when creating an
 		/// instance with an incorrect endpoint URL, then this method might hang indefinitely, unless shutdown() is called.
 		/// @returns @c true when OpenKit is fully initialized, @c false when a shutdown request was made.
 		///
@@ -56,7 +56,7 @@ namespace openkit
 		/// The calling thread is blocked until OpenKit is fully initialized or until OpenKit is shut down using the
 		/// shutdown() method or the timeout expired.
 		/// 
-		/// Be aware, if @ref openkit::AbstractOpenKitBuilder is wrongly configured, for example when creating an
+		/// Be aware, if @ref openkit::DynatraceOpenKitBuilder is wrongly configured, for example when creating an
 		/// instance with an incorrect endpoint URL, then this method might hang indefinitely, unless shutdown() is called
 		/// or timeout expires.
 		/// @param[in] timeoutMillis The maximum number of milliseconds to wait for initialization being completed.

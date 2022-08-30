@@ -83,7 +83,6 @@ core::UTF8String Beacon::createImmutableBeaconData()
 	addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_PROTOCOL_VERSION, protocol::PROTOCOL_VERSION);
 	addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_OPENKIT_VERSION, protocol::OPENKIT_VERSION);
 	addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_APPLICATION_ID, openKitConfig->getApplicationId());
-	addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_APPLICATION_NAME, openKitConfig->getApplicationName());
 	addKeyValuePairIfNotEmpty(basicBeaconData, protocol::BEACON_KEY_APPLICATION_VERSION, openKitConfig->getApplicationVersion());
 
 	addKeyValuePair(basicBeaconData, protocol::BEACON_KEY_PLATFORM_TYPE, PLATFORM_TYPE_OPENKIT);

@@ -8,12 +8,10 @@ The developer is supposed to stick to one of the two APIs depending on the requi
 
 ## Obtaining an OpenKit Instance
 
-Depending on the backend a new OpenKit instance can be obtained by using either `DynatraceOpenKitBuilder` 
-or `AppMonOpenKitBuilder` when using the C++ API. Despite from this, the developer does not need to distinguish between 
+Depending on the backend a new OpenKit instance can be obtained by using either `DynatraceOpenKitBuilder` when using the C++ API. Despite from this, the developer does not need to distinguish between 
 different backend systems.
 
-When using the OpenKit C API a new OpenKit instance can be obtained by calling either the `createDynatraceOpenKit` 
-or the `createAppMonOpenKit` function. Despite from this, the developer does not need to distinguish between 
+When using the OpenKit C API a new OpenKit instance can be obtained by calling either the `createDynatraceOpenKit` function. Despite from this, the developer does not need to distinguish between 
 different backend systems.
 
 ### Dynatrace
@@ -56,45 +54,9 @@ destroyOpenKitConfiguration(configurationHandle);
 
 :grey_exclamation: For Dynatrace Managed the endpoint URL looks a bit different.
 
-
-### AppMon
-
-An OpenKit instance for AppMon can be obtained by using the `AppMonOpenKitBuilder` (C++ API).
-
-```c++
-const char* applicationName = "My OpenKit application";
-int64_t deviceID = 42;
-const char* endpointURL = "https://beaconurl.com/dynaTraceMonitor";
-
-std::shared_ptr<openkit::IOpenKit> openKit = AppMonOpenKitBuilder(endpointURL, applicationName, deviceID).build();
-```
-
-* The `endpointURL` denotes the AppMon endpoint OpenKit communicates with.
-* The `applicationName` parameter is the application's name in AppMon and is also used as the application's id.
-* The `deviceID` is a unique identifier, which might be used to uniquely identify a device.
-
-When using the OpenKit C API the three parameters described above are used to create an `OpenKitConfiguration` handle.
-The AppMonOpenKit is built using this handle. All parameters described in the Optional Configuration
-can be applied to the configuration object.  The OpenKitConfiguration handle is owned by the caller and needs to be cleared after
-creating the AppMonOpenKit.
-
-```c
-// C API
-const char* applicationID = "application-id";
-int64_t deviceID = 42;
-const char* endpointURL = "https://tenantid.beaconurl.com/mbeacon";
-
-struct OpenKitConfigurationHandle* configurationHandle = createOpenKitConfiguration(beaconURL, applicationID, serverID);
-
-struct OpenKitHandle* openKitHandle = createAppMonOpenKit(configurationHandle);
-destroyOpenKitConfiguration(configurationHandle);
-
-```
-
 ### Optional Configuration
 
-In addition to the mandatory parameters described above, both the `DynatraceOpenKitBuilder` and the `AppMonOpenKitBuilder` 
-provide additional methods to further  customize OpenKit.
+In addition to the mandatory parameters described above, both the `DynatraceOpenKitBuilder` provide additional methods to further  customize OpenKit.
 This includes device specific information like operating system, manufacturer, or model id.  
 
 | Method Name | Description | Default Value |
@@ -109,11 +71,10 @@ This includes device specific information like operating system, manufacturer, o
 | `withDataCollectionLevel` | sets the data collection level (enum DataCollectionLevel) | USER_BEHAVIOR |
 | `withCrashReportingLevel` | sets the crash reporting level (enum CrashReportingLevel) | OPT_IN_CRASHES |
 | `withTrustManager` | sets a custom `ISSLTrustManager` instance, replacing the builtin default instance.<br>Details are described in section [SSL/TLS Security in OpenKit](#ssltls-security-in-openkit). | `SSLStrictTrustManager` |
-| `enableVerbose`  | *Deprecated*, use `withLogLevel` instead.<br>Enables extended log output for OpenKit if the default logger is used.<br>Is equivalent to `withLogLevel(LogLevel.DEBUG)`. | `false` |
 | `withLogLevel` | sets the log level if the default logger is used | `LogLevel.WARN` |
 | `withLogger` | sets a custom logger, replacing the builtin default logger.<br>Details are described in section [Logging](#logging). | `DefaultLogger` |
-| `withHttpRequestInterceptor` | sets a custom `IHttpRequestInterceptor` instance,  replacing the builtin default one.<br>Details are described in section [Intercepting HTTP traffic to Dynatrace/AppMon](#intercepting-http-traffic-to-dynatraceappmon). | `NullHttpRequestInterceptor` |
-| `withHttpResponseInterceptor` | sets a custom `IHttpResponseInterceptor` instance,  replacing the builtin default one.<br>Details are described in section [Intercepting HTTP traffic to Dynatrace/AppMon](#intercepting-http-traffic-to-dynatraceappmon). | `NullHttpResponseInterceptor` |
+| `withHttpRequestInterceptor` | sets a custom `IHttpRequestInterceptor` instance,  replacing the builtin default one.<br>Details are described in section [Intercepting HTTP traffic to Dynatrace](#intercepting-http-traffic-to-dynatrace). | `NullHttpRequestInterceptor` |
+| `withHttpResponseInterceptor` | sets a custom `IHttpResponseInterceptor` instance,  replacing the builtin default one.<br>Details are described in section [Intercepting HTTP traffic to Dynatrace](#intercepting-http-traffic-to-dynatrace). | `NullHttpResponseInterceptor` |
 
 When using the OpenKit C API, additional configuration can applied to the configuration created with the
 'createOpenKitConfiguration' function.
@@ -129,8 +90,8 @@ When using the OpenKit C API, additional configuration can applied to the config
 | `useTrustModeForConfiguration`           | sets a custom `ISSLTrustManager` replacing previous one | `STRICT_TRUST` |
 | `useDataCollectionLevelForConfiguration` | sets the data collection level (enum DataCollectionLevel) | USER_BEHAVIOR |
 | `useCrashReportingLevelForConfiguration` | sets the crash reporting level (enum CrashReportingLevel) | OPT_IN_CRASHES |
-| `useHttpRequestInterceptorForConfiguration` | sets a custom HTTP request interceptor function,  replacing the builtin default one.<br>Details are described in section [Intercepting HTTP traffic to Dynatrace/AppMon](#intercepting-http-traffic-to-dynatraceappmon). | `NullHttpRequestInterceptor` |
-| `useHttpResponseInterceptorForConfiguration` | sets a custom HTTP response interceptor function,  replacing the builtin default one.<br>Details are described in section [Intercepting HTTP traffic to Dynatrace/AppMon](#intercepting-http-traffic-to-dynatraceappmon). | `NullHttpResponseInterceptor` |
+| `useHttpRequestInterceptorForConfiguration` | sets a custom HTTP request interceptor function,  replacing the builtin default one.<br>Details are described in section [Intercepting HTTP traffic to Dynatrace](#intercepting-http-traffic-to-dynatrace). | `NullHttpRequestInterceptor` |
+| `useHttpResponseInterceptorForConfiguration` | sets a custom HTTP response interceptor function,  replacing the builtin default one.<br>Details are described in section [Intercepting HTTP traffic to Dynatrace](#intercepting-http-traffic-to-dynatrace). | `NullHttpResponseInterceptor` |
 
 When passing a non-NULL `logger`, custom logging can be enabled. Further information is described in [Logging](#logging).
 When passing a non-NULL `trustManagerHandle`, custom SSL/TLS certificate verification can be enabled.
@@ -147,18 +108,18 @@ However it is possible, if really needed, to bypass TLS/SSL certificate validati
 passing an implementation of `SSLTrustManager` by calling the `withTrustManager` on the builder (C++ API).
 
 For OpenKit C API it is possible to bypass the TLS/SSL certificate validation by passing a custom `trustManagerHandle`
-to the `createDynatraceOpenKit` or `createAppMonOpenKit` functions.
+to the `createDynatraceOpenKit` functions.
 
 :warning: We do **NOT** recommend bypassing TLS/SSL server certificate validation, since this allows
 man-in-the-middle attacks.
 
-## Intercepting HTTP traffic to Dynatrace/AppMon
+## Intercepting HTTP traffic to Dynatrace
 
 When routing traffic through own network infrastructure it might be necessary  to intercept HTTP traffic
-to Dynatrace/AppMon and add or overwrite HTTP headers. This can be achieved by implementing the 
+to Dynatrace and add or overwrite HTTP headers. This can be achieved by implementing the 
 `IHttpRequestInterceptor` interface and passing an instance to the builder by calling 
 the `withHttpRequestInterceptor` method. OpenKit invokes the `IHttpRequestInterceptor::intercept(IHttpRequest&)` 
-method for each request sent to Dynatrace/AppMon.  
+method for each request sent to Dynatrace.  
 It might be required to intercept the HTTP response and read custom response headers. This
 can be achieved by implementing the `IHttpResponseInterceptor` interface and passing an instance to the builder
 by calling `withHttpResponseInterceptor`. OpenKit calls the `IHttpResponseInterceptor::intercept(const IHttpResponse&)`
@@ -172,7 +133,7 @@ can be used to set one.
 ## Logging
 
 By default, OpenKit uses a logger implementation that logs to stdout. If the default logger is used, verbose 
-logging can be enabled by calling `enableVerbose` in the builder. By enabling verbose mode, info and debug
+logging can be enabled by calling `DynatraceOpenKitBuilder::withLogLevel(LogLevel::LOG_LEVEL_DEBUG)`. By enabling verbose mode, info and debug
 messages are logged. This only applies to the C++ API.
 
 A custom logger can be set by calling `withLogger` in the builder. When a custom logger is used, a call to 
@@ -180,7 +141,7 @@ A custom logger can be set by calling `withLogger` in the builder. When a custom
 in `isDebugEnabled` and `isInfoEnabled`.
 
 When using the OpenKit C API a custom logger can be set by invoking `createLogger` function to create one.
-The returned value can then be passed to the `createDynatraceOpenKit` or `createAppMonOpenKit` functions.
+The returned value can then be passed to the `createDynatraceOpenKit` functions.
 After OpenKit has been shut down, the custom logger shall be destroyed by invoking the `destroyLogger` function.
 
 ## Initializing OpenKit
@@ -684,7 +645,7 @@ void restrictedFunction()
 
 One of the most powerful OpenKit features is web request tracing. When the application starts a web
 request (e.g. HTTP GET) a special tag can be attached to the header. This special header allows
-Dynatrace SaaS/Dynatrace Managed/AppMon to correlate actions with a server side PurePath. 
+Dynatrace SaaS/Dynatrace Managed to correlate actions with a server side PurePath. 
 
 An example is shown below.
 
@@ -752,6 +713,6 @@ webRequestTracer = NULL;
 When an OpenKit instance is no longer needed (e.g. the application using OpenKit is shut down), the previously
 obtained instance can be cleared by invoking the `shutdown` method.  
 Calling the `shutdown` method blocks the calling thread while the OpenKit flushes data which has not been
-transmitted yet to the backend (Dynatrace SaaS/Dynatrace Managed/AppMon).  
+transmitted yet to the backend (Dynatrace SaaS/Dynatrace Managed).  
 When using OpenKit's C API the same can be achieved by calling the `shutdownOpenKit` function.  
 Details are explained in [internals.md](internals.md)

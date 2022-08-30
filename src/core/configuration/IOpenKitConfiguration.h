@@ -65,11 +65,6 @@ namespace core
 			virtual const core::UTF8String& getApplicationIdPercentEncoded() const = 0;
 
 			///
-			/// Returns the name of the application for which this configuration is used.
-			///
-			virtual const core::UTF8String& getApplicationName() const = 0;
-
-			///
 			/// Returns the version of the application for which this configuration is used.
 			///
 			virtual const core::UTF8String& getApplicationVersion() const = 0;
@@ -90,7 +85,7 @@ namespace core
 			virtual const core::UTF8String& getModelId() const = 0;
 
 			///
-			/// Returns the default identifier of the Dynatrace/AppMon server to communicate with.
+			/// Returns the default identifier of the Dynatrace server to communicate with.
 			///
 			virtual int32_t getDefaultServerId() const = 0;
 

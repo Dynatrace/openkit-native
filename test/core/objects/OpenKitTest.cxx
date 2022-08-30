@@ -58,7 +58,6 @@ using SessionProxy_t = core::objects::SessionProxy;
 using Utf8String_t = core::UTF8String;
 
 const Utf8String_t APP_ID("appID");
-const Utf8String_t APP_NAME("appName");
 const int64_t DEVICE_ID = 1234;
 
 class OpenKitTest : public testing::Test
@@ -86,8 +85,6 @@ protected:
 			.WillByDefault(testing::ReturnRef(APP_ID));
 		ON_CALL(*mockOpenKitConfig, getDeviceId())
 			.WillByDefault(testing::Return(DEVICE_ID));
-		ON_CALL(*mockOpenKitConfig, getApplicationName())
-			.WillByDefault(testing::ReturnRef(APP_NAME));
 		ON_CALL(*mockOpenKitConfig, getOperatingSystem())
 			.WillByDefault(testing::ReturnRef(DefaultValues::UTF8_EMPTY_STRING));
 		ON_CALL(*mockOpenKitConfig, getManufacturer())

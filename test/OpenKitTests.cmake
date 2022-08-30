@@ -24,8 +24,6 @@ set(OPENKIT_SOURCES_TEST
 )
 
 set(OPENKIT_SOURCES_TEST_API
-    ${CMAKE_CURRENT_LIST_DIR}/api/AbstractOpenKitBuilderTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/api/AppMonOpenKitBuilderTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/api/DynatraceOpenKitBuilderTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/api/LogLevelTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/api/mock/MockIHttpRequest.h

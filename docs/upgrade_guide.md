@@ -1,5 +1,11 @@
 # Upgrade guide for OpenKit C/C++
 
+## ## OpenKit .C/C++ 2.1 to 3.0
+Appmon has been removed from OpenKit C/C++. If you don't want to replace your AppMon related code stay on the latest 2.1.x release.
+
+### Removed API
+* `AbstractOpenKitBuilder` has been removed as it was not needed anymore due to AppMon removal. All functionalities have been consolidated into the `DynatraceOpenKitBuilder`.
+
 ## ## OpenKit .C/C++ 2.0 to 2.1
 There are no breaking API changes and upgrading is straightforward, by [updating][update] the library
 to the latest 2.1 release.
@@ -34,7 +40,5 @@ to the latest 1.1 release.
 ### Deprecated API
 * `DynatraceOpenKitBuilder::DynatraceOpenKitBuilder(const char* endpointURL, const char* applicationID, const char* deviceID)`  
    Use `DynatraceOpenKitBuilder::DynatraceOpenKitBuilder(const char* endpointURL, const char* applicationID, int64_t deviceID)` instead.
-* `AppMonOpenKitBuilder::AppMonOpenKitBuilder(const char* endpointURL, const char* applicationName, const char* deviceID)`  
-   Use `AppMonOpenKitBuilder::AppMonOpenKitBuilder(const char* endpointURL, const char* applicationName, int64_t deviceID)` instead.
 
 [update]: ./installing.md#obtaining-and-updating-openkit-native

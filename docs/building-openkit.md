@@ -31,7 +31,7 @@ and build when building OpenKit.
 A lisf of libraries, including the versions and licenses are documented in the
 [README.md](../README.md#included-3rd-party-libraries).
 
-Since OpenKit communicates to the AppMon/Dynatrace backend via HTTPS,
+Since OpenKit communicates to the Dynatrace backend via HTTPS,
 libcurl requires an SSL library.  
 OpenKit has the following restrictions on supported SSL libraries:
 * OpenSSL when OpenKit is built on GNU/Linux systems

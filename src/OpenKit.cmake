@@ -13,8 +13,6 @@
 # limitations under the License.
 
 set(OPENKIT_PUBLIC_HEADERS_CXX_API
-    ${CMAKE_SOURCE_DIR}/include/OpenKit/AbstractOpenKitBuilder.h
-    ${CMAKE_SOURCE_DIR}/include/OpenKit/AppMonOpenKitBuilder.h
     ${CMAKE_SOURCE_DIR}/include/OpenKit/CrashReportingLevel.h
     ${CMAKE_SOURCE_DIR}/include/OpenKit/DataCollectionLevel.h
     ${CMAKE_SOURCE_DIR}/include/OpenKit/DynatraceOpenKitBuilder.h
@@ -47,8 +45,6 @@ set(OPENKIT_PUBLIC_HEADERS_C_API
 )
 
 set(OPENKIT_SOURCES_CXX_API
-    ${CMAKE_CURRENT_LIST_DIR}/api/AbstractOpenKitBuilder.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/api/AppMonOpenKitBuilder.cxx
     ${CMAKE_CURRENT_LIST_DIR}/api/DynatraceOpenKitBuilder.cxx
     ${CMAKE_CURRENT_LIST_DIR}/api/LogLevel.cxx
 )

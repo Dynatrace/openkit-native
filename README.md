@@ -14,13 +14,13 @@ We encourage you to rename the default branch in your forks too.
 
 ## What is the OpenKit?
 
-The OpenKit provides an easy and lightweight way to get insights into applications with Dynatrace/AppMon by instrumenting the source code of those applications.
+The OpenKit provides an easy and lightweight way to get insights into applications with Dynatrace by instrumenting the source code of those applications.
 
 It is best suited for applications running separated from their backend and communicating via HTTP, like rich-client-applications, embedded devices, terminals, and so on.
 
 The big advantages of the OpenKit are that it's designed to
 * be as easy-to-use as possible
-* be as dependency-free as possible, except for an SSL library (no Dynatrace/AppMon Agent needed)
+* be as dependency-free as possible, except for an SSL library (no Dynatrace Agent needed)
 * be easily portable to other languages and platforms
 
 This repository contains the reference implementation in C and C++. Other implementations are listed as follows:
@@ -33,7 +33,7 @@ This repository contains the reference implementation in C and C++. Other implem
 * Report values, events, errors and crashes
 * Trace web requests to server-side PurePaths
 * Tag Sessions with a user tag
-* Use it together with Dynatrace or AppMon
+* Use it together with Dynatrace
 
 ## What you cannot do with the OpenKit
 * Create server-side PurePaths (this functionality is provided by [OneAgent SDKs](https://github.com/Dynatrace/OneAgent-SDK))
@@ -71,7 +71,7 @@ OpenKit includes the following 3rd party libraries.
 | Library                     | Version | License                        | Purpose                                        |
 |-----------------------------|---------|--------------------------------|------------------------------------------------|
 | [zlib][zlib-readme]         | 1.2.11  | [zlib][zlib-readme]            | Used for compressing transmitted data          |
-| [libcurl][curl-readme]      | 7.75.0  | [curl][curl-license]           | Used for communicating with Dynatrace/AppMon   |
+| [libcurl][curl-readme]      | 7.75.0  | [curl][curl-license]           | Used for communicating with Dynatrace   |
 | [Google Test][gtest-readme] | 1.10.0   | [BSD 3-clauses][gtest-license] | Unit testing framework, not used in production |
 | [Google Mock][gmock-readme] | 1.10.0   | [BSD 3-clauses][gmock-license] | Mocking framework, not used in production      |
 

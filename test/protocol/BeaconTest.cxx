@@ -82,7 +82,6 @@ using WebRequestTracer_t = core::objects::WebRequestTracer;
 using IServerConfiguration_sp = std::shared_ptr<core::configuration::IServerConfiguration>;
 
 const Utf8String_t APP_ID("appID");
-const Utf8String_t APP_NAME("appName");
 const Utf8String_t APP_VERSION("1.0");
 const Utf8String_t OS_NAME("osName");
 const Utf8String_t DEVICE_MANUFACTURER("deviceCompany");
@@ -190,8 +189,6 @@ protected:
 			.WillByDefault(testing::ReturnRef(APP_ID));
 		ON_CALL(*mockOpenKitConfiguration, getApplicationIdPercentEncoded())
 			.WillByDefault(testing::ReturnRef(APP_ID));
-		ON_CALL(*mockOpenKitConfiguration, getApplicationName())
-			.WillByDefault(testing::ReturnRef(APP_NAME));
 		ON_CALL(*mockOpenKitConfiguration, getApplicationVersion())
 			.WillByDefault(testing::ReturnRef(APP_VERSION));
 		ON_CALL(*mockOpenKitConfiguration, getDeviceId())
@@ -3761,7 +3758,6 @@ TEST_F(BeaconTest, beaconDataPrefixVS2)
 	expectedPrefix << "vv=" << protocol::PROTOCOL_VERSION
 		<< "&va=" << protocol::OPENKIT_VERSION
 		<< "&ap=" << APP_ID.getStringData()
-		<< "&an=" << APP_NAME.getStringData()
 		<< "&vn=" << appVersion.getStringData()
 		<< "&pt=" << protocol::PLATFORM_TYPE_OPENKIT
 		<< "&tt=" << protocol::AGENT_TECHNOLOGY_TYPE
@@ -4341,7 +4337,6 @@ TEST_F(BeaconTest, sendConstructsCorrectBeaconPrefixVisitStore1)
 	expectedPrefix << "vv=" << protocol::PROTOCOL_VERSION
 		<< "&va=" << protocol::OPENKIT_VERSION
 		<< "&ap=" << APP_ID.getStringData()
-		<< "&an=" << APP_NAME.getStringData()
 		<< "&vn=1.0"
 		<< "&pt=" << protocol::PLATFORM_TYPE_OPENKIT
 		<< "&tt=" << protocol::AGENT_TECHNOLOGY_TYPE

@@ -24,7 +24,6 @@
 
 #include "OpenKit/IOpenKit.h"
 #include "OpenKit/DynatraceOpenKitBuilder.h"
-#include "OpenKit/AppMonOpenKitBuilder.h"
 #include "OpenKit/ISession.h"
 #include "OpenKit/IRootAction.h"
 #include "OpenKit/IAction.h"
@@ -550,7 +549,6 @@ extern "C" {
 		char* applicationID = nullptr;
 		int64_t deviceID = -1;
 		char* origDeviceID = nullptr;
-		char* applicationName = nullptr;
 		LoggerHandle* loggerHandle = nullptr;
 		LOG_LEVEL defaultLogLevel = LOGLEVEL_WARN;
 		bool ownsLoggerHandle = false;
@@ -612,7 +610,6 @@ extern "C" {
 		//clear string copies allocated with strdup
 		FREE_DUPLICATED_STRING(configurationHandle->endpointURL);
 		FREE_DUPLICATED_STRING(configurationHandle->applicationID);
-		FREE_DUPLICATED_STRING(configurationHandle->applicationName);
 		FREE_DUPLICATED_STRING(configurationHandle->applicationVersion);
 		FREE_DUPLICATED_STRING(configurationHandle->operatingSystem);
 		FREE_DUPLICATED_STRING(configurationHandle->manufacturer);
@@ -645,15 +642,6 @@ extern "C" {
 		if (configurationHandle != nullptr && applicationVersion != nullptr)
 		{
 			configurationHandle->applicationVersion = duplicateString(applicationVersion);
-		}
-	}
-
-	void useApplicationNameForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, const char* applicationName)
-	{
-		//sanity
-		if (configurationHandle != nullptr && applicationName != nullptr)
-		{
-			configurationHandle->applicationName = duplicateString(applicationName);
 		}
 	}
 
@@ -798,7 +786,7 @@ extern "C" {
 		return configurationHandle->loggerHandle;
 	}
 
-	static void initializeOpenKitBuilder(openkit::AbstractOpenKitBuilder& builder, struct OpenKitConfigurationHandle* configurationHandle)
+	static void initializeOpenKitBuilder(openkit::DynatraceOpenKitBuilder& builder, struct OpenKitConfigurationHandle* configurationHandle)
 	{
 		// create trust manager handle based on given TRUST_MODE & existing TrustManagerHandle
 		// the result might either be a completly newly created TrustManagerHandle* or
@@ -901,24 +889,7 @@ extern "C" {
 		OpenKitHandle* handle = nullptr;
 		TRY
 		{
-			openkit::DynatraceOpenKitBuilder builder(configurationHandle->endpointURL, configurationHandle->applicationID, configurationHandle->origDeviceID);
-
-			// initialize the abstract builder
-			initializeOpenKitBuilder(builder, configurationHandle);
-
-			return createOpenKitHandle(configurationHandle, builder.build());
-		}
-		CATCH_AND_LOG(configurationHandle->loggerHandle)
-
-		return handle;
-	}
-
-	OpenKitHandle* createAppMonOpenKit(struct OpenKitConfigurationHandle* configurationHandle)
-	{
-		OpenKitHandle* handle = nullptr;
-		TRY
-		{
-			openkit::AppMonOpenKitBuilder builder(configurationHandle->endpointURL, configurationHandle->applicationName, configurationHandle->origDeviceID);
+			openkit::DynatraceOpenKitBuilder builder(configurationHandle->endpointURL, configurationHandle->applicationID, configurationHandle->deviceID);
 
 			// initialize the abstract builder
 			initializeOpenKitBuilder(builder, configurationHandle);

@@ -24,7 +24,6 @@
 #include "IAction.h"
 #include "IRootAction.h"
 #include "ISession.h"
-#include "AppMonOpenKitBuilder.h"
 #include "DynatraceOpenKitBuilder.h"
 #include "ISSLTrustManager.h"
 

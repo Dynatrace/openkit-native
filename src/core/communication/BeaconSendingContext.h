@@ -161,7 +161,7 @@ namespace core
 			///
 			/// Mismatch check prevents a rare Jetty bug, where responses might be dispatched to the wrong receiver.
 			/// 
-			/// @param The last response attributes received from Dynatrace/AppMon.
+			/// @param The last response attributes received from Dynatrace.
 			/// @returns false if application id is matching, true if a mismatch occurred.
 			/// 
 			bool isApplicationIdMismatch(std::shared_ptr<protocol::IResponseAttributes> lastResponseAttributes) const;

@@ -65,8 +65,7 @@ void OpenKit::logOpenKitInstanceCreation(
 	}
 	if (logger->isDebugEnabled())
 	{
-		logger->debug("OpenKit() - applicationName=%s, applicationID=%s, deviceID=%" PRId64  ", origDeviceID=%s, endpointURL=%s",
-			openKitConfiguration->getApplicationName().getStringData().c_str(),
+		logger->debug("OpenKit() - applicationID=%s, deviceID=%" PRId64  ", origDeviceID=%s, endpointURL=%s",
 			openKitConfiguration->getApplicationId().getStringData().c_str(),
 			openKitConfiguration->getDeviceId(),
 			openKitConfiguration->getOrigDeviceId().getStringData().c_str(),

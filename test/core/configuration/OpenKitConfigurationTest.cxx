@@ -37,7 +37,6 @@ protected:
 	const int64_t DEVICE_ID = 37;
 	const std::string OPENKIT_TYPE = "Dynatrace NextGen";
 	const std::string APPLICATION_ID = "Application-ID";
-	const std::string APPLICATION_NAME = "Application Name";
 	const std::string APPLICATION_VERSION = "1.2.3.4-b4321";
 	const std::string OPERATING_SYSTEM = "Linux #253-Microsoft Mon Dec 31 17:49:00 PST 2018 x86_64 GNU/Linux";
 	const std::string MANUFACTURER = "Dynatrace";
@@ -57,8 +56,6 @@ protected:
 			.WillByDefault(testing::ReturnRef(OPENKIT_TYPE));
 		ON_CALL(*mockOpenKitBuilder, getApplicationID())
 			.WillByDefault(testing::ReturnRef(APPLICATION_ID));
-		ON_CALL(*mockOpenKitBuilder, getApplicationName())
-			.WillByDefault(testing::ReturnRef(APPLICATION_NAME));
 		ON_CALL(*mockOpenKitBuilder, getApplicationVersion())
 			.WillByDefault(testing::ReturnRef(APPLICATION_VERSION));
 		ON_CALL(*mockOpenKitBuilder, getOperatingSystem())
@@ -140,18 +137,6 @@ TEST_F(OpenKitConfigurationTest, creatingAnOpenKitConfigurationFromBuilderPercen
 
 	// then
 	ASSERT_THAT(obtained->getApplicationIdPercentEncoded(), testing::Eq("%2FApp%5FID%25"));
-}
-
-TEST_F(OpenKitConfigurationTest, creatingAnOpenKitConfigurationFromBuilderCopiesApplicationName)
-{
-	// expect
-	EXPECT_CALL(*mockOpenKitBuilder, getApplicationName()).Times(1);
-
-	// when
-	auto obtained = OpenKitConfiguration_t::from(*mockOpenKitBuilder);
-
-	// then
-	ASSERT_THAT(obtained->getApplicationName(), testing::Eq(APPLICATION_NAME));
 }
 
 TEST_F(OpenKitConfigurationTest, creatingAnOpenKitConfigurationFromBuilderCopiesApplicationVersion)

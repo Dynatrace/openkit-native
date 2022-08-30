@@ -4,6 +4,8 @@
 
 ### Changed
 - Default maximum age of an entry in the beacon cache changed from 1h 45m to 45m
+- Removed AppMon functionality
+
 ## 2.1.0 [Release date: 2021-10-07]
 [GitHub Releases](https://github.com/Dynatrace/openkit-native/releases/tag/v2.1.0)
 

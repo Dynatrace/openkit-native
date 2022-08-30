@@ -28,7 +28,7 @@ namespace core
 	namespace configuration
 	{
 		///
-		/// Holds all application relevant configuration settings, both provided by the user and the Dynatrace/AppMon server.
+		/// Holds all application relevant configuration settings, both provided by the user and the Dynatrace server.
 		///
 		class OpenKitConfiguration
 			: public core::configuration::IOpenKitConfiguration
@@ -65,8 +65,6 @@ namespace core
 
 			const core::UTF8String& getApplicationIdPercentEncoded() const override;
 
-			const core::UTF8String& getApplicationName() const override;
-
 			const core::UTF8String& getApplicationVersion() const override;
 
 			const core::UTF8String& getOperatingSystem() const override;
@@ -102,9 +100,6 @@ namespace core
 
 			/// application identifier in percent encoded representation
 			const core::UTF8String mPercentEncodedApplicationId;
-
-			/// name of the application for which to report data
-			const core::UTF8String mApplicationName;
 
 			/// version of the application for which to report data
 			const core::UTF8String mApplicationVersion;

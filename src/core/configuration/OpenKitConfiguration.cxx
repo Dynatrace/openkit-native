@@ -26,7 +26,6 @@ OpenKitConfiguration::OpenKitConfiguration(const openkit::IOpenKitBuilder& build
 	, mOpenKitType(builder.getOpenKitType())
 	, mApplicationId(builder.getApplicationID())
 	, mPercentEncodedApplicationId(core::util::URLEncoding::urlencode(builder.getApplicationID(), {'_'}))
-	, mApplicationName(builder.getApplicationName())
 	, mApplicationVersion(builder.getApplicationVersion())
 	, mOperatingSystem(builder.getOperatingSystem())
 	, mManufacturer(builder.getManufacturer())
@@ -73,11 +72,6 @@ const core::UTF8String& OpenKitConfiguration::getApplicationId() const
 const core::UTF8String& OpenKitConfiguration::getApplicationIdPercentEncoded() const
 {
 	return mPercentEncodedApplicationId;
-}
-
-const core::UTF8String& OpenKitConfiguration::getApplicationName() const
-{
-	return mApplicationName;
 }
 
 const core::UTF8String& OpenKitConfiguration::getApplicationVersion() const

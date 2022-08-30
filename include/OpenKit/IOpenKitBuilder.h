@@ -53,15 +53,6 @@ namespace openkit
 		virtual const std::string& getApplicationID() const = 0;
 
 		///
-		/// Returns the application's name.
-		///
-		/// @par
-		/// It depends on the concrete builder whether the application name is configurable or not.
-		/// In any case, the derived classes have to return a string that is neither @c nullptr nor empty.
-		///
-		virtual const std::string& getApplicationName() const = 0;
-
-		///
 		/// Returns the ID of the server to communicate with.
 		///
 		/// @par
@@ -197,7 +188,7 @@ namespace openkit
 
 		///
 		/// Returns the openkit::IHttpRequestInterceptor that has been set with
-		/// openkit::AbstractOpenKitBuilder::withHttpRequestInterceptor(std::shared_ptr<IHttpRequestInterceptor>)
+		/// openkit::DynatraceOpenKitBuilder::withHttpRequestInterceptor(std::shared_ptr<IHttpRequestInterceptor>)
 		/// 
 		/// @par
 		/// If no request interceptor was set, a default request interceptor is returned.

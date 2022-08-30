@@ -29,7 +29,6 @@ namespace protocol
 	constexpr const char* BEACON_KEY_PROTOCOL_VERSION = "vv";
 	constexpr const char* BEACON_KEY_OPENKIT_VERSION = "va";
 	constexpr const char* BEACON_KEY_APPLICATION_ID = "ap";
-	constexpr const char* BEACON_KEY_APPLICATION_NAME = "an";
 	constexpr const char* BEACON_KEY_APPLICATION_VERSION = "vn";
 	constexpr const char* BEACON_KEY_PLATFORM_TYPE = "pt";
 	constexpr const char* BEACON_KEY_AGENT_TECHNOLOGY_TYPE = "tt";

@@ -35,7 +35,7 @@ const char APPLICATION_VERSION[] = "1.2.3";
 /// the "serverID" and the "applicationID".
 /// @param[in] argc the command line argument count
 /// @param[in] argv the command line arguments
-/// @param[out] endpointURL Dynatrace/AppMon endpoint URL, e.g. "https://bf1234567xyz.com/mbeacon"
+/// @param[out] endpointURL Dynatrace endpoint URL, e.g. "https://bf1234567xyz.com/mbeacon"
 /// @param[out] deviceID the numeric ID of the device
 /// @param[out] applicationID the ID of the application
 ///
@@ -142,7 +142,6 @@ int32_t main(int32_t argc, char** argv)
 
 	useLoggerForConfiguration(configurationHandle, loggerHandle);
 	useApplicationVersionForConfiguration(configurationHandle, "v0.1.x");
-	useApplicationNameForConfiguration(configurationHandle, "My TestApp");
 	useTrustModeForConfiguration(configurationHandle, STRICT_TRUST, NULL);
 	useOperatingSystemForConfiguration(configurationHandle, "Test OS");
 	useManufacturerForConfiguration(configurationHandle, "Dynatrace");

@@ -16,8 +16,8 @@ developer using OpenKit's API is responsible for appropriate encoding.
 When OpenKit encounters invalid characters in the passed `const char*` they are
 replaced using the Unicode Replacement Character (`U+FFFD`) in the internal copy.
 
-## DynatraceOpenKitBuilder / AppMonOpenKitBuilder
-A `DynatraceOpenKitBuilder`/`AppMonOpenKitBuilder` instance is responsible for setting 
+## DynatraceOpenKitBuilder
+A `DynatraceOpenKitBuilder` instance is responsible for setting 
 application relevant information, e.g. the application's version and device specific information, and to create
 an `IOpenKit` instance.
 
@@ -26,7 +26,7 @@ an `IOpenKit` instance.
 An `IOpenKit` instance is responsible for creating user sessions (see `ISession`).
   
 Although it would be possible to have multiple `IOpenKit` instances connected to the same endpoint
-(Dynatrace/AppMon) within one process, there should be one unique instance. `IOpenKit` is designed to be
+(Dynatrace) within one process, there should be one unique instance. `IOpenKit` is designed to be
 thread safe and therefore the instance can be shared among threads.  
 
 On application shutdown, `shutdown()` needs to be called on the `IOpenKit` instance.
@@ -87,7 +87,6 @@ This small example provides a rough overview how OpenKit can be used.
 Detailed explanation is available in [example.md][example].
 
 ```c++
-const char* applicationName = "My OpenKit application";             // Your application's name
 const char* applicationID = "application-id";                       // Your application's ID
 uint64_t deviceID = 42;                                             // Replace with a unique value per device/installation
 const char* endpointURL = "https://tenantid.beaconurl.com/mbeacon"; // Dynatrace endpoint URL

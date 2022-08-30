@@ -207,14 +207,14 @@ extern "C" {
 	///
 	OPENKIT_EXPORT void setOpenKitHttpRequestHeader(struct OpenKitHttpRequest* openKitHttpRequest, const char* name, const char* value);
 
-	/// Pointer to a function that is used to intercept an HTTP request to Dynatrace/AppMon backend.
+	/// Pointer to a function that is used to intercept an HTTP request to Dynatrace backend.
 	typedef void(*openKitInterceptHttpRequestFunc)(struct OpenKitHttpRequest* /* openKitHttpRequest */);
 
 	/// C wrapper for openkit::IHttpResponse
 	struct OpenKitHttpResponse;
 
 	///
-	/// Get the original HTTP request URI associated with this HTTP response from the Dynatrace/AppMon backend.
+	/// Get the original HTTP request URI associated with this HTTP response from the Dynatrace backend.
 	///
 	/// @remarks Return value is valid within openKitInterceptHttpResponseFunc and must not be freed.
 	///
@@ -224,7 +224,7 @@ extern "C" {
 	OPENKIT_EXPORT const char* getOpenKitHttpRequestUriFromResponse(const struct OpenKitHttpResponse* openKitHttpResponse);
 
 	///
-	/// Get the original HTTP request method associated with this HTTP response from the Dynatrace/AppMon backend.
+	/// Get the original HTTP request method associated with this HTTP response from the Dynatrace backend.
 	///
 	/// @remarks Return value is valid within openKitInterceptHttpResponseFunc and must not be freed.
 	///
@@ -234,7 +234,7 @@ extern "C" {
 	OPENKIT_EXPORT const char* getOpenKitHttpRequestMethodFromResponse(const struct OpenKitHttpResponse* openKitHttpResponse);
 
 	///
-	/// Get the HTTP status code of the HTTP response from Dynatrace/AppMon backend.
+	/// Get the HTTP status code of the HTTP response from Dynatrace backend.
 	///
 	/// @param[in] openKitHttpResponse OpenKit HTTP response struct
 	/// @return HTTP status code or a negative value if HTTP response is invalid
@@ -242,7 +242,7 @@ extern "C" {
 	OPENKIT_EXPORT int32_t getOpenKitHttpResponseStatusCode(const struct OpenKitHttpResponse* openKitHttpResponse);
 
 	///
-	/// Get the HTTP reason phrase of the HTTP response from Dynatrace/AppMon backend.
+	/// Get the HTTP reason phrase of the HTTP response from Dynatrace backend.
 	///
 	/// @remarks Return value is valid within openKitInterceptHttpResponseFunc and must not be freed.
 	///
@@ -292,7 +292,7 @@ extern "C" {
 	///
 	OPENKIT_EXPORT struct OpenKitSList* getOpenKitHttpResponseHeader(const struct OpenKitHttpResponse* openKitHttpResponse, const char* name);
 
-	/// Pointer to a function that is used to intercept an HTTP response from Dynatrace/AppMon backend.
+	/// Pointer to a function that is used to intercept an HTTP response from Dynatrace backend.
 	typedef void(*openKitInterceptHttpResponseFunc)(struct OpenKitHttpResponse* /* openKitHttpResponse */);
 
 	//--------------
@@ -323,7 +323,7 @@ extern "C" {
 	/// @param[in] endpointURL endpoint OpenKit connects to
 	/// @param[in] applicationID unique application id
 	/// @param[in] deviceID unique device id
-	/// @returns a configuration object that can be used for both AppMon and Dynatrace OpenKit instances
+	/// @returns a configuration object that can be used for Dynatrace OpenKit instances
 	///
 	OPENKIT_EXPORT struct OpenKitConfigurationHandle* createOpenKitConfiguration(const char* endpointURL, const char* applicationID, int64_t deviceID);
 
@@ -333,7 +333,7 @@ extern "C" {
 	/// @param[in] endpointURL endpoint OpenKit connects to
 	/// @param[in] applicationID unique application id
 	/// @param[in] deviceID unique device id
-	/// @returns a configuration object that can be used for both AppMon and Dynatrace OpenKit instances
+	/// @returns a configuration object that can be used for Dynatrace OpenKit instances
 	///
 	OPENKIT_EXPORT struct OpenKitConfigurationHandle* createOpenKitConfigurationWithStringDeviceID(const char* endpointURL, const char* applicationID, const char* deviceID);
 
@@ -364,15 +364,6 @@ extern "C" {
 	/// @param[in] applicationVersion optional parameter, the application version. If @c NULL is provided the default application version is used.
 	///
 	OPENKIT_EXPORT void useApplicationVersionForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, const char* applicationVersion);
-
-	///
-	/// Set the application name in the OpenKit configuration
-	/// @param[in] configurationHandle configuration storing the given parameter
-	/// @param[in] applicationName optional name for the application. If @c NULL is provided the application name is an empty string.
-	/// @remarks
-	/// This is only used for AppMon backends, as it has been deprecated for Dynatrace.
-	///
-	OPENKIT_EXPORT void useApplicationNameForConfiguration(struct OpenKitConfigurationHandle* configurationHandle, const char* applicationName);
 
 	///
 	/// Set the trust mode and trust manager handle in the OpenKit configuration
@@ -430,7 +421,7 @@ extern "C" {
 	///
 	/// Set a custom HTTP request interceptor for intercepting OpenKit's HTTP requests to backend.
 	/// @param[in] configurationHandle configuration storing the given parameter
-	/// @param[in] interceptHttpRequestFunc C function pointer that is invoked for each HTTP request to Dynatrace/AppMon backend.
+	/// @param[in] interceptHttpRequestFunc C function pointer that is invoked for each HTTP request to Dynatrace backend.
 	///
 	OPENKIT_EXPORT void useHttpRequestInterceptorForConfiguration(
 		struct OpenKitConfigurationHandle* configurationHandle,
@@ -440,7 +431,7 @@ extern "C" {
 	///
 	/// Set a custom HTTP response interceptor for intercepting OpenKit's HTTP responses from backend.
 	/// @param[in] configurationHandle configuration storing the given parameter
-	/// @param[in] interceptHttpResponseFunc C function pointer that is invoked for each HTTP response from Dynatrace/AppMon backend.
+	/// @param[in] interceptHttpResponseFunc C function pointer that is invoked for each HTTP response from Dynatrace backend.
 	///
 	OPENKIT_EXPORT void useHttpResponseInterceptorForConfiguration(
 		struct OpenKitConfigurationHandle* configurationHandle,
@@ -462,16 +453,9 @@ extern "C" {
 	OPENKIT_EXPORT struct OpenKitHandle* createDynatraceOpenKit(struct OpenKitConfigurationHandle* configurationHandle );
 
 	///
-	/// Creates an OpenKit instance for AppMon
-	/// @param[in] configurationHandle configuration object
-	/// @return OpenKit instance handle to work with
-	///
-	OPENKIT_EXPORT struct OpenKitHandle* createAppMonOpenKit(struct OpenKitConfigurationHandle* configurationHandle);
-
-	///
 	/// Shuts down the OpenKit, ending all open Sessions and waiting for them to be sent.
 	/// After calling @c shutdown the openKitHandle is released and must not be used any more.
-	/// @param[in] openKitHandle the handle returned by @ref createDynatraceOpenKit or @ref createAppMonOpenKit
+	/// @param[in] openKitHandle the handle returned by @ref createDynatraceOpenKit
 	///
 	OPENKIT_EXPORT void shutdownOpenKit(struct OpenKitHandle* openKitHandle);
 
@@ -481,10 +465,10 @@ extern "C" {
 	/// The calling thread is blocked until OpenKit is fully initialized or until OpenKit is shut down using the
 	/// shutdown() method.
 	///
-	/// Be aware, if @ref openkit::AbstractOpenKitBuilder is wrongly configured, for example when creating an
+	/// Be aware, if @ref openkit::DynatraceOpenKitBuilder is wrongly configured, for example when creating an
 	/// instance with an incorrect endpoint URL, then this method might hang indefinitely, unless shutdown() is called.
 	///
-	/// @param[in] openKitHandle the handle returned by @ref createDynatraceOpenKit or @ref createAppMonOpenKit
+	/// @param[in] openKitHandle the handle returned by @ref createDynatraceOpenKit
 	/// @returns @c true when OpenKit is fully initialized, @c false when a shutdown request was made.
 	///
 	OPENKIT_EXPORT bool waitForInitCompletion(struct OpenKitHandle* openKitHandle);
@@ -495,11 +479,11 @@ extern "C" {
 	/// The calling thread is blocked until OpenKit is fully initialized or until OpenKit is shut down using the
 	/// shutdown() method or the timeout expired.
 	///
-	/// Be aware, if @ref openkit::AbstractOpenKitBuilder is wrongly configured, for example when creating an
+	/// Be aware, if @ref openkit::DynatraceOpenKitBuilder is wrongly configured, for example when creating an
 	/// instance with an incorrect endpoint URL, then this method might hang indefinitely, unless shutdown() is called
 	/// or timeout expires.
 	///
-	/// @param[in] openKitHandle the handle returned by @ref createDynatraceOpenKit or @ref createAppMonOpenKit
+	/// @param[in] openKitHandle the handle returned by @ref createDynatraceOpenKit
 	/// @param[in] timeoutMillis The maximum number of milliseconds to wait for initialization being completed.
 	/// @returns @c true when OpenKit is fully initialized, @c false when a shutdown request was made or @c timeoutMillis expired.
 	///
@@ -507,7 +491,7 @@ extern "C" {
 
 	///
 	/// Returns whether OpenKit is initialized or not.
-	/// @param[in] openKitHandle the handle returned by @ref createDynatraceOpenKit or @ref createAppMonOpenKit
+	/// @param[in] openKitHandle the handle returned by @ref createDynatraceOpenKit
 	/// @returns @c true if OpenKit is fully initialized, @c false if OpenKit still performs initialization.
 	///
 	OPENKIT_EXPORT bool isInitialized(struct OpenKitHandle* openKitHandle);
@@ -528,7 +512,7 @@ extern "C" {
 
 	///
 	/// Creates a session instance which can then be used to create actions.
-	/// @param[in] openKitHandle   the handle returned by @ref createDynatraceOpenKit or @ref createAppMonOpenKit
+	/// @param[in] openKitHandle   the handle returned by @ref createDynatraceOpenKit
 	/// @param[in] clientIPAddress client IP address where this Session is coming from
 	/// @return Session instance handle to work with
 	///
@@ -540,7 +524,7 @@ extern "C" {
 	/// This is similar to the function \see ::createSession(struct OpenKitHandle*, const char*), except that
 	/// the client's IP address is determined on the server side.
 	///
-	/// @param[in] openKitHandle   the handle returned by @ref createDynatraceOpenKit or @ref createAppMonOpenKit
+	/// @param[in] openKitHandle   the handle returned by @ref createDynatraceOpenKit
 	/// @return Session instance handle to work with
 	///
 	OPENKIT_EXPORT struct SessionHandle* createSessionWithAutoIpDetermination(struct OpenKitHandle* openKitHandle);

@@ -67,7 +67,7 @@ namespace core
 			///
 			/// Initialize this OpenKit instance.
 			/// This method starts the @ref IBeaconSender and is called directly after
-			/// the instance has been created in @ref openkit::AbstractOpenKitBuilder.
+			/// the instance has been created in @ref openkit::DynatraceOpenKitBuilder.
 			///
 			void initialize();
 
