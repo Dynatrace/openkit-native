@@ -174,7 +174,7 @@ void Session::end()
 	end(true);
 }
 
-void Session::sendBizEvent(const char* type, openkit::json::JsonObjectValue::JsonObjectMapPtr attributes)
+void Session::sendBizEvent(const char* type, const openkit::json::JsonObjectValue::JsonObjectMapPtr attributes)
 {
 	UTF8String eventTypeString(type);
 
@@ -206,7 +206,7 @@ void Session::sendBizEvent(const char* type, openkit::json::JsonObjectValue::Jso
 	}
 }
 
-void Session::sendEvent(const char* name, openkit::json::JsonObjectValue::JsonObjectMapPtr attributes)
+void Session::sendEvent(const char* name, const openkit::json::JsonObjectValue::JsonObjectMapPtr attributes)
 {
 	UTF8String eventNameString(name);
 

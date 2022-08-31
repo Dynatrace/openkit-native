@@ -91,12 +91,14 @@ namespace openkit
 		/// Reports a biz event with a mandatory type and additional attributes
 		/// @param type type of the event which is mandatory
 		/// @param attributes additional attributes (nullptr allowed if none) which are passed along side our internal attributes
+		///
 		virtual void sendBizEvent(const char* type, const json::JsonObjectValue::JsonObjectMapPtr attributes = nullptr) = 0;
 
 		///
 		/// Reports a biz event with a mandatory type and additional attributes
 		/// @param name name of the event which is mandatory
 		/// @param attributes additional attributes (nullptr allowed if none) which are passed along side our internal attributes
+		///
 		virtual void sendEvent(const char* name, const json::JsonObjectValue::JsonObjectMapPtr attributes = nullptr) = 0;
 
 	};

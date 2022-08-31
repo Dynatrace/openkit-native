@@ -96,9 +96,9 @@ namespace core
 
 			void end() override;
 
-			void sendBizEvent(const char* type, openkit::json::JsonObjectValue::JsonObjectMapPtr attributes = nullptr) override;
+			void sendBizEvent(const char* type, const openkit::json::JsonObjectValue::JsonObjectMapPtr attributes = nullptr) override;
 
-			void sendEvent(const char* name, openkit::json::JsonObjectValue::JsonObjectMapPtr attributes = nullptr) override;
+			void sendEvent(const char* name, const openkit::json::JsonObjectValue::JsonObjectMapPtr attributes = nullptr) override;
 
 			void startSession() override;
 
