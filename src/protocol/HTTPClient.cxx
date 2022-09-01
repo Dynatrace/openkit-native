@@ -76,6 +76,9 @@ HTTPClient::HTTPClient
 	{
 		mSSLTrustManager = std::make_shared<protocol::SSLStrictTrustManager>();
 	}
+
+	mUserAgentHeader = std::string("OpenKit/");
+	mUserAgentHeader.append(OPENKIT_VERSION);
 }
 
 std::shared_ptr<IStatusResponse> HTTPClient::sendStatusRequest(const protocol::IAdditionalQueryParameters& additionalParameters)
@@ -252,6 +255,8 @@ std::shared_ptr<IStatusResponse> HTTPClient::sendRequestInternal(HTTPClient::Req
 		{
 			httpRequest.setHeader("X-Client-IP", clientIPAddress.getStringData());
 		}
+
+		httpRequest.setHeader("User-Agent", mUserAgentHeader);
 
 		if (method == HttpMethod::POST)
 		{

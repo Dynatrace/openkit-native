@@ -171,6 +171,9 @@ namespace protocol
 
 		/// URL for new session requests
 		core::UTF8String mNewSessionURL;
+
+		/// User agent header
+		std::string mUserAgentHeader;
 	};
 
 }
