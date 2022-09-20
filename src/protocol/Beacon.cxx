@@ -473,14 +473,26 @@ void Beacon::reportError(
 		return;
 	}
 
+	size_t maxStackTraceLength = protocol::MAX_STACKTRACE_LEN;
+
+	// Truncating stacktrace at last line break
+	if (causeStackTrace.getStringLength() > protocol::MAX_STACKTRACE_LEN)
+	{
+		int lastLineBreakIndex = causeStackTrace.getStringData().find_last_of('\n', protocol::MAX_STACKTRACE_LEN);
+		if (lastLineBreakIndex != -1)
+		{
+			maxStackTraceLength = lastLineBreakIndex;
+		}
+	}
+
 	core::UTF8String eventData = createBasicEventData(EventType::FAILURE_EXCEPTION, errorName);
 	uint64_t timestamp = mTimingProvider->provideTimestampInMilliseconds();
 	addKeyValuePair(eventData, BEACON_KEY_PARENT_ACTION_ID, actionID);
 	addKeyValuePair(eventData, BEACON_KEY_START_SEQUENCE_NUMBER, createSequenceNumber());
 	addKeyValuePair(eventData, BEACON_KEY_TIME_0, getTimeSinceSessionStartTime(timestamp));
 	addKeyValuePairIfNotEmpty(eventData, BEACON_KEY_ERROR_VALUE, causeName);
-	addKeyValuePairIfNotEmpty(eventData, BEACON_KEY_ERROR_REASON, causeDescription);
-	addKeyValuePairIfNotEmpty(eventData, BEACON_KEY_ERROR_STACKTRACE, causeStackTrace);
+	addKeyValuePairIfNotEmpty(eventData, BEACON_KEY_ERROR_REASON, truncate(causeDescription, protocol::MAX_REASON_LEN));
+	addKeyValuePairIfNotEmpty(eventData, BEACON_KEY_ERROR_STACKTRACE, truncate(causeStackTrace, maxStackTraceLength));
 	addKeyValuePair(eventData, BEACON_KEY_ERROR_TECHNOLOGY_TYPE, ERROR_TECHNOLOGY_TYPE);
 
 	addEventData(timestamp, eventData);
@@ -503,6 +515,18 @@ void Beacon::reportCrash(const core::UTF8String& errorName, const core::UTF8Stri
 		return;
 	}
 
+	size_t maxStackTraceLength = protocol::MAX_STACKTRACE_LEN;
+
+	// Truncating stacktrace at last line break
+	if (stacktrace.getStringLength() > protocol::MAX_STACKTRACE_LEN)
+	{
+		int lastLineBreakIndex = stacktrace.getStringData().find_last_of('\n', protocol::MAX_STACKTRACE_LEN);
+		if (lastLineBreakIndex != -1)
+		{
+			maxStackTraceLength = lastLineBreakIndex;
+		}
+	}
+
 	core::UTF8String eventData = createBasicEventData(EventType::FAILURE_CRASH, errorName);
 
 	auto timestamp = mTimingProvider->provideTimestampInMilliseconds();
@@ -510,8 +534,8 @@ void Beacon::reportCrash(const core::UTF8String& errorName, const core::UTF8Stri
 	addKeyValuePair(eventData, BEACON_KEY_PARENT_ACTION_ID, 0);                                  // no parent action
 	addKeyValuePair(eventData, BEACON_KEY_START_SEQUENCE_NUMBER, createSequenceNumber());
 	addKeyValuePair(eventData, BEACON_KEY_TIME_0, getTimeSinceSessionStartTime(timestamp));
-	addKeyValuePairIfNotEmpty(eventData, BEACON_KEY_ERROR_REASON, reason);
-	addKeyValuePairIfNotEmpty(eventData, BEACON_KEY_ERROR_STACKTRACE, stacktrace);
+	addKeyValuePairIfNotEmpty(eventData, BEACON_KEY_ERROR_REASON, truncate(reason, protocol::MAX_REASON_LEN));
+	addKeyValuePairIfNotEmpty(eventData, BEACON_KEY_ERROR_STACKTRACE, truncate(stacktrace, maxStackTraceLength));
 	addKeyValuePair(eventData, BEACON_KEY_ERROR_TECHNOLOGY_TYPE, ERROR_TECHNOLOGY_TYPE);
 
 	addEventData(timestamp, eventData);
@@ -776,13 +800,18 @@ void Beacon::addEventData(int64_t timestamp, const core::UTF8String& eventData)
 	}
 }
 
-core::UTF8String Beacon::truncate(const core::UTF8String& string)
+core::UTF8String Beacon::truncate(const core::UTF8String& string, size_t length)
 {
-	if (string.getStringLength() > protocol::MAX_NAME_LEN)
+	if (string.getStringLength() > length)
 	{
-		return string.substring(0, protocol::MAX_NAME_LEN);
+		return string.substring(0, length);
 	}
 	return string;
+}
+
+core::UTF8String Beacon::truncate(const core::UTF8String& string)
+{
+	return truncate(string, protocol::MAX_NAME_LEN);
 }
 
 int64_t Beacon::getTimeSinceSessionStartTime(int64_t timestamp)

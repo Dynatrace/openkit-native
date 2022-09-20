@@ -252,6 +252,15 @@ namespace protocol
 		static core::UTF8String truncate(const core::UTF8String& string);
 
 		///
+		/// helper method for truncating name at max name size
+		/// see @c MAX_NAME_LEN for the actual length
+		/// @param[in] string string to truncate
+		/// @param[in] length maximum length of the string
+		/// @returns the truncated string
+		///
+		static core::UTF8String truncate(const core::UTF8String& string, size_t length);
+
+		///
 		/// Get a timestamp relative to the time this session (aka. beacon) was created.
 		/// @param[in] timestamp The absolute timestamp for which to get a relative one.
 		/// @returns relative timestamp

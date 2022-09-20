@@ -116,6 +116,8 @@ namespace openkit
 		///
 		/// @par
 		/// If given @c errorName is @c nullptr or an empty string, no error is reported.
+		/// If the @c causeDescription is longer than 1000 characters, it is truncated to this value.
+		/// If the @c causeStackTrace is longer than 128.000 characters, it is truncated according to the last line break.
 		///
 		/// @param errorName name of this error
 		/// @param causeName name describing the cause of the error (e.g. exception class name)

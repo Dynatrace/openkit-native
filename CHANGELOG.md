@@ -7,6 +7,8 @@
 ### Changed
 - Default maximum age of an entry in the beacon cache changed from 1h 45m to 45m
 - Removed AppMon functionality
+- Maximum length of reported error/crash stacktrace has been limited to 128k.
+- Maximum length of reported error/crash reason has been limited to 1000.
 
 ## 2.1.0 [Release date: 2021-10-07]
 [GitHub Releases](https://github.com/Dynatrace/openkit-native/releases/tag/v2.1.0)

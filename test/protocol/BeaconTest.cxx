@@ -2699,6 +2699,115 @@ TEST_F(BeaconTest, reportingErrorWithCauseWithEmptyErrorNameThrowsException)
 	);
 }
 
+TEST_F(BeaconTest, reportErrorIsTruncatingReasonIfTooLong)
+{
+	// with
+	Utf8String_t errorName("SomeError");
+	Utf8String_t causeName;
+	Utf8String_t causeStackTrace("HereComesTheTrace");
+
+	Utf8String_t causeDescription(std::string(1001, 'a'));
+	Utf8String_t causeDescriptionTruncated(std::string(1000, 'a'));
+
+	// expect
+	std::stringstream s;
+	s << "et=" << static_cast<int32_t>(EventType_t::FAILURE_EXCEPTION)	// event type
+		<< "&it=" << THREAD_ID										// thread ID
+		<< "&na=" << errorName.getStringData()						// name of error event
+		<< "&pa=" << ACTION_ID										// parent action
+		<< "&s0=1"													// sequence number of reported error
+		<< "&t0=0"													// event time since session start
+		<< "&rs=" << causeDescriptionTruncated.getStringData()		// reported error reason
+		<< "&st=" << causeStackTrace.getStringData()				// reported error stack trace
+		<< "&tt=c"													// error technology type
+		;
+	EXPECT_CALL(*mockBeaconCache, addEventData(
+		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
+		0,											// timestamp when error was reported
+		testing::Eq(s.str())
+	)).Times(1);
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when
+	target->reportError(ACTION_ID, errorName, causeName, causeDescription, causeStackTrace);
+}
+
+TEST_F(BeaconTest, reportErrorIsTruncatingStacktraceIfTooLong)
+{
+	// with
+	Utf8String_t errorName("SomeError");
+	Utf8String_t causeName;
+	Utf8String_t causeDescription("SomeReason");
+
+	Utf8String_t causeStackTrace(std::string(128001, 'a'));
+	Utf8String_t causeStackTraceTruncated(std::string(128000, 'a'));
+
+	// expect
+	std::stringstream s;
+	s << "et=" << static_cast<int32_t>(EventType_t::FAILURE_EXCEPTION)	// event type
+		<< "&it=" << THREAD_ID										// thread ID
+		<< "&na=" << errorName.getStringData()						// name of error event
+		<< "&pa=" << ACTION_ID										// parent action
+		<< "&s0=1"													// sequence number of reported error
+		<< "&t0=0"													// event time since session start
+		<< "&rs=" << causeDescription.getStringData()				// reported error reason
+		<< "&st=" << causeStackTraceTruncated.getStringData()		// reported error stack trace
+		<< "&tt=c"													// error technology type
+		;
+	EXPECT_CALL(*mockBeaconCache, addEventData(
+		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
+		0,											// timestamp when error was reported
+		testing::Eq(s.str())
+	)).Times(1);
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when
+	target->reportError(ACTION_ID, errorName, causeName, causeDescription, causeStackTrace);
+}
+
+TEST_F(BeaconTest, reportErrorIsTruncatingStacktraceUntilLastBreakIfTooLong)
+{
+	// with
+	Utf8String_t errorName("SomeError");
+	Utf8String_t causeName;
+	Utf8String_t causeDescription("SomeReason");
+
+	Utf8String_t causeStackTraceTruncated(std::string(127900, 'a'));
+	auto causeStackTraceStr = std::string(127900, 'a');
+	causeStackTraceStr.append("\n");
+	causeStackTraceStr.append(std::string(1000, 'a'));
+
+	Utf8String_t causeStackTrace(causeStackTraceStr);
+
+	// expect
+	std::stringstream s;
+	s << "et=" << static_cast<int32_t>(EventType_t::FAILURE_EXCEPTION)	// event type
+		<< "&it=" << THREAD_ID										// thread ID
+		<< "&na=" << errorName.getStringData()						// name of error event
+		<< "&pa=" << ACTION_ID										// parent action
+		<< "&s0=1"													// sequence number of reported error
+		<< "&t0=0"													// event time since session start
+		<< "&rs=" << causeDescription.getStringData()				// reported error reason
+		<< "&st=" << causeStackTraceTruncated.getStringData()		// reported error stack trace
+		<< "&tt=c"													// error technology type
+		;
+	EXPECT_CALL(*mockBeaconCache, addEventData(
+		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
+		0,											// timestamp when error was reported
+		testing::Eq(s.str())
+	)).Times(1);
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when
+	target->reportError(ACTION_ID, errorName, causeName, causeDescription, causeStackTrace);
+}
+
 TEST_F(BeaconTest, reportErrorWithEmptyCauseNameWorks)
 {
 	// with
@@ -2917,6 +3026,110 @@ TEST_F(BeaconTest, reportingCrashWithEmptyErrorNameThrowsException)
 		target->reportCrash(Utf8String_t(), "reason", "stack trace"),
 		std::invalid_argument
 	);
+}
+
+TEST_F(BeaconTest, reportCrashIsTruncatingReasonIfTooLong)
+{
+	// with
+	Utf8String_t errorName("someEvent");
+	Utf8String_t stacktrace("someStacktrace");
+
+	Utf8String_t reason(std::string(1001, 'a'));
+	Utf8String_t reasonTruncated(std::string(1000, 'a'));
+
+	// expect
+	std::stringstream s;
+	s << "et=" << static_cast<int32_t>(EventType_t::FAILURE_CRASH)	// event type
+		<< "&it=" << THREAD_ID						// thread ID
+		<< "&na=" << errorName.getStringData()		// reported crash name
+		<< "&pa=0"									// parent action
+		<< "&s0=1"									// sequence number of reported crash
+		<< "&t0=0"									// event time since session start
+		<< "&rs=" << reasonTruncated.getStringData()// reported reason
+		<< "&st=" << stacktrace.getStringData()		// reported stacktrace
+		<< "&tt=c"									// error technology type
+		;
+	EXPECT_CALL(*mockBeaconCache, addEventData(
+		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
+		0,											// timestamp when crash was reported
+		testing::Eq(s.str())
+	)).Times(1);
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when
+	target->reportCrash(errorName, reason, stacktrace);
+}
+
+TEST_F(BeaconTest, reportCrashIsTruncatingStacktraceIfTooLong)
+{
+	// with
+	Utf8String_t errorName("someEvent");
+	Utf8String_t reason("someReason");
+	Utf8String_t stacktrace(std::string(128001, 'a'));
+	Utf8String_t stacktraceTruncated(std::string(128000, 'a'));
+
+	// expect
+	std::stringstream s;
+	s << "et=" << static_cast<int32_t>(EventType_t::FAILURE_CRASH)	// event type
+		<< "&it=" << THREAD_ID						// thread ID
+		<< "&na=" << errorName.getStringData()		// reported crash name
+		<< "&pa=0"									// parent action
+		<< "&s0=1"									// sequence number of reported crash
+		<< "&t0=0"									// event time since session start
+		<< "&rs=" << reason.getStringData()			// reported reason
+		<< "&st=" << stacktraceTruncated.getStringData()// reported stacktrace
+		<< "&tt=c"									// error technology type
+		;
+	EXPECT_CALL(*mockBeaconCache, addEventData(
+		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
+		0,											// timestamp when crash was reported
+		testing::Eq(s.str())
+	)).Times(1);
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when
+	target->reportCrash(errorName, reason, stacktrace);
+}
+
+TEST_F(BeaconTest, reportCrashIsTruncatingStacktraceUntilLastBreakIfTooLong)
+{
+	// with
+	Utf8String_t errorName("someEvent");
+	Utf8String_t reason("someReason");
+	Utf8String_t stacktraceTruncated(std::string(127900, 'a'));
+	auto causeStackTraceStr = std::string(127900, 'a');
+	causeStackTraceStr.append("\n");
+	causeStackTraceStr.append(std::string(1000, 'a'));
+
+	Utf8String_t stacktrace(causeStackTraceStr);
+
+	// expect
+	std::stringstream s;
+	s << "et=" << static_cast<int32_t>(EventType_t::FAILURE_CRASH)	// event type
+		<< "&it=" << THREAD_ID						// thread ID
+		<< "&na=" << errorName.getStringData()		// reported crash name
+		<< "&pa=0"									// parent action
+		<< "&s0=1"									// sequence number of reported crash
+		<< "&t0=0"									// event time since session start
+		<< "&rs=" << reason.getStringData()			// reported reason
+		<< "&st=" << stacktraceTruncated.getStringData()// reported stacktrace
+		<< "&tt=c"									// error technology type
+		;
+	EXPECT_CALL(*mockBeaconCache, addEventData(
+		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
+		0,											// timestamp when crash was reported
+		testing::Eq(s.str())
+	)).Times(1);
+
+	// given
+	auto target = createBeacon()->build();
+
+	// when
+	target->reportCrash(errorName, reason, stacktrace);
 }
 
 TEST_F(BeaconTest, reportCrashWithEmptyReasonWorks)

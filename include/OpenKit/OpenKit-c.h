@@ -553,7 +553,12 @@ extern "C" {
 
 	///
 	/// Reports a crash with a specified error name, crash reason and a stacktrace.
-	/// Note: If the given @c errorName is @c NULL or an empty string, no crash report will be sent to the server.
+	///
+	/// @par
+	/// If given @c errorName is @c nullptr or an empty string, no crash is reported.
+	/// If the @c reason is longer than 1000 characters, it is truncated to this value.
+	/// If the @c stacktrace is longer than 128.000 characters, it is truncated according to the last line break.
+	///
 	/// @param[in] sessionHandle the handle returned by @ref createSession
 	/// @param[in] errorName     name of the error leading to the crash (e.g. Exception class)
 	/// @param[in] reason        reason or description of that error
@@ -703,6 +708,11 @@ extern "C" {
 	///
 	/// Reports an error with a specified name and parameters describing the cause of this error.
 	///
+	/// @par
+	/// If given @c errorName is @c nullptr or an empty string, no error is reported.
+	/// If the @c causeDescription is longer than 1000 characters, it is truncated to this value.
+	/// If the @c causeStackTrace is longer than 128.000 characters, it is truncated according to the last line break.
+	///
 	/// @param[in] rootActionHandle	the handle returned by @ref enterRootAction
 	/// @param[in] errorName			name of this error
 	/// @param[in] causeName			name describing the cause of the error
@@ -840,6 +850,11 @@ extern "C" {
 
 	///
 	/// Reports an error with a specified name and parameters describing the cause of this error.
+	///
+	/// @par
+	/// If given @c errorName is @c nullptr or an empty string, no error is reported.
+	/// If the @c causeDescription is longer than 1000 characters, it is truncated to this value.
+	/// If the @c causeStackTrace is longer than 128.000 characters, it is truncated according to the last line break.
 	///
 	/// @param[in] rootActionHandle	the handle returned by @ref enterRootAction
 	/// @param[in] errorName			name of this error

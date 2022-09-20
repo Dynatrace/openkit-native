@@ -63,6 +63,12 @@ namespace openkit
 
 		///
 		/// Reports a crash with a specified error name, crash reason and a stacktrace.
+		///
+		/// @par
+		/// If given @c errorName is @c nullptr or an empty string, no crash is reported.
+		/// If the @c reason is longer than 1000 characters, it is truncated to this value.
+		/// If the @c stacktrace is longer than 128.000 characters, it is truncated according to the last line break.
+		///
 		/// @param[in] errorName  name of the error leading to the crash(e.g.Exception class)
 		/// @param[in] reason     reason or description of that error
 		/// @param[in] stacktrace stacktrace leading to that crash

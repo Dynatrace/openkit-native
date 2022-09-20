@@ -42,6 +42,8 @@ namespace protocol
 
 	//maximum supported name length
 	constexpr int32_t MAX_NAME_LEN = 250;
+	constexpr int32_t MAX_REASON_LEN = 1000;
+	constexpr int32_t MAX_STACKTRACE_LEN = 128000;
 }
 
 #endif /* _PROTOCOL_CONSTANTS_H */
