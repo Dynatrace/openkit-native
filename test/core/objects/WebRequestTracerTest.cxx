@@ -132,18 +132,6 @@ TEST_F(WebRequestTracerTest, aNewlyCreatedWebRequestTracerIsNotStopped)
 	ASSERT_FALSE(testWebRequestTracer->isStopped());
 }
 
-TEST_F(WebRequestTracerTest, aWebRequestTracerIsStoppedAfterStopHasBeenCalled)
-{
-	// given
-	auto testWebRequestTracer = createTracer()->build();
-
-	// when
-	testWebRequestTracer->stop();
-
-	// verify
-	ASSERT_TRUE(testWebRequestTracer->isStopped());
-}
-
 TEST_F(WebRequestTracerTest, aWebRequestTracerIsStoppedAfterStopWithResponseCodeHasBeenCalled)
 {
 	// given
@@ -156,19 +144,6 @@ TEST_F(WebRequestTracerTest, aWebRequestTracerIsStoppedAfterStopWithResponseCode
 	ASSERT_TRUE(testWebRequestTracer->isStopped());
 }
 
-TEST_F(WebRequestTracerTest, setResponseCodeSetsTheResponseCode)
-{
-	// given
-	auto testWebRequestTracer = createTracer()->build();
-
-	// when
-	auto obtained = testWebRequestTracer->setResponseCode(418);
-
-	// verify
-	ASSERT_EQ(obtained, testWebRequestTracer);
-	ASSERT_EQ(testWebRequestTracer->getResponseCode(), 418);
-}
-
 TEST_F(WebRequestTracerTest, stopWithResponseCodeSetsTheResponseCode)
 {
 	// given
@@ -179,20 +154,6 @@ TEST_F(WebRequestTracerTest, stopWithResponseCodeSetsTheResponseCode)
 
 	// verify
 	ASSERT_EQ(testWebRequestTracer->getResponseCode(), 418);
-}
-
-TEST_F(WebRequestTracerTest, setResponseCodeDoesNotSetTheResponseCodeIfStopped)
-{
-	// given
-	auto testWebRequestTracer = createTracer()->build();
-
-	// when
-	testWebRequestTracer->stop();
-	auto obtained = testWebRequestTracer->setResponseCode(418);
-
-	// verify
-	ASSERT_EQ(obtained, testWebRequestTracer);
-	ASSERT_EQ(testWebRequestTracer->getResponseCode(), -1);
 }
 
 TEST_F(WebRequestTracerTest, stopWithResponseCodeDoesNotSetTheResponseCodeIfStopped)
@@ -221,20 +182,6 @@ TEST_F(WebRequestTracerTest, setBytesSentSetsTheNumberOfSentBytes)
 	ASSERT_EQ(testWebRequestTracer->getBytesSent(), 1234);
 }
 
-TEST_F(WebRequestTracerTest, setBytesSentDoesNotSetAnythingIfStopped)
-{
-	// given
-	auto testWebRequestTracer = createTracer()->build();
-
-	// when
-	testWebRequestTracer->stop();
-	auto obtained = testWebRequestTracer->setBytesSent(1234 );
-
-	// verify
-	ASSERT_EQ(obtained, testWebRequestTracer);
-	ASSERT_EQ(testWebRequestTracer->getBytesSent(), -1);
-}
-
 TEST_F(WebRequestTracerTest, setBytesSentDoesNotSetAnythingIfStoppedWithResponseCode)
 {
 	// given
@@ -260,20 +207,6 @@ TEST_F(WebRequestTracerTest, setBytesReceivedSetsTheNumberOfReceivedBytes)
 	// verify
 	ASSERT_EQ(obtained, testWebRequestTracer);
 	ASSERT_EQ(testWebRequestTracer->getBytesReceived(), 1234);
-}
-
-TEST_F(WebRequestTracerTest, setBytesReceivedDoesNotSetAnythingIfStopped)
-{
-	// given
-	auto testWebRequestTracer = createTracer()->build();
-
-	// when
-	testWebRequestTracer->stop();
-	auto obtained = testWebRequestTracer->setBytesReceived(1234);
-
-	// verify
-	ASSERT_EQ(obtained, testWebRequestTracer);
-	ASSERT_EQ(testWebRequestTracer->getBytesReceived(), -1);
 }
 
 TEST_F(WebRequestTracerTest, setBytesReceivedDoesNotSetAnythingIfStoppedWithResponseCode)
@@ -305,22 +238,6 @@ TEST_F(WebRequestTracerTest, startSetsTheStartTime)
 	ASSERT_EQ(testWebRequestTracer->getStartTime(), 123456789L);
 }
 
-TEST_F(WebRequestTracerTest, startDoesNothingIfAlreadyStopped)
-{
-	// given
-	ON_CALL(*mockBeaconNice, getCurrentTimestamp())
-		.WillByDefault(testing::Return(123456789L));
-	auto testWebRequestTracer = createTracer()->build();
-
-	// when
-	testWebRequestTracer->stop();
-	auto obtained = testWebRequestTracer->start();
-
-	// verify
-	ASSERT_EQ(obtained, testWebRequestTracer);
-	ASSERT_EQ(testWebRequestTracer->getStartTime(), 123456789L);
-}
-
 TEST_F(WebRequestTracerTest, startDoesNothingIfAlreadyStoppedWithResponseCode)
 {
 	// given
@@ -335,34 +252,6 @@ TEST_F(WebRequestTracerTest, startDoesNothingIfAlreadyStoppedWithResponseCode)
 	// verify
 	ASSERT_EQ(obtained, testWebRequestTracer);
 	ASSERT_EQ(testWebRequestTracer->getStartTime(), 123456789L);
-}
-
-TEST_F(WebRequestTracerTest, stopCanOnlyBeExecutedOnce)
-{
-	// given
-	ON_CALL(*mockBeaconNice, createSequenceNumber())
-		.WillByDefault(testing::Return(42));
-
-	// when
-	EXPECT_CALL(*mockBeaconNice, createSequenceNumber())
-		.Times(testing::Exactly(2));
-	EXPECT_CALL(*mockBeaconNice, addWebRequest(testing::_, testing::_))
-		.Times(testing::Exactly(1));
-
-	auto testWebRequestTracer = createTracer()->build();
-
-	testWebRequestTracer->stop();
-	ASSERT_EQ(testWebRequestTracer->getEndSequenceNo(), 42);
-
-	// when called another time
-	testing::Mock::VerifyAndClearExpectations(&mockBeaconNice);
-
-	EXPECT_CALL(*mockBeaconNice, createSequenceNumber())
-		.Times(testing::Exactly(0));
-	EXPECT_CALL(*mockBeaconNice, addWebRequest(testing::_, testing::_))
-		.Times(testing::Exactly(0));
-
-	testWebRequestTracer->stop();
 }
 
 TEST_F(WebRequestTracerTest, stopWithResponseCodeCanOnlyBeExecutedOnce)
@@ -413,43 +302,6 @@ TEST_F(WebRequestTracerTest, stopWithResponseCodeNotifiesParentAndDetachesFromPa
 
 	// when
 	target->stop(200);
-}
-
-TEST_F(WebRequestTracerTest, stopNotifiesParentAndDetachesFromParent)
-{
-	// with
-	auto mockBeacon = MockIBeacon::createNice();
-	ON_CALL(*mockBeacon, createSequenceNumber()).WillByDefault(testing::Return(42));
-
-	auto mockParent = MockIOpenKitComposite::createStrict();
-
-	// expect
-	EXPECT_CALL(*mockParent, onChildClosed(testing::_)).Times(1);
-	EXPECT_CALL(*mockParent, getActionId()).Times(2); // in constructor: 1 initialize parentAction ID + 1 createTag
-
-	// given
-	auto target = createTracer()
-		->with(mockBeacon)
-		.with(mockParent)
-		.build();
-
-	// when
-	target->stop();
-}
-
-TEST_F(WebRequestTracerTest, stopUsesSetResponseCode)
-{
-	// given
-	const int32_t responseCode = 418;
-	auto target = createTracer()->build();
-
-	// when
-	auto obtained = target->setResponseCode(responseCode);
-	target->stop();
-
-	// then
-	ASSERT_THAT(target->getResponseCode(), testing::Eq(responseCode));
-	ASSERT_THAT(obtained, testing::Eq(target));
 }
 
 TEST_F(WebRequestTracerTest, closingAWebRequestStopsIt)

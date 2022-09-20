@@ -162,27 +162,6 @@ TEST_F(RootActionTest, reportValueStringDelegatsToCommonImpl)
 	ASSERT_THAT(obtained, testing::Eq(target));
 }
 
-TEST_F(RootActionTest, reportDeprecatedErrorCodeDelegatsToCommonImpl)
-{
-	// with
-	const char* errorName = "error name";
-	const int32_t errorCode = 42;
-	const char* errorReason = "some reason";
-
-	// expect
-	EXPECT_CALL(*mockActionImpl, reportError(errorName, errorCode)).Times(testing::Exactly(1));
-
-	// given
-	auto target = createAction();
-
-	// when
-	auto obtained = target->reportError(errorName, errorCode, errorReason);
-
-	// then
-	ASSERT_THAT(obtained, testing::NotNull());
-	ASSERT_THAT(obtained, testing::Eq(target));
-}
-
 TEST_F(RootActionTest, reportErrorCodeDelegatsToCommonImpl)
 {
 	// with

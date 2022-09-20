@@ -35,23 +35,11 @@ namespace core
 
 			const char* getTag() const override = 0;
 
-			///
-			/// @deprecated use stop(int32_t) instead
-			///
-			OPENKIT_DEPRECATED
-			std::shared_ptr<IWebRequestTracer> setResponseCode(int32_t responseCode) override = 0;
-
 			std::shared_ptr<IWebRequestTracer> setBytesSent(int32_t bytesSent) override = 0;
 
 			std::shared_ptr<IWebRequestTracer> setBytesReceived(int32_t bytesReceived) override = 0;
 
 			std::shared_ptr<IWebRequestTracer> start() override = 0;
-
-			///
-			/// @deprectaed use stop(int32_t) instead
-			///
-			OPENKIT_DEPRECATED
-			void stop() override = 0;
 
 			void stop(int32_t responseCode) override = 0;
 

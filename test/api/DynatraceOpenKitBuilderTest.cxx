@@ -84,11 +84,6 @@ public:
 		return DefaultValues::EMPTY_STRING;
 	}
 
-	const std::string& getApplicationName() const
-	{
-		return DefaultValues::EMPTY_STRING;
-	}
-
 	int32_t getDefaultServerID() const
 	{
 		return 0;

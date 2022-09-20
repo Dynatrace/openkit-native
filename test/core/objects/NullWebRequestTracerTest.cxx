@@ -37,20 +37,6 @@ TEST_F(NullWebRequestTracerTest, getTagReturnsEmptyString)
 	ASSERT_THAT(obtained, testing::StrEq(""));
 }
 
-TEST_F(NullWebRequestTracerTest, setResponseCodeReturnsSelf)
-{
-	// given
-	auto target = NullWebRequestTracer_t::instance();
-
-	// when
-	auto obtained = target->setResponseCode(200);
-
-	// then
-	auto nullTracer = std::dynamic_pointer_cast<NullWebRequestTracer_t>(obtained);
-	ASSERT_THAT(nullTracer, testing::NotNull());
-	ASSERT_THAT(nullTracer, testing::Eq(target));
-}
-
 TEST_F(NullWebRequestTracerTest, setBytesSentReturnsSelf)
 {
 	// given

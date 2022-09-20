@@ -10,6 +10,16 @@
 - Maximum length of reported error/crash stacktrace has been limited to 128k.
 - Maximum length of reported error/crash reason has been limited to 1000.
 
+### Removed
+* `IWebRequestTracer::setResponseCode(int32_t responseCodee)`
+* `IWebRequestTracer::stop()`
+* `IRootAction::reportError(const char* errorName, int32_t errorCode, const char* reason)`
+* `IAction::reportError(const char* errorName, int32_t errorCode, const char* reason)`
+* `reportErrorOnAction(struct ActionHandle* actionHandle, const char* errorName, int32_t errorCode, const char* reason)`
+* `reportErrorOnRootAction(struct RootActionHandle* rootActionHandle, const char* errorName, int32_t errorCode, const char* reason)`
+* `setResponseCode(struct WebRequestTracerHandle* webRequestTracerHandle, int32_t responseCode)` 
+* `stopWebRequest(struct WebRequestTracerHandle* webRequestTracerHandle)`  
+
 ## 2.1.0 [Release date: 2021-10-07]
 [GitHub Releases](https://github.com/Dynatrace/openkit-native/releases/tag/v2.1.0)
 

@@ -43,17 +43,7 @@ namespace openkit
 		virtual const char* getTag() const = 0;
 
 		///
-		/// Sets the response code of this web request. Has to be called before @ref openkit::IWebRequestTracer::stop().
-		///
-		/// @param[in] responseCode response code of this web request
-		/// @returns pointer to this WebRequestTracer instance that can be used for a fluent-API call
-		/// @deprecated use stop(int32_t) instead
-		///
-		OPENKIT_DEPRECATED
-		virtual std::shared_ptr<IWebRequestTracer> setResponseCode(int32_t responseCode) = 0;
-
-		///
-		/// Sets the amount of sent data of this web request. Has to be called before @ref openkit::IWebRequestTracer::stop().
+		/// Sets the amount of sent data of this web request. Has to be called before @ref openkit::IWebRequestTracer::stop(int).
 		///
 		/// @param[in] bytesSent number of bytes sent
 		/// @returns pointer to this WebRequestTracer instance that can be used for a fluent-API call
@@ -61,7 +51,7 @@ namespace openkit
 		virtual std::shared_ptr<IWebRequestTracer> setBytesSent(int32_t bytesSent) = 0;
 
 		///
-		/// Sets the amount of received data of this web request. Has to be called before @ref openkit::IWebRequestTracer::stop().
+		/// Sets the amount of received data of this web request. Has to be called before @ref openkit::IWebRequestTracer::stop(int).
 		///
 		/// @param[in] bytesReceived number of bytes received
 		/// @returns pointer to this WebRequestTracer instance that can be used for a fluent-API call
@@ -72,13 +62,6 @@ namespace openkit
 		/// Starts the web request timing. Should be called when the web request is initiated.
 		///
 		virtual std::shared_ptr<IWebRequestTracer> start() = 0;
-
-		///
-		/// Stops the web request timing. Should be called when the web request is finished.
-		/// @deprectated use stop(int32_t) instead
-		///
-		OPENKIT_DEPRECATED
-		virtual void stop() = 0;
 
 		///
 		/// Stops the web request timing with the given response code. Should be called when the web request is finished.

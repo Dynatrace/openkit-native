@@ -56,11 +56,6 @@ std::shared_ptr<openkit::IRootAction> NullRootAction::reportValue(const char* /*
 	return shared_from_this();
 }
 
-std::shared_ptr<openkit::IRootAction> NullRootAction::reportError(const char* /*errorName*/, int32_t /*errorCode*/, const char* /*reason*/)
-{
-	return shared_from_this();
-}
-
 std::shared_ptr<openkit::IRootAction> NullRootAction::reportError(const char* /*errorName*/, int32_t /*errorCode*/)
 {
 	return shared_from_this();

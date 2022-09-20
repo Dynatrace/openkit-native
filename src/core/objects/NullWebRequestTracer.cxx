@@ -30,11 +30,6 @@ const char* NullWebRequestTracer::getTag() const
 	return emptyString;
 }
 
-std::shared_ptr<openkit::IWebRequestTracer> NullWebRequestTracer::setResponseCode(int32_t /*responseCode*/)
-{
-	return shared_from_this();
-}
-
 std::shared_ptr<openkit::IWebRequestTracer> NullWebRequestTracer::setBytesSent(int32_t /*bytesSent*/)
 {
 	return shared_from_this();
@@ -48,11 +43,6 @@ std::shared_ptr<openkit::IWebRequestTracer> NullWebRequestTracer::setBytesReceiv
 std::shared_ptr<openkit::IWebRequestTracer> NullWebRequestTracer::start()
 {
 	return shared_from_this();
-}
-
-void NullWebRequestTracer::stop()
-{
-	// intentionally left empty, due to NullObject pattern
 }
 
 void NullWebRequestTracer::stop(int32_t /*responseCode*/)

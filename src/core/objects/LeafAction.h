@@ -87,9 +87,6 @@ namespace core
 
 			std::shared_ptr<IAction> reportValue(const char* valueName, const char* value) override;
 
-			OPENKIT_DEPRECATED
-			std::shared_ptr<IAction> reportError(const char* errorName, int32_t errorCode, const char* reason) override;
-
 			std::shared_ptr<IAction> reportError(const char* errorName, int32_t errorCode) override;
 
 			std::shared_ptr<IAction> reportError(

@@ -69,10 +69,6 @@ namespace test
 		);
 
 		MOCK_METHOD(
-			std::shared_ptr<openkit::IRootAction>, reportError, (const char*, int32_t, const char*), (override)
-		);
-
-		MOCK_METHOD(
 			std::shared_ptr<openkit::IRootAction>, reportError, (const char*, int32_t), (override)
 		);
 

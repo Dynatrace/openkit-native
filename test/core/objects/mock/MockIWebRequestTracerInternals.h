@@ -39,7 +39,6 @@ namespace test {
 			ON_CALL(*this, getTag()).WillByDefault(testing::Return(DefaultValues::EMPTY_CHAR_STRING));
 			ON_CALL(*this, getURL()).WillByDefault(testing::ReturnRef(DefaultValues::UTF8_EMPTY_STRING));
 
-			ON_CALL(*this, setResponseCode(testing::_)).WillByDefault(testing::Return(nullptr));
 			ON_CALL(*this, setBytesSent(testing::_)).WillByDefault(testing::Return(nullptr));
 			ON_CALL(*this, setBytesReceived(testing::_)).WillByDefault(testing::Return(nullptr));
 			ON_CALL(*this, start()).WillByDefault(testing::Return(nullptr));
@@ -61,15 +60,6 @@ namespace test {
 
 		MOCK_METHOD(
 			std::shared_ptr<openkit::IWebRequestTracer>,
-			setResponseCode,
-			(
-				int32_t /* responseCode */
-			),
-			(override)
-		);
-
-		MOCK_METHOD(
-			std::shared_ptr<openkit::IWebRequestTracer>,
 			setBytesSent,
 			(
 				int32_t /* bytesSent */
@@ -87,8 +77,6 @@ namespace test {
 		);
 
 		MOCK_METHOD(std::shared_ptr<openkit::IWebRequestTracer>, start, (), (override));
-
-		MOCK_METHOD(void, stop, (), (override));
 
 		MOCK_METHOD(void, stop, (int32_t), (override));
 

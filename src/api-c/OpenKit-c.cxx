@@ -1292,11 +1292,6 @@ extern "C" {
 		CATCH_AND_LOG(rootActionHandle)
 	}
 
-	void reportErrorOnRootAction(RootActionHandle* rootActionHandle, const char* errorName, int32_t errorCode, const char* /*reason*/)
-	{
-		reportErrorCodeOnRootAction(rootActionHandle, errorName, errorCode);
-	}
-
 	void reportErrorCodeOnRootAction(RootActionHandle* rootActionHandle, const char* errorName, int32_t errorCode)
 	{
 		TRY
@@ -1501,11 +1496,6 @@ extern "C" {
 		CATCH_AND_LOG(actionHandle)
 	}
 
-	void reportErrorOnAction(ActionHandle* actionHandle, const char* errorName, int32_t errorCode, const char* /*reason*/)
-	{
-		reportErrorCodeOnAction(actionHandle, errorName, errorCode);
-	}
-
 	void reportErrorCodeOnAction(ActionHandle* actionHandle, const char* errorName, int32_t errorCode)
 	{
 		TRY
@@ -1640,32 +1630,6 @@ extern "C" {
 		CATCH_AND_LOG(webRequestTracerHandle)
 	}
 
-	///
-	/// @deprecated use stopWebRequest(WebRequestTracerHandle*, int32_t) instead
-	///
-	OPENKIT_DEPRECATED
-	void stopWebRequest(WebRequestTracerHandle* webRequestTracerHandle)
-	{
-		// Sanity
-		if (webRequestTracerHandle == nullptr)
-		{
-			return;
-		}
-
-		TRY
-		{
-			// retrieve the WebRequestTracer instance from the handle and call the respective method
-			assert(webRequestTracerHandle->sharedPointer != nullptr);
-			webRequestTracerHandle->sharedPointer->stop();
-
-			// release shared pointer
-			webRequestTracerHandle->sharedPointer = nullptr;
-			webRequestTracerHandle->logger = nullptr;
-			delete webRequestTracerHandle;
-		}
-		CATCH_AND_LOG(webRequestTracerHandle)
-	}
-
 	void stopWebRequestWithResponseCode(WebRequestTracerHandle* webRequestTracerHandle, int32_t responseCode)
 	{
 		// Sanity
@@ -1702,24 +1666,6 @@ extern "C" {
 		CATCH_AND_LOG(webRequestTracerHandle)
 
 		return nullptr;
-	}
-
-	///
-	/// @deprecated use stopWebRequest(WebRequestTracerHandle*, int32_t) instead
-	///
-	OPENKIT_DEPRECATED
-	void setResponseCode(WebRequestTracerHandle* webRequestTracerHandle, int32_t responseCode)
-	{
-		TRY
-		{
-			if (webRequestTracerHandle)
-			{
-				// retrieve the WebRequestTracer instance from the handle and call the respective method
-				assert(webRequestTracerHandle->sharedPointer != nullptr);
-				webRequestTracerHandle->sharedPointer->setResponseCode(responseCode);
-			}
-		}
-		CATCH_AND_LOG(webRequestTracerHandle)
 	}
 
 	void setBytesSent(WebRequestTracerHandle* webRequestTracerHandle, int32_t bytesSent)

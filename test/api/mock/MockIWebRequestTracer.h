@@ -44,15 +44,11 @@ namespace test
 
 		MOCK_METHOD(const char*, getTag, (), (const, override));
 
-		MOCK_METHOD(std::shared_ptr<openkit::IWebRequestTracer>, setResponseCode, (int32_t), (override));
-
 		MOCK_METHOD(std::shared_ptr<openkit::IWebRequestTracer>, setBytesSent, (int32_t), (override));
 
 		MOCK_METHOD(std::shared_ptr<openkit::IWebRequestTracer>, setBytesReceived, (int32_t), (override));
 
 		MOCK_METHOD(std::shared_ptr<openkit::IWebRequestTracer>, start, (), (override));
-
-		MOCK_METHOD(void, stop, (), (override));
 
 		MOCK_METHOD(void, stop, (int32_t), (override));
 	};

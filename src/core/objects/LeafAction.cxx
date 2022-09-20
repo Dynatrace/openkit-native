@@ -67,13 +67,6 @@ std::shared_ptr<openkit::IAction> LeafAction::reportValue(const char* valueName,
 	return shared_from_this();
 }
 
-std::shared_ptr<openkit::IAction> LeafAction::reportError(const char* errorName, int32_t errorCode, const char* /* reason */)
-{
-	mActionImpl->reportError(errorName, errorCode);
-	return shared_from_this();
-}
-
-
 std::shared_ptr<openkit::IAction> LeafAction::reportError(const char* errorName, int32_t errorCode)
 {
 	mActionImpl->reportError(errorName, errorCode);

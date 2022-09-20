@@ -127,20 +127,6 @@ TEST_F(NullRootActionTest, reportStringValueReturnsSelf)
 	ASSERT_THAT(nullRootAction, testing::Eq(target));
 }
 
-TEST_F(NullRootActionTest, reportDeprecatedErrorCodeReturnsSelf)
-{
-	// given
-	auto target = NullRootAction_t::instance();
-
-	// when
-	auto obtained = target->reportError("error name", 1, "ooops");
-
-	// then
-	auto nullRootAction = std::dynamic_pointer_cast<NullRootAction_t>(obtained);
-	ASSERT_THAT(nullRootAction, testing::NotNull());
-	ASSERT_THAT(nullRootAction, testing::Eq(target));
-}
-
 TEST_F(NullRootActionTest, reportErrorCodeReturnsSelf)
 {
 	// given

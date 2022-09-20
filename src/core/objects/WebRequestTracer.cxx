@@ -81,24 +81,6 @@ const char* WebRequestTracer::getTag() const
 	return tag;
 }
 
-///
-/// @deprecated use stop(int_32t) instead
-///
-OPENKIT_DEPRECATED
-std::shared_ptr<openkit::IWebRequestTracer> WebRequestTracer::setResponseCode(int32_t responseCode)
-{
-	// synchronized scope
-	{
-		std::lock_guard<std::mutex> lock(mMutex);
-
-		if (!isStopped())
-		{
-			mResponseCode = responseCode;
-		}
-	}
-	return shared_from_this();
-}
-
 std::shared_ptr<openkit::IWebRequestTracer> WebRequestTracer::setBytesSent(int32_t bytesSent)
 {
 	// synchronized scope
@@ -144,15 +126,6 @@ std::shared_ptr<openkit::IWebRequestTracer> WebRequestTracer::start()
 		}
 	}
 	return shared_from_this();
-}
-
-///
-/// @deprecated use stop(int32_t) instead
-///
-OPENKIT_DEPRECATED
-void WebRequestTracer::stop()
-{
-	stop(mResponseCode);
 }
 
 void WebRequestTracer::stop(int32_t responseCode)

@@ -685,18 +685,6 @@ extern "C" {
 	OPENKIT_EXPORT void reportStringValueOnRootAction(struct RootActionHandle* rootActionHandle, const char* valueName, const char* value);
 
 	///
-	/// Reports an error with a specified name, error code and reason.
-	///
-	/// @param[in] rootActionHandle	the handle returned by @ref enterRootAction
-	/// @param[in] errorName		name of this error
-	/// @param[in] errorCode		numeric error code of this error
-	/// @param[in] reason			reason for this error
-	/// @deprecated since 2.1.0 Use reportErrorCodeOnRootAction(struct RootActionHandle*, const char*, int32_t) instead, as reason is unused.
-	///
-	OPENKIT_DEPRECATED
-	OPENKIT_EXPORT void reportErrorOnRootAction(struct RootActionHandle* rootActionHandle, const char* errorName, int32_t errorCode, const char* reason);
-
-	///
 	/// Reports an error with a specified name and error code.
 	///
 	/// @param[in] rootActionHandle	the handle returned by @ref enterRootAction
@@ -828,18 +816,6 @@ extern "C" {
 	OPENKIT_EXPORT void reportStringValueOnAction(struct ActionHandle* actionHandle, const char* valueName, const char* value);
 
 	///
-	/// Reports an error with a specified name, error code and reason.
-	///
-	/// @param[in] actionHandle	the handle returned by @ref enterAction
-	/// @param[in] errorName	name of this error
-	/// @param[in] errorCode	numeric error code of this error
-	/// @param[in] reason		reason for this error
-	/// @deprecated Since 2.1.0 Use reportErrorCodeOnAction(struct RootActionHandle*, const char*, int32_t) instead, as reason is unused.
-	///
-	OPENKIT_DEPRECATED
-	OPENKIT_EXPORT void reportErrorOnAction(struct ActionHandle* actionHandle, const char* errorName, int32_t errorCode, const char* reason);
-
-	///
 	/// Reports an error with a specified name and error code.
 	///
 	/// @param[in] rootActionHandle	the handle returned by @ref enterRootAction
@@ -926,15 +902,6 @@ extern "C" {
 	OPENKIT_EXPORT void startWebRequest(struct WebRequestTracerHandle* webRequestTracerHandle);
 
 	///
-	/// Stops the web request timing. Should be called when the web request is finished.
-	/// After calling @c stop the webRequestTracerHandle is released and must not be used any more.
-	/// @param[in] webRequestTracerHandle the handle returned by @ref traceWebRequestOnRootAction or @ref traceWebRequestOnAction
-	/// @deprecated use stopWebRequest(struct WebRequestTracerHandle*, int32_t) instead
-	///
-	OPENKIT_DEPRECATED
-	OPENKIT_EXPORT void stopWebRequest(struct WebRequestTracerHandle* webRequestTracerHandle);
-
-	///
 	/// Stops the web request timing with the given respone code. Should be called when the web request is finished.
 	/// After calling @c stop the webRequestTracerHandle is released and must not be used any more.
 	/// @param[in] webRequestTracerHandle the handle returned by @ref traceWebRequestOnRootAction or @ref traceWebRequestOnAction
@@ -951,16 +918,6 @@ extern "C" {
 	/// @returns the Dynatrace tag to be set as HTTP header value or an empty String if capture is off
 	///
 	OPENKIT_EXPORT const char* getTag(struct WebRequestTracerHandle* webRequestTracerHandle);
-
-	///
-	/// Sets the response code of this web request. Has to be called before@ref stopWebRequest().
-	///
-	/// @param[in] webRequestTracerHandle the handle returned by @ref traceWebRequestOnRootAction or @ref traceWebRequestOnAction
-	/// @param[in] responseCode response code of this web request
-	/// @deprecated use stopWebRequest(struct WebRequestTracerHandle*, int32_t) instead
-	///
-	OPENKIT_DEPRECATED
-	OPENKIT_EXPORT void setResponseCode(struct WebRequestTracerHandle* webRequestTracerHandle, int32_t responseCode);
 
 	///
 	/// Sets the amount of sent data of this web request. Has to be called before @ref stopWebRequest().

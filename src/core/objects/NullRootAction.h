@@ -55,8 +55,6 @@ namespace core
 			std::shared_ptr<openkit::IRootAction> reportValue(const char* /*valueName*/, double /*value*/) override;
 
 			std::shared_ptr<openkit::IRootAction> reportValue(const char* /*valueName*/, const char* /*value*/) override;
-
-			std::shared_ptr<openkit::IRootAction> reportError(const char* /*errorName*/, int32_t /*errorCode*/, const char* /*reason*/) override;
 			
 			std::shared_ptr<openkit::IRootAction> reportError(const char* /*errorName*/, int32_t /*errorCode*/) override;
 

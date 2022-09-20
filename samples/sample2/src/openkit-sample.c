@@ -164,14 +164,14 @@ int32_t main(int32_t argc, char** argv)
 		reportIntValueOnRootAction(rootActionHandle, "IntValue", 1234);
 		reportDoubleValueOnRootAction(rootActionHandle, "DblValue", 3.1415);
 		reportStringValueOnRootAction(rootActionHandle, "StringValue", "some string");
-		reportErrorOnRootAction(rootActionHandle, "Some error name", 0x80050023, "Some more detailed error reason");
+		reportErrorCodeOnRootAction(rootActionHandle, "Some error name", 0x80050023);
 
 		struct ActionHandle* actionHandle = enterAction(rootActionHandle, "My sub action");
 		reportEventOnAction(actionHandle, "An event occurred on the subaction");
 		reportIntValueOnAction(actionHandle, "IntValue", 4567);
 		reportDoubleValueOnAction(actionHandle, "DblValue", 47.11);
 		reportStringValueOnAction(actionHandle, "StringValue", "some string");
-		reportErrorOnAction(actionHandle, "Some error name", 0x80070001, "Some more detailed error reason");
+		reportErrorCodeOnAction(actionHandle, "Some error name", 0x80070001);
 
 		struct WebRequestTracerHandle* webRequest = traceWebRequestOnAction(actionHandle, "http://www.stackoverflow.com/");
 		startWebRequest(webRequest);

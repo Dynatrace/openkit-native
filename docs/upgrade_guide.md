@@ -5,6 +5,18 @@ Appmon has been removed from OpenKit C/C++. If you don't want to replace your Ap
 
 ### Removed API
 * `AbstractOpenKitBuilder` has been removed as it was not needed anymore due to AppMon removal. All functionalities have been consolidated into the `DynatraceOpenKitBuilder`.
+* `IWebRequestTracer::setResponseCode(int32_t responseCodee)` and `IWebRequestTracer::stop()`  
+  Use `IWebRequestTracer::stop(int32_t responseCode)` instead as replacement.
+* `setResponseCode(struct WebRequestTracerHandle* webRequestTracerHandle, int32_t responseCode)` and `stopWebRequest(struct WebRequestTracerHandle* webRequestTracerHandle)`  
+  Use `stopWebRequest(struct WebRequestTracerHandle*, int32_t)` instead as replacement.
+* `IAction::reportError(const char* errorName, int32_t errorCode, const char* reason)`  
+  Use `IAction::reportError(const char* errorName, int32_t errorCode)` instead, since reason is unhandled.
+* `reportErrorOnAction(struct ActionHandle* actionHandle, const char* errorName, int32_t errorCode, const char* reason)`  
+  Use `reportErrorCodeOnAction(struct RootActionHandle*, const char*, int32_t)` instead, since reason is unhandled.
+* `IRootAction::reportError(const char* errorName, int32_t errorCode, const char* reason)`  
+  Use `IRootAction::reportError(const char* errorName, int32_t errorCode)` instead, since reason is unhandled.
+* `reportErrorOnRootAction(struct RootActionHandle* rootActionHandle, const char* errorName, int32_t errorCode, const char* reason)`  
+  Use `reportErrorCodeOnRootAction(struct RootActionHandle*, const char*, int32_t)` instead, since reason is unhandled.
 
 ## ## OpenKit .C/C++ 2.0 to 2.1
 There are no breaking API changes and upgrading is straightforward, by [updating][update] the library

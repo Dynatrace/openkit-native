@@ -71,11 +71,6 @@ namespace core
 				return shared_from_this();
 			}
 
-			std::shared_ptr<IAction> reportError(const char* /*errorName*/, int32_t /*errorCode*/, const char* /*reason*/) override
-			{
-				return shared_from_this();
-			}
-
 			std::shared_ptr<IAction> reportError(const char* /*errorName*/, int32_t /*errorCode*/) override
 			{
 				return shared_from_this();

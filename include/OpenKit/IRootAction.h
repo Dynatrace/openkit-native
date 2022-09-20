@@ -91,18 +91,6 @@ namespace openkit
 		virtual std::shared_ptr<IRootAction> reportValue(const char* valueName, const char* value) = 0;
 
 		///
-		/// Reports an error with a specified name, error code and reason.
-		///
-		/// @param errorName name of this error
-		/// @param errorCode numeric error code of this error
-		/// @param reason    reason for this error
-		/// @return this Action (for usage as fluent API)
-		/// @deprecated since 2.1.0 use IRootAction::reportError(const char*, int32_t) instead, since reason is unhandled
-		///
-		OPENKIT_DEPRECATED
-		virtual std::shared_ptr<IRootAction> reportError(const char* errorName, int32_t errorCode, const char* reason) = 0;
-
-		///
 		/// Reports an error with a specified name and error code.
 		///
 		/// @param errorName name of this error
