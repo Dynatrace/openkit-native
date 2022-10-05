@@ -1641,14 +1641,12 @@ TEST_F(BeaconTest, sendEventWithPayload)
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_APPLICATION_ID, openkit::json::JsonStringValue::fromString(APP_ID.getStringData()) });
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_INSTANCE_ID, openkit::json::JsonNumberValue::fromLong(DEVICE_ID) });
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SESSION_ID, openkit::json::JsonNumberValue::fromLong(SESSION_ID) });
-	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SEND_TIMESTAMP, openkit::json::JsonStringValue::fromString("DT_SEND_TIMESTAMP_PLACEHOLDER")});
-	realMapPayload->insert({ core::objects::DT_AGENT_VERSION, openkit::json::JsonStringValue::fromString(protocol::OPENKIT_VERSION)});
-	realMapPayload->insert({ core::objects::DT_AGENT_TECHNOLOGY_TYPE, openkit::json::JsonStringValue::fromString("openkit")});
-	realMapPayload->insert({ core::objects::DT_AGENT_FLAVOR, openkit::json::JsonStringValue::fromString("native") });
 	realMapPayload->insert({ core::objects::APP_VERSION, openkit::json::JsonStringValue::fromString(APP_VERSION.getStringData()) });
 	realMapPayload->insert({ core::objects::OS_NAME, openkit::json::JsonStringValue::fromString(OS_NAME.getStringData())});
 	realMapPayload->insert({ core::objects::DEVICE_MANUFACTURER, openkit::json::JsonStringValue::fromString(DEVICE_MANUFACTURER.getStringData()) });
 	realMapPayload->insert({ core::objects::DEVICE_MODEL_IDENTIFIER, openkit::json::JsonStringValue::fromString(MODEL_ID.getStringData()) });
+	realMapPayload->insert({ protocol::EVENT_SCHEMA_VERSION, openkit::json::JsonStringValue::fromString("1.0") });
+	realMapPayload->insert({ core::objects::EVENT_PROVIDER, openkit::json::JsonStringValue::fromString(APP_ID.getStringData()) });
 
 	realMapPayload->insert({ "event.name", openkit::json::JsonStringValue::fromString("event name") });
 	realMapPayload->insert({ "event.kind", openkit::json::JsonStringValue::fromString(core::objects::EVENT_KIND_RUM) });
@@ -1685,14 +1683,12 @@ TEST_F(BeaconTest, sendEventWithNameInPayload)
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_APPLICATION_ID, openkit::json::JsonStringValue::fromString(APP_ID.getStringData()) });
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_INSTANCE_ID, openkit::json::JsonNumberValue::fromLong(DEVICE_ID) });
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SESSION_ID, openkit::json::JsonNumberValue::fromLong(SESSION_ID) });
-	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SEND_TIMESTAMP, openkit::json::JsonStringValue::fromString("DT_SEND_TIMESTAMP_PLACEHOLDER") });
-	realMapPayload->insert({ core::objects::DT_AGENT_VERSION, openkit::json::JsonStringValue::fromString(protocol::OPENKIT_VERSION) });
-	realMapPayload->insert({ core::objects::DT_AGENT_TECHNOLOGY_TYPE, openkit::json::JsonStringValue::fromString("openkit") });
-	realMapPayload->insert({ core::objects::DT_AGENT_FLAVOR, openkit::json::JsonStringValue::fromString("native") });
 	realMapPayload->insert({ core::objects::APP_VERSION, openkit::json::JsonStringValue::fromString(APP_VERSION.getStringData()) });
 	realMapPayload->insert({ core::objects::OS_NAME, openkit::json::JsonStringValue::fromString(OS_NAME.getStringData()) });
 	realMapPayload->insert({ core::objects::DEVICE_MANUFACTURER, openkit::json::JsonStringValue::fromString(DEVICE_MANUFACTURER.getStringData()) });
 	realMapPayload->insert({ core::objects::DEVICE_MODEL_IDENTIFIER, openkit::json::JsonStringValue::fromString(MODEL_ID.getStringData()) });
+	realMapPayload->insert({ protocol::EVENT_SCHEMA_VERSION, openkit::json::JsonStringValue::fromString("1.0") });
+	realMapPayload->insert({ core::objects::EVENT_PROVIDER, openkit::json::JsonStringValue::fromString(APP_ID.getStringData()) });
 
 	realMapPayload->insert({ "event.name", openkit::json::JsonStringValue::fromString("event name") });
 	realMapPayload->insert({ "event.kind", openkit::json::JsonStringValue::fromString(core::objects::EVENT_KIND_RUM) });
@@ -1729,22 +1725,19 @@ TEST_F(BeaconTest, sendEventWithEventKindInPayload)
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_APPLICATION_ID, openkit::json::JsonStringValue::fromString(APP_ID.getStringData()) });
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_INSTANCE_ID, openkit::json::JsonNumberValue::fromLong(DEVICE_ID) });
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SESSION_ID, openkit::json::JsonNumberValue::fromLong(SESSION_ID) });
-	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SEND_TIMESTAMP, openkit::json::JsonStringValue::fromString("DT_SEND_TIMESTAMP_PLACEHOLDER") });
-	realMapPayload->insert({ core::objects::DT_AGENT_VERSION, openkit::json::JsonStringValue::fromString(protocol::OPENKIT_VERSION) });
-	realMapPayload->insert({ core::objects::DT_AGENT_TECHNOLOGY_TYPE, openkit::json::JsonStringValue::fromString("openkit") });
-	realMapPayload->insert({ core::objects::DT_AGENT_FLAVOR, openkit::json::JsonStringValue::fromString("native") });
 	realMapPayload->insert({ core::objects::APP_VERSION, openkit::json::JsonStringValue::fromString(APP_VERSION.getStringData()) });
 	realMapPayload->insert({ core::objects::OS_NAME, openkit::json::JsonStringValue::fromString(OS_NAME.getStringData()) });
 	realMapPayload->insert({ core::objects::DEVICE_MANUFACTURER, openkit::json::JsonStringValue::fromString(DEVICE_MANUFACTURER.getStringData()) });
 	realMapPayload->insert({ core::objects::DEVICE_MODEL_IDENTIFIER, openkit::json::JsonStringValue::fromString(MODEL_ID.getStringData()) });
+	realMapPayload->insert({ protocol::EVENT_SCHEMA_VERSION, openkit::json::JsonStringValue::fromString("1.0") });
+	realMapPayload->insert({ core::objects::EVENT_PROVIDER, openkit::json::JsonStringValue::fromString(APP_ID.getStringData()) });
 
 	realMapPayload->insert({ "event.name", openkit::json::JsonStringValue::fromString("event name") });
 	realMapPayload->insert({ "event.kind", openkit::json::JsonStringValue::fromString("trying to override") });
 
 	auto jsonValues = std::make_shared<openkit::json::JsonArrayValue::JsonValueList>();
 	jsonValues->push_back(openkit::json::JsonStringValue::fromString("event.kind"));
-	realMapPayload->insert({ "dt.overridden_keys", openkit::json::JsonArrayValue::fromList(jsonValues)});
-
+	
 	auto str = openkit::json::JsonObjectValue::fromMap(realMapPayload)->toString();
 
 	// expect
@@ -1773,7 +1766,8 @@ TEST_F(BeaconTest, sendValidEventTryingToOverrideDtValuesWhichAreNotAllowed)
 	mapWithName->insert({ protocol::EVENT_PAYLOAD_APPLICATION_ID, openkit::json::JsonStringValue::fromString("trying to override") });
 	mapWithName->insert({ protocol::EVENT_PAYLOAD_INSTANCE_ID, openkit::json::JsonStringValue::fromString("trying to override") });
 	mapWithName->insert({ protocol::EVENT_PAYLOAD_SESSION_ID, openkit::json::JsonStringValue::fromString("trying to override") });
-	mapWithName->insert({ protocol::EVENT_PAYLOAD_SEND_TIMESTAMP, openkit::json::JsonStringValue::fromString("trying to override") });
+	mapWithName->insert({ protocol::EVENT_SCHEMA_VERSION, openkit::json::JsonStringValue::fromString("trying to override") });
+	mapWithName->insert({ core::objects::EVENT_PROVIDER, openkit::json::JsonStringValue::fromString("trying to override") });
 
 	auto realMapPayload = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
 
@@ -1781,14 +1775,12 @@ TEST_F(BeaconTest, sendValidEventTryingToOverrideDtValuesWhichAreNotAllowed)
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_APPLICATION_ID, openkit::json::JsonStringValue::fromString(APP_ID.getStringData()) });
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_INSTANCE_ID, openkit::json::JsonNumberValue::fromLong(DEVICE_ID) });
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SESSION_ID, openkit::json::JsonNumberValue::fromLong(SESSION_ID) });
-	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SEND_TIMESTAMP, openkit::json::JsonStringValue::fromString("DT_SEND_TIMESTAMP_PLACEHOLDER") });
-	realMapPayload->insert({ core::objects::DT_AGENT_VERSION, openkit::json::JsonStringValue::fromString(protocol::OPENKIT_VERSION) });
-	realMapPayload->insert({ core::objects::DT_AGENT_TECHNOLOGY_TYPE, openkit::json::JsonStringValue::fromString("openkit") });
-	realMapPayload->insert({ core::objects::DT_AGENT_FLAVOR, openkit::json::JsonStringValue::fromString("native") });
+	realMapPayload->insert({ protocol::EVENT_SCHEMA_VERSION, openkit::json::JsonStringValue::fromString("1.0") });
 	realMapPayload->insert({ core::objects::APP_VERSION, openkit::json::JsonStringValue::fromString(APP_VERSION.getStringData()) });
 	realMapPayload->insert({ core::objects::OS_NAME, openkit::json::JsonStringValue::fromString(OS_NAME.getStringData()) });
 	realMapPayload->insert({ core::objects::DEVICE_MANUFACTURER, openkit::json::JsonStringValue::fromString(DEVICE_MANUFACTURER.getStringData()) });
 	realMapPayload->insert({ core::objects::DEVICE_MODEL_IDENTIFIER, openkit::json::JsonStringValue::fromString(MODEL_ID.getStringData()) });
+	realMapPayload->insert({ core::objects::EVENT_PROVIDER, openkit::json::JsonStringValue::fromString(APP_ID.getStringData()) });
 
 	realMapPayload->insert({ "event.name", openkit::json::JsonStringValue::fromString("event name") });
 	realMapPayload->insert({ "event.kind", openkit::json::JsonStringValue::fromString(core::objects::EVENT_KIND_RUM) });
@@ -1824,14 +1816,12 @@ TEST_F(BeaconTest, sendEventWithEmptyPayload)
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_APPLICATION_ID, openkit::json::JsonStringValue::fromString(APP_ID.getStringData()) });
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_INSTANCE_ID, openkit::json::JsonNumberValue::fromLong(DEVICE_ID) });
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SESSION_ID, openkit::json::JsonNumberValue::fromLong(SESSION_ID) });
-	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SEND_TIMESTAMP, openkit::json::JsonStringValue::fromString("DT_SEND_TIMESTAMP_PLACEHOLDER") });
-	realMapPayload->insert({ core::objects::DT_AGENT_VERSION, openkit::json::JsonStringValue::fromString(protocol::OPENKIT_VERSION) });
-	realMapPayload->insert({ core::objects::DT_AGENT_TECHNOLOGY_TYPE, openkit::json::JsonStringValue::fromString("openkit") });
-	realMapPayload->insert({ core::objects::DT_AGENT_FLAVOR, openkit::json::JsonStringValue::fromString("native") });
 	realMapPayload->insert({ core::objects::APP_VERSION, openkit::json::JsonStringValue::fromString(APP_VERSION.getStringData()) });
 	realMapPayload->insert({ core::objects::OS_NAME, openkit::json::JsonStringValue::fromString(OS_NAME.getStringData()) });
 	realMapPayload->insert({ core::objects::DEVICE_MANUFACTURER, openkit::json::JsonStringValue::fromString(DEVICE_MANUFACTURER.getStringData()) });
 	realMapPayload->insert({ core::objects::DEVICE_MODEL_IDENTIFIER, openkit::json::JsonStringValue::fromString(MODEL_ID.getStringData()) });
+	realMapPayload->insert({ protocol::EVENT_SCHEMA_VERSION, openkit::json::JsonStringValue::fromString("1.0") });
+	realMapPayload->insert({ core::objects::EVENT_PROVIDER, openkit::json::JsonStringValue::fromString(APP_ID.getStringData()) });
 
 	realMapPayload->insert({ "event.name", openkit::json::JsonStringValue::fromString("event name") });
 	realMapPayload->insert({ "event.kind", openkit::json::JsonStringValue::fromString(core::objects::EVENT_KIND_RUM) });
@@ -1866,14 +1856,12 @@ TEST_F(BeaconTest, sendEventWithNullPtrPayload)
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_APPLICATION_ID, openkit::json::JsonStringValue::fromString(APP_ID.getStringData()) });
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_INSTANCE_ID, openkit::json::JsonNumberValue::fromLong(DEVICE_ID) });
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SESSION_ID, openkit::json::JsonNumberValue::fromLong(SESSION_ID) });
-	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SEND_TIMESTAMP, openkit::json::JsonStringValue::fromString("DT_SEND_TIMESTAMP_PLACEHOLDER") });
-	realMapPayload->insert({ core::objects::DT_AGENT_VERSION, openkit::json::JsonStringValue::fromString(protocol::OPENKIT_VERSION) });
-	realMapPayload->insert({ core::objects::DT_AGENT_TECHNOLOGY_TYPE, openkit::json::JsonStringValue::fromString("openkit") });
-	realMapPayload->insert({ core::objects::DT_AGENT_FLAVOR, openkit::json::JsonStringValue::fromString("native") });
 	realMapPayload->insert({ core::objects::APP_VERSION, openkit::json::JsonStringValue::fromString(APP_VERSION.getStringData()) });
 	realMapPayload->insert({ core::objects::OS_NAME, openkit::json::JsonStringValue::fromString(OS_NAME.getStringData()) });
 	realMapPayload->insert({ core::objects::DEVICE_MANUFACTURER, openkit::json::JsonStringValue::fromString(DEVICE_MANUFACTURER.getStringData()) });
 	realMapPayload->insert({ core::objects::DEVICE_MODEL_IDENTIFIER, openkit::json::JsonStringValue::fromString(MODEL_ID.getStringData()) });
+	realMapPayload->insert({ protocol::EVENT_SCHEMA_VERSION, openkit::json::JsonStringValue::fromString("1.0") });
+	realMapPayload->insert({ core::objects::EVENT_PROVIDER, openkit::json::JsonStringValue::fromString(APP_ID.getStringData()) });
 
 	realMapPayload->insert({ "event.name", openkit::json::JsonStringValue::fromString("event name") });
 	realMapPayload->insert({ "event.kind", openkit::json::JsonStringValue::fromString(core::objects::EVENT_KIND_RUM) });
@@ -1909,66 +1897,6 @@ TEST_F(BeaconTest, sendValidEventTryingToOverrideTimestamp)
 		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
 		0,											// timestamp when error was reported
 		ContainsString("timestamp%22%3A%22Test%22%2C%22")
-	)).Times(1);
-
-	auto target = createBeacon()->build();
-
-	// then
-	target->sendEvent(eventName, map);
-}
-
-TEST_F(BeaconTest, sendValidEventTryingToOverrideDtAgentVersion)
-{
-	// given
-	Utf8String_t eventName("event name");
-	auto map = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
-	map->insert({ core::objects::DT_AGENT_VERSION, openkit::json::JsonStringValue::fromString("Test") });
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(
-		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
-		0,											// timestamp when error was reported
-		ContainsString("dt.agent.version%22%3A%22Test%22%2C%22")
-	)).Times(1);
-
-	auto target = createBeacon()->build();
-
-	// then
-	target->sendEvent(eventName, map);
-}
-
-TEST_F(BeaconTest, sendValidEventTryingToOverrideDtAgentTechnologyType)
-{
-	// given
-	Utf8String_t eventName("event name");
-	auto map = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
-	map->insert({ core::objects::DT_AGENT_TECHNOLOGY_TYPE, openkit::json::JsonStringValue::fromString("Test") });
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(
-		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
-		0,											// timestamp when error was reported
-		ContainsString("dt.agent.technology%5Ftype%22%3A%22Test%22%2C%22")
-	)).Times(1);
-
-	auto target = createBeacon()->build();
-
-	// then
-	target->sendEvent(eventName, map);
-}
-
-TEST_F(BeaconTest, sendValidEventTryingToOverrideDtAgentFlavor)
-{
-	// given
-	Utf8String_t eventName("event name");
-	auto map = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
-	map->insert({ core::objects::DT_AGENT_FLAVOR, openkit::json::JsonStringValue::fromString("Test") });
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(
-		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
-		0,											// timestamp when error was reported
-		ContainsString("dt.agent.flavor%22%3A%22Test%22%2C%22")
 	)).Times(1);
 
 	auto target = createBeacon()->build();
@@ -2174,14 +2102,12 @@ TEST_F(BeaconTest, sendBizEventWithPayload)
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_APPLICATION_ID, openkit::json::JsonStringValue::fromString(APP_ID.getStringData()) });
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_INSTANCE_ID, openkit::json::JsonNumberValue::fromLong(DEVICE_ID) });
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SESSION_ID, openkit::json::JsonNumberValue::fromLong(SESSION_ID) });
-	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SEND_TIMESTAMP, openkit::json::JsonStringValue::fromString("DT_SEND_TIMESTAMP_PLACEHOLDER") });
-	realMapPayload->insert({ core::objects::DT_AGENT_VERSION, openkit::json::JsonStringValue::fromString(protocol::OPENKIT_VERSION) });
-	realMapPayload->insert({ core::objects::DT_AGENT_TECHNOLOGY_TYPE, openkit::json::JsonStringValue::fromString("openkit") });
-	realMapPayload->insert({ core::objects::DT_AGENT_FLAVOR, openkit::json::JsonStringValue::fromString("native") });
 	realMapPayload->insert({ core::objects::APP_VERSION, openkit::json::JsonStringValue::fromString(APP_VERSION.getStringData()) });
 	realMapPayload->insert({ core::objects::OS_NAME, openkit::json::JsonStringValue::fromString(OS_NAME.getStringData()) });
 	realMapPayload->insert({ core::objects::DEVICE_MANUFACTURER, openkit::json::JsonStringValue::fromString(DEVICE_MANUFACTURER.getStringData()) });
 	realMapPayload->insert({ core::objects::DEVICE_MODEL_IDENTIFIER, openkit::json::JsonStringValue::fromString(MODEL_ID.getStringData()) });
+	realMapPayload->insert({ protocol::EVENT_SCHEMA_VERSION, openkit::json::JsonStringValue::fromString("1.0") });
+	realMapPayload->insert({ core::objects::EVENT_PROVIDER, openkit::json::JsonStringValue::fromString(APP_ID.getStringData()) });
 
 	realMapPayload->insert({ "event.name", openkit::json::JsonStringValue::fromString("event type") });
 	realMapPayload->insert({ "event.type", openkit::json::JsonStringValue::fromString("event type") });
@@ -2219,14 +2145,12 @@ TEST_F(BeaconTest, sendBizEventWithNameInPayload)
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_APPLICATION_ID, openkit::json::JsonStringValue::fromString(APP_ID.getStringData()) });
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_INSTANCE_ID, openkit::json::JsonNumberValue::fromLong(DEVICE_ID) });
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SESSION_ID, openkit::json::JsonNumberValue::fromLong(SESSION_ID) });
-	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SEND_TIMESTAMP, openkit::json::JsonStringValue::fromString("DT_SEND_TIMESTAMP_PLACEHOLDER") });
-	realMapPayload->insert({ core::objects::DT_AGENT_VERSION, openkit::json::JsonStringValue::fromString(protocol::OPENKIT_VERSION) });
-	realMapPayload->insert({ core::objects::DT_AGENT_TECHNOLOGY_TYPE, openkit::json::JsonStringValue::fromString("openkit") });
-	realMapPayload->insert({ core::objects::DT_AGENT_FLAVOR, openkit::json::JsonStringValue::fromString("native") });
 	realMapPayload->insert({ core::objects::APP_VERSION, openkit::json::JsonStringValue::fromString(APP_VERSION.getStringData()) });
 	realMapPayload->insert({ core::objects::OS_NAME, openkit::json::JsonStringValue::fromString(OS_NAME.getStringData()) });
 	realMapPayload->insert({ core::objects::DEVICE_MANUFACTURER, openkit::json::JsonStringValue::fromString(DEVICE_MANUFACTURER.getStringData()) });
 	realMapPayload->insert({ core::objects::DEVICE_MODEL_IDENTIFIER, openkit::json::JsonStringValue::fromString(MODEL_ID.getStringData()) });
+	realMapPayload->insert({ protocol::EVENT_SCHEMA_VERSION, openkit::json::JsonStringValue::fromString("1.0") });
+	realMapPayload->insert({ core::objects::EVENT_PROVIDER, openkit::json::JsonStringValue::fromString(APP_ID.getStringData()) });
 
 	realMapPayload->insert({ "event.name", openkit::json::JsonStringValue::fromString("trying to override") });
 	realMapPayload->insert({ "event.type", openkit::json::JsonStringValue::fromString("event type") });
@@ -2260,8 +2184,8 @@ TEST_F(BeaconTest, sendValidBizEventTryingToOverrideDtValuesWhichAreNotAllowed)
 	mapWithName->insert({ protocol::EVENT_PAYLOAD_APPLICATION_ID, openkit::json::JsonStringValue::fromString("trying to override") });
 	mapWithName->insert({ protocol::EVENT_PAYLOAD_INSTANCE_ID, openkit::json::JsonStringValue::fromString("trying to override") });
 	mapWithName->insert({ protocol::EVENT_PAYLOAD_SESSION_ID, openkit::json::JsonStringValue::fromString("trying to override") });
-	mapWithName->insert({ protocol::EVENT_PAYLOAD_SEND_TIMESTAMP, openkit::json::JsonStringValue::fromString("trying to override") });
 	mapWithName->insert({ "event.kind", openkit::json::JsonStringValue::fromString("trying to override") });
+	mapWithName->insert({ protocol::EVENT_SCHEMA_VERSION, openkit::json::JsonStringValue::fromString("trying to override") });
 
 	auto realMapPayload = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
 
@@ -2269,14 +2193,12 @@ TEST_F(BeaconTest, sendValidBizEventTryingToOverrideDtValuesWhichAreNotAllowed)
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_APPLICATION_ID, openkit::json::JsonStringValue::fromString(APP_ID.getStringData()) });
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_INSTANCE_ID, openkit::json::JsonNumberValue::fromLong(DEVICE_ID) });
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SESSION_ID, openkit::json::JsonNumberValue::fromLong(SESSION_ID) });
-	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SEND_TIMESTAMP, openkit::json::JsonStringValue::fromString("DT_SEND_TIMESTAMP_PLACEHOLDER") });
-	realMapPayload->insert({ core::objects::DT_AGENT_VERSION, openkit::json::JsonStringValue::fromString(protocol::OPENKIT_VERSION) });
-	realMapPayload->insert({ core::objects::DT_AGENT_TECHNOLOGY_TYPE, openkit::json::JsonStringValue::fromString("openkit") });
-	realMapPayload->insert({ core::objects::DT_AGENT_FLAVOR, openkit::json::JsonStringValue::fromString("native") });
 	realMapPayload->insert({ core::objects::APP_VERSION, openkit::json::JsonStringValue::fromString(APP_VERSION.getStringData()) });
 	realMapPayload->insert({ core::objects::OS_NAME, openkit::json::JsonStringValue::fromString(OS_NAME.getStringData()) });
 	realMapPayload->insert({ core::objects::DEVICE_MANUFACTURER, openkit::json::JsonStringValue::fromString(DEVICE_MANUFACTURER.getStringData()) });
 	realMapPayload->insert({ core::objects::DEVICE_MODEL_IDENTIFIER, openkit::json::JsonStringValue::fromString(MODEL_ID.getStringData()) });
+	realMapPayload->insert({ protocol::EVENT_SCHEMA_VERSION, openkit::json::JsonStringValue::fromString("1.0") });
+	realMapPayload->insert({ core::objects::EVENT_PROVIDER, openkit::json::JsonStringValue::fromString(APP_ID.getStringData()) });
 
 	realMapPayload->insert({ "event.name", openkit::json::JsonStringValue::fromString("event type") });
 	realMapPayload->insert({ "event.type", openkit::json::JsonStringValue::fromString("event type") });
@@ -2313,14 +2235,12 @@ TEST_F(BeaconTest, sendBizEventWithEmptyPayload)
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_APPLICATION_ID, openkit::json::JsonStringValue::fromString(APP_ID.getStringData()) });
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_INSTANCE_ID, openkit::json::JsonNumberValue::fromLong(DEVICE_ID) });
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SESSION_ID, openkit::json::JsonNumberValue::fromLong(SESSION_ID) });
-	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SEND_TIMESTAMP, openkit::json::JsonStringValue::fromString("DT_SEND_TIMESTAMP_PLACEHOLDER") });
-	realMapPayload->insert({ core::objects::DT_AGENT_VERSION, openkit::json::JsonStringValue::fromString(protocol::OPENKIT_VERSION) });
-	realMapPayload->insert({ core::objects::DT_AGENT_TECHNOLOGY_TYPE, openkit::json::JsonStringValue::fromString("openkit") });
-	realMapPayload->insert({ core::objects::DT_AGENT_FLAVOR, openkit::json::JsonStringValue::fromString("native") });
 	realMapPayload->insert({ core::objects::APP_VERSION, openkit::json::JsonStringValue::fromString(APP_VERSION.getStringData()) });
 	realMapPayload->insert({ core::objects::OS_NAME, openkit::json::JsonStringValue::fromString(OS_NAME.getStringData()) });
 	realMapPayload->insert({ core::objects::DEVICE_MANUFACTURER, openkit::json::JsonStringValue::fromString(DEVICE_MANUFACTURER.getStringData()) });
 	realMapPayload->insert({ core::objects::DEVICE_MODEL_IDENTIFIER, openkit::json::JsonStringValue::fromString(MODEL_ID.getStringData()) });
+	realMapPayload->insert({ protocol::EVENT_SCHEMA_VERSION, openkit::json::JsonStringValue::fromString("1.0") });
+	realMapPayload->insert({ core::objects::EVENT_PROVIDER, openkit::json::JsonStringValue::fromString(APP_ID.getStringData()) });
 
 	realMapPayload->insert({ "event.name", openkit::json::JsonStringValue::fromString("event type") });
 	realMapPayload->insert({ "event.type", openkit::json::JsonStringValue::fromString("event type") });
@@ -2356,14 +2276,12 @@ TEST_F(BeaconTest, sendBizEventWithNullPtrPayload)
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_APPLICATION_ID, openkit::json::JsonStringValue::fromString(APP_ID.getStringData()) });
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_INSTANCE_ID, openkit::json::JsonNumberValue::fromLong(DEVICE_ID) });
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SESSION_ID, openkit::json::JsonNumberValue::fromLong(SESSION_ID) });
-	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SEND_TIMESTAMP, openkit::json::JsonStringValue::fromString("DT_SEND_TIMESTAMP_PLACEHOLDER") });
-	realMapPayload->insert({ core::objects::DT_AGENT_VERSION, openkit::json::JsonStringValue::fromString(protocol::OPENKIT_VERSION) });
-	realMapPayload->insert({ core::objects::DT_AGENT_TECHNOLOGY_TYPE, openkit::json::JsonStringValue::fromString("openkit") });
-	realMapPayload->insert({ core::objects::DT_AGENT_FLAVOR, openkit::json::JsonStringValue::fromString("native") });
 	realMapPayload->insert({ core::objects::APP_VERSION, openkit::json::JsonStringValue::fromString(APP_VERSION.getStringData()) });
 	realMapPayload->insert({ core::objects::OS_NAME, openkit::json::JsonStringValue::fromString(OS_NAME.getStringData()) });
 	realMapPayload->insert({ core::objects::DEVICE_MANUFACTURER, openkit::json::JsonStringValue::fromString(DEVICE_MANUFACTURER.getStringData()) });
 	realMapPayload->insert({ core::objects::DEVICE_MODEL_IDENTIFIER, openkit::json::JsonStringValue::fromString(MODEL_ID.getStringData()) });
+	realMapPayload->insert({ protocol::EVENT_SCHEMA_VERSION, openkit::json::JsonStringValue::fromString("1.0") });
+	realMapPayload->insert({ core::objects::EVENT_PROVIDER, openkit::json::JsonStringValue::fromString(APP_ID.getStringData()) });
 
 	realMapPayload->insert({ "event.name", openkit::json::JsonStringValue::fromString("event type") });
 	realMapPayload->insert({ "event.type", openkit::json::JsonStringValue::fromString("event type") });
@@ -2400,66 +2318,6 @@ TEST_F(BeaconTest, sendValidBizEventTryingToOverrideTimestamp)
 		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
 		0,											// timestamp when error was reported
 		ContainsString("timestamp%22%3A%22Test%22%2C%22")
-	)).Times(1);
-
-	auto target = createBeacon()->build();
-
-	// then
-	target->sendBizEvent(eventType, map);
-}
-
-TEST_F(BeaconTest, sendValidBizEventTryingToOverrideDtAgentVersion)
-{
-	// given
-	Utf8String_t eventType("event type");
-	auto map = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
-	map->insert({ core::objects::DT_AGENT_VERSION, openkit::json::JsonStringValue::fromString("Test") });
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(
-		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
-		0,											// timestamp when error was reported
-		ContainsString("dt.agent.version%22%3A%22Test%22%2C%22")
-	)).Times(1);
-
-	auto target = createBeacon()->build();
-
-	// then
-	target->sendBizEvent(eventType, map);
-}
-
-TEST_F(BeaconTest, sendValidBizEventTryingToOverrideDtAgentTechnologyType)
-{
-	// given
-	Utf8String_t eventType("event type");
-	auto map = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
-	map->insert({ core::objects::DT_AGENT_TECHNOLOGY_TYPE, openkit::json::JsonStringValue::fromString("Test") });
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(
-		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
-		0,											// timestamp when error was reported
-		ContainsString("dt.agent.technology%5Ftype%22%3A%22Test%22%2C%22")
-	)).Times(1);
-
-	auto target = createBeacon()->build();
-
-	// then
-	target->sendBizEvent(eventType, map);
-}
-
-TEST_F(BeaconTest, sendValidBizEventTryingToOverrideDtAgentFlavor)
-{
-	// given
-	Utf8String_t eventType("event type");
-	auto map = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
-	map->insert({ core::objects::DT_AGENT_FLAVOR, openkit::json::JsonStringValue::fromString("Test") });
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(
-		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
-		0,											// timestamp when error was reported
-		ContainsString("dt.agent.flavor%22%3A%22Test%22%2C%22")
 	)).Times(1);
 
 	auto target = createBeacon()->build();
@@ -2540,6 +2398,26 @@ TEST_F(BeaconTest, sendValidBizEventTryingToOverrideDeviceModelIdentifier)
 		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
 		0,											// timestamp when error was reported
 		ContainsString("device.model.identifier%22%3A%22Test%22%2C%22")
+	)).Times(1);
+
+	auto target = createBeacon()->build();
+
+	// then
+	target->sendBizEvent(eventType, map);
+}
+
+TEST_F(BeaconTest, sendValidBizEventTryingToOverrideEventProvider)
+{
+	// given
+	Utf8String_t eventType("event type");
+	auto map = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
+	map->insert({ core::objects::EVENT_PROVIDER, openkit::json::JsonStringValue::fromString("Test") });
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(
+		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
+		0,											// timestamp when error was reported
+		ContainsString("event.provider%22%3A%22Test%22%2C%22")
 	)).Times(1);
 
 	auto target = createBeacon()->build();

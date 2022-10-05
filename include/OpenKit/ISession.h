@@ -94,9 +94,16 @@ namespace openkit
 		virtual void end() = 0;
 
 		///
-		/// Reports a biz event with a mandatory type and additional attributes
-		/// @param type type of the event which is mandatory
-		/// @param attributes additional attributes (nullptr allowed if none) which are passed along side our internal attributes
+		/// Send a Business Event
+        ///
+        /// With sendBizEvent, you can report a business event. These standalone events are being sent detached
+        /// from user actions or sessions.
+        ///
+        /// Note: Business events are only supported on Dynatrace SaaS deployments currently.
+		///
+        /// @param type Mandatory event type
+        /// @param attributes Must be a valid JSON object. The resulting event will be populated 
+        /// the 'attributes'-parameter and enriched with additional properties. Therefore, even empty objects are valid.
 		///
 		virtual void sendBizEvent(const char* type, const json::JsonObjectValue::JsonObjectMapPtr attributes = nullptr) = 0;
 

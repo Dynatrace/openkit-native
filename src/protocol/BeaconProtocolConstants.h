@@ -76,11 +76,10 @@ namespace protocol
 	// events api
 	constexpr const char BEACON_KEY_EVENT_PAYLOAD[] = "pl";
 	constexpr const int EVENT_PAYLOAD_BYTES_LENGTH = 16 * 1024;
-	constexpr const char* EVENT_PAYLOAD_APPLICATION_ID = "dt.application_id";
-	constexpr const char* EVENT_PAYLOAD_INSTANCE_ID = "dt.instance_id";
-	constexpr const char* EVENT_PAYLOAD_SESSION_ID = "dt.sid";
-	constexpr const char* EVENT_PAYLOAD_SEND_TIMESTAMP = "dt.send_timestamp";
-	constexpr const char* SEND_TIMESTAMP_PLACEHOLER = "DT_SEND_TIMESTAMP_PLACEHOLDER";
+	constexpr const char* EVENT_PAYLOAD_APPLICATION_ID = "dt.rum.application.id";
+	constexpr const char* EVENT_PAYLOAD_INSTANCE_ID = "dt.rum.instance.id";
+	constexpr const char* EVENT_PAYLOAD_SESSION_ID = "dt.rum.sid";
+	constexpr const char* EVENT_SCHEMA_VERSION = "dt.rum.schema_version";
 
 }
 

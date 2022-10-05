@@ -635,6 +635,8 @@ void Beacon::sendBizEvent(const core::UTF8String& type, const openkit::json::Jso
 	auto builder = generateEventPayload(attributes);
 	builder->addNonOverridableAttribute("event.type", openkit::json::JsonStringValue::fromString(type.getStringData()));
 	builder->addNonOverridableAttribute(core::objects::EVENT_KIND, openkit::json::JsonStringValue::fromString(core::objects::EVENT_KIND_BIZ));
+	builder->addOverridableAttribute(core::objects::EVENT_PROVIDER, 
+		openkit::json::JsonStringValue::fromString(mBeaconConfiguration->getOpenKitConfiguration()->getApplicationId().getStringData()));
 
 	if (attributes == nullptr || attributes->find("event.name") == attributes->end())
 	{
@@ -664,6 +666,8 @@ void Beacon::sendEvent(const core::UTF8String& name, const openkit::json::JsonOb
 	auto builder = generateEventPayload(attributes);
 	builder->addNonOverridableAttribute("event.name", openkit::json::JsonStringValue::fromString(name.getStringData()));
 	builder->addOverridableAttribute(core::objects::EVENT_KIND, openkit::json::JsonStringValue::fromString(core::objects::EVENT_KIND_RUM));
+	builder->addNonOverridableAttribute(core::objects::EVENT_PROVIDER, 
+		openkit::json::JsonStringValue::fromString(mBeaconConfiguration->getOpenKitConfiguration()->getApplicationId().getStringData()));
 
 	sendEventPayload(*builder);
 }
@@ -695,10 +699,7 @@ std::shared_ptr<core::objects::EventPayloadBuilder> Beacon::generateEventPayload
 	builder->addNonOverridableAttribute(EVENT_PAYLOAD_APPLICATION_ID, openkit::json::JsonStringValue::fromString(openKitConfig->getApplicationId().getStringData()));
 	builder->addNonOverridableAttribute(EVENT_PAYLOAD_INSTANCE_ID, openkit::json::JsonNumberValue::fromLong(getDeviceID()));
 	builder->addNonOverridableAttribute(EVENT_PAYLOAD_SESSION_ID, openkit::json::JsonNumberValue::fromLong(getSessionNumber()));
-	builder->addNonOverridableAttribute(EVENT_PAYLOAD_SEND_TIMESTAMP, openkit::json::JsonStringValue::fromString(SEND_TIMESTAMP_PLACEHOLER));
-	builder->addOverridableAttribute(core::objects::DT_AGENT_VERSION, openkit::json::JsonStringValue::fromString(OPENKIT_VERSION));
-	builder->addOverridableAttribute(core::objects::DT_AGENT_TECHNOLOGY_TYPE, openkit::json::JsonStringValue::fromString("openkit"));
-	builder->addOverridableAttribute(core::objects::DT_AGENT_FLAVOR, openkit::json::JsonStringValue::fromString("native"));
+	builder->addNonOverridableAttribute(EVENT_SCHEMA_VERSION, openkit::json::JsonStringValue::fromString("1.0"));
 	builder->addOverridableAttribute(core::objects::APP_VERSION, openkit::json::JsonStringValue::fromString(openKitConfig->getApplicationVersion().getStringData()));
 	builder->addOverridableAttribute(core::objects::OS_NAME, openkit::json::JsonStringValue::fromString(openKitConfig->getOperatingSystem().getStringData()));
 	builder->addOverridableAttribute(core::objects::DEVICE_MANUFACTURER, openkit::json::JsonStringValue::fromString(openKitConfig->getManufacturer().getStringData()));
@@ -760,17 +761,6 @@ std::shared_ptr<protocol::IStatusResponse> Beacon::send(std::shared_ptr<provider
 		if (chunk == nullptr || chunk.empty())
 		{
 			return response;
-		}
-
-		// Check if the chunk contains timestamp that needs to be replaced
-		auto timestampEncodedStr = core::util::URLEncoding::urlencode("\"" + std::string(SEND_TIMESTAMP_PLACEHOLER) + "\"", { '_' });
-		size_t timestampPos = chunk.getStringData().find(timestampEncodedStr.getStringData());
-		
-		if (timestampPos != std::string::npos)
-		{
-			std::string chunkStr = std::string(chunk.getStringData());
-			chunkStr.replace(timestampPos, timestampEncodedStr.size(), std::to_string(mTimingProvider->provideTimestampInNanoseconds()));
-			chunk = core::UTF8String(chunkStr);
 		}
 
 		// send the request

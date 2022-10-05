@@ -43,8 +43,7 @@ MATCHER_P2(AttributeIsOverridden, attributeName, attributeContent, "Attribute sh
 {
 	auto mainString = std::string(arg);
 
-	auto result = mainString.rfind("\"" + std::string(attributeName) + "\":\"" + std::string(attributeContent) + "\"") != std::string::npos
-		&& mainString.rfind("\"dt.overridden_keys\":[\"" + std::string(attributeName) + "\"]") != std::string::npos;
+	auto result = mainString.rfind("\"" + std::string(attributeName) + "\":\"" + std::string(attributeContent) + "\"") != std::string::npos;
 
 	if (!result)
 	{
@@ -82,13 +81,13 @@ TEST_F(EventPayloadBuilderTest, addNonOverridableAttributeWhichIsAlreadyAvailabl
 {
 	// given
 	auto map = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
-	map->insert(std::make_pair("dt.sid", openkit::json::JsonStringValue::fromString("MySession")));
+	map->insert(std::make_pair("dt.rum.sid", openkit::json::JsonStringValue::fromString("MySession")));
 
 	EventPayloadBuilder eventPayloadBuilder(map, mockLogger);
-	eventPayloadBuilder.addNonOverridableAttribute("dt.sid", openkit::json::JsonStringValue::fromString("ComingFromAgent"));
+	eventPayloadBuilder.addNonOverridableAttribute("dt.rum.sid", openkit::json::JsonStringValue::fromString("ComingFromAgent"));
 
 	// then
-	ASSERT_THAT(eventPayloadBuilder.build(), testing::Eq("{\"dt.sid\":\"ComingFromAgent\"}"));
+	ASSERT_THAT(eventPayloadBuilder.build(), testing::Eq("{\"dt.rum.sid\":\"ComingFromAgent\"}"));
 }
 
 TEST_F(EventPayloadBuilderTest, addNonOverridableAttributeWhichIsNotAvailable)

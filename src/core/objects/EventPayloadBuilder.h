@@ -65,10 +65,7 @@ namespace core
 
 			/// Internal attributes
 			openkit::json::JsonObjectValue::JsonObjectMapPtr mAttributes;
-
-			/// List containing all keys which have been overridden by the customer
-			openkit::json::JsonArrayValue::JsonValueListPtr mOverriddenKeys;
-
+			
 			/// <summary>
 			/// Initialize the internal attribute dictionary and filter out the reserved internal keys already
 			/// </summary>

@@ -23,14 +23,11 @@ namespace core
 	{
 		constexpr const char* TIMESTAMP = "timestamp";
 		constexpr const char* EVENT_KIND = "event.kind";
-		constexpr const char* DT_AGENT_VERSION = "dt.agent.version";
-		constexpr const char* DT_AGENT_TECHNOLOGY_TYPE = "dt.agent.technology_type";
-		constexpr const char* DT_AGENT_FLAVOR = "dt.agent.flavor";
+		constexpr const char* EVENT_PROVIDER = "event.provider";
 		constexpr const char* APP_VERSION = "app.version";
 		constexpr const char* OS_NAME = "os.name";
 		constexpr const char* DEVICE_MANUFACTURER = "device.manufacturer";
 		constexpr const char* DEVICE_MODEL_IDENTIFIER = "device.model.identifier";
-		constexpr const char* WINDOW_ORIENTATION = "window.orientation";
 
 		constexpr const char* EVENT_KIND_RUM = "RUM_EVENT";
 		constexpr const char* EVENT_KIND_BIZ = "BIZ_EVENT";

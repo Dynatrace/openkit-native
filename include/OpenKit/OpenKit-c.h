@@ -566,13 +566,19 @@ extern "C" {
 	///
 	OPENKIT_EXPORT void reportCrash(struct SessionHandle* sessionHandle, const char* errorName, const char* reason, const char* stacktrace);
 
-	/// 
-	/// Reports a biz event with a mandatory type and additional attributes
-	/// 
+	///
+	/// Send a Business Event
+	///
+	/// With sendBizEvent, you can report a business event. These standalone events are being sent detached
+	/// from user actions or sessions.
+	///
+	/// Note: Business events are only supported on Dynatrace SaaS deployments currently.
+	///
 	/// @param[in] sessionHandle the handle returned by @ref createSession
-	/// @param[in] type type of the event which is mandatory
-	/// @param[in] attributes additional attributes which are passed along side our internal attributes 
-	/// 
+	/// @param[in] type Mandatory event type
+	/// @param[in] attributes Must be a valid JSON object. The resulting event will be populated 
+	/// the 'attributes'-parameter and enriched with additional properties. Therefore, even empty objects are valid.
+	///
 	OPENKIT_EXPORT void sendBizEvent(struct SessionHandle* sessionHandle, const char* type, OpenKitPair* attributes, size_t attributesSize);
 
 	/// 

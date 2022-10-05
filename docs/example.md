@@ -470,6 +470,29 @@ int64_t childActionDurationInMilliseconds = getDurationOfAction(childAction);
 int64_t rootActionDurationInMilliseconds = getDurationOfRootAction(parentAction);
 ```
 
+## Business events capturing
+
+With `sendBizEvent`, you can report business events. These events are standalone events, as OneAgent sends them detached from user actions or user sessions.
+
+For more information on business events, see [dynatrace documentation](https://www.dynatrace.com/support/help/how-to-use-dynatrace/business-analytics/ba-events-capturing#expand--example-configuration-files-for-rum--2).
+
+```c++
+auto attributes = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
+attributes->insert({"event.name", openkit::json::JsonStringValue::fromString("Confirmed Booking")});
+attributes->insert({"screen", openkit::json::JsonStringValue::fromString("booking-confirmation")});
+attributes->insert({"product", openkit::json::JsonStringValue::fromString("Hotel Passy Eiffel")});
+attributes->insert({"amount", openkit::json::JsonNumberValue::fromDouble(358.35)});
+attributes->insert({"currency", openkit::json::JsonStringValue::fromString("USD")});
+attributes->insert({"reviewScore", openkit::json::JsonNumberValue::fromDouble(4.8)});
+attributes->insert({"arrivalDate", openkit::json::JsonStringValue::fromString("2022-11-05")});
+attributes->insert({"departureDate", openkit::json::JsonStringValue::fromString("2022-11-15")});
+attributes->insert({"journeyDuration", openkit::json::JsonNumberValue::fromLong(10)});
+attributes->insert({"adultTravelers", openkit::json::JsonNumberValue::fromLong(2)});
+attributes->insert({"childrenTravelers", openkit::json::JsonNumberValue::fromLong(0)});
+
+session.sendBizEvent("com.easytravel.funnel.booking-finished", attributes);
+```
+
 ## Report Named Event
 
 To report a named event use the `reportEvent` method on `IAction`.

@@ -30,7 +30,6 @@ EventPayloadBuilder::EventPayloadBuilder
 )
 	: mLogger(logger)
 	, mAttributes(std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>())
-	, mOverriddenKeys(std::make_shared<std::list<std::shared_ptr<openkit::json::JsonValue>>>())
 {
 	initializeInternalAttributes(attributes);
 }
@@ -42,10 +41,6 @@ EventPayloadBuilder& EventPayloadBuilder::addOverridableAttribute(const char* ke
 		if (mAttributes->find(key) == mAttributes->end())
 		{
 			mAttributes->insert(std::make_pair(key, value));
-		}
-		else
-		{
-			mOverriddenKeys->push_back(openkit::json::JsonStringValue::fromString(key));
 		}
 	}
 
@@ -88,9 +83,5 @@ void EventPayloadBuilder::initializeInternalAttributes(openkit::json::JsonObject
 
 std::string EventPayloadBuilder::build()
 {
-	if (!mOverriddenKeys->empty()) {
-		addNonOverridableAttribute("dt.overridden_keys", openkit::json::JsonArrayValue::fromList(mOverriddenKeys));
-	}
-
 	return openkit::json::JsonObjectValue::fromMap(mAttributes)->toString();
 }
