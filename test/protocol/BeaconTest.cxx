@@ -1767,7 +1767,6 @@ TEST_F(BeaconTest, sendValidEventTryingToOverrideDtValuesWhichAreNotAllowed)
 	mapWithName->insert({ protocol::EVENT_PAYLOAD_INSTANCE_ID, openkit::json::JsonStringValue::fromString("trying to override") });
 	mapWithName->insert({ protocol::EVENT_PAYLOAD_SESSION_ID, openkit::json::JsonStringValue::fromString("trying to override") });
 	mapWithName->insert({ protocol::EVENT_SCHEMA_VERSION, openkit::json::JsonStringValue::fromString("trying to override") });
-	mapWithName->insert({ core::objects::EVENT_PROVIDER, openkit::json::JsonStringValue::fromString("trying to override") });
 
 	auto realMapPayload = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
 
@@ -1984,6 +1983,27 @@ TEST_F(BeaconTest, sendValidEventTryingToOverrideDeviceModelIdentifier)
 	// then
 	target->sendEvent(eventName, map);
 }
+
+TEST_F(BeaconTest, sendValidEventTryingToOverrideEventProvider)
+{
+	// given
+	Utf8String_t eventName("event name");
+	auto map = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
+	map->insert({ core::objects::EVENT_PROVIDER, openkit::json::JsonStringValue::fromString("Test") });
+
+	// expect
+	EXPECT_CALL(*mockBeaconCache, addEventData(
+		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
+		0,											// timestamp when error was reported
+		ContainsString("event.provider%22%3A%22Test%22%2C%22")
+	)).Times(1);
+
+	auto target = createBeacon()->build();
+
+	// then
+	target->sendEvent(eventName, map);
+}
+
 
 TEST_F(BeaconTest, sendEventWithEmptyEventNameThrowsException)
 {

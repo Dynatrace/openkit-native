@@ -635,8 +635,6 @@ void Beacon::sendBizEvent(const core::UTF8String& type, const openkit::json::Jso
 	auto builder = generateEventPayload(attributes);
 	builder->addNonOverridableAttribute("event.type", openkit::json::JsonStringValue::fromString(type.getStringData()));
 	builder->addNonOverridableAttribute(core::objects::EVENT_KIND, openkit::json::JsonStringValue::fromString(core::objects::EVENT_KIND_BIZ));
-	builder->addOverridableAttribute(core::objects::EVENT_PROVIDER, 
-		openkit::json::JsonStringValue::fromString(mBeaconConfiguration->getOpenKitConfiguration()->getApplicationId().getStringData()));
 
 	if (attributes == nullptr || attributes->find("event.name") == attributes->end())
 	{
@@ -666,8 +664,6 @@ void Beacon::sendEvent(const core::UTF8String& name, const openkit::json::JsonOb
 	auto builder = generateEventPayload(attributes);
 	builder->addNonOverridableAttribute("event.name", openkit::json::JsonStringValue::fromString(name.getStringData()));
 	builder->addOverridableAttribute(core::objects::EVENT_KIND, openkit::json::JsonStringValue::fromString(core::objects::EVENT_KIND_RUM));
-	builder->addNonOverridableAttribute(core::objects::EVENT_PROVIDER, 
-		openkit::json::JsonStringValue::fromString(mBeaconConfiguration->getOpenKitConfiguration()->getApplicationId().getStringData()));
 
 	sendEventPayload(*builder);
 }
@@ -704,6 +700,7 @@ std::shared_ptr<core::objects::EventPayloadBuilder> Beacon::generateEventPayload
 	builder->addOverridableAttribute(core::objects::OS_NAME, openkit::json::JsonStringValue::fromString(openKitConfig->getOperatingSystem().getStringData()));
 	builder->addOverridableAttribute(core::objects::DEVICE_MANUFACTURER, openkit::json::JsonStringValue::fromString(openKitConfig->getManufacturer().getStringData()));
 	builder->addOverridableAttribute(core::objects::DEVICE_MODEL_IDENTIFIER, openkit::json::JsonStringValue::fromString(openKitConfig->getModelId().getStringData()));
+	builder->addOverridableAttribute(core::objects::EVENT_PROVIDER, openkit::json::JsonStringValue::fromString(openKitConfig->getApplicationId().getStringData()));
 
 	return builder;
 }
