@@ -53,7 +53,6 @@ The following CMake options can be changed to customize the build.
 | OPENKIT_BUILD_TESTS | Build OpenKit tests | ON |
 | BUILD_DOC | Create and install the HTML based API documentation (requires Doxygen) | OFF |
 | OPENKIT_MONOLITHIC_SHARED_LIB | Build OpenKit dependencies as static lib and link them into a single DLL/SO | ON if BUILD_SHARED_LIBS is ON |
-| OPENKIT_32_BIT | Cross compile to x86 when Compiler is 64-bit GNU/Clang | OFF |
 
 The option `OPENKIT_FORCE_SHARED_CRT` only has effect when building with
 Visual Studio and only if `BUILD_SHARED_LIBS` is set to `OFF`.

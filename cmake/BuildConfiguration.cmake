@@ -46,10 +46,12 @@ endif()
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang"
 	OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang"
 	OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+endif()
 
-	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-		option(OPENKIT_32_BIT "Cross compile OpenKit to 32-bit" OFF)
-	endif()
+# Only x64 builds are allowed
+if(NOT CMAKE_SIZEOF_VOID_P EQUAL 8)
+    message(FATAL_ERROR "Please switch to x64 build.")
+    return()
 endif()
 
 # Set the paths where the executable, libraries and header paths

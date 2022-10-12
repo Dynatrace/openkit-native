@@ -13,6 +13,7 @@
 - Maximum length of reported error/crash reason has been limited to 1000.
 
 ### Removed
+* x86 32-bit build
 * `IWebRequestTracer::setResponseCode(int32_t responseCodee)`
 * `IWebRequestTracer::stop()`
 * `IRootAction::reportError(const char* errorName, int32_t errorCode, const char* reason)`

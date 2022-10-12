@@ -2,40 +2,6 @@
   // See https://go.microsoft.com//fwlink//?linkid=834763 for more information about this file.
   "configurations": [
     {
-      "name": "x86-Debug",
-      "generator": "Ninja",
-      "configurationType": "Debug",
-      "inheritEnvironments": [ "msvc_x86" ],
-      "buildRoot": "${projectDir}\\build\\${name}",
-      "installRoot": "${projectDir}\\install\\${name}",
-      "cmakeCommandArgs": "",
-      "buildCommandArgs": "-v",
-      "ctestCommandArgs": "",
-      "variables": [
-        {
-          "name": "OPENKIT_FORCE_SHARED_CRT",
-          "value": "ON"
-        }
-      ]
-    },
-    {
-      "name": "x86-Release",
-      "generator": "Ninja",
-      "configurationType": "RelWithDebInfo",
-      "inheritEnvironments": [ "msvc_x86" ],
-      "buildRoot": "${projectDir}\\build\\${name}",
-      "installRoot": "${projectDir}\\install\\${name}",
-      "cmakeCommandArgs": "",
-      "buildCommandArgs": "-v",
-      "ctestCommandArgs": "",
-      "variables": [
-        {
-          "name": "OPENKIT_FORCE_SHARED_CRT",
-          "value": "ON"
-        }
-      ]
-    },
-    {
       "name": "x64-Debug",
       "generator": "Ninja",
       "configurationType": "Debug",
@@ -71,40 +37,6 @@
     },
     // DLL targets
     {
-      "name": "x86-Debug DLL",
-      "generator": "Ninja",
-      "configurationType": "Debug",
-      "inheritEnvironments": [ "msvc_x86" ],
-      "buildRoot": "${projectDir}\\build\\${name}",
-      "installRoot": "${projectDir}\\install\\${name}",
-      "cmakeCommandArgs": "",
-      "buildCommandArgs": "-v",
-      "ctestCommandArgs": "",
-      "variables": [
-        {
-          "name": "BUILD_SHARED_LIBS",
-          "value": "ON"
-        }
-      ]
-    },
-    {
-      "name": "x86-Release DLL",
-      "generator": "Ninja",
-      "configurationType": "RelWithDebInfo",
-      "inheritEnvironments": [ "msvc_x86" ],
-      "buildRoot": "${projectDir}\\build\\${name}",
-      "installRoot": "${projectDir}\\install\\${name}",
-      "cmakeCommandArgs": "",
-      "buildCommandArgs": "-v",
-      "ctestCommandArgs": "",
-      "variables": [
-        {
-          "name": "BUILD_SHARED_LIBS",
-          "value": "ON"
-        }
-      ]
-    },
-    {
       "name": "x64-Debug DLL",
       "generator": "Ninja",
       "configurationType": "Debug",
@@ -139,48 +71,6 @@
       ]
     },
     // super monolithic releases
-    {
-      "name": "x86-Debug DLL (static CRT)",
-      "generator": "Ninja",
-      "configurationType": "Debug",
-      "inheritEnvironments": [ "msvc_x86" ],
-      "buildRoot": "${projectDir}\\build\\${name}",
-      "installRoot": "${projectDir}\\install\\${name}",
-      "cmakeCommandArgs": "",
-      "buildCommandArgs": "-v",
-      "ctestCommandArgs": "",
-      "variables": [
-        {
-          "name": "BUILD_SHARED_LIBS",
-          "value": "ON"
-        },
-        {
-          "name": "OPENKIT_FORCE_STATIC_CRT",
-          "value": "ON"
-        }
-      ]
-    },
-    {
-      "name": "x86-Release DLL (static CRT)",
-      "generator": "Ninja",
-      "configurationType": "RelWithDebInfo",
-      "inheritEnvironments": [ "msvc_x86" ],
-      "buildRoot": "${projectDir}\\build\\${name}",
-      "installRoot": "${projectDir}\\install\\${name}",
-      "cmakeCommandArgs": "",
-      "buildCommandArgs": "-v",
-      "ctestCommandArgs": "",
-      "variables": [
-        {
-          "name": "BUILD_SHARED_LIBS",
-          "value": "ON"
-        },
-        {
-          "name": "OPENKIT_FORCE_STATIC_CRT",
-          "value": "ON"
-        }
-      ]
-    },
     {
       "name": "x64-Debug DLL (static CRT)",
       "generator": "Ninja",

@@ -27,31 +27,19 @@ matrix:
 matrix:
   include:
     # gcc/g++ build
-    - name: "g++5 Release Dynamic x86_64"
+    - name: "g++5 Release Dynamic x64"
       os: linux
-      env: CC=gcc-5 CXX=g++-5 CMAKE_BUILD_TYPE=Release BUILD_SHARED_LIBS=ON OPENKIT_32_BIT=OFF
-    - name: "g++5 Release Static x86_64"
+      env: CC=gcc-5 CXX=g++-5 CMAKE_BUILD_TYPE=Release BUILD_SHARED_LIBS=ON
+    - name: "g++5 Release Static x64"
       os: linux
-      env: CC=gcc-5 CXX=g++-5 CMAKE_BUILD_TYPE=Release BUILD_SHARED_LIBS=OFF OPENKIT_32_BIT=OFF
-    - name: "g++5 Release Dynamic x86"
-      os: linux
-      env: CC=gcc-5 CXX=g++-5 CMAKE_BUILD_TYPE=Release BUILD_SHARED_LIBS=ON OPENKIT_32_BIT=ON
-    - name: "g++5 Release Static x86"
-      os: linux
-      env: CC=gcc-5 CXX=g++-5 CMAKE_BUILD_TYPE=Release BUILD_SHARED_LIBS=OFF OPENKIT_32_BIT=ON
+      env: CC=gcc-5 CXX=g++-5 CMAKE_BUILD_TYPE=Release BUILD_SHARED_LIBS=OFF
     # clang build
-    - name: "clang Release Dynamic x86_64"
+    - name: "clang Release Dynamic x64"
       os: linux
-      env: CC=clang-3.8 CXX=clang++-3.8 CMAKE_BUILD_TYPE=Release BUILD_SHARED_LIBS=ON OPENKIT_32_BIT=OFF
-    - name: "clang Release Static x86_64"
+      env: CC=clang-3.8 CXX=clang++-3.8 CMAKE_BUILD_TYPE=Release BUILD_SHARED_LIBS=ON
+    - name: "clang Release Static x64"
       os: linux
-      env: CC=clang-3.8 CXX=clang++-3.8 CMAKE_BUILD_TYPE=Release BUILD_SHARED_LIBS=OFF OPENKIT_32_BIT=OFF
-    - name: "clang Release Dynamic x86"
-      os: linux
-      env: CC=clang-3.8 CXX=clang++-3.8 CMAKE_BUILD_TYPE=Release BUILD_SHARED_LIBS=ON OPENKIT_32_BIT=ON
-    - name: "clang Release Static x86"
-      os: linux
-      env: CC=clang-3.8 CXX=clang++-3.8 CMAKE_BUILD_TYPE=Release BUILD_SHARED_LIBS=OFF OPENKIT_32_BIT=ON
+      env: CC=clang-3.8 CXX=clang++-3.8 CMAKE_BUILD_TYPE=Release BUILD_SHARED_LIBS=OFF
 
 # run before the script: is executed
 before_script:
