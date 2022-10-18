@@ -22,6 +22,7 @@
 #include "providers/FixedPRNGenerator.h"
 #include "providers/FixedSessionIDProvider.h"
 #include "providers/DefaultPRNGenerator.h"
+#include "core/objects/SupplementaryBasicData.h"
 
 using namespace core::objects;
 
@@ -40,6 +41,7 @@ SessionCreator::SessionCreator(ISessionCreatorInput& sessionCreatorInput, const 
 	, mSessionIdProvider(std::make_shared<providers::FixedSessionIDProvider>(mContinuousSessionIdProvider))
 	, mRandomNumberGenerator(std::make_shared<providers::FixedPRNGenerator>(mContinuousRandomNumberGenerator))
 	, mSessionSequenceNumber(0)
+	, mSupplementaryBasicData(std::make_shared<core::objects::SupplementaryBasicData>())
 {
 }
 
@@ -48,7 +50,7 @@ std::shared_ptr<SessionInternals> SessionCreator::createSession(std::shared_ptr<
 	auto configuration = core::configuration::BeaconConfiguration::from(mOpenKitConfiguration, mPrivacyConfiguration, mServerId);
 	auto beacon = std::make_shared<protocol::Beacon>(*this, configuration);
 
-	auto session = std::make_shared<Session>(mLogger, parent, beacon);
+	auto session = std::make_shared<Session>(mLogger, parent, beacon, mSupplementaryBasicData);
 	mSessionSequenceNumber++;
 
 	return session;
@@ -99,6 +101,11 @@ std::shared_ptr<providers::ITimingProvider> SessionCreator::getTiminigProvider()
 std::shared_ptr<providers::IPRNGenerator> SessionCreator::getRandomNumberGenerator() const
 {
 	return mRandomNumberGenerator;
+}
+
+std::shared_ptr<core::objects::ISupplementaryBasicData> SessionCreator::getSupplementaryBasicData() const
+{
+	return mSupplementaryBasicData;
 }
 
 int32_t SessionCreator::getSessionSequenceNumber() const

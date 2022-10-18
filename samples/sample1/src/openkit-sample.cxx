@@ -24,6 +24,8 @@
 
 #include "OpenKit/OpenKit.h"
 #include "CommandLineArguments.h"
+#include <OpenKit/json/JsonStringValue.h>
+#include <OpenKit/json/JsonNumberValue.h>
 
 constexpr char APPLICATION_VERSION[] = "1.2.3";
 
@@ -70,6 +72,24 @@ int32_t main(int32_t argc, char** argv)
 	{
 		std::shared_ptr<openkit::ISession> sampleSession = openKit->createSession("172.16.23.30");
 		sampleSession->identifyUser("test user");
+
+		auto attributes = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>(
+			std::initializer_list<openkit::json::JsonObjectValue::JsonObjectMap::value_type>{
+				{ "event.name", openkit::json::JsonStringValue::fromString("Confirmed Booking") },
+				{ "screen", openkit::json::JsonStringValue::fromString("booking-confirmation") },
+				{ "product", openkit::json::JsonStringValue::fromString("Danube Anna Hotel") },
+				{ "amount", openkit::json::JsonNumberValue::fromDouble(358.35) },
+				{ "currency", openkit::json::JsonStringValue::fromString("USD") },
+				{ "reviewScore", openkit::json::JsonNumberValue::fromDouble(4.8) },
+				{ "arrivalDate", openkit::json::JsonStringValue::fromString("2022-11-05") },
+				{ "departureDate", openkit::json::JsonStringValue::fromString("2022-11-15") },
+				{ "journeyDuration", openkit::json::JsonNumberValue::fromLong(10) },
+				{ "adultTravelers", openkit::json::JsonNumberValue::fromLong(2) },
+				{ "childrenTravelers", openkit::json::JsonNumberValue::fromLong(0) }
+			}
+		);
+
+		sampleSession->sendBizEvent("com.easytravel.funnel.booking-finished", attributes);
 
 		auto rootAction1 = sampleSession->enterAction("root action");
 		auto childAction1 = rootAction1->enterAction("child action");

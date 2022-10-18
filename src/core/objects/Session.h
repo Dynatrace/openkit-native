@@ -33,6 +33,7 @@
 #include "core/objects/IOpenKitComposite.h"
 #include "core/objects/IOpenKitObject.h"
 #include "core/objects/SessionInternals.h"
+#include "core/objects/ISupplementaryBasicData.h"
 #include "core/util/SynchronizedQueue.h"
 #include "providers/IHTTPClientProvider.h"
 #include "providers/IHTTPClientProvider.h"
@@ -69,11 +70,13 @@ namespace core
 			/// @param[in] logger to write traces to
 			/// @param[in] parent the parent composite of this session
 			/// @param[in] beacon beacon used for serialization
+			/// @param[in] supplementaryBasicData mutable basic data
 			///
 			Session(
 				std::shared_ptr<openkit::ILogger> logger,
 				std::shared_ptr<core::objects::IOpenKitComposite> parent,
-				std::shared_ptr<protocol::IBeacon> beacon
+				std::shared_ptr<protocol::IBeacon> beacon,
+				std::shared_ptr<core::objects::ISupplementaryBasicData> supplementaryBasicData
 			);
 
 			///
@@ -91,6 +94,12 @@ namespace core
 			void identifyUser(const char* userTag) override;
 
 			void reportCrash(const char* errorName, const char* reason, const char* stacktrace) override;
+
+			void reportNetworkTechnology(const char* technology) override;
+
+			void reportConnectionType(const openkit::ConnectionType connectionType) override;
+
+			void reportCarrier(const char* carrier) override;
 
 			std::shared_ptr<openkit::IWebRequestTracer> traceWebRequest(const char* url) override;
 
@@ -196,6 +205,9 @@ namespace core
 
 			/// beacon used for serialization
 			const std::shared_ptr<protocol::IBeacon> mBeacon;
+
+			/// Container for additional mutable basic data which can be set via session
+			const std::shared_ptr <core::objects::ISupplementaryBasicData> mSupplementaryBasicData;
 
 			/// the number of tries for new session requests.
 			int32_t mNumRemainingNewSessionRequests;

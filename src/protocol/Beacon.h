@@ -334,8 +334,11 @@ namespace protocol
 		/// timing provider
 		const std::shared_ptr<providers::ITimingProvider> mTimingProvider;
 
-		///random generator
+		/// random generator
 		const std::shared_ptr<providers::IPRNGenerator> mRandomGenerator;
+
+		/// mutable basic data
+		const std::shared_ptr<core::objects::ISupplementaryBasicData> mSupplementaryBasicData;
 
 		/// device id
 		int64_t mDeviceID;

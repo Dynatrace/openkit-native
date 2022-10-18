@@ -46,6 +46,11 @@ namespace protocol
 	constexpr const char BEACON_KEY_DEVICE_MANUFACTURER[] = "mf";
 	constexpr const char BEACON_KEY_DEVICE_MODEL[] = "md";
 
+	// additional metadata
+	constexpr const char BEACON_KEY_CONNECTION_TYPE[] = "ct";
+	constexpr const char BEACON_KEY_NETWORK_TECHNOLOGY[] = "np";
+	constexpr const char BEACON_KEY_CARRIER[] = "cr";
+
 	// timestamp constants
 	constexpr const char BEACON_KEY_SESSION_START_TIME[] = "tv";
 	constexpr const char BEACON_KEY_TRANSMISSION_TIME[] = "tx";

@@ -510,6 +510,15 @@ extern "C" {
 		const char* value;
 	} OpenKitPair;
 
+	typedef enum CONNECTION_TYPE
+	{
+		CONNECTION_TYPE_MOBILE = 0,
+		CONNECTION_TYPE_WIFI = 1,
+		CONNECTION_TYPE_OFFLINE = 2,
+		CONNECTION_TYPE_LAN = 3,
+		CONNECTION_TYPE_UNSET = 4
+	} CONNECTION_TYPE;
+
 	///
 	/// Creates a session instance which can then be used to create actions.
 	/// @param[in] openKitHandle   the handle returned by @ref createDynatraceOpenKit
@@ -565,6 +574,36 @@ extern "C" {
 	/// @param[in] stacktrace    stacktrace leading to that crash
 	///
 	OPENKIT_EXPORT void reportCrash(struct SessionHandle* sessionHandle, const char* errorName, const char* reason, const char* stacktrace);
+
+	///
+	/// Reports the network technology in use (e.g. 2G, 3G, 802.11x, offline, ...)
+	/// Use @c NULL instead of technology parameter to clear the value again, and it will no longer be sent with the next beacon.
+	/// 
+	/// @param[in] sessionHandle the handle returned by @ref createSession
+	/// @param[in] technology the used network technology
+	///
+	OPENKIT_EXPORT void reportNetworkTechnology(struct SessionHandle* sessionHandle, const char* technology);
+
+	///
+	/// Reports the name of the cellular network carrier.
+	/// Use @c NULL instead of carrier parameter to clear the value again, and it will no longer be sent with the next beacon.
+	/// 
+	/// /// @par
+	/// If the @c carrier is longer than 250 characters, it is truncated to this value.
+	/// 
+	/// @param[in] sessionHandle the handle returned by @ref createSession
+	/// @param[in] carrier the used carrier
+	///
+	OPENKIT_EXPORT void reportCarrier(struct SessionHandle* sessionHandle, const char* carrier);
+
+	///
+	/// Reports the type of connection with which the device is connected to the network.
+	/// Use @c CONNECTION_TYPE_UNSET to clear the value again, and it will no longer be sent with the next beacon.
+	/// 
+	/// @param[in] sessionHandle the handle returned by @ref createSession
+	/// @param[in] connectionType the type of connection
+	/// 
+	OPENKIT_EXPORT void reportConnectionType(struct SessionHandle* sessionHandle, const CONNECTION_TYPE connectionType);
 
 	///
 	/// Send a Business Event

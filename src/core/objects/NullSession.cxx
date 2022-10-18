@@ -42,6 +42,21 @@ void NullSession::reportCrash(const char* /*errorName*/, const char* /*reason*/,
 	// intentionally left empty, due to NullObject pattern
 }
 
+void NullSession::reportNetworkTechnology(const char* /*technology*/)
+{
+	// intentionally left empty, due to NullObject pattern
+}
+
+void NullSession::reportConnectionType(const openkit::ConnectionType /*connectionType*/)
+{
+	// intentionally left empty, due to NullObject pattern
+}
+
+void NullSession::reportCarrier(const char* /*carrier*/)
+{
+	// intentionally left empty, due to NullObject pattern
+}
+
 std::shared_ptr<openkit::IWebRequestTracer> NullSession::traceWebRequest(const char* /*url*/)
 {
 	return NullWebRequestTracer::instance();

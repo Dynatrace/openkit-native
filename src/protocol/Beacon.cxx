@@ -20,6 +20,7 @@
 #include "core/util/URLEncoding.h"
 #include "core/util/InetAddressValidator.h"
 #include "core/util/StringUtil.h"
+#include "core/util/ConnectionTypeUtil.h"
 #include "providers/DefaultPRNGenerator.h"
 #include "OpenKit/json/JsonObjectValue.h"
 #include "OpenKit/json/JsonStringValue.h"
@@ -49,6 +50,7 @@ Beacon::Beacon(const protocol::IBeaconInitializer& initializer, const std::share
 	, mSessionSequenceNumber(initializer.getSessionSequenceNumber())
 	, mSessionStartTime(initializer.getTiminigProvider()->provideTimestampInMilliseconds())
 	, mImmutableBasicBeaconData()
+	, mSupplementaryBasicData(initializer.getSupplementaryBasicData())
 
 {
 	if (mUseClientIpAddress && !core::util::InetAddressValidator::IsValidIP(mClientIPAddress))
@@ -722,7 +724,7 @@ core::UTF8String Beacon::getMutableBeaconData()
 	const auto visitStoreVersion = getVisitStoreVersion();
 	addKeyValuePair(mutableBeaconData, BEACON_KEY_VISIT_STORE_VERSION, visitStoreVersion);
 
-	if( visitStoreVersion > 1 ) {
+	if(visitStoreVersion > 1) {
 		addKeyValuePair(mutableBeaconData, BEACON_KEY_SESSION_SEQUENCE, mSessionSequenceNumber);
 	}
 
@@ -730,6 +732,21 @@ core::UTF8String Beacon::getMutableBeaconData()
 	mutableBeaconData.concatenate(createTimestampData());
 	mutableBeaconData.concatenate(delimiter);
 	mutableBeaconData.concatenate(createMultiplicityData());
+
+	if (mSupplementaryBasicData->isNetworkTechnologyAvailable())
+	{
+		addKeyValuePair(mutableBeaconData, BEACON_KEY_NETWORK_TECHNOLOGY, mSupplementaryBasicData->getNetworkTechnology());
+	}
+
+	if (mSupplementaryBasicData->isCarrierAvailable())
+	{
+		addKeyValuePair(mutableBeaconData, BEACON_KEY_CARRIER, truncate(mSupplementaryBasicData->getCarrier()));
+	}
+
+	if (mSupplementaryBasicData->isConnectionTypeAvailable() && mSupplementaryBasicData->getConnectionType() != openkit::ConnectionType::UNSET)
+	{
+		addKeyValuePair(mutableBeaconData, BEACON_KEY_CONNECTION_TYPE, core::util::ConnectionTypeToString(mSupplementaryBasicData->getConnectionType()));
+	}
 
 	return mutableBeaconData;
 }

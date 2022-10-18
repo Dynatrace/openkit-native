@@ -91,6 +91,33 @@ namespace test
 		);
 
 		MOCK_METHOD(
+			void,
+			reportCarrier,
+			(
+				const char* /* carrier */
+			),
+			(override)
+		);
+
+		MOCK_METHOD(
+			void,
+			reportNetworkTechnology,
+			(
+				const char* /* technology */
+			),
+			(override)
+		);
+
+		MOCK_METHOD(
+			void,
+			reportConnectionType,
+			(
+				const openkit::ConnectionType /* connectionType */
+			),
+			(override)
+		);
+
+		MOCK_METHOD(
 			std::shared_ptr<openkit::IWebRequestTracer>,
 			traceWebRequest,
 			(

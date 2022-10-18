@@ -21,6 +21,7 @@
 #include "../../mock/MockIBeaconSender.h"
 #include "../../../api/mock/MockILogger.h"
 #include "../../../protocol/mock/MockIBeacon.h"
+#include "../../../core/objects/mock/MockISupplementaryBasicData.h"
 
 #include "OpenKit/ILogger.h"
 #include "core/IBeaconSender.h"
@@ -38,6 +39,7 @@ namespace test
 			: mLogger(nullptr)
 			, mParent(nullptr)
 			, mBeacon(nullptr)
+			, mSupplementaryBasicData(nullptr)
 		{
 		}
 
@@ -59,16 +61,24 @@ namespace test
 			return *this;
 		}
 
+		TestSessionBuilder& with(std::shared_ptr<core::objects::ISupplementaryBasicData> supplementaryBasicData)
+		{
+			mSupplementaryBasicData = supplementaryBasicData;
+			return *this;
+		}
+
 		std::shared_ptr<core::objects::Session> build()
 		{
 			auto logger = mLogger != nullptr ? mLogger : MockILogger::createNice();
 			auto parent = mParent != nullptr ? mParent : MockIOpenKitComposite::createNice();
 			auto beacon = mBeacon != nullptr ? mBeacon : MockIBeacon::createNice();
+			auto supplementaryBasicData = mSupplementaryBasicData != nullptr ? mSupplementaryBasicData : MockISupplementaryBasicData::createNice();
 
 			return std::make_shared<core::objects::Session>(
 				logger,
 				parent,
-				beacon
+				beacon,
+				supplementaryBasicData
 			);
 		}
 
@@ -77,6 +87,7 @@ namespace test
 		std::shared_ptr<openkit::ILogger> mLogger;
 		std::shared_ptr<core::objects::IOpenKitComposite> mParent;
 		std::shared_ptr<protocol::IBeacon> mBeacon;
+		std::shared_ptr<core::objects::ISupplementaryBasicData> mSupplementaryBasicData;
 	};
 }
 

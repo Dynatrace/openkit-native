@@ -986,6 +986,25 @@ extern "C" {
 	//  Session
 	//--------------
 
+	static openkit::ConnectionType toCppConnectionType(CONNECTION_TYPE cConnectionType)
+	{
+		switch (cConnectionType)
+		{
+		case CONNECTION_TYPE_LAN:
+			return openkit::ConnectionType::LAN;
+		case CONNECTION_TYPE_MOBILE:
+			return openkit::ConnectionType::MOBILE;
+		case CONNECTION_TYPE_OFFLINE:
+			return openkit::ConnectionType::OFFLINE;
+		case CONNECTION_TYPE_WIFI:
+			return openkit::ConnectionType::WIFI;
+		case CONNECTION_TYPE_UNSET:
+			return openkit::ConnectionType::UNSET;
+		default:
+			return openkit::ConnectionType::UNSET;
+		}
+	}
+
 	typedef struct SessionHandle
 	{
 		std::shared_ptr<openkit::ISession> sharedPointer = nullptr;
@@ -1067,6 +1086,48 @@ extern "C" {
 				// retrieve the Session instance from the handle and call the respective method
 				assert(sessionHandle->sharedPointer != nullptr);
 				sessionHandle->sharedPointer->reportCrash(errorName, reason, stacktrace);
+			}
+		}
+		CATCH_AND_LOG(sessionHandle)
+	}
+
+	void reportNetworkTechnology(struct SessionHandle* sessionHandle, const char* technology)
+	{
+		TRY
+		{
+			if (sessionHandle)
+			{
+				// retrieve the Session instance from the handle and call the respective method
+				assert(sessionHandle->sharedPointer != nullptr);
+				sessionHandle->sharedPointer->reportNetworkTechnology(technology);
+			}
+		}
+		CATCH_AND_LOG(sessionHandle)
+	}
+
+	void reportCarrier(struct SessionHandle* sessionHandle, const char* carrier)
+	{
+		TRY
+		{
+			if (sessionHandle)
+			{
+				// retrieve the Session instance from the handle and call the respective method
+				assert(sessionHandle->sharedPointer != nullptr);
+				sessionHandle->sharedPointer->reportCarrier(carrier);
+			}
+		}
+		CATCH_AND_LOG(sessionHandle)
+	}
+
+	void reportConnectionType(struct SessionHandle* sessionHandle, const CONNECTION_TYPE connectionType)
+	{
+		TRY
+		{
+			if (sessionHandle)
+			{
+				// retrieve the Session instance from the handle and call the respective method
+				assert(sessionHandle->sharedPointer != nullptr);
+				sessionHandle->sharedPointer->reportConnectionType(toCppConnectionType(connectionType));
 			}
 		}
 		CATCH_AND_LOG(sessionHandle)

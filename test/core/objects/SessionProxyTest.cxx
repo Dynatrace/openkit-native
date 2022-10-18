@@ -841,6 +841,154 @@ TEST_F(SessionProxyTest, sendEventDoesNotSplitSession)
     ASSERT_THAT(target->getTopLevelActionCount(), testing::Eq(0));
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// report mutable supplementary basic data tests
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+TEST_F(SessionProxyTest, reportEmptyNetworkTechnology)
+{
+    // expect
+    EXPECT_CALL(*mockLogger, mockWarning("SessionProxy [sn=0, seq=0] reportNetworkTechnology: technology must be null or non-empty string"))
+        .Times(1);
+    EXPECT_CALL(*mockSession, reportNetworkTechnology(testing::_))
+        .Times(0);
+
+    // given
+    auto target = createSessionProxy();
+
+    // when
+    target->reportNetworkTechnology("");
+}
+
+TEST_F(SessionProxyTest, reportNullPtrNetworkTechnology)
+{
+    // expect
+    EXPECT_CALL(*mockLogger, isDebugEnabled())
+        .Times(1)
+        .WillOnce(testing::Return(true));
+    EXPECT_CALL(*mockLogger, mockDebug("SessionProxy [sn=0, seq=0] reportNetworkTechnology(null)"))
+        .Times(1);
+    EXPECT_CALL(*mockSession, reportNetworkTechnology(testing::Eq(nullptr)))
+        .Times(1);
+
+    // given
+    auto target = createSessionProxy();
+
+    // when
+    target->reportNetworkTechnology(nullptr);
+}
+
+TEST_F(SessionProxyTest, reportValidNetworkTechnology)
+{
+    // with
+    const char* technology = "technology";
+
+    // expect
+    EXPECT_CALL(*mockLogger, isDebugEnabled())
+        .Times(1)
+        .WillOnce(testing::Return(true));
+    EXPECT_CALL(*mockLogger, mockDebug("SessionProxy [sn=0, seq=0] reportNetworkTechnology(technology)"))
+        .Times(1);
+    EXPECT_CALL(*mockSession, reportNetworkTechnology(testing::Eq(technology)))
+        .Times(1);
+
+    // given
+    auto target = createSessionProxy();
+
+    // when
+    target->reportNetworkTechnology(technology);
+}
+
+TEST_F(SessionProxyTest, reportEmptyCarrier)
+{
+    // expect
+    EXPECT_CALL(*mockLogger, mockWarning("SessionProxy [sn=0, seq=0] reportCarrier: carrier must be null or non-empty string"))
+        .Times(1);
+    EXPECT_CALL(*mockSession, reportCarrier(testing::_))
+        .Times(0);
+
+    // given
+    auto target = createSessionProxy();
+
+    // when
+    target->reportCarrier("");
+}
+
+TEST_F(SessionProxyTest, reportNullPtrCarrier)
+{
+    // expect
+    EXPECT_CALL(*mockLogger, isDebugEnabled())
+        .Times(1)
+        .WillOnce(testing::Return(true));
+    EXPECT_CALL(*mockLogger, mockDebug("SessionProxy [sn=0, seq=0] reportCarrier(null)"))
+        .Times(1);
+    EXPECT_CALL(*mockSession, reportCarrier(testing::Eq(nullptr)))
+        .Times(1);
+
+    // given
+    auto target = createSessionProxy();
+
+    // when
+    target->reportCarrier(nullptr);
+}
+
+TEST_F(SessionProxyTest, reportValidCarrier)
+{
+    // with
+    const char* carrier = "carrier";
+
+    // expect
+    EXPECT_CALL(*mockLogger, isDebugEnabled())
+        .Times(1)
+        .WillOnce(testing::Return(true));
+    EXPECT_CALL(*mockLogger, mockDebug("SessionProxy [sn=0, seq=0] reportCarrier(carrier)"))
+        .Times(1);
+    EXPECT_CALL(*mockSession, reportCarrier(testing::Eq(carrier)))
+        .Times(1);
+
+    // given
+    auto target = createSessionProxy();
+
+    // when
+    target->reportCarrier(carrier);
+}
+
+TEST_F(SessionProxyTest, reportUnsetConnectionType)
+{
+    // expect
+    EXPECT_CALL(*mockLogger, isDebugEnabled())
+        .Times(1)
+        .WillOnce(testing::Return(true));
+    EXPECT_CALL(*mockLogger, mockDebug("SessionProxy [sn=0, seq=0] reportConnectionType(null)"))
+        .Times(1);
+    EXPECT_CALL(*mockSession, reportConnectionType(testing::Eq(openkit::ConnectionType::UNSET)))
+        .Times(1);
+
+    // given
+    auto target = createSessionProxy();
+
+    // when
+    target->reportConnectionType(openkit::ConnectionType::UNSET);
+}
+
+TEST_F(SessionProxyTest, reportValidConnectionType)
+{
+    // expect
+    EXPECT_CALL(*mockLogger, isDebugEnabled())
+        .Times(1)
+        .WillOnce(testing::Return(true));
+    EXPECT_CALL(*mockLogger, mockDebug("SessionProxy [sn=0, seq=0] reportConnectionType(l)"))
+        .Times(1);
+    EXPECT_CALL(*mockSession, reportConnectionType(testing::Eq(openkit::ConnectionType::LAN)))
+        .Times(1);
+
+    // given
+    auto target = createSessionProxy();
+
+    // when
+    target->reportConnectionType(openkit::ConnectionType::LAN);
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// report crash tests
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

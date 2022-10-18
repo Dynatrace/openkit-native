@@ -50,6 +50,12 @@ namespace core
 
 			void reportCrash(const char* errorName, const char* reason, const char* stacktrace) override = 0;
 
+			void reportNetworkTechnology(const char* technology) override = 0;
+
+			void reportConnectionType(const openkit::ConnectionType connectionType) override = 0;
+
+			void reportCarrier(const char* carrier) override = 0;
+
 			std::shared_ptr<openkit::IWebRequestTracer> traceWebRequest(const char* url) override = 0;
 
 			void end() override = 0;

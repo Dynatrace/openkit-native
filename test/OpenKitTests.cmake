@@ -60,6 +60,7 @@ set(OPENKIT_SOURCES_TEST_CORE_OBJECTS
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/SessionCreatorTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/SessionProxyTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/SessionTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/SupplementaryBasicDataTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/WebRequestTracerTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/WebRequestTracerURLValidityTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/builder/TestOpenKitBuilder.h
@@ -74,6 +75,7 @@ set(OPENKIT_SOURCES_TEST_CORE_OBJECTS
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockISessionProxy.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockIWebRequestTracerInternals.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockSessionInternals.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/mock/MockISupplementaryBasicData.h
 )
 
 set(OPENKIT_SOURCES_TEST_CORE_UTIL
@@ -85,7 +87,7 @@ set(OPENKIT_SOURCES_TEST_CORE_UTIL
     ${CMAKE_CURRENT_LIST_DIR}/core/util/SynchronizedQueueTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/util/ThreadSurrogateTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/util/URLEncodingTest.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/core/util//mock/MockIInterruptibleThreadSuspender.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/util/mock/MockIInterruptibleThreadSuspender.h
 )
 
 set(OPENKIT_SOURCES_TEST_PROTOCOL

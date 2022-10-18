@@ -21,6 +21,7 @@
 
 #include "core/UTF8String.h"
 #include "core/caching/IBeaconCache.h"
+#include "core/objects/ISupplementaryBasicData.h"
 #include "providers/ISessionIDProvider.h"
 #include "providers/ITimingProvider.h"
 #include "providers/IThreadIDProvider.h"
@@ -85,6 +86,11 @@ namespace protocol
 		/// Returns the IPRNGenerator to obtain random numbers (e.g. for randomizing device IDs).
 		///
 		virtual std::shared_ptr<providers::IPRNGenerator> getRandomNumberGenerator() const = 0;
+
+		///
+		/// Returns the SupplementaryBasicData to obtain additional mutable basic data
+		///
+		virtual std::shared_ptr<core::objects::ISupplementaryBasicData> getSupplementaryBasicData() const = 0;
 	};
 }
 

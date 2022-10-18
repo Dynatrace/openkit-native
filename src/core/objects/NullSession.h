@@ -21,6 +21,7 @@
 #include "OpenKit/IRootAction.h"
 #include "OpenKit/IWebRequestTracer.h"
 #include <OpenKit/json/JsonValue.h>
+#include <OpenKit/ConnectionType.h>
 
 #include <memory>
 
@@ -44,6 +45,12 @@ namespace core
 			void identifyUser(const char* /*userTag*/) override;
 
 			void reportCrash(const char* /*errorName*/, const char* /*reason*/, const char* /*stacktrace*/) override;
+
+			void reportNetworkTechnology(const char* /*technology*/) override;
+
+			void reportConnectionType(const openkit::ConnectionType /*connectionType*/) override;
+
+			void reportCarrier(const char* /*carrier*/) override;
 
 			std::shared_ptr<openkit::IWebRequestTracer> traceWebRequest(const char* /*url*/) override;
 

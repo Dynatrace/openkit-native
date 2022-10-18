@@ -71,6 +71,8 @@ namespace core
 
 			std::shared_ptr<providers::IPRNGenerator> getRandomNumberGenerator() const override;
 
+			std::shared_ptr<core::objects::ISupplementaryBasicData> getSupplementaryBasicData() const override;
+
 		private:
 
 			/// log message reporter
@@ -99,6 +101,8 @@ namespace core
 
 			std::shared_ptr<providers::ISessionIDProvider> mSessionIdProvider;
 			std::shared_ptr<providers::IPRNGenerator> mRandomNumberGenerator;
+
+			std::shared_ptr<core::objects::ISupplementaryBasicData> mSupplementaryBasicData;
 
 			int32_t mSessionSequenceNumber;
 		};

@@ -47,6 +47,7 @@
 #include "../core/objects/mock/MockIActionCommon.h"
 #include "../core/objects/mock/MockSessionInternals.h"
 #include "../core/objects/mock/MockIWebRequestTracerInternals.h"
+#include "../core/objects/mock/MockISupplementaryBasicData.h"
 #include "../protocol/mock/MockIAdditionalQueryParameters.h"
 #include "../protocol/mock/MockIStatusResponse.h"
 #include "../providers/mock/MockIHTTPClientProvider.h"
@@ -70,6 +71,7 @@ using MockILogger_sp = std::shared_ptr<MockILogger>;
 using MockIOpenKitConfiguration_sp = std::shared_ptr<MockIOpenKitConfiguration>;
 using MockIPrivacyConfiguration_sp = std::shared_ptr<MockIPrivacyConfiguration>;
 using MockIPRNGenerator_sp = std::shared_ptr<MockIPRNGenerator>;
+using MockISupplementaryBasicData_sp = std::shared_ptr<MockISupplementaryBasicData>;
 using MockIServerConfiguration_sp = std::shared_ptr<MockIServerConfiguration>;
 using MockIAdditionalQueryParameters_sp = std::shared_ptr<MockIAdditionalQueryParameters>;
 using MockISessionIDProvider_sp = std::shared_ptr<MockISessionIDProvider>;
@@ -178,6 +180,7 @@ protected:
 	MockISessionIDProvider_sp mockSessionIDProvider;
 	MockIThreadIDProvider_sp mockThreadIdProvider;
 	MockITimingProvider_sp mockTimingProvider;
+	MockISupplementaryBasicData_sp mockSupplementaryBasicData;
 
 	MockILogger_sp mockLogger;
 	MockIBeaconCache_sp mockBeaconCache;
@@ -238,6 +241,7 @@ protected:
 			.WillByDefault(testing::Return(THREAD_ID));
 
 		mockTimingProvider = MockITimingProvider::createNice();
+		mockSupplementaryBasicData = MockISupplementaryBasicData::createNice();
 
 		mockLogger = MockILogger::createNice();
 		mockBeaconCache = MockIBeaconCache::createStrict();
@@ -253,8 +257,7 @@ protected:
 			.with(mockSessionIDProvider)
 			.withSessionSequenceNumber(SESSION_SEQUENCE)
 			.with(mockThreadIdProvider)
-			.with(mockTimingProvider)
-		;
+			.with(mockTimingProvider);
 
 		return builder;
 	}
@@ -1489,6 +1492,228 @@ TEST_F(BeaconTest, namedEventNotReportedIfDisallowedByTrafficControl)
 
 	// when
 	target->reportEvent(1, eventName);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// report mutable supplementary basic data
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+TEST_F(BeaconTest, reportNetworkTechnology)
+{
+	// expect
+	EXPECT_CALL(*mockBeaconCache, prepareDataForSending(testing::_))
+		.Times(1);
+	EXPECT_CALL(*mockBeaconCache, hasDataForSending(testing::_))
+		.Times(1)
+		.WillOnce(testing::Return(true));
+
+	// given
+	const int32_t sessionSequence = 1213;
+	const int32_t visitStoreVersion = 2;
+	const auto ipAddress = "192.168.0.1";
+	const core::UTF8String appVersion{ "1111" };
+	const core::UTF8String os{ "system" };
+	const core::UTF8String manufacturer{ "manufacturer" };
+	const core::UTF8String modelId{ "model" };
+	const core::UTF8String networkTechnology{ "technology" };
+
+	ON_CALL(*mockSupplementaryBasicData, getNetworkTechnology())
+		.WillByDefault(testing::ReturnRef(networkTechnology));
+	ON_CALL(*mockSupplementaryBasicData, isNetworkTechnologyAvailable())
+		.WillByDefault(testing::Return(true));
+
+	ON_CALL(*mockOpenKitConfiguration, getApplicationVersion())
+		.WillByDefault(testing::ReturnRef(appVersion));
+	ON_CALL(*mockOpenKitConfiguration, getOperatingSystem())
+		.WillByDefault(testing::ReturnRef(os));
+	ON_CALL(*mockOpenKitConfiguration, getManufacturer())
+		.WillByDefault(testing::ReturnRef(manufacturer));
+	ON_CALL(*mockOpenKitConfiguration, getModelId())
+		.WillByDefault(testing::ReturnRef(modelId));
+	ON_CALL(*mockServerConfiguration, getVisitStoreVersion())
+		.WillByDefault(testing::Return(visitStoreVersion));
+
+	// expect
+	std::stringstream expectedPrefix;
+	expectedPrefix << "vv=" << protocol::PROTOCOL_VERSION
+		<< "&va=" << protocol::OPENKIT_VERSION
+		<< "&ap=" << APP_ID.getStringData()
+		<< "&vn=" << appVersion.getStringData()
+		<< "&pt=" << protocol::PLATFORM_TYPE_OPENKIT
+		<< "&tt=" << protocol::AGENT_TECHNOLOGY_TYPE
+		<< "&vi=" << DEVICE_ID
+		<< "&sn=" << SESSION_ID
+		<< "&ip=" << ipAddress
+		<< "&os=system"
+		<< "&mf=manufacturer"
+		<< "&md=model"
+		<< "&dl=2"
+		<< "&cl=2"
+		<< "&vs=" << visitStoreVersion
+		<< "&ss=" << sessionSequence
+		<< "&tx=0"
+		<< "&tv=0"
+		<< "&mp=" << MULTIPLICITY
+		<< "&np=" << networkTechnology.getStringData();
+
+	const core::UTF8String expected{ expectedPrefix.str() };
+	EXPECT_CALL(*mockBeaconCache, getNextBeaconChunk(testing::_, expected, testing::_, testing::_))
+		.Times(1)
+		.WillRepeatedly(testing::ReturnNull());
+
+	// when
+	auto target = createBeacon()->withIpAddress(ipAddress)
+		.with(mockSupplementaryBasicData)
+		.withSessionSequenceNumber(sessionSequence)
+		.build();
+
+	auto httpClientProvider = MockIHTTPClientProvider::createNice();
+	target->send(httpClientProvider, *mockAdditionalQueryParameters);
+}
+
+TEST_F(BeaconTest, reportCarrier)
+{
+	// expect
+	EXPECT_CALL(*mockBeaconCache, prepareDataForSending(testing::_))
+		.Times(1);
+	EXPECT_CALL(*mockBeaconCache, hasDataForSending(testing::_))
+		.Times(1)
+		.WillOnce(testing::Return(true));
+
+	// given
+	const int32_t sessionSequence = 1213;
+	const int32_t visitStoreVersion = 2;
+	const auto ipAddress = "192.168.0.1";
+	const core::UTF8String appVersion{ "1111" };
+	const core::UTF8String os{ "system" };
+	const core::UTF8String manufacturer{ "manufacturer" };
+	const core::UTF8String modelId{ "model" };
+	const core::UTF8String carrier{ "carrier" };
+
+	ON_CALL(*mockSupplementaryBasicData, getCarrier())
+		.WillByDefault(testing::ReturnRef(carrier));
+	ON_CALL(*mockSupplementaryBasicData, isCarrierAvailable())
+		.WillByDefault(testing::Return(true));
+
+	ON_CALL(*mockOpenKitConfiguration, getApplicationVersion())
+		.WillByDefault(testing::ReturnRef(appVersion));
+	ON_CALL(*mockOpenKitConfiguration, getOperatingSystem())
+		.WillByDefault(testing::ReturnRef(os));
+	ON_CALL(*mockOpenKitConfiguration, getManufacturer())
+		.WillByDefault(testing::ReturnRef(manufacturer));
+	ON_CALL(*mockOpenKitConfiguration, getModelId())
+		.WillByDefault(testing::ReturnRef(modelId));
+	ON_CALL(*mockServerConfiguration, getVisitStoreVersion())
+		.WillByDefault(testing::Return(visitStoreVersion));
+
+	// expect
+	std::stringstream expectedPrefix;
+	expectedPrefix << "vv=" << protocol::PROTOCOL_VERSION
+		<< "&va=" << protocol::OPENKIT_VERSION
+		<< "&ap=" << APP_ID.getStringData()
+		<< "&vn=" << appVersion.getStringData()
+		<< "&pt=" << protocol::PLATFORM_TYPE_OPENKIT
+		<< "&tt=" << protocol::AGENT_TECHNOLOGY_TYPE
+		<< "&vi=" << DEVICE_ID
+		<< "&sn=" << SESSION_ID
+		<< "&ip=" << ipAddress
+		<< "&os=system"
+		<< "&mf=manufacturer"
+		<< "&md=model"
+		<< "&dl=2"
+		<< "&cl=2"
+		<< "&vs=" << visitStoreVersion
+		<< "&ss=" << sessionSequence
+		<< "&tx=0"
+		<< "&tv=0"
+		<< "&mp=" << MULTIPLICITY
+		<< "&cr=" << carrier.getStringData();
+
+	const core::UTF8String expected{ expectedPrefix.str() };
+	EXPECT_CALL(*mockBeaconCache, getNextBeaconChunk(testing::_, expected, testing::_, testing::_))
+		.Times(1)
+		.WillRepeatedly(testing::ReturnNull());
+
+	// when
+	auto target = createBeacon()->withIpAddress(ipAddress)
+		.with(mockSupplementaryBasicData)
+		.withSessionSequenceNumber(sessionSequence)
+		.build();
+
+	auto httpClientProvider = MockIHTTPClientProvider::createNice();
+	target->send(httpClientProvider, *mockAdditionalQueryParameters);
+}
+
+TEST_F(BeaconTest, reportConnectionType)
+{
+	// expect
+	EXPECT_CALL(*mockBeaconCache, prepareDataForSending(testing::_))
+		.Times(1);
+	EXPECT_CALL(*mockBeaconCache, hasDataForSending(testing::_))
+		.Times(1)
+		.WillOnce(testing::Return(true));
+
+	// given
+	const int32_t sessionSequence = 1213;
+	const int32_t visitStoreVersion = 2;
+	const auto ipAddress = "192.168.0.1";
+	const core::UTF8String appVersion{ "1111" };
+	const core::UTF8String os{ "system" };
+	const core::UTF8String manufacturer{ "manufacturer" };
+	const core::UTF8String modelId{ "model" };
+
+	ON_CALL(*mockSupplementaryBasicData, getConnectionType())
+		.WillByDefault(testing::Return(openkit::ConnectionType::MOBILE));
+	ON_CALL(*mockSupplementaryBasicData, isConnectionTypeAvailable())
+		.WillByDefault(testing::Return(true));
+
+	ON_CALL(*mockOpenKitConfiguration, getApplicationVersion())
+		.WillByDefault(testing::ReturnRef(appVersion));
+	ON_CALL(*mockOpenKitConfiguration, getOperatingSystem())
+		.WillByDefault(testing::ReturnRef(os));
+	ON_CALL(*mockOpenKitConfiguration, getManufacturer())
+		.WillByDefault(testing::ReturnRef(manufacturer));
+	ON_CALL(*mockOpenKitConfiguration, getModelId())
+		.WillByDefault(testing::ReturnRef(modelId));
+	ON_CALL(*mockServerConfiguration, getVisitStoreVersion())
+		.WillByDefault(testing::Return(visitStoreVersion));
+
+	// expect
+	std::stringstream expectedPrefix;
+	expectedPrefix << "vv=" << protocol::PROTOCOL_VERSION
+		<< "&va=" << protocol::OPENKIT_VERSION
+		<< "&ap=" << APP_ID.getStringData()
+		<< "&vn=" << appVersion.getStringData()
+		<< "&pt=" << protocol::PLATFORM_TYPE_OPENKIT
+		<< "&tt=" << protocol::AGENT_TECHNOLOGY_TYPE
+		<< "&vi=" << DEVICE_ID
+		<< "&sn=" << SESSION_ID
+		<< "&ip=" << ipAddress
+		<< "&os=system"
+		<< "&mf=manufacturer"
+		<< "&md=model"
+		<< "&dl=2"
+		<< "&cl=2"
+		<< "&vs=" << visitStoreVersion
+		<< "&ss=" << sessionSequence
+		<< "&tx=0"
+		<< "&tv=0"
+		<< "&mp=" << MULTIPLICITY
+		<< "&ct=m";
+
+	const core::UTF8String expected{ expectedPrefix.str() };
+	EXPECT_CALL(*mockBeaconCache, getNextBeaconChunk(testing::_, expected, testing::_, testing::_))
+		.Times(1)
+		.WillRepeatedly(testing::ReturnNull());
+
+	// when
+	auto target = createBeacon()->withIpAddress(ipAddress)
+		.with(mockSupplementaryBasicData)
+		.withSessionSequenceNumber(sessionSequence)
+		.build();
+
+	auto httpClientProvider = MockIHTTPClientProvider::createNice();
+	target->send(httpClientProvider, *mockAdditionalQueryParameters);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -56,6 +56,8 @@ namespace test
 		MOCK_METHOD(std::shared_ptr<providers::ITimingProvider>, getTiminigProvider, (), (const, override));
 
 		MOCK_METHOD(std::shared_ptr<providers::IPRNGenerator>, getRandomNumberGenerator, (), (const, override));
+
+		MOCK_METHOD(std::shared_ptr<core::objects::ISupplementaryBasicData>, getSupplementaryBasicData, (), (const, override));
 	};
 }
 

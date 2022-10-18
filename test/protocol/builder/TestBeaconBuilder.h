@@ -25,6 +25,7 @@
 #include "../../providers/mock/MockISessionIDProvider.h"
 #include "../../providers/mock/MockIThreadIDProvider.h"
 #include "../../providers/mock/MockITimingProvider.h"
+#include "../../core/objects/mock/MockISupplementaryBasicData.h"
 
 #include "OpenKit/ILogger.h"
 #include "core/UTF8String.h"
@@ -34,6 +35,7 @@
 #include "providers/ISessionIDProvider.h"
 #include "providers/IThreadIDProvider.h"
 #include "providers/ITimingProvider.h"
+#include "core/objects/ISupplementaryBasicData.h"
 
 namespace test
 {
@@ -51,6 +53,7 @@ namespace test
 			, mThreadIDProvider(nullptr)
 			, mTimingProvider(nullptr)
 			, mPRNGenerator(nullptr)
+			, mSupplementaryBasicData(nullptr)
 		{
 		}
 
@@ -113,6 +116,12 @@ namespace test
 			return *this;
 		}
 
+		TestBeaconBuilder& with(std::shared_ptr<core::objects::ISupplementaryBasicData> supplementaryBasicData)
+		{
+			mSupplementaryBasicData = supplementaryBasicData;
+			return *this;
+		}
+
 		std::shared_ptr<protocol::Beacon> build()
 		{
 			auto logger = (mLogger != nullptr)
@@ -136,6 +145,9 @@ namespace test
 			auto prnGenerator = (mPRNGenerator != nullptr)
 				? mPRNGenerator
 				: MockIPRNGenerator::createNice();
+			auto supplementaryBasicData = (mSupplementaryBasicData != nullptr)
+				? mSupplementaryBasicData
+				: MockISupplementaryBasicData::createNice();
 
 			auto ipAddress = core::UTF8String(mClientIPAddress);
 			auto beaconInitializer = MockIBeaconInitializer::createNice();
@@ -159,6 +171,8 @@ namespace test
 				.WillByDefault(testing::Return(timingProvider));
 			ON_CALL(*beaconInitializer, getRandomNumberGenerator())
 				.WillByDefault(testing::Return(prnGenerator));
+			ON_CALL(*beaconInitializer, getSupplementaryBasicData())
+				.WillByDefault(testing::Return(supplementaryBasicData));
 
 			return std::make_shared<protocol::Beacon>(*beaconInitializer, mConfiguration);
 		}
@@ -174,6 +188,7 @@ namespace test
 		std::shared_ptr<providers::IThreadIDProvider> mThreadIDProvider;
 		std::shared_ptr<providers::ITimingProvider> mTimingProvider;
 		std::shared_ptr<providers::IPRNGenerator> mPRNGenerator;
+		std::shared_ptr<core::objects::ISupplementaryBasicData> mSupplementaryBasicData;
 	};
 }
 

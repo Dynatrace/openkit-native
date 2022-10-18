@@ -158,6 +158,31 @@ int32_t main(int32_t argc, char** argv)
 	{
 		struct SessionHandle* sessionHandle = createSession(openKitHandle, "1.2.3.4");
 		identifyUser(sessionHandle, "test user");
+
+		size_t attributesSize = 11;
+		OpenKitPair* attributes = malloc(sizeof(OpenKitPair) * attributesSize);
+		
+		if (attributes == NULL)
+		{
+			fprintf(stderr, "malloc of attributes for sendBizEvent is not working.");
+			exit(-1);
+		}
+
+		attributes[0] = (OpenKitPair) { "event.name", "\"Confirmed Booking\"" };
+		attributes[1] = (OpenKitPair) { "screen", "\"booking-confirmation\"" };
+		attributes[2] = (OpenKitPair) { "product", "\"Danube Anna Hotel\"" };
+		attributes[3] = (OpenKitPair) { "amount", "358.35" };
+		attributes[4] = (OpenKitPair) { "currency", "\"USD\"" };
+		attributes[5] = (OpenKitPair) { "reviewScore", "4.8" };
+		attributes[6] = (OpenKitPair) { "arrivalDate", "\"2022-11-05\"" };
+		attributes[7] = (OpenKitPair) { "departureDate", "\"2022-11-15\"" };
+		attributes[8] = (OpenKitPair) { "journeyDuration", "10" };
+		attributes[9] = (OpenKitPair) { "adultTravelers", "2" };
+		attributes[10] = (OpenKitPair) { "childrenTravelers", "0" };
+
+		sendBizEvent(sessionHandle, "Event", attributes, attributesSize);
+		free(attributes);
+
 		struct RootActionHandle* rootActionHandle = enterRootAction(sessionHandle, "My root action");
 
 		reportEventOnRootAction(rootActionHandle, "An event occurred");

@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <sstream>
 #include <core/util/StringUtil.h>
+#include <core/util/ConnectionTypeUtil.h>
 
 using namespace core::objects;
 
@@ -154,6 +155,73 @@ void SessionProxy::reportCrash(const char* errorName, const char* reason, const 
 
 		// create new session after crash report
 		splitAndCreateNewInitialSession();
+	}
+}
+
+void SessionProxy::reportNetworkTechnology(const char* technology)
+{
+	UTF8String technologyString(technology);
+
+	if (technology != nullptr && technologyString.empty())
+	{
+		mLogger->warning("%s reportNetworkTechnology: technology must be null or non-empty string", toString().c_str());
+		return;
+	}
+
+	if (mLogger->isDebugEnabled())
+	{
+		mLogger->debug("%s reportNetworkTechnology(%s)", toString().c_str(),
+			technology != nullptr ? technologyString.getStringData().c_str() : "null");
+	}
+
+	{ // synchronized scope
+		std::lock_guard<std::recursive_mutex> lock(mLockObject);
+		if (mCurrentSession != nullptr)
+		{
+			mCurrentSession->reportNetworkTechnology(technology);
+		}
+	}
+}
+
+void SessionProxy::reportConnectionType(const openkit::ConnectionType connectionType)
+{
+	if (mLogger->isDebugEnabled())
+	{
+		mLogger->debug("%s reportConnectionType(%s)", toString().c_str(),
+			connectionType != openkit::ConnectionType::UNSET ? util::ConnectionTypeToString(connectionType) : "null");
+	}
+
+	{ // synchronized scope
+		std::lock_guard<std::recursive_mutex> lock(mLockObject);
+		if (mCurrentSession != nullptr)
+		{
+			mCurrentSession->reportConnectionType(connectionType);
+		}
+	}
+}
+
+void SessionProxy::reportCarrier(const char* carrier)
+{
+	UTF8String carrierString(carrier);
+
+	if (carrier != nullptr && carrierString.empty())
+	{
+		mLogger->warning("%s reportCarrier: carrier must be null or non-empty string", toString().c_str());
+		return;
+	}
+
+	if (mLogger->isDebugEnabled())
+	{
+		mLogger->debug("%s reportCarrier(%s)", toString().c_str(),
+			carrier != nullptr ? carrierString.getStringData().c_str() : "null");
+	}
+
+	{ // synchronized scope
+		std::lock_guard<std::recursive_mutex> lock(mLockObject);
+		if (mCurrentSession != nullptr)
+		{
+			mCurrentSession->reportCarrier(carrier);
+		}
 	}
 }
 

@@ -477,20 +477,51 @@ With `sendBizEvent`, you can report business events. These events are standalone
 For more information on business events, see [dynatrace documentation](https://www.dynatrace.com/support/help/how-to-use-dynatrace/business-analytics/ba-events-capturing#expand--example-configuration-files-for-rum--2).
 
 ```c++
-auto attributes = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
-attributes->insert({"event.name", openkit::json::JsonStringValue::fromString("Confirmed Booking")});
-attributes->insert({"screen", openkit::json::JsonStringValue::fromString("booking-confirmation")});
-attributes->insert({"product", openkit::json::JsonStringValue::fromString("Hotel Passy Eiffel")});
-attributes->insert({"amount", openkit::json::JsonNumberValue::fromDouble(358.35)});
-attributes->insert({"currency", openkit::json::JsonStringValue::fromString("USD")});
-attributes->insert({"reviewScore", openkit::json::JsonNumberValue::fromDouble(4.8)});
-attributes->insert({"arrivalDate", openkit::json::JsonStringValue::fromString("2022-11-05")});
-attributes->insert({"departureDate", openkit::json::JsonStringValue::fromString("2022-11-15")});
-attributes->insert({"journeyDuration", openkit::json::JsonNumberValue::fromLong(10)});
-attributes->insert({"adultTravelers", openkit::json::JsonNumberValue::fromLong(2)});
-attributes->insert({"childrenTravelers", openkit::json::JsonNumberValue::fromLong(0)});
+auto attributes = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>(
+    std::initializer_list<openkit::json::JsonObjectValue::JsonObjectMap::value_type>{
+        { "event.name", openkit::json::JsonStringValue::fromString("Confirmed Booking") },
+        { "screen", openkit::json::JsonStringValue::fromString("booking-confirmation") },
+        { "product", openkit::json::JsonStringValue::fromString("Danube Anna Hotel") },
+        { "amount", openkit::json::JsonNumberValue::fromDouble(358.35) },
+        { "currency", openkit::json::JsonStringValue::fromString("USD") },
+        { "reviewScore", openkit::json::JsonNumberValue::fromDouble(4.8) },
+        { "arrivalDate", openkit::json::JsonStringValue::fromString("2022-11-05") },
+        { "departureDate", openkit::json::JsonStringValue::fromString("2022-11-15") },
+        { "journeyDuration", openkit::json::JsonNumberValue::fromLong(10) },
+        { "adultTravelers", openkit::json::JsonNumberValue::fromLong(2) },
+        { "childrenTravelers", openkit::json::JsonNumberValue::fromLong(0) }
+    }
+);
 
-session.sendBizEvent("com.easytravel.funnel.booking-finished", attributes);
+session->sendBizEvent("com.easytravel.funnel.booking-finished", attributes);
+```
+
+The same can be achieved using the OpenKit C API as demonstrated below.
+
+```c
+size_t attributesSize = 11;
+OpenKitPair* attributes = malloc(sizeof(OpenKitPair) * attributesSize);
+
+if (attributes == NULL)
+{
+    fprintf(stderr, "malloc of attributes for sendBizEvent is not working.");
+    exit(-1);
+}
+
+attributes[0] = (OpenKitPair) { "event.name", "\"Confirmed Booking\"" };
+attributes[1] = (OpenKitPair) { "screen", "\"booking-confirmation\"" };
+attributes[2] = (OpenKitPair) { "product", "\"Danube Anna Hotel\"" };
+attributes[3] = (OpenKitPair) { "amount", "358.35" };
+attributes[4] = (OpenKitPair) { "currency", "\"USD\"" };
+attributes[5] = (OpenKitPair) { "reviewScore", "4.8" };
+attributes[6] = (OpenKitPair) { "arrivalDate", "\"2022-11-05\"" };
+attributes[7] = (OpenKitPair) { "departureDate", "\"2022-11-15\"" };
+attributes[8] = (OpenKitPair) { "journeyDuration", "10" };
+attributes[9] = (OpenKitPair) { "adultTravelers", "2" };
+attributes[10] = (OpenKitPair) { "childrenTravelers", "0" };
+
+sendBizEvent(sessionHandle, "Event", attributes, attributesSize);
+free(attributes);
 ```
 
 ## Report Named Event
@@ -728,6 +759,24 @@ stopWebRequestWithResponseCode(webRequestTracer, 200);  // 200 was the response 
 // since webRequestTracer now points to an invalid memory
 // location, it's recommended to set the pointer to NULL.
 webRequestTracer = NULL;
+```
+
+## Reporting optional metrics
+
+After creating a `Session` object, it provides APIs to set additional mutable metrics like network technology, connection type or network carrier:
+
+```c++
+session->reportNetworkTechnology("technology");
+session->reportCarrier("carrier");
+session->reportConnectionType(ConnectionType::LAN);
+```
+
+The same can be achieved using the OpenKit C API as demonstrated below.
+
+```c
+reportNetworkTechnology(session, "technology");
+reportCarrier(session, "carrier");
+reportConnectionType(session, CONNECTION_TYPE_LAN);
 ```
 
 

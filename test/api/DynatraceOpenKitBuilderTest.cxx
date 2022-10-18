@@ -52,7 +52,6 @@ using StringUtil_t = core::util::StringUtil;
 
 constexpr char ENDPOINT_URL[] = "https://localhost";
 constexpr char APPLICATION_ID[] = "the-application-identifier";
-constexpr char APPLICATION_NAME[] = "the-application-name";
 constexpr int64_t DEVICE_ID = 777;
 constexpr char APPLICATION_VERSION[] = "application-version";
 constexpr char OPERATING_SYSTEM[] = "ultimate-operating-system";

@@ -5,6 +5,9 @@
 ### Added
 - User-Agent header for http requests
 - Business events capturing API `sendBizEvent`
+- `Session.reportNetworkTechnology(const char* technology)`
+- `Session.reportCarrier(const char* carrier)`
+- `Session.reportConnectionType(const ConnectionType connectionType)`
 
 ### Changed
 - Default maximum age of an entry in the beacon cache changed from 1h 45m to 45m

@@ -19,6 +19,7 @@
 
 #include "OpenKit/IRootAction.h"
 #include "OpenKit/IWebRequestTracer.h"
+#include "OpenKit/ConnectionType.h"
 #include "core/configuration/IBeaconConfiguration.h"
 #include "core/objects/IOpenKitObject.h"
 #include "core/objects/SessionInternals.h"
@@ -95,6 +96,33 @@ namespace test
 				const char*, /* reason */
 				const char* /* stacktrace */
 			)
+		);
+
+		MOCK_METHOD(
+			void,
+			reportCarrier,
+			(
+				const char* /* carrier */
+			),
+			(override)
+		);
+
+		MOCK_METHOD(
+			void,
+			reportNetworkTechnology,
+			(
+				const char* /* technology */
+			),
+			(override)
+		);
+
+		MOCK_METHOD(
+			void,
+			reportConnectionType,
+			(
+				const openkit::ConnectionType /* connectionType */
+			),
+			(override)
 		);
 
 		MOCK_METHOD(

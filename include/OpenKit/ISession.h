@@ -19,6 +19,7 @@
 
 #include "OpenKit/OpenKitExports.h"
 #include <OpenKit/json/JsonObjectValue.h>
+#include <OpenKit/ConnectionType.h>
 
 #include <cstdint>
 #include <memory>
@@ -74,6 +75,33 @@ namespace openkit
 		/// @param[in] stacktrace stacktrace leading to that crash
 		///
 		virtual void reportCrash(const char* errorName, const char* reason, const char* stacktrace) = 0;
+
+		///
+		/// Reports the network technology in use (e.g. 2G, 3G, 802.11x, offline, ...)
+		/// Use @c nullptr to clear the value again, and it will no longer be sent with the next beacon.
+		/// 
+		/// @param[in] technology the used network technology
+		/// 
+		virtual void reportNetworkTechnology(const char* technology) = 0;
+
+		///
+		/// Reports the type of connection with which the device is connected to the network.
+		/// Use @c ConnectionType::UNSET to clear the value again, and it will no longer be sent with the next beacon.
+		/// 
+		/// @param[in] connectionType the type of connection
+		/// 
+		virtual void reportConnectionType(const ConnectionType connectionType) = 0;
+
+		///
+		/// Reports the name of the cellular network carrier.
+		/// Use @c nullptr to clear the value again, and it will no longer be sent with the next beacon.
+		/// 
+		/// @par
+		/// If the @c carrier is longer than 250 characters, it is truncated to this value.
+		/// 
+		/// @param[in] carrier the cellular network carrier
+		/// 
+		virtual void reportCarrier(const char* carrier) = 0;
 
 		///
 		/// Allows tracing and timing of a web request handled by any 3rd party HTTP Client (e.g. CURL, EasyHttp, ...).

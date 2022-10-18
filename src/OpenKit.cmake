@@ -13,6 +13,7 @@
 # limitations under the License.
 
 set(OPENKIT_PUBLIC_HEADERS_CXX_API
+    ${CMAKE_SOURCE_DIR}/include/OpenKit/ConnectionType.h
     ${CMAKE_SOURCE_DIR}/include/OpenKit/CrashReportingLevel.h
     ${CMAKE_SOURCE_DIR}/include/OpenKit/DataCollectionLevel.h
     ${CMAKE_SOURCE_DIR}/include/OpenKit/DynatraceOpenKitBuilder.h
@@ -133,6 +134,8 @@ set(OPENKIT_SOURCES_CORE_UTIL
     ${CMAKE_CURRENT_LIST_DIR}/core/util/Compressor.h
     ${CMAKE_CURRENT_LIST_DIR}/core/util/CountDownLatch.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/util/CountDownLatch.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/util/ConnectionTypeUtil.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/util/ConnectionTypeUtil.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/util/CyclicBarrier.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/util/CyclicBarrier.h
     ${CMAKE_CURRENT_LIST_DIR}/core/util/DefaultLogger.cxx
@@ -184,6 +187,7 @@ set(OPENKIT_SOURCES_CORE_OBJECTS
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/ISessionCreator.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/ISessionCreatorInput.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/ISessionProxy.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/ISupplementaryBasicData.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/IWebRequestTracerInternals.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/LeafAction.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/LeafAction.h
@@ -209,6 +213,8 @@ set(OPENKIT_SOURCES_CORE_OBJECTS
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/SessionInternals.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/SessionProxy.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/SessionProxy.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/SupplementaryBasicData.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/objects/SupplementaryBasicData.h
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/WebRequestTracer.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/objects/WebRequestTracer.h
 )

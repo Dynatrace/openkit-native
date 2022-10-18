@@ -525,6 +525,202 @@ TEST_F(SessionTest, sendEventWithNullPtrPayloadWorks)
 	target->sendEvent(eventName, nullptr);
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// report mutable supplementary basic data tests
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+TEST_F(SessionTest, reportEmptyNetworkTechnology)
+{
+	// with
+	auto mockSupplementaryBasicData = MockISupplementaryBasicData::createStrict();
+	auto logger = MockILogger::createStrict();
+
+	// expect
+	EXPECT_CALL(*logger, mockWarning("Session [sn=0] reportNetworkTechnology: technology must be null or non-empty string"))
+		.Times(1);
+
+	// given
+	auto target = createSession()
+		->with(mockSupplementaryBasicData)
+		.with(logger)
+		.build();
+
+	// when
+	target->reportNetworkTechnology("");
+}
+
+TEST_F(SessionTest, reportNullPtrNetworkTechnology)
+{
+	// with
+	auto mockSupplementaryBasicData = MockISupplementaryBasicData::createStrict();
+	auto logger = MockILogger::createStrict();
+
+	// expect
+	EXPECT_CALL(*logger, isDebugEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(true));
+	EXPECT_CALL(*logger, mockDebug("Session [sn=0] reportNetworkTechnology(null)"))
+		.Times(1);
+	EXPECT_CALL(*mockSupplementaryBasicData, resetNetworkTechnology())
+		.Times(1);
+
+	// given
+	auto target = createSession()
+		->with(mockSupplementaryBasicData)
+		.with(logger)
+		.build();
+
+	// when
+	target->reportNetworkTechnology(nullptr);
+}
+
+TEST_F(SessionTest, reportValidNetworkTechnology)
+{
+	// with
+	auto mockSupplementaryBasicData = MockISupplementaryBasicData::createStrict();
+	auto logger = MockILogger::createStrict();
+	const char* technology = "technology";
+
+	// expect
+	EXPECT_CALL(*logger, isDebugEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(true));
+	EXPECT_CALL(*logger, mockDebug("Session [sn=0] reportNetworkTechnology(technology)"))
+		.Times(1);
+	EXPECT_CALL(*mockSupplementaryBasicData, setNetworkTechnology(testing::Eq(technology)))
+		.Times(1);
+
+	// given
+	auto target = createSession()
+		->with(mockSupplementaryBasicData)
+		.with(logger)
+		.build();
+
+	// when
+	target->reportNetworkTechnology(technology);
+}
+
+TEST_F(SessionTest, reportEmptyCarrier)
+{
+	// with
+	auto mockSupplementaryBasicData = MockISupplementaryBasicData::createStrict();
+	auto logger = MockILogger::createStrict();
+
+	// expect
+	EXPECT_CALL(*logger, mockWarning("Session [sn=0] reportCarrier: carrier must be null or non-empty string"))
+		.Times(1);
+
+	// given
+	auto target = createSession()
+		->with(mockSupplementaryBasicData)
+		.with(logger)
+		.build();
+
+	// when
+	target->reportCarrier("");
+}
+
+TEST_F(SessionTest, reportNullPtrCarrier)
+{
+	// with
+	auto mockSupplementaryBasicData = MockISupplementaryBasicData::createStrict();
+	auto logger = MockILogger::createStrict();
+
+	// expect
+	EXPECT_CALL(*logger, isDebugEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(true));
+	EXPECT_CALL(*logger, mockDebug("Session [sn=0] reportCarrier(null)"))
+		.Times(1);
+	EXPECT_CALL(*mockSupplementaryBasicData, resetCarrier())
+		.Times(1);
+
+	// given
+	auto target = createSession()
+		->with(mockSupplementaryBasicData)
+		.with(logger)
+		.build();
+
+	// when
+	target->reportCarrier(nullptr);
+}
+
+TEST_F(SessionTest, reportValidCarrier)
+{
+	// with
+	auto mockSupplementaryBasicData = MockISupplementaryBasicData::createStrict();
+	auto logger = MockILogger::createStrict();
+	const char* carrier = "carrier";
+
+	// expect
+	EXPECT_CALL(*logger, isDebugEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(true));
+	EXPECT_CALL(*logger, mockDebug("Session [sn=0] reportCarrier(carrier)"))
+		.Times(1);
+	EXPECT_CALL(*mockSupplementaryBasicData, setCarrier(testing::Eq(carrier)))
+		.Times(1);
+
+	// given
+	auto target = createSession()
+		->with(mockSupplementaryBasicData)
+		.with(logger)
+		.build();
+
+	// when
+	target->reportCarrier(carrier);
+}
+
+TEST_F(SessionTest, reportUnsetConnectionType)
+{
+	// with
+	auto mockSupplementaryBasicData = MockISupplementaryBasicData::createStrict();
+	auto logger = MockILogger::createStrict();
+
+	// expect
+	EXPECT_CALL(*logger, isDebugEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(true));
+	EXPECT_CALL(*logger, mockDebug("Session [sn=0] reportConnectionType(null)"))
+		.Times(1);
+	EXPECT_CALL(*mockSupplementaryBasicData, resetConnectionType())
+		.Times(1);
+
+	// given
+	auto target = createSession()
+		->with(mockSupplementaryBasicData)
+		.with(logger)
+		.build();
+
+	// when
+	target->reportConnectionType(openkit::ConnectionType::UNSET);
+}
+
+TEST_F(SessionTest, reportValidConnectionType)
+{
+	// with
+	auto mockSupplementaryBasicData = MockISupplementaryBasicData::createStrict();
+	auto logger = MockILogger::createStrict();
+
+	// expect
+	EXPECT_CALL(*logger, isDebugEnabled())
+		.Times(1)
+		.WillOnce(testing::Return(true));
+	EXPECT_CALL(*logger, mockDebug("Session [sn=0] reportConnectionType(l)"))
+		.Times(1);
+	EXPECT_CALL(*mockSupplementaryBasicData, setConnectionType(testing::Eq(openkit::ConnectionType::LAN)))
+		.Times(1);
+
+	// given
+	auto target = createSession()
+		->with(mockSupplementaryBasicData)
+		.with(logger)
+		.build();
+
+	// when
+	target->reportConnectionType(openkit::ConnectionType::LAN);
+}
+
 TEST_F(SessionTest, reportingCrashWithNullErrorNameDoesNotReportAnything)
 {
 	// with

@@ -23,13 +23,15 @@
 
 #include <sstream>
 #include <core/util/StringUtil.h>
+#include <core/util/ConnectionTypeUtil.h>
 
 using namespace core::objects;
 
 Session::Session(
 	std::shared_ptr<openkit::ILogger> logger,
 	std::shared_ptr<core::objects::IOpenKitComposite> parent,
-	std::shared_ptr<protocol::IBeacon> beacon
+	std::shared_ptr<protocol::IBeacon> beacon,
+	std::shared_ptr<core::objects::ISupplementaryBasicData> supplementaryBasicData
 )
 	: mLogger(logger)
 	, mParent(parent)
@@ -40,6 +42,7 @@ Session::Session(
 	, mWasTriedForEnding(false)
 	, mMutex()
 	, mSplitByEventsGracePeriodEndTimeInMillis(-1)
+	, mSupplementaryBasicData(supplementaryBasicData)
 {
 }
 
@@ -128,6 +131,76 @@ void Session::reportCrash(const char* errorName, const char* reason, const char*
 		{
 			mBeacon->reportCrash(errorNameString, reasonString, stacktraceString);
 		}
+	}
+}
+
+void Session::reportNetworkTechnology(const char* technology)
+{
+	UTF8String technologyString(technology);
+
+	if (technology != nullptr && technologyString.empty())
+	{
+		mLogger->warning("%s reportNetworkTechnology: technology must be null or non-empty string", toString().c_str());
+		return;
+	}
+
+	if (mLogger->isDebugEnabled())
+	{
+		mLogger->debug("%s reportNetworkTechnology(%s)", toString().c_str(),
+			technology != nullptr ? technologyString.getStringData().c_str() : "null");
+	}
+
+	if (technology == nullptr)
+	{
+		mSupplementaryBasicData->resetNetworkTechnology();
+	}
+	else
+	{
+		mSupplementaryBasicData->setNetworkTechnology(technologyString);
+	}
+}
+
+void Session::reportConnectionType(const openkit::ConnectionType connectionType)
+{
+	if (mLogger->isDebugEnabled())
+	{
+		mLogger->debug("%s reportConnectionType(%s)", toString().c_str(),
+			connectionType != openkit::ConnectionType::UNSET ? util::ConnectionTypeToString(connectionType) : "null");
+	}
+
+	if (connectionType == openkit::ConnectionType::UNSET)
+	{
+		mSupplementaryBasicData->resetConnectionType();
+	}
+	else
+	{
+		mSupplementaryBasicData->setConnectionType(connectionType);
+	}
+}
+
+void Session::reportCarrier(const char* carrier)
+{
+	UTF8String carrierString(carrier);
+
+	if (carrier != nullptr && carrierString.empty())
+	{
+		mLogger->warning("%s reportCarrier: carrier must be null or non-empty string", toString().c_str());
+		return;
+	}
+
+	if (mLogger->isDebugEnabled())
+	{
+		mLogger->debug("%s reportCarrier(%s)", toString().c_str(),
+			carrier != nullptr ? carrierString.getStringData().c_str() : "null");
+	}
+
+	if (carrier == nullptr)
+	{
+		mSupplementaryBasicData->resetCarrier();
+	}
+	else
+	{
+		mSupplementaryBasicData->setCarrier(carrierString);
 	}
 }
 
