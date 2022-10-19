@@ -46,7 +46,7 @@ void SupplementaryBasicData::setCarrier(const core::UTF8String& carrier)
 	}
 }
 
-const bool SupplementaryBasicData::isCarrierAvailable()
+bool SupplementaryBasicData::isCarrierAvailable()
 {
 	{ // synchronized scope
 		std::lock_guard<std::mutex> lock(mLockObject);
@@ -79,7 +79,7 @@ const core::UTF8String& SupplementaryBasicData::getNetworkTechnology()
 	}
 }
 
-const bool SupplementaryBasicData::isNetworkTechnologyAvailable()
+bool SupplementaryBasicData::isNetworkTechnologyAvailable()
 {
 	{ // synchronized scope
 		std::lock_guard<std::mutex> lock(mLockObject);
@@ -104,7 +104,7 @@ void SupplementaryBasicData::setConnectionType(const openkit::ConnectionType con
 	}
 }
 
-const openkit::ConnectionType SupplementaryBasicData::getConnectionType()
+openkit::ConnectionType SupplementaryBasicData::getConnectionType()
 {
 	{ // synchronized scope
 		std::lock_guard<std::mutex> lock(mLockObject);
@@ -112,7 +112,7 @@ const openkit::ConnectionType SupplementaryBasicData::getConnectionType()
 	}
 }
 
-const bool SupplementaryBasicData::isConnectionTypeAvailable()
+bool SupplementaryBasicData::isConnectionTypeAvailable()
 {
 	{ // synchronized scope
 		std::lock_guard<std::mutex> lock(mLockObject);

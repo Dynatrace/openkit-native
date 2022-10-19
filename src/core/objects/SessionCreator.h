@@ -102,9 +102,9 @@ namespace core
 			std::shared_ptr<providers::ISessionIDProvider> mSessionIdProvider;
 			std::shared_ptr<providers::IPRNGenerator> mRandomNumberGenerator;
 
-			std::shared_ptr<core::objects::ISupplementaryBasicData> mSupplementaryBasicData;
-
 			int32_t mSessionSequenceNumber;
+
+			std::shared_ptr<core::objects::ISupplementaryBasicData> mSupplementaryBasicData;
 		};
 	}
 }

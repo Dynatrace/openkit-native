@@ -61,7 +61,7 @@ namespace test
 		);
 
 		MOCK_METHOD(
-			const bool,
+			bool,
 			isCarrierAvailable,
 			(),
 			(override)
@@ -91,7 +91,7 @@ namespace test
 		);
 
 		MOCK_METHOD(
-			const bool,
+			bool,
 			isNetworkTechnologyAvailable,
 			(),
 			(override)
@@ -114,14 +114,14 @@ namespace test
 		);
 
 		MOCK_METHOD(
-			const openkit::ConnectionType,
+			openkit::ConnectionType,
 			getConnectionType,
 			(),
 			(override)
 		);
 
 		MOCK_METHOD(
-			const bool,
+			bool,
 			isConnectionTypeAvailable,
 			(),
 			(override)

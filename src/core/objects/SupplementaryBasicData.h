@@ -62,7 +62,7 @@ namespace core
 			///
 			/// @return state of carrier
 			/// 
-			const bool isCarrierAvailable() override;
+			bool isCarrierAvailable() override;
 
 			///
 			/// Resets the isAvailable flag of the carrier
@@ -88,7 +88,7 @@ namespace core
 			///
 			/// @return state of network technology
 			/// 
-			const bool isNetworkTechnologyAvailable() override;
+			bool isNetworkTechnologyAvailable() override;
 
 			///
 			/// Resets the isAvailable flag of the network technology
@@ -107,14 +107,14 @@ namespace core
 			///
 			/// @return connection type
 			/// 
-			const openkit::ConnectionType getConnectionType() override;
+			openkit::ConnectionType getConnectionType() override;
 
 			///
 			/// Returns boolean which indicates if the connection type is available
 			///
 			/// @return state of connection type
 			/// 
-			const bool isConnectionTypeAvailable() override;
+			bool isConnectionTypeAvailable() override;
 
 			///
 			/// Resets the isAvailable flag of the connection type

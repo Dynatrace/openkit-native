@@ -2120,7 +2120,7 @@ TEST_F(BeaconTest, sendValidEventTryingToOverrideTimestamp)
 	EXPECT_CALL(*mockBeaconCache, addEventData(
 		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
 		0,											// timestamp when error was reported
-		ContainsString("timestamp%22%3A%22Test%22%2C%22")
+		ContainsString("timestamp%22%3A%22Test%22")
 	)).Times(1);
 
 	auto target = createBeacon()->build();
@@ -2140,7 +2140,7 @@ TEST_F(BeaconTest, sendValidEventTryingToOverrideAppVersion)
 	EXPECT_CALL(*mockBeaconCache, addEventData(
 		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
 		0,											// timestamp when error was reported
-		ContainsString("app.version%22%3A%22Test%22%2C%22")
+		ContainsString("app.version%22%3A%22Test%22")
 	)).Times(1);
 
 	auto target = createBeacon()->build();
@@ -2160,7 +2160,7 @@ TEST_F(BeaconTest, sendValidEventTryingToOverrideOsName)
 	EXPECT_CALL(*mockBeaconCache, addEventData(
 		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
 		0,											// timestamp when error was reported
-		ContainsString("os.name%22%3A%22Test%22%2C%22")
+		ContainsString("os.name%22%3A%22Test%22")
 	)).Times(1);
 
 	auto target = createBeacon()->build();
@@ -2180,7 +2180,7 @@ TEST_F(BeaconTest, sendValidEventTryingToOverrideDeviceManufacturer)
 	EXPECT_CALL(*mockBeaconCache, addEventData(
 		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
 		0,											// timestamp when error was reported
-		ContainsString("device.manufacturer%22%3A%22Test%22%2C%22")
+		ContainsString("device.manufacturer%22%3A%22Test%22")
 	)).Times(1);
 
 	auto target = createBeacon()->build();
@@ -2200,7 +2200,7 @@ TEST_F(BeaconTest, sendValidEventTryingToOverrideDeviceModelIdentifier)
 	EXPECT_CALL(*mockBeaconCache, addEventData(
 		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
 		0,											// timestamp when error was reported
-		ContainsString("device.model.identifier%22%3A%22Test%22%2C%22")
+		ContainsString("device.model.identifier%22%3A%22Test%22")
 	)).Times(1);
 
 	auto target = createBeacon()->build();
@@ -2220,7 +2220,7 @@ TEST_F(BeaconTest, sendValidEventTryingToOverrideEventProvider)
 	EXPECT_CALL(*mockBeaconCache, addEventData(
 		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
 		0,											// timestamp when error was reported
-		ContainsString("event.provider%22%3A%22Test%22%2C%22")
+		ContainsString("event.provider%22%3A%22Test%22")
 	)).Times(1);
 
 	auto target = createBeacon()->build();
@@ -2562,7 +2562,7 @@ TEST_F(BeaconTest, sendValidBizEventTryingToOverrideTimestamp)
 	EXPECT_CALL(*mockBeaconCache, addEventData(
 		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
 		0,											// timestamp when error was reported
-		ContainsString("timestamp%22%3A%22Test%22%2C%22")
+		ContainsString("timestamp%22%3A%22Test%22")
 	)).Times(1);
 
 	auto target = createBeacon()->build();
@@ -2582,7 +2582,7 @@ TEST_F(BeaconTest, sendValidBizEventTryingToOverrideAppVersion)
 	EXPECT_CALL(*mockBeaconCache, addEventData(
 		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
 		0,											// timestamp when error was reported
-		ContainsString("app.version%22%3A%22Test%22%2C%22")
+		ContainsString("app.version%22%3A%22Test%22")
 	)).Times(1);
 
 	auto target = createBeacon()->build();
@@ -2602,7 +2602,7 @@ TEST_F(BeaconTest, sendValidBizEventTryingToOverrideOsName)
 	EXPECT_CALL(*mockBeaconCache, addEventData(
 		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
 		0,											// timestamp when error was reported
-		ContainsString("os.name%22%3A%22Test%22%2C%22")
+		ContainsString("os.name%22%3A%22Test%22")
 	)).Times(1);
 
 	auto target = createBeacon()->build();
@@ -2622,7 +2622,7 @@ TEST_F(BeaconTest, sendValidBizEventTryingToOverrideDeviceManufacturer)
 	EXPECT_CALL(*mockBeaconCache, addEventData(
 		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
 		0,											// timestamp when error was reported
-		ContainsString("device.manufacturer%22%3A%22Test%22%2C%22")
+		ContainsString("device.manufacturer%22%3A%22Test%22")
 	)).Times(1);
 
 	auto target = createBeacon()->build();
@@ -2642,7 +2642,7 @@ TEST_F(BeaconTest, sendValidBizEventTryingToOverrideDeviceModelIdentifier)
 	EXPECT_CALL(*mockBeaconCache, addEventData(
 		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
 		0,											// timestamp when error was reported
-		ContainsString("device.model.identifier%22%3A%22Test%22%2C%22")
+		ContainsString("device.model.identifier%22%3A%22Test%22")
 	)).Times(1);
 
 	auto target = createBeacon()->build();
@@ -2662,7 +2662,7 @@ TEST_F(BeaconTest, sendValidBizEventTryingToOverrideEventProvider)
 	EXPECT_CALL(*mockBeaconCache, addEventData(
 		BeaconKey_t(SESSION_ID, SESSION_SEQUENCE),	// beacon key
 		0,											// timestamp when error was reported
-		ContainsString("event.provider%22%3A%22Test%22%2C%22")
+		ContainsString("event.provider%22%3A%22Test%22")
 	)).Times(1);
 
 	auto target = createBeacon()->build();

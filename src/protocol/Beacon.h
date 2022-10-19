@@ -337,9 +337,6 @@ namespace protocol
 		/// random generator
 		const std::shared_ptr<providers::IPRNGenerator> mRandomGenerator;
 
-		/// mutable basic data
-		const std::shared_ptr<core::objects::ISupplementaryBasicData> mSupplementaryBasicData;
-
 		/// device id
 		int64_t mDeviceID;
 
@@ -366,6 +363,9 @@ namespace protocol
 
 		/// basic beacon data
 		core::UTF8String mImmutableBasicBeaconData;
+
+		/// mutable basic data
+		const std::shared_ptr<core::objects::ISupplementaryBasicData> mSupplementaryBasicData;
 	};
 }
 #endif

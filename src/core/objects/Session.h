@@ -206,9 +206,6 @@ namespace core
 			/// beacon used for serialization
 			const std::shared_ptr<protocol::IBeacon> mBeacon;
 
-			/// Container for additional mutable basic data which can be set via session
-			const std::shared_ptr <core::objects::ISupplementaryBasicData> mSupplementaryBasicData;
-
 			/// the number of tries for new session requests.
 			int32_t mNumRemainingNewSessionRequests;
 
@@ -225,6 +222,10 @@ namespace core
 			std::recursive_mutex mMutex;
 			
 			std::atomic<int64_t> mSplitByEventsGracePeriodEndTimeInMillis;
+
+			/// Container for additional mutable basic data which can be set via session
+			const std::shared_ptr <core::objects::ISupplementaryBasicData> mSupplementaryBasicData;
+
 		};
 	}
 }
