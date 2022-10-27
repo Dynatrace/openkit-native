@@ -304,7 +304,7 @@ namespace protocol
 		/// attributes which were provided by the customer without altering the original map
 		/// @param attributes Attributes provided by the customer
 		///
-		std::shared_ptr<core::objects::EventPayloadBuilder> generateEventPayload(const openkit::json::JsonObjectValue::JsonObjectMapPtr attributes);
+		void generateEventPayload(std::shared_ptr<core::objects::EventPayloadBuilder> builder);
 
 		/// 
 		/// Helper function which is sending the event data including payload check

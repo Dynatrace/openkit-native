@@ -31,7 +31,10 @@ EventPayloadBuilder::EventPayloadBuilder
 	: mLogger(logger)
 	, mAttributes(std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>())
 {
-	initializeInternalAttributes(attributes);
+	if (attributes != nullptr)
+	{
+		mAttributes->insert(attributes->begin(), attributes->end());
+	}
 }
 
 EventPayloadBuilder& EventPayloadBuilder::addOverridableAttribute(const char* key, std::shared_ptr<openkit::json::JsonValue> value)
@@ -62,23 +65,22 @@ EventPayloadBuilder& EventPayloadBuilder::addNonOverridableAttribute(const char*
 	return *this;
 }
 
-void EventPayloadBuilder::initializeInternalAttributes(openkit::json::JsonObjectValue::JsonObjectMapPtr extAttributes)
+EventPayloadBuilder& EventPayloadBuilder::cleanReservedInternalAttributes()
 {
-	if (extAttributes != nullptr)
-	{
-		for (auto& value : *extAttributes)
+	for (auto it = (* mAttributes).begin(); it != (*mAttributes).end();) {
+		if ((*it).first.compare("dt") == 0 || ((*it).first.rfind("dt.", 0) == 0
+			&& (*it).first.rfind("dt.agent.", 0) == std::string::npos))
 		{
-			if (value.first.compare("dt") == 0 || (value.first.rfind("dt.", 0) == 0
-				&& value.first.rfind("dt.agent.", 0) == std::string::npos))
-			{
-				mLogger->warning("EventPayloadBuilder initializeInternalAttributes: %s is reserved for internal values!", value.first.c_str());
-			}
-			else
-			{
-				mAttributes->insert({ value.first, value.second });
-			}
+			mLogger->warning("EventPayloadBuilder cleanReservedInternalAttributes: %s is reserved for internal values!", (*it).first.c_str());
+			it = (*mAttributes).erase(it);
+		}
+		else 
+		{
+			it++;
 		}
 	}
+
+	return *this;
 }
 
 std::string EventPayloadBuilder::build()

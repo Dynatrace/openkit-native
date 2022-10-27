@@ -63,7 +63,7 @@ TEST_F(EventPayloadBuilderTest, createEmptyPayloadBuilder)
 	ASSERT_THAT(eventPayloadBuilder.build(), testing::Eq("{}"));
 }
 
-TEST_F(EventPayloadBuilderTest, removingReservedValuesAtInitializing)
+TEST_F(EventPayloadBuilderTest, removingInternalReservedValues)
 {
 	// given
 	auto map = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
@@ -72,6 +72,7 @@ TEST_F(EventPayloadBuilderTest, removingReservedValuesAtInitializing)
 	map->insert(std::make_pair("event.kind", openkit::json::JsonStringValue::fromString("Okay")));
 
 	EventPayloadBuilder eventPayloadBuilder(map, mockLogger);
+	eventPayloadBuilder.cleanReservedInternalAttributes();
 
 	// then
 	ASSERT_THAT(eventPayloadBuilder.build(), testing::Eq("{\"event.kind\":\"Okay\"}"));

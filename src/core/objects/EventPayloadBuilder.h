@@ -54,6 +54,12 @@ namespace core
 			EventPayloadBuilder& addNonOverridableAttribute(const char* key, std::shared_ptr<openkit::json::JsonValue> value);
 
 			/// <summary>
+			/// Removes reservered internal attributes from the provided attributes
+			/// </summary>
+			/// <returns>Builder itself</returns>
+			EventPayloadBuilder& cleanReservedInternalAttributes();
+
+			/// <summary>
 			/// Building the whole payload string
 			/// </summary>
 			/// <returns>Payload string</returns>
@@ -65,12 +71,7 @@ namespace core
 
 			/// Internal attributes
 			openkit::json::JsonObjectValue::JsonObjectMapPtr mAttributes;
-			
-			/// <summary>
-			/// Initialize the internal attribute dictionary and filter out the reserved internal keys already
-			/// </summary>
-			/// <param name="extAttributes">External attributes coming from the API</param>
-			void initializeInternalAttributes(openkit::json::JsonObjectValue::JsonObjectMapPtr extAttributes);
+
 		};
 	}
 }

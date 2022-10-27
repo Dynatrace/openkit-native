@@ -634,8 +634,15 @@ void Beacon::sendBizEvent(const core::UTF8String& type, const openkit::json::Jso
 		return;
 	}
 
-	auto builder = generateEventPayload(attributes);
+	auto builder = std::make_shared<core::objects::EventPayloadBuilder>(attributes, mLogger);
 	builder->addNonOverridableAttribute("event.type", openkit::json::JsonStringValue::fromString(type.getStringData()));
+	
+	core::UTF8String inputPayload(builder->build());
+	
+	builder->cleanReservedInternalAttributes()
+		.addNonOverridableAttribute("dt.rum.custom_attributes_size", openkit::json::JsonNumberValue::fromLong(inputPayload.getStringLength()));
+	
+	generateEventPayload(builder);
 	builder->addNonOverridableAttribute(core::objects::EVENT_KIND, openkit::json::JsonStringValue::fromString(core::objects::EVENT_KIND_BIZ));
 
 	if (attributes == nullptr || attributes->find("event.name") == attributes->end())
@@ -663,9 +670,10 @@ void Beacon::sendEvent(const core::UTF8String& name, const openkit::json::JsonOb
 		return;
 	}
 
-	auto builder = generateEventPayload(attributes);
-	builder->addNonOverridableAttribute("event.name", openkit::json::JsonStringValue::fromString(name.getStringData()));
-	builder->addOverridableAttribute(core::objects::EVENT_KIND, openkit::json::JsonStringValue::fromString(core::objects::EVENT_KIND_RUM));
+	auto builder = std::make_shared<core::objects::EventPayloadBuilder>(attributes, mLogger);
+	generateEventPayload(builder);
+	builder->addNonOverridableAttribute("event.name", openkit::json::JsonStringValue::fromString(name.getStringData()))
+		.addOverridableAttribute(core::objects::EVENT_KIND, openkit::json::JsonStringValue::fromString(core::objects::EVENT_KIND_RUM));
 
 	sendEventPayload(*builder);
 }
@@ -687,12 +695,10 @@ void Beacon::sendEventPayload(core::objects::EventPayloadBuilder& builder)
 	addEventData(timestamp, eventData);
 }
 
-std::shared_ptr<core::objects::EventPayloadBuilder> Beacon::generateEventPayload(const openkit::json::JsonObjectValue::JsonObjectMapPtr attributes)
+void Beacon::generateEventPayload(std::shared_ptr<core::objects::EventPayloadBuilder> builder)
 {
-	auto builder = std::make_shared<core::objects::EventPayloadBuilder>(attributes, mLogger);
 	auto openKitConfig = mBeaconConfiguration->getOpenKitConfiguration();
 
-	// TODO NANO
 	builder->addOverridableAttribute(core::objects::TIMESTAMP, openkit::json::JsonNumberValue::fromLong(mTimingProvider->provideTimestampInNanoseconds()));
 	builder->addNonOverridableAttribute(EVENT_PAYLOAD_APPLICATION_ID, openkit::json::JsonStringValue::fromString(openKitConfig->getApplicationId().getStringData()));
 	builder->addNonOverridableAttribute(EVENT_PAYLOAD_INSTANCE_ID, openkit::json::JsonNumberValue::fromLong(getDeviceID()));
@@ -703,8 +709,6 @@ std::shared_ptr<core::objects::EventPayloadBuilder> Beacon::generateEventPayload
 	builder->addOverridableAttribute(core::objects::DEVICE_MANUFACTURER, openkit::json::JsonStringValue::fromString(openKitConfig->getManufacturer().getStringData()));
 	builder->addOverridableAttribute(core::objects::DEVICE_MODEL_IDENTIFIER, openkit::json::JsonStringValue::fromString(openKitConfig->getModelId().getStringData()));
 	builder->addOverridableAttribute(core::objects::EVENT_PROVIDER, openkit::json::JsonStringValue::fromString(openKitConfig->getApplicationId().getStringData()));
-
-	return builder;
 }
 
 core::UTF8String Beacon::createMultiplicityData()

@@ -2356,6 +2356,7 @@ TEST_F(BeaconTest, sendBizEventWithPayload)
 
 	realMapPayload->insert({ "event.name", openkit::json::JsonStringValue::fromString("event type") });
 	realMapPayload->insert({ "event.type", openkit::json::JsonStringValue::fromString("event type") });
+	realMapPayload->insert({ "dt.rum.custom_attributes_size", openkit::json::JsonNumberValue::fromLong(50) });
 	realMapPayload->insert({ "event.kind", openkit::json::JsonStringValue::fromString(core::objects::EVENT_KIND_BIZ) });
 
 	auto str = openkit::json::JsonObjectValue::fromMap(realMapPayload)->toString();
@@ -2399,6 +2400,7 @@ TEST_F(BeaconTest, sendBizEventWithNameInPayload)
 
 	realMapPayload->insert({ "event.name", openkit::json::JsonStringValue::fromString("trying to override") });
 	realMapPayload->insert({ "event.type", openkit::json::JsonStringValue::fromString("event type") });
+	realMapPayload->insert({ "dt.rum.custom_attributes_size", openkit::json::JsonNumberValue::fromLong(61) });
 	realMapPayload->insert({ "event.kind", openkit::json::JsonStringValue::fromString(core::objects::EVENT_KIND_BIZ) });
 
 	auto str = openkit::json::JsonObjectValue::fromMap(realMapPayload)->toString();
@@ -2431,6 +2433,7 @@ TEST_F(BeaconTest, sendValidBizEventTryingToOverrideDtValuesWhichAreNotAllowed)
 	mapWithName->insert({ protocol::EVENT_PAYLOAD_SESSION_ID, openkit::json::JsonStringValue::fromString("trying to override") });
 	mapWithName->insert({ "event.kind", openkit::json::JsonStringValue::fromString("trying to override") });
 	mapWithName->insert({ protocol::EVENT_SCHEMA_VERSION, openkit::json::JsonStringValue::fromString("trying to override") });
+	mapWithName->insert({ "dt.rum.custom_attributes_size", openkit::json::JsonStringValue::fromString("trying to override") });
 
 	auto realMapPayload = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
 
@@ -2447,6 +2450,7 @@ TEST_F(BeaconTest, sendValidBizEventTryingToOverrideDtValuesWhichAreNotAllowed)
 
 	realMapPayload->insert({ "event.name", openkit::json::JsonStringValue::fromString("event type") });
 	realMapPayload->insert({ "event.type", openkit::json::JsonStringValue::fromString("event type") });
+	realMapPayload->insert({ "dt.rum.custom_attributes_size", openkit::json::JsonNumberValue::fromLong(280) });
 	realMapPayload->insert({ "event.kind", openkit::json::JsonStringValue::fromString(core::objects::EVENT_KIND_BIZ) });
 
 	auto str = openkit::json::JsonObjectValue::fromMap(realMapPayload)->toString();
@@ -2489,6 +2493,7 @@ TEST_F(BeaconTest, sendBizEventWithEmptyPayload)
 
 	realMapPayload->insert({ "event.name", openkit::json::JsonStringValue::fromString("event type") });
 	realMapPayload->insert({ "event.type", openkit::json::JsonStringValue::fromString("event type") });
+	realMapPayload->insert({ "dt.rum.custom_attributes_size", openkit::json::JsonNumberValue::fromLong(27) });
 	realMapPayload->insert({ "event.kind", openkit::json::JsonStringValue::fromString(core::objects::EVENT_KIND_BIZ) });
 
 	auto str = openkit::json::JsonObjectValue::fromMap(realMapPayload)->toString();
@@ -2530,6 +2535,7 @@ TEST_F(BeaconTest, sendBizEventWithNullPtrPayload)
 
 	realMapPayload->insert({ "event.name", openkit::json::JsonStringValue::fromString("event type") });
 	realMapPayload->insert({ "event.type", openkit::json::JsonStringValue::fromString("event type") });
+	realMapPayload->insert({ "dt.rum.custom_attributes_size", openkit::json::JsonNumberValue::fromLong(27) });
 	realMapPayload->insert({ "event.kind", openkit::json::JsonStringValue::fromString(core::objects::EVENT_KIND_BIZ) });
 
 	auto str = openkit::json::JsonObjectValue::fromMap(realMapPayload)->toString();
