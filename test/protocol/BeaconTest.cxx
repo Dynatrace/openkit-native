@@ -1864,8 +1864,8 @@ TEST_F(BeaconTest, sendEventWithPayload)
 
 	realMapPayload->insert({ core::objects::TIMESTAMP, openkit::json::JsonNumberValue::fromLong(0)});
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_APPLICATION_ID, openkit::json::JsonStringValue::fromString(APP_ID.getStringData()) });
-	realMapPayload->insert({ protocol::EVENT_PAYLOAD_INSTANCE_ID, openkit::json::JsonNumberValue::fromLong(DEVICE_ID) });
-	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SESSION_ID, openkit::json::JsonNumberValue::fromLong(SESSION_ID) });
+	realMapPayload->insert({ protocol::EVENT_PAYLOAD_INSTANCE_ID, openkit::json::JsonStringValue::fromString(core::util::StringUtil::toInvariantString(DEVICE_ID)) });
+	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SESSION_ID, openkit::json::JsonStringValue::fromString(core::util::StringUtil::toInvariantString(SESSION_ID)) });
 	realMapPayload->insert({ core::objects::APP_VERSION, openkit::json::JsonStringValue::fromString(APP_VERSION.getStringData()) });
 	realMapPayload->insert({ core::objects::OS_NAME, openkit::json::JsonStringValue::fromString(OS_NAME.getStringData())});
 	realMapPayload->insert({ core::objects::DEVICE_MANUFACTURER, openkit::json::JsonStringValue::fromString(DEVICE_MANUFACTURER.getStringData()) });
@@ -1906,8 +1906,8 @@ TEST_F(BeaconTest, sendEventWithNameInPayload)
 	
 	realMapPayload->insert({ core::objects::TIMESTAMP, openkit::json::JsonNumberValue::fromLong(0) });
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_APPLICATION_ID, openkit::json::JsonStringValue::fromString(APP_ID.getStringData()) });
-	realMapPayload->insert({ protocol::EVENT_PAYLOAD_INSTANCE_ID, openkit::json::JsonNumberValue::fromLong(DEVICE_ID) });
-	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SESSION_ID, openkit::json::JsonNumberValue::fromLong(SESSION_ID) });
+	realMapPayload->insert({ protocol::EVENT_PAYLOAD_INSTANCE_ID, openkit::json::JsonStringValue::fromString(core::util::StringUtil::toInvariantString(DEVICE_ID)) });
+	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SESSION_ID, openkit::json::JsonStringValue::fromString(core::util::StringUtil::toInvariantString(SESSION_ID)) });
 	realMapPayload->insert({ core::objects::APP_VERSION, openkit::json::JsonStringValue::fromString(APP_VERSION.getStringData()) });
 	realMapPayload->insert({ core::objects::OS_NAME, openkit::json::JsonStringValue::fromString(OS_NAME.getStringData()) });
 	realMapPayload->insert({ core::objects::DEVICE_MANUFACTURER, openkit::json::JsonStringValue::fromString(DEVICE_MANUFACTURER.getStringData()) });
@@ -1948,8 +1948,8 @@ TEST_F(BeaconTest, sendEventWithEventKindInPayload)
 
 	realMapPayload->insert({ core::objects::TIMESTAMP, openkit::json::JsonNumberValue::fromLong(0) });
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_APPLICATION_ID, openkit::json::JsonStringValue::fromString(APP_ID.getStringData()) });
-	realMapPayload->insert({ protocol::EVENT_PAYLOAD_INSTANCE_ID, openkit::json::JsonNumberValue::fromLong(DEVICE_ID) });
-	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SESSION_ID, openkit::json::JsonNumberValue::fromLong(SESSION_ID) });
+	realMapPayload->insert({ protocol::EVENT_PAYLOAD_INSTANCE_ID, openkit::json::JsonStringValue::fromString(core::util::StringUtil::toInvariantString(DEVICE_ID)) });
+	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SESSION_ID, openkit::json::JsonStringValue::fromString(core::util::StringUtil::toInvariantString(SESSION_ID)) });
 	realMapPayload->insert({ core::objects::APP_VERSION, openkit::json::JsonStringValue::fromString(APP_VERSION.getStringData()) });
 	realMapPayload->insert({ core::objects::OS_NAME, openkit::json::JsonStringValue::fromString(OS_NAME.getStringData()) });
 	realMapPayload->insert({ core::objects::DEVICE_MANUFACTURER, openkit::json::JsonStringValue::fromString(DEVICE_MANUFACTURER.getStringData()) });
@@ -1997,8 +1997,8 @@ TEST_F(BeaconTest, sendValidEventTryingToOverrideDtValuesWhichAreNotAllowed)
 
 	realMapPayload->insert({ core::objects::TIMESTAMP, openkit::json::JsonNumberValue::fromLong(0) });
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_APPLICATION_ID, openkit::json::JsonStringValue::fromString(APP_ID.getStringData()) });
-	realMapPayload->insert({ protocol::EVENT_PAYLOAD_INSTANCE_ID, openkit::json::JsonNumberValue::fromLong(DEVICE_ID) });
-	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SESSION_ID, openkit::json::JsonNumberValue::fromLong(SESSION_ID) });
+	realMapPayload->insert({ protocol::EVENT_PAYLOAD_INSTANCE_ID, openkit::json::JsonStringValue::fromString(core::util::StringUtil::toInvariantString(DEVICE_ID)) });
+	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SESSION_ID, openkit::json::JsonStringValue::fromString(core::util::StringUtil::toInvariantString(SESSION_ID)) });
 	realMapPayload->insert({ protocol::EVENT_SCHEMA_VERSION, openkit::json::JsonStringValue::fromString("1.0") });
 	realMapPayload->insert({ core::objects::APP_VERSION, openkit::json::JsonStringValue::fromString(APP_VERSION.getStringData()) });
 	realMapPayload->insert({ core::objects::OS_NAME, openkit::json::JsonStringValue::fromString(OS_NAME.getStringData()) });
@@ -2038,8 +2038,8 @@ TEST_F(BeaconTest, sendEventWithEmptyPayload)
 	
 	realMapPayload->insert({ core::objects::TIMESTAMP, openkit::json::JsonNumberValue::fromLong(0) });
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_APPLICATION_ID, openkit::json::JsonStringValue::fromString(APP_ID.getStringData()) });
-	realMapPayload->insert({ protocol::EVENT_PAYLOAD_INSTANCE_ID, openkit::json::JsonNumberValue::fromLong(DEVICE_ID) });
-	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SESSION_ID, openkit::json::JsonNumberValue::fromLong(SESSION_ID) });
+	realMapPayload->insert({ protocol::EVENT_PAYLOAD_INSTANCE_ID, openkit::json::JsonStringValue::fromString(core::util::StringUtil::toInvariantString(DEVICE_ID)) });
+	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SESSION_ID, openkit::json::JsonStringValue::fromString(core::util::StringUtil::toInvariantString(SESSION_ID)) });
 	realMapPayload->insert({ core::objects::APP_VERSION, openkit::json::JsonStringValue::fromString(APP_VERSION.getStringData()) });
 	realMapPayload->insert({ core::objects::OS_NAME, openkit::json::JsonStringValue::fromString(OS_NAME.getStringData()) });
 	realMapPayload->insert({ core::objects::DEVICE_MANUFACTURER, openkit::json::JsonStringValue::fromString(DEVICE_MANUFACTURER.getStringData()) });
@@ -2078,8 +2078,8 @@ TEST_F(BeaconTest, sendEventWithNullPtrPayload)
 	
 	realMapPayload->insert({ core::objects::TIMESTAMP, openkit::json::JsonNumberValue::fromLong(0) });
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_APPLICATION_ID, openkit::json::JsonStringValue::fromString(APP_ID.getStringData()) });
-	realMapPayload->insert({ protocol::EVENT_PAYLOAD_INSTANCE_ID, openkit::json::JsonNumberValue::fromLong(DEVICE_ID) });
-	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SESSION_ID, openkit::json::JsonNumberValue::fromLong(SESSION_ID) });
+	realMapPayload->insert({ protocol::EVENT_PAYLOAD_INSTANCE_ID, openkit::json::JsonStringValue::fromString(core::util::StringUtil::toInvariantString(DEVICE_ID)) });
+	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SESSION_ID, openkit::json::JsonStringValue::fromString(core::util::StringUtil::toInvariantString(SESSION_ID)) });
 	realMapPayload->insert({ core::objects::APP_VERSION, openkit::json::JsonStringValue::fromString(APP_VERSION.getStringData()) });
 	realMapPayload->insert({ core::objects::OS_NAME, openkit::json::JsonStringValue::fromString(OS_NAME.getStringData()) });
 	realMapPayload->insert({ core::objects::DEVICE_MANUFACTURER, openkit::json::JsonStringValue::fromString(DEVICE_MANUFACTURER.getStringData()) });
@@ -2345,8 +2345,8 @@ TEST_F(BeaconTest, sendBizEventWithPayload)
 
 	realMapPayload->insert({ core::objects::TIMESTAMP, openkit::json::JsonNumberValue::fromLong(0) });
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_APPLICATION_ID, openkit::json::JsonStringValue::fromString(APP_ID.getStringData()) });
-	realMapPayload->insert({ protocol::EVENT_PAYLOAD_INSTANCE_ID, openkit::json::JsonNumberValue::fromLong(DEVICE_ID) });
-	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SESSION_ID, openkit::json::JsonNumberValue::fromLong(SESSION_ID) });
+	realMapPayload->insert({ protocol::EVENT_PAYLOAD_INSTANCE_ID, openkit::json::JsonStringValue::fromString(core::util::StringUtil::toInvariantString(DEVICE_ID)) });
+	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SESSION_ID, openkit::json::JsonStringValue::fromString(core::util::StringUtil::toInvariantString(SESSION_ID)) });
 	realMapPayload->insert({ core::objects::APP_VERSION, openkit::json::JsonStringValue::fromString(APP_VERSION.getStringData()) });
 	realMapPayload->insert({ core::objects::OS_NAME, openkit::json::JsonStringValue::fromString(OS_NAME.getStringData()) });
 	realMapPayload->insert({ core::objects::DEVICE_MANUFACTURER, openkit::json::JsonStringValue::fromString(DEVICE_MANUFACTURER.getStringData()) });
@@ -2389,8 +2389,8 @@ TEST_F(BeaconTest, sendBizEventWithNameInPayload)
 
 	realMapPayload->insert({ core::objects::TIMESTAMP, openkit::json::JsonNumberValue::fromLong(0) });
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_APPLICATION_ID, openkit::json::JsonStringValue::fromString(APP_ID.getStringData()) });
-	realMapPayload->insert({ protocol::EVENT_PAYLOAD_INSTANCE_ID, openkit::json::JsonNumberValue::fromLong(DEVICE_ID) });
-	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SESSION_ID, openkit::json::JsonNumberValue::fromLong(SESSION_ID) });
+	realMapPayload->insert({ protocol::EVENT_PAYLOAD_INSTANCE_ID, openkit::json::JsonStringValue::fromString(core::util::StringUtil::toInvariantString(DEVICE_ID)) });
+	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SESSION_ID, openkit::json::JsonStringValue::fromString(core::util::StringUtil::toInvariantString(SESSION_ID)) });
 	realMapPayload->insert({ core::objects::APP_VERSION, openkit::json::JsonStringValue::fromString(APP_VERSION.getStringData()) });
 	realMapPayload->insert({ core::objects::OS_NAME, openkit::json::JsonStringValue::fromString(OS_NAME.getStringData()) });
 	realMapPayload->insert({ core::objects::DEVICE_MANUFACTURER, openkit::json::JsonStringValue::fromString(DEVICE_MANUFACTURER.getStringData()) });
@@ -2439,8 +2439,8 @@ TEST_F(BeaconTest, sendValidBizEventTryingToOverrideDtValuesWhichAreNotAllowed)
 
 	realMapPayload->insert({ core::objects::TIMESTAMP, openkit::json::JsonNumberValue::fromLong(0) });
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_APPLICATION_ID, openkit::json::JsonStringValue::fromString(APP_ID.getStringData()) });
-	realMapPayload->insert({ protocol::EVENT_PAYLOAD_INSTANCE_ID, openkit::json::JsonNumberValue::fromLong(DEVICE_ID) });
-	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SESSION_ID, openkit::json::JsonNumberValue::fromLong(SESSION_ID) });
+	realMapPayload->insert({ protocol::EVENT_PAYLOAD_INSTANCE_ID, openkit::json::JsonStringValue::fromString(core::util::StringUtil::toInvariantString(DEVICE_ID)) });
+	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SESSION_ID, openkit::json::JsonStringValue::fromString(core::util::StringUtil::toInvariantString(SESSION_ID)) });
 	realMapPayload->insert({ core::objects::APP_VERSION, openkit::json::JsonStringValue::fromString(APP_VERSION.getStringData()) });
 	realMapPayload->insert({ core::objects::OS_NAME, openkit::json::JsonStringValue::fromString(OS_NAME.getStringData()) });
 	realMapPayload->insert({ core::objects::DEVICE_MANUFACTURER, openkit::json::JsonStringValue::fromString(DEVICE_MANUFACTURER.getStringData()) });
@@ -2482,8 +2482,8 @@ TEST_F(BeaconTest, sendBizEventWithEmptyPayload)
 
 	realMapPayload->insert({ core::objects::TIMESTAMP, openkit::json::JsonNumberValue::fromLong(0) });
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_APPLICATION_ID, openkit::json::JsonStringValue::fromString(APP_ID.getStringData()) });
-	realMapPayload->insert({ protocol::EVENT_PAYLOAD_INSTANCE_ID, openkit::json::JsonNumberValue::fromLong(DEVICE_ID) });
-	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SESSION_ID, openkit::json::JsonNumberValue::fromLong(SESSION_ID) });
+	realMapPayload->insert({ protocol::EVENT_PAYLOAD_INSTANCE_ID, openkit::json::JsonStringValue::fromString(core::util::StringUtil::toInvariantString(DEVICE_ID)) });
+	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SESSION_ID, openkit::json::JsonStringValue::fromString(core::util::StringUtil::toInvariantString(SESSION_ID)) });
 	realMapPayload->insert({ core::objects::APP_VERSION, openkit::json::JsonStringValue::fromString(APP_VERSION.getStringData()) });
 	realMapPayload->insert({ core::objects::OS_NAME, openkit::json::JsonStringValue::fromString(OS_NAME.getStringData()) });
 	realMapPayload->insert({ core::objects::DEVICE_MANUFACTURER, openkit::json::JsonStringValue::fromString(DEVICE_MANUFACTURER.getStringData()) });
@@ -2524,8 +2524,8 @@ TEST_F(BeaconTest, sendBizEventWithNullPtrPayload)
 
 	realMapPayload->insert({ core::objects::TIMESTAMP, openkit::json::JsonNumberValue::fromLong(0) });
 	realMapPayload->insert({ protocol::EVENT_PAYLOAD_APPLICATION_ID, openkit::json::JsonStringValue::fromString(APP_ID.getStringData()) });
-	realMapPayload->insert({ protocol::EVENT_PAYLOAD_INSTANCE_ID, openkit::json::JsonNumberValue::fromLong(DEVICE_ID) });
-	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SESSION_ID, openkit::json::JsonNumberValue::fromLong(SESSION_ID) });
+	realMapPayload->insert({ protocol::EVENT_PAYLOAD_INSTANCE_ID, openkit::json::JsonStringValue::fromString(core::util::StringUtil::toInvariantString(DEVICE_ID)) });
+	realMapPayload->insert({ protocol::EVENT_PAYLOAD_SESSION_ID, openkit::json::JsonStringValue::fromString(core::util::StringUtil::toInvariantString(SESSION_ID)) });
 	realMapPayload->insert({ core::objects::APP_VERSION, openkit::json::JsonStringValue::fromString(APP_VERSION.getStringData()) });
 	realMapPayload->insert({ core::objects::OS_NAME, openkit::json::JsonStringValue::fromString(OS_NAME.getStringData()) });
 	realMapPayload->insert({ core::objects::DEVICE_MANUFACTURER, openkit::json::JsonStringValue::fromString(DEVICE_MANUFACTURER.getStringData()) });
