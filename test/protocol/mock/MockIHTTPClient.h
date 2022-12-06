@@ -36,7 +36,7 @@ namespace test
 		{
 			ON_CALL(*this, sendStatusRequest(testing::_))
 				.WillByDefault(testing::ReturnNull());
-			ON_CALL(*this, sendBeaconRequest(testing::_, testing::_, testing::_))
+			ON_CALL(*this, sendBeaconRequest(testing::_, testing::_, testing::_, testing::_, testing::_))
 				.WillByDefault(testing::ReturnNull());
 			ON_CALL(*this, sendNewSessionRequest(testing::_))
 				.WillByDefault(testing::ReturnNull());
@@ -70,7 +70,9 @@ namespace test
 			(
 				const core::UTF8String&, /* clientIPAddress */
 				const core::UTF8String&, /* beaconData */
-				const protocol::IAdditionalQueryParameters& /* additionalParameters */
+				const protocol::IAdditionalQueryParameters&, /* additionalParameters */
+				int32_t, /* sessionNumber */
+				int64_t /* deviceID */
 			),
 			(override)
 		);

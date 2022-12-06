@@ -96,9 +96,12 @@ std::shared_ptr<IStatusResponse> HTTPClient::sendStatusRequest(const protocol::I
 std::shared_ptr<IStatusResponse> HTTPClient::sendBeaconRequest(
 	const core::UTF8String& clientIPAddress,
 	const core::UTF8String& beaconData,
-	const protocol::IAdditionalQueryParameters& additionalParameters)
+	const protocol::IAdditionalQueryParameters& additionalParameters,
+	int32_t sessionNumber,
+	int64_t deviceID)
 {
 	auto url = appendAdditionalQueryParameters(mMonitorURL, additionalParameters);
+	url = appendSessionIdentifierParameter(url, sessionNumber, deviceID);
 	auto response = sendRequestInternal(RequestType::BEACON, url, clientIPAddress, beaconData, HttpMethod::POST);
 	if (response == nullptr)
 	{
@@ -419,6 +422,15 @@ core::UTF8String HTTPClient::appendAdditionalQueryParameters(const core::UTF8Str
 {
 	auto newUrl = core::UTF8String(baseUrl);
 	appendQueryParam(newUrl, QUERY_KEY_CONFIG_TIMESTAMP, core::util::StringUtil::toInvariantString(parameters.getConfigurationTimestamp()));
+
+	return newUrl;
+}
+
+core::UTF8String HTTPClient::appendSessionIdentifierParameter(const core::UTF8String& baseUrl, int32_t sessionNumber, int64_t deviceID)
+{
+	auto newUrl = core::UTF8String(baseUrl);
+	appendQueryParam(newUrl, QUERY_KEY_SESSION_IDENTIFIER,
+		core::util::StringUtil::toInvariantString(sessionNumber) + "_" + core::util::StringUtil::toInvariantString(deviceID));
 
 	return newUrl;
 }

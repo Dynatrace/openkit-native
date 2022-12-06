@@ -69,7 +69,9 @@ namespace protocol
 		std::shared_ptr<IStatusResponse> sendBeaconRequest(
 			const core::UTF8String& clientIPAddress,
 			const core::UTF8String& beaconData,
-			const protocol::IAdditionalQueryParameters& additionalParameters
+			const protocol::IAdditionalQueryParameters& additionalParameters,
+			int32_t sessionNumber,
+			int64_t deviceID
 		) override;
 
 		std::shared_ptr<IStatusResponse> sendNewSessionRequest(const protocol::IAdditionalQueryParameters& additionalParameters) override;
@@ -130,6 +132,8 @@ namespace protocol
 		static void buildNewSessionURL(core::UTF8String& newSessionURL, const core::UTF8String& baseURL, const core::UTF8String& applicationID, uint32_t serverID);
 
 		static core::UTF8String appendAdditionalQueryParameters(const core::UTF8String& baseUrl, const protocol::IAdditionalQueryParameters& parameters);
+
+		static core::UTF8String appendSessionIdentifierParameter(const core::UTF8String& baseUrl, int32_t sessionNumber, int64_t deviceID);
 
 		static void appendQueryParam(core::UTF8String& url, const char* key, const core::UTF8String& value);
 

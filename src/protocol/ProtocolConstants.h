@@ -31,6 +31,7 @@ namespace protocol
 	constexpr const char* QUERY_KEY_RESPONSE_TYPE = "resp";
 	constexpr const char* QUERY_KEY_CONFIG_TIMESTAMP = "cts";
 	constexpr const char* QUERY_KEY_NEW_SESSION = "ns";
+	constexpr const char* QUERY_KEY_SESSION_IDENTIFIER = "si";
 
 	// constant query parameter values
 	constexpr const char* OPENKIT_VERSION = "8.229.20200";

@@ -81,7 +81,7 @@ protected:
 		mockLogger = MockILogger::createNice();
 
 		auto httpClient = MockIHTTPClient::createNice();
-		ON_CALL(*httpClient, sendBeaconRequest(testing::_, testing::_, testing::_))
+		ON_CALL(*httpClient, sendBeaconRequest(testing::_, testing::_, testing::_, testing::_, testing::_))
 			.WillByDefault(testing::Return(MockIStatusResponse::createNice()));
 
 		mockHTTPClientProvider = MockIHTTPClientProvider::createNice();

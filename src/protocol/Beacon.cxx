@@ -777,7 +777,7 @@ std::shared_ptr<protocol::IStatusResponse> Beacon::send(std::shared_ptr<provider
 		}
 
 		// send the request
-		response = httpClient->sendBeaconRequest(mClientIPAddress, chunk, additionalParameters);
+		response = httpClient->sendBeaconRequest(mClientIPAddress, chunk, additionalParameters, mSessionNumber, mDeviceID);
 		if (response == nullptr || response->isErroneousResponse())
 		{
 			// error happened - but don't know what exactly

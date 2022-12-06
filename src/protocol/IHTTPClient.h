@@ -56,7 +56,9 @@ namespace protocol
 		virtual std::shared_ptr<IStatusResponse> sendBeaconRequest(
 			const core::UTF8String& clientIPAddress,
 			const core::UTF8String& beaconData,
-			const protocol::IAdditionalQueryParameters& additionalParameters
+			const protocol::IAdditionalQueryParameters& additionalParameters,
+			int32_t sessionNumber,
+			int64_t deviceID
 		) = 0;
 
 		///

@@ -3907,7 +3907,7 @@ TEST_F(BeaconTest, sendValidData)
 		.WillByDefault(testing::Return(false));
 
 	auto httpClient = MockIHTTPClient::createNice();
-	ON_CALL(*httpClient, sendBeaconRequest(testing::_, testing::_, testing::_))
+	ON_CALL(*httpClient, sendBeaconRequest(testing::_, testing::_, testing::_, testing::_, testing::_))
 		.WillByDefault(testing::Return(statusResponse));
 
 	auto httpClientProvider = MockIHTTPClientProvider::createNice();
@@ -3915,7 +3915,7 @@ TEST_F(BeaconTest, sendValidData)
 		.WillByDefault(testing::Return(httpClient));
 
 	// expect
-	EXPECT_CALL(*httpClient, sendBeaconRequest(testing::Eq(ipAddress), testing::_, testing::Ref(*mockAdditionalQueryParameters)))
+	EXPECT_CALL(*httpClient, sendBeaconRequest(testing::Eq(ipAddress), testing::_, testing::Ref(*mockAdditionalQueryParameters), testing::Eq(SESSION_ID), testing::Eq(DEVICE_ID)))
 		.Times(1);
 
 	// given
@@ -3962,7 +3962,7 @@ TEST_F(BeaconTest, sendCanHandleMultipleChunks)
 		.WillByDefault(testing::Return(false));
 
 	auto httpClient = MockIHTTPClient::createNice();
-	EXPECT_CALL(*httpClient, sendBeaconRequest(testing::_, testing::_, testing::_))
+	EXPECT_CALL(*httpClient, sendBeaconRequest(testing::_, testing::_, testing::_, testing::_, testing::_))
 		.Times(2)
 		.WillOnce(testing::Return(firstResponse))
 		.WillOnce(testing::Return(secondResponse));
@@ -3992,7 +3992,7 @@ TEST_F(BeaconTest, sendDataAndFakeErrorResponse)
 		.WillByDefault(testing::Return(true));
 
 	auto httpClient = MockIHTTPClient::createNice();
-	ON_CALL(*httpClient, sendBeaconRequest(testing::_, testing::_, testing::_))
+	ON_CALL(*httpClient, sendBeaconRequest(testing::_, testing::_, testing::_, testing::_, testing::_))
 		.WillByDefault(testing::Return(statusResponse));
 
 	auto httpClientProvider = MockIHTTPClientProvider::createNice();
@@ -4000,7 +4000,7 @@ TEST_F(BeaconTest, sendDataAndFakeErrorResponse)
 		.WillByDefault(testing::Return(httpClient));
 
 	// expect
-	EXPECT_CALL(*httpClient, sendBeaconRequest(testing::Eq(ipAddress), testing::_, testing::Ref(*mockAdditionalQueryParameters)))
+	EXPECT_CALL(*httpClient, sendBeaconRequest(testing::Eq(ipAddress), testing::_, testing::Ref(*mockAdditionalQueryParameters), testing::Eq(SESSION_ID), testing::Eq(DEVICE_ID)))
 		.Times(1);
 
 	// given
