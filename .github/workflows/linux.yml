@@ -1,0 +1,64 @@
+name: Linux Build & Test
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    name: ${{matrix.NAME}}
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        include:
+        - BUILD_TYPE: "Release"
+          BUILD_SHARED_LIBS: "On"
+          NAME: "g++5 Release Dynamic x64"
+          CC: "gcc-5"
+          CXX: "g++-5"
+        - BUILD_TYPE: "Release"
+          BUILD_SHARED_LIBS: "Off"
+          NAME: "g++5 Release Static x64"
+          CC: "gcc-5"
+          CXX: "g++-5"
+        - BUILD_TYPE: "Release"
+          BUILD_SHARED_LIBS: "On"
+          NAME: "clang 6.0 Release Dynamic x64"
+          CC: "clang-6.0"
+          CXX: "clang++-6.0"
+        - BUILD_TYPE: "Release"
+          BUILD_SHARED_LIBS: "Off"
+          NAME: "clang 6.0 Release Static x64"
+          CC: "clang-6.0"
+          CXX: "clang++-6.0"
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install Compiler
+      run:   |
+         sudo apt update
+         sudo apt install ${{ matrix.CC }} ${{ matrix.CXX }}
+    
+    - name: Create Working directory
+      run: mkdir -p build
+
+    - name: CMake Generation
+      working-directory: ${{github.workspace}}/build
+      run: cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=${{matrix.BUILD_TYPE}} -DOPENKIT_BUILD_TESTS=ON -DBUILD_DOC=OFF -DBUILD_SHARED_LIBS=${{matrix.BUILD_SHARED_LIBS}} .. || exit 1
+      env:
+        CC: ${{ matrix.CC }}
+        CXX: ${{ matrix.CXX }}
+
+    - name: Build
+      run: cmake --build ${{github.workspace}}/build --config ${{matrix.BUILD_TYPE}}
+      env:
+        CC: ${{ matrix.CC }}
+        CXX: ${{ matrix.CXX }}
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      run: ctest -C ${{matrix.BUILD_TYPE}} --timeout 600 --output-on-failure
+      env:
+        CC: ${{ matrix.CC }}
+        CXX: ${{ matrix.CXX }}

@@ -1,16 +1,11 @@
 # Dynatrace OpenKit - C/C++ Reference Implementation
 
  [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+ ![Build Status](https://github.com/Dynatrace/openkit-native/actions/workflows/windows.yml/badge.svg)
+ ![Build Status](https://github.com/Dynatrace/openkit-native/actions/workflows/linux.yml/badge.svg)
 
 :information_source: We changed the default branch name to `main`. You can find the necessary steps to update your local clone on [Scott Hanselman's Blog](https://www.hanselman.com/blog/EasilyRenameYourGitDefaultBranchFromMasterToMain.aspx).  
 We encourage you to rename the default branch in your forks too.
-
-## Build Status
-
-| Operating System | Status  |
-| ---------------- |:-------:|
-| Windows          |[![Build status](https://ci.appveyor.com/api/projects/status/jdpv1bvje56f9na3/branch/main?svg=true)](https://ci.appveyor.com/project/openkitdt/openkit-native/branch/main) |
-| Linux            |[![Build Status](https://travis-ci.org/Dynatrace/openkit-native.svg?branch=main)](https://travis-ci.org/Dynatrace/openkit-native) |
 
 ## What is the OpenKit?
 
