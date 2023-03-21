@@ -141,6 +141,8 @@ set(OPENKIT_SOURCES_CORE_UTIL
     ${CMAKE_CURRENT_LIST_DIR}/core/util/DefaultLogger.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/util/DefaultLogger.h
     ${CMAKE_CURRENT_LIST_DIR}/core/util/EnumClassHash.h
+    ${CMAKE_CURRENT_LIST_DIR}/core/util/EventPayloadBuilderUtil.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/util/EventPayloadBuilderUtil.h
     ${CMAKE_CURRENT_LIST_DIR}/core/util/IInterruptibleThreadSuspender.h
     ${CMAKE_CURRENT_LIST_DIR}/core/util/InetAddressValidator.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/util/InetAddressValidator.h

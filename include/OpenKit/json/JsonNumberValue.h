@@ -118,6 +118,12 @@ namespace openkit
 			///
 			void writeJsonString(JsonWriter& jsonWriter) const override;
 
+			/// 
+			/// Returns a boolean if the number is finite or not
+			/// @return True when the number is finite
+			/// 
+			bool isFinite() const;
+
 		private: // members
 
 			///

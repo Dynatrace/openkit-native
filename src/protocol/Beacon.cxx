@@ -21,10 +21,12 @@
 #include "core/util/InetAddressValidator.h"
 #include "core/util/StringUtil.h"
 #include "core/util/ConnectionTypeUtil.h"
+#include "core/util/EventPayloadBuilderUtil.h"
 #include "providers/DefaultPRNGenerator.h"
 #include "OpenKit/json/JsonObjectValue.h"
 #include "OpenKit/json/JsonStringValue.h"
 #include "OpenKit/json/JsonNumberValue.h"
+#include "OpenKit/json/JsonBooleanValue.h"
 #include "OpenKitVersion.h"
 #include <random>
 #include <core/objects/EventPayloadAttributes.h>
@@ -645,6 +647,11 @@ void Beacon::sendBizEvent(const core::UTF8String& type, const openkit::json::Jso
 	generateEventPayload(builder);
 	builder->addNonOverridableAttribute(core::objects::EVENT_KIND, openkit::json::JsonStringValue::fromString(core::objects::EVENT_KIND_BIZ));
 
+	if (core::util::EventPayloadBuilderUtil::isEventContainingNonFiniteNumericValues(builder))
+	{
+		builder->addNonOverridableAttribute("dt.rum.has_nfn_values", openkit::json::JsonBooleanValue::trueValue());
+	}
+
 	sendEventPayload(*builder);
 }
 
@@ -669,6 +676,11 @@ void Beacon::sendEvent(const core::UTF8String& name, const openkit::json::JsonOb
 	generateEventPayload(builder);
 	builder->addNonOverridableAttribute("event.name", openkit::json::JsonStringValue::fromString(name.getStringData()))
 		.addOverridableAttribute(core::objects::EVENT_KIND, openkit::json::JsonStringValue::fromString(core::objects::EVENT_KIND_RUM));
+
+	if (core::util::EventPayloadBuilderUtil::isEventContainingNonFiniteNumericValues(builder))
+	{
+		builder->addNonOverridableAttribute("dt.rum.has_nfn_values", openkit::json::JsonBooleanValue::trueValue());
+	}
 
 	sendEventPayload(*builder);
 }
@@ -698,7 +710,7 @@ void Beacon::generateEventPayload(std::shared_ptr<core::objects::EventPayloadBui
 	builder->addNonOverridableAttribute(EVENT_PAYLOAD_APPLICATION_ID, openkit::json::JsonStringValue::fromString(openKitConfig->getApplicationId().getStringData()));
 	builder->addNonOverridableAttribute(EVENT_PAYLOAD_INSTANCE_ID, openkit::json::JsonStringValue::fromString(core::util::StringUtil::toInvariantString(getDeviceID())));
 	builder->addNonOverridableAttribute(EVENT_PAYLOAD_SESSION_ID, openkit::json::JsonStringValue::fromString(core::util::StringUtil::toInvariantString(getSessionNumber())));
-	builder->addNonOverridableAttribute(EVENT_SCHEMA_VERSION, openkit::json::JsonStringValue::fromString("1.1"));
+	builder->addNonOverridableAttribute(EVENT_SCHEMA_VERSION, openkit::json::JsonStringValue::fromString("1.2"));
 	builder->addOverridableAttribute(core::objects::APP_VERSION, openkit::json::JsonStringValue::fromString(openKitConfig->getApplicationVersion().getStringData()));
 	builder->addOverridableAttribute(core::objects::OS_NAME, openkit::json::JsonStringValue::fromString(openKitConfig->getOperatingSystem().getStringData()));
 	builder->addOverridableAttribute(core::objects::DEVICE_MANUFACTURER, openkit::json::JsonStringValue::fromString(openKitConfig->getManufacturer().getStringData()));

@@ -83,6 +83,11 @@ EventPayloadBuilder& EventPayloadBuilder::cleanReservedInternalAttributes()
 	return *this;
 }
 
+openkit::json::JsonObjectValue::JsonObjectMapPtr EventPayloadBuilder::getAttributes() const
+{
+	return mAttributes;
+}
+
 std::string EventPayloadBuilder::build()
 {
 	return openkit::json::JsonObjectValue::fromMap(mAttributes)->toString();

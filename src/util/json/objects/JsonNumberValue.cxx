@@ -21,6 +21,7 @@
 
 #include <stdexcept>
 #include <sstream>
+#include <cmath>
 
 using namespace openkit::json;
 using namespace util::json::constants;
@@ -152,4 +153,9 @@ void JsonNumberValue::writeJsonString(JsonWriter& jsonWriter) const
 	}
 
 	jsonWriter.insertValue(str);
+}
+
+bool JsonNumberValue::isFinite() const
+{
+    return isInteger() || std::isfinite(mDoubleValue);
 }

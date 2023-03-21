@@ -81,6 +81,7 @@ set(OPENKIT_SOURCES_TEST_CORE_OBJECTS
 set(OPENKIT_SOURCES_TEST_CORE_UTIL
     ${CMAKE_CURRENT_LIST_DIR}/core/util/CompressorTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/util/DefaultLoggerTest.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/core/util/EventPayloadBuilderUtilTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/util/InetAddressValidatorTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/util/InterruptibleThreadSuspenderTest.cxx
     ${CMAKE_CURRENT_LIST_DIR}/core/util/StringUtilTest.cxx

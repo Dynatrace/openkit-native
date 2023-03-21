@@ -60,6 +60,12 @@ namespace core
 			EventPayloadBuilder& cleanReservedInternalAttributes();
 
 			/// <summary>
+			/// Returns the currently used attributes
+			/// </summary>
+			/// <returns>Attributes of the builder</returns>
+			openkit::json::JsonObjectValue::JsonObjectMapPtr getAttributes() const;
+
+			/// <summary>
 			/// Building the whole payload string
 			/// </summary>
 			/// <returns>Payload string</returns>
