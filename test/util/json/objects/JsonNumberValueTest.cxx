@@ -245,3 +245,48 @@ TEST_F(JsonNumberValueTest, toStringFromDouble)
 	// then
 	ASSERT_THAT(obtained->toString(), testing::Eq(std::string("17.2")));
 }
+
+TEST_F(JsonNumberValueTest, toStringReturnNullIfNaN)
+{
+	// given
+	auto obtained = JsonNumberValue::fromDouble(nan(""));
+
+	// then
+	ASSERT_THAT(obtained->toString(), testing::Eq(std::string("null")));
+}
+
+TEST_F(JsonNumberValueTest, toStringReturnNullIfInfinity)
+{
+	// given
+	auto obtained = JsonNumberValue::fromDouble(std::numeric_limits<float>::infinity());
+
+	// then
+	ASSERT_THAT(obtained->toString(), testing::Eq(std::string("null")));
+}
+
+TEST_F(JsonNumberValueTest, isFiniteReturnFalseIfNaN)
+{
+	// given
+	auto obtained = JsonNumberValue::fromDouble(nan(""));
+
+	// then
+	ASSERT_FALSE(obtained->isFinite());
+}
+
+TEST_F(JsonNumberValueTest, isFiniteReturnFalseIfInfinity)
+{
+	// given
+	auto obtained = JsonNumberValue::fromDouble(std::numeric_limits<float>::infinity());
+
+	// then
+	ASSERT_FALSE(obtained->isFinite());
+}
+
+TEST_F(JsonNumberValueTest, isFiniteReturnTrueIfDouble)
+{
+	// given
+	auto obtained = JsonNumberValue::fromDouble(42.0);
+
+	// then
+	ASSERT_TRUE(obtained->isFinite());
+}

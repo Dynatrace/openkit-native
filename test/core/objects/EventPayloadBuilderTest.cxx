@@ -18,6 +18,7 @@
 #include <core/objects/EventPayloadBuilder.h>
 #include <OpenKit/json/JsonObjectValue.h>
 #include <OpenKit/json/JsonStringValue.h>
+#include <OpenKit/json/JsonNumberValue.h>
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -126,4 +127,133 @@ TEST_F(EventPayloadBuilderTest, addOverridableAttributeWhichIsNotAvailable)
 
 	// then
 	ASSERT_THAT(eventPayloadBuilder.build(), testing::Eq("{\"Overridable\":\"Changed\"}"));
+}
+
+TEST_F(EventPayloadBuilderTest, buildMapWithNanValue)
+{
+	// given
+	auto sampleMap = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
+	sampleMap->insert(std::make_pair("custom", openkit::json::JsonNumberValue::fromDouble(nan(""))));
+
+	EventPayloadBuilder eventPayloadBuilder(sampleMap, mockLogger);
+
+	// then
+	ASSERT_THAT(eventPayloadBuilder.build(), testing::Eq("{\"custom\":null}"));
+}
+
+TEST_F(EventPayloadBuilderTest, buildMapWithInfiniteValue)
+{
+	// given
+	auto sampleMap = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
+	sampleMap->insert(std::make_pair("custom", openkit::json::JsonNumberValue::fromDouble(std::numeric_limits<float>::infinity())));
+	EventPayloadBuilder eventPayloadBuilder(sampleMap, mockLogger);
+
+	// then
+	ASSERT_THAT(eventPayloadBuilder.build(), testing::Eq("{\"custom\":null}"));
+}
+
+TEST_F(EventPayloadBuilderTest, buildMapWithArrayThatContainsNanValue)
+{
+	// given
+	auto sampleMap = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
+
+	auto jsonValues = std::make_shared<openkit::json::JsonArrayValue::JsonValueList>();
+	jsonValues->push_back(openkit::json::JsonNumberValue::fromDouble(nan("")));
+
+	auto sampleArray = openkit::json::JsonArrayValue::fromList(jsonValues);
+
+	sampleMap->insert(std::make_pair("custom", sampleArray));
+	EventPayloadBuilder eventPayloadBuilder(sampleMap, mockLogger);
+
+	// then
+	ASSERT_THAT(eventPayloadBuilder.build(), testing::Eq("{\"custom\":[null]}"));
+}
+
+TEST_F(EventPayloadBuilderTest, buildMapWithArrayThatContainsInfiniteValue)
+{
+	// given
+	auto sampleMap = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
+
+	auto jsonValues = std::make_shared<openkit::json::JsonArrayValue::JsonValueList>();
+	jsonValues->push_back(openkit::json::JsonNumberValue::fromDouble(std::numeric_limits<float>::infinity()));
+
+	auto sampleArray = openkit::json::JsonArrayValue::fromList(jsonValues);
+
+	sampleMap->insert(std::make_pair("custom", sampleArray));
+	EventPayloadBuilder eventPayloadBuilder(sampleMap, mockLogger);
+
+	// then
+	ASSERT_THAT(eventPayloadBuilder.build(), testing::Eq("{\"custom\":[null]}"));
+}
+
+TEST_F(EventPayloadBuilderTest, buildMapWithNestedMapThatContainsNanValue)
+{
+	// given
+	auto sampleMap = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
+	auto nestedMap = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
+	nestedMap->insert(std::make_pair("custom", openkit::json::JsonNumberValue::fromDouble(nan(""))));
+	sampleMap->insert(std::make_pair("custom", openkit::json::JsonObjectValue::fromMap(nestedMap)));
+
+	EventPayloadBuilder eventPayloadBuilder(sampleMap, mockLogger);
+
+	// then
+	ASSERT_THAT(eventPayloadBuilder.build(), testing::Eq("{\"custom\":{\"custom\":null}}"));
+}
+
+TEST_F(EventPayloadBuilderTest, buildMapWithNestedMapThatContainsInfiniteValue)
+{
+	// given
+	auto sampleMap = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
+	auto nestedMap = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
+	nestedMap->insert(std::make_pair("custom", openkit::json::JsonNumberValue::fromDouble(std::numeric_limits<float>::infinity())));
+	sampleMap->insert(std::make_pair("custom", openkit::json::JsonObjectValue::fromMap(nestedMap)));
+
+	EventPayloadBuilder eventPayloadBuilder(sampleMap, mockLogger);
+
+	// then
+	ASSERT_THAT(eventPayloadBuilder.build(), testing::Eq("{\"custom\":{\"custom\":null}}"));
+}
+
+TEST_F(EventPayloadBuilderTest, buildMapWithNestedMapThatContainsArrayWithNanValue)
+{
+	// given
+	auto sampleMap = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
+	auto nestedMap = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
+
+	auto jsonValuesArray = std::make_shared<openkit::json::JsonArrayValue::JsonValueList>();
+	jsonValuesArray->push_back(openkit::json::JsonStringValue::fromString("Test"));
+	jsonValuesArray->push_back(openkit::json::JsonNumberValue::fromLong(1));
+	jsonValuesArray->push_back(openkit::json::JsonNumberValue::fromDouble(nan("")));
+	jsonValuesArray->push_back(openkit::json::JsonNumberValue::fromLong(2));
+	auto nestedArray = openkit::json::JsonArrayValue::fromList(jsonValuesArray);
+
+	nestedMap->insert(std::make_pair("custom", nestedArray));
+	sampleMap->insert(std::make_pair("custom", openkit::json::JsonObjectValue::fromMap(nestedMap)));
+
+	EventPayloadBuilder eventPayloadBuilder(sampleMap, mockLogger);
+
+	// then
+	ASSERT_THAT(eventPayloadBuilder.build(), testing::Eq("{\"custom\":{\"custom\":[\"Test\",1,null,2]}}"));
+}
+
+TEST_F(EventPayloadBuilderTest, buildMapWithNestedMapThatContainsArrayWithInfiniteValue)
+{
+	// given
+	auto sampleMap = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
+	auto nestedMap = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
+
+	auto jsonValuesArray = std::make_shared<openkit::json::JsonArrayValue::JsonValueList>();
+	jsonValuesArray->push_back(openkit::json::JsonStringValue::fromString("Test"));
+	jsonValuesArray->push_back(openkit::json::JsonNumberValue::fromLong(1));
+	jsonValuesArray->push_back(openkit::json::JsonNumberValue::fromDouble(std::numeric_limits<float>::infinity()));
+	jsonValuesArray->push_back(openkit::json::JsonNumberValue::fromLong(2));
+	auto nestedArray = openkit::json::JsonArrayValue::fromList(jsonValuesArray);
+
+	nestedMap->insert(std::make_pair("custom", nestedArray));
+	sampleMap->insert(std::make_pair("custom", openkit::json::JsonObjectValue::fromMap(nestedMap)));
+
+	EventPayloadBuilder eventPayloadBuilder(sampleMap, mockLogger);
+
+	// then
+	ASSERT_THAT(eventPayloadBuilder.build(), testing::Eq("{\"custom\":{\"custom\":[\"Test\",1,null,2]}}"));
 }

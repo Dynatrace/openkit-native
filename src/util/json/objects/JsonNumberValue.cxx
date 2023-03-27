@@ -147,9 +147,13 @@ void JsonNumberValue::writeJsonString(JsonWriter& jsonWriter) const
 	{
 		str = core::util::StringUtil::toInvariantString(mLongValue);
 	}
-	else
+	else if (isFinite())
 	{
 		str = core::util::StringUtil::toInvariantString(mDoubleValue);
+	}
+	else
+	{
+		str = "null";
 	}
 
 	jsonWriter.insertValue(str);
