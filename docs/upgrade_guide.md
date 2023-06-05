@@ -1,5 +1,9 @@
 # Upgrade guide for OpenKit C/C++
 
+## ## OpenKit .C/C++ 3.0 to 3.1
+There are no breaking API changes and upgrading is straightforward, by [updating][update] the library
+to the latest 3.1 release.
+
 ## ## OpenKit .C/C++ 2.1 to 3.0
 Appmon has been removed from OpenKit C/C++. If you don't want to replace your AppMon related code stay on the latest 2.1.x release.
 
