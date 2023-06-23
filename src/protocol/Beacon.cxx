@@ -626,11 +626,6 @@ void Beacon::sendBizEvent(const core::UTF8String& type, const openkit::json::Jso
 		throw std::invalid_argument("type.empty() is true");
 	}
 
-	if (!mBeaconConfiguration->getPrivacyConfiguration()->isEventReportingAllowed())
-	{
-		return;
-	}
-
 	if (!isDataCapturingEnabled())
 	{
 		return;

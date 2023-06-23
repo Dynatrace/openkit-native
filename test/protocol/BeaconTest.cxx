@@ -2681,24 +2681,6 @@ TEST_F(BeaconTest, sendBizEventNotReportedIfDataSendingDisallowed)
 	target->sendBizEvent(eventType, emptyMap);
 }
 
-TEST_F(BeaconTest, sendBizEventNotReportedIfSendingEventDataDisallowed)
-{
-	// with
-	ON_CALL(*mockPrivacyConfiguration, isEventReportingAllowed())
-		.WillByDefault(testing::Return(false));
-
-	Utf8String_t eventType("event type");
-	auto emptyMap = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>();
-	auto target = createBeacon()->build();
-
-	// expect
-	EXPECT_CALL(*mockBeaconCache, addEventData(testing::_, testing::_, testing::_))
-		.Times(0);
-
-	// when, expect no interaction with beacon cache
-	target->sendBizEvent(eventType, emptyMap);
-}
-
 TEST_F(BeaconTest, sendBizEventNotReportIfDisallowedByTrafficControl)
 {
 	// expect
