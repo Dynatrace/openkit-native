@@ -30,7 +30,7 @@ set(BUILD_SHARED_LIBS_SAVED "${BUILD_SHARED_LIBS}")
 if (NOT BUILD_SHARED_LIBS OR OPENKIT_MONOLITHIC_SHARED_LIB)
     set(BUILD_SHARED_LIBS OFF)
 endif()
-add_subdirectory(zlib-1.2.11)
+add_subdirectory(zlib-1.3)
 set(BUILD_SHARED_LIBS "${BUILD_SHARED_LIBS_SAVED}")
 
 ######
@@ -69,14 +69,8 @@ set(BUILD_SHARED_LIBS_SAVED "${BUILD_SHARED_LIBS}")
 if (NOT BUILD_SHARED_LIBS OR OPENKIT_MONOLITHIC_SHARED_LIB)
     set(BUILD_SHARED_LIBS OFF)
 endif()
-add_subdirectory(curl-7.75.0)
+add_subdirectory(curl-8.4.0)
 set(BUILD_SHARED_LIBS "${BUILD_SHARED_LIBS_SAVED}")
-
-set_target_properties(libcurl
-    PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 
 ######
 # google test & google mock
@@ -98,7 +92,7 @@ if(OPENKIT_BUILD_TESTS)
 	# by temporarily turning of the BUILD_SHARED_LIBS
 	set(BUILD_SHARED_LIBS_SAVED "${BUILD_SHARED_LIBS}")
     set(BUILD_SHARED_LIBS OFF)
-    add_subdirectory(googletest-release-1.10.0)
+    add_subdirectory(googletest-release-1.12.1)
     set(BUILD_SHARED_LIBS "${BUILD_SHARED_LIBS_SAVED}")
 	
 endif()
@@ -107,8 +101,6 @@ set_target_properties(gmock PROPERTIES FOLDER 3rdparty/googletest)
 set_target_properties(gmock_main PROPERTIES FOLDER 3rdparty/googletest)
 set_target_properties(gtest PROPERTIES FOLDER 3rdparty/googletest)
 set_target_properties(gtest_main PROPERTIES FOLDER 3rdparty/googletest)
-set_target_properties(libcurl PROPERTIES FOLDER 3rdparty/libcurl)
-set_target_properties(uninstall PROPERTIES FOLDER 3rdparty/libcurl)
 if (BUILD_SHARED_LIBS AND NOT OPENKIT_MONOLITHIC_SHARED_LIB)
 	set_target_properties(zlib PROPERTIES FOLDER 3rdparty/zlib)
 else ()

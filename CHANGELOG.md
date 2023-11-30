@@ -4,6 +4,9 @@
 
 ### Changed
 - `Session.sendBizEvent` will always send an event regardless of the `DataCollectionLevel` 
+- Updated `libcurl` to 8.4.0
+- Updated `zlib` to 1.3
+- Updated `googletest` to 1.12.1
 
 ## 3.1.0 [Release date: 2023-06-05]
 [GitHub Releases](https://github.com/Dynatrace/openkit-native/releases/tag/v3.1.0)

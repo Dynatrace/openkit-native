@@ -9,13 +9,13 @@ The following section describes the required programs and libraries.
 The following programs need to be available to build OpenKit C/C++.
 
 * CMake (https://cmake.org/)
-  * any version >= 3.4.0
+  * any version >= 3.19.1
 * A C++11 compliant compiler, like
   * Visual Studio 2015
   * Visual Studio 2017
   * Visual Studio 2019
-  * GCC (>= 5.0.0)
-  * Clang (>= 3.8.0)
+  * GCC (>= 9.3)
+  * Clang (>= 10.0)
 
 ### Optional programs
 

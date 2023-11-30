@@ -1,3 +1,4 @@
+
 name: Linux Build & Test
 
 on:
@@ -7,41 +8,41 @@ on:
 jobs:
   build:
     name: ${{matrix.NAME}}
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         include:
         - BUILD_TYPE: "Release"
           BUILD_SHARED_LIBS: "On"
-          NAME: "g++5 Release Dynamic x64"
-          CC: "gcc-5"
-          CXX: "g++-5"
+          NAME: "g++9.3 Release Dynamic x64"
+          CC: "gcc"
+          CXX: "g++"
         - BUILD_TYPE: "Release"
           BUILD_SHARED_LIBS: "Off"
-          NAME: "g++5 Release Static x64"
-          CC: "gcc-5"
-          CXX: "g++-5"
+          NAME: "g++9.3 Release Static x64"
+          CC: "gcc"
+          CXX: "g++"
         - BUILD_TYPE: "Release"
           BUILD_SHARED_LIBS: "On"
-          NAME: "clang 6.0 Release Dynamic x64"
-          CC: "clang-6.0"
-          CXX: "clang++-6.0"
+          NAME: "clang 10.0 Release Dynamic x64"
+          CC: "clang"
+          CXX: "clang++"
         - BUILD_TYPE: "Release"
           BUILD_SHARED_LIBS: "Off"
-          NAME: "clang 6.0 Release Static x64"
-          CC: "clang-6.0"
-          CXX: "clang++-6.0"
+          NAME: "clang 10.0 Release Static x64"
+          CC: "clang"
+          CXX: "clang++"
 
     steps:
     - uses: actions/checkout@v3
-
-    - name: Install Compiler
-      run:   |
-         sudo apt update
-         sudo apt install ${{ matrix.CC }} ${{ matrix.CXX }}
     
     - name: Create Working directory
       run: mkdir -p build
+
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@v1.14.1
+      with:
+        cmake-version: '3.19.1'
 
     - name: CMake Generation
       working-directory: ${{github.workspace}}/build
