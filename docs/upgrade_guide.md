@@ -1,5 +1,8 @@
 # Upgrade guide for OpenKit C/C++
 
+## ## OpenKit .C/C++ 3.1 to 3.2
+Be aware that some requirements (CMake, GCC, Clang) for the build have been changed, see [required programs][programs].
+
 ## ## OpenKit .C/C++ 3.0 to 3.1
 There are no breaking API changes and upgrading is straightforward, by [updating][update] the library
 to the latest 3.1 release.
@@ -58,3 +61,4 @@ to the latest 1.1 release.
    Use `DynatraceOpenKitBuilder::DynatraceOpenKitBuilder(const char* endpointURL, const char* applicationID, int64_t deviceID)` instead.
 
 [update]: ./installing.md#obtaining-and-updating-openkit-native
+[programs]: ./building-openkit.md#required-programs
