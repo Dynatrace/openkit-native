@@ -34,7 +34,7 @@ namespace protocol
 	constexpr const char* QUERY_KEY_SESSION_IDENTIFIER = "si";
 
 	// constant query parameter values
-	constexpr const char* OPENKIT_VERSION = "8.281.30200";
+	constexpr const char* OPENKIT_VERSION = "8.281.30300";
 	constexpr const char* PLATFORM_TYPE_OPENKIT = "1";
 	constexpr const char* AGENT_TECHNOLOGY_TYPE = "okc";
 	constexpr int32_t PROTOCOL_VERSION = 3;
