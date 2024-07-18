@@ -83,6 +83,11 @@ const char* WebRequestTracer::getTag() const
 
 std::shared_ptr<openkit::IWebRequestTracer> WebRequestTracer::setBytesSent(int32_t bytesSent)
 {
+	return this->setBytesSent((int64_t) bytesSent);
+}
+
+std::shared_ptr<openkit::IWebRequestTracer> WebRequestTracer::setBytesSent(int64_t bytesSent)
+{
 	// synchronized scope
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
@@ -96,6 +101,11 @@ std::shared_ptr<openkit::IWebRequestTracer> WebRequestTracer::setBytesSent(int32
 }
 
 std::shared_ptr<openkit::IWebRequestTracer> WebRequestTracer::setBytesReceived(int32_t bytesReceived)
+{
+	return this->setBytesReceived((int64_t) bytesReceived);
+}
+
+std::shared_ptr<openkit::IWebRequestTracer> WebRequestTracer::setBytesReceived(int64_t bytesReceived)
 {
 	// synchronized scope
 	{
@@ -208,12 +218,12 @@ int32_t WebRequestTracer::getEndSequenceNo() const
 	return mEndSequenceNo;
 }
 
-int32_t WebRequestTracer::getBytesSent() const
+int64_t WebRequestTracer::getBytesSent() const
 {
 	return mBytesSent;
 }
 
-int32_t WebRequestTracer::getBytesReceived() const
+int64_t WebRequestTracer::getBytesReceived() const
 {
 	return mBytesReceived;
 }

@@ -1731,6 +1731,11 @@ extern "C" {
 
 	void setBytesSent(WebRequestTracerHandle* webRequestTracerHandle, int32_t bytesSent)
 	{
+		setBytesSentLong(webRequestTracerHandle, bytesSent);
+	}
+
+	void setBytesSentLong(WebRequestTracerHandle* webRequestTracerHandle, int64_t bytesSent)
+	{
 		TRY
 		{
 			if (webRequestTracerHandle)
@@ -1744,6 +1749,11 @@ extern "C" {
 	}
 
 	void setBytesReceived(WebRequestTracerHandle* webRequestTracerHandle, int32_t bytesReceived)
+	{
+		setBytesReceivedLong(webRequestTracerHandle, bytesReceived);
+	}
+
+	void setBytesReceivedLong(WebRequestTracerHandle* webRequestTracerHandle, int64_t bytesReceived)
 	{
 		TRY
 		{

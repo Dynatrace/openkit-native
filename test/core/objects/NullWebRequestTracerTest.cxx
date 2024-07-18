@@ -65,6 +65,34 @@ TEST_F(NullWebRequestTracerTest, setBytesReceivedReturnsSelf)
 	ASSERT_THAT(nullTracer, testing::Eq(target));
 }
 
+TEST_F(NullWebRequestTracerTest, setBytesSentLongReturnsSelf)
+{
+	// given
+	auto target = NullWebRequestTracer_t::instance();
+
+	// when
+	auto obtained = target->setBytesSent(37L);
+
+	// then
+	auto nullTracer = std::dynamic_pointer_cast<NullWebRequestTracer_t>(obtained);
+	ASSERT_THAT(nullTracer, testing::NotNull());
+	ASSERT_THAT(nullTracer, testing::Eq(target));
+}
+
+TEST_F(NullWebRequestTracerTest, setBytesReceivedLongReturnsSelf)
+{
+	// given
+	auto target = NullWebRequestTracer_t::instance();
+
+	// when
+	auto obtained = target->setBytesReceived(73L);
+
+	// then
+	auto nullTracer = std::dynamic_pointer_cast<NullWebRequestTracer_t>(obtained);
+	ASSERT_THAT(nullTracer, testing::NotNull());
+	ASSERT_THAT(nullTracer, testing::Eq(target));
+}
+
 TEST_F(NullWebRequestTracerTest, startReturnsSelf)
 {
 	// given

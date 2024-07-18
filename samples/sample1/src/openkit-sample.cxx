@@ -105,8 +105,8 @@ int32_t main(int32_t argc, char** argv)
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(144));
 
-		webRequest->setBytesSent(123);
-		webRequest->setBytesReceived(45);
+		webRequest->setBytesSent(123L);
+		webRequest->setBytesReceived(45L);
 		webRequest->stop(200);
 
 		childAction1->leaveAction();

@@ -2,6 +2,20 @@
 
 ## [Unreleased](https://github.com/Dynatrace/openkit-native/compare/v3.2.0...HEAD)
 
+### Added
+
+- `IWebRequestTracer::setBytesSent(int64_t bytes)` to increase the size range
+- `IWebRequestTracer::setBytesReceived(int64_t bytes)` to increase the size range
+- `setBytesSentLong(struct WebRequestTracerHandle* webRequestTracerHandle, int64_t bytes)` to increase the size range
+- `setBytesReceivedLong(struct WebRequestTracerHandle* webRequestTracerHandle, int64_t bytes)` to increase the size range
+
+### Changed
+
+- Deprecated `IWebRequestTracer::setBytesSent(int32_t bytes)` due to datatype limitations
+- Deprecated `IWebRequestTracer::setBytesReceived(int32_t bytes)` due to datatype limitations
+- Deprecated `setBytesSent(struct WebRequestTracerHandle* webRequestTracerHandle, int32_t bytes)` due to datatype limitations
+- Deprecated `setBytesReceived(struct WebRequestTracerHandle* webRequestTracerHandle, int32_t bytes)` due to datatype limitations
+
 ## 3.2.0 [Release date: 2023-12-06]
 [GitHub Releases](https://github.com/Dynatrace/openkit-native/releases/tag/v3.2.0)
 

@@ -40,6 +40,16 @@ std::shared_ptr<openkit::IWebRequestTracer> NullWebRequestTracer::setBytesReceiv
 	return shared_from_this();
 }
 
+std::shared_ptr<openkit::IWebRequestTracer> NullWebRequestTracer::setBytesSent(int64_t /*bytesSent*/)
+{
+	return shared_from_this();
+}
+
+std::shared_ptr<openkit::IWebRequestTracer> NullWebRequestTracer::setBytesReceived(int64_t /*bytesReceived*/)
+{
+	return shared_from_this();
+}
+
 std::shared_ptr<openkit::IWebRequestTracer> NullWebRequestTracer::start()
 {
 	return shared_from_this();

@@ -179,7 +179,7 @@ TEST_F(WebRequestTracerTest, setBytesSentSetsTheNumberOfSentBytes)
 
 	// verify
 	ASSERT_EQ(obtained, testWebRequestTracer);
-	ASSERT_EQ(testWebRequestTracer->getBytesSent(), 1234);
+	ASSERT_EQ(testWebRequestTracer->getBytesSent(), 1234L);
 }
 
 TEST_F(WebRequestTracerTest, setBytesSentDoesNotSetAnythingIfStoppedWithResponseCode)
@@ -193,7 +193,7 @@ TEST_F(WebRequestTracerTest, setBytesSentDoesNotSetAnythingIfStoppedWithResponse
 
 	// verify
 	ASSERT_EQ(obtained, testWebRequestTracer);
-	ASSERT_EQ(testWebRequestTracer->getBytesSent(), -1);
+	ASSERT_EQ(testWebRequestTracer->getBytesSent(), -1L);
 }
 
 TEST_F(WebRequestTracerTest, setBytesReceivedSetsTheNumberOfReceivedBytes)
@@ -206,7 +206,7 @@ TEST_F(WebRequestTracerTest, setBytesReceivedSetsTheNumberOfReceivedBytes)
 
 	// verify
 	ASSERT_EQ(obtained, testWebRequestTracer);
-	ASSERT_EQ(testWebRequestTracer->getBytesReceived(), 1234);
+	ASSERT_EQ(testWebRequestTracer->getBytesReceived(), 1234L);
 }
 
 TEST_F(WebRequestTracerTest, setBytesReceivedDoesNotSetAnythingIfStoppedWithResponseCode)
@@ -220,7 +220,61 @@ TEST_F(WebRequestTracerTest, setBytesReceivedDoesNotSetAnythingIfStoppedWithResp
 
 	// verify
 	ASSERT_EQ(obtained, testWebRequestTracer);
-	ASSERT_EQ(testWebRequestTracer->getBytesReceived(), -1);
+	ASSERT_EQ(testWebRequestTracer->getBytesReceived(), -1L);
+}
+
+TEST_F(WebRequestTracerTest, setBytesSentLongSetsTheNumberOfSentBytes)
+{
+	// given
+	auto testWebRequestTracer = createTracer()->build();
+
+	// when
+	auto obtained = testWebRequestTracer->setBytesSent(1234L);
+
+	// verify
+	ASSERT_EQ(obtained, testWebRequestTracer);
+	ASSERT_EQ(testWebRequestTracer->getBytesSent(), 1234L);
+}
+
+TEST_F(WebRequestTracerTest, setBytesSentLongDoesNotSetAnythingIfStoppedWithResponseCode)
+{
+	// given
+	auto testWebRequestTracer = createTracer()->build();
+
+	// when
+	testWebRequestTracer->stop(200);
+	auto obtained = testWebRequestTracer->setBytesSent(1234L);
+
+	// verify
+	ASSERT_EQ(obtained, testWebRequestTracer);
+	ASSERT_EQ(testWebRequestTracer->getBytesSent(), -1L);
+}
+
+TEST_F(WebRequestTracerTest, setBytesReceivedLongSetsTheNumberOfReceivedBytes)
+{
+	// given
+	auto testWebRequestTracer = createTracer()->build();
+
+	// when
+	auto obtained = testWebRequestTracer->setBytesReceived(1234L);
+
+	// verify
+	ASSERT_EQ(obtained, testWebRequestTracer);
+	ASSERT_EQ(testWebRequestTracer->getBytesReceived(), 1234L);
+}
+
+TEST_F(WebRequestTracerTest, setBytesReceivedLongDoesNotSetAnythingIfStoppedWithResponseCode)
+{
+	// given
+	auto testWebRequestTracer = createTracer()->build();
+
+	// when
+	testWebRequestTracer->stop(200);
+	auto obtained = testWebRequestTracer->setBytesReceived(1234L);
+
+	// verify
+	ASSERT_EQ(obtained, testWebRequestTracer);
+	ASSERT_EQ(testWebRequestTracer->getBytesReceived(), -1L);
 }
 
 TEST_F(WebRequestTracerTest, startSetsTheStartTime)

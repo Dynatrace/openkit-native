@@ -969,7 +969,9 @@ extern "C" {
 	///
 	/// @param[in] webRequestTracerHandle the handle returned by @ref traceWebRequestOnRootAction or @ref traceWebRequestOnAction
 	/// @param[in] bytesSent number of bytes sent
+	/// @deprecated This method should no longer be used due its datatype limitation. Use setBytesSent(struct WebRequestTracerHandle*, int64_t) instead.
 	///
+	OPENKIT_DEPRECATED
 	OPENKIT_EXPORT void setBytesSent(struct WebRequestTracerHandle* webRequestTracerHandle, int32_t bytesSent);
 
 	///
@@ -977,8 +979,26 @@ extern "C" {
 	///
 	/// @param[in] webRequestTracerHandle the handle returned by @ref traceWebRequestOnRootAction or @ref traceWebRequestOnAction
 	/// @param[in] bytesReceived number of bytes received
+	/// @deprecated This method should no longer be used due its datatype limitation. Use setBytesSent(struct WebRequestTracerHandle*, int64_t) instead.
 	///
+	OPENKIT_DEPRECATED
 	OPENKIT_EXPORT void setBytesReceived(struct WebRequestTracerHandle* webRequestTracerHandle, int32_t bytesReceived);
+
+	///
+	/// Sets the amount of sent data of this web request. Has to be called before @ref stopWebRequest().
+	///
+	/// @param[in] webRequestTracerHandle the handle returned by @ref traceWebRequestOnRootAction or @ref traceWebRequestOnAction
+	/// @param[in] bytesSent number of bytes sent
+	///
+	OPENKIT_EXPORT void setBytesSentLong(struct WebRequestTracerHandle* webRequestTracerHandle, int64_t bytesSent);
+
+	///
+	/// Sets the amount of received data of this web request. Has to be called before @ref stopWebRequest().
+	///
+	/// @param[in] webRequestTracerHandle the handle returned by @ref traceWebRequestOnRootAction or @ref traceWebRequestOnAction
+	/// @param[in] bytesReceived number of bytes received
+	///
+	OPENKIT_EXPORT void setBytesReceivedLong(struct WebRequestTracerHandle* webRequestTracerHandle, int64_t bytesReceived);
 
 
 #ifdef __cplusplus

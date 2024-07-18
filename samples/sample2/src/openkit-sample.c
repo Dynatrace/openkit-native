@@ -205,8 +205,8 @@ int32_t main(int32_t argc, char** argv)
 #else
 		usleep(144 * 1000);
 #endif
-		setBytesSent(webRequest, 123);
-		setBytesReceived(webRequest, 45);
+		setBytesSent(webRequest, 123L);
+		setBytesReceived(webRequest, 45L);
 		stopWebRequestWithResponseCode(webRequest, 200);
 
 		leaveAction(actionHandle);

@@ -47,6 +47,10 @@ namespace core
 
 			std::shared_ptr<openkit::IWebRequestTracer> setBytesReceived(int32_t /*bytesReceived*/) override;
 
+			std::shared_ptr<openkit::IWebRequestTracer> setBytesSent(int64_t /*bytesSent*/) override;
+
+			std::shared_ptr<openkit::IWebRequestTracer> setBytesReceived(int64_t /*bytesReceived*/) override;
+
 			std::shared_ptr<openkit::IWebRequestTracer> start() override;
 
 			void stop(int32_t /*responseCode*/) override;

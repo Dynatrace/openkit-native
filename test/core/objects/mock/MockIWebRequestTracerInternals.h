@@ -38,9 +38,10 @@ namespace test {
 		{
 			ON_CALL(*this, getTag()).WillByDefault(testing::Return(DefaultValues::EMPTY_CHAR_STRING));
 			ON_CALL(*this, getURL()).WillByDefault(testing::ReturnRef(DefaultValues::UTF8_EMPTY_STRING));
-
-			ON_CALL(*this, setBytesSent(testing::_)).WillByDefault(testing::Return(nullptr));
-			ON_CALL(*this, setBytesReceived(testing::_)).WillByDefault(testing::Return(nullptr));
+			ON_CALL(*this, setBytesSent(testing::An<int64_t>())).WillByDefault(testing::Return(nullptr));
+			ON_CALL(*this, setBytesReceived(testing::An<int64_t>())).WillByDefault(testing::Return(nullptr));
+			ON_CALL(*this, setBytesSent(testing::An<int32_t>())).WillByDefault(testing::Return(nullptr));
+			ON_CALL(*this, setBytesReceived(testing::An<int32_t>())).WillByDefault(testing::Return(nullptr));
 			ON_CALL(*this, start()).WillByDefault(testing::Return(nullptr));
 		}
 
@@ -76,6 +77,24 @@ namespace test {
 			(override)
 		);
 
+		MOCK_METHOD(
+			std::shared_ptr<openkit::IWebRequestTracer>,
+			setBytesSent,
+			(
+				int64_t /* bytesSent */
+				),
+			(override)
+		);
+
+		MOCK_METHOD(
+			std::shared_ptr<openkit::IWebRequestTracer>,
+			setBytesReceived,
+			(
+				int64_t /* bytes/received */
+				),
+			(override)
+		);
+
 		MOCK_METHOD(std::shared_ptr<openkit::IWebRequestTracer>, start, (), (override));
 
 		MOCK_METHOD(void, stop, (int32_t), (override));
@@ -96,9 +115,9 @@ namespace test {
 
 		MOCK_METHOD(int32_t, getEndSequenceNo, (), (const, override));
 
-		MOCK_METHOD(int32_t, getBytesSent, (), (const, override));
+		MOCK_METHOD(int64_t, getBytesSent, (), (const, override));
 
-		MOCK_METHOD(int32_t, getBytesReceived, (), (const, override));
+		MOCK_METHOD(int64_t, getBytesReceived, (), (const, override));
 
 		MOCK_METHOD(bool, isStopped, (), (const, override));
 	};

@@ -85,6 +85,10 @@ namespace core
 
 			std::shared_ptr<IWebRequestTracer> setBytesReceived(int32_t bytesReceived) override;
 
+			std::shared_ptr<IWebRequestTracer> setBytesSent(int64_t bytesSent) override;
+
+			std::shared_ptr<IWebRequestTracer> setBytesReceived(int64_t bytesReceived) override;
+
 			std::shared_ptr<IWebRequestTracer> start() override;
 
 			void stop(int32_t responseCode) override;
@@ -133,13 +137,13 @@ namespace core
 			/// Returns the number of bytes sent
 			/// @returns amount of bytes sent
 			///
-			int32_t getBytesSent() const override;
+			int64_t getBytesSent() const override;
 
 			///
 			/// Returns the number of bytes received
 			/// @returns amount of bytes received
 			///
-			int32_t getBytesReceived() const override;
+			int64_t getBytesReceived() const override;
 
 			///
 			/// Returns a flag if stop() has already been called
@@ -190,10 +194,10 @@ namespace core
 			int32_t mResponseCode;
 
 			/// Number of bytes sent for the web request
-			int32_t mBytesSent;
+			int64_t mBytesSent;
 
 			/// Number of bytes received for the web request
-			int32_t mBytesReceived;
+			int64_t mBytesReceived;
 
 			/// web request start time
 			int64_t mStartTime;

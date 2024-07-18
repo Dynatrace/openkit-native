@@ -47,8 +47,28 @@ namespace openkit
 		///
 		/// @param[in] bytesSent number of bytes sent
 		/// @returns pointer to this WebRequestTracer instance that can be used for a fluent-API call
+		/// @deprecated This method should no longer be used due its datatype limitation. Use IWebRequestTracer::setBytesSent(int64_t) instead.
 		///
+		OPENKIT_DEPRECATED
 		virtual std::shared_ptr<IWebRequestTracer> setBytesSent(int32_t bytesSent) = 0;
+
+		///
+		/// Sets the amount of sent data of this web request. Has to be called before @ref openkit::IWebRequestTracer::stop(int).
+		///
+		/// @param[in] bytesSent number of bytes sent
+		/// @returns pointer to this WebRequestTracer instance that can be used for a fluent-API call
+		///
+		virtual std::shared_ptr<IWebRequestTracer> setBytesSent(int64_t bytesSent) = 0;
+
+		///
+		/// Sets the amount of received data of this web request. Has to be called before @ref openkit::IWebRequestTracer::stop(int).
+		///
+		/// @param[in] bytesReceived number of bytes received
+		/// @returns pointer to this WebRequestTracer instance that can be used for a fluent-API call
+		/// @deprecated This method should no longer be used due its datatype limitation. Use IWebRequestTracer::setBytesReceived(int64_t) instead.
+		///
+		OPENKIT_DEPRECATED
+		virtual std::shared_ptr<IWebRequestTracer> setBytesReceived(int32_t bytesReceived) = 0;
 
 		///
 		/// Sets the amount of received data of this web request. Has to be called before @ref openkit::IWebRequestTracer::stop(int).
@@ -56,7 +76,7 @@ namespace openkit
 		/// @param[in] bytesReceived number of bytes received
 		/// @returns pointer to this WebRequestTracer instance that can be used for a fluent-API call
 		///
-		virtual std::shared_ptr<IWebRequestTracer> setBytesReceived(int32_t bytesReceived) = 0;
+		virtual std::shared_ptr<IWebRequestTracer> setBytesReceived(int64_t bytesReceived) = 0;
 
 		///
 		/// Starts the web request timing. Should be called when the web request is initiated.
