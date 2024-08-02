@@ -1,5 +1,19 @@
 # Upgrade guide for OpenKit C/C++
 
+## ## OpenKit .C/C++ 3.2 to 3.3
+There are no breaking API changes and upgrading is straightforward, by [updating][update] the library
+to the latest 3.3 release.
+
+### Deprecated API
+* `IWebRequestTracer::setBytesSent(int32_t bytes)`
+  Use `IWebRequestTracer::setBytesSent(int64_t bytes)` to increase the size range
+* `IWebRequestTracer::setBytesReceived(int32_t bytes)`
+  Use `IWebRequestTracer::setBytesReceived(int64_t bytes)` to increase the size range
+* `setBytesSent(struct WebRequestTracerHandle* webRequestTracerHandle, int32_t bytes)`
+  Use `setBytesSentLong(struct WebRequestTracerHandle* webRequestTracerHandle, int64_t bytes)` to increase the size range
+* `setBytesReceived(struct WebRequestTracerHandle* webRequestTracerHandle, int32_t bytes)`
+  Use `setBytesReceivedLong(struct WebRequestTracerHandle* webRequestTracerHandle, int64_t bytes)` to increase the size range
+
 ## ## OpenKit .C/C++ 3.1 to 3.2
 Be aware that some requirements (CMake, GCC, Clang) for the build have been changed, see [required programs][programs].
 
