@@ -704,8 +704,9 @@ void Beacon::generateEventPayload(std::shared_ptr<core::objects::EventPayloadBui
 	builder->addOverridableAttribute(core::objects::TIMESTAMP, openkit::json::JsonNumberValue::fromLong(mTimingProvider->provideTimestampInNanoseconds()));
 	builder->addNonOverridableAttribute(EVENT_PAYLOAD_APPLICATION_ID, openkit::json::JsonStringValue::fromString(openKitConfig->getApplicationId().getStringData()));
 	builder->addNonOverridableAttribute(EVENT_PAYLOAD_INSTANCE_ID, openkit::json::JsonStringValue::fromString(core::util::StringUtil::toInvariantString(getDeviceID())));
-	builder->addNonOverridableAttribute(EVENT_PAYLOAD_SESSION_ID, openkit::json::JsonStringValue::fromString(core::util::StringUtil::toInvariantString(getSessionNumber())));
-	builder->addNonOverridableAttribute(EVENT_SCHEMA_VERSION, openkit::json::JsonStringValue::fromString("1.2"));
+	builder->addNonOverridableAttribute(EVENT_PAYLOAD_SESSION_ID, openkit::json::JsonStringValue::fromString(core::util::StringUtil::toInvariantString(getDeviceID())
+		+ "_" + core::util::StringUtil::toInvariantString(getSessionNumber())));
+	builder->addNonOverridableAttribute(EVENT_SCHEMA_VERSION, openkit::json::JsonStringValue::fromString("1.3"));
 	builder->addOverridableAttribute(core::objects::APP_VERSION, openkit::json::JsonStringValue::fromString(openKitConfig->getApplicationVersion().getStringData()));
 	builder->addOverridableAttribute(core::objects::OS_NAME, openkit::json::JsonStringValue::fromString(openKitConfig->getOperatingSystem().getStringData()));
 	builder->addOverridableAttribute(core::objects::DEVICE_MANUFACTURER, openkit::json::JsonStringValue::fromString(openKitConfig->getManufacturer().getStringData()));

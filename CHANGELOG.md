@@ -1,6 +1,13 @@
 # OpenKit Native ( C/C++ ) Changelog
 
-## [Unreleased](https://github.com/Dynatrace/openkit-native/compare/v3.3.0...HEAD)
+## [Unreleased](https://github.com/Dynatrace/openkit-native/compare/v3.4.0...HEAD)
+
+## 3.4.0 [Release date: 2025-10-01]
+[GitHub Releases](https://github.com/Dynatrace/openkit-native/releases/tag/v3.4.0)
+
+### Changed
+
+- Updated Business events specification
 
 ## 3.3.0 [Release date: 2024-08-02]
 [GitHub Releases](https://github.com/Dynatrace/openkit-native/releases/tag/v3.3.0)

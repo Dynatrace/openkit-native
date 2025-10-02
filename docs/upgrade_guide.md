@@ -1,6 +1,10 @@
 # Upgrade guide for OpenKit C/C++
 
-## ## OpenKit .C/C++ 3.2 to 3.3
+## OpenKit .C/C++ 3.3 to 3.4
+There are no breaking API changes and upgrading is straightforward, by [updating][update] the library
+to the latest 3.4 release.
+
+## OpenKit .C/C++ 3.2 to 3.3
 There are no breaking API changes and upgrading is straightforward, by [updating][update] the library
 to the latest 3.3 release.
 
@@ -14,14 +18,14 @@ to the latest 3.3 release.
 * `setBytesReceived(struct WebRequestTracerHandle* webRequestTracerHandle, int32_t bytes)`
   Use `setBytesReceivedLong(struct WebRequestTracerHandle* webRequestTracerHandle, int64_t bytes)` to increase the size range
 
-## ## OpenKit .C/C++ 3.1 to 3.2
+## OpenKit .C/C++ 3.1 to 3.2
 Be aware that some requirements (CMake, GCC, Clang) for the build have been changed, see [required programs][programs].
 
-## ## OpenKit .C/C++ 3.0 to 3.1
+## OpenKit .C/C++ 3.0 to 3.1
 There are no breaking API changes and upgrading is straightforward, by [updating][update] the library
 to the latest 3.1 release.
 
-## ## OpenKit .C/C++ 2.1 to 3.0
+## OpenKit .C/C++ 2.1 to 3.0
 Appmon has been removed from OpenKit C/C++. If you don't want to replace your AppMon related code stay on the latest 2.1.x release.
 
 ### Removed API
@@ -39,7 +43,7 @@ Appmon has been removed from OpenKit C/C++. If you don't want to replace your Ap
 * `reportErrorOnRootAction(struct RootActionHandle* rootActionHandle, const char* errorName, int32_t errorCode, const char* reason)`  
   Use `reportErrorCodeOnRootAction(struct RootActionHandle*, const char*, int32_t)` instead, since reason is unhandled.
 
-## ## OpenKit .C/C++ 2.0 to 2.1
+## OpenKit .C/C++ 2.0 to 2.1
 There are no breaking API changes and upgrading is straightforward, by [updating][update] the library
 to the latest 2.1 release.
 
@@ -49,7 +53,7 @@ to the latest 2.1 release.
 * `IRootAction::reportError(const char* errorName, int32_t errorCode, const char* reason)`  
   Use `IRootAction::reportError(const char* errorName, int32_t errorCode)` instead, since reason is unhandled.
 
-## ## OpenKit .C/C++ 1.1 to 2.0
+## OpenKit .C/C++ 1.1 to 2.0
 There are breaking changes. All OpenKit headers have been moved into one
 single place, `include/OpenKit` to be exact. It might be necessary to adjust the
 include path in your build scripts and `#include` directives in your source code.  
