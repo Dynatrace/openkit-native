@@ -79,10 +79,10 @@ OpenKit includes the following 3rd party libraries.
 [including_openkit]: ./docs/including_openkit.md
 [building]: ./docs/building-openkit.md
 [internals]: ./docs/internals.md
-[zlib-readme]: ./3rdparty/zlib-1.2.11/README
-[curl-readme]: ./3rdparty/curl-7.59.0/README
-[curl-license]: ./3rdparty/curl-7.59.0/COPYING
-[gtest-readme]: ./3rdparty/googletest-release-1.10.0/googletest/README.md
-[gtest-license]: ./3rdparty/googletest-release-1.10.0/googletest/LICENSE
-[gmock-readme]: ./3rdparty/googletest-release-1.10.0/googlemock/README.md
-[gmock-license]: ./3rdparty/googletest-release-1.10.0/googlemock/LICENSE
+[zlib-readme]: ./3rdparty/zlib-1.3/README
+[curl-readme]: ./3rdparty/curl-8.4.0/README
+[curl-license]: ./3rdparty/curl-8.4.0/COPYING
+[gtest-readme]: ./3rdparty/googletest-release-1.12.1/googletest/README.md
+[gtest-license]: ./3rdparty/googletest-release-1.12.1/LICENSE
+[gmock-readme]: ./3rdparty/googletest-release-1.12.1/googlemock/README.md
+[gmock-license]: ./3rdparty/googletest-release-1.12.1/LICENSE
