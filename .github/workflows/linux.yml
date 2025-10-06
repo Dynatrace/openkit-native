@@ -8,28 +8,28 @@ on:
 jobs:
   build:
     name: ${{matrix.NAME}}
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         include:
         - BUILD_TYPE: "Release"
           BUILD_SHARED_LIBS: "On"
-          NAME: "g++9.3 Release Dynamic x64"
+          NAME: "g++11.2 Release Dynamic x64"
           CC: "gcc"
           CXX: "g++"
         - BUILD_TYPE: "Release"
           BUILD_SHARED_LIBS: "Off"
-          NAME: "g++9.3 Release Static x64"
+          NAME: "g++11.2 Release Static x64"
           CC: "gcc"
           CXX: "g++"
         - BUILD_TYPE: "Release"
           BUILD_SHARED_LIBS: "On"
-          NAME: "clang 10.0 Release Dynamic x64"
+          NAME: "clang 13.0.1 Release Dynamic x64"
           CC: "clang"
           CXX: "clang++"
         - BUILD_TYPE: "Release"
           BUILD_SHARED_LIBS: "Off"
-          NAME: "clang 10.0 Release Static x64"
+          NAME: "clang 13.0.1 Release Static x64"
           CC: "clang"
           CXX: "clang++"
 
@@ -40,7 +40,7 @@ jobs:
       run: mkdir -p build
 
     - name: Setup cmake
-      uses: jwlawson/actions-setup-cmake@v1.14.1
+      uses: jwlawson/actions-setup-cmake@v1.14.2
       with:
         cmake-version: '3.19.1'
 
