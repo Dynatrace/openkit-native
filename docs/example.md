@@ -474,7 +474,7 @@ int64_t rootActionDurationInMilliseconds = getDurationOfRootAction(parentAction)
 
 With `sendBizEvent`, you can report business events. These events are standalone events, as OneAgent sends them detached from user actions or user sessions.
 
-For more information on business events, see [dynatrace documentation](https://www.dynatrace.com/support/help/how-to-use-dynatrace/business-analytics/ba-events-capturing#expand--example-configuration-files-for-rum--2).
+For more information on business events, see [dynatrace documentation](https://dt-url.net/cwb39vt).
 
 ```c++
 auto attributes = std::make_shared<openkit::json::JsonObjectValue::JsonObjectMap>(
