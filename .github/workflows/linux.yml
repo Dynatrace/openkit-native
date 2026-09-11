@@ -34,13 +34,13 @@ jobs:
           CXX: "clang++"
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v7
     
     - name: Create Working directory
       run: mkdir -p build
 
     - name: Setup cmake
-      uses: jwlawson/actions-setup-cmake@v1.14.2
+      uses: jwlawson/actions-setup-cmake@v2
       with:
         cmake-version: '3.19.1'
 
